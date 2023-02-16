@@ -1,0 +1,14 @@
+2023-01-02 19:28:21	ERROR	[DST 34.76.158.233:39598 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `python-requests/2.28.1'
+2023-01-02 21:25:46	ERROR	[DST 162.142.125.211:51448 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `'
+2023-01-02 21:25:46	ERROR	[SRC 162.142.125.211:59464 sid=1] SHOUTcast 1 source connection denied. Bad password: PRI * HTTP/2.0
+2023-01-02 21:46:39	ERROR	[DST 154.26.136.165:23415 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `Go-http-client/1.1'
+2023-01-02 21:46:39	ERROR	[DST 154.26.136.165:20061 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `Go-http-client/1.1'
+2023-01-02 21:46:39	ERROR	[DST 154.26.136.165:56970 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `Go-http-client/1.1'
+2023-01-02 22:33:22	ERROR	[DST 167.94.138.44:38244 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `'
+2023-01-02 22:33:22	ERROR	[SRC 167.94.138.44:34074 sid=1] SHOUTcast 1 source connection denied. Bad password: PRI * HTTP/2.0
+2023-01-03 01:52:53	ERROR	[DST 65.49.20.70:57359 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15'
+2023-01-03 01:53:16	ERROR	[SRC 65.49.20.82:47739 sid=1] SHOUTcast 1 source connection denied for user (CONNECT www.shadowserver.org). Bad password: 443 HTTP/1.1
+2023-01-03 03:09:17	ERROR	[DST 167.248.133.46:39618 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `'
+2023-01-03 03:09:17	ERROR	[SRC 167.248.133.46:32960 sid=1] SHOUTcast 1 source connection denied. Bad password: PRI * HTTP/2.0
+2023-01-03 09:41:55	ERROR	[SRC 107.170.227.14:49462 sid=1] SHOUTcast 1 source connection denied. Bad password: MGLNDD_174.138.58.184_8000
+2023-01-03 11:32:38	ERROR	[DST 205.210.31.146:61976 sid=1] HTTP client connection rejected. Stream not available as there is no source connected. Agent: `Expanse, a Palo Alto Networks company, searches across the global IPv4 space multiple times per day to identify customers&#39; presences on the Internet. If you would like to be excluded from our scans, please send IP addresses/domains to: scaninfo@paloaltonetworks.com'

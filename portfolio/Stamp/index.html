@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Stamp</title>
+  <style>
+   * {
+   	color: rgb(255, 255, 255);
+   	font-family: Arial;
+   	margin: 0px;
+   	overflow: hidden;
+   	padding: 0px;
+   	position: relative;
+   	word-wrap: break-word;
+   }
+   body {
+   	background: url(https://www.wallpaperup.com/uploads/wallpapers/2014/09/17/445951/872f9ea62d164ce68d587e1b295c0927.jpg) no-repeat center center fixed;
+   	background-size: cover;
+   	border-bottom: 4px solid rgb(255, 255, 255);
+   	border-top: 4px solid rgb(255, 255, 255);
+   }
+   body, html, .header, .footer {
+   	width: 100%;
+   }
+   html, .scrollX {
+   	overflow: auto;
+   }
+   p {
+   	font-size: 1.5em;
+   	margin: 1.8em;
+   	text-align: left;
+   }
+   .body {
+   	margin: 12em auto 0px auto;
+    width: 80%;
+   }
+   .body .b1 {
+   	padding-top: 3.25em;
+   	width: 60%;
+   }
+   .body .b1 p {
+   	margin-left: 0px;
+   }
+   .body .b1 h1 {
+   	font-size: 5em;
+   	font-weight: 900;
+   	margin-right: 20%;
+   }
+   .body .b2 {
+   	width: 40%;
+   }
+   .body .b2 form {
+   	background: rgba(255, 255, 255, 0.5);
+   	border: 1px solid rgba(255, 255, 255, 0.75);
+   	++margin: 3em;
+   }
+   .body .b2 form input[type='submit'] {
+   	background: rgb(0, 0, 255);
+   	font-size: 2em;
+   	padding: 1em 0px;
+   	text-align: center;
+   	width: 100%;
+   }
+   .body .b2 form input[type='submit']:hover {
+   	background: rgba(255, 255, 255, 0.75);
+   	color: rgb(0, 0, 0);
+   }
+   .body .b2 form input:not([type='submit']) {
+   	background: transparent;
+   	font-size: 2em;
+   	font-weight: 900;
+   	padding: 1em;
+   	width: 100%;
+   }
+   .body .b2 form input:not([type='submit']):hover {
+   	background: rgba(0, 0, 0, 0.5);
+   }
+   .body .b2 form input[type='password'] {
+   	border-bottom: 1px solid rgba(255, 255, 255, 0.75);
+   }
+   .body .b2 p {
+   	text-align: center;
+   }
+   .c {
+   	clear: both;
+   }
+   .header {
+   	font-size: 2.5em;
+   }
+   .footer .f1 {
+   	width: 60%;
+   }
+   .footer .f2 {
+   	width: 40%;
+   }
+   .footer .f2 a {
+   	float: left;
+   	font-style: none;
+   	position: relative;
+   	text-align: center;
+   	width: 100%;
+   }
+   .footer .f2 div {
+   	float: left;
+   	margin: 1.8em 0.5em 0em 0.5em;
+   	position: relative;
+   	width: calc(25% - 1em);
+   }
+   .header {
+   	font-size: 2.5em;
+   }
+   .header .h1, .header .h3 {
+   	width: 30%;
+   }
+   .header .h1 span {
+   	float: left;
+    margin: 0.9em 0px 0px 2em;
+   }
+   .header .h2 {
+   	padding: 1em 0px;
+   	width: 40%;
+   }
+   .header .h2 div {
+   	float: left;
+   	position: relative;
+   	width: 25%;
+   }
+   .header .h2 a {
+   	float: left;
+   	position: relative;
+   	text-align: center;
+   	text-decoration: none;
+   	width: 100%;
+   }
+   .header .h2 a, .header .h3 span {
+   	font-size: 0.8em;
+   }
+   .header .h3 span {
+   	float: right;
+   	margin: 1.5em 2em;
+   }
+   .l {
+   	float: left;
+   }
+   @media only screen and (max-width: 1200px) {
+   	.body .b1, .body .b2, .footer .f1, .footer .f2 {
+   	 clear: both;
+   	 width: 100%;
+   	}
+   	.footer .f1 p {
+   	 text-align: center;
+   	}
+   	.header .h1, .header .h3 {
+   	 width: 50%;
+   	}
+   	.header .h2 {
+   	 display: none;
+   	}
+   }
+  </style>
+ </head>
+ <body>
+  <div class="header">
+   <div class="h1 l">
+   	<span>Stamp</span>
+   </div>
+   <div class="h2 l">
+   	<div><a href="#">About</a></div>
+   	<div><a href="#">Integrations</a></div>
+   	<div><a href="#">Pricing</a></div>
+   	<div><a href="#">Contacts</a></div>
+   </div>
+   <div class="h3 l">
+   	<span>|||</span>
+   </div>
+  </div>
+  <div class="body c">
+   <div class="b1 l">
+   	<h1>Simple Way to Organize Your Inspirations</h1>
+   	<p>I think what motivates people is not great hate, but great love for other people. </p>
+   </div>
+   <div class="b2 l">
+   	<p>Send us an email</p>
+   	<form action="#">
+   	 <input class="c" name="name" placeholder="Name" type="text"/>
+   	 <input class="c" name="email" placeholder="Email" type="text"/>
+   	 <input class="c" name="password" placeholder="Password" type="password"/>
+   	 <input class="c" type="submit" value="Send"/>
+   	</form>
+   	<p>By clicking "Sign up" I agree to our<br/><strong>Terms of Service.</strong></p>
+   </div>
+  </div>
+  <div class="footer c">
+   <div class="f1 l">
+   	<p>&copy; 2016 Stamp. All Rights Reserved</p>
+   </div>
+   <div class="f2 l">
+   	<div><a href="#">CONTACT</a></div>
+   	<div><a href="#">HELP</a></div>
+   	<div><a href="#">TERMS OF USE</a></div>
+   	<div><a href="#">PRIVACY POLICY</a></div>
+   </div>
+  </div>
+ </body>
+</html>

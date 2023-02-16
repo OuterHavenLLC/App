@@ -1,0 +1,22 @@
+2023-01-07 23:22:24	WARN	[CONFIG] Ignoring streampath_1=http://outerhaven.nyc:8000 as this will produce an invalid path.
+2023-01-07 23:22:24	WARN	[CONFIG] Ignoring streampath_2=http://outerhaven.nyc:8000 as this will produce an invalid path.
+2023-01-07 23:22:24	INFO	*********************************************************************
+2023-01-07 23:22:24	INFO	**        SHOUTcast Distributed Network Audio Server (DNAS)        **
+2023-01-07 23:22:24	INFO	**    Copyright (C) 2014-2017 Radionomy SA, All Rights Reserved    **
+2023-01-07 23:22:24	INFO	*********************************************************************
+2023-01-07 23:22:24	INFO	[MAIN] SHOUTcast DNAS/posix(linux x64) v2.5.5.733 (Oct  9 2017)
+2023-01-07 23:22:24	INFO	[MAIN] PID: 1015
+2023-01-07 23:22:24	INFO	[MAIN] Saving log output to `/var/www/html/fab/logs/fab.log'
+2023-01-07 23:22:24	INFO	[MAIN] Automatic log rotation interval: 1 day
+2023-01-07 23:22:24	INFO	[MAIN] Loaded config from `/var/www/html/fab/fab.conf'
+2023-01-07 23:22:24	INFO	[MAIN] Calculated CPU count is 1 -> 2 CPUs specified to be used
+2023-01-07 23:22:24	INFO	[MAIN] Limited to 1024 file descriptors [relates to ulimit -n]
+2023-01-07 23:22:24	INFO	[MAIN] Starting 2 network threads
+2023-01-07 23:22:24	INFO	[MICROSERVER] Listening for source and client connections on port 8000
+2023-01-07 23:22:24	INFO	[MICROSERVER] Listening for legacy source connections on port 8001
+2023-01-07 23:22:24	INFO	[MICROSERVER] Flash policy file server not enabled
+2023-01-07 23:22:31	INFO	[BAN] No banned lists reloaded.
+2023-01-07 23:22:31	INFO	[RIP] No reserved lists reloaded.
+2023-01-07 23:22:31	INFO	[ADMINCGI] Reloaded admin access list.
+2023-01-07 23:22:31	INFO	[AGENT] No user agent lists reloaded.
+2023-01-08 00:08:47	ERROR	[SRC 162.243.133.10:48354 sid=1] SHOUTcast 1 source connection denied. Bad password: MGLNDD_174.138.58.184_8000

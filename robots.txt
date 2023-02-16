@@ -1,0 +1,4 @@
+disallow: /Xcore/
+disallow: /Xmbr/
+disallow: /Xsys/
+disallow: /.ht*
