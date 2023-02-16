@@ -380,12 +380,12 @@
       unlink($r);
      }
     } elseif($action == "Save") {
-     /*$data[2] = $data[2] ?? [];
+     $data[2] = $data[2] ?? [];
      $r = fopen($r, "w+");
      if(!empty($data[2])) {
       fwrite($r, $this->Encrypt(json_encode($data[2], true)));
       fclose($r);
-     }*/
+     }
     }
    }
   }
