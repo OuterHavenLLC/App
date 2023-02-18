@@ -6,7 +6,7 @@
  $gw = New GW;
  $view = $data["v"] ?? "";
  $r = "";
- #$gw->system->Setup("SYS");
+ $gw->system->Setup("SYS");
  if($api == "CSS") {
   header("content-type: text/CSS");
   $r = $gw->system->Page("d4efcd44be4b2ef2a395f0934a9e446a");
