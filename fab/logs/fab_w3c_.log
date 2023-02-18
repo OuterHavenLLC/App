@@ -1,7 +1,0 @@
-#Software: SHOUTcast
-#Version: 2.5.5.733
-#Fields: c-ip c-dns date time cs-uri-stem c-status cs(User-Agent) sc-bytes x-duration avgbandwidth
-213.152.161.35 213.152.161.35 2023-01-07 09:44:05 /stream?title=Unknown 200 Mozilla%2F5.0%20%28Windows%20NT%205.1%3B%20rv%3A9.0.1%29%20Gecko%2F20100101%20Firefox%2F9.0.1 0 0 0
-184.105.247.251 184.105.247.251 2023-01-07 14:52:12 /stream?title=Unknown 200 Mozilla%2F5.0%20%28X11%3B%20Linux%20x86_64%3B%20rv%3A91.0%29%20Gecko%2F20100101%20Firefox%2F91.0 0 0 0
-162.142.125.212 162.142.125.212 2023-01-07 17:54:12 /stream?title=Unknown 200  0 0 0
-167.248.133.117 167.248.133.117 2023-01-07 23:10:40 /stream?title=Unknown 200  0 0 0
