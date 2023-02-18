@@ -365,7 +365,7 @@
   }
   function Data(string $action, array $data) {
    if(!empty($data)) {
-    $r = $this->DocumentRoot."/ext/c.oh.".$data[0];
+    $r = $this->DocumentRoot."/data/c.oh.".$data[0];
     $r .= (!empty($data[1])) ? ".".$data[1] : "";
     if($action == "Get") {
      if(!file_exists($r)) {
@@ -390,7 +390,7 @@
    }
   }
   function DatabaseSet($a = NULL) {
-   $r = array_diff(scandir($this->DocumentRoot."/ext/"), [
+   $r = array_diff(scandir($this->DocumentRoot."/data/"), [
     ".", "..", "index.php"
    ]);
    foreach($r as $k => $v) {
