@@ -77,3 +77,145 @@
 [2023-02-18  23:31:27] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
 [2023-02-18  23:31:49] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
 [2023-02-18  23:31:49] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:06:13] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:06:13] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:06:13] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)
+[2023-02-19  00:06:17] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:06:17] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:06:19] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:06:19] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:06:55] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:06:55] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:36:52] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-19  00:36:52] WARN format/format_get_type Unsupported or legacy stream type: "audio/mpeg". Falling back to generic minimal handler for best effort.
+[2023-02-19  00:36:53] INFO source/source_main listener count on /stream now 0
+[2023-02-19  00:36:53] INFO admin/admin_handle_request Received admin command metadata on mount "/stream"
+[2023-02-19  00:36:53] INFO admin/command_metadata Metadata on mountpoint /stream changed to "Hikaru Utada - Hatsukoi (2022 Remastering)"
+[2023-02-19  00:37:17] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:37:17] INFO fserve/fserve_client_create checking for file /tunein.png (/home/mike/public_html/fab/web/tunein.png)
+[2023-02-19  00:37:17] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:37:20] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:37:20] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:37:20] INFO fserve/fserve_client_create checking for file /tunein.png (/home/mike/public_html/fab/web/tunein.png)
+[2023-02-19  00:37:28] INFO admin/admin_handle_request Received admin command metadata on mount "/stream"
+[2023-02-19  00:37:28] INFO admin/command_metadata Metadata on mountpoint /stream changed to "DiVA - Blue rose -DiVA ver-"
+[2023-02-19  00:38:47] INFO source/get_next_buffer End of Stream /stream
+[2023-02-19  00:38:47] INFO source/source_shutdown Source from 151.197.190.183 at "/stream" exiting
+[2023-02-19  00:40:13] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:40:13] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:40:15] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:40:15] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:40:15] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  00:40:16] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  00:42:48] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-19  00:42:48] WARN format/format_get_type Unsupported or legacy stream type: "audio/mpeg". Falling back to generic minimal handler for best effort.
+[2023-02-19  00:42:48] INFO source/source_main listener count on /stream now 0
+[2023-02-19  00:42:49] INFO admin/admin_handle_request Received admin command metadata on mount "/stream"
+[2023-02-19  00:42:49] INFO admin/command_metadata Metadata on mountpoint /stream changed to "DiVA - Blue rose -DiVA ver-"
+[2023-02-19  00:42:50] INFO admin/admin_handle_request Received admin command metadata on mount "/stream"
+[2023-02-19  00:42:50] INFO admin/command_metadata Metadata on mountpoint /stream changed to "AKB48 - Sakura no Ki ni Narou"
+[2023-02-19  00:43:04] INFO source/get_next_buffer End of Stream /stream
+[2023-02-19  00:43:04] INFO source/source_shutdown Source from 151.197.190.183 at "/stream" exiting
+[2023-02-19  01:00:02] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  01:00:02] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  17:07:36] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  17:07:36] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  17:07:36] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)
+[2023-02-19  17:07:38] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  17:07:38] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  17:07:39] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  17:07:39] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-19  17:07:42] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-19  17:07:42] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-20  21:00:10] INFO main/_server_proc Caught halt request, shutting down...
+[2023-02-20  21:00:10] INFO main/main Shutting down
+[2023-02-20  21:00:10] INFO fserve/fserve_shutdown file serving stopped
+[2023-02-20  21:00:11] INFO slave/_slave_thread shutting down current relays
+[2023-02-20  21:00:11] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-02-20  21:00:11] INFO auth/auth_shutdown Auth shutdown
+[2023-02-20  21:00:11] INFO yp/yp_shutdown YP thread down
+[2023-02-20  21:00:11] INFO stats/stats_shutdown stats thread finished
+[2023-02-20  21:03:53] INFO main/main Icecast 2.4.4 server started
+[2023-02-20  21:03:53] INFO connection/get_ssl_certificate No SSL capability on any configured ports
+[2023-02-20  21:03:53] INFO yp/yp_update_thread YP update thread started
+[2023-02-20  21:04:43] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-20  21:04:43] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-20  21:04:43] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)
+[2023-02-20  21:04:45] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-20  21:04:45] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-20  21:04:46] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-20  21:04:46] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-20  21:30:14] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-20  21:30:14] INFO connection/_handle_source_request Source (/stream) attempted to login with invalid or missing password
+[2023-02-20  21:30:15] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-20  21:30:15] WARN format/format_get_type Unsupported or legacy stream type: "audio/mpeg". Falling back to generic minimal handler for best effort.
+[2023-02-20  21:30:16] INFO source/source_main listener count on /stream now 0
+[2023-02-20  21:30:16] INFO admin/admin_handle_request Received admin command metadata on mount "/stream"
+[2023-02-20  21:30:16] INFO util/util_conv_string converting metadata from UTF-8 to ISO8859-1
+[2023-02-20  21:30:16] INFO admin/command_metadata Metadata on mountpoint /stream changed to "LadioCast 0.13.0"
+[2023-02-20  21:30:50] INFO source/get_next_buffer End of Stream /stream
+[2023-02-20  21:30:50] INFO source/source_shutdown Source from 151.197.190.183 at "/stream" exiting
+[2023-02-20  21:31:21] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-20  21:31:21] INFO connection/_handle_source_request Source (/stream) attempted to login with invalid or missing password
+[2023-02-20  21:31:22] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-20  21:31:22] WARN format/format_get_type Unsupported or legacy stream type: "audio/mpeg". Falling back to generic minimal handler for best effort.
+[2023-02-20  21:31:22] INFO source/source_main listener count on /stream now 0
+[2023-02-20  21:31:22] INFO admin/admin_handle_request Received admin command metadata on mount "/stream"
+[2023-02-20  21:31:22] INFO util/util_conv_string converting metadata from UTF-8 to ISO8859-1
+[2023-02-20  21:31:22] INFO admin/command_metadata Metadata on mountpoint /stream changed to "LadioCast 0.13.0"
+[2023-02-20  21:31:30] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-20  21:31:30] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-20  21:31:30] INFO fserve/fserve_client_create checking for file /tunein.png (/home/mike/public_html/fab/web/tunein.png)
+[2023-02-20  21:31:34] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:31:34] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:31:34] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:31:35] INFO source/source_main listener count on /stream now 1
+[2023-02-20  21:31:56] INFO source/get_next_buffer End of Stream /stream
+[2023-02-20  21:31:56] INFO source/source_shutdown Source from 151.197.190.183 at "/stream" exiting
+[2023-02-20  21:31:56] INFO source/source_clear_source 1 active listeners on /stream released
+[2023-02-20  21:32:11] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-20  21:32:11] INFO connection/_handle_source_request Source (/stream) attempted to login with invalid or missing password
+[2023-02-20  21:32:12] INFO connection/_handle_source_request Source logging in at mountpoint "/stream" from 151.197.190.183
+[2023-02-20  21:32:12] WARN format/format_get_type Unsupported or legacy stream type: "audio/mpeg". Falling back to generic minimal handler for best effort.
+[2023-02-20  21:32:13] INFO source/source_main listener count on /stream now 0
+[2023-02-20  21:32:13] INFO admin/admin_handle_request Received admin command metadata on mount "/stream"
+[2023-02-20  21:32:13] INFO util/util_conv_string converting metadata from UTF-8 to ISO8859-1
+[2023-02-20  21:32:13] INFO admin/command_metadata Metadata on mountpoint /stream changed to "LadioCast 0.13.0"
+[2023-02-20  21:32:19] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:32:20] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:32:20] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:32:20] INFO source/source_main listener count on /stream now 1
+[2023-02-20  21:33:21] WARN source/get_next_buffer Disconnecting source due to socket timeout
+[2023-02-20  21:33:21] INFO source/source_shutdown Source from 151.197.190.183 at "/stream" exiting
+[2023-02-20  21:33:21] INFO source/source_clear_source 1 active listeners on /stream released
+[2023-02-20  21:34:16] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:34:16] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:34:16] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:34:16] INFO fserve/fserve_client_create checking for file /stream (/home/mike/public_html/fab/web/stream)
+[2023-02-20  21:34:16] WARN fserve/fserve_client_create req for file "/home/mike/public_html/fab/web/stream" No such file or directory
+[2023-02-20  21:34:38] INFO fserve/fserve_client_create checking for file /stream.m3u (/home/mike/public_html/fab/web/stream.m3u)
+[2023-02-20  21:34:40] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-20  21:34:40] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-20  21:34:40] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-20  21:34:40] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-20  21:34:42] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-20  21:34:42] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-21  11:23:44] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)
+[2023-02-21  11:23:44] INFO fserve/fserve_client_create checking for file /sitemap.xml (/home/mike/public_html/fab/web/sitemap.xml)
+[2023-02-21  11:23:44] WARN fserve/fserve_client_create req for file "/home/mike/public_html/fab/web/sitemap.xml" No such file or directory
+[2023-02-21  11:23:44] INFO fserve/fserve_client_create checking for file /robots.txt (/home/mike/public_html/fab/web/robots.txt)
+[2023-02-21  11:23:44] WARN fserve/fserve_client_create req for file "/home/mike/public_html/fab/web/robots.txt" No such file or directory
+[2023-02-22  04:08:04] INFO main/_server_proc Caught halt request, shutting down...
+[2023-02-22  04:08:04] INFO main/main Shutting down
+[2023-02-22  04:08:04] INFO fserve/fserve_shutdown file serving stopped
+[2023-02-22  04:08:04] INFO slave/_slave_thread shutting down current relays
+[2023-02-22  04:08:04] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-02-22  04:08:04] INFO auth/auth_shutdown Auth shutdown
+[2023-02-22  04:08:04] INFO yp/yp_shutdown YP thread down
+[2023-02-22  04:08:05] INFO stats/stats_shutdown stats thread finished
+[2023-02-23  01:54:49] INFO main/main Icecast 2.4.4 server started
+[2023-02-23  01:54:49] INFO yp/yp_update_thread YP update thread started
+[2023-02-23  01:54:49] INFO connection/get_ssl_certificate No SSL capability on any configured ports
+[2023-02-23  01:56:44] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-02-23  01:56:44] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-02-23  01:56:44] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)

@@ -1,4 +1,3 @@
-disallow: /Xcore/
-disallow: /Xmbr/
-disallow: /Xsys/
+disallow: /base/
+disallow: /data/
 disallow: /.ht*

@@ -404,10 +404,6 @@
     }
     $li = base64_encode($li);
     $r = $this->system->Change([[
-     "[Mainstream.CoverPhoto]" => $this->system->PlainText([
-      "BBCodes" => 1,
-      "Data" => "[sIMG:CPW]"
-     ]),
      "[Search.Type]" => $st,
      "[UI.LIT]" => $lit,
      "[UI.LIU]" => $li,
