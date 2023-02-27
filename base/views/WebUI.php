@@ -61,6 +61,7 @@
      "[Menu.Company.PressReleases]" => "v=$search&lPG=PG&st=PR",
      "[Menu.Company.Statistics]" => "v=".base64_encode("Company:Statistics"),
      "[Menu.Company.VVA]" => "v=".base64_encode("Company:VVA"),
+     "[Menu.LostAndFound]" => base64_encode("LostAndFound:Home"),
      "[Menu.Mainstream]" => "v=$search&st=Mainstream",
      "[Menu.MiNY]" => "v=".base64_encode("Shop:MadeInNewYork"),
      "[Menu.OptIn]" => "v=".base64_encode("WebUI:OptIn")
