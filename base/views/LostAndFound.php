@@ -6,7 +6,9 @@
   }
   function Home() {
    $r = $this->system->Page("XXXX");
-   return $r;
+   return $this->system->Card([
+    "Front" => $r
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS
