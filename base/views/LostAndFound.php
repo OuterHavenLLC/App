@@ -19,7 +19,7 @@
     "class" => "GoToParent LI header",
     "data-type" => "LostAndFound"
    ]]).$this->system->Element([
-    "p", "Password"
+    "h2", "Password"
    ]);
   }
   function PIN() {
@@ -27,7 +27,7 @@
     "class" => "GoToParent LI header",
     "data-type" => "LostAndFound"
    ]]).$this->system->Element([
-    "p", "PIN"
+    "h2", "PIN"
    ]);
   }
   function Username() {
@@ -35,7 +35,7 @@
     "class" => "GoToParent LI header",
     "data-type" => "LostAndFound"
    ]]).$this->system->Element([
-    "p", "Username"
+    "h2", "Username"
    ]);
   }
   function __destruct() {
