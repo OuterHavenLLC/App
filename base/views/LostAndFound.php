@@ -15,7 +15,7 @@
    ]);
   }
   function Password() {
-   $r = $this->system->Element(["button", "Back", [
+   return $this->system->Element(["button", "Back", [
     "class" => "GoToParent LI header",
     "data-type" => "LostAndFound"
    ]]).$this->system->Element([
@@ -23,7 +23,7 @@
    ]);
   }
   function PIN() {
-   $r = $this->system->Element(["button", "Back", [
+   return $this->system->Element(["button", "Back", [
     "class" => "GoToParent LI header",
     "data-type" => "LostAndFound"
    ]]).$this->system->Element([
@@ -31,7 +31,7 @@
    ]);
   }
   function Username() {
-   $r = $this->system->Element(["button", "Back", [
+   return $this->system->Element(["button", "Back", [
     "class" => "GoToParent LI header",
     "data-type" => "LostAndFound"
    ]]).$this->system->Element([
