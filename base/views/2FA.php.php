@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->system->Member($this->system->Username());
   }
-  function Home() {
+  function Username() {
    $r = $this->system->Page("XXXX");
    return $r;
   }
