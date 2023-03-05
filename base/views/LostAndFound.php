@@ -6,15 +6,15 @@
   }
   function Home() {
    $r = $this->system->Change([[
-    "[LostAndFound.Options.Password]" => base64_encode("v=".base64_encode("LostAndFound:Password")),
-    "[LostAndFound.Options.PIN]" => base64_encode("v=".base64_encode("LostAndFound:PIN")),
-    "[LostAndFound.Options.Username]" => base64_encode("v=".base64_encode("LostAndFound:Username"))
+    "[LostAndFound.Options.Password]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPassword")),
+    "[LostAndFound.Options.PIN]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPIN")),
+    "[LostAndFound.Options.Username]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername"))
    ], $this->system->Page("65c5bed973a21411e6167bbdc721bbe4")]);
    return $this->system->Card([
     "Front" => $r
    ]);
   }
-  function Password(array $a) {
+  function RecoverPassword(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["2FAReturn"]);
@@ -33,7 +33,7 @@
    }
    return $r;
   }
-  function PIN(array $a) {
+  function RecoverPIN(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["2FAReturn"]);
@@ -52,7 +52,7 @@
    }
    return $r;
   }
-  function Username(array $a) {
+  function RecoverUsername(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["2FAReturn"]);
