@@ -20,15 +20,15 @@
    $data = $this->system->FixMissing($data, ["2FAReturn"]);
    $isBackFrom2FA = $data["2FAReturn"] ?? 0;
    if($isBackFrom2FA == 1) {
+    $r = $this->system->Element([
+     "h2", "Done"
+    ]);
+   } else {
     $r = $this->system->Element(["button", "Back", [
      "class" => "GoToParent LI header",
      "data-type" => "LostAndFound"
     ]]).$this->system->Element([
      "h2", "Recover Password"
-    ]);
-   } else {
-    $r = $this->system->Element([
-     "h2", "Done"
     ]);
    }
    return $r;
@@ -39,15 +39,15 @@
    $data = $this->system->FixMissing($data, ["2FAReturn"]);
    $isBackFrom2FA = $data["2FAReturn"] ?? 0;
    if($isBackFrom2FA == 1) {
+    $r = $this->system->Element([
+     "h2", "Done"
+    ]);
+   } else {
     $r = $this->system->Element(["button", "Back", [
      "class" => "GoToParent LI header",
      "data-type" => "LostAndFound"
     ]]).$this->system->Element([
      "h2", "Recover PIN"
-    ]);
-   } else {
-    $r = $this->system->Element([
-     "h2", "Done"
     ]);
    }
    return $r;
@@ -58,15 +58,15 @@
    $data = $this->system->FixMissing($data, ["2FAReturn"]);
    $isBackFrom2FA = $data["2FAReturn"] ?? 0;
    if($isBackFrom2FA == 1) {
+    $r = $this->system->Element([
+     "h2", "Done"
+    ]);
+   } else {
     $r = $this->system->Element(["button", "Back", [
      "class" => "GoToParent LI header",
      "data-type" => "LostAndFound"
     ]]).$this->system->Element([
      "h2", "Recover Username"
-    ]);
-   } else {
-    $r = $this->system->Element([
-     "h2", "Done"
     ]);
    }
    return $r;
