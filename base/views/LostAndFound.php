@@ -14,29 +14,62 @@
     "Front" => $r
    ]);
   }
-  function Password() {
-   return $this->system->Element(["button", "Back", [
-    "class" => "GoToParent LI header",
-    "data-type" => "LostAndFound"
-   ]]).$this->system->Element([
-    "h2", "Password"
-   ]);
+  function Password(array $a) {
+   $data = $a["Data"] ?? [];
+   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->system->FixMissing($data, ["2FAReturn"]);
+   $isBackFrom2FA = $data["2FAReturn"] ?? 0;
+   if($isBackFrom2FA == 1) {
+    $r = $this->system->Element(["button", "Back", [
+     "class" => "GoToParent LI header",
+     "data-type" => "LostAndFound"
+    ]]).$this->system->Element([
+     "h2", "Recover Password"
+    ]);
+   } else {
+    $r = $this->system->Element([
+     "h2", "Done"
+    ]);
+   }
+   return $r;
   }
-  function PIN() {
-   return $this->system->Element(["button", "Back", [
-    "class" => "GoToParent LI header",
-    "data-type" => "LostAndFound"
-   ]]).$this->system->Element([
-    "h2", "PIN"
-   ]);
+  function PIN(array $a) {
+   $data = $a["Data"] ?? [];
+   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->system->FixMissing($data, ["2FAReturn"]);
+   $isBackFrom2FA = $data["2FAReturn"] ?? 0;
+   if($isBackFrom2FA == 1) {
+    $r = $this->system->Element(["button", "Back", [
+     "class" => "GoToParent LI header",
+     "data-type" => "LostAndFound"
+    ]]).$this->system->Element([
+     "h2", "Recover PIN"
+    ]);
+   } else {
+    $r = $this->system->Element([
+     "h2", "Done"
+    ]);
+   }
+   return $r;
   }
-  function Username() {
-   return $this->system->Element(["button", "Back", [
-    "class" => "GoToParent LI header",
-    "data-type" => "LostAndFound"
-   ]]).$this->system->Element([
-    "h2", "Username"
-   ]);
+  function Username(array $a) {
+   $data = $a["Data"] ?? [];
+   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->system->FixMissing($data, ["2FAReturn"]);
+   $isBackFrom2FA = $data["2FAReturn"] ?? 0;
+   if($isBackFrom2FA == 1) {
+    $r = $this->system->Element(["button", "Back", [
+     "class" => "GoToParent LI header",
+     "data-type" => "LostAndFound"
+    ]]).$this->system->Element([
+     "h2", "Recover Username"
+    ]);
+   } else {
+    $r = $this->system->Element([
+     "h2", "Done"
+    ]);
+   }
+   return $r;
   }
   function __destruct() {
    // DESTROYS THIS CLASS
