@@ -67,7 +67,17 @@
      "data-type" => "LostAndFound"
     ]]).$this->system->Element([
      "h2", "Recover Username"
-    ]);
+    ]).$this->system->Element([
+     "p", "Please enter your email address below. Once your email is verified, we will give you your username."
+    ])."
+<div class=\"RecoverUsername\">
+ <input class=\"req\" name=\"Email\" placeholder=\"mike@outerhaven.nyc\" type=\"email\"/>
+</div>
+    ".$this->system->Element(["button", "Verify", [
+     "class" => "BB v2",
+     "data-form" => ".RecoverUsername",
+     "data-processor" => base64_encode("v=".base64_encode("2FA:Email"))
+    ]]);
    }
    return $r;
   }

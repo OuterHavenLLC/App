@@ -4,7 +4,11 @@
    parent::__construct();
    $this->you = $this->system->Member($this->system->Username());
   }
-  function Username() {
+  function Email() {
+   $r = $this->system->Page("XXXX");
+   return $r;
+  }
+  function Phone() {
    $r = $this->system->Page("XXXX");
    return $r;
   }
