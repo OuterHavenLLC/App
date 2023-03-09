@@ -62,22 +62,26 @@
      "h2", "Done"
     ]);
    } else {
-    $r = $this->system->Element(["button", "Back", [
-     "class" => "GoToParent LI header",
-     "data-type" => "LostAndFound"
-    ]]).$this->system->Element([
-     "h2", "Recover Username"
-    ]).$this->system->Element([
-     "p", "Please enter your email address below. Once your email is verified, we will give you your username."
-    ])."
-<div class=\"RecoverUsername\">
- <input class=\"req\" name=\"Email\" placeholder=\"mike@outerhaven.nyc\" type=\"email\"/>
+    $r = "
+<div class=\"ParentPageRecoverUsername\">
+ <button class=\"GoToParent LI header\" data-type=\"LostAndFound\">Back</button>
+ <div class=\"InnerMargin\">
+  <h2>Recover Username</h2>
+  <p>Please enter your email address below. Once your email is verified, we will give you your username.</p>
+  <input name=\"ReturnView\" type=\"hidden\" value=\"[LostAndFound.Recovery.ReturnView]\"/>
+  <input class=\"req\" name=\"Email\" placeholder=\"mike@outerhaven.nyc\" type=\"email\"/>
+  <button class=\"BBB v2\" data-form=\".ParentPageRecoverUsername\" data-processor=\"[LostAndFound.Recovery.Processor]\">Verify</button>
+ </div>
 </div>
-    ".$this->system->Element(["button", "Verify", [
-     "class" => "BB v2",
-     "data-form" => ".RecoverUsername",
-     "data-processor" => base64_encode("v=".base64_encode("2FA:Email"))
-    ]]);
+    ";
+    $r = $this->system->Change([[
+     "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("2FA:Email")),
+     "[LostAndFound.Recovery.ReturnView]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername")."&2FAreturn=".$this->system->PlainText([
+      "Data" => 1,
+      "Encode" => 1
+     ]))
+    ], $r]);
+    #], $this->system->Page("XXXX")]);
    }
    return $r;
   }
