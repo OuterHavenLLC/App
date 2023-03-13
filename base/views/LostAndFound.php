@@ -76,10 +76,10 @@
     ";
     $r = $this->system->Change([[
      "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("2FA:Email")),
-     "[LostAndFound.Recovery.ReturnView]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername")."&2FAreturn=".$this->system->PlainText([
-      "Data" => 1,
-      "Encode" => 1
-     ]))
+     "[LostAndFound.Recovery.ReturnView]" => json_encode([
+      "Group" => "LostAndFound",
+      "View" => "RecoverUsername"
+     ], true)
     ], $r]);
     #], $this->system->Page("XXXX")]);
    }
