@@ -68,8 +68,9 @@
  <div class=\"InnerMargin\">
   <h2>Recover Username</h2>
   <p>Please enter your email address below. Once your email is verified, we will give you your username.</p>
-  <input name=\"ReturnView\" type=\"hidden\" value=\"[LostAndFound.Recovery.ReturnView]\"/>
   <input class=\"req\" name=\"Email\" placeholder=\"mike@outerhaven.nyc\" type=\"email\"/>
+  <input name=\"ReturnView\" type=\"hidden\" value=\"[LostAndFound.Recovery.ReturnView]\"/>
+  <input name=\"ViewPairID\" type=\"hidden\" value=\"RecoverUsername\"/>
   <button class=\"BBB SendData v2\" data-form=\".ParentPageRecoverUsername\" data-processor=\"[LostAndFound.Recovery.Processor]\">Verify</button>
  </div>
 </div>
