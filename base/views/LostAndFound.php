@@ -70,16 +70,16 @@
   <p>Please enter your email address below. Once your email is verified, we will give you your username.</p>
   <input name=\"ReturnView\" type=\"hidden\" value=\"[LostAndFound.Recovery.ReturnView]\"/>
   <input class=\"req\" name=\"Email\" placeholder=\"mike@outerhaven.nyc\" type=\"email\"/>
-  <button class=\"BBB v2\" data-form=\".ParentPageRecoverUsername\" data-processor=\"[LostAndFound.Recovery.Processor]\">Verify</button>
+  <button class=\"BBB SendData v2\" data-form=\".ParentPageRecoverUsername\" data-processor=\"[LostAndFound.Recovery.Processor]\">Verify</button>
  </div>
 </div>
     ";
     $r = $this->system->Change([[
-     "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("2FA:Email")),
-     "[LostAndFound.Recovery.ReturnView]" => json_encode([
+     "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
+     "[LostAndFound.Recovery.ReturnView]" => base64_encode(json_encode([
       "Group" => "LostAndFound",
       "View" => "RecoverUsername"
-     ], true)
+     ], true))
     ], $r]);
     #], $this->system->Page("XXXX")]);
    }
