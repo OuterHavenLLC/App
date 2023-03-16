@@ -916,6 +916,29 @@
     $this->Data("Save", ["bulletins", md5($to), $bulletins]);
    }
   }
+  function SendEmail(array $a) {
+   $ck = 1;
+   $keys = ["Message", "Title", "To"];
+   foreach($keys as $key) {
+    $ck = (!empty($a[$key])) ? $ck : 0;
+   } if($ck == 1) {
+    $headers = "Content-Type: text/html; charset=UTF-8\r\n";
+    $headers .= "From: noreply@outerhaven.nyc";
+    $message = $this->Element([
+     "html", $this->Element([
+      "head", $this->Element([
+       "style", $this->Page("d4efcd44be4b2ef2a395f0934a9e446a")
+      ])
+     ]).$this->Element([
+      "body", $this->Change([[
+       "[Email.Message]" => $a["Message"]
+      ], $a["Message"]])
+      #], $this->Page("EmailTPL")])
+     ])
+    ]);
+    mail($a["To"], $a["Title"], $message, $headers);
+   }
+  }
   function Select($a, $b = NULL, $c = NULL) {
    $cl = $b ?? "v2 v2w";
    $i = 0;

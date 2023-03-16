@@ -735,15 +735,19 @@
     "UN",
     "email"
    ]);
+   $email = $data["Personal_Email"] ?? "";
+   $emailIsTaken = 0;
    $header = "Error";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(empty($data["Personal_DisplayName"])) {
     $r = "Your Display Name is missing.";
-   } elseif(empty($data["Personal_Email"])) {
+   } elseif(empty($email)) {
     $r = "Your E-Mail is missing.";
    } elseif(md5($data["PIN"]) != $y["Login"]["PIN"]) {
     $r = "The PINs do not match.";
+   } elseif($emailIsTaken == 1) {
+    $r = "Another Member is already using <em>$email</em>.";
    } elseif($this->system->ID == $you) {
     $r = "You must be signed in to continue.";
    } else {

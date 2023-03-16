@@ -54,35 +54,43 @@
   }
   function RecoverUsername(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["2FAReturn"]);
+   $data = $this->system->FixMissing($data, [
+    "2FAReturn",
+    "Email"
+   ]);
    $isBackFrom2FA = $data["2FAReturn"] ?? 0;
    if($isBackFrom2FA == 1) {
+    $email = base64_decode($data["Email"]);
+    $username = "";
+    $x = $this->system->DatabaseSet("MBR") ?? [];
+    foreach($x as $key => $value) {
+     $value = str_replace("c.oh.mbr.", "", $value);
+     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+     $memberEmail = $member["Personal"]["Email"];
+     if($email == $memberEmail) {
+      $username = $member["Login"]["Username"];
+     }
+    }
+    // BEGIN TEMP
     $r = $this->system->Element([
-     "h2", "Done"
+     "h2", "Done", ["class" => "CenterText UpperCase"]
+    ]).$this->system->Element([
+     "p", "Welcome back, <strong>[LostAndFound.Username]</strong>! You may now sign in to your profile.", ["class" => "CenterText"]
     ]);
+    // END TEMP
+    $r = $this->system->Change([[
+     "[LostAndFound.Username]" => $username
+    ], $r]);
+    #], $this->system->Page("XXXX")]);
    } else {
-    $r = "
-<div class=\"ParentPageRecoverUsername\">
- <button class=\"GoToParent LI header\" data-type=\"LostAndFound\">Back</button>
- <div class=\"InnerMargin\">
-  <h2>Recover Username</h2>
-  <p>Please enter your email address below. Once your email is verified, we will give you your username.</p>
-  <input class=\"req\" name=\"Email\" placeholder=\"mike@outerhaven.nyc\" type=\"email\"/>
-  <input name=\"ReturnView\" type=\"hidden\" value=\"[LostAndFound.Recovery.ReturnView]\"/>
-  <input name=\"ViewPairID\" type=\"hidden\" value=\"RecoverUsername\"/>
-  <button class=\"BBB SendData v2\" data-form=\".ParentPageRecoverUsername\" data-processor=\"[LostAndFound.Recovery.Processor]\">Verify</button>
- </div>
-</div>
-    ";
     $r = $this->system->Change([[
      "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
      "[LostAndFound.Recovery.ReturnView]" => base64_encode(json_encode([
       "Group" => "LostAndFound",
       "View" => "RecoverUsername"
-     ], true))
-    ], $r]);
-    #], $this->system->Page("XXXX")]);
+     ])),
+     "[LostAndFound.Recovery.Type]" => "Username"
+    ], $this->system->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
    return $r;
   }
