@@ -33,11 +33,12 @@
       $username = $member["Login"]["Username"];
      }
     }
-    // GET MEMBER'S DATABASE
-    // SET PROVISIONAL PASSWORD BASED ON USERNAME
     $password = uniqid();
+    $you = $this->system->Member($username);
+    $you["Login"]["Password"] = md5($password);
+    $this->system->Data("Save", ["mbr", md5($username), $you]);
     $r = $this->system->Change([[
-     "[Success.Message]" => "Use <strong>$password</strong> the next time a password is required. We also recommend changing this provisional password as soon as possible for your security.",
+     "[Success.Message]" => "Your provisional password is <strong>$password</strong>. We recommend changing this password as soon as possible for your security.",
      "[Success.ViewPairID]" => "LostAndFound",
     ], $this->system->Page("d4449b01c6da01613cff89e6cf723ad1")]);
    } else {
@@ -71,9 +72,10 @@
       $username = $member["Login"]["Username"];
      }
     }
-    // GET MEMBER'S DATABASE
-    // SET PROVISIONAL PIN BASED ON USERNAME
     $pin = rand(1000001, 9999999);
+    $you = $this->system->Member($username);
+    $you["Login"]["PIN"] = md5($pin);
+    $this->system->Data("Save", ["mbr", md5($username), $you]);
     $r = $this->system->Change([[
      "[Success.Message]" => "Use <strong>$pin</strong> the next time a PIN is required. We also recommend changing this provisional PIN as soon as possible for your security.",
      "[Success.ViewPairID]" => "LostAndFound",

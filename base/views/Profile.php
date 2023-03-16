@@ -897,8 +897,7 @@
     ]);
    } else {
     $accessCode = "Accepted";
-    $newPassword = md5($data["NewPassword"]);
-    $y["Login"]["Password"] = $newPassword;
+    $y["Login"]["Password"] = md5($data["NewPassword"]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
@@ -966,8 +965,7 @@
     ]);
    } else {
     $accessCode = "Accepted";
-    $newPIN = md5($data["NewPIN"]);
-    $y["Login"]["PIN"] = $newPIN;
+    $y["Login"]["PIN"] = md5($data["NewPIN"]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->system->Dialog([
      "Body" => $this->system->Element(["p", "Your PIN has been updated."]),

@@ -48,7 +48,6 @@
       "To" => $email
      ]);
      $r = $this->system->Change([[
-      "[2FA.Temp]" => $_VerificationCode,
       "[2FA.Confirm]" => $_SecureVerificationCode,
       "[2FA.Email]" => $email,
       "[2FA.Step2]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
