@@ -16,39 +16,77 @@
   }
   function RecoverPassword(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["2FAReturn"]);
+   $data = $this->system->FixMissing($data, [
+    "2FAReturn",
+    "Email"
+   ]);
    $isBackFrom2FA = $data["2FAReturn"] ?? 0;
    if($isBackFrom2FA == 1) {
-    $r = $this->system->Element([
-     "h2", "Done"
-    ]);
+    $email = base64_decode($data["Email"]);
+    $username = "";
+    $x = $this->system->DatabaseSet("MBR") ?? [];
+    foreach($x as $key => $value) {
+     $value = str_replace("c.oh.mbr.", "", $value);
+     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+     $memberEmail = $member["Personal"]["Email"];
+     if($email == $memberEmail) {
+      $username = $member["Login"]["Username"];
+     }
+    }
+    // GET MEMBER'S DATABASE
+    // SET PROVISIONAL PASSWORD BASED ON USERNAME
+    $password = uniqid();
+    $r = $this->system->Change([[
+     "[Success.Message]" => "Use <strong>$password</strong> the next time a password is required. We also recommend changing this provisional password as soon as possible for your security.",
+     "[Success.ViewPairID]" => "LostAndFound",
+    ], $this->system->Page("d4449b01c6da01613cff89e6cf723ad1")]);
    } else {
-    $r = $this->system->Element(["button", "Back", [
-     "class" => "GoToParent LI header",
-     "data-type" => "LostAndFound"
-    ]]).$this->system->Element([
-     "h2", "Recover Password"
-    ]);
+    $r = $this->system->Change([[
+     "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
+     "[LostAndFound.Recovery.ReturnView]" => base64_encode(json_encode([
+      "Group" => "LostAndFound",
+      "View" => "RecoverPassword"
+     ])),
+     "[LostAndFound.Recovery.Type]" => "Password"
+    ], $this->system->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
    return $r;
   }
   function RecoverPIN(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["2FAReturn"]);
+   $data = $this->system->FixMissing($data, [
+    "2FAReturn",
+    "Email"
+   ]);
    $isBackFrom2FA = $data["2FAReturn"] ?? 0;
    if($isBackFrom2FA == 1) {
-    $r = $this->system->Element([
-     "h2", "Done"
-    ]);
+    $email = base64_decode($data["Email"]);
+    $username = "";
+    $x = $this->system->DatabaseSet("MBR") ?? [];
+    foreach($x as $key => $value) {
+     $value = str_replace("c.oh.mbr.", "", $value);
+     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+     $memberEmail = $member["Personal"]["Email"];
+     if($email == $memberEmail) {
+      $username = $member["Login"]["Username"];
+     }
+    }
+    // GET MEMBER'S DATABASE
+    // SET PROVISIONAL PIN BASED ON USERNAME
+    $pin = rand(1000001, 9999999);
+    $r = $this->system->Change([[
+     "[Success.Message]" => "Use <strong>$pin</strong> the next time a PIN is required. We also recommend changing this provisional PIN as soon as possible for your security.",
+     "[Success.ViewPairID]" => "LostAndFound",
+    ], $this->system->Page("d4449b01c6da01613cff89e6cf723ad1")]);
    } else {
-    $r = $this->system->Element(["button", "Back", [
-     "class" => "GoToParent LI header",
-     "data-type" => "LostAndFound"
-    ]]).$this->system->Element([
-     "h2", "Recover PIN"
-    ]);
+    $r = $this->system->Change([[
+     "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
+     "[LostAndFound.Recovery.ReturnView]" => base64_encode(json_encode([
+      "Group" => "LostAndFound",
+      "View" => "RecoverPIN"
+     ])),
+     "[LostAndFound.Recovery.Type]" => "PIN"
+    ], $this->system->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
    return $r;
   }
@@ -71,17 +109,10 @@
       $username = $member["Login"]["Username"];
      }
     }
-    // BEGIN TEMP
-    $r = $this->system->Element([
-     "h2", "Done", ["class" => "CenterText UpperCase"]
-    ]).$this->system->Element([
-     "p", "Welcome back, <strong>[LostAndFound.Username]</strong>! You may now sign in to your profile.", ["class" => "CenterText"]
-    ]);
-    // END TEMP
     $r = $this->system->Change([[
-     "[LostAndFound.Username]" => $username
-    ], $r]);
-    #], $this->system->Page("XXXX")]);
+     "[Success.Message]" => "Welcome back, <strong>$username</strong>! You may now sign in to your profile.",
+     "[Success.ViewPairID]" => "LostAndFound",
+    ], $this->system->Page("d4449b01c6da01613cff89e6cf723ad1")]);
    } else {
     $r = $this->system->Change([[
      "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),

@@ -67,7 +67,7 @@
     if($_VerificationCode == $_SecureVerificationCode) {
      $r = $this->system->Change([[
       "[2FA.Error.Message]" => "The Return View ID is missing.",
-      "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
+      "[2FA.Error.ViewPairID]" => "LostAndFound"
      ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
      if(!empty($data["ReturnView"])) {
       $returnView = base64_decode($data["ReturnView"]);
