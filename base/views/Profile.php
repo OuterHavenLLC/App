@@ -738,15 +738,24 @@
    $email = $data["Personal_Email"] ?? "";
    $emailIsTaken = 0;
    $header = "Error";
+   $members = $this->system->DatabaseSet("MBR") ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(empty($data["Personal_DisplayName"])) {
+   foreach($members as $key => $value) {
+    $value = str_replace("c.oh.mbr.", "", $value);
+    $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+    $ck = ($email == $member["Personal"]["Email"]) ? 1 : 0;
+    $ck2 = ($member["Login"]["Username"] == $you) ? 1 : 0;
+    if($ck == 1 && $ck2 == 1) {
+     $emailIsTaken++;
+    }
+   } if(empty($data["Personal_DisplayName"])) {
     $r = "Your Display Name is missing.";
    } elseif(empty($email)) {
     $r = "Your E-Mail is missing.";
    } elseif(md5($data["PIN"]) != $y["Login"]["PIN"]) {
     $r = "The PINs do not match.";
-   } elseif($emailIsTaken == 1) {
+   } elseif($emailIsTaken > 0) {
     $r = "Another Member is already using <em>$email</em>.";
    } elseif($this->system->ID == $you) {
     $r = "You must be signed in to continue.";

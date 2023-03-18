@@ -35,7 +35,7 @@
      if($email == $member["Personal"]["Email"]) {
       $emailIsRegistered++;
      }
-    } if($emailIsRegistered == 1) {
+    } if($emailIsRegistered > 0) {
      $_VerificationCode = uniqid("OH-");
      $_SecureVerificationCode = md5($_VerificationCode);
      $this->system->SendEmail([
