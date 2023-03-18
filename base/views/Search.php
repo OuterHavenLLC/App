@@ -1343,7 +1343,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      ]);
      $ck = ($v["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->system->core["MinAge"]) ? 1 : 0;
      if($bl == 0 && $ck == 1) {
-      $ck = ($v["Role"] == 1 || $v["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
+      $ck = ($v["Role"] == 1 || $v["UN"] == $you) ? 1 : 0;
       $ico = (!empty($v["ICO"])) ? "$base/efs/".$v["ICO"] : $ico;
       $opt = ($ck == 1) ? $this->system->Element([
        "div", $this->system->Element(["button", "Delete", [
@@ -1846,7 +1846,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     foreach($blogs as $key => $value) {
      $bl = $this->system->CheckBlocked([$y, "Blogs", $value]);
      $bg = $this->system->Data("Get", ["blg", $value]) ?? [];
-     $ck = ($bg["Login"]["Username"] == $you) ? 1 : 0;
+     $ck = ($bg["UN"] == $you) ? 1 : 0;
      $ck2 = ($bg["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
      $illegal = $bg["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
