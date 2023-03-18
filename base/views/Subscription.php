@@ -8,36 +8,33 @@
    $active = "";
    $ai = 0;
    $base = $this->system->base;
-   $dt = "v=".base64_encode("Subscription:Home")."&sub=";
    $y = $this->you;
-   foreach($y["Subscriptions"] as $k => $v) {
-    $s = $this->system->core["SUB"][$k];
+   $you = $y["Login"]["Username"];
+   foreach($y["Subscriptions"] as $key => $value) {
+    $subscription = $this->system->core["SUB"][$key];
     $coverPhoto = $this->system->PlainText([
      "Data" => "[sIMG:MiNY]",
      "Display" => 1
     ]);
-    $s = $this->system->Change([[
-     "[X.LI.D]" => $s["Description"],
-     "[X.LI.DT]" => ".OHCC;Subscriptions;".base64_encode($dt.base64_encode($k)),
-     "[X.LI.I]" => $this->system->CoverPhoto($coverPhoto),
-     "[X.LI.T]" => $s["Title"]
+    $subscription = $this->system->Change([[
+     "[X.LI.D]" => $subscription["Description"],
+     "[X.LI.DT]" => "Subscriptions;".base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key)),
+     "[X.LI.I]" => $coverPhoto,
+     "[X.LI.T]" => $subscription["Title"]
     ], $this->system->Page("e7829132e382ee4ab843f23685a123cf")]);
-    if($v["A"] == 1) {
-     $active .= $s;
+    if($value["A"] == 1) {
+     $active .= $subscription;
      $ai++;
     }
-   } if($ai == 0 || $this->system->ID == $y["Login"]["Username"]) {
+   } if($ai == 0 || $this->system->ID == $you) {
     $active = $this->system->Element([
      "h4", "No Active Subscriptions",
      ["class" => "CenterText InnerMargin UpperCase"]
     ]);
    }
    return $this->system->Change([[
-    "[Container]" => "Subscriptions",
-    "[Container.List]" => $this->system->Change([[
-     "[Subscriptions.Active]" => $active
-    ], $this->system->Page("81c6e3ce434e1b052240cf71ec7b1bc3")])
-   ], $this->system->Page("46fc25c871bbcd0203216e329db12162")]);
+    "[Subscriptions.Active]" => $active
+   ], $this->system->Page("81c6e3ce434e1b052240cf71ec7b1bc3")]);
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
@@ -82,13 +79,10 @@
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop["Open"] = 0;
        $r = $this->system->Change([[
-        "[Container]" => "SUB_$s",
-        "[Container.List]" => $this->system->Change([[
-         "[Commission.FSTID]" => md5("Commission_Pay"),
-         "[Commission.Pay]" => "v=".base64_encode("Pay:Commission")."&amount=".base64_encode($commission),
-         "[Commission.Total]" => $commission
-        ], $this->system->Page("f844c17ae6ce15c373c2bd2a691d0a9a")])
-       ], $this->system->Page("46fc25c871bbcd0203216e329db12162")]);
+        "[Commission.FSTID]" => md5("Commission_Pay"),
+        "[Commission.Pay]" => "v=".base64_encode("Pay:Commission")."&amount=".base64_encode($commission),
+        "[Commission.Total]" => $commission
+       ], $this->system->Page("f844c17ae6ce15c373c2bd2a691d0a9a")]);
        $this->system->Data("Save", ["shop", md5($you), $shop]);
        $this->system->Data("Save", ["mbr", md5($you), $y]);
       } else {
@@ -108,7 +102,7 @@
          "st" => "SHOP-Orders"
         ]]),
         "[Artist.ID]" => md5($you),
-        "[Artist.Payroll]" => "v=".base64_encode("Shop:Payroll"),
+        "[Artist.Payroll]" => base64_encode("v=".base64_encode("Shop:Payroll")),
         "[Artist.Revenue]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($you)
        ], $this->system->Page("20820f4afd96c9e32440beabed381d36")]);
       }
@@ -153,10 +147,6 @@
       $this->system->Data("Save", ["mbr", md5($you), $y]);
       $r = $this->system->Page("a0891fc91ad185b6a99f1ba501b3c9be");
      }
-     $r = $this->system->Change([[
-      "[Container]" => "SUB_$s",
-      "[Container.List]" => $r
-     ], $this->system->Page("46fc25c871bbcd0203216e329db12162")]);
     }
    }
    return $r;
