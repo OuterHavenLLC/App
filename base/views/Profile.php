@@ -744,8 +744,8 @@
    foreach($members as $key => $value) {
     $value = str_replace("c.oh.mbr.", "", $value);
     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
-    $ck = ($email == $member["Personal"]["Email"]) ? 1 : 0;
-    $ck2 = ($member["Login"]["Username"] == $you) ? 1 : 0;
+    $ck = ($member["Login"]["Username"] != $you) ? 1 : 0;
+    $ck2 = ($email == $member["Personal"]["Email"]) ? 1 : 0;
     if($ck == 1 && $ck2 == 1) {
      $emailIsTaken++;
     }
