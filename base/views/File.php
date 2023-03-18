@@ -503,7 +503,7 @@
     $nsfw = base64_decode($nsfw);
     $privacy = $data["Privacy"] ?? base64_encode($y["Privacy"]["DLL"]);
     $privacy = base64_decode($privacy);
-    $root = $_SERVER["DOCUMENT_ROOT"]."/efs/$you/";
+    $root = $_SERVER["DOCUMENT_ROOT"]."/efs/$username/";
     $uploads = $a["Files"] ?? [];
     $xfsLimits = $this->system->core["XFS"]["limits"] ?? [];
     $xfsLimit = str_replace(",", "", $xfsLimits["Total"]);

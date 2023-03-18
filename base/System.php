@@ -185,6 +185,7 @@
    # CORE PREFERENCES (save to db and remove list)
    $r = [
     "IMG" => [
+     "CHECK" => "78569ee93f82cf2cd9415e7c4ca5e65b.png",
      "CODE" => "78569ee93f82cf2cd9415e7c4ca5e65b.png",
      "CP" => "738389d58a41d5f26908a79964532b0f.jpg",
      "CPW" => "7d4928e003e769f78cf40068cfdd2bc9.jpg",
