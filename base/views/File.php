@@ -342,37 +342,16 @@
       if($id != $value["ID"]) {
        $newFiles[$key] = $value;
       } else {
-       $p2p = $this->system->core["EFS"] ?? [];
-       $p2p_domain = ftp_connect($this->system->p2p);
-       $p2p_password = base64_decode($p2p["Password"]);
-       $p2p_username = base64_decode($p2p["Username"]);
-       if(!ftp_login($p2p_domain, $p2p_username, $p2p_password)) {
-        $accessCode = "Denied";
-        $r = "Failed to connect to the Extended File System.";
-       } else {
-        ftp_pasv($p2p_domain, true);
-        ftp_chmod($p2p_domain, 0777, "html");
-        ftp_chdir($p2p_domain, "html");
-        if(!in_array($username, ftp_nlist($p2p_domain, "."))) {
-         ftp_mkdir($p2p_domain, $username);
-        }
-        ftp_chmod($p2p_domain, 0777, $username);
-        ftp_chdir($p2p_domain, $username);
-        $list = ftp_nlist($p2p_domain, ".");
-        if(in_array($value["Name"], $list)) {
-         $baseName = explode(".", $value["Name"])[0];
-         if($albums[$albumID]["ICO"] == $value["Name"] && $username == $you) {
-          $albums[$albumID]["ICO"] = "";
-         }
-         $this->view(base64_encode("Conversation:SaveDelete"), [
-          "Data" => ["ID" => $key]
-         ]);
-         $this->system->Data("Purge", ["react", $key]);
-         ftp_delete($p2p_domain, "thumbnail.$baseName.png");
-         ftp_delete($p2p_domain, $value["Name"]);
-        }
+       $baseName = explode(".", $value["Name"])[0];
+       if($albums[$albumID]["ICO"] == $value["Name"] && $username == $you) {
+        $albums[$albumID]["ICO"] = "";
        }
-       ftp_close($p2p_domain);
+       $this->view(base64_encode("Conversation:SaveDelete"), [
+        "Data" => ["ID" => $key]
+       ]);
+       $this->system->Data("Purge", ["react", $key]);
+       unlink($this->system->DocumentRoot."/efs/$username/thumbnail.$baseName.png");
+       unlink($this->system->DocumentRoot."/efs/$username/".$value["Name"]);
       }
      } if($this->system->ID == $username) {
       $this->system->Data("Save", ["x", "fs", $newFiles]);
@@ -524,7 +503,7 @@
     $nsfw = base64_decode($nsfw);
     $privacy = $data["Privacy"] ?? base64_encode($y["Privacy"]["DLL"]);
     $privacy = base64_decode($privacy);
-    $root = $_SERVER["DOCUMENT_ROOT"]."/transit/";
+    $root = $_SERVER["DOCUMENT_ROOT"]."/efs/$you/";
     $uploads = $a["Files"] ?? [];
     $xfsLimits = $this->system->core["XFS"]["limits"] ?? [];
     $xfsLimit = str_replace(",", "", $xfsLimits["Total"]);
@@ -608,9 +587,10 @@
       array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
      } else {
       if(!move_uploaded_file($tmp, $root.basename($name))) {
-       array_push($fileCheck, "Failed to move $name to the transit camp.");
+       array_push($fileCheck, "Failed to move $name to your library.");
        array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
       } else {
+       $accessCode = "Accepted";
        $file = [
         "AID" => $albumID,
         "Description" => "",
@@ -627,66 +607,37 @@
         "Type" => $type
        ];
        $files[$id] = $file;
-       $p2p = $this->system->core["EFS"] ?? [];
-       $p2p_domain = ftp_connect($this->system->p2p);
-       $p2p_password = base64_decode($p2p["Password"]);
-       $p2p_username = base64_decode($p2p["Username"]);
-       if(!ftp_login($p2p_domain, $p2p_username, $p2p_password)) {
-        array_push($fileCheck, "Failed to connect to the Extended File System.");
-        array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
+       if($_HC == 1) {
+        $files[$id]["UN"] = $you;
+        $this->system->Data("Save", ["x", "fs", $files]);
        } else {
-        ftp_pasv($p2p_domain, true);
-        ftp_chmod($p2p_domain, 0777, "html");
-        ftp_chdir($p2p_domain, "html");
-        if(!in_array($username, ftp_nlist($p2p_domain, "."))) {
-         ftp_mkdir($p2p_domain, $username);
+        $_FileSystem = $_FileSystem ?? [];
+        $_FileSystem["Albums"] = $albums;
+        $_FileSystem["Files"] = $files;
+        if(in_array($ext, $this->system->core["XFS"]["FT"]["P"])) {
+         $thumbnail = $this->system->Thumbnail([
+          "File" => $name,
+          "Username" => $you
+         ])["AlbumCover"] ?? $name;
+         $_FileSystem["Albums"][$albumID]["ICO"] = $thumbnail;
         }
-        ftp_chmod($p2p_domain, 0777, $username);
-        ftp_chdir($p2p_domain, $username);
-        $local = $root.basename($name);
-        if(in_array($name, ftp_nlist($p2p_domain, "."))) {
-         array_push($fileCheck, "Duplicate file.");
-         array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
-        } elseif(!ftp_put($p2p_domain, basename($name), $local, FTP_BINARY)) {
-         array_push($fileCheck, "Failed to push $name to the Extended File System.");
-         array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
-        } else {
-         $accessCode = "Accepted";
-         if($_HC == 1) {
-          $files[$id]["UN"] = $you;
-          $this->system->Data("Save", ["x", "fs", $files]);
-         } else {
-          $_FileSystem = $_FileSystem ?? [];
-          $_FileSystem["Albums"] = $albums;
-          $_FileSystem["Files"] = $files;
-          if(in_array($ext, $this->system->core["XFS"]["FT"]["P"])) {
-           $thumbnail = $this->system->Thumbnail([
-            "File" => $name,
-            "Username" => $you
-           ])["AlbumCover"] ?? $name;
-           $_FileSystem["Albums"][$albumID]["ICO"] = $thumbnail;
-          }
-          $_FileSystem["Albums"][$albumID]["Modified"] = $now;
-          $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
-          $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
-          $this->system->Data("Save", ["mbr", md5($you), $y]);
-         }
-         array_push($_Passed, [
-          "HTML" => $this->system->Element([
-           "div", $this->system->GetAttachmentPreview([
-            "DLL" => $file,
-            "T" => $username,
-            "Y" => $you
-           ]), [
-            "class" => "InnerMargin Medium"
-           ]
-          ]),
-          "Raw" => $file
-         ]);
-        }
-        ftp_close($p2p_domain);
+        $_FileSystem["Albums"][$albumID]["Modified"] = $now;
+        $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+        $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
+        $this->system->Data("Save", ["mbr", md5($you), $y]);
        }
-       unlink($root.basename($name));
+       array_push($_Passed, [
+        "HTML" => $this->system->Element([
+         "div", $this->system->GetAttachmentPreview([
+          "DLL" => $file,
+          "T" => $username,
+          "Y" => $you
+         ]), [
+          "class" => "InnerMargin Medium"
+         ]
+        ]),
+        "Raw" => $file
+       ]);
       }
      }
     }

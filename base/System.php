@@ -12,7 +12,6 @@
     $this->base = $this->ConfigureBaseURL();
     $this->core = $this->Core();
     $this->efs = $this->ConfigureBaseURL("efs");
-    $this->p2p = "efs.outerhaven.nyc";
     $this->timestamp = date("Y-m-d h:i:sA");
     $this->region = $_COOKIE["region"] ?? "en_US";
     $this->sk = $_COOKIE["SK"] ?? "";
@@ -1589,18 +1588,13 @@
       $width = imagesx($source);
       $newHeight = floor($height * ($newWidth / $width));
       $newImage = imagecreatetruecolor($newWidth, $newHeight);
-      if($isCronJob == 1) {
-       $local = "/home/mike/public_html/efs/$username/$_Image";
-      } else {
-       $local = $_SERVER["DOCUMENT_ROOT"]."/efs/$username/$_Image";
-      }
+      $local = $this->DocumentRoot."/efs/$username/$_Image";
       imagecopyresampled($newImage, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
       imagepng($newImage, $local);
       $r = [
        "AlbumCover" => $_Image,
        "FullPath" => $thumbnail
       ];
-      unlink($local);
      }
     }
    }
