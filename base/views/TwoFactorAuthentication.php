@@ -87,6 +87,13 @@
     "ResponseType" => "GoToView"
    ]);
   }
+  function FirstTime(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->system->DecodeBridgeData($data);
+   // 2FA FOR NEW MEMBERS
+   return "OK";
+  }
   function Phone(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
