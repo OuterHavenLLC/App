@@ -25,7 +25,7 @@
      "PayPalClientIDLive",
      "PayPalEmailLive"
     ]);
-    $paymentProcessor = $payments["PaymentProcessor"] ?? "PayPal";
+    $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $paymentProcessors = $this->system->core["MiNY"]["PaymentProcessors"] ?? [];
     if($paymentProcessor == "Braintree") {
      require_once($this->bt);
@@ -347,6 +347,7 @@
   }
   function ProcessCartOrder(array $a) {
    $bundle = $a["Bundled"] ?? 0;
+   $orderID = $a["PayPalOrderID"] ?? "N/A";
    $physicalOrders = $a["PhysicalOrders"] ?? [];
    $purchaseQuantity = $a["Product"]["Quantity"] ?? 1;
    $r = "";
@@ -451,6 +452,7 @@
         "Display" => 1
        ]),
        "[Product.Options]" => $opt,
+       "[Product.OrderID]" => $orderID,
        "[Product.Quantity]" => $purchaseQuantity,
        "[Product.Title]" => $product["Title"]
       ], $this->system->Page("4c304af9fcf2153e354e147e4744eab6")]);
@@ -466,7 +468,7 @@
         "Title" => $product["Title"]
        ]]);
       } if($product["Quantity"] > 0) {
-       $this->system->Data("Save", ["miny", $id, $product]);
+       #$this->system->Data("Save", ["miny", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $bundled = explode("-", base64_decode($bundled));
@@ -474,6 +476,7 @@
       $bundledProductShopOwner = $bundled[0] ?? "";
       if(!empty($bundledProduct) && !empty($bundledProductShopOwner)) {
        $cartOrder = $this->ProcessCartOrder([
+        "PayPalOrderID" => $orderID,
         "PhysicalOrders" => $physicalOrders,
         "Product" => [
          "DiscountCode" => 0,
@@ -532,20 +535,29 @@
      "BraintreeMerchantIDLive",
      "BraintreePrivateKeyLive",
      "BraintreePublicKeyLive",
-     "BraintreeTokenLive"
+     "BraintreeTokenLive",
+     "PayPalClientID",
+     "PayPalClientIDLive",
+     "PayPalEmailLive"
     ]);
+    $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     if($paymentProcessor == "Braintree") {
      $orderID = "N/A";
      $paymentNonce = $data["payment_method_nonce"];
      if(!empty($paymentNonce)) {
       require_once($this->bt);
-      $environment = ($live == 1) ? "production" : "sandbox";
-      $braintree = new Braintree_Gateway([
-       "environment" => $environment,
-       "merchantId" => base64_decode($payments["BraintreeMerchantID"]),
-       "privateKey" => base64_decode($payments["BraintreePrivateKey"]),
-       "publicKey" => base64_decode($payments["BraintreePublicKey"])
-      ]);
+      $envrionment = ($shop["Live"] == 1) ? "production" : "sandbox";
+      $braintree = ($shop["Live"] == 1) ? [
+       "MerchantID" => $payments["BraintreeMerchantIDLive"],
+       "Token" => $payments["BraintreeTokenLive"],
+       "PrivateKey" => $payments["BraintreePrivateKeyLive"],
+       "PublicKey" => $payments["BraintreePublicKeyLive"]
+      ] : [
+       "MerchantID" => $payments["BraintreeMerchantID"],
+       "Token" => $payments["BraintreeToken"],
+       "PrivateKey" => $payments["BraintreePrivateKey"],
+       "PublicKey" => $payments["BraintreePublicKey"]
+      ];
       $order = $braintree->transaction()->sale([
        "amount" => str_replace(",", "", $total),
        "customer" => [
@@ -556,12 +568,12 @@
        ],
        "paymentMethodNonce" => $paymentNonce
       ]);
+      $ck = ($order->success) ? 1 : 0;
       $r = $this->system->Change([[
        "[Checkout.Order.Message]" => $order->message,
        "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
        "[Checkout.Order.Success]" => json_encode($order->success)
       ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
-      $ck = ($order->success) ? 1 : 0;
      }
     } elseif($paymentProcessor == "PayPal") {
      $ck = (!empty($orderID)) ? 1 : 0;
@@ -612,14 +624,14 @@
       $bundle = (!empty($bundle)) ? 1 : 0;
       $value["ID"] = $value["ID"] ?? $key;
       $value["Quantity"] = $value["Quantity"] ?? 1;
-      /*$cartOrder = $this->ProcessCartOrder([
+      $cartOrder = $this->ProcessCartOrder([
        "Bundled" => $bundle,
        "PayPalOrderID" => $orderID,
        "PhysicalOrders" => $physicalOrders,
        "Product" => $value,
        "UN" => $username,
        "You" => $y
-      ]);*/
+      ]);
       $physicalOrders = ($cartOrder["ERR"] == 0) ? $cartOrder["PhysicalOrders"] : $physicalOrders;
       $r .= $cartOrder["Response"];
       $y = $cartOrder["Member"];
@@ -632,7 +644,7 @@
      $r = $this->system->Change([[
       "[Checkout.Order]" => $r,
       "[Checkout.Title]" => $shop["Title"],
-      "[Checkout.Total]" => $t
+      "[Checkout.Total]" => $total
      ], $this->system->Page("83d6fedaa3fa042d53722ec0a757e910")]);
     }
    }
