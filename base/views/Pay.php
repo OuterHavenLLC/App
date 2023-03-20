@@ -2,7 +2,7 @@
  Class Pay extends GW {
   function __construct() {
    parent::__construct();
-   $this->root = $_SERVER["DOCUMENT_ROOT"]."/base/pay/Braintree.php";
+   $this->bt = $_SERVER["DOCUMENT_ROOT"]."/base/pay/Braintree.php";
    $this->you = $this->system->Member($this->system->Username());
   }
   function Checkout(array $a) {
@@ -12,74 +12,123 @@
    $you = $y["Login"]["Username"];
    $username = $data["UN"] ?? base64_encode($you);
    if(!empty($username)) {
-    require_once($this->root);
     $username = base64_decode($username);
     $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
     $t = ($username == $you) ? $y : $this->system->Member($username);
-    $braintree = $shop["Processing"] ?? [];
-    $envrionment = ($shop["Live"] == 1) ? "production" : "sandbox";
-    $token = base64_decode($braintree["BraintreeToken"]);
-    $btmid = base64_decode($braintree["BraintreeMerchantID"]);
-    $braintree = new Braintree_Gateway([
-     "environment" => $envrionment,
-     "merchantId" => $btmid,
-     "privateKey" => base64_decode($braintree["BraintreePrivateKey"]),
-     "publicKey" => base64_decode($braintree["BraintreePublicKey"])
+    $payments = $shop["Processing"] ?? [];
+    $payments = $this->system->FixMissing($payments, [
+     "BraintreeMerchantIDLive",
+     "BraintreePrivateKeyLive",
+     "BraintreePublicKeyLive",
+     "BraintreeTokenLive",
+     "PayPalClientID",
+     "PayPalClientIDLive",
+     "PayPalEmailLive"
     ]);
-    $token = $braintree->clientToken()->generate([
-     "merchantAccountId" => $btmid
-    ]) ?? $token;
-    $cart = $y["Shopping"]["Cart"][md5($username)]["Products"] ?? [];
-    $cartCount = count($cart);
-    $credits = $y["Shopping"]["Cart"][md5($username)]["Credits"] ?? 0;
-    $credits = number_format($credits, 2);
-    $discountCode = $y["Shopping"]["Cart"][md5($username)]["DiscountCode"] ?? 0;
-    $now = $this->system->timestamp;
-    $subtotal = 0;
-    $total = 0;
-    foreach($cart as $key => $value) {
-     $product = $this->system->Data("Get", ["miny", $key]) ?? [];
-     $ck = (strtotime($now) < $product["Expires"]) ? 1 : 0;
-     if($ck == 1) {
-      $price = str_replace(",", "", $product["Cost"]);
-      $price = $price + str_replace(",", "", $product["Profit"]);
-      $subtotal = $subtotal + $price;
-     }
-    } if($discountCode != 0) {
-     $discountCode = $discountCode ?? [];
-     $dollarAmount = $discountCode["DollarAmount"] ?? 0.00;
-     $dollarAmount = number_format($dollarAmount, 2);
-     $percentile = $discountCode["Percentile"] ?? 0;
-     $percentile = $subtotal * ($percentile / 100);
-     $check = ($dollarAmount > $percentile) ? "Dollars" : "Percentile";
-     $discountCode = [
-      "Amount" => $check,
-      "Dollars" => $dollarAmount,
-      "Percentile" => $percentile
+    $paymentProcessor = $payments["PaymentProcessor"] ?? "PayPal";
+    $paymentProcessors = $this->system->core["MiNY"]["PaymentProcessors"] ?? [];
+    if($paymentProcessor == "Braintree") {
+     require_once($this->bt);
+     $envrionment = ($shop["Live"] == 1) ? "production" : "sandbox";
+     $braintree = ($shop["Live"] == 1) ? [
+      "MerchantID" => $payments["BraintreeMerchantIDLive"],
+      "Token" => $payments["BraintreeTokenLive"],
+      "PrivateKey" => $payments["BraintreePrivateKeyLive"],
+      "PublicKey" => $payments["BraintreePublicKeyLive"]
+     ] : [
+      "MerchantID" => $payments["BraintreeMerchantID"],
+      "Token" => $payments["BraintreeToken"],
+      "PrivateKey" => $payments["BraintreePrivateKey"],
+      "PublicKey" => $payments["BraintreePublicKey"]
      ];
-     if($discountCode["Amount"] == "Dollars") {
-      $discountCode = $discountCode["Dollars"];
-     } else {
-      $discountCode = number_format($discountCode["Percentile"], 2);
+     $token = base64_decode($braintree["Token"]);
+     $btmid = base64_decode($braintree["MerchantID"]);
+     $braintree = new Braintree_Gateway([
+      "environment" => $envrionment,
+      "merchantId" => $btmid,
+      "privateKey" => base64_decode($braintree["PrivateKey"]),
+      "publicKey" => base64_decode($braintree["PublicKey"])
+     ]);
+     $token = $braintree->clientToken()->generate([
+      "merchantAccountId" => $btmid
+     ]) ?? $token;
+    } elseif($paymentProcessor == "PayPal") {
+     $paypal = ($shop["Live"] == 1) ? [
+      "ClientID" => $payments["PayPalClientIDLive"],
+      "Token" => $payments["BraintreeTokenLive"],
+      "PrivateKey" => $payments["BraintreePrivateKeyLive"],
+      "PublicKey" => $payments["BraintreePublicKeyLive"]
+     ] : [
+      "ClientID" => $payments["PayPalClientID"],
+      "Token" => $payments["BraintreeToken"],
+      "PrivateKey" => $payments["BraintreePrivateKey"],
+      "PublicKey" => $payments["BraintreePublicKey"]
+     ];
+    } if(in_array($paymentProcessor, $paymentProcessors)) {
+     $cart = $y["Shopping"]["Cart"][md5($username)]["Products"] ?? [];
+     $cartCount = count($cart);
+     $credits = $y["Shopping"]["Cart"][md5($username)]["Credits"] ?? 0;
+     $credits = number_format($credits, 2);
+     $discountCode = $y["Shopping"]["Cart"][md5($username)]["DiscountCode"] ?? 0;
+     $now = $this->system->timestamp;
+     $subtotal = 0;
+     $total = 0;
+     foreach($cart as $key => $value) {
+      $product = $this->system->Data("Get", ["miny", $key]) ?? [];
+      $ck = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+      if($ck == 1) {
+       $price = str_replace(",", "", $product["Cost"]);
+       $price = $price + str_replace(",", "", $product["Profit"]);
+       $subtotal = $subtotal + $price;
+      }
+     } if($discountCode != 0) {
+      $discountCode = $discountCode ?? [];
+      $dollarAmount = $discountCode["DollarAmount"] ?? 0.00;
+      $dollarAmount = number_format($dollarAmount, 2);
+      $percentile = $discountCode["Percentile"] ?? 0;
+      $percentile = $subtotal * ($percentile / 100);
+      $check = ($dollarAmount > $percentile) ? "Dollars" : "Percentile";
+      $discountCode = [
+       "Amount" => $check,
+       "Dollars" => $dollarAmount,
+       "Percentile" => $percentile
+      ];
+      if($discountCode["Amount"] == "Dollars") {
+       $discountCode = $discountCode["Dollars"];
+      } else {
+       $discountCode = number_format($discountCode["Percentile"], 2);
+      }
+     }
+     $total = $subtotal - $credits - $discountCode;
+     $tax = $shop["Tax"] ?? 10.00;
+     $tax = number_format($total * ($tax / 100), 2);
+     if($paymentProcessor == "Braintree") {
+      $r = $this->system->Change([[
+       "[Checkout.FSTID]" => md5("Checkout_$btmid"),
+       "[Checkout.ID]" => md5($btmid),
+       "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"]."&payment_method_nonce=",
+       "[Checkout.Region]" => $this->system->region,
+       "[Checkout.Title]" => $shop["Title"],
+       "[Checkout.Token]" => $token,
+       "[Checkout.Total]" => number_format($tax + $total, 2)
+      ], $this->system->Page("a32d886447733485978116cc52d4f7aa")]);
+     } elseif($paymentProcessor == "PayPal") {
+      $clientID = base64_decode($paypal["ClientID"]);
+      $r = $this->system->Change([[
+       "[Checkout.ClientID]" => $clientID,
+       "[Checkout.FSTID]" => md5("Checkout_$clientID"),
+       "[Checkout.ID]" => md5($paypal["ClientID"]),
+       "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"],
+       "[Checkout.Title]" => $shop["Title"],
+       "[Checkout.Total]" => number_format($tax + $total, 2)
+      ], $this->system->Page("b2144e711b28ac34d30725b7d91ac33b")]);
      }
     }
-    $total = $subtotal - $credits - $discountCode;
-    $tax = $shop["Tax"] ?? 10.00;
-    $tax = number_format($total * ($tax / 100), 2);
-    $r = $this->system->Change([[
-     "[Checkout.FSTID]" => md5("Checkout_$btmid"),
-     "[Checkout.ID]" => md5($btmid),
-     "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"]."&payment_method_nonce=",
-     "[Checkout.Region]" => $this->system->region,
-     "[Checkout.Title]" => $shop["Title"],
-     "[Checkout.Token]" => $token,
-     "[Checkout.Total]" => number_format($tax + $total, 2)
-    ], $this->system->Page("a32d886447733485978116cc52d4f7aa")]);
    }
    return $r;
   }
   function Commission(array $a) {
-   require_once($this->root);
+   require_once($this->bt);
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = number_format(base64_decode($amount), 2);
@@ -110,7 +159,7 @@
    ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
   }
   function Donation(array $a) {
-   require_once($this->root);
+   require_once($this->bt);
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = base64_decode($amount);
@@ -183,7 +232,7 @@
      $id[$data["Year"]][$data["Month"]][$username]["Paid"] = 1;
      $this->system->Data("Save", ["id", md5($y["Login"]["Username"]), $id]);
     } else {
-     require_once($this->root);
+     require_once($this->bt);
      $env = ($shop["Live"] == 1) ? "production" : "sandbox";
      $btmid = base64_decode($braintree["BraintreeMerchantID"]);
      $btpubk = base64_decode($braintree["BraintreePublicKey"]);
@@ -239,7 +288,7 @@
     $ck = $this->system->CheckBraintreeKeys($bt);
     if($ck == 4) {
      $env = ($shop["Live"] == 1) ? "production" : "sandbox";
-     require_once($this->root);
+     require_once($this->bt);
      $braintree = new Braintree_Gateway([
       "environment" => $env,
       "merchantId" => base64_decode($braintree["BraintreeMerchantID"]),
@@ -468,7 +517,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($paymentNonce)) {
-    require_once($this->root);
+    require_once($this->bt);
     $username = (!empty($username)) ? base64_decode($username) : $you;
     $t = ($username == $you) ? $y : $this->system->Member($username);
     $shopID = md5($username);
@@ -583,7 +632,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["payment_method_nonce"])) {
-    require_once($this->root);
+    require_once($this->bt);
     $amount = $data["amount"] ?? base64_encode(0);
     $amount = number_format(base64_decode($amount), 2);
     $points = $this->system->core["PTS"]["Donations"] ?? 100;

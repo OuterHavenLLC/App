@@ -200,6 +200,12 @@
      "VVA" => "b3f36e7638e6961eda52b62016aa1b50.png",
      "VVA-CP" => ""
     ],
+    "MiNY" => [
+     "PaymentProcessors" => [
+      "Braintree",
+      "PayPal"
+     ]
+    ],
     "PTS" => [
      "Default" => 10,
      "Donations" => 100,
@@ -213,25 +219,25 @@
       "SUB" => 400
      ]
     ],
-     "SQL" => [
-      "Key" => base64_encode("ReSearch^2022@OH.nyc"),
-      "Password" => "V2VCZVNlYXJjaGluQE9ILm55Y14yMDIy",
-      "Username" => "research"
-     ],
-     "STAT" => [
-      "FS" => "Feedback Submissions",
-      "LI" => "Logins",
-      "MBR" => "New Members",
-      "Visits" => "Visitors",
-      "PGu" => "Article Updates",
-      "PROD" => "New Products",
-      "PRODu" => "Product Updates",
-      "SU" => "Status Updates",
-      "SUu" => "Edits to Status Updates",
-      "UL" => "File Uploads",
-      "ULu" => "File Updates"
-     ],
-     "SUB" => [
+    "SQL" => [
+     "Key" => base64_encode("ReSearch^2022@OH.nyc"),
+     "Password" => "V2VCZVNlYXJjaGluQE9ILm55Y14yMDIy",
+     "Username" => "research"
+    ],
+    "STAT" => [
+     "FS" => "Feedback Submissions",
+     "LI" => "Logins",
+     "MBR" => "New Members",
+     "Visits" => "Visitors",
+     "PGu" => "Article Updates",
+     "PROD" => "New Products",
+     "PRODu" => "Product Updates",
+     "SU" => "Status Updates",
+     "SUu" => "Edits to Status Updates",
+     "UL" => "File Uploads",
+     "ULu" => "File Updates"
+    ],
+    "SUB" => [
       "Artist" => [
        "Description" => "Create and manage a Shop, accept donations, and more, for a 5% commission.",
        "Title" => "Artist",

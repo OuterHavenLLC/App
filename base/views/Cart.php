@@ -101,9 +101,6 @@
    $you = $y["Login"]["Username"];
    $username = (!empty($username)) ? $username : $you;
    if($this->system->ID != $username) {
-    // MOVE NEXT TWO (2) LINES TO ORDER PROCESSING
-    #$y["Shopping"]["Cart"][md5($username)]["DiscountCode"] = 0;
-    #$this->system->Data("Save", ["mbr", md5($you), $y]);
     $t = ($username == $you) ? $y : $this->system->Member($username);
     $id = md5($t["Login"]["Username"]);
     $shop = $this->system->Data("Get", ["shop", $id]) ?? [];
