@@ -125,6 +125,8 @@
      "BraintreePrivateKeyLive",
      "BraintreePublicKeyLive",
      "BraintreeTokenLive",
+     "PayPalClientID",
+     "PayPalClientIDLive",
      "PayPalEmailLive"
     ]);
     $tax = $shop["Tax"] ?? 10.00;
@@ -139,6 +141,8 @@
      "[Shop.PaymentProcessor]" => $this->system->Select("PaymentProcessor", "LI v2w", $paymentProcessor),
      "[Shop.Pay.MerchantID]" => base64_decode($processing["BraintreeMerchantID"]),
      "[Shop.Pay.MerchantID.Live]" => base64_decode($processing["BraintreeMerchantIDLive"]),
+     "[Shop.Pay.PayPalClientID]" => base64_decode($processing["PayPalClientID"]),
+     "[Shop.Pay.PayPalClientID.Live]" => base64_decode($processing["PayPalClientIDLive"]),
      "[Shop.Pay.PayPalEmail]" => base64_decode($processing["PayPalEmail"]),
      "[Shop.Pay.PayPalEmail.Live]" => base64_decode($processing["PayPalEmailLive"]),
      "[Shop.Pay.PrivateKey]" => base64_decode($processing["BraintreePrivateKey"]),
