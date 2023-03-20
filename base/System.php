@@ -945,7 +945,20 @@
    $r = "";
    $y = $this->Member($this->Username());
    $_HC = ($y["Rank"] == md5("High Command")) ? 1 : 0;
-   if(strpos($a, "Privacy") !== false) {
+   if(strpos($a, "PaymentProcessor") !== false) {
+    $hli = ["Braintree", "PayPal"];
+    $opt = ["Braintree", "PayPal"];
+    foreach($opt as $opt) {
+     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
+     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
+     $i++;
+    }
+    $r = $this->Element([
+     "select", $this->Element([
+      "optgroup", $r, ["label" => "Payment Processor"]
+     ]), ["class" => $cl, "name" => $a]
+    ]);
+   } elseif(strpos($a, "Privacy") !== false) {
     $hli = ["Acquaintances", "Close Contacts", "Contacts", "Private", "Public"];
     $opt = ["Acquaintances", "Close Contacts", "Contacts", "Private", "Public"];
     foreach($opt as $opt) {

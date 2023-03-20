@@ -117,8 +117,16 @@
      "Welcome"
     ]);
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $privacy = $shop["Privacy"] ?? $y["Privacy"]["Shop"];
     $processing = $shop["Processing"] ?? [];
+    $processing = $this->system->FixMissing($processing, [
+     "BraintreeMerchantIDLive",
+     "BraintreePrivateKeyLive",
+     "BraintreePublicKeyLive",
+     "BraintreeTokenLive",
+     "PayPalEmailLive"
+    ]);
     $tax = $shop["Tax"] ?? 10.00;
     $r = $this->system->Change([[
      "[Shop.CoverPhoto]" => $coverPhoto,
@@ -128,11 +136,17 @@
      "[Shop.Live]" => $this->system->Select("Live", "LI v2w", $shop["Live"]),
      "[Shop.NSFW]" => $this->system->Select("nsfw", "LI v2w", $nsfw),
      "[Shop.Open]" => $this->system->Select("Open", "LI v2w", $shop["Open"]),
+     "[Shop.PaymentProcessor]" => $this->system->Select("PaymentProcessor", "LI v2w", $paymentProcessor),
      "[Shop.Pay.MerchantID]" => base64_decode($processing["BraintreeMerchantID"]),
+     "[Shop.Pay.MerchantID.Live]" => base64_decode($processing["BraintreeMerchantIDLive"]),
      "[Shop.Pay.PayPalEmail]" => base64_decode($processing["PayPalEmail"]),
+     "[Shop.Pay.PayPalEmail.Live]" => base64_decode($processing["PayPalEmailLive"]),
      "[Shop.Pay.PrivateKey]" => base64_decode($processing["BraintreePrivateKey"]),
+     "[Shop.Pay.PrivateKey.Live]" => base64_decode($processing["BraintreePrivateKeyLive"]),
      "[Shop.Pay.PublicKey]" => base64_decode($processing["BraintreePublicKey"]),
+     "[Shop.Pay.PublicKey.Live]" => base64_decode($processing["BraintreePublicKeyLive"]),
      "[Shop.Pay.Token]" => base64_decode($processing["BraintreeToken"]),
+     "[Shop.Pay.Token.Live]" => base64_decode($processing["BraintreeTokenLive"]),
      "[Shop.Privacy]" => $this->system->Select("Privacy", "LI v2w", $privacy),
      "[Shop.Tax]" => $this->system->Select("Percentile", "req v2w", $tax),
      "[Shop.Title]" => $shop["Title"],
@@ -654,6 +668,7 @@
     $live = $data["Live"] ?? 0;
     $nsfw = $data["nsfw"] ?? 0;
     $open = $data["Open"] ?? 0;
+    $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
     $privacy = $data["pri"] ?? $y["Privacy"]["Shop"];
     $products = $shop["Products"] ?? [];
     $tax = $data["Percentile"] ?? 10.00;
@@ -668,6 +683,7 @@
      "Modified" => $this->system->timestamp,
      "NSFW" => $nsfw,
      "Open" => $open,
+     "PaymentProcessor" => $paymentProcessor,
      "Privacy" => $privacy,
      "Processing" => $shop["Processing"],
      "Products" => $products,

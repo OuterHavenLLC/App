@@ -718,21 +718,19 @@
    ]);
   }
   function SignUp(array $a) {
-   $ac = base64_encode("Common:AvailabilityCheck");
+    /*"FrontButton" => $this->system->Element(["button", "Sign Up", [
+     "class" => "BBB SendData v2",
+     "data-form" => "#register",
+     "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignUp"))
+    ]])*/ // INTEGRATE INTO SIGN UP EXPERIENCE
    return $this->system->Card([
     "Front" => $this->system->Change([[
      "[SignUp.Age.Month]" => $this->system->Select("BirthMonth", "req v2w"),
      "[SignUp.Age.Year]" => $this->system->Select("BirthYear", "req v2w"),
-     "[SignUp.AvailabilityView]" => base64_encode("v=$ac&at=".base64_encode("UN")."&av="),
      "[SignUp.Gender]" => $this->system->Select("gender", "req"),
      "[SignUp.MinAge]" => $this->system->core["minAge"],
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
-    ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")]),
-    "FrontButton" => $this->system->Element(["button", "Sign Up", [
-     "class" => "BBB SendData v2",
-     "data-form" => "#register",
-     "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignUp"))
-    ]])
+    ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ]);
   }
   function SwitchMember(array $a) {
