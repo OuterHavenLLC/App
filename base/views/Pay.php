@@ -507,79 +507,104 @@
    return $r;
   }
   function SaveCheckout(array $a) {
+   $ck = 0;
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["UN", "payment_method_nonce"]);
-   $username = $data["UN"];
-   $paymentNonce = $data["payment_method_nonce"];
+   $data = $this->system->FixMissing($data, [
+    "UN",
+    "order_ID",
+    "payment_method_nonce"
+   ]);
+   $orderID = $data["order_ID"] ?? "";
    $r = $this->system->Change([[
     "[Checkout.Data]" => json_encode($data)
    ], $this->system->Page("f9ee8c43d9a4710ca1cfc435037e9abd")]);
+   $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($paymentNonce)) {
-    require_once($this->bt);
+   if(!empty($username)) {
     $username = (!empty($username)) ? base64_decode($username) : $you;
     $t = ($username == $you) ? $y : $this->system->Member($username);
     $shopID = md5($username);
     $shop = $this->system->Data("Get", ["shop", $shopID]) ?? [];
-    $braintree = $shop["Processing"] ?? [];
     $live = $shop["Live"] ?? 0;
-    $environment = ($live == 1) ? "production" : "sandbox";
-    $braintree = new Braintree_Gateway([
-     "environment" => $environment,
-     "merchantId" => base64_decode($braintree["BraintreeMerchantID"]),
-     "privateKey" => base64_decode($braintree["BraintreePrivateKey"]),
-     "publicKey" => base64_decode($braintree["BraintreePublicKey"])
+    $payments = $shop["Processing"] ?? [];
+    $payments = $this->system->FixMissing($payments, [
+     "BraintreeMerchantIDLive",
+     "BraintreePrivateKeyLive",
+     "BraintreePublicKeyLive",
+     "BraintreeTokenLive"
     ]);
-    $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
-    $cartCount = count($cart);
-    $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
-    $credits = number_format($credits, 2);
-    $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
-    $now = $this->system->timestamp;
-    $subtotal = 0;
-    $total = 0;
-    foreach($cart as $key => $value) {
-     $product = $this->system->Data("Get", ["miny", $key]) ?? [];
-     $ck = (strtotime($now) < $product["Expires"]) ? 1 : 0;
-     if($ck == 1) {
-      $price = str_replace(",", "", $product["Cost"]);
-      $price = $price + str_replace(",", "", $product["Profit"]);
-      $subtotal = $subtotal + $price;
+    if($paymentProcessor == "Braintree") {
+     $orderID = "N/A";
+     $paymentNonce = $data["payment_method_nonce"];
+     if(!empty($paymentNonce)) {
+      require_once($this->bt);
+      $environment = ($live == 1) ? "production" : "sandbox";
+      $braintree = new Braintree_Gateway([
+       "environment" => $environment,
+       "merchantId" => base64_decode($payments["BraintreeMerchantID"]),
+       "privateKey" => base64_decode($payments["BraintreePrivateKey"]),
+       "publicKey" => base64_decode($payments["BraintreePublicKey"])
+      ]);
+      $order = $braintree->transaction()->sale([
+       "amount" => str_replace(",", "", $total),
+       "customer" => [
+        "firstName" => $y["Personal"]["FirstName"]
+       ],
+       "options" => [
+        "submitForSettlement" => true
+       ],
+       "paymentMethodNonce" => $paymentNonce
+      ]);
+      $r = $this->system->Change([[
+       "[Checkout.Order.Message]" => $order->message,
+       "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
+       "[Checkout.Order.Success]" => json_encode($order->success)
+      ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
+      $ck = ($order->success) ? 1 : 0;
      }
-    } if($discountCode != 0) {
-     $discountCode = $discountCode ?? [];
-     $dollarAmount = $discountCode["DollarAmount"] ?? 0.00;
-     $dollarAmount = number_format($dollarAmount, 2);
-     $percentile = $discountCode["Percentile"] ?? 0;
-     $percentile = $subtotal * ($percentile / 100);
-     $check = ($dollarAmount > $percentile) ? "Dollars" : "Percentile";
-     $discountCode = [
-      "Amount" => $check,
-      "Dollars" => $dollarAmount,
-      "Percentile" => $percentile
-     ];
-     if($discountCode["Amount"] == "Dollars") {
-      $discountCode = $discountCode["Dollars"];
-     } else {
-      $discountCode = number_format($discountCode["Percentile"], 2);
+    } elseif($paymentProcessor == "PayPal") {
+     $ck = (!empty($orderID)) ? 1 : 0;
+     $orderID = base64_decode($orderID);
+    } if($ck == 1) {
+     $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
+     $cartCount = count($cart);
+     $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
+     $credits = number_format($credits, 2);
+     $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
+     $now = $this->system->timestamp;
+     $subtotal = 0;
+     $total = 0;
+     foreach($cart as $key => $value) {
+      $product = $this->system->Data("Get", ["miny", $key]) ?? [];
+      $ck = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+      if($ck == 1) {
+       $price = str_replace(",", "", $product["Cost"]);
+       $price = $price + str_replace(",", "", $product["Profit"]);
+       $subtotal = $subtotal + $price;
+      }
+     } if($discountCode != 0) {
+      $discountCode = $discountCode ?? [];
+      $dollarAmount = $discountCode["DollarAmount"] ?? 0.00;
+      $dollarAmount = number_format($dollarAmount, 2);
+      $percentile = $discountCode["Percentile"] ?? 0;
+      $percentile = $subtotal * ($percentile / 100);
+      $check = ($dollarAmount > $percentile) ? "Dollars" : "Percentile";
+      $discountCode = [
+       "Amount" => $check,
+       "Dollars" => $dollarAmount,
+       "Percentile" => $percentile
+      ];
+      if($discountCode["Amount"] == "Dollars") {
+       $discountCode = $discountCode["Dollars"];
+      } else {
+       $discountCode = number_format($discountCode["Percentile"], 2);
+      }
      }
-    }
-    $total = $subtotal - $credits - $discountCode;
-    $tax = $shop["Tax"] ?? 10.00;
-    $tax = number_format($total * ($tax / 100), 2);
-    $total = number_format($tax + $total, 2);
-    $order = $braintree->transaction()->sale([
-     "amount" => str_replace(",", "", $total),
-     "customer" => [
-      "firstName" => $y["Personal"]["FirstName"]
-     ],
-     "options" => [
-      "submitForSettlement" => true
-     ],
-     "paymentMethodNonce" => $paymentNonce
-    ]);
-    if($order->success) {
+     $total = $subtotal - $credits - $discountCode;
+     $tax = $shop["Tax"] ?? 10.00;
+     $tax = number_format($total * ($tax / 100), 2);
+     $total = number_format($tax + $total, 2);
      $physicalOrders = $this->system->Data("Get", ["po", $shopID]) ?? [];
      $r = "";
      foreach($cart as $key => $value) {
@@ -587,13 +612,14 @@
       $bundle = (!empty($bundle)) ? 1 : 0;
       $value["ID"] = $value["ID"] ?? $key;
       $value["Quantity"] = $value["Quantity"] ?? 1;
-      $cartOrder = $this->ProcessCartOrder([
+      /*$cartOrder = $this->ProcessCartOrder([
        "Bundled" => $bundle,
+       "PayPalOrderID" => $orderID,
        "PhysicalOrders" => $physicalOrders,
        "Product" => $value,
        "UN" => $username,
        "You" => $y
-      ]);
+      ]);*/
       $physicalOrders = ($cartOrder["ERR"] == 0) ? $cartOrder["PhysicalOrders"] : $physicalOrders;
       $r .= $cartOrder["Response"];
       $y = $cartOrder["Member"];
@@ -601,19 +627,13 @@
      $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
      $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
      $y["Shopping"]["Cart"][$shopID]["Products"] = [];
+     #$this->system->Data("Save", ["mbr", md5($you), $y]);
+     #$this->system->Data("Save", ["po", $shopID, $physicalOrders]);
      $r = $this->system->Change([[
       "[Checkout.Order]" => $r,
       "[Checkout.Title]" => $shop["Title"],
       "[Checkout.Total]" => $t
      ], $this->system->Page("83d6fedaa3fa042d53722ec0a757e910")]);
-     $this->system->Data("Save", ["mbr", md5($you), $y]);
-     $this->system->Data("Save", ["po", $shopID, $physicalOrders]);
-    } else {
-     $r = $this->system->Change([[
-      "[Checkout.Order.Message]" => $order->message,
-      "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
-      "[Checkout.Order.Success]" => json_encode($order->success)
-     ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
     }
    }
    return $r;
