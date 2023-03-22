@@ -54,15 +54,9 @@
      ]) ?? $token;
     } elseif($paymentProcessor == "PayPal") {
      $paypal = ($shop["Live"] == 1) ? [
-      "ClientID" => $payments["PayPalClientIDLive"],
-      "Token" => $payments["BraintreeTokenLive"],
-      "PrivateKey" => $payments["BraintreePrivateKeyLive"],
-      "PublicKey" => $payments["BraintreePublicKeyLive"]
+      "ClientID" => $payments["PayPalClientIDLive"]
      ] : [
-      "ClientID" => $payments["PayPalClientID"],
-      "Token" => $payments["BraintreeToken"],
-      "PrivateKey" => $payments["BraintreePrivateKey"],
-      "PublicKey" => $payments["BraintreePublicKey"]
+      "ClientID" => $payments["PayPalClientID"]
      ];
     } if(in_array($paymentProcessor, $paymentProcessors)) {
      $cart = $y["Shopping"]["Cart"][md5($username)]["Products"] ?? [];
@@ -128,66 +122,122 @@
    return $r;
   }
   function Commission(array $a) {
-   require_once($this->bt);
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = number_format(base64_decode($amount), 2);
    $username = $this->system->ShopID;
    $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
-   $braintree = $shop["Processing"] ?? [];
-   $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
-   $token = base64_decode($braintree["BraintreeToken"]);
-   $btmid = base64_decode($braintree["BraintreeMerchantID"]);
-   $braintree = new Braintree_Gateway([
-    "environment" => $environment,
-    "merchantId" => $btmid,
-    "privateKey" => base64_decode($braintree["BraintreePrivateKey"]),
-    "publicKey" => base64_decode($braintree["BraintreePublicKey"])
+   $payments = $shop["Processing"] ?? [];
+   $payments = $this->system->FixMissing($payments, [
+    "BraintreeMerchantIDLive",
+    "BraintreePrivateKeyLive",
+    "BraintreePublicKeyLive",
+    "BraintreeTokenLive",
+    "PayPalClientID",
+    "PayPalClientIDLive",
+    "PayPalEmailLive"
    ]);
-   $token = $braintree->clientToken()->generate([
-    "merchantAccountId" => $btmid
-   ]) ?? $token;
-   return $this->system->Change([[
-    "[Commission.Action]" => "pay your $$amount commission",
-    "[Commission.FSTID]" => md5("Commission_$btmid"),
-    "[Commission.ID]" => md5($btmid),
-    "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".base64_encode($amount)."&ID=".md5($username)."&st=".base64_encode("Commission")."&payment_method_nonce=",
-    "[Commission.Title]" => $shop["Title"],
-    "[Commission.Region]" => $this->system->region,
-    "[Commission.Token]" => $token,
-    "[Commission.Total]" => $amount
-   ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
+   $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
+   if($paymentProcessor == "Braintree") {
+    require_once($this->bt);
+    $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
+    $token = base64_decode($payments["BraintreeToken"]);
+    $btmid = base64_decode($payments["BraintreeMerchantID"]);
+    $braintree = new Braintree_Gateway([
+     "environment" => $environment,
+     "merchantId" => $btmid,
+     "privateKey" => base64_decode($payments["BraintreePrivateKey"]),
+     "publicKey" => base64_decode($payments["BraintreePublicKey"])
+    ]);
+    $token = $braintree->clientToken()->generate([
+     "merchantAccountId" => $btmid
+    ]) ?? $token;
+    $r = $this->system->Change([[
+     "[Commission.Action]" => "pay your $$amount commission",
+     "[Commission.FSTID]" => md5("Commission_$btmid"),
+     "[Commission.ID]" => md5($btmid),
+     "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".base64_encode($amount)."&ID=".md5($username)."&st=".base64_encode("Commission")."&payment_method_nonce=",
+     "[Commission.Title]" => $shop["Title"],
+     "[Commission.Region]" => $this->system->region,
+     "[Commission.Token]" => $token,
+     "[Commission.Total]" => $amount
+    ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
+   } elseif($paymentProcessor == "PayPal") {
+    $paypal = ($shop["Live"] == 1) ? [
+     "ClientID" => $payments["PayPalClientIDLive"]
+    ] : [
+     "ClientID" => $payments["PayPalClientID"]
+    ];
+    $clientID = base64_decode($paypal["ClientID"]);
+    $r = $this->system->Change([[
+     "[Commission.Action]" => "donate $$amount",
+     "[Commission.ClientID]" => $clientID,
+     "[Commission.ID]" => md5($clientID),
+     "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".base64_encode($amount)."&ID=".md5($username)."&st=".base64_encode("Commission"),
+     "[Commission.Title]" => $shop["Title"],
+     "[Commission.Total]" => number_format($amount, 2)
+    ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
+   }
+   return $r;
   }
   function Donation(array $a) {
-   require_once($this->bt);
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = base64_decode($amount);
    $username = $this->system->ShopID;
    $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
-   $braintree = $shop["Processing"] ?? [];
-   $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
-   $token = base64_decode($braintree["BraintreeToken"]);
-   $btmid = base64_decode($braintree["BraintreeMerchantID"]);
-   $braintree = new Braintree_Gateway([
-    "environment" => $environment,
-    "merchantId" => $btmid,
-    "privateKey" => base64_decode($braintree["BraintreePrivateKey"]),
-    "publicKey" => base64_decode($braintree["BraintreePublicKey"])
+   $payments = $shop["Processing"] ?? [];
+   $payments = $this->system->FixMissing($payments, [
+    "BraintreeMerchantIDLive",
+    "BraintreePrivateKeyLive",
+    "BraintreePublicKeyLive",
+    "BraintreeTokenLive",
+    "PayPalClientID",
+    "PayPalClientIDLive",
+    "PayPalEmailLive"
    ]);
-   $token = $braintree->clientToken()->generate([
-    "merchantAccountId" => $btmid
-   ]) ?? $token;
-   return $this->system->Change([[
-    "[Commission.Action]" => "donate $$amount",
-    "[Commission.FSTID]" => md5("Donation_$btmid"),
-    "[Commission.ID]" => md5($btmid),
-    "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation")."&payment_method_nonce=",
-    "[Commission.Title]" => $shop["Title"],
-    "[Commission.Region]" => $this->system->region,
-    "[Commission.Token]" => $token,
-    "[Commission.Total]" => number_format($amount, 2)
-   ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
+   $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
+   if($paymentProcessor == "Braintree") {
+    require_once($this->bt);
+    $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
+    $token = base64_decode($payments["BraintreeToken"]);
+    $btmid = base64_decode($payments["BraintreeMerchantID"]);
+    $braintree = new Braintree_Gateway([
+     "environment" => $environment,
+     "merchantId" => $btmid,
+     "privateKey" => base64_decode($payments["BraintreePrivateKey"]),
+     "publicKey" => base64_decode($payments["BraintreePublicKey"])
+    ]);
+    $token = $braintree->clientToken()->generate([
+     "merchantAccountId" => $btmid
+    ]) ?? $token;
+    $r = $this->system->Change([[
+     "[Commission.Action]" => "donate $$amount",
+     "[Commission.FSTID]" => md5("Donation_$btmid"),
+     "[Commission.ID]" => md5($btmid),
+     "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation")."&payment_method_nonce=",
+     "[Commission.Title]" => $shop["Title"],
+     "[Commission.Region]" => $this->system->region,
+     "[Commission.Token]" => $token,
+     "[Commission.Total]" => number_format($amount, 2)
+    ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
+   } elseif($paymentProcessor == "PayPal") {
+    $paypal = ($shop["Live"] == 1) ? [
+     "ClientID" => $payments["PayPalClientIDLive"]
+    ] : [
+     "ClientID" => $payments["PayPalClientID"]
+    ];
+    $clientID = base64_decode($paypal["ClientID"]);
+    $r = $this->system->Change([[
+     "[Commission.Action]" => "donate $$amount",
+     "[Commission.ClientID]" => $clientID,
+     "[Commission.ID]" => md5($clientID),
+     "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation")
+     "[Commission.Title]" => $shop["Title"],
+     "[Commission.Total]" => number_format($amount, 2)
+    ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
+   }
+   return $r;
   }
   function Partner(array $a) {
    $data = $a["Data"] ?? [];
