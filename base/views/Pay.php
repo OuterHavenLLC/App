@@ -111,7 +111,7 @@
       $r = $this->system->Change([[
        "[Checkout.ClientID]" => $clientID,
        "[Checkout.FSTID]" => md5("Checkout_$clientID"),
-       "[Checkout.ID]" => md5($paypal["ClientID"]),
+       "[Checkout.ID]" => md5($clientID),
        "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"],
        "[Checkout.Title]" => $shop["Title"],
        "[Checkout.Total]" => number_format($tax + $total, 2)
@@ -231,6 +231,7 @@
     $r = $this->system->Change([[
      "[Commission.Action]" => "donate $$amount",
      "[Commission.ClientID]" => $clientID,
+     "[Commission.FSTID]" => md5("Donation_$clientID"),
      "[Commission.ID]" => md5($clientID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation"),
      "[Commission.Title]" => $shop["Title"],
