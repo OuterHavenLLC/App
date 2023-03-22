@@ -114,7 +114,7 @@
        "[Checkout.ID]" => md5($clientID),
        "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"],
        "[Checkout.Title]" => $shop["Title"],
-       "[Checkout.Total]" => number_format($tax + $total, 2)
+       "[Checkout.Total]" => str_replace(",", "", number_format($tax + $total, 2))
       ], $this->system->Page("b2144e711b28ac34d30725b7d91ac33b")]);
      }
     }
@@ -175,7 +175,7 @@
      "[Commission.ID]" => md5($clientID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".base64_encode($amount)."&ID=".md5($username)."&st=".base64_encode("Commission"),
      "[Commission.Title]" => $shop["Title"],
-     "[Commission.Total]" => number_format($amount, 2)
+     "[Commission.Total]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
    return $r;
@@ -235,7 +235,7 @@
      "[Commission.ID]" => md5($clientID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation"),
      "[Commission.Title]" => $shop["Title"],
-     "[Commission.Total]" => number_format($amount, 2)
+     "[Commission.Total]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
    return $r;
