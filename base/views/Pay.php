@@ -232,7 +232,7 @@
      "[Commission.Action]" => "donate $$amount",
      "[Commission.ClientID]" => $clientID,
      "[Commission.ID]" => md5($clientID),
-     "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation")
+     "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation"),
      "[Commission.Title]" => $shop["Title"],
      "[Commission.Total]" => number_format($amount, 2)
     ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
