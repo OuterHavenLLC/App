@@ -27,7 +27,6 @@
    } elseif(!empty($username) && $username != $you) {
     $accessCode = "Accepted";
     $responseType = "Destruct";
-    $username = base64_decode($username);
     $_theirContacts = $this->system->Data("Get", ["cms", md5($username)]) ?? [];
     $_yourContacts = $this->system->Data("Get", ["cms", md5($you)]) ?? [];
     $theirContacts = $_theirContacts["Contacts"] ?? [];

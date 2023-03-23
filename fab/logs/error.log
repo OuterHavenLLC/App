@@ -258,3 +258,7 @@
 [2023-03-18  20:28:38] INFO fserve/fserve_client_create checking for file /stream (/home/mike/public_html/fab/web/stream)
 [2023-03-18  20:28:38] WARN fserve/fserve_client_create req for file "/home/mike/public_html/fab/web/stream" No such file or directory
 [2023-03-18  20:28:38] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)
+[2023-03-21  04:26:53] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
+[2023-03-21  04:26:53] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
+[2023-03-21  04:26:53] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)
+[2023-03-21  04:27:04] INFO admin/admin_handle_request Bad or missing password on admin command request (command: )
