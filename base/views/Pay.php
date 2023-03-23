@@ -263,7 +263,7 @@
    $username = base64_decode($data["UN"]);
    $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
    $t = $this->system->Member($username);
-   $braintree = $shop["Processing"] ?? [];
+   $payments = $shop["Processing"] ?? [];
    $ck = $this->system->CheckBraintreeKeys($bt);
    $r = $this->system->Change([[
     "[Error.Back]" => "",
