@@ -1,11 +1,9 @@
-<?php
+<?php // phpcs:disable Generic.Commenting.DocComment.MissingShort
+
 namespace Braintree;
 
 /**
  * Braintree Gateway module
- *
- * @package    Braintree
- * @category   Resources
  */
 class Gateway
 {
@@ -21,6 +19,7 @@ class Gateway
      */
     public $graphQLClient;
 
+    // phpcs:ignore PEAR.Commenting.FunctionComment.Missing
     public function __construct($config)
     {
         if (is_array($config)) {
@@ -122,6 +121,15 @@ class Gateway
 
     /**
      *
+     * @return ExchangeRateQuoteGateway
+     */
+    public function exchangeRateQuote()
+    {
+        return new ExchangeRateQuoteGateway($this);
+    }
+
+    /**
+     *
      * @return MerchantGateway
      */
     public function merchant()
@@ -172,6 +180,15 @@ class Gateway
     public function payPalAccount()
     {
         return new PayPalAccountGateway($this);
+    }
+
+    /**
+     *
+     * @return SepaDirectDebitAccountGateway
+     */
+    public function sepaDirectDebitAccount()
+    {
+        return new SepaDirectDebitAccountGateway($this);
     }
 
     /**
@@ -264,4 +281,3 @@ class Gateway
         return new WebhookTestingGateway($this);
     }
 }
-class_alias('Braintree\Gateway', 'Braintree_Gateway');

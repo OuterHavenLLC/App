@@ -1,17 +1,31 @@
 <?php
- require_once("autoload.php");
- if(version_compare(PHP_VERSION, "7.2.0", "<")) {
-  throw new Braintree_Exception("PHP version >= 7.2.0 required");
+ require_once(__DIR__.DIRECTORY_SEPARATOR."autoload.php");
+ if(version_compare(PHP_VERSION, "7.3.0", "<")) {
+  throw new Braintree\Exception("PHP version >= 7.3.0 required");
  }
- class Braintree {
-  public static function requireDependencies() {
-   $ext = ["curl", "dom", "hash", "openssl", "xmlwriter"];
-    foreach($ext as $e) {
-     if(!extension_loaded($e)) {
-      throw new Braintree_Exception("The Braintree library requires the $e extension.");
-     }
+
+/**
+ * Braintree PHP Library
+ * Creates class_aliases for old class names replaced by PSR-4 Namespaces
+ */
+class Braintree
+{
+    /**
+     * Checks for required dependencies
+     *
+     * @throws Braintree/Exception With the missing extension
+     *
+     * @return void
+     */
+    public static function requireDependencies()
+    {
+        $extensions = ['xmlwriter', 'openssl', 'dom', 'hash', 'curl'];
+        foreach ($extensions as $ext) {
+            if (!extension_loaded($ext)) {
+                throw new Braintree\Exception('The Braintree library requires the '.$ext.' extension.');
+            }
+        }
     }
-   }
-  }
- Braintree::requireDependencies();
-?>
+}
+
+Braintree::requireDependencies();
