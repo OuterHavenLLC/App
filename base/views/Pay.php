@@ -42,15 +42,15 @@
       "PublicKey" => $payments["BraintreePublicKey"]
      ];
      $token = base64_decode($braintree["Token"]);
-     $btmid = base64_decode($braintree["MerchantID"]);
+     $merchantID = base64_decode($braintree["MerchantID"]);
      $braintree = new Braintree\Gateway([
       "environment" => $envrionment,
-      "merchantId" => $btmid,
+      "merchantId" => $merchantID,
       "privateKey" => base64_decode($braintree["PrivateKey"]),
       "publicKey" => base64_decode($braintree["PublicKey"])
      ]);
      $token = $braintree->clientToken()->generate([
-      "merchantAccountId" => $btmid
+      "merchantAccountId" => $merchantID
      ]) ?? $token;
     } elseif($paymentProcessor == "PayPal") {
      $paypal = ($shop["Live"] == 1) ? [
@@ -98,8 +98,8 @@
      $tax = number_format($total * ($tax / 100), 2);
      if($paymentProcessor == "Braintree") {
       $r = $this->system->Change([[
-       "[Checkout.FSTID]" => md5("Checkout_$btmid"),
-       "[Checkout.ID]" => md5($btmid),
+       "[Checkout.FSTID]" => md5("Checkout_$merchantID"),
+       "[Checkout.ID]" => md5($merchantID),
        "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"]."&payment_method_nonce=",
        "[Checkout.Region]" => $this->system->region,
        "[Checkout.Title]" => $shop["Title"],
@@ -142,20 +142,20 @@
     require_once($this->bt);
     $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
     $token = base64_decode($payments["BraintreeToken"]);
-    $btmid = base64_decode($payments["BraintreeMerchantID"]);
+    $merchantID = base64_decode($payments["BraintreeMerchantID"]);
     $braintree = new Braintree\Gateway([
      "environment" => $environment,
-     "merchantId" => $btmid,
+     "merchantId" => $merchantID,
      "privateKey" => base64_decode($payments["BraintreePrivateKey"]),
      "publicKey" => base64_decode($payments["BraintreePublicKey"])
     ]);
     $token = $braintree->clientToken()->generate([
-     "merchantAccountId" => $btmid
+     "merchantAccountId" => $merchantID
     ]) ?? $token;
     $r = $this->system->Change([[
      "[Commission.Action]" => "pay your $$amount commission",
-     "[Commission.FSTID]" => md5("Commission_$btmid"),
-     "[Commission.ID]" => md5($btmid),
+     "[Commission.FSTID]" => md5("Commission_$merchantID"),
+     "[Commission.ID]" => md5($merchantID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".base64_encode($amount)."&ID=".md5($username)."&st=".base64_encode("Commission")."&payment_method_nonce=",
      "[Commission.Title]" => $shop["Title"],
      "[Commission.Region]" => $this->system->region,
@@ -214,21 +214,21 @@
      "PublicKey" => $payments["BraintreePublicKey"],
      "Token" => $payments["BraintreeToken"]
     ];
-    $btmid = base64_decode($braintree["MerchantID"]);
+    $merchantID = base64_decode($braintree["MerchantID"]);
     $token = base64_decode($braintree["Token"]);
     $braintree = new Braintree\Gateway([
      "environment" => $environment,
-     "merchantId" => $btmid,
+     "merchantId" => $merchantID,
      "privateKey" => base64_decode($braintree["PrivateKey"]),
      "publicKey" => base64_decode($braintree["PublicKey"])
     ]);
     $token = $braintree->clientToken()->generate([
-     "merchantAccountId" => $btmid
+     "merchantAccountId" => $merchantID
     ]) ?? $token;
     $r = $this->system->Change([[
      "[Commission.Action]" => "donate $$amount",
-     "[Commission.FSTID]" => md5("Donation_$btmid"),
-     "[Commission.ID]" => md5($btmid),
+     "[Commission.FSTID]" => md5("Donation_$merchantID"),
+     "[Commission.ID]" => md5($merchantID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation")."&payment_method_nonce=",
      "[Commission.Title]" => $shop["Title"],
      "[Commission.Region]" => $this->system->region,
@@ -312,24 +312,24 @@
       "PublicKey" => $payments["BraintreePublicKey"],
       "Token" => $payments["BraintreeToken"]
      ];
-     $btmid = base64_decode($braintree["MerchantID"]);
+     $merchantID = base64_decode($braintree["MerchantID"]);
      $token = base64_decode($braintree["Token"]);
      $braintree = new Braintree\Gateway([
       "environment" => $environment,
-      "merchantId" => $btmid,
+      "merchantId" => $merchantID,
       "privateKey" => base64_decode($braintree["PrivateKey"]),
       "publicKey" => base64_decode($braintree["PublicKey"])
      ]);
      $token = $braintree->clientToken()->generate([
-      "merchantAccountId" => $btmid
+      "merchantAccountId" => $merchantID
      ]) ?? $token;
      $total = $sales / $partners;
      $r = $this->system->Change([[
       "[Partner.Checkout]" => "v=$sp&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($total)."&payment_method_nonce=",
       "[Partner.LastMonth]" => $this->system->ConvertCalendarMonths($data["Month"]),
       "[Partner.Pay.Amount]" => number_format($total, 2),
-      "[Partner.Pay.FSTID]" => md5("PaymentComplete$username"),
-      "[Partner.Pay.ID]" => md5($btmid),
+      "[Partner.Pay.FSTID]" => md5("PaymentComplete$merchantID"),
+      "[Partner.Pay.ID]" => md5($merchantID),
       "[Partner.Pay.Region]" => $this->system->region,
       "[Partner.Pay.Token]" => $token,
       "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
