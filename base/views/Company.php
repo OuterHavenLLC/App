@@ -19,7 +19,7 @@
     "[Donate.40]" => $donate.base64_encode(40),
     "[Donate.45]" => $donate.base64_encode(45),
     "[Donate.1000]" => $donate.base64_encode(1000),
-    "[Donate.1999]" => $donate.base64_encode(1999),
+    "[Donate.2000]" => $donate.base64_encode(2000),
     "[Donate.FSTID]" => md5("Donation_Pay")
    ], $this->system->Page("39e1ff34ec859482b7e38e012f81a03f")]);
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [

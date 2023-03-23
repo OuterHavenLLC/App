@@ -160,7 +160,8 @@
      "[Commission.Title]" => $shop["Title"],
      "[Commission.Region]" => $this->system->region,
      "[Commission.Token]" => $token,
-     "[Commission.Total]" => $amount
+     "[Commission.Total]" => number_format($amount, 2),
+     "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
    } elseif($paymentProcessor == "PayPal") {
     $paypal = ($shop["Live"] == 1) ? [
@@ -170,12 +171,14 @@
     ];
     $clientID = base64_decode($paypal["ClientID"]);
     $r = $this->system->Change([[
-     "[Commission.Action]" => "donate $$amount",
+     "[Commission.Action]" => "pay your $$amount commission",
      "[Commission.ClientID]" => $clientID,
+     "[Commission.FSTID]" => md5("Commission_$clientID"),
      "[Commission.ID]" => md5($clientID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".base64_encode($amount)."&ID=".md5($username)."&st=".base64_encode("Commission"),
      "[Commission.Title]" => $shop["Title"],
-     "[Commission.Total]" => str_replace(",", "", number_format($amount, 2))
+     "[Commission.Total]" => number_format($amount, 2),
+     "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
    return $r;
@@ -219,7 +222,8 @@
      "[Commission.Title]" => $shop["Title"],
      "[Commission.Region]" => $this->system->region,
      "[Commission.Token]" => $token,
-     "[Commission.Total]" => number_format($amount, 2)
+     "[Commission.Total]" => number_format($amount, 2),
+     "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
    } elseif($paymentProcessor == "PayPal") {
     $paypal = ($shop["Live"] == 1) ? [
@@ -235,7 +239,8 @@
      "[Commission.ID]" => md5($clientID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation"),
      "[Commission.Title]" => $shop["Title"],
-     "[Commission.Total]" => str_replace(",", "", number_format($amount, 2))
+     "[Commission.Total]" => number_format($amount, 2),
+     "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
    return $r;
