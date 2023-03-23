@@ -707,98 +707,105 @@
    return $r;
   }
   function SaveCommissionOrDonation(array $a) {
+   $ck = 0;
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "amount",
+    "order_ID",
     "payment_method_nonce",
     "st"
    ]);
+   $amount = $data["amount"] ?? base64_encode(0);
+   $amount = number_format(base64_decode($amount), 2);
    $r = $this->system->Change([[
     "[Checkout.Data]" => json_encode($data)
    ], $this->system->Page("f9ee8c43d9a4710ca1cfc435037e9abd")]);
    $username = $this->system->ShopID;
+   $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
+   $payments = $shop["Processing"] ?? [];
+   $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["payment_method_nonce"])) {
-    require_once($this->bt);
-    $amount = $data["amount"] ?? base64_encode(0);
-    $amount = number_format(base64_decode($amount), 2);
-    $points = $this->system->core["PTS"]["Donations"] ?? 100;
-    $saleType = (!empty($data["st"])) ? base64_decode($data["st"]) : "";
-    $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
-    $braintree = $shop["Processing"] ?? [];
-    $live = $shop["Live"] ?? 0;
-    $environment = ($live == 1) ? "production" : "sandbox";
-    $braintree = new Braintree_Gateway([
-     "environment" => $environment,
-     "merchantId" => base64_decode($braintree["BraintreeMerchantID"]),
-     "privateKey" => base64_decode($braintree["BraintreePrivateKey"]),
-     "publicKey" => base64_decode($braintree["BraintreePublicKey"])
-    ]);
-    $order = $braintree->transaction()->sale([
-     "amount" => str_replace(",", "", $amount),
-      "customer" => [
-      "firstName" => $y["Personal"]["FirstName"]
-     ],
-     "options" => [
-      "submitForSettlement" => true
-     ],
-     "paymentMethodNonce" => $data["payment_method_nonce"]
-    ]);
-    if($order->success) {
-     $_MiNYContributors = $shop["Contributors"] ?? [];
-     $now = $this->system->timestamp;
-     if($saleType == "Commission") {
-      $_LastMonth = $this->system->LastMonth()["LastMonth"];
-      $_LastMonth = explode("-", $_LastMonth);
-      $income = $this->system->Data("Get", ["id", md5($you)]) ?? [];
-      $income[$_LastMonth[0]][$_LastMonth[1]]["PaidCommission"] = 1;
-      $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
-      $shop["Open"] = 1;
-      $shopSaleID = "COMMISSION*".$shop["Title"];
-      $this->system->Data("Save", ["id", md5($username), $income]);
-      $this->system->Data("Save", ["shop", md5($you), $shop]);
-      $this->system->Revenue([$username, [
-       "Cost" => 0,
-       "ID" => $shopSaleID,
-       "Partners" => $_MiNYContributors,
-       "Profit" => $amount,
-       "Quantity" => 1,
-       "Title" => $shopSaleID
-      ]]);
-      $y["Subscriptions"]["Artist"] = [
-       "A" => 1,
-       "B" => $now,
-       "E" => $this->TimePlus($now, 1, "month")
-      ];
-     } elseif($saleType == "Donation") {
-      $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
-      $shopSaleID = "DONATION*".$shop["Title"];
-      $this->system->Revenue([$username, [
-       "Cost" => 0,
-       "ID" => $shopSaleID,
-       "Partners" => $_MiNYContributors,
-       "Profit" => $amount,
-       "Quantity" => 1,
-       "Title" => $shopSaleID
-      ]]);
-     }
-     $amount = "$$amount";
-     $amount .= ($saleType == "Commission") ? " commission" : " donation";
-     $message = ($saleType == "Commission") ? "You may now access your Artist dashboard." : "$points points have been added";
-     $y["Points"] = $y["Points"] + $points;
-     $this->system->Data("Save", ["mbr", md5($you), $y]);
-     $r = $this->system->Change([[
-      "[Commission.Message]" => $message,
-      "[Commission.Type]" => $amount
-     ], $this->system->Page("f2bea3c1ebf2913437fcfdc0c1601ce0")]);
-    } else {
+   if($paymentProcessor == "Braintree") {
+    $paymentNonce = $data["payment_method_nonce"];
+    if(!empty($paymentNonce)) {
+     require_once($this->bt);
+     $live = $shop["Live"] ?? 0;
+     $environment = ($live == 1) ? "production" : "sandbox";
+     $braintree = new Braintree_Gateway([
+      "environment" => $environment,
+      "merchantId" => base64_decode($payments["BraintreeMerchantID"]),
+      "privateKey" => base64_decode($payments["BraintreePrivateKey"]),
+      "publicKey" => base64_decode($payments["BraintreePublicKey"])
+     ]);
+     $order = $braintree->transaction()->sale([
+      "amount" => str_replace(",", "", $amount),
+       "customer" => [
+       "firstName" => $y["Personal"]["FirstName"]
+      ],
+      "options" => [
+       "submitForSettlement" => true
+      ],
+      "paymentMethodNonce" => $paymentNonce
+     ]);
+     $ck = ($order->success) ? 1 : 0;
      $r = $this->system->Change([[
       "[Checkout.Order.Message]" => $order->message,
       "[Checkout.Order.Products]" => 1,
       "[Checkout.Order.Success]" => json_encode($order->success)
      ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
     }
+   } elseif($paymentProcessor == "PayPal") {
+    $ck = (!empty($data["order_ID"])) ? 1 : 0;
+   } if($ck == 1) {
+    $points = $this->system->core["PTS"]["Donations"] ?? 100;
+    $saleType = (!empty($data["st"])) ? base64_decode($data["st"]) : "";
+    $_MiNYContributors = $shop["Contributors"] ?? [];
+    $now = $this->system->timestamp;
+    if($saleType == "Commission") {
+     $_LastMonth = $this->system->LastMonth()["LastMonth"];
+     $_LastMonth = explode("-", $_LastMonth);
+     $income = $this->system->Data("Get", ["id", md5($you)]) ?? [];
+     $income[$_LastMonth[0]][$_LastMonth[1]]["PaidCommission"] = 1;
+     $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
+     $shop["Open"] = 1;
+     $shopSaleID = "COMMISSION*".$shop["Title"];
+     #$this->system->Data("Save", ["id", md5($username), $income]);
+     #$this->system->Data("Save", ["shop", md5($you), $shop]);
+     $this->system->Revenue([$username, [
+      "Cost" => 0,
+      "ID" => $shopSaleID,
+      "Partners" => $_MiNYContributors,
+      "Profit" => $amount,
+      "Quantity" => 1,
+      "Title" => $shopSaleID
+     ]]);
+     $y["Subscriptions"]["Artist"] = [
+      "A" => 1,
+      "B" => $now,
+      "E" => $this->TimePlus($now, 1, "month")
+     ];
+    } elseif($saleType == "Donation") {
+     $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
+     $shopSaleID = "DONATION*".$shop["Title"];
+     $this->system->Revenue([$username, [
+      "Cost" => 0,
+      "ID" => $shopSaleID,
+      "Partners" => $_MiNYContributors,
+      "Profit" => $amount,
+      "Quantity" => 1,
+      "Title" => $shopSaleID
+     ]]);
+    }
+    $amount = "$$amount";
+    $amount .= ($saleType == "Commission") ? " commission" : " donation";
+    $message = ($saleType == "Commission") ? "You may now access your Artist dashboard." : "$points points have been added";
+    $y["Points"] = $y["Points"] + $points;
+    #$this->system->Data("Save", ["mbr", md5($you), $y]);
+    $r = $this->system->Change([[
+     "[Commission.Message]" => $message,
+     "[Commission.Type]" => $amount
+    ], $this->system->Page("f2bea3c1ebf2913437fcfdc0c1601ce0")]);
    }
    return $r;
   }
