@@ -191,7 +191,7 @@
      "CPW" => "7d4928e003e769f78cf40068cfdd2bc9.jpg",
      "DOC" => "0dc477cf7c6d1210b9312c1f579f8a1d.png",
      "FAB" => "8806a28fa51a9cf0ecbec012f1e4fd66.png",
-     "KEY" => "db8d8212e57138b737870366f46b368d.png.png",
+     "KEY" => "db8d8212e57138b737870366f46b368d.png",
      "LOGO" => "04ca5194af02b1f4e50ed4135fe6c39a.png",
      "LOGO-D" => "11b1bd06816a4cc429d25626731f6458.png",
      "MSG" => "b3a19746167389a973c51f5ffced827b.png",
