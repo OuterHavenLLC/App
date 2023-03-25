@@ -385,11 +385,17 @@
       ],
       "paymentMethodNonce" => $paymentNonce
      ]);
+     $order->message = $order->message ?? "N/A";
+     $r = $this->system->Change([[
+      "[Checkout.Order.Message]" => $order->message,
+      "[Checkout.Order.Products]" => 1,
+      "[Checkout.Order.Success]" => $order->success
+     ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
      if($order->success) {
       $id = $this->system->Data("Get", ["id", md5($you)]) ?? [];
       $pc = number_format(0, 2);
       $pid = "DISBURSEMENTS*$username";
-      /*$this->system->Revenue([$username, [
+      $this->system->Revenue([$username, [
        "Cost" => $amount,
        "ID" => $pid,
        "Partners" => $shop["Contributors"],
@@ -404,7 +410,7 @@
        "Profit" => $pc,
        "Quantity" => 1,
        "Title" => $pid
-      ]]);*/
+      ]]);
       $id[$data["Year"]][$data["Month"]]["Partners"][$username]["Paid"] = 1;
       $this->system->Data("Save", ["id", md5($you), $id]);
       $r = $this->system->Change([[
@@ -412,12 +418,6 @@
        "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
        "[Partner.Username]" => $username
       ], $this->system->Page("70881ae11e9353107ded2bed93620ef4")]);
-     } else {
-      $r = $this->system->Change([[
-       "[Checkout.Order.Message]" => $order->message,
-       "[Checkout.Order.Products]" => 1,
-       "[Checkout.Order.Success]" => json_encode($order->success)
-      ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
      }
     }
    }
@@ -685,10 +685,11 @@
        "paymentMethodNonce" => $paymentNonce
       ]);
       $ck = ($order->success) ? 1 : 0;
+      $order->message = $order->message ?? "N/A";
       $r = $this->system->Change([[
        "[Checkout.Order.Message]" => $order->message,
        "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
-       "[Checkout.Order.Success]" => json_encode($order->success)
+       "[Checkout.Order.Success]" => $order->success
       ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
      }
     } elseif($paymentProcessor == "PayPal") {
@@ -770,12 +771,13 @@
       ],
       "paymentMethodNonce" => $paymentNonce
      ]);
+     $ck = ($order->success) ? 1 : 0;
+     $order->message = $order->message ?? "N/A";
      $r = $this->system->Change([[
       "[Checkout.Order.Message]" => $order->message,
       "[Checkout.Order.Products]" => 1,
-      "[Checkout.Order.Success]" => json_encode($order->success)
+      "[Checkout.Order.Success]" => $order->success
      ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
-     $ck = ($order->success) ? 1 : 0;
     }
    } elseif($paymentProcessor == "PayPal") {
     $ck = (!empty($data["order_ID"])) ? 1 : 0;

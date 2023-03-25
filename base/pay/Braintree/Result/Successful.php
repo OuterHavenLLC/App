@@ -61,11 +61,10 @@ class Successful extends Instance
         }
     }
 
-    // phpcs:ignore PEAR.Commenting.FunctionComment.Missing
     public function __toString()
     {
         $objects = [];
-        foreach ($this->_returnObjectNames as $returnObjectName) {
+        foreach($this->_returnObjectNames as $returnObjectName) {
             array_push($objects, $returnObjectName);
         }
         return __CLASS__ . '[' . implode(', ', $objects) . ']';
