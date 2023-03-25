@@ -537,14 +537,14 @@
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
       if($bundle == 0) {
-       $this->system->Revenue([$shopOwner, [
+       /*$this->system->Revenue([$shopOwner, [
         "Cost" => $product["Cost"],
         "ID" => $id,
         "Partners" => $contributors,
         "Profit" => $product["Profit"],
         "Quantity" => $purchaseQuantity,
         "Title" => $product["Title"]
-       ]]);
+       ]]);*/
       } if($product["Quantity"] > 0) {
        #$this->system->Data("Save", ["miny", $id, $product]);
       }
