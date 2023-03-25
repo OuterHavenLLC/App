@@ -69,11 +69,14 @@
      $total = 0;
      foreach($cart as $key => $value) {
       $product = $this->system->Data("Get", ["miny", $key]) ?? [];
-      $ck = (strtotime($now) < $product["Expires"]) ? 1 : 0;
-      if($ck == 1) {
-       $price = str_replace(",", "", $product["Cost"]);
-       $price = $price + str_replace(",", "", $product["Profit"]);
-       $subtotal = $subtotal + $price;
+      $quantity = $product["Quantity"] ?? 0;
+      if(!empty($product) && $quantity != 0) {
+       $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+       if($productIsActive == 1) {
+        $price = str_replace(",", "", $product["Cost"]);
+        $price = $price + str_replace(",", "", $product["Profit"]);
+        $subtotal = $subtotal + $price;
+       }
       }
      } if($discountCode != 0) {
       $discountCode = $discountCode ?? [];
@@ -437,9 +440,10 @@
     $history = $y["Shopping"]["History"][$shopID] ?? [];
     $id = $a["Product"]["ID"] ?? "";
     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
+    $quantity = $product["Quantity"] ?? 0;
     $shop = $this->system->Data("Get", ["shop", $shopID]) ?? [];
     $t = ($shopOwner == $you) ? $y : $this->system->Member($shopOwner);
-    if(!empty($product)) {
+    if(!empty($product) && $quantity != 0) {
      $bundledProducts = $product["Bundled"] ?? [];
      $contributors = $shop["Contributors"] ?? [];
      $now = $this->system->timestamp;
@@ -629,11 +633,14 @@
     $total = 0;
     foreach($cart as $key => $value) {
      $product = $this->system->Data("Get", ["miny", $key]) ?? [];
-     $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
-     if($productIsActive == 1) {
-      $price = str_replace(",", "", $product["Cost"]);
-      $price = $price + str_replace(",", "", $product["Profit"]);
-      $subtotal = $subtotal + $price;
+     $quantity = $product["Quantity"] ?? 0;
+     if(!empty($product) && $quantity != 0) {
+      $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+      if($productIsActive == 1) {
+       $price = str_replace(",", "", $product["Cost"]);
+       $price = $price + str_replace(",", "", $product["Profit"]);
+       $subtotal = $subtotal + $price;
+      }
      }
     } if($discountCode != 0) {
      $discountCode = $discountCode ?? [];

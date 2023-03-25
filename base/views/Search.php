@@ -755,22 +755,26 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "Display" => 1
     ]);
     $data = $this->system->FixMissing($data, ["ID"]);
+    $newCartList = [];
+    $now = $this->system->timestamp;
     $remove = base64_encode("Cart:Remove");
     $tpl = $this->system->Page("dea3da71b28244bf7cf84e276d5d1cba");
     $x = $y["Shopping"]["Cart"][$data["ID"]] ?? [];
     $x = $x["Products"] ?? [];
     foreach($x as $k => $v) {
      $p = $this->system->Data("Get", ["miny", $k]) ?? [];
-     $ck = (strtotime($this->system->timestamp) < $p["Expires"]) ? 1 : 0;
+     $productIsActive = (strtotime($now) < $p["Expires"]) ? 1 : 0;
      $illegal = $p["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     if(!empty($p) && $ck == 1 && $illegal == 0) {
+     $quantity = $p["Quantity"] ?? 0;
+     if(!empty($p) && $productIsActive == 1 && $quantity != 0 && $illegal == 0) {
       $coverPhoto = $p["ICO"] ?? $coverPhoto;
       $coverPhoto = base64_encode($coverPhoto);
+      $newCartList[$k] = $v;
       array_push($msg, [
        "[X.LI.I]" => base64_encode($this->system->CoverPhoto($coverPhoto)),
        "[X.LI.T]" => base64_encode($p["Title"]),
-       "[X.LI.D]" => base64_encode($p["Description"]),
+       "[X.LI.D]" => base64_encode($p["Description"].$you),
        "[X.LI.Remove]" => base64_encode($this->view($remove, ["Data" => [
         "ProductID" => base64_encode($k),
         "ShopID" => base64_encode($data["ID"])
@@ -778,6 +782,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
      }
     }
+    $y["Shopping"]["Cart"][$data["ID"]]["Products"] ?? $newCartList;
+    $this->system->Data("Save", ["mbr", md5($you), $y]);
    } elseif($st == "Contacts") {
     $ec = "Accepted";
     $tpl = $this->system->Page("ccba635d8c7eca7b0b6af5b22d60eb55");

@@ -261,12 +261,6 @@
    $username = (!empty($username)) ? base64_decode($username) : $you;
    $cart = $y["Shopping"]["Cart"][md5($username)]["Products"] ?? [];
    $cartCount = count($cart);
-   $continue = ($cartCount > 0) ? $this->system->Element([
-    "button", "Continue", [
-     "class" => "BB BBB v2 v2w",
-     "onclick" => "FST('N/A', 'v=".base64_encode("Pay:Checkout")."&UN=".$data["UN"]."', '".md5("ShoppingCart$username-Checkout")."');"
-    ]
-   ]) : "";
    $credits = $y["Shopping"]["Cart"][md5($username)]["Credits"] ?? 0;
    $credits = number_format($credits, 2);
    $discountCode = $y["Shopping"]["Cart"][md5($username)]["DiscountCode"] ?? 0;
@@ -276,11 +270,14 @@
    $total = 0;
    foreach($cart as $key => $value) {
     $product = $this->system->Data("Get", ["miny", $key]) ?? [];
-    $ck = (strtotime($now) < $product["Expires"]) ? 1 : 0;
-    if($ck == 1) {
-     $price = str_replace(",", "", $product["Cost"]);
-     $price = $price + str_replace(",", "", $product["Profit"]);
-     $subtotal = $subtotal + $price;
+    $quantity = $product["Quantity"] ?? 0;
+    if(!empty($product) && $quantity != 0) {
+     $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+     if($productIsActive == 1) {
+      $price = str_replace(",", "", $product["Cost"]);
+      $price = $price + str_replace(",", "", $product["Profit"]);
+      $subtotal = $subtotal + $price;
+     }
     }
    } if($discountCode != 0) {
     $discountCode = $discountCode ?? [];
@@ -303,6 +300,13 @@
    $total = $subtotal - $credits - $discountCode;
    $tax = $shop["Tax"] ?? 10.00;
    $tax = number_format($total * ($tax / 100), 2);
+   $mayContinue = ($cartCount > 0 && $subtotal > 0) ? 1 : 0;
+   $continue = ($mayContinue == 1) ? $this->system->Element([
+    "button", "Continue", [
+     "class" => "BB BBB v2 v2w",
+     "onclick" => "FST('N/A', 'v=".base64_encode("Pay:Checkout")."&UN=".$data["UN"]."', '".md5("ShoppingCart$username-Checkout")."');"
+    ]
+   ]) : "";
    return $this->system->Change([[
     "[Cart.Continue]" => $continue,
     "[Cart.Summary.Discount]" => number_format($credits + $discountCode, 2),
