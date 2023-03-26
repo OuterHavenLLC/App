@@ -541,16 +541,16 @@
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
       if($bundle == 0) {
-       /*$this->system->Revenue([$shopOwner, [
+       $this->system->Revenue([$shopOwner, [
         "Cost" => $product["Cost"],
         "ID" => $id,
         "Partners" => $contributors,
         "Profit" => $product["Profit"],
         "Quantity" => $purchaseQuantity,
         "Title" => $product["Title"]
-       ]]);*/
+       ]]);
       } if($product["Quantity"] > 0) {
-       #$this->system->Data("Save", ["miny", $id, $product]);
+       $this->system->Data("Save", ["miny", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $bundled = explode("-", base64_decode($bundled));
@@ -707,7 +707,7 @@
      $physicalOrders = $this->system->Data("Get", ["po", $shopID]) ?? [];
      $r = "";
      foreach($cart as $key => $value) {
-      $product = $this->system->Data("Get", ["miny", md5($key)]) ?? [];
+      $product = $this->system->Data("Get", ["miny", $key]) ?? [];
       if(!empty($product)) {
        $bundle = $value["Bundled"] ?? [];
        $bundle = (!empty($bundle)) ? 1 : 0;
@@ -719,7 +719,7 @@
        if($isActive == 0 || $isInStock == 0) {
         $price = str_replace(",", "", $product["Cost"]);
         $price = $price + str_replace(",", "", $product["Profit"]);
-        $points = $points + ($price / 10000);
+        $points = $points + ($price * 10000);
        } else {
         $cartOrder = $this->ProcessCartOrder([
          "Bundled" => $bundle,
@@ -739,10 +739,10 @@
      $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
      $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
      $y["Shopping"]["Cart"][$shopID]["Products"] = [];
-     #$this->system->Data("Save", ["mbr", md5($you), $y]);
-     #$this->system->Data("Save", ["po", $shopID, $physicalOrders]);
+     $this->system->Data("Save", ["mbr", md5($you), $y]);
+     $this->system->Data("Save", ["po", $shopID, $physicalOrders]);
      $r = $this->system->Change([[
-      "[Checkout.Order]" => $r."<p>$points</p>\r\n",
+      "[Checkout.Order]" => $r,
       "[Checkout.Title]" => $shop["Title"],
       "[Checkout.Total]" => $total
      ], $this->system->Page("83d6fedaa3fa042d53722ec0a757e910")]);
