@@ -703,7 +703,7 @@
      $ck = (!empty($orderID)) ? 1 : 0;
      $orderID = base64_decode($orderID);
     } if($ck == 1) {
-     $credits = 0;
+     $points = $y["Point"] ?? 0;
      $physicalOrders = $this->system->Data("Get", ["po", $shopID]) ?? [];
      $r = "";
      foreach($cart as $key => $value) {
@@ -717,7 +717,9 @@
        $value["ID"] = $value["ID"] ?? $key;
        $value["Quantity"] = $value["Quantity"] ?? 1;
        if($isActive == 0 || $isInStock == 0) {
-        $credits = $credits + $product["Cost"] + $product["Profit"];
+        $price = str_replace(",", "", $product["Cost"]);
+        $price = $price + str_replace(",", "", $product["Profit"]);
+        $points = $points + ($price / 10000);
        } else {
         $cartOrder = $this->ProcessCartOrder([
          "Bundled" => $bundle,
@@ -734,7 +736,7 @@
       }
      }
      // CONVERT $credits TO $points
-     //$y["Points"] = $points + $y["Points"];
+     //$y["Points"] = $points;
      $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
      $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
      $y["Shopping"]["Cart"][$shopID]["Products"] = [];
