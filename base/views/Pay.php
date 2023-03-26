@@ -703,32 +703,45 @@
      $ck = (!empty($orderID)) ? 1 : 0;
      $orderID = base64_decode($orderID);
     } if($ck == 1) {
+     $credits = 0;
      $physicalOrders = $this->system->Data("Get", ["po", $shopID]) ?? [];
      $r = "";
      foreach($cart as $key => $value) {
-      $bundle = $value["Bundled"] ?? [];
-      $bundle = (!empty($bundle)) ? 1 : 0;
-      $value["ID"] = $value["ID"] ?? $key;
-      $value["Quantity"] = $value["Quantity"] ?? 1;
-      $cartOrder = $this->ProcessCartOrder([
-       "Bundled" => $bundle,
-       "PayPalOrderID" => $orderID,
-       "PhysicalOrders" => $physicalOrders,
-       "Product" => $value,
-       "UN" => $username,
-       "You" => $y
-      ]);
-      $physicalOrders = ($cartOrder["ERR"] == 0) ? $cartOrder["PhysicalOrders"] : $physicalOrders;
-      $r .= $cartOrder["Response"];
-      $y = $cartOrder["Member"];
+      $product = $this->system->Data("Get", ["miny", md5($key)]) ?? [];
+      if(!empty($product)) {
+       $bundle = $value["Bundled"] ?? [];
+       $bundle = (!empty($bundle)) ? 1 : 0;
+       $isActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+       $isInStock = $product["Quantity"] ?? 0;
+       $isInStock = ($isInStock != 0) ? 1 : 0;
+       $value["ID"] = $value["ID"] ?? $key;
+       $value["Quantity"] = $value["Quantity"] ?? 1;
+       if($isActive == 0 || $isInStock == 0) {
+        $credits = $credits + $product["Cost"] + $product["Profit"];
+       } else {
+        $cartOrder = $this->ProcessCartOrder([
+         "Bundled" => $bundle,
+         "PayPalOrderID" => $orderID,
+         "PhysicalOrders" => $physicalOrders,
+         "Product" => $value,
+         "UN" => $username,
+         "You" => $y
+        ]);
+        $physicalOrders = ($cartOrder["ERR"] == 0) ? $cartOrder["PhysicalOrders"] : $physicalOrders;
+        $r .= $cartOrder["Response"];
+        $y = $cartOrder["Member"];
+       }
+      }
      }
+     // CONVERT $credits TO $points
+     //$y["Points"] = $points + $y["Points"];
      $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
      $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
      $y["Shopping"]["Cart"][$shopID]["Products"] = [];
      #$this->system->Data("Save", ["mbr", md5($you), $y]);
      #$this->system->Data("Save", ["po", $shopID, $physicalOrders]);
      $r = $this->system->Change([[
-      "[Checkout.Order]" => $r,
+      "[Checkout.Order]" => $r."<p>$credits</p>\r\n",
       "[Checkout.Title]" => $shop["Title"],
       "[Checkout.Total]" => $total
      ], $this->system->Page("83d6fedaa3fa042d53722ec0a757e910")]);
