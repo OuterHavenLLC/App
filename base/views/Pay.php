@@ -703,7 +703,7 @@
      $ck = (!empty($orderID)) ? 1 : 0;
      $orderID = base64_decode($orderID);
     } if($ck == 1) {
-     $points = $y["Point"] ?? 0;
+     $points = $y["Points"] ?? 0;
      $physicalOrders = $this->system->Data("Get", ["po", $shopID]) ?? [];
      $r = "";
      foreach($cart as $key => $value) {
@@ -735,15 +735,14 @@
        }
       }
      }
-     // CONVERT $credits TO $points
-     //$y["Points"] = $points;
+     $y["Points"] = $points;
      $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
      $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
      $y["Shopping"]["Cart"][$shopID]["Products"] = [];
      #$this->system->Data("Save", ["mbr", md5($you), $y]);
      #$this->system->Data("Save", ["po", $shopID, $physicalOrders]);
      $r = $this->system->Change([[
-      "[Checkout.Order]" => $r."<p>$credits</p>\r\n",
+      "[Checkout.Order]" => $r."<p>$points</p>\r\n",
       "[Checkout.Title]" => $shop["Title"],
       "[Checkout.Total]" => $total
      ], $this->system->Page("83d6fedaa3fa042d53722ec0a757e910")]);
