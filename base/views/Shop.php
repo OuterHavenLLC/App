@@ -337,6 +337,7 @@
      "data-type" => $data["lPG"]
     ]
    ]) : "";
+   $i = 0
    $pub = $data["pub"] ?? 0;
    $r = $this->MadeInNewYork(["back" => $bck]);
    $username = $data["UN"] ?? base64_encode("");
@@ -344,7 +345,6 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($pub == 1) {
-    $i = 0;
     $shops = $this->system->DatabaseSet("SHOP") ?? [];
     foreach($shops as $key => $value) {
      $shop = str_replace("c.oh.shop.", "", $value);
