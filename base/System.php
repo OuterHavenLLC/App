@@ -1531,41 +1531,42 @@
    $x[$y][$m][$a]++;
    $this->Data("Save", ["x", "stats", $x]);
   }
-  function TimeAgo($t) {
-   $p = [
-    "second", "minute", "hour", "day", "week", "month", "year", "decade", "century", "millennium"
-   ];
-   $l = [
-    60,
-    60,
-    24,
-    7,
-    4.35,
-    12,
-    10,
-    100,
-    1000
-   ];
-   $n = time();
-   $ud = strtotime($t);
-   if(empty($ud)) {
-    return "<strong>Invalid!</strong>";
-   } if($n > $ud) {
-    $d = $n - $ud;
-    $t = "ago";
-   } else {
-    $d = $ud - $n;
-    $t = "just now";
-   } for($j = 0; $d >= $l[$j] && $j < count($l) - 1; $j++) {
-    $d /= $l[$j];
+  function TimeAgo($a) {
+   if(!is_numeric($a) && !strtotime($a)) {
+    $r = "Invalid time format. Expected a UNIX timestamp or date/time string.";
+   } if(!is_numeric($a)) {
+    $a = strtotime($a);
+    if(!$a) {
+     $r = "Unable to parse time.";
+    }
    }
-   $d = round($d);
-   if($d != 1) {
-    $p[$j] .= "s";
-    return "$d $p[$j] {$t}";
-   } else {
-    return "Just now";
+   $difference = time() - $a;
+   $periods = [
+    "second" => 1,
+    "minute" => 60,
+    "hour" => 3600,
+    "day" => 86400,
+    "week" => 604800,
+    "month" => 2592000,
+    "year" => 31536000,
+    "decade" => 315360000,
+    "century" => 3153600000,
+    "millennium" => 31536000000
+   ];
+   foreach($periods as $period => $seconds) {
+    if($difference < $seconds) {
+     continue;
+    }
+    $difference = round($difference / $seconds);
+    if($difference == 0) {
+     $r = "Just now";
+    } elseif($difference == 1) {
+     $r = "1 $period ago";
+    } else {
+     $r = "$difference $periods[$period]s ago";
+    }
    }
+   return $r;
   }
   function TimePlus($a, $b, $c) {
    return strtotime("+$b $c", strtotime($a));
