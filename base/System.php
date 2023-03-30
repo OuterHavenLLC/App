@@ -1554,16 +1554,16 @@
     "millennium" => 31536000000
    ];
    foreach($periods as $period => $seconds) {
-    if($difference < $seconds) {
-     continue;
-    }
-    $difference = round($difference / $seconds);
-    if($difference == 0) {
-     $r = "Just now";
-    } elseif($difference == 1) {
-     $r = "1 $period ago";
-    } else {
-     $r = "$difference $periods[$period]s ago";
+    if($difference > $seconds) {
+     $difference = round($difference / $seconds);
+     if($difference == 0) {
+      $r = "Just now";
+     } elseif($difference == 1) {
+      $r = "1 $period ago";
+     } else {
+      // Revise: Does not go any greater than hours.
+      $r = "$difference ".$period."s ago";
+     }
     }
    }
    return $r;
