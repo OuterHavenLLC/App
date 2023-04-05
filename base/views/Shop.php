@@ -556,8 +556,10 @@
        $revenueSplit = ($revenue - $revenueOverheadCosts) / $partnersCount;
        foreach($partners as $partner => $info) {
         $paid = $vinfo["Paid"] ?? 0;
-        $pck = ($paid == 0 && $partner != $you) ? 1 : 0;
-        $pck = ($pck == 1 && $month != date("m")) ? 1 : 0;
+        $pck = ($partner != $you) ? 1 : 0;//TEMP
+        #$pck = ($paid == 0 && $partner != $you) ? 1 : 0;
+        $pck = ($pck == 1 && $month == date("m")) ? 1 : 0;//TEMP
+        #$pck = ($pck == 1 && $month != date("m")) ? 1 : 0;
         $pay = ($pck == 1) ? $this->system->Element([
          "button", "$".number_format($revenueSplit, 2), [
           "class" => "BB BBB v2",

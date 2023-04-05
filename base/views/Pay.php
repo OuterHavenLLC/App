@@ -261,12 +261,16 @@
   }
   function Disbursement(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["Month", "UN", "Year"]);
-   $sp = base64_encode("Pay:DisbursementComplete");
+   $data = $this->system->FixMissing($data, [
+    "Month",
+    "UN",
+    "Year"
+   ]);
    $username = base64_decode($data["UN"]);
    $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
    $t = $this->system->Member($username);
    $payments = $shop["Processing"] ?? [];
+   $paymentProcessor = $payments["PaymentProcessor"] ?? "PayPal";
    $ck = $this->system->CheckBraintreeKeys($bt);
    $r = $this->system->Change([[
     "[Error.Back]" => "",
@@ -284,9 +288,9 @@
      if($k == "Sales") {
       for($i = 0; $i < count($k); $i++) {
        foreach($v[$i] as $k2 => $v2) {
-        $prc = $v2["Cost"] + $v2["Profit"];
-        $prc = $prc * $v2["Quantity"];
-        $sales = $sales + $prc;
+        $price = str_replace(",", "", $v2["Cost"]);
+        $price = $price + str_replace(",", "", $v2["Profit"]);
+        $sales = $sales + $price;
        }
       }
      }
@@ -302,33 +306,42 @@
      $id[$data["Year"]][$data["Month"]][$username]["Paid"] = 1;
      $this->system->Data("Save", ["id", md5($y["Login"]["Username"]), $id]);
     } else {
-     require_once($this->bt);
-     $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
-     $braintree = ($shop["Live"] == 1) ? [
-      "MerchantID" => $payments["BraintreeMerchantIDLive"],
-      "PrivateKey" => $payments["BraintreePrivateKeyLive"],
-      "PublicKey" => $payments["BraintreePublicKeyLive"],
-      "Token" => $payments["BraintreeTokenLive"]
-     ] : [
-      "MerchantID" => $payments["BraintreeMerchantID"],
-      "PrivateKey" => $payments["BraintreePrivateKey"],
-      "PublicKey" => $payments["BraintreePublicKey"],
-      "Token" => $payments["BraintreeToken"]
-     ];
-     $merchantID = base64_decode($braintree["MerchantID"]);
-     $token = base64_decode($braintree["Token"]);
-     $braintree = new Braintree\Gateway([
-      "environment" => $environment,
-      "merchantId" => $merchantID,
-      "privateKey" => base64_decode($braintree["PrivateKey"]),
-      "publicKey" => base64_decode($braintree["PublicKey"])
-     ]);
-     $token = $braintree->clientToken()->generate([
-      "merchantAccountId" => $merchantID
-     ]) ?? $token;
+     if($paymentProcessor == "Braintree") {
+      require_once($this->bt);
+      $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
+      $braintree = ($shop["Live"] == 1) ? [
+       "MerchantID" => $payments["BraintreeMerchantIDLive"],
+       "PrivateKey" => $payments["BraintreePrivateKeyLive"],
+       "PublicKey" => $payments["BraintreePublicKeyLive"],
+       "Token" => $payments["BraintreeTokenLive"]
+      ] : [
+       "MerchantID" => $payments["BraintreeMerchantID"],
+       "PrivateKey" => $payments["BraintreePrivateKey"],
+       "PublicKey" => $payments["BraintreePublicKey"],
+       "Token" => $payments["BraintreeToken"]
+      ];
+      $merchantID = base64_decode($braintree["MerchantID"]);
+      $token = base64_decode($braintree["Token"]);
+      $braintree = new Braintree\Gateway([
+       "environment" => $environment,
+       "merchantId" => $merchantID,
+       "privateKey" => base64_decode($braintree["PrivateKey"]),
+       "publicKey" => base64_decode($braintree["PublicKey"])
+      ]);
+      $token = $braintree->clientToken()->generate([
+       "merchantAccountId" => $merchantID
+      ]) ?? $token;
+     } elseif($paymentProcessor == "PayPal") {
+      $paypal = ($shop["Live"] == 1) ? [
+       "ClientID" => $payments["PayPalClientIDLive"]
+      ] : [
+       "ClientID" => $payments["PayPalClientID"]
+      ];
+      $clientID = base64_decode($paypal["ClientID"]);
+     }
      $total = $sales / $partners;
      $r = $this->system->Change([[
-      "[Partner.Checkout]" => "v=$sp&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($total)."&payment_method_nonce=",
+      "[Partner.Checkout]" => "v=".base64_encode("Pay:DisbursementComplete")."&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($total)."&payment_method_nonce=",
       "[Partner.LastMonth]" => $this->system->ConvertCalendarMonths($data["Month"]),
       "[Partner.Pay.Amount]" => number_format($total, 2),
       "[Partner.Pay.FSTID]" => md5("PaymentComplete$merchantID"),
