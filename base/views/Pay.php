@@ -259,10 +259,10 @@
    }
    return $r;
   }
-  function Partner(array $a) {
+  function Disbursement(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["Month", "UN", "Year"]);
-   $sp = base64_encode("Pay:PartnerComplete");
+   $sp = base64_encode("Pay:DisbursementComplete");
    $username = base64_decode($data["UN"]);
    $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
    $t = $this->system->Member($username);
@@ -342,7 +342,7 @@
    }
    return $r;
   }
-  function PartnerComplete(array $a) {
+  function DisbursementComplete(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "UN",

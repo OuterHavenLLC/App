@@ -337,7 +337,7 @@
      "data-type" => $data["lPG"]
     ]
    ]) : "";
-   $i = 0
+   $i = 0;
    $pub = $data["pub"] ?? 0;
    $r = $this->MadeInNewYork(["back" => $bck]);
    $username = $data["UN"] ?? base64_encode("");
@@ -562,7 +562,7 @@
          "button", "$".number_format($revenueSplit, 2), [
           "class" => "BB BBB v2",
           "data-lm" => base64_encode($month),
-          "onclick" => "FST('N/A', 'v=".base64_encode("Pay:Partner")."&Month=$month&UN=".base64_encode($username)."&Year=$year', '".md5("Pay".md5($username))."');"
+          "onclick" => "FST('N/A', 'v=".base64_encode("Pay:Disbursement")."&Month=$month&UN=".base64_encode($username)."&Year=$year', '".md5("Pay".md5($username))."');"
          ]
         ]) : $this->system->Element(["p", "No Action Needed"]);
         $partner .= $this->system->Change([[
