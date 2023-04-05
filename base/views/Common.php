@@ -232,7 +232,7 @@
         } foreach($sales as $day => $salesGroup) {
          $saleTable = "";
          foreach($salesGroup as $daySales => $daySale) {
-          foreach($daySale as $id => $product) {
+          foreach($daySale as $sale => $product) {
            $price = str_replace(",", "", $product["Cost"]);
            $price = $price + str_replace(",", "", $product["Profit"]);
            $price = $price * $product["Quantity"];

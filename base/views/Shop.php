@@ -382,9 +382,8 @@
       "Y" => $you
      ]);
      $ck2 = ($t["Login"]["Username"] == $this->system->ShopID) ? 1 : $ck2;
-     $ck3 = $this->system->CheckBraintreeKeys($shop["Processing"]);
      $contributors = $shop["Contributors"] ?? [];
-     if($ck == 1 || ($bl == 0 && $ck2 == 1 && $ck3 > 0)) {
+     if($ck == 1 || ($bl == 0 && $ck2 == 1)) {
       $active = 0;
       foreach($contributors as $member => $role) {
        if($active == 0 && $member == $you) {
@@ -515,6 +514,7 @@
    $yearTable = "";
    $you = $y["Login"]["Username"];
    $payroll = $this->system->Data("Get", ["id", md5($you)]) ?? [];
+   $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
    foreach($payroll as $year => $yearData) {
     if(is_array($yearData)) {
      $monthTable = "";
@@ -552,11 +552,12 @@
        $tax = $shop["Tax"] ?? 10.00;
        $tax = number_format($subtotal * ($tax / 100), 2);
        $total = number_format($subtotal - $commission - $tax, 2);
-       $revenueOverheadCosts = $total * (5.00 / 100);
-       $revenueSplit = ($revenue - $revenueOverheadCosts) / $partnersCount;
+       $intTotal = str_replace(",", "", $total);
+       $revenueOverheadCosts = $intTotal * (5.00 / 100);
+       $revenueSplit = ($intTotal - $revenueOverheadCosts) / $partnersCount;
        foreach($partners as $partner => $info) {
-        $paid = $vinfo["Paid"] ?? 0;
-        $pck = ($partner != $you) ? 1 : 0;//TEMP
+        $paid = $info["Paid"] ?? 0;
+        $pck = ($partner == $you) ? 1 : 0;//TEMP
         #$pck = ($paid == 0 && $partner != $you) ? 1 : 0;
         $pck = ($pck == 1 && $month == date("m")) ? 1 : 0;//TEMP
         #$pck = ($pck == 1 && $month != date("m")) ? 1 : 0;
@@ -564,12 +565,12 @@
          "button", "$".number_format($revenueSplit, 2), [
           "class" => "BB BBB v2",
           "data-lm" => base64_encode($month),
-          "onclick" => "FST('N/A', 'v=".base64_encode("Pay:Disbursement")."&Month=$month&UN=".base64_encode($username)."&Year=$year', '".md5("Pay".md5($username))."');"
+          "onclick" => "dB2C();FST('N/A', 'v=".base64_encode("Pay:Disbursement")."&Month=$month&UN=".base64_encode($partner)."&Year=$year', '".md5("Pay".md5($partner))."');"
          ]
         ]) : $this->system->Element(["p", "No Action Needed"]);
-        $partner .= $this->system->Change([[
-         "[Partner.Description]" => $data["Description"],
-         "[Partner.DisplayName]" => $username,
+        $partnerTable .= $this->system->Change([[
+         "[Partner.Description]" => $info["Description"],
+         "[Partner.DisplayName]" => $partner,
          "[Partner.Pay]" => $pay
         ], $_Partner]);
        }
@@ -589,14 +590,14 @@
       ], $_Year]);
      }
     }
-    $yearTable = (empty($id)) ? $this->system->Element([
+    $yearTable = $yearTable ?? $this->system->Element([
      "h3", "No earnings to report...", [
       "class" => "CenterText",
       "style" => "margin:0.5em"
      ]
-    ]) : $yearTable;
+    ]);
     $r = $this->system->Change([[
-     "[IncomeDisclosure.DisplayName]" => $t["Personal"]["DisplayName"],
+     "[IncomeDisclosure.DisplayName]" => $y["Personal"]["DisplayName"],
      "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
      "[IncomeDisclosure.Table]" => $yearTable
     ], $this->system->Page("4ab1c6f35d284a6eae66ebd46bb88d5d")]);

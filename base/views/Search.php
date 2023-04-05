@@ -1910,9 +1910,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "Y" => $y["Login"]["Username"]
        ]);
        $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-       $ck3 = $this->system->CheckBraintreeKeys($g["Processing"]);
-       $ck4 = $g["Open"] ?? 0;
-       $ck = ($ck == 1 && $ck2 == 1 && $ck3 > 0 && $ck4 == 1) ? 1 : 0;
+       $ck3 = $g["Open"] ?? 0;
+       $ck = ($ck == 1 && $ck2 == 1 && $ck4 == 1) ? 1 : 0;
        $illegal = $g["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        if($t["Login"]["Username"] == $y["Login"]["Username"] || ($bl == 0 && $ck == 1) && $illegal == 0) {

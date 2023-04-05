@@ -267,11 +267,7 @@
     "Year"
    ]);
    $username = base64_decode($data["UN"]);
-   $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
    $t = $this->system->Member($username);
-   $payments = $shop["Processing"] ?? [];
-   $paymentProcessor = $payments["PaymentProcessor"] ?? "PayPal";
-   $ck = $this->system->CheckBraintreeKeys($bt);
    $r = $this->system->Change([[
     "[Error.Back]" => "",
     "[Error.Header]" => "Error",
@@ -279,19 +275,19 @@
    ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["Month"]) && !empty($data["UN"]) && !empty($data["Year"]) && $ck == 4) {
+   if(!empty($data["Month"]) && !empty($data["UN"]) && !empty($data["Year"])) {
     $id = $this->system->Data("Get", ["id", md5($you)]) ?? [];
     $id = $id[$data["Year"]][$data["Month"]] ?? [];
     $partners = count($id["Partners"]);
     $sales = 0;
-    foreach($id as $k => $v) {
-     if($k == "Sales") {
-      for($i = 0; $i < count($k); $i++) {
-       foreach($v[$i] as $k2 => $v2) {
-        $price = str_replace(",", "", $v2["Cost"]);
-        $price = $price + str_replace(",", "", $v2["Profit"]);
-        $sales = $sales + $price;
-       }
+    $salesData = $id["Sales"] ?? [];
+    foreach($salesData as $day => $salesGroup) {
+     foreach($salesGroup as $daySales => $daySale) {
+      foreach($daySale as $sale => $product) {
+       $price = str_replace(",", "", $product["Cost"]);
+       $price = $price + str_replace(",", "", $product["Profit"]);
+       $price = $price * $product["Quantity"];
+       $sales = $sales + $price;
       }
      }
     }
@@ -299,13 +295,25 @@
      [
       "[Error.Back]" => "",
       "[Error.Header]" => "No Payment Necessary",
-      "[Error.Message]" => "You cannot pay ".$t["Personal"]["DisplayName"].", as there are no funds to disburse."
+      "[Error.Message]" => "You cannot pay ".$t["Personal"]["DisplayName"]." as there are no funds to disburse. Funds: $sales."
      ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")
     ]);
-    if($s == 0) {
+    if($sales == 0) {
      $id[$data["Year"]][$data["Month"]][$username]["Paid"] = 1;
-     $this->system->Data("Save", ["id", md5($y["Login"]["Username"]), $id]);
+     #$this->system->Data("Save", ["id", md5($you), $id]);
     } else {
+     $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
+     $payments = $shop["Processing"] ?? [];
+     $payments = $this->system->FixMissing($payments, [
+      "BraintreeMerchantIDLive",
+      "BraintreePrivateKeyLive",
+      "BraintreePublicKeyLive",
+      "BraintreeTokenLive",
+      "PayPalClientID",
+      "PayPalClientIDLive",
+      "PayPalEmailLive"
+     ]);
+     $paymentProcessor = $payments["PaymentProcessor"] ?? "PayPal";
      if($paymentProcessor == "Braintree") {
       require_once($this->bt);
       $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
@@ -340,17 +348,30 @@
       $clientID = base64_decode($paypal["ClientID"]);
      }
      $total = $sales / $partners;
-     $r = $this->system->Change([[
-      "[Partner.Checkout]" => "v=".base64_encode("Pay:DisbursementComplete")."&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($total)."&payment_method_nonce=",
-      "[Partner.LastMonth]" => $this->system->ConvertCalendarMonths($data["Month"]),
-      "[Partner.Pay.Amount]" => number_format($total, 2),
-      "[Partner.Pay.FSTID]" => md5("PaymentComplete$merchantID"),
-      "[Partner.Pay.ID]" => md5($merchantID),
-      "[Partner.Pay.Region]" => $this->system->region,
-      "[Partner.Pay.Token]" => $token,
-      "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
-      "[Partner.Username]" => $username
-     ], $this->system->Page("6ed9bbbc61563b846b512acf94550806")]);
+     if($paymentProcessor == "Braintree") {
+      $r = $this->system->Change([[
+       "[Partner.Checkout]" => "v=".base64_encode("Pay:DisbursementComplete")."&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($total)."&payment_method_nonce=",
+       "[Partner.LastMonth]" => $this->system->ConvertCalendarMonths($data["Month"]),
+       "[Partner.Pay.Amount]" => number_format($total, 2),
+       "[Partner.Pay.FSTID]" => md5("PaymentComplete$merchantID"),
+       "[Partner.Pay.ID]" => md5($merchantID),
+       "[Partner.Pay.Region]" => $this->system->region,
+       "[Partner.Pay.Token]" => $token,
+       "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
+       "[Partner.Username]" => $username
+      ], $this->system->Page("6ed9bbbc61563b846b512acf94550806")]);
+     } elseif($paymentProcessor == "PayPal") {
+      $r = $this->system->Change([[
+       "[Partner.Checkout]" => "v=".base64_encode("Pay:DisbursementComplete")."&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($total),
+       "[Partner.ClientID]" => $clientID,
+       "[Partner.LastMonth]" => $this->system->ConvertCalendarMonths($data["Month"]),
+       "[Partner.Pay.Amount]" => number_format($total, 2),
+       "[Partner.Pay.ID]" => md5("PaymentComplete$clientID"),
+       "[Partner.Pay.Total]" => str_replace(",", "", $total),
+       "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
+       "[Partner.Username]" => $username
+      ], $this->system->Page("0c7719c7da9bbead3fea3bffe65294f4")]);
+     }
     }
    }
    return $r;
@@ -358,11 +379,13 @@
   function DisbursementComplete(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
+    "Month",
     "UN",
+    "Year",
     "amount",
-    "payment_method_nonce"
+    "payment_method_nonce",
+    "order_ID"
    ]);
-   $paymentNonce = $data["payment_method_nonce"];
    $r = $this->system->Change([[
     "[Error.Back]" => "",
     "[Error.Header]" => "Error",
@@ -371,70 +394,92 @@
    $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["Month"]) && !empty($data["Year"]) && !empty($paymentNonce) && !empty($username)) {
+   if(!empty($data["Month"]) && !empty($data["Year"]) && !empty($username)) {
     $username = base64_decode($username);
     $t = $this->system->Member($username);
     $shop = $this->system->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
     ]) ?? [];
-    $braintree = $shop["Processing"] ?? [];
-    $ck = $this->system->CheckBraintreeKeys($bt);
-    if($ck == 4) {
-     $env = ($shop["Live"] == 1) ? "production" : "sandbox";
-     require_once($this->bt);
-     $braintree = new Braintree\Gateway([
-      "environment" => $env,
-      "merchantId" => base64_decode($braintree["BraintreeMerchantID"]),
-      "privateKey" => base64_decode($braintree["BraintreePrivateKey"]),
-      "publicKey" => base64_decode($braintree["BraintreePublicKey"])
-     ]);
-     $amount = $data["amount"] ?? base64_encode(0);
-     $amount = number_format(base64_decode($amount), 2);
-     $order = $braintree->transaction()->sale([
-      "amount" => str_replace(",", "", $amount),
+    $live = $shop["Live"] ?? 0;
+    $payments = $shop["Processing"] ?? [];
+    $payments = $this->system->FixMissing($payments, [
+     "BraintreeMerchantIDLive",
+     "BraintreePrivateKeyLive",
+     "BraintreePublicKeyLive",
+     "BraintreeTokenLive",
+     "PayPalClientID",
+     "PayPalClientIDLive",
+     "PayPalEmailLive"
+    ]);
+    $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
+    if($paymentProcessor == "Braintree") {
+     $orderID = "N/A";
+     $paymentNonce = $data["payment_method_nonce"];
+     if(!empty($paymentNonce)) {
+      require_once($this->bt);
+      $amount = $data["amount"] ?? base64_encode(0);
+      $amount = number_format(base64_decode($amount), 2);
+      $envrionment = ($shop["Live"] == 1) ? "production" : "sandbox";
+      $braintree = ($shop["Live"] == 1) ? [
+       "MerchantID" => $payments["BraintreeMerchantIDLive"],
+       "Token" => $payments["BraintreeTokenLive"],
+       "PrivateKey" => $payments["BraintreePrivateKeyLive"],
+       "PublicKey" => $payments["BraintreePublicKeyLive"]
+      ] : [
+       "MerchantID" => $payments["BraintreeMerchantID"],
+       "Token" => $payments["BraintreeToken"],
+       "PrivateKey" => $payments["BraintreePrivateKey"],
+       "PublicKey" => $payments["BraintreePublicKey"]
+      ];
+      $order = $braintree->transaction()->sale([
+       "amount" => str_replace(",", "", $amount),
        "customer" => [
-       "firstName" => $y["Personal"]["FirstName"]
-      ],
-      "options" => [
-       "submitForSettlement" => true
-      ],
-      "paymentMethodNonce" => $paymentNonce
-     ]);
-     $order->message = $order->message ?? "N/A";
-     $r = $this->system->Change([[
-      "[Checkout.Order.Message]" => $order->message,
-      "[Checkout.Order.Products]" => 1,
-      "[Checkout.Order.Success]" => $order->success
-     ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
-     if($order->success) {
-      $id = $this->system->Data("Get", ["id", md5($you)]) ?? [];
-      $pc = number_format(0, 2);
-      $pid = "DISBURSEMENTS*$username";
-      $this->system->Revenue([$username, [
-       "Cost" => $amount,
-       "ID" => $pid,
-       "Partners" => $shop["Contributors"],
-       "Profit" => $pc,
-       "Quantity" => 1,
-       "Title" => $pid
-      ]]);
-      $this->system->Revenue([$you, [
-       "Cost" => $amount,
-       "ID" => $pid,
-       "Partners" => $shop["Contributors"],
-       "Profit" => $pc,
-       "Quantity" => 1,
-       "Title" => $pid
-      ]]);
-      $id[$data["Year"]][$data["Month"]]["Partners"][$username]["Paid"] = 1;
-      $this->system->Data("Save", ["id", md5($you), $id]);
+        "firstName" => $y["Personal"]["FirstName"]
+       ],
+       "options" => [
+        "submitForSettlement" => true
+       ],
+       "paymentMethodNonce" => $paymentNonce
+      ]);
+      $ck = ($order->success) ? 1 : 0;
+      $order->message = $order->message ?? "N/A";
       $r = $this->system->Change([[
-       "[Partner.Amount]" => $amount,
-       "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
-       "[Partner.Username]" => $username
-      ], $this->system->Page("70881ae11e9353107ded2bed93620ef4")]);
+       "[Checkout.Order.Message]" => $order->message,
+       "[Checkout.Order.Products]" => 1,
+       "[Checkout.Order.Success]" => $order->success
+      ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
      }
+    } elseif($paymentProcessor == "PayPal") {
+     $ck = (!empty($orderID)) ? 1 : 0;
+     $orderID = base64_decode($orderID);
+    } if($ck == 1) {
+     $id = "DISBURSEMENTS*$username";
+     $income = $this->system->Data("Get", ["id", md5($you)]) ?? [];
+     $profit = number_format(0, 2);
+     $this->system->Revenue([$username, [
+      "Cost" => $amount,
+      "ID" => $id,
+      "Partners" => $shop["Contributors"],
+      "Profit" => $profit,
+      "Quantity" => 1,
+      "Title" => $id
+     ]]);
+     $this->system->Revenue([$you, [
+      "Cost" => $amount,
+      "ID" => $id,
+      "Partners" => $shop["Contributors"],
+      "Profit" => $profit,
+      "Quantity" => 1,
+      "Title" => $id
+     ]]);
+     $income[$data["Year"]][$data["Month"]]["Partners"][$username]["Paid"] = 1;
+     #$this->system->Data("Save", ["id", md5($you), $income]);
+     $r = $this->system->Change([[
+      "[Partner.Amount]" => $amount,
+      "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
+      "[Partner.Username]" => $username
+     ], $this->system->Page("70881ae11e9353107ded2bed93620ef4")]);
     }
    }
    return $r;
