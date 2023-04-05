@@ -557,15 +557,13 @@
        $revenueSplit = ($intTotal - $revenueOverheadCosts) / $partnersCount;
        foreach($partners as $partner => $info) {
         $paid = $info["Paid"] ?? 0;
-        $pck = ($partner == $you) ? 1 : 0;//TEMP
-        #$pck = ($paid == 0 && $partner != $you) ? 1 : 0;
-        $pck = ($pck == 1 && $month == date("m")) ? 1 : 0;//TEMP
-        #$pck = ($pck == 1 && $month != date("m")) ? 1 : 0;
+        $pck = ($paid == 0 && $partner != $you) ? 1 : 0;
+        $pck = ($pck == 1 && $month != date("m")) ? 1 : 0;
         $pay = ($pck == 1) ? $this->system->Element([
          "button", "$".number_format($revenueSplit, 2), [
           "class" => "BB BBB v2",
           "data-lm" => base64_encode($month),
-          "onclick" => "dB2C();FST('N/A', 'v=".base64_encode("Pay:Disbursement")."&Month=$month&UN=".base64_encode($partner)."&Year=$year', '".md5("Pay".md5($partner))."');"
+          "onclick" => "dB2C();FST('N/A', 'v=".base64_encode("Pay:Disbursement")."&Amount=".base64_encode($revenueSplit)."&&Month=$month&UN=".base64_encode($partner)."&Year=$year', '".md5("Pay".md5($partner))."');"
          ]
         ]) : $this->system->Element(["p", "No Action Needed"]);
         $partnerTable .= $this->system->Change([[

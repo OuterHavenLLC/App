@@ -207,7 +207,7 @@
     $username = base64_decode($username);
     $income = $this->system->Data("Get", ["id", md5($username)]) ?? [];
     $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
-    $t = ($username == $you) ? $y : $this->system->member($username);
+    $t = ($username == $you) ? $y : $this->system->Member($username);
     $yearTable = "";
     foreach($income as $year => $yearData) {
      if(is_array($yearData)) {
@@ -270,12 +270,12 @@
       }
      }
     }
-    $yearTable = (empty($id)) ? $this->system->Element([
+    $yearTable = $yearTable ?? $this->system->Element([
      "h3", "No earnings to report...", [
       "class" => "CenterText",
       "style" => "margin:0.5em"
      ]
-    ]) : $yearTable;
+    ]);
     $r = $this->system->Change([[
      "[IncomeDisclosure.DisplayName]" => $t["Personal"]["DisplayName"],
      "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],

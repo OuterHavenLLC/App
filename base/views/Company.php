@@ -123,7 +123,9 @@
     "Priority"
    ]);
    $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "An internal error has ocurred."]),
+    "Body" => $this->system->Element([
+     "p", "An internal error has ocurred."
+    ]),
     "Header" => "Error"
    ]);
    if(!empty($data["MSG"])) {
