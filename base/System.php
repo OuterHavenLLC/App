@@ -1531,41 +1531,38 @@
    $x[$y][$m][$a]++;
    $this->Data("Save", ["x", "stats", $x]);
   }
-  function TimeAgo($a) {
-   if(!is_numeric($a) && !strtotime($a)) {
-    $r = "Invalid time format. Expected a UNIX timestamp or date/time string.";
-   } if(!is_numeric($a)) {
-    $a = strtotime($a);
-    if(!$a) {
-     $r = "Unable to parse time.";
-    }
+  function TimeAgo($datetime, $full = false) {
+   $now = new DateTime;
+   if(is_numeric($datetime)) {
+    $datetime = "@$datetime";
    }
-   $difference = time() - $a;
-   $periods = [
-    "second" => 1,
-    "minute" => 60,
-    "hour" => 3600,
-    "day" => 86400,
-    "week" => 604800,
-    "month" => 2592000,
-    "year" => 31536000,
-    "decade" => 315360000,
-    "century" => 3153600000,
-    "millennium" => 31536000000
-   ];
-   foreach($periods as $period => $seconds) {
-    // Revise: Does not go any greater than hours.
-    if($difference >= $seconds) {
-     $difference = round($difference / $seconds);
-     if($difference == 0) {
-      $r = "Just now";
-     } elseif($difference == 1) {
-      $r = "1 $period ago";
-     } else {
-      $r = "$difference ".$period."s ago";
-     }
-    }
+   $datetime = new DateTime($datetime);
+   $interval = $now->diff($datetime);
+   $suffix = " ago";
+   if($interval->y >= 1) {
+    $value = $interval->y;
+    $unit = "year";
+   } elseif($interval->m >= 1) {
+    $value = $interval->m;
+    $unit = "month";
+   } elseif($interval->d >= 1) {
+    $value = $interval->d;
+    $unit = "day";
+   } elseif($interval->h >= 1) {
+    $value = $interval->h;
+    $unit = "hour";
+   } elseif($interval->i >= 1) {
+    $value = $interval->i;
+    $unit = "minute";
+   } else {
+    $value = $interval->s;
+    $unit = "second";
+   } if($value != 1) {
+    $unit .= "s";
+   } if($full) {
+    $r = $interval->format("%d days, %H hours, %I minutes, %S seconds").$suffix;
    }
+   $r = "$value ".$unit.$suffix;
    return $r;
   }
   function TimePlus($a, $b, $c) {

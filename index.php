@@ -1,7 +1,11 @@
 <?php
  require_once("base/Bootloader.php");
  $data = array_merge($_GET, $_POST);
- $doNotEncode = ["CSS", "JS", "Maintanance"];
+ $doNotEncode = [
+  "CSS",
+  "JS",
+  "Maintanance"
+ ];
  $api = $data["_API"] ?? "";
  $gw = New GW;
  $view = $data["v"] ?? "";
@@ -17,8 +21,7 @@
   } elseif($view == "F2") {
    $r = $gw->system->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
   } elseif($view == "GW") {
-   $r = $gw->system->Data("Get", ["pg", "a62f482184a8b2eefa006a37890666d7"]);
-   $r = $gw->system->PlainText(["Data" => $r["Body"], "Decode" => 1]);
+   $r = $gw->system->Page("a62f482184a8b2eefa006a37890666d7");
   }
   $r = $gw->system->Change([[
    "[OH.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
