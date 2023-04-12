@@ -718,11 +718,6 @@
    ]);
   }
   function SignUp(array $a) {
-    /*"FrontButton" => $this->system->Element(["button", "Sign Up", [
-     "class" => "BBB SendData v2",
-     "data-form" => "#register",
-     "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignUp"))
-    ]])*/ // INTEGRATE INTO SIGN UP EXPERIENCE
    return $this->system->Card([
     "Front" => $this->system->Change([[
      "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
