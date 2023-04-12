@@ -270,7 +270,7 @@
       }
      }
     }
-    $yearTable = $yearTable ?? $this->system->Element([
+    $yearTable = (!empty($income)) ? $yearTable : $this->system->Element([
      "h3", "No earnings to report...", [
       "class" => "CenterText",
       "style" => "margin:0.5em"
@@ -729,6 +729,7 @@
      "[SignUp.Age.Year]" => $this->system->Select("BirthYear", "req v2w"),
      "[SignUp.Gender]" => $this->system->Select("gender", "req"),
      "[SignUp.MinAge]" => $this->system->core["minAge"],
+     "[SignUp.Processor]" => base64_encode("v=".base64_encode("Common:SaveSignUp")),
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ]);
