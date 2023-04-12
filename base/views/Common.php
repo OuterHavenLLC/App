@@ -725,11 +725,12 @@
     ]])*/ // INTEGRATE INTO SIGN UP EXPERIENCE
    return $this->system->Card([
     "Front" => $this->system->Change([[
+     "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
      "[SignUp.Age.Month]" => $this->system->Select("BirthMonth", "req v2w"),
      "[SignUp.Age.Year]" => $this->system->Select("BirthYear", "req v2w"),
      "[SignUp.Gender]" => $this->system->Select("gender", "req"),
      "[SignUp.MinAge]" => $this->system->core["minAge"],
-     "[SignUp.Processor]" => base64_encode("v=".base64_encode("Common:SaveSignUp")),
+     "[SignUp.RetirnView]" => base64_encode("v=".base64_encode("Common:SaveSignUp")),
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ]);

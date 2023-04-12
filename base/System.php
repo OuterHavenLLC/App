@@ -994,7 +994,7 @@
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "BirthMonth") {
-    for($i = 1; $i < 12; $i++) {
+    for($i = 1; $i <= 12; $i++) {
      $s = ((empty($c) && $i == date("m")) || $i == $c) ? " selected=\"selected\"" : "";
      $r .= "<option value=\"$i\"$s>$i</option>\r\n";
     }

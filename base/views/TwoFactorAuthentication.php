@@ -94,14 +94,6 @@
    // 2FA FOR NEW MEMBERS
    return "OK";
   }
-  function Phone(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   // 2FA VIA SMS
-   $r = $this->system->Page("XXXX");
-   return $r;
-  }
   function __destruct() {
    // DESTROYS THIS CLASS
   }
