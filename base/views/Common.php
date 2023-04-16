@@ -582,19 +582,23 @@
    ]);
   }
   function SaveSignUp(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, [
+    "BirthMonth",
+    "BirthYear",
+    "Email",
+    "Name",
+    "Password",
+    "Password2",
     "PIN",
-    "PW",
+    "PIN2",
     "SOE",
-    "UN",
-    "email",
-    "gender",
-    "name"
+    "Username",
+    "gender"
    ]);
-   $ec = "Denied";
-   $r = $this->system->JSONResponse([$ec, $r]);
+   $r = "Internal Error";
    if(!empty($data)) {
     $age = date("Y") - $data["BirthYear"];
     $i = 0;
@@ -604,24 +608,28 @@
     $pw = $data["PW"];
     $un = $this->system->CallSign($data["UN"]);
     $mbr = $this->system->DatabaseSet("MBR");
-    foreach($mbr as $k => $v) {
-     $v = str_replace("c.oh.mbr.", "", $v);
-     $m = $this->system->Data("Get", ["mbr", $v]) ?? [];
-     if($i == 0 && $m["Login"]["Username"] == $un) {
+    foreach($mbr as $key => $value) {
+     $value = str_replace("c.oh.mbr.", "", $value);
+     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+     if($i == 0 && $member["Login"]["Username"] == $un) {
       $i++;
      }
-    } if($ck == 0) {
-     $r = $this->system->JSONResponse([$ec, "AGE", [$age, $mAge]]);
-    } elseif($i > 0) {
-     $r = $this->system->JSONResponse([$ec, "ME"]);
+    } if(empty($data["Email"])) {
+     $r = "An Email address is required.";
+    } elseif(empty($data["Password"])) {
+     $r = "A Password is required.";
+    } elseif($data["Password"] != $data["Password2"]) {
+     $r = "Your Passwords must match.";
     } elseif(empty($data["PIN"])) {
-     $r = $this->system->JSONResponse([$ec, "PIN"]);
-    } elseif(empty($data["PW"])) {
-     $r = $this->system->JSONResponse([$ec, "PW"]);
-    } elseif(empty($data["UN"])) {
-     $r = $this->system->JSONResponse([$ec, "UN"]);
-    } elseif(empty($data["email"])) {
-     $r = $this->system->JSONResponse([$ec, "EM"]);
+     $r = "Your PINs must match.";
+    } elseif($data["PIN"] != $data["PIN2"]) {
+     $r = "A PIN is required.";
+    } elseif(empty($data["Username"])) {
+     $r = "A Username is required.";
+    } elseif($ck == 0) {
+     $r = "You must be $mAge or older to sign up.";
+    } elseif($i > 0) {
+     $r = "The Username <em>$un</em> is already in use.";
     } else {
      $birthMonth = $data["BirthMonth"] ?? 10;
      $birthYear = $data["BirthYear"] ?? 1995;
@@ -630,13 +638,13 @@
       $x[$data["email"]] = [
        "SendOccasionalEmails" => $data["SOE"],
        "UN" => $un,
-       "email" => $data["email"],
+       "email" => $data["Email"],
        "name" => $fn,
        "phone" => "N/A",
       ];
-      $this->system->Data("Save", ["x", md5("ContactList"), $x]);
+      #$this->system->Data("Save", ["x", md5("ContactList"), $x]);
      }
-     $this->system->Data("Save", [
+     /*$this->system->Data("Save", [
       "cms",
       md5($un),
       ["Contacts" => [], "Requests" => []]
@@ -672,11 +680,11 @@
      $this->system->Data("Save", ["shop", md5($un), [
       "Contributors" => [
        $un => [
-        "Company" => "My Company",
+        "Company" => "$un's Company",
         "Description" => "Oversees general operations and administrative duties.",
         "Hired" => $this->system->timestamp,
         "Paid" => 0,
-        "Title" => "Founder & CEO"
+        "Title" => "CEO"
        ]
       ],
       "CoverPhoto" => "",
@@ -692,16 +700,32 @@
        "PayPalEmail" => ""
       ],
       "Products" => [],
-      "Title" => "My Shop",
+      "Title" => "$un's Shop",
       "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
      ]]);
-     $this->system->Statistic("MBR");
-     $r = $this->system->JSONResponse([
-      "Accepted", $this->system->Encrypt("$un:$pw"), "Data" => $d
+     $this->system->Statistic("MBR");*/
+     /*$r = $this->system->JSONResponse([
+      "Accepted",
+      ,
+      "Data" => $data
+     ]);*/
+     $r = $this->system->Element([
+      "h1", "Debug"
+     ]).$this->system->Element([
+      "p", "Data: ".json_encode($data, true)
+     ]).$this->system->Element([
+      "p", "Key: ".$this->system->Encrypt("$un:$pw")
      ]);
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "GoToView"
+   ]);
   }
   function SignIn(array $a) {
    return $this->system->Dialog([
@@ -725,7 +749,7 @@
      "[SignUp.Age.Year]" => $this->system->Select("BirthYear", "req v2w"),
      "[SignUp.Gender]" => $this->system->Select("gender", "req"),
      "[SignUp.MinAge]" => $this->system->core["minAge"],
-     "[SignUp.RetirnView]" => base64_encode("v=".base64_encode("Common:SaveSignUp")),
+     "[SignUp.ReturnView]" => base64_encode("v=".base64_encode("Common:SaveSignUp")),
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ]);

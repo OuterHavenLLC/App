@@ -97,6 +97,7 @@
     "BirthMonth",
     "BirthYear",
     "Email",
+    "Name",
     "Password",
     "Password2",
     "PIN",
@@ -109,22 +110,40 @@
     "BirthMonth",
     "BirthYear",
     "Email",
+    "Name",
     "Password",
     "Password2",
     "PIN",
     "PIN2",
+    "ReturnView",
     "Username"
    ];
-   # IF ALL REQUIRED FIELDS ARE FILLED, CONTINUE...
    $ck = 0;
+   $ck2 = ($data["Password"] == $data["Password2"]) ? 1 : 0;
+   $ck2 = ($ck2 == 1 && $data["PIN"] == $data["PIN2"]) ? 1 : 0;
+   $inputs = [];
+   $r = $this->system->Change([[
+    "[2FA.Error.Message]" => "Something went wrong...",
+    "[2FA.Error.ViewPairID]" => "SignUp"
+   ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
    foreach($required as $key) {
     if(!empty($data[$key])) {
      $ck++;
+     $inputs[$key] = $data[$key] ?? "";
     }
-   } if($ck == count($required)) {
+   } if($data["Password"] == $data["Password2"]) {
+    $r = $this->system->Change([[
+     "[2FA.Error.Message]" => "Your Passwords must match.",
+     "[2FA.Error.ViewPairID]" => "SignUp"
+    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   } elseif($data["PIN"] == $data["PIN2"]) {
+    $r = $this->system->Change([[
+     "[2FA.Error.Message]" => "Your PINs must match.",
+     "[2FA.Error.ViewPairID]" => "SignUp"
+    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   } if($ck == count($required) && $ck2 == 1) {
 
 
-   # -> IF PASSWORDS AND PINS MATCH, CONTINUE...
    $ck = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
    $r = $this->system->Change([[
     "[2FA.Error.Message]" => "An email address is required in order for us to continue the verification process.",
@@ -148,6 +167,13 @@
     } if($emailIsRegistered == 0) {
      $_VerificationCode = uniqid("OH-");
      $_SecureVerificationCode = md5($_VerificationCode);
+     $_Inputs = "";
+     foreach($inputs as $key => $value) {
+      if($key != "ViewPairID") {
+       $_Inputs.="<input name=\"$key\" type=\"text\" value=\"$value\"/>\r\n";
+       #$_Inputs.="<input name=\"$key\" type=\"hidden\" value=\"$value\"/>\r\n";
+      }
+     }
      $this->system->SendEmail([
       "Message" => $this->system->Element([
        "p", "Use the code below to verify your email address:"
@@ -160,10 +186,11 @@
      $r = $this->system->Change([[
       "[2FA.Confirm]" => $_SecureVerificationCode,
       "[2FA.Email]" => $email,
+      "[2FA.Inputs]" => $_Inputs,
       "[2FA.Step2]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
       "[2FA.ReturnView]" => $data["ReturnView"],
       "[2FA.ViewPairID]" => $data["ViewPairID"]
-     ], $this->system->Page("ab9d092807adfadc3184c8ab844a1406")]);
+     ], $this->system->Page("e0513cfec7f3f4505d30c0c854e9dac2")]);
     }
    } elseif($ck == 1) {
     $accessCode = "Accepted";
@@ -183,7 +210,15 @@
       $returnView = json_decode($returnView, true);
       $r = $this->view(base64_encode($returnView["Group"].":".$returnView["View"]), ["Data" => [
        "2FAReturn" => 1,
-       "Email" => base64_encode($data["Email"])
+       "BirthMonth" => $data["BirthMonth"],
+       "BirthYear" => $data["BirthYear"],
+       "Email" => $data["Email"],
+       "Name" => $data["Name"],
+       "Password" => $data["Password"],
+       "Password2" => $data["Password2"],
+       "PIN" => $data["PIN"],
+       "PIN2" => $data["PIN2"],
+       "Username" => $data["Username"]
       ]]);
      }
     }
