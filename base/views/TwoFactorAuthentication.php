@@ -170,8 +170,7 @@
      $_Inputs = "";
      foreach($inputs as $key => $value) {
       if($key != "ViewPairID") {
-       $_Inputs.="<input name=\"$key\" type=\"text\" value=\"$value\"/>\r\n";
-       #$_Inputs.="<input name=\"$key\" type=\"hidden\" value=\"$value\"/>\r\n";
+       $_Inputs.="<input name=\"$key\" type=\"hidden\" value=\"$value\"/>\r\n";
       }
      }
      $this->system->SendEmail([

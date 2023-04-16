@@ -598,73 +598,73 @@
     "Username",
     "gender"
    ]);
+   $_MinimumAge = $this->system->core["MinRegAge"];
+   $birthYear = $data["BirthYear"] ?? 1995;
+   $age = date("Y") - $birthYear;
+   $ck = ($age > $_MinimumAge) ? 1 : 0;
+   $fn = ($data["gender"] == "Male") ? "John" : "Jane";
+   $i = 0;
+   $mbr = $this->system->DatabaseSet("MBR");
+   $pw = $data["Password"];
    $r = "Internal Error";
-   if(!empty($data)) {
-    $age = date("Y") - $data["BirthYear"];
-    $i = 0;
-    $mAge = $this->system->core["MinRegAge"];
-    $ck = ($age > $mAge) ? 1 : 0;
-    $fn = ($data["gender"] == "Male") ? "John" : "Jane";
-    $pw = $data["PW"];
-    $un = $this->system->CallSign($data["UN"]);
-    $mbr = $this->system->DatabaseSet("MBR");
-    foreach($mbr as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
-     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
-     if($i == 0 && $member["Login"]["Username"] == $un) {
-      $i++;
-     }
-    } if(empty($data["Email"])) {
-     $r = "An Email address is required.";
-    } elseif(empty($data["Password"])) {
-     $r = "A Password is required.";
-    } elseif($data["Password"] != $data["Password2"]) {
-     $r = "Your Passwords must match.";
-    } elseif(empty($data["PIN"])) {
-     $r = "Your PINs must match.";
-    } elseif($data["PIN"] != $data["PIN2"]) {
-     $r = "A PIN is required.";
-    } elseif(empty($data["Username"])) {
-     $r = "A Username is required.";
-    } elseif($ck == 0) {
-     $r = "You must be $mAge or older to sign up.";
-    } elseif($i > 0) {
-     $r = "The Username <em>$un</em> is already in use.";
-    } else {
-     $birthMonth = $data["BirthMonth"] ?? 10;
-     $birthYear = $data["BirthYear"] ?? 1995;
-     if($data["SOE"] == 1) {
-      $x = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
-      $x[$data["email"]] = [
-       "SendOccasionalEmails" => $data["SOE"],
-       "UN" => $un,
-       "email" => $data["Email"],
-       "name" => $fn,
-       "phone" => "N/A",
-      ];
-      #$this->system->Data("Save", ["x", md5("ContactList"), $x]);
-     }
-     /*$this->system->Data("Save", [
-      "cms",
-      md5($un),
-      ["Contacts" => [], "Requests" => []]
-     ]);
-     $this->system->Data("Save", ["fs", md5($un), [
-      "Albums" => [
-       md5("unsorted") => [
-        "ID" => md5("unsorted"),
-        "Created" => $this->system->timestamp,
-        "ICO" => "",
-        "Modified" => $this->system->timestamp,
-        "Title" => "Unsorted",
-        "Description" => "Files are uploaded here by default.",
-        "NSFW" => 0,
-        "Privacy" => md5("Public")
-       ]
-      ],
-      "Files" => []
-     ]]);
-     $this->system->Data("Save", ["mbr", md5($un), $this->system->NewMember([
+   $un = $this->system->CallSign($data["Username"]);
+   foreach($mbr as $key => $value) {
+    $value = str_replace("c.oh.mbr.", "", $value);
+    $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+    if($i == 0 && $member["Login"]["Username"] == $un) {
+     $i++;
+    }
+   } if(empty($data["Email"])) {
+    $r = "An Email address is required.";
+   } elseif(empty($data["Password"])) {
+    $r = "A Password is required.";
+   } elseif($data["Password"] != $data["Password2"]) {
+    $r = "Your Passwords must match.";
+   } elseif(empty($data["PIN"])) {
+    $r = "Your PINs must match.";
+   } elseif($data["PIN"] != $data["PIN2"]) {
+    $r = "A PIN is required.";
+   } elseif(empty($data["Username"])) {
+    $r = "A Username is required.";
+   } elseif($ck == 0) {
+    $r = "You must be $mAge or older to sign up.";
+   } elseif($i > 0) {
+    $r = "The Username <em>$un</em> is already in use.";
+   } else {
+    $birthMonth = $data["BirthMonth"] ?? 10;
+    if($data["SOE"] == 1) {
+     $x = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
+     $x[$data["email"]] = [
+      "SendOccasionalEmails" => $data["SOE"],
+      "UN" => $un,
+      "email" => $data["Email"],
+      "name" => $fn,
+      "phone" => "N/A",
+     ];
+     #$this->system->Data("Save", ["x", md5("ContactList"), $x]);
+    }
+    /*$this->system->Data("Save", [
+     "cms",
+     md5($un),
+     ["Contacts" => [], "Requests" => []]
+    ]);
+    $this->system->Data("Save", ["fs", md5($un), [
+     "Albums" => [
+      md5("unsorted") => [
+       "ID" => md5("unsorted"),
+       "Created" => $this->system->timestamp,
+       "ICO" => "",
+       "Modified" => $this->system->timestamp,
+       "Title" => "Unsorted",
+       "Description" => "Files are uploaded here by default.",
+       "NSFW" => 0,
+       "Privacy" => md5("Public")
+      ]
+     ],
+     "Files" => []
+    ]]);
+    $this->system->Data("Save", [
+     "mbr", md5($un), $this->system->NewMember([
       "Age" => $age,
       "BirthMonth" => $birthMonth,
       "BirthYear" => $birthYear,
@@ -675,48 +675,42 @@
       "Password" => $pw,
       "PIN" => md5($data["PIN"]),
       "Username" => $un
-     ])]);
-     $this->system->Data("Save", ["stream", md5($un), []]);
-     $this->system->Data("Save", ["shop", md5($un), [
-      "Contributors" => [
-       $un => [
-        "Company" => "$un's Company",
-        "Description" => "Oversees general operations and administrative duties.",
-        "Hired" => $this->system->timestamp,
-        "Paid" => 0,
-        "Title" => "CEO"
-       ]
-      ],
-      "CoverPhoto" => "",
-      "Description" => "",
-      "Live" => 0,
-      "Modified" => $this->system->timestamp,
-      "Open" => 1,
-      "Processing" => [
-       "BraintreeMerchantID" => "",
-       "BraintreePrivateKey" => "",
-       "BraintreePublicKey" => "",
-       "BraintreeToken" => "",
-       "PayPalEmail" => ""
-      ],
-      "Products" => [],
-      "Title" => "$un's Shop",
-      "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
-     ]]);
-     $this->system->Statistic("MBR");*/
-     /*$r = $this->system->JSONResponse([
-      "Accepted",
-      ,
-      "Data" => $data
-     ]);*/
-     $r = $this->system->Element([
-      "h1", "Debug"
-     ]).$this->system->Element([
-      "p", "Data: ".json_encode($data, true)
-     ]).$this->system->Element([
-      "p", "Key: ".$this->system->Encrypt("$un:$pw")
-     ]);
-    }
+     ])
+    ]);
+    $this->system->Data("Save", ["stream", md5($un), []]);
+    $this->system->Data("Save", ["shop", md5($un), [
+     "Contributors" => [
+      $un => [
+       "Company" => "$un's Company",
+       "Description" => "Oversees general operations and administrative duties.",
+       "Hired" => $this->system->timestamp,
+       "Paid" => 0,
+       "Title" => "CEO"
+      ]
+     ],
+     "CoverPhoto" => "",
+     "Description" => "",
+     "Live" => 0,
+     "Modified" => $this->system->timestamp,
+     "Open" => 1,
+     "Processing" => [
+      "BraintreeMerchantID" => "",
+      "BraintreePrivateKey" => "",
+      "BraintreePublicKey" => "",
+      "BraintreeToken" => "",
+      "PayPalEmail" => ""
+     ],
+     "Products" => [],
+     "Title" => "$un's Shop",
+     "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
+    ]]);
+    $this->system->Statistic("MBR");*/
+    $r = $this->system->Element([
+     "h1", "Debug"
+    ]).$this->system->Element([
+     "p", json_encode($data, true)
+    ]);
+    // REPLACE WITH SUCCESS TEMPLATE
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -749,7 +743,10 @@
      "[SignUp.Age.Year]" => $this->system->Select("BirthYear", "req v2w"),
      "[SignUp.Gender]" => $this->system->Select("gender", "req"),
      "[SignUp.MinAge]" => $this->system->core["minAge"],
-     "[SignUp.ReturnView]" => base64_encode("Common:SaveSignUp"),
+     "[SignUp.ReturnView]" => base64_encode(json_encode([
+      "Group" => "Common",
+      "View" => "SaveSignUp"
+     ], true)),
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ]);
