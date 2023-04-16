@@ -598,7 +598,7 @@
     "Username",
     "gender"
    ]);
-   $_MinimumAge = $this->system->core["MinRegAge"];
+   $_MinimumAge = $this->system->core["minRegAge"];
    $birthYear = $data["BirthYear"] ?? 1995;
    $age = date("Y") - $birthYear;
    $ck = ($age > $_MinimumAge) ? 1 : 0;
@@ -705,12 +705,11 @@
      "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
     ]]);
     $this->system->Statistic("MBR");*/
-    $r = $this->system->Element([
-     "h1", "Debug"
-    ]).$this->system->Element([
-     "p", json_encode($data, true)
-    ]);
-    // REPLACE WITH SUCCESS TEMPLATE
+    $r = $this->system->Change([[
+     "[Success.Message]" => "Welcome, <strong>$un</strong>! You may now sign in to your profile.".json_encode($data, true),
+     "[Success.SignIn]" => "v=".base64_encode("Common:SignIn"),
+    ], $this->system->Page("d4449b01c6da01613cff89e6cf723ad1")]);
+    // REPLACE WITH A SUCCESS PAGE THAT ALLOWS NEW MEMBERS TO SIGN IN (VIA DIALOG)
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
