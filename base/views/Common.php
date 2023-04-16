@@ -749,7 +749,7 @@
      "[SignUp.Age.Year]" => $this->system->Select("BirthYear", "req v2w"),
      "[SignUp.Gender]" => $this->system->Select("gender", "req"),
      "[SignUp.MinAge]" => $this->system->core["minAge"],
-     "[SignUp.ReturnView]" => base64_encode("v=".base64_encode("Common:SaveSignUp")),
+     "[SignUp.ReturnView]" => base64_encode("Common:SaveSignUp"),
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ]);

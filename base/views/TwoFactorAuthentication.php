@@ -118,9 +118,9 @@
     "ReturnView",
     "Username"
    ];
-   $ck = 0;
-   $ck2 = ($data["Password"] == $data["Password2"]) ? 1 : 0;
-   $ck2 = ($ck2 == 1 && $data["PIN"] == $data["PIN2"]) ? 1 : 0;
+   $ck = ($data["Password"] == $data["Password2"]) ? 1 : 0;
+   $ck = ($ck == 1 && $data["PIN"] == $data["PIN2"]) ? 1 : 0;
+   $i = 0;
    $inputs = [];
    $r = $this->system->Change([[
     "[2FA.Error.Message]" => "Something went wrong...",
@@ -128,20 +128,20 @@
    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
    foreach($required as $key) {
     if(!empty($data[$key])) {
-     $ck++;
+     $i++;
      $inputs[$key] = $data[$key] ?? "";
     }
-   } if($data["Password"] == $data["Password2"]) {
+   } if($data["Password"] != $data["Password2"]) {
     $r = $this->system->Change([[
      "[2FA.Error.Message]" => "Your Passwords must match.",
      "[2FA.Error.ViewPairID]" => "SignUp"
     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
-   } elseif($data["PIN"] == $data["PIN2"]) {
+   } elseif($data["PIN"] != $data["PIN2"]) {
     $r = $this->system->Change([[
      "[2FA.Error.Message]" => "Your PINs must match.",
      "[2FA.Error.ViewPairID]" => "SignUp"
     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
-   } if($ck == count($required) && $ck2 == 1) {
+   } if($ck == 1 && $i == count($required)) {
 
 
    $ck = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
