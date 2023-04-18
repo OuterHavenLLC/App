@@ -718,7 +718,7 @@
      "FirstName" => $fn,
      "Gender" => $data["Personal_Gender"],
      "Password" => $pw,
-     "PIN" => md5($data["PIN"]),
+     "PIN" => $data["PIN"],
      "Username" => $un
     ])], true)]);//TEMP
    } if($accessCode != "Accepted") {

@@ -678,8 +678,8 @@
     ],
     "Forums" => $forums,
     "Login" => [
-     "Password" => $password,
-     "PIN" => $pin,
+     "Password" => md5($password),
+     "PIN" => md5($pin),
      "Username" => $username
     ],
     "Pages" => $pages,
