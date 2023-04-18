@@ -105,7 +105,8 @@
     "ReturnView",
     "SOE",
     "Username",
-    "ViewPairID"
+    "ViewPairID",
+    "gender"
    ]);
    $required = [
     "BirthMonth",
@@ -118,7 +119,8 @@
     "PIN2",
     "ReturnView",
     "SOE",
-    "Username"
+    "Username",
+    "gender"
    ];
    $ck = ($data["Password"] == $data["Password2"]) ? 1 : 0;
    $ck = ($ck == 1 && $data["PIN"] == $data["PIN2"]) ? 1 : 0;

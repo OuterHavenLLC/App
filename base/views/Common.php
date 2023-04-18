@@ -670,7 +670,7 @@
       "BirthMonth" => $birthMonth,
       "BirthYear" => $birthYear,
       "DisplayName" => $un,
-      "Email" => $data["email"],
+      "Email" => $data["Email"],
       "FirstName" => $fn,
       "Gender" => $data["Gender"],
       "Password" => $pw,
@@ -710,8 +710,18 @@
      "[Success.SignIn]" => "v=".base64_encode("Common:SignIn"),
      "[Success.Username]" => $un
     ], $this->system->Page("872fd40c7c349bf7220293f3eb64ab45")]);
-    $r.=$this->system->Element(["p", json_encode($data, true)]);//TEMP
-    // REPLACE WITH A SUCCESS PAGE THAT ALLOWS NEW MEMBERS TO SIGN IN (VIA DIALOG)
+    $r.=$this->system->Element(["p", json_encode([$data, $this->system->NewMember([
+     "Age" => $age,
+     "BirthMonth" => $birthMonth,
+     "BirthYear" => $birthYear,
+     "DisplayName" => $un,
+     "Email" => $data["Email"],
+     "FirstName" => $fn,
+     "Gender" => $data["Gender"],
+     "Password" => $pw,
+     "PIN" => md5($data["PIN"]),
+     "Username" => $un
+    ])], true)]);//TEMP
    } if($accessCode != "Accepted") {
     $r = $this->system->Change([[
      "[2FA.Error.Message]" => $r,
