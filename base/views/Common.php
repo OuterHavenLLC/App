@@ -606,11 +606,11 @@
    $mbr = $this->system->DatabaseSet("MBR");
    $pw = $data["Password"];
    $r = "Internal Error";
-   $un = $this->system->CallSign($data["Username"]);
+   $username = $this->system->CallSign($data["Username"]);
    foreach($mbr as $key => $value) {
     $value = str_replace("c.oh.mbr.", "", $value);
     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
-    if($i == 0 && $member["Login"]["Username"] == $un) {
+    if($i == 0 && $member["Login"]["Username"] == $username) {
      $i++;
     }
    } if(empty($data["Email"])) {
@@ -628,27 +628,27 @@
    } elseif($ck == 0) {
     $r = "You must be $mAge or older to sign up.";
    } elseif($i > 0) {
-    $r = "The Username <em>$un</em> is already in use.";
+    $r = "The Username <em>$username</em> is already in use.";
    } else {
     $accessCode = "Accepted";
     $birthMonth = $data["BirthMonth"] ?? 10;
+    $now = $this->system->timestamp;
     if($data["SOE"] == 1) {
      $x = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
      $x[$data["Email"]] = [
       "SendOccasionalEmails" => $data["SOE"],
-      "UN" => $un,
+      "UN" => $username,
       "email" => $data["Email"],
       "name" => $fn,
       "phone" => "N/A",
      ];
      #$this->system->Data("Save", ["x", md5("ContactList"), $x]);
     }
-    /*$this->system->Data("Save", [
-     "cms",
-     md5($un),
-     ["Contacts" => [], "Requests" => []]
-    ]);
-    $this->system->Data("Save", ["fs", md5($un), [
+    /*$this->system->Data("Save", ["cms", md5($username), [
+     "Contacts" => [],
+     "Requests" => []
+    ]]);
+    $this->system->Data("Save", ["fs", md5($username), [
      "Albums" => [
       md5("unsorted") => [
        "ID" => md5("unsorted"),
@@ -664,62 +664,59 @@
      "Files" => []
     ]]);
     $this->system->Data("Save", [
-     "mbr", md5($un), $this->system->NewMember([
+     "mbr", md5($username), $this->system->NewMember([
       "Age" => $age,
       "BirthMonth" => $birthMonth,
       "BirthYear" => $birthYear,
-      "DisplayName" => $un,
+      "DisplayName" => $username,
       "Email" => $data["Email"],
       "FirstName" => $fn,
       "Gender" => $data["Personal_Gender"],
       "Password" => $pw,
       "PIN" => md5($data["PIN"]),
-      "Username" => $un
+      "Username" => $username
      ])
     ]);
-    $this->system->Data("Save", ["stream", md5($un), []]);
-    $this->system->Data("Save", ["shop", md5($un), [
+    $this->system->Data("Save", ["stream", md5($username), []]);
+    $this->system->Data("Save", ["shop", md5($username), [
      "Contributors" => [
-      $un => [
-       "Company" => "$un's Company",
+      $username => [
+       "Company" => "$username's Company",
        "Description" => "Oversees general operations and administrative duties.",
-       "Hired" => $this->system->timestamp,
+       "Hired" => $now,
        "Paid" => 0,
        "Title" => "CEO"
       ]
      ],
      "CoverPhoto" => "",
+     "CoverPhotoSource" => "",
      "Description" => "",
      "Live" => 0,
-     "Modified" => $this->system->timestamp,
+     "Modified" => $now,
      "Open" => 1,
-     "Processing" => [
-      "BraintreeMerchantID" => "",
-      "BraintreePrivateKey" => "",
-      "BraintreePublicKey" => "",
-      "BraintreeToken" => "",
-      "PayPalEmail" => ""
-     ],
+     "Privacy" => md5("Private"),
+     "Processing" => [],
      "Products" => [],
-     "Title" => "$un's Shop",
+     "Tax" => 0,
+     "Title" => "$username's Shop",
      "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
     ]]);
     $this->system->Statistic("MBR");*/
     $r = $this->system->Change([[
      "[Success.SignIn]" => "v=".base64_encode("Common:SignIn"),
-     "[Success.Username]" => $un
+     "[Success.Username]" => $username
     ], $this->system->Page("872fd40c7c349bf7220293f3eb64ab45")]);
     $r.=$this->system->Element(["p", json_encode([$data, $this->system->NewMember([
      "Age" => $age,
      "BirthMonth" => $birthMonth,
      "BirthYear" => $birthYear,
-     "DisplayName" => $un,
+     "DisplayName" => $username,
      "Email" => $data["Email"],
      "FirstName" => $fn,
      "Gender" => $data["Personal_Gender"],
      "Password" => $pw,
      "PIN" => $data["PIN"],
-     "Username" => $un
+     "Username" => $username
     ])], true)]);//TEMP
    } if($accessCode != "Accepted") {
     $r = $this->system->Change([[
