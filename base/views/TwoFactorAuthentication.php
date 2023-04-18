@@ -103,6 +103,7 @@
     "PIN",
     "PIN2",
     "ReturnView",
+    "SOE",
     "Username",
     "ViewPairID"
    ]);
@@ -116,6 +117,7 @@
     "PIN",
     "PIN2",
     "ReturnView",
+    "SOE",
     "Username"
    ];
    $ck = ($data["Password"] == $data["Password2"]) ? 1 : 0;
@@ -215,7 +217,9 @@
         "Password2" => $data["Password2"],
         "PIN" => $data["PIN"],
         "PIN2" => $data["PIN2"],
-        "Username" => $data["Username"]
+        "SOE" => $data["SOE"],
+        "Username" => $data["Username"],
+        "Gender" => $data["gender"]
        ]]);
       }
      }

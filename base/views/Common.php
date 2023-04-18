@@ -584,19 +584,19 @@
   function SaveSignUp(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
+   #$data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, [
     "BirthMonth",
     "BirthYear",
     "Email",
+    "Gender",
     "Name",
     "Password",
     "Password2",
     "PIN",
     "PIN2",
     "SOE",
-    "Username",
-    "gender"
+    "Username"
    ]);
    $_MinimumAge = $this->system->core["minRegAge"];
    $birthYear = $data["BirthYear"] ?? 1995;
@@ -631,10 +631,11 @@
    } elseif($i > 0) {
     $r = "The Username <em>$un</em> is already in use.";
    } else {
+    $accessCode = "Accepted";
     $birthMonth = $data["BirthMonth"] ?? 10;
     if($data["SOE"] == 1) {
      $x = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
-     $x[$data["email"]] = [
+     $x[$data["Email"]] = [
       "SendOccasionalEmails" => $data["SOE"],
       "UN" => $un,
       "email" => $data["Email"],
@@ -671,7 +672,7 @@
       "DisplayName" => $un,
       "Email" => $data["email"],
       "FirstName" => $fn,
-      "Gender" => $data["gender"],
+      "Gender" => $data["Gender"],
       "Password" => $pw,
       "PIN" => md5($data["PIN"]),
       "Username" => $un
@@ -706,19 +707,18 @@
     ]]);
     $this->system->Statistic("MBR");*/
     $r = $this->system->Change([[
-     "[Success.Message]" => "Welcome, <strong>$un</strong>! You may now sign in to your profile.".json_encode($data, true),
      "[Success.SignIn]" => "v=".base64_encode("Common:SignIn"),
-    ], $this->system->Page("d4449b01c6da01613cff89e6cf723ad1")]);
+     "[Success.Username]" => $un
+    ], $this->system->Page("872fd40c7c349bf7220293f3eb64ab45")]);
+    $r.=$this->system->Element(["p", json_encode($data, true)]);//TEMP
     // REPLACE WITH A SUCCESS PAGE THAT ALLOWS NEW MEMBERS TO SIGN IN (VIA DIALOG)
+   } if($accessCode != "Accepted") {
+    $r = $this->system->Change([[
+     "[2FA.Error.Message]" => $r,
+     "[2FA.Error.ViewPairID]" => "2FAStep1"
+    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
    }
-   return $this->system->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "GoToView"
-   ]);
+   return $r;
   }
   function SignIn(array $a) {
    return $this->system->Dialog([
