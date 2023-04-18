@@ -584,15 +584,14 @@
   function SaveSignUp(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   #$data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, [
     "BirthMonth",
     "BirthYear",
     "Email",
-    "Gender",
     "Name",
     "Password",
     "Password2",
+    "Personal_Gender",
     "PIN",
     "PIN2",
     "SOE",
@@ -602,7 +601,7 @@
    $birthYear = $data["BirthYear"] ?? 1995;
    $age = date("Y") - $birthYear;
    $ck = ($age > $_MinimumAge) ? 1 : 0;
-   $fn = ($data["gender"] == "Male") ? "John" : "Jane";
+   $fn = ($data["Personal_Gender"] == "Male") ? "John" : "Jane";
    $i = 0;
    $mbr = $this->system->DatabaseSet("MBR");
    $pw = $data["Password"];
@@ -672,7 +671,7 @@
       "DisplayName" => $un,
       "Email" => $data["Email"],
       "FirstName" => $fn,
-      "Gender" => $data["Gender"],
+      "Gender" => $data["Personal_Gender"],
       "Password" => $pw,
       "PIN" => md5($data["PIN"]),
       "Username" => $un
@@ -717,7 +716,7 @@
      "DisplayName" => $un,
      "Email" => $data["Email"],
      "FirstName" => $fn,
-     "Gender" => $data["Gender"],
+     "Gender" => $data["Personal_Gender"],
      "Password" => $pw,
      "PIN" => md5($data["PIN"]),
      "Username" => $un

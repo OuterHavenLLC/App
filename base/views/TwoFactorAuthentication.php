@@ -100,13 +100,13 @@
     "Name",
     "Password",
     "Password2",
+    "Personal_Gender",
     "PIN",
     "PIN2",
     "ReturnView",
     "SOE",
     "Username",
-    "ViewPairID",
-    "gender"
+    "ViewPairID"
    ]);
    $required = [
     "BirthMonth",
@@ -115,19 +115,19 @@
     "Name",
     "Password",
     "Password2",
+    "Personal_Gender",
     "PIN",
     "PIN2",
     "ReturnView",
     "SOE",
-    "Username",
-    "gender"
+    "Username"
    ];
    $ck = ($data["Password"] == $data["Password2"]) ? 1 : 0;
    $ck = ($ck == 1 && $data["PIN"] == $data["PIN2"]) ? 1 : 0;
    $i = 0;
    $inputs = [];
    $r = $this->system->Change([[
-    "[2FA.Error.Message]" => "Something went wrong...",
+    "[2FA.Error.Message]" => "Something went wrong...".json_encode($data, true),
     "[2FA.Error.ViewPairID]" => "SignUp"
    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
    foreach($required as $key) {
@@ -221,7 +221,7 @@
         "PIN2" => $data["PIN2"],
         "SOE" => $data["SOE"],
         "Username" => $data["Username"],
-        "Gender" => $data["gender"]
+        "Gender" => $data["Personal_Gender"]
        ]]);
       }
      }
