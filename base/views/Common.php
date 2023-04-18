@@ -601,7 +601,7 @@
    $birthYear = $data["BirthYear"] ?? 1995;
    $age = date("Y") - $birthYear;
    $ck = ($age > $_MinimumAge) ? 1 : 0;
-   $fn = ($data["Personal_Gender"] == "Male") ? "John" : "Jane";
+   $firstName = ($data["Personal_Gender"] == "Male") ? "John" : "Jane";
    $i = 0;
    $mbr = $this->system->DatabaseSet("MBR");
    $pw = $data["Password"];
@@ -636,11 +636,12 @@
     if($data["SOE"] == 1) {
      $x = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
      $x[$data["Email"]] = [
+      "Email" => $data["Email"],
+      "Name" => $name,
+      "Phone" => "N/A",
       "SendOccasionalEmails" => $data["SOE"],
       "UN" => $username,
-      "email" => $data["Email"],
-      "name" => $fn,
-      "phone" => "N/A",
+      "Updated" => $now
      ];
      #$this->system->Data("Save", ["x", md5("ContactList"), $x]);
     }
@@ -670,7 +671,7 @@
       "BirthYear" => $birthYear,
       "DisplayName" => $username,
       "Email" => $data["Email"],
-      "FirstName" => $fn,
+      "FirstName" => $firstName,
       "Gender" => $data["Personal_Gender"],
       "Password" => $pw,
       "PIN" => md5($data["PIN"]),
@@ -712,7 +713,7 @@
      "BirthYear" => $birthYear,
      "DisplayName" => $username,
      "Email" => $data["Email"],
-     "FirstName" => $fn,
+     "FirstName" => $firstName,
      "Gender" => $data["Personal_Gender"],
      "Password" => $pw,
      "PIN" => $data["PIN"],

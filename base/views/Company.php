@@ -134,10 +134,10 @@
     if($data["SOE"] == 1) {
      $contacts  = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
      $contacts[$data["Email"]] = [
-      "SendOccasionalEmails" => $data["SOE"],
       "Email" => $data["Email"],
       "Name" => $data["Name"],
       "Phone" => $data["Phone"],
+      "SendOccasionalEmails" => $data["SOE"],
       "UN" => $data["UN"],
       "Updated" => $now
      ];
