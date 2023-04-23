@@ -174,14 +174,12 @@
      }
     } elseif($cancel == 1) {
      $theirRequests = [];
-     $yourRequests = [];
      foreach($theirContacts["Requests"] as $key => $value) {
       if($value != $you) {
        $theirRequests[$key] = $value;
       }
      }
      $theirContacts["Requests"] = $theirRequests;
-     $yourContacts["Requests"] = $yourRequests;
      $r .= $this->system->Element([
       "p", "You canceled your contact request.",
       ["class" => "CenterText"]

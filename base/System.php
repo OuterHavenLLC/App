@@ -1565,8 +1565,23 @@
    $r = "$value ".$unit.$suffix;
    return $r;
   }
-  function TimePlus($a, $b, $c) {
-   return strtotime("+$b $c", strtotime($a));
+  function TimePlus($timestamp, $amount = 1, $period = "month") {
+   $date = new DateTime($timestamp);
+   switch($period) {
+    case "month":
+     $date->add(new DateInterval("P".$amount."M"));
+     break;
+    case "year":
+     $date->add(new DateInterval("P".$amount."Y"));
+     break;
+    case "decade":
+     $date->add(new DateInterval("P".($amount * 10)."Y"));
+     break;
+    case "century":
+     $date->add(new DateInterval("P".($amount * 100)."Y"));
+     break;
+   }
+   return $date->format("Y-m-d H:i:s");
   }
   function Thumbnail(array $a) {
    $_EFS = $this->efs;

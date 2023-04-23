@@ -121,16 +121,14 @@
     "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".md5($this->system->ShopID)),
     "[Gateway.SignIn]" => "v=".base64_encode("Common:SignIn"),
     "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Common:SignUp"))
-    // UNLOCK WHEN READY FOR NEW MEMBERS
-    #"[OptIn.SignUp]" => "v=".base64_encode("Common:SignUp")
    ], $this->system->Page("db69f503c7c6c1470bd9620b79ab00d7")]);
   }
   function SwitchLanguages() {
    $languages = $this->system->Languages() ?? [];
-   $opt = "";
+   $options = "";
    foreach($languages as $key => $value) {
     if($key == "en_US") {//TEMP
-     $opt .= $this->system->Element(["button", $value, [
+     $options .= $this->system->Element(["button", $value, [
       "class" => "LI Reg v2 v2w",
       "data-type" => $key,
       "onclick" => "FSTX();"
@@ -138,7 +136,7 @@
     }//TEMP
    }
    return $this->system->Change([[
-    "[LanguageSwitch.Options]" => $opt
+    "[LanguageSwitch.Options]" => $options
    ], $this->system->Page("350d1d8dfa7ce14e12bd62f5f5f27d30")]);
   }
   function UIContainers(array $a) {
