@@ -132,7 +132,10 @@
     $accessCode = "Accepted";
     $now = $this->system->timestamp;
     if($data["SOE"] == 1) {
-     $contacts  = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
+     $contacts  = $this->system->Data("Get", [
+      "x",
+      md5("ContactList")
+     ]) ?? [];
      $contacts[$data["Email"]] = [
       "Email" => $data["Email"],
       "Name" => $data["Name"],

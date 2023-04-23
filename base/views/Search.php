@@ -1678,7 +1678,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]);
       }
      }
-    }$na.="RAW: ".json_encode($y["Pages"], true);//TEMP
+    }
    } elseif($st == "MBR-SU") {
     $ec = "Accepted";
     $attlv = base64_encode("LiveView:InlineMossaic");

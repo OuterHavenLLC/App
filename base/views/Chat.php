@@ -94,27 +94,32 @@
    return $r;
   }
   function Save(array $a) {
+   $accessCode = "Denied";
    $d = $a["Data"] ?? [];
    $d = $this->system->DecodeBridgeData($d);
    $d = $this->system->FixMissing($d, [
-    "GroupChat", "MSG", "Share", "To", "rATTF"
+    "GroupChat",
+    "MSG",
+    "Share",
+    "To",
+    "rATTF"
    ]);
    $att = $d["rATTF"];
    $m = $d["MSG"];
    $ck = (!empty($att) && empty($m)) ? 1 : 0;
    $ck2 = (empty($att) && !empty($m)) ? 1 : 0;
    $ck3 = (!empty($att) && !empty($m)) ? 1 : 0;
-   $ec = "Denied";
    $group = $d["GroupChat"] ?? 0;
    $r = "Failed to Send";
    $to = $d["To"];
    $y = $this->you;
-   if($y["UN"] == $this->system->ID) {
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
     $r = "You must be signed in to continue.";
    } elseif(($ck == 1 || $ck2 == 1 || $ck3 == 1) && !empty($to)) {
+    $accessCode = "Accepted";
     $att = [];
     $chat = ($group == 1) ? $to : md5($to);
-    $ec = "Accepted";
     $sent = $this->system->timestamp;
     $to = ($group == 1 && $d["Share"] == 1) ? "" : $to;
     if(!empty($d["rATTF"])) {
@@ -139,9 +144,12 @@
      "To" => $to
     ];
     $r = "Sent";
-    $this->system->Data("Save", ["msg", $chat, $msg]);
+    #$this->system->Data("Save", ["msg", $chat, $msg]);
    }
-   return $this->system->JSONResponse([$ec, $r]);
+   return $this->system->JSONResponse([
+    $accessCode,
+    $r
+   ]);
   }
   function SaveShare(array $a) {
    $d = $a["Data"] ?? [];

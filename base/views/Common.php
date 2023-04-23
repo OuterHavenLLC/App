@@ -603,11 +603,11 @@
    $ck = ($age > $_MinimumAge) ? 1 : 0;
    $firstName = ($data["Personal_Gender"] == "Male") ? "John" : "Jane";
    $i = 0;
-   $mbr = $this->system->DatabaseSet("MBR");
-   $pw = $data["Password"];
+   $members = $this->system->DatabaseSet("MBR");
+   $password = $data["Password"];
    $r = "Internal Error";
    $username = $this->system->CallSign($data["Username"]);
-   foreach($mbr as $key => $value) {
+   foreach($members as $key => $value) {
     $value = str_replace("c.oh.mbr.", "", $value);
     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
     if($i == 0 && $member["Login"]["Username"] == $username) {
@@ -620,13 +620,15 @@
    } elseif($data["Password"] != $data["Password2"]) {
     $r = "Your Passwords must match.";
    } elseif(empty($data["PIN"])) {
-    $r = "Your PINs must match.";
-   } elseif($data["PIN"] != $data["PIN2"]) {
     $r = "A PIN is required.";
+   } elseif(!is_numeric($data["PIN"]) || !is_numeric($data["PIN2"])) {
+    $r = "Your PINs must be numeric.";
+   } elseif($data["PIN"] != $data["PIN2"]) {
+    $r = "Your PINs must match.";
    } elseif(empty($data["Username"])) {
     $r = "A Username is required.";
    } elseif($ck == 0) {
-    $r = "You must be $mAge or older to sign up.";
+    $r = "You must be $_MinimumAge or older to sign up.";
    } elseif($i > 0) {
     $r = "The Username <em>$username</em> is already in use.";
    } else {
@@ -637,13 +639,13 @@
      $x = $this->system->Data("Get", ["x", md5("ContactList")]) ?? [];
      $x[$data["Email"]] = [
       "Email" => $data["Email"],
-      "Name" => $name,
+      "Name" => $firstName,
       "Phone" => "N/A",
       "SendOccasionalEmails" => $data["SOE"],
       "UN" => $username,
       "Updated" => $now
      ];
-     #$this->system->Data("Save", ["x", md5("ContactList"), $x]);
+     $this->system->Data("Save", ["x", md5("ContactList"), $x]);
     }
     $this->system->Data("Save", ["cms", md5($username), [
      "Contacts" => [],
@@ -673,7 +675,7 @@
       "Email" => $data["Email"],
       "FirstName" => $firstName,
       "Gender" => $data["Personal_Gender"],
-      "Password" => $pw,
+      "Password" => $password,
       "PIN" => md5($data["PIN"]),
       "Username" => $username
      ])
@@ -702,27 +704,11 @@
      "Title" => "$username's Shop",
      "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
     ]]);
-    #$this->system->Statistic("MBR");
+    $this->system->Statistic("MBR");
     $r = $this->system->Change([[
      "[Success.SignIn]" => "v=".base64_encode("Common:SignIn"),
      "[Success.Username]" => $username
     ], $this->system->Page("872fd40c7c349bf7220293f3eb64ab45")]);
-    $r.=$this->system->Element(["p", json_encode([$data, $this->system->NewMember([
-     "Age" => $age,
-     "BirthMonth" => $birthMonth,
-     "BirthYear" => $birthYear,
-     "DisplayName" => $username,
-     "Email" => $data["Email"],
-     "FirstName" => $firstName,
-     "Gender" => $data["Personal_Gender"],
-     "Password" => $pw,
-     "PIN" => $data["PIN"],
-     "Username" => $username
-    ])], true), [
-     "ID" => md5($username),
-     "Password" => $pw,
-     "Username" => $username
-    ]]);//TEMP
    } if($accessCode != "Accepted") {
     $r = $this->system->Change([[
      "[2FA.Error.Message]" => $r,

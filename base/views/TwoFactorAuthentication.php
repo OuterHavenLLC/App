@@ -127,7 +127,7 @@
    $i = 0;
    $inputs = [];
    $r = $this->system->Change([[
-    "[2FA.Error.Message]" => "Something went wrong...".json_encode($data, true),
+    "[2FA.Error.Message]" => "Something went wrong...",
     "[2FA.Error.ViewPairID]" => "SignUp"
    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
    foreach($required as $key) {
@@ -135,9 +135,24 @@
      $i++;
      $inputs[$key] = $data[$key] ?? "";
     }
-   } if($data["Password"] != $data["Password2"]) {
+   } if(empty($data["Email"])) {
+    $r = $this->system->Change([[
+     "[2FA.Error.Message]" => "An Email is required.",
+     "[2FA.Error.ViewPairID]" => "SignUp"
+    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   } elseif(empty($data["Password"])) {
+    $r = $this->system->Change([[
+     "[2FA.Error.Message]" => "A Password is required.",
+     "[2FA.Error.ViewPairID]" => "SignUp"
+    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   } elseif($data["Password"] != $data["Password2"]) {
     $r = $this->system->Change([[
      "[2FA.Error.Message]" => "Your Passwords must match.",
+     "[2FA.Error.ViewPairID]" => "SignUp"
+    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   } elseif(!is_numeric($data["PIN"]) != !is_numeric($data["PIN2"])) {
+    $r = $this->system->Change([[
+     "[2FA.Error.Message]" => "Your PINs must be numeric.",
      "[2FA.Error.ViewPairID]" => "SignUp"
     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
    } elseif($data["PIN"] != $data["PIN2"]) {
@@ -145,7 +160,12 @@
      "[2FA.Error.Message]" => "Your PINs must match.",
      "[2FA.Error.ViewPairID]" => "SignUp"
     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
-   } if($ck == 1 && $i == count($required)) {
+   } elseif(empty($data["Username"])) {
+    $r = $this->system->Change([[
+     "[2FA.Error.Message]" => "A Username is required.",
+     "[2FA.Error.ViewPairID]" => "SignUp"
+    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   } elseif($ck == 1 && $i == count($required)) {
     $ck = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
     $r = $this->system->Change([[
      "[2FA.Error.Message]" => "An email address is required in order for us to continue the verification process.",
