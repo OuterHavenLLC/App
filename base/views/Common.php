@@ -645,7 +645,7 @@
      ];
      #$this->system->Data("Save", ["x", md5("ContactList"), $x]);
     }
-    /*$this->system->Data("Save", ["cms", md5($username), [
+    $this->system->Data("Save", ["cms", md5($username), [
      "Contacts" => [],
      "Requests" => []
     ]]);
@@ -702,7 +702,7 @@
      "Title" => "$username's Shop",
      "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
     ]]);
-    $this->system->Statistic("MBR");*/
+    #$this->system->Statistic("MBR");
     $r = $this->system->Change([[
      "[Success.SignIn]" => "v=".base64_encode("Common:SignIn"),
      "[Success.Username]" => $username
@@ -718,7 +718,11 @@
      "Password" => $pw,
      "PIN" => $data["PIN"],
      "Username" => $username
-    ])], true)]);//TEMP
+    ])], true), [
+     "ID" => md5($username),
+     "Password" => $pw,
+     "Username" => $username
+    ]]);//TEMP
    } if($accessCode != "Accepted") {
     $r = $this->system->Change([[
      "[2FA.Error.Message]" => $r,
