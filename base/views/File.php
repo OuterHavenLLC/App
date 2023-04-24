@@ -513,8 +513,8 @@
      $xfsUsage = $xfsUsage + $size;
     }
     $xfsUsage = str_replace(",", "", $this->system->ByteNotation($xfsUsage));
-    $ck = $y["Subscriptions"]["XFS"]["A"] ?? 0;
-    $ck = ($_HC == 1 || $ck == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
+    $ck = ($_HC == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
+    $ck = $y["Subscriptions"]["XFS"]["A"] ?? $ck;
     $allowed = array_merge($_DLC["A"], $_DLC["D"], $_DLC["P"], $_DLC["V"]);
     foreach($uploads["name"] as $key => $value) {
      $n = $uploads["name"][$key];
@@ -683,13 +683,13 @@
     }
     $xfsUsage = $this->system->ByteNotation($xfsUsage)."MB";
     $limit = $this->system->Change([["MB" => "", "," => ""], $xfsLimit]);
-    $usage = $this->system->Change([["MB" => "", "," => ""], $xfsUsage]);
     $r = $this->system->Change([[
      "[Error.Header]" => "Forbidden",
      "[Error.Message]" => "You may have reached your upload limit. You have used $xfsUsage and exceeded the limit of $xfsLimit."
     ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
-    $uploadsAllowed = ($usage < $limit) ? 1 : 0;
-    $uploadsAllowed = $y["Subscriptions"]["XFS"]["A"] ?? $uploadsAllowed;
+    $used = $this->system->Change([["MB" => "", "," => ""], $xfsUsage]);
+    $uploadsAllowed = $y["Subscriptions"]["XFS"]["A"] ?? 0;
+    $uploadsAllowed = ($_HC == 1 || $used < $limit) ? 1 : $uploadsAllowed;
     if(!empty($username) && $uploadsAllowed == 1) {
      $ck = ($_HC == 1 && $this->system->ID == $username) ? 1 : 0;
      $ck2 = ($username == $you) ? 1 : 0;
