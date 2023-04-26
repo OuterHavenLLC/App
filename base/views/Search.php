@@ -165,6 +165,10 @@
        "data-type" => base64_encode("v=$fe&new=1")
       ]
      ]) : "";
+    } elseif($st == "Feedback") {
+     $h = "Feedback";
+     $li .= "&lPG=$lpg";
+     $lis = "Search Feedback";
     } elseif($st == "Forums") {
      $h = "Forums";
      $li .= "&lPG=$lpg";
@@ -1132,6 +1136,10 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
      }
     }
+   } elseif($st == "Feedback") {
+    $ec = "Accepted";
+    $x = $this->system->DatabaseSet("KB") ?? [];
+    $tpl = $this->system->Page("XXXX");
    } elseif($st == "Forums") {
     $ec = "Accepted";
     $home = base64_encode("Forum:Home");

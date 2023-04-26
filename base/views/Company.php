@@ -146,7 +146,7 @@
      ];
      $this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
     }
-    $this->system->Data("Save", ["knowledge", md5("KnowledgeBase_$now"), [
+    $this->system->Data("Save", ["knowledge", md5("KnowledgeBase_$now".uniqid()), [
      "AllowIndexing" => $data["Index"],
      "Email" => $data["Email"],
      "Name" => $data["Name"],

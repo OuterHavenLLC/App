@@ -28,11 +28,12 @@
    $search = base64_encode("Search:Containers");
    return $this->Change([[
     "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
+    "[Admin.Feedback]" => "v=$search&st=Feedback",
     "[Admin.Files]" => "v=$album&AID=".md5("unsorted")."&UN=".base64_encode($this->ID),
     "[Admin.Pages]" => "v=$search&st=ADM-LLP",
     "[Admin.RenewSubscriptions]" => "v=$renewSubscriptions",
     "[Admin.Server]" => "https://www.digitalocean.com/",
-    "[Admin.WHM]" => "https://admin.outerhaven.nyc:2086/"
+    "[Admin.WHM]" => "admin.outerhaven.nyc:2086"
    ], $this->Page("5c1ce5c08e2add4d1487bcd2193315a7")]);
   }
   function ByteNotation(int $a, $b = "MB") {
@@ -304,6 +305,7 @@
        "Contributors",
        "DC",
        "FAB",
+       "Feedback",
        "Forums",
        "Forums-Admin",
        "Forums-Posts",
@@ -411,7 +413,7 @@
      } elseif($a == "Files") {
       $a = "c.oh.fs.";
      } elseif($a == "KB") {
-      $a = "c.oh.kb.";
+      $a = "c.oh.knowledge.";
      } elseif($a == "MBR") {
       $a = "c.oh.mbr.";
      } elseif($a == "PF") {
