@@ -144,9 +144,9 @@
       "UN" => $data["UN"],
       "Updated" => $now
      ];
-     $this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
+     #$this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
     }
-    $this->system->Data("Save", ["knowledge", md5("KnowledgeBase_$now".uniqid()), [
+    /*$this->system->Data("Save", ["knowledge", md5("KnowledgeBase_$now".uniqid()), [
      "AllowIndexing" => $data["Index"],
      "Email" => $data["Email"],
      "Name" => $data["Name"],
@@ -168,11 +168,33 @@
       "Subject" => $data["Subject"]
      ]],
      "UseParaphrasedQuestion" => 0
-    ]]);
-    $this->system->Statistic("FS");
+    ]]);*/
+    #$this->system->Statistic("FS");
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
-      "p", "We will be in touch as soon as possible!"
+      "p", "We will be in touch as soon as possible!".json_encode([$data, [
+     "AllowIndexing" => $data["Index"],
+     "Email" => $data["Email"],
+     "Name" => $data["Name"],
+     "ParaphrasedQuestion" => "",
+     "Phone" => $data["Phone"],
+     "Priority" => $data["Priority"],
+     "Resolved" => 0,
+     "Thread" => [[
+      "Body" => $this->system->PlainText([
+       "Data" => $data["MSG"],
+       "Encode" => 1,
+       "HTMLEncode" => 1
+      ]),
+      "From" => $data["UN"],
+      "Read" => 0,
+      "Seen" => 0,
+      "Selected" => 1,
+      "Sent" => $now,
+      "Subject" => $data["Subject"]
+     ]],
+     "UseParaphrasedQuestion" => 0
+      ]], true)
      ]),
      "Header" => "Thank you"
     ]);

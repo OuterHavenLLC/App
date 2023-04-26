@@ -5,16 +5,32 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Home(array $a) {
-   $r = $this->system->Element([
-    "h1", "Home"
-   ]).$this->system->Element([
-    "p", "View and respond to feedback."
+   $button = "";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = $this->system->Change([[
+    "[Error.Header]" => "Not Found",
+    "[Error.Message]" => "The Feedback Identifier is missing."
+   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   if(!empty($id)) {
+    $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+    $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
+    $title = $feedback["Subject"] ?? "New Feedback";
+    $r = $this->system->Change([[
+     "[Feedback.ID]" => $id,
+     "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
+     "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
+     "[Feedback.Title]" => $title
+    ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
+   }
+   return $this->system->Card([
+    "Front" => $r,
+    "FrontButton" => $button
    ]);
-   return $r;
   }
   function Save(array $a) {
    $r = $this->system->Element([
-    "p", "Saves the response to the Feedback thread, among other admin-level preferences."
+    "p", "Saves the response to the Feedback thread, among other admin-level preferences, emails the user to notify them of our response."
    ]);
    return $r;
   }

@@ -1138,8 +1138,42 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "Feedback") {
     $ec = "Accepted";
+    $now = $this->system->timestamp;
     $x = $this->system->DatabaseSet("KB") ?? [];
-    $tpl = $this->system->Page("XXXX");
+    $tpl = $this->system->Page("e7c4e4ed0a59537ffd00a2b452694750");
+    foreach($x as $key => $value) {
+     $value = str_replace("c.oh.knowledge.", "", $value);
+     $feedback = $this->system->Data("Get", ["knowledge", $value]) ?? [];
+     $mesasge = $feedback["Thread"] ?? [];
+     $mesasge = $feedback["Thread"][0] ?? [];
+     $message = $feedback["Thread"][0]["Body"] ?? "";
+     if(!empty($message)) {
+      $message = $this->system->PlainText([
+       "Data" => $message,
+       "Decode" => 1,
+       "HTMLDecode" => 1
+      ]);
+     }
+     $modified = $feedback["Sent"] ?? $now;
+     $modified = $this->system->TimeAgo($modified);
+     $modifiedBy = $feedback["ModifiedBy"] ?? [];
+     if(!empty($modifiedBy)) {
+      $_Member = end($modified);
+      $_Time = $this->system->TimeAgo(array_key_last($modified));
+      $modified .= " &bull; Modified ".$_Time." by ".$_Member;
+     }
+     $resolved = $feedback["Resolved"] ?? 0;
+     $resolved = ($resolved == 1) ? "Resolved" : "Not Resolved";
+     $title = $feedback["Subject"] ?? "New Feedback";
+     array_push($msg, [
+      "[Feedback.ID]" => base64_encode($value),
+      "[Feedback.Home]" => base64_encode(base64_encode("v=".base64_encode("Feedback:Home")."&ID=".$value)),
+      "[Feedback.Message]" => base64_encode($message),
+      "[Feedback.Modified]" => base64_encode($modified),
+      "[Feedback.Resolved]" => base64_encode($resolved),
+      "[Feedback.Title]" => base64_encode($title)
+     ]);
+    }
    } elseif($st == "Forums") {
     $ec = "Accepted";
     $home = base64_encode("Forum:Home");
