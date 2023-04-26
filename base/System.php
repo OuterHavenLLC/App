@@ -27,12 +27,12 @@
    $renewSubscriptions = base64_encode("Subscription:RenewAll");
    $search = base64_encode("Search:Containers");
    return $this->Change([[
-    "[Admin.Databases]" => "W('https://www.outerhaven.nyc/dba', '_blank');",
     "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
     "[Admin.Files]" => "v=$album&AID=".md5("unsorted")."&UN=".base64_encode($this->ID),
     "[Admin.Pages]" => "v=$search&st=ADM-LLP",
     "[Admin.RenewSubscriptions]" => "v=$renewSubscriptions",
-    "[Admin.Server]" => "W('https://www.digitalocean.com/', '_blank');",
+    "[Admin.Server]" => "https://www.digitalocean.com/",
+    "[Admin.WHM]" => "https://admin.outerhaven.nyc:2086/"
    ], $this->Page("5c1ce5c08e2add4d1487bcd2193315a7")]);
   }
   function ByteNotation(int $a, $b = "MB") {
