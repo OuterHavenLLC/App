@@ -54,7 +54,7 @@
    ]) : "";
    if($this->system->ID == $you) {
     $r = $this->system->Change([[
-     "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Company:Feedback")),
+     "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Defense]" => "v=".base64_encode("PMC:Home"),
      "[Menu.Company.Home]" => "v=".base64_encode("Company:Home"),
      "[Menu.Company.IncomeDisclosure]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($this->system->ShopID),
@@ -69,7 +69,7 @@
    } else {
     $r = $this->system->Change([[
      "[Menu.Administration]" => $admin,
-     "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Company:Feedback")),
+     "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => "v=".base64_encode("Company:Home"),
      "[Menu.Company.Defense]" => "v=".base64_encode("PMC:Home"),
      "[Menu.Company.IncomeDisclosure]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($this->system->ShopID),

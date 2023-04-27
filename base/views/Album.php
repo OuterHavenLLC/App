@@ -51,7 +51,7 @@
      "[Album.Title]" => $title
     ], $this->system->Page("760cd577207eb0d2121509d7212038d4")]);
     $button = $this->system->Element(["button", $action, [
-     "class" => "CardButton SendData dB2C",
+     "class" => "CardButton SendData",
      "data-form" => ".EditAlbum$id",
      "data-processor" => base64_encode("v=".base64_encode("Album:Save"))
     ]]);
@@ -246,7 +246,9 @@
     $_FileSystem["Albums"] = $albums;
     $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
     $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Album was $actionTaken."]),
+     "Body" => $this->system->Element([
+      "p", "The Album was $actionTaken."
+     ]),
      "Header" => "Done"
     ]);
    }
