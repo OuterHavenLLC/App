@@ -1156,12 +1156,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      }
      $modified = $feedback["Sent"] ?? $now;
      $modified = $this->system->TimeAgo($modified);
-     $modifiedBy = $feedback["ModifiedBy"] ?? [];
-     if(!empty($modifiedBy)) {
-      $_Member = end($modified);
-      $_Time = $this->system->TimeAgo(array_key_last($modified));
-      $modified .= " &bull; Modified ".$_Time." by ".$_Member;
-     }
      $resolved = $feedback["Resolved"] ?? 0;
      $resolved = ($resolved == 1) ? "Resolved" : "Not Resolved";
      $title = $feedback["Subject"] ?? "New Feedback";

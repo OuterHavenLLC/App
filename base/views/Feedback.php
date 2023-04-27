@@ -28,7 +28,7 @@
      "[Feedback.ID]" => $id,
      "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
      "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
-     "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("Resolved", "req v2w", $feedback["UseParaphrasedQuestion"]),
+     "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("UseParaphrasedQuestion", "req v2w", $feedback["UseParaphrasedQuestion"]),
      "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
      "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
      "[Feedback.Title]" => $title,
@@ -143,6 +143,7 @@
      "Resolved" => 0,
      "Subject" => $data["Subject"],
      "Thread" => [],
+     "Username" => $you,
      "UseParaphrasedQuestion" => 0
     ];
     array_push($feedback["Thread"], [
@@ -185,8 +186,11 @@
    $data = $this->system->FixMissing($data, [
     "ID",
     "Message",
-    "ParaphrasedQuestion"
+    "ParaphrasedQuestion",
+    "Priority",
+    "UseParaphrasedQuestion"
    ]);
+   $id = $data["ID"];
    $r = $this->system->Dialog([
     "Body" => $this->system->Element([
      "p", "The Feedback Identifier is missing."
@@ -195,12 +199,47 @@
    ]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["ID"])) {
+   if(!empty($data["Message"]) && !empty($id)) {
     $accessCode = "Accepted";
     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+    $feedback["ParaphrasedQuestion"] = $data["ParaphrasedQuestion"];
+    $feedback["Priority"] = $data["Priority"];
+    $feedback["Resolved"] = $data["Resolved"];
+    $feedback["UseParaphrasedQuestion"] = $data["UseParaphrasedQuestion"];
+    array_push($feedback["Thread"], [
+     "Body" => $this->system->PlainText([
+      "Data" => $data["Message"],
+      "Encode" => 1,
+      "HTMLEncode" => 1
+     ]),
+     "From" => $you,
+     "Sent" => $this->system->timestamp
+    ]);
+    if($feedback["Username"] != $you) {
+     // Create an Email Body template for the below render code
+     $this->system->SendEmail([
+      "Message" => $this->system->Element([
+       "p", "Hello, ".$feedback["Name"].";"
+      ]).$this->system->Element([
+       "p", "Below is our response to your submitted feedback:"
+      ]).$this->system->Element(["div", $this->system->PlainText([
+       "Data" => $data["Message"],
+       "Display" => 1
+      ]), ["class" => "K4i"]]).$this->system->Element([
+       "p", "You may respond by clicking the button below.",
+       ["class" => "CenterText"]
+      ]).$this->system->Element(["div", $this->system->Element([
+       "p", "Follow this link to respond: ".$this->system->base."/feedback/$id",
+       ["class" => "CenterText"]
+      ]), ["class" => "Desktop75"]]),
+      "Title" => "Re: ".$feedback["Subject"],
+      "To" => $feedback["Email"]
+     ]);
+    }
+    $this->system->Data("Save", ["knowledge", $id, $feedback]);
     $r = $this->system->Dialog([
-     "Body" => "Saves the response to the Feedback thread, among other admin-level preferences, emails the user to notify them of our response.".json_encode($feedback, true),
-     "Header" => "Feedback"
+     "Body" => "Your response has been sent.",
+     "Header" => "Done"
     ]);
    }
    return $this->system->JSONResponse([

@@ -1228,7 +1228,7 @@
     $hli = ["No", "Yes"];
     $opt = [0, 1];
     foreach($opt as $opt) {
-     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
+     $s = ($c == $opt) ? " selected=\"selected\"" : "";
      $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
      $i++;
     }
@@ -1315,7 +1315,7 @@
     $hli = ["No", "Yes"];
     $opt = [0, 1];
     foreach($opt as $opt) {
-     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
+     $s = ($c == $opt) ? " selected=\"selected\"" : "";
      $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
      $i++;
     }
