@@ -1207,6 +1207,19 @@
       "optgroup", $r, ["label" => "Priority"]
      ]), ["class" => $cl, "name" => $a]
     ]);
+   } elseif($a == "Resolved") {
+    $hli = ["No", "Yes"];
+    $opt = [0, 1];
+    foreach($opt as $opt) {
+     $s = ($opt == 2) ? " selected=\"selected\"" : "";
+     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
+     $i++;
+    }
+    $r = $this->Element([
+     "select", $this->Element([
+      "optgroup", $r, ["label" => "Is the issue esolved?"]
+     ]), ["class" => $cl, "name" => $a]
+    ]);
    } elseif($a == "Rank") {
     if($_HC == 1) {
      $hli = ["High Command", "Member", "Support"];

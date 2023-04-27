@@ -1165,6 +1165,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $resolved = $feedback["Resolved"] ?? 0;
      $resolved = ($resolved == 1) ? "Resolved" : "Not Resolved";
      $title = $feedback["Subject"] ?? "New Feedback";
+     $title = $feedback["ParaphrasedQuestion"] ?? $title;
      array_push($msg, [
       "[Feedback.ID]" => base64_encode($value),
       "[Feedback.Home]" => base64_encode(base64_encode("v=".base64_encode("Feedback:Home")."&ID=".$value)),

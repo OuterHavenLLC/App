@@ -123,6 +123,11 @@
    $r = $gw->view(base64_encode("Company:Donate"), ["Data" => [
     "pub" => 1
    ]]);
+  } elseif($c[0] == "feedback") {
+   # FEEDBACK
+   $r = $gw->view(base64_encode("Feedback:PublicHome"), ["Data" => [
+    "ID" => $c[1]
+   ]]);
   } elseif($c[0] == "forums") {
    # FORUMS
    $r = $gw->view(base64_encode("Forum:PublicHome"), ["Data" => [
