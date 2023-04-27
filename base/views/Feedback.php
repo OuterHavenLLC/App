@@ -16,16 +16,19 @@
     $button = $this->system->Element(["button", "Respond", [
      "class" => "CardButton SendData",
      "data-form" => ".FeedbackEditor$id",
-     "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
+     "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
     ]]);
     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
     $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
     $title = $feedback["Subject"] ?? "New Feedback";
-    $title = $feedback["ParaphrasedQuestion"] ?? $title;
+    if($feedback["UseParaphrasedQuestion"] == 1) {
+     $title = $feedback["ParaphrasedQuestion"];
+    }
     $r = $this->system->Change([[
      "[Feedback.ID]" => $id,
      "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
      "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
+     "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("Resolved", "req v2w", $feedback["UseParaphrasedQuestion"]),
      "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
      "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
      "[Feedback.Title]" => $title,
@@ -128,7 +131,7 @@
       "UN" => $you,
       "Updated" => $now
      ];
-     #$this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
+     $this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
     }
     $feedback = [
      "AllowIndexing" => $data["Index"],
@@ -139,7 +142,8 @@
      "Priority" => $data["Priority"],
      "Resolved" => 0,
      "Subject" => $data["Subject"],
-     "Thread" => []
+     "Thread" => [],
+     "UseParaphrasedQuestion" => 0
     ];
     array_push($feedback["Thread"], [
      "Body" => $this->system->PlainText([
@@ -155,7 +159,7 @@
      md5("KnowledgeBase-$now-".uniqid()),
      $feedback
     ]);
-    #$this->system->Statistic("FS");
+    $this->system->Statistic("FS");
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
       "p", "We will be in touch as soon as possible!"
@@ -175,11 +179,30 @@
   }
   function SaveResponse(array $a) {
    $accessCode = "Denied";
-   #$accessCode = "Accepted";
-   $r = $this->system->Dialog([
-    "Body" => "Saves the response to the Feedback thread, among other admin-level preferences, emails the user to notify them of our response.",
-    "Header" => "Feedback"
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->system->FixMissing($data, [
+    "ID",
+    "Message",
+    "ParaphrasedQuestion"
    ]);
+   $r = $this->system->Dialog([
+    "Body" => $this->system->Element([
+     "p", "The Feedback Identifier is missing."
+    ]),
+    "Header" => "Error"
+   ]);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($data["ID"])) {
+    $accessCode = "Accepted";
+    $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+    $r = $this->system->Dialog([
+     "Body" => "Saves the response to the Feedback thread, among other admin-level preferences, emails the user to notify them of our response.".json_encode($feedback, true),
+     "Header" => "Feedback"
+    ]);
+   }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

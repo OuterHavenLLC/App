@@ -1207,19 +1207,6 @@
       "optgroup", $r, ["label" => "Priority"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif($a == "Resolved") {
-    $hli = ["No", "Yes"];
-    $opt = [0, 1];
-    foreach($opt as $opt) {
-     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Is the issue esolved?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "Rank") {
     if($_HC == 1) {
      $hli = ["High Command", "Member", "Support"];
@@ -1235,6 +1222,19 @@
     $r = $this->Element([
      "select", $this->Element([
       "optgroup", $r, ["label" => "Select a Rank"]
+     ]), ["class" => $cl, "name" => $a]
+    ]);
+   } elseif($a == "Resolved") {
+    $hli = ["No", "Yes"];
+    $opt = [0, 1];
+    foreach($opt as $opt) {
+     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
+     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
+     $i++;
+    }
+    $r = $this->Element([
+     "select", $this->Element([
+      "optgroup", $r, ["label" => "Is the issue esolved?"]
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "Role") {
@@ -1309,6 +1309,19 @@
     $r = $this->Element([
      "select", $this->Element([
       "optgroup", $r, ["label" => "Choose an Article Template..."]
+     ]), ["class" => $cl, "name" => $a]
+    ]);
+   } elseif($a == "UseParaphrasedQuestion") {
+    $hli = ["No", "Yes"];
+    $opt = [0, 1];
+    foreach($opt as $opt) {
+     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
+     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
+     $i++;
+    }
+    $r = $this->Element([
+     "select", $this->Element([
+      "optgroup", $r, ["label" => "Prefer paraphrased question over the original?"]
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "gender") {
