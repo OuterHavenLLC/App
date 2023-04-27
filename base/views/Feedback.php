@@ -57,8 +57,7 @@
      "[Contact.Options.Priority]" => $this->system->Select("Priority", "req v2w"),
      "[Contact.Options.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w"),
      "[Member.Email]" => $y["Personal"]["Email"],
-     "[Member.Name]" => $y["Personal"]["FirstName"],
-     "[Member.Username]" => $y["Login"]["Username"]
+     "[Member.Name]" => $y["Personal"]["FirstName"]
     ], $this->system->Page("2b5ca0270981e891ce01dba62ef32fe4")]),
     "FrontButton" => $this->system->Element(["button", "Send", [
      "class" => "CardButton SendData",
@@ -103,7 +102,6 @@
     "Phone",
     "SOE",
     "Subject",
-    "UN",
     "Priority"
    ]);
    $r = $this->system->Dialog([
@@ -112,9 +110,10 @@
     ]),
     "Header" => "Error"
    ]);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($data["MSG"])) {
     $accessCode = "Accepted";
-    $from = $data["UN"] ?? "Anonymous";
     $now = $this->system->timestamp;
     if($data["SOE"] == 1) {
      $contacts  = $this->system->Data("Get", [
@@ -126,12 +125,12 @@
       "Name" => $data["Name"],
       "Phone" => $data["Phone"],
       "SendOccasionalEmails" => $data["SOE"],
-      "UN" => $data["UN"],
+      "UN" => $you,
       "Updated" => $now
      ];
-     $this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
+     #$this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
     }
-    $this->system->Data("Save", ["knowledge", md5("KnowledgeBase_$now".uniqid()), [
+    $feedback = [
      "AllowIndexing" => $data["Index"],
      "Email" => $data["Email"],
      "Name" => $data["Name"],
@@ -140,17 +139,23 @@
      "Priority" => $data["Priority"],
      "Resolved" => 0,
      "Subject" => $data["Subject"],
-     "Thread" => [[
-      "Body" => $this->system->PlainText([
-       "Data" => $data["MSG"],
-       "Encode" => 1,
-       "HTMLEncode" => 1
-      ]),
-      "From" => $from,
-      "Sent" => $now
-     ]]
-    ]]);
-    $this->system->Statistic("FS");
+     "Thread" => []
+    ];
+    array_push($feedback["Thread"], [
+     "Body" => $this->system->PlainText([
+      "Data" => $data["MSG"],
+      "Encode" => 1,
+      "HTMLEncode" => 1
+     ]),
+     "From" => $you,
+     "Sent" => $now
+    ]);
+    $this->system->Data("Save", [
+     "knowledge",
+     md5("KnowledgeBase-$now-".uniqid()),
+     $feedback
+    ]);
+    #$this->system->Statistic("FS");
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
       "p", "We will be in touch as soon as possible!"
@@ -173,7 +178,7 @@
    #$accessCode = "Accepted";
    $r = $this->system->Dialog([
     "Body" => "Saves the response to the Feedback thread, among other admin-level preferences, emails the user to notify them of our response.",
-    "Header" +> "Feedback"
+    "Header" => "Feedback"
    ]);
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
