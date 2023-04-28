@@ -52,6 +52,7 @@
    $t = $d["to"];
    $tpl = $this->system->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($t)) {
     $attlv = base64_encode("LiveView:InlineMossaic");
     $t = base64_decode($t);
@@ -64,7 +65,7 @@
      $ck = ($v["From"] == $t && $v["To"] == $y["UN"]) ? 1 : 0;
      $ck2 = ($v["From"] == $y["UN"] && $v["To"] == $t) ? 1 : 0;
      if($group == 1 || $ck == 1 || $ck2 == 1) {
-      $class = ($v["From"] == $y["UN"]) ? "MSGy" : "MSGt";
+      $class = ($v["From"] != $you) ? "MSGt" : "MSGy";
       $att = "";
       if(!empty($v["Attachments"])) {
        $att = $this->view($attlv, ["Data" => [

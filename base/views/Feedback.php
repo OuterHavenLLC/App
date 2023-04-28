@@ -5,11 +5,11 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Home(array $a) {
-   $button = "";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $pub = $data["pub"] ?? 0;
    if($pub == 0) {
+    $button = "";
     $r = $this->system->Change([[
      "[Error.Header]" => "Not Found",
      "[Error.Message]" => "The Feedback Identifier is missing."
@@ -33,7 +33,7 @@
       "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("UseParaphrasedQuestion", "req v2w", $feedback["UseParaphrasedQuestion"]),
       "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
       "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
-      "[Feedback.Title]" => $title,
+      "[Feedback.Title]" => $title
      ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
     }
     $r = $this->system->Card([
@@ -49,7 +49,7 @@
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
     ]).$this->system->Element([
      "div", $this->system->Element(["button", "Send Feedback", [
-      "ckass" => "BBB dB2O v2 v2w",
+      "class" => "BBB dB2O v2 v2w",
       "data-type" => base64_encode("v=".base64_encode("Feedback:NewThread"))
      ]]), ["class" => "Desktop33 MobilfFull"]
     ]).$this->system->Element([
@@ -68,9 +68,12 @@
       "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
       "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
       "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
-      "[Feedback.Title]" => $title,
+      "[Feedback.Title]" => $title
      ], $this->system->Page("599e260591d6dca59a8e0a52f5bd64be")]);
     }
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
    }
    return $r;
   }
@@ -191,7 +194,6 @@
   }
   function SaveResponse(array $a) {
    $accessCode = "Denied";
-   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, [
@@ -264,7 +266,6 @@
   }
   function Stream(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = $this->system->Page("2ce9b2d2a7f5394df6a71df2f0400873");
    $y = $this->you;
@@ -273,16 +274,19 @@
     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
     $r = "";
     $thread = $feedback["Thread"] ?? [];
-    for($i = 0; $i <= count($thread); $i++) {
-     $message = $thread[$i] ?? [];
+    $tpl = $this->system->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
+    foreach($thread as $key => $message) {
      $class = ($message["From"] != $you) ? "MSGt" : "MSGy";
-     $r .= $this->system->Element(["div", $this->system->PlainText([
-      "Data" => $message["Body"],
-      "Decode" => 1,
-      "HTMLDecode" => 1
-     ]), [
-      "class" => "MSG $class"
-     ]]);
+     $r .= $this->system->Change([[
+      "[Message.Attachments]" => "",
+      "[Message.Class]" => $class,
+      "[Message.MSG]" => $this->system->PlainText([
+       "Data" => $message["Body"],
+       "Decode" => 1,
+       "HTMLDecode" => 1
+      ]),
+      "[Message.Sent]" => $this->system->TimeAgo($message["Sent"])
+     ], $tpl]);
     }
    }
    return $r;
