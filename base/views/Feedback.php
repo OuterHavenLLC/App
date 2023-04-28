@@ -8,36 +8,72 @@
    $button = "";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Feedback Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
-   if(!empty($id)) {
-    $button = $this->system->Element(["button", "Respond", [
-     "class" => "CardButton SendData",
-     "data-form" => ".FeedbackEditor$id",
-     "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
-    ]]);
-    $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
-    $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
-    $title = $feedback["Subject"] ?? "New Feedback";
-    if($feedback["UseParaphrasedQuestion"] == 1) {
-     $title = $feedback["ParaphrasedQuestion"];
-    }
+   $pub = $data["pub"] ?? 0;
+   if($pub == 1) {
     $r = $this->system->Change([[
-     "[Feedback.ID]" => $id,
-     "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
-     "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
-     "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("UseParaphrasedQuestion", "req v2w", $feedback["UseParaphrasedQuestion"]),
-     "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
-     "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
-     "[Feedback.Title]" => $title,
-    ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
+     "[Error.Header]" => "Not Found",
+     "[Error.Message]" => "The Feedback Identifier is missing."
+    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    if(!empty($id)) {
+     $button = $this->system->Element(["button", "Respond", [
+      "class" => "CardButton SendData",
+      "data-form" => ".FeedbackEditor$id",
+      "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
+     ]]);
+     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+     $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
+     $title = $feedback["Subject"] ?? "New Feedback";
+     if($feedback["UseParaphrasedQuestion"] == 1) {
+      $title = $feedback["ParaphrasedQuestion"];
+     }
+     $r = $this->system->Change([[
+      "[Feedback.ID]" => $id,
+      "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
+      "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
+      "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("UseParaphrasedQuestion", "req v2w", $feedback["UseParaphrasedQuestion"]),
+      "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
+      "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
+      "[Feedback.Title]" => $title,
+     ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
+    }
+    $r = $this->system->Card([
+     "Front" => $r,
+     "FrontButton" => $button
+    ]);
+   } elseif($pub == 1) {
+    $r = $this->system->Change([[
+     "[Error.Header]" => "Let's Talk!",
+     "[Error.Message]" => "We want to hear from you, send us your feedback."
+    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r .= $this->system->Element([
+     "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
+    ]).$this->system->Element([
+     "div", $this->system->Element(["button", "Send Feedback", [
+      "ckass" => "BBB dB2O v2 v2w",
+      "data-type" => base64_encode("v=".base64_encode("Feedback:NewThread"))
+     ]]), ["class" => "Desktop33 MobilfFull"]
+    ]).$this->system->Element([
+     "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
+    ]);
+    if(!empty($id)) {
+     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+     $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
+     $title = $feedback["Subject"] ?? "New Feedback";
+     if($feedback["UseParaphrasedQuestion"] == 1) {
+      $title = $feedback["ParaphrasedQuestion"];
+     }
+     $r = $this->system->Change([[
+      "[Feedback.ID]" => $id,
+      "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
+      "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
+      "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("UseParaphrasedQuestion", "req v2w", $feedback["UseParaphrasedQuestion"]),
+      "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
+      "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
+      "[Feedback.Title]" => $title,
+     ], $this->system->Page("XXXXs")]);
+    }
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
+   return $r;
   }
   function NewThread(array $a) {
    $id = md5("Feedback");
@@ -68,30 +104,6 @@
      "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
     ]])
    ]);
-  }
-  function PublicHome(array $a) {
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Feedback Identifier is missing."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
-   if(!empty($id)) {
-    # User-Facing Home/Editor
-    $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
-    $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
-    $title = $feedback["Subject"] ?? "New Feedback";
-    $title = $paraphrasedQuestion ?? $title;
-    $r = $this->system->Change([[
-     "[Feedback.ID]" => $id,
-     "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w"),
-     "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
-     "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
-     "[Feedback.Title]" => $title,
-    ], $this->system->Page("XXXX")]);
-   }
-   return $r;
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -188,6 +200,7 @@
     "Message",
     "ParaphrasedQuestion",
     "Priority",
+    "Resolved",
     "UseParaphrasedQuestion"
    ]);
    $id = $data["ID"];
@@ -202,10 +215,15 @@
    if(!empty($data["Message"]) && !empty($id)) {
     $accessCode = "Accepted";
     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
-    $feedback["ParaphrasedQuestion"] = $data["ParaphrasedQuestion"];
-    $feedback["Priority"] = $data["Priority"];
-    $feedback["Resolved"] = $data["Resolved"];
-    $feedback["UseParaphrasedQuestion"] = $data["UseParaphrasedQuestion"];
+    if(!empty($data["ParaphrasedQuestion"])) {
+     $feedback["ParaphrasedQuestion"] = $data["ParaphrasedQuestion"];
+    } if(!empty($data["Priority"])) {
+     $feedback["Priority"] = $data["Priority"];
+    } if(!empty($data["Resolved"])) {
+     $feedback["Resolved"] = $data["Resolved"];
+    } if(!empty($data["UseParaphrasedQuestion"])) {
+     $feedback["UseParaphrasedQuestion"] = $data["UseParaphrasedQuestion"];
+    }
     array_push($feedback["Thread"], [
      "Body" => $this->system->PlainText([
       "Data" => $data["Message"],
@@ -216,22 +234,16 @@
      "Sent" => $this->system->timestamp
     ]);
     if($feedback["Username"] != $you) {
-     // Create an Email Body template for the below render code
      $this->system->SendEmail([
-      "Message" => $this->system->Element([
-       "p", "Hello, ".$feedback["Name"].";"
-      ]).$this->system->Element([
-       "p", "Below is our response to your submitted feedback:"
-      ]).$this->system->Element(["div", $this->system->PlainText([
-       "Data" => $data["Message"],
-       "Display" => 1
-      ]), ["class" => "K4i"]]).$this->system->Element([
-       "p", "You may respond by clicking the button below.",
-       ["class" => "CenterText"]
-      ]).$this->system->Element(["div", $this->system->Element([
-       "p", "Follow this link to respond: ".$this->system->base."/feedback/$id",
-       ["class" => "CenterText"]
-      ]), ["class" => "Desktop75"]]),
+      "Message" => $this->system->Change([[
+       "[Email.Header]" => "{email_header}"
+       "[Email.Message]" => $this->system->PlainText([
+        "Data" => $data["Message"],
+        "Display" => 1
+       ]),
+       "[Email.Name]" => $feedback["Name"],
+       "[Email.Link]" => $this->system->base."/feedback/$id"
+      ], $this->system->Page("dc901043662c5e71b5a707af782fdbc1")]),
       "Title" => "Re: ".$feedback["Subject"],
       "To" => $feedback["Email"]
      ]);

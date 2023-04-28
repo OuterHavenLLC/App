@@ -125,8 +125,9 @@
    ]]);
   } elseif($c[0] == "feedback") {
    # FEEDBACK
-   $r = $gw->view(base64_encode("Feedback:PublicHome"), ["Data" => [
-    "ID" => $c[1]
+   $r = $gw->view(base64_encode("Feedback:Home"), ["Data" => [
+    "ID" => $c[1],
+    "pub" => 1
    ]]);
   } elseif($c[0] == "forums") {
    # FORUMS
