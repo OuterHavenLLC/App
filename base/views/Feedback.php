@@ -9,7 +9,7 @@
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $pub = $data["pub"] ?? 0;
-   if($pub == 1) {
+   if($pub == 0) {
     $r = $this->system->Change([[
      "[Error.Header]" => "Not Found",
      "[Error.Message]" => "The Feedback Identifier is missing."
@@ -66,11 +66,10 @@
       "[Feedback.ID]" => $id,
       "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
       "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
-      "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("UseParaphrasedQuestion", "req v2w", $feedback["UseParaphrasedQuestion"]),
+      "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
       "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
-      "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
       "[Feedback.Title]" => $title,
-     ], $this->system->Page("XXXXs")]);
+     ], $this->system->Page("599e260591d6dca59a8e0a52f5bd64be")]);
     }
    }
    return $r;
@@ -236,7 +235,7 @@
     if($feedback["Username"] != $you) {
      $this->system->SendEmail([
       "Message" => $this->system->Change([[
-       "[Email.Header]" => "{email_header}"
+       "[Email.Header]" => "{email_header}",
        "[Email.Message]" => $this->system->PlainText([
         "Data" => $data["Message"],
         "Display" => 1
@@ -264,11 +263,28 @@
    ]);
   }
   function Stream(array $a) {
-   $r = $this->system->Element(["div", "Test", [
-    "class" => "MSGt"
-   ]]).$this->system->Element(["div", "Response", [
-    "class" => "MSGy"
-   ]]);
+   $data = $a["Data"] ?? [];
+   $data = $this->system->DecodeBridgeData($data);
+   $id = $data["ID"] ?? "";
+   $r = $this->system->Page("2ce9b2d2a7f5394df6a71df2f0400873");
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id)) {
+    $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+    $r = "";
+    $thread = $feedback["Thread"] ?? [];
+    for($i = 0; $i <= count($thread); $i++) {
+     $message = $thread[$i] ?? [];
+     $class = ($message["From"] != $you) ? "MSGt" : "MSGy";
+     $r .= $this->system->Element(["div", $this->system->PlainText([
+      "Data" => $message["Body"],
+      "Decode" => 1,
+      "HTMLDecode" => 1
+     ]), [
+      "class" => "MSG $class"
+     ]]);
+    }
+   }
    return $r;
   }
   function __destruct() {
