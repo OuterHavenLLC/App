@@ -505,11 +505,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $tpl = $this->system->Page("3536f06229e7b9d9684f8ca1bb08a968");
     if($notAnon == 1) {
      foreach($preSets as $key => $preSet) {
-      array_push($msg, [
-       "[Email.Description]" => base64_encode($preSet["Description"]),
-       "[Email.New]" => base64_encode(base64_encode("v=".base64_encode("Company:MassMail")."&ID=".$preSet["ID"])),
-       "[Email.Title]" => base64_encode($preSet["Title"])
-      ]);
+      if($key != "NextSend") {
+       array_push($msg, [
+        "[Email.Description]" => base64_encode($preSet["Description"]),
+        "[Email.Editor]" => base64_encode(base64_encode("v=".base64_encode("Company:MassMail")."&ID=$key")),
+        "[Email.Title]" => base64_encode($preSet["Title"])
+       ]);
+      }
      }
     }
    } elseif($st == "BGP") {

@@ -59,7 +59,7 @@
    $button = "";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["AID", "new"]);
-   $id = $data["AID"];
+   $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $r = $this->system->Change([[
     "[Error.Header]" => "Error",
@@ -88,7 +88,6 @@
     $preSets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
     $preSet = $preSets[$id] ?? [];
     $body = $preSet["Body"] ?? base64_encode("");
-    $body = base64_encode($body);
     $description = $preSet["Description"] ?? "";
     $title = $preSet["Title"] ?? "New Email";
     $r = $this->system->Change([[
