@@ -942,7 +942,9 @@
     }
    } if(count($keys) == $i) {
     $headers = "Content-Type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: noreply@outerhaven.nyc";
+    $headers .= "From: noreply@outerhaven.nyc\r\n";
+    $headers .= "color-scheme: dark light\r\n";
+    $headers .= "supported-color-schemes: dark light";
     $message = $this->Element([
      "html", $this->Element([
       "head", $this->Element([

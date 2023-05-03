@@ -502,12 +502,15 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "ADM-MassMail") {
     $ec = "Accepted";
     $preSets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
-    $tpl = $this->system->Page("XXXX");
-    if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
-     array_push($msg, [
-      "[Email.Description]" => base64_encode("Description"),
-      "[Email.Title]" => base64_encode("Title")
-     ]);
+    $tpl = $this->system->Page("3536f06229e7b9d9684f8ca1bb08a968");
+    if($notAnon == 1) {
+     foreach($preSets as $key => $preSet) {
+      array_push($msg, [
+       "[Email.Description]" => base64_encode($preSet["Description"]),
+       "[Email.New]" => base64_encode(base64_encode("v=".base64_encode("Company:MassMail")."&ID=".$preSet["ID"])),
+       "[Email.Title]" => base64_encode($preSet["Title"])
+      ]);
+     }
     }
    } elseif($st == "BGP") {
     $ec = "Accepted";

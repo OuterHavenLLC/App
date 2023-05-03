@@ -125,7 +125,6 @@
    ], $this->system->Page("2c726e65e5342489621df8fea850dc47")]);
   }
   function SendMassMail(array $a) {
-   // MASS MAIL SENDER, SAVES TEMPLATE AS PRE-SET IF ELECTED
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
@@ -137,7 +136,10 @@
     "Title"
    ]);
    $id = $data["ID"];
+   $now = $this->system->timestamp;
    $new = $data["new"] ?? 0;
+   $preSets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
+   $nextSend = $preSets["NextSend"] ?? strtotime($now);
    $r = $this->system->Dialog([
     "Body" => $this->system->Element([
      "p", "The Pre-Set Identifier is missing."
@@ -160,12 +162,21 @@
      ]),
      "Header" => "Forbidden"
     ]);
+   } elseif(strtotime($now) < $nextSend) {
+    $r = $this->system->Dialog([
+     "Body" => $this->system->Element([
+      "p", "You may not send an email yet, please try again later."
+     ]),
+     "Header" => "Forbidden"
+    ]);
    } else {
     $accessCode = "Accepted";
     $contactList = $this->system->Data("Get", [
      "x",
      md5("ContactList")
     ]) ?? [];
+    $preSets["NextSend"] = $this->system->TimePlus($now, 1, "month");
+    $preSets["NextSend"] = strtotime($preSets["NextSend"]);
     foreach($contactList as $email => $info) {
      if($info["SendOccasionalEmails"] == 1) {
       $this->system->SendEmail([
@@ -175,11 +186,16 @@
       ]);
      }
     } if($data["Save"] == 1) {
-     // SAVE TPL DATA AS PRE-SET
+     $preSets[$id] = [
+      "Body" => base64_encode($data["Body"]),
+      "Description" => $data["Description"],
+      "Title" => $data["Title"]
+     ];
     }
+    $this->system->Data("Save", ["x", md5("MassMail"), $preSets]);
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
-      "p", "Your email has been sent to every Member who elected to receive occasional emails.".json_encode($data, true)
+      "p", "Your email has been sent to every Member who elected to receive occasional emails."
      ]),
      "Header" => "Done"
     ]);
