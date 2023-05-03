@@ -33,8 +33,8 @@
    $notAnon = ($this->system->ID != $you) ? 1 : 0;
    if($ck == 1) {
     if($st == "ADM-LLP") {
-     $h = "Network Pages";
-     $lis = "Search Pages";
+     $h = "Network Extensions";
+     $lis = "Search Extensions";
      $lo =  ($notAnon == 1) ? $this->system->Element([
       "button", "New Page", [
        "class" => "dB2O v2",
@@ -42,6 +42,15 @@
       ]
      ]) : "";
      $tpl = "e3de2c4c383d11d97d62a198f15ee885";
+    if($st == "ADM-MassMail") {
+     $h = "MassMail";
+     $lis = "Search Pre-Sets";
+     $lo =  ($notAnon == 1 && $y["Rank"] == md5("High Command")) ? $this->system->Element([
+      "button", "New Email", [
+       "class" => "dB2O v2",
+       "data-type" => base64_encode("v=".base64_encode("Company:MassMail")."&new=1")
+      ]
+     ]) : "";
     } elseif($st == "BGP") {
      $data = $this->system->FixMissing($data, ["BLG"]);
      $h = "Blog Posts";
@@ -490,6 +499,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      }
      #$na.=" ".$query.json_encode($Pages, true);//TEMP
     }
+   } elseif($st == "ADM-MassMail") {
+    $ec = "Accepted";
+    $presets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
+    $tpl = $this->system->Page("XXXX");
+    if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
+     array_push($msg, [
+      "[Email.Description]" => base64_encode("Description"),
+      "[Email.Title]" => base64_encode("Title")
+     ]);
+    }
    } elseif($st == "BGP") {
     $ec = "Accepted";
     $blog = $this->system->Data("Get", [
@@ -568,7 +587,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[BlogPost.Modified]" => base64_encode($modified),
         "[BlogPost.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
         "[BlogPost.Title]" => base64_encode($post["Title"]),
-        "[BlogPost.View]" => base64_encode("Blog".$blog["ID"].";".base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=".$blog["ID"]."&Post=".$post["ID"]."&b2=".$blog["Title"]."&back=1")),
+        "[BlogPost.View]" => base64_encode("Blog".$blog["ID"].";".base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=".$blog["ID"]."&Post=".$post["ID"]."&b2=".$blog["Title"]."&back=1"))
        ]);
       }
      }

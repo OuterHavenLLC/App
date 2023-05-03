@@ -292,6 +292,7 @@
       ],
       "SearchIDs" => [
        "ADM-LLP",
+       "ADM-MassMail",
        "BGP",
        "BL",
        "BLG",

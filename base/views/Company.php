@@ -128,7 +128,7 @@
      ]),
      "Header" => "Error"
     ]);
-   } elseif($this->system->ID == md5("High Command")) {
+   } elseif($y["Rank"] == md5("High Command")) {
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
       "p", "This is an administrative function."
