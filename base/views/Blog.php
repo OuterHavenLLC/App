@@ -346,7 +346,9 @@
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Blog Identifier is missing."]),
+    "Body" => $this->system->Element([
+     "p", "The Blog Identifier is missing."
+    ]),
     "Header" => "Error"
    ]);
    $y = $this->you;

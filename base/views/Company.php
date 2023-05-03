@@ -55,6 +55,35 @@
    ]) : $r;
    return $r;
   }
+  function MassMail(array $a) {
+   // MASS MAIL EDITOR: NEW OR EXISTING PRE-SET BODY TPL
+   $button = "";
+   $data = $a["Data"] ?? [];
+   $data = $this->system->FixMissing($data, ["AID", "new"]);
+   $id = $data["AID"];
+   $new = $data["new"] ?? 0;
+   $r = $this->system->Change([[
+    "[Error.Header]" => "Error",
+    "[Error.Message]" => "The Pre-Set Identifier is missing."
+   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = $this->system->Change([[
+     "[Error.Header]" => "Forbidden",
+     "[Error.Message]" => "You must sign in to continue."
+    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   } elseif(!empty($id) || $new == 1) {
+    $r = $this->system->Change([[
+     "[Error.Header]" => "Mass Mail",
+     "[Error.Message]" => "Soon you will be able to send bulk email to Members who elected to receive occasional emails."
+    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   }
+   return $this->system->Card([
+    "Front" => $r,
+    "FrontButton" => $button
+   ]);
+  }
   function Partners(array $a) {
    $partners = $this->system->Member($this->system->ShopID);
    $shop = $this->system->Data("Get", [
@@ -75,6 +104,55 @@
    return $this->system->Change([[
     "[Partners.Table]" => $partnersList
    ], $this->system->Page("2c726e65e5342489621df8fea850dc47")]);
+  }
+  function SendMassMail(array $a) {
+   // MASS MAIL SENDER, SAVES TEMPLATE AS PRE-SET IF ELECTED
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->system->FixMissing($data, ["ID", "Title"]);
+   $id = $data["ID"];
+   $new = $data["new"] ?? 0;
+   $r = $this->system->Dialog([
+    "Body" => $this->system->Element([
+     "p", "The Pre-Set Identifier is missing."
+    ]),
+    "Header" => "Error"
+   ]);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = $this->system->Dialog([
+     "Body" => $this->system->Element([
+      "p", "You must be signed in to continue."
+     ]),
+     "Header" => "Error"
+    ]);
+   } elseif($this->system->ID == md5("High Command")) {
+    $r = $this->system->Dialog([
+     "Body" => $this->system->Element([
+      "p", "This is an administrative function."
+     ]),
+     "Header" => "Forbidden"
+    ]);
+   } else {
+    $accessCode = "Accepted";
+    $r = $this->system->Dialog([
+     "Body" => $this->system->Element([
+      "p", "Your email has been sent to every Member who elected to receive occasional emails."
+     ]),
+     "Header" => "Done"
+    ]);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
+   ]);
   }
   function Statistics(array $a) {
    $st = "";
