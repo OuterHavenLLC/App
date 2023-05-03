@@ -42,10 +42,10 @@
       ]
      ]) : "";
      $tpl = "e3de2c4c383d11d97d62a198f15ee885";
-    if($st == "ADM-MassMail") {
-     $h = "MassMail";
+    } elseif($st == "ADM-MassMail") {
+     $h = "Mass Mail";
      $lis = "Search Pre-Sets";
-     $lo =  ($notAnon == 1 && $y["Rank"] == md5("High Command")) ? $this->system->Element([
+     $lo =  ($notAnon == 1) ? $this->system->Element([
       "button", "New Email", [
        "class" => "dB2O v2",
        "data-type" => base64_encode("v=".base64_encode("Company:MassMail")."&new=1")

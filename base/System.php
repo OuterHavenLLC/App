@@ -30,6 +30,7 @@
     "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
     "[Admin.Feedback]" => "v=$search&st=Feedback",
     "[Admin.Files]" => "v=$album&AID=".md5("unsorted")."&UN=".base64_encode($this->ID),
+    "[Admin.MassMail]" => "v=$search&st=ADM-MassMail",
     "[Admin.Pages]" => "v=$search&st=ADM-LLP",
     "[Admin.RenewSubscriptions]" => "v=$renewSubscriptions",
     "[Admin.Server]" => "https://www.digitalocean.com/",

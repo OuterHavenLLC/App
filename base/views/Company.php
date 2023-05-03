@@ -74,6 +74,12 @@
      "[Error.Message]" => "You must sign in to continue."
     ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    } elseif(!empty($id) || $new == 1) {
+    $action = ($new == 1) ? "Post" : "Update";
+    $button = $this->system->Element(["button", $action, [
+     "class" => "CardButton SendData",
+     "data-form" => ".NewEmail$id",
+     "data-processor" => base64_encode("v=".base64_encode("Company:SendMassMail"))
+    ]]);
     $r = $this->system->Change([[
      "[Error.Header]" => "Mass Mail",
      "[Error.Message]" => "Soon you will be able to send bulk email to Members who elected to receive occasional emails."
@@ -128,7 +134,7 @@
      ]),
      "Header" => "Error"
     ]);
-   } elseif($y["Rank"] == md5("High Command")) {
+   } elseif($y["Rank"] != md5("High Command")) {
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
       "p", "This is an administrative function."
