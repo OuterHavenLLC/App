@@ -501,7 +501,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "ADM-MassMail") {
     $ec = "Accepted";
-    $presets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
+    $preSets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
     $tpl = $this->system->Page("XXXX");
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
      array_push($msg, [

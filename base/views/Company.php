@@ -56,7 +56,6 @@
    return $r;
   }
   function MassMail(array $a) {
-   // MASS MAIL EDITOR: NEW OR EXISTING PRE-SET BODY TPL
    $button = "";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["AID", "new"]);
@@ -73,17 +72,31 @@
      "[Error.Header]" => "Forbidden",
      "[Error.Message]" => "You must sign in to continue."
     ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   } elseif($y["Rank"] != md5("High Command")) {
+    $r = $this->system->Change([[
+     "[Error.Header]" => "Forbidden",
+     "[Error.Message]" => "This is an administrative function."
+    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    } elseif(!empty($id) || $new == 1) {
     $action = ($new == 1) ? "Post" : "Update";
+    $id = ($new == 1) ? md5($you.uniqid("MassMail-")) : $id;
     $button = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
-     "data-form" => ".NewEmail$id",
+     "data-form" => ".NewMail$id",
      "data-processor" => base64_encode("v=".base64_encode("Company:SendMassMail"))
     ]]);
+    $preSets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
+    $preSet = $preSets[$id] ?? [];
+    $body = $preSet["Body"] ?? base64_encode("");
+    $body = base64_encode($body);
+    $description = $preSet["Description"] ?? "";
+    $title = $preSet["Title"] ?? "New Email";
     $r = $this->system->Change([[
-     "[Error.Header]" => "Mass Mail",
-     "[Error.Message]" => "Soon you will be able to send bulk email to Members who elected to receive occasional emails."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+     "[Email.Body]" => $body,
+     "[Email.ID]" => $id,
+     "[Email.Description]" => $description,
+     "[Email.Title]" => $title
+    ], $this->system->Page("81ccdda23bf18e557bc0ba3071c1c2d4")]);
    }
    return $this->system->Card([
     "Front" => $r,
@@ -116,7 +129,13 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID", "Title"]);
+   $data = $this->system->FixMissing($data, [
+    "Body",
+    "Description",
+    "ID",
+    "Save",
+    "Title"
+   ]);
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $r = $this->system->Dialog([
@@ -143,9 +162,24 @@
     ]);
    } else {
     $accessCode = "Accepted";
+    $contactList = $this->system->Data("Get", [
+     "x",
+     md5("ContactList")
+    ]) ?? [];
+    foreach($contactList as $email => $info) {
+     if($info["SendOccasionalEmails"] == 1) {
+      $this->system->SendEmail([
+       "Message" => $data["Body"],
+       "Title" => $data["Title"],
+       "To" => $email
+      ]);
+     }
+    } if($data["Save"] == 1) {
+     // SAVE TPL DATA AS PRE-SET
+    }
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
-      "p", "Your email has been sent to every Member who elected to receive occasional emails."
+      "p", "Your email has been sent to every Member who elected to receive occasional emails.".json_encode($data, true)
      ]),
      "Header" => "Done"
     ]);

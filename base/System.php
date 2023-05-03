@@ -930,11 +930,17 @@
    }
   }
   function SendEmail(array $a) {
-   $ck = 1;
-   $keys = ["Message", "Title", "To"];
+   $keys = [
+    "Message",
+    "Title",
+    "To"
+   ];
+   $i = 0;
    foreach($keys as $key) {
-    $ck = (!empty($a[$key])) ? $ck : 0;
-   } if($ck == 1) {
+    if(!empty($a[$key])) {
+     $i++;
+    }
+   } if(count($keys) == $i) {
     $headers = "Content-Type: text/html; charset=UTF-8\r\n";
     $headers .= "From: noreply@outerhaven.nyc";
     $message = $this->Element([
@@ -945,8 +951,7 @@
      ]).$this->Element([
       "body", $this->Change([[
        "[Email.Message]" => $a["Message"]
-      ], $a["Message"]])
-      #], $this->Page("EmailTPL")])
+      ], $this->Page("9e8029cbe254a2095c925f085278da2f")])
      ])
     ]);
     mail($a["To"], $a["Title"], $message, $headers);
