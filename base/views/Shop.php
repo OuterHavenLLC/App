@@ -761,7 +761,11 @@
   function SaveCreditExChange(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "P", "UN"]);
+   $data = $this->system->FixMissing($data, [
+    "ID",
+    "P",
+    "UN"
+   ]);
    $points = base64_decode($data["P"]);
    $r = $this->system->Dialog([
     "Body" => $this->system->Element(["p", "Unknown error."]),

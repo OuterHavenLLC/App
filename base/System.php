@@ -1077,20 +1077,6 @@
       "optgroup", $r, ["label" => "Year"]
      ]), ["class" => "v2", "name" => $a]
     ]);
-   } elseif($a == "CE") {
-    $i = 1000;
-    $r = $this->Element([
-     "p", "Credit Exchange requires a minimum of 1,000 points to be converted."
-    ]);
-    if($y["Points"] >= $i) {
-     $r = $this->Change([[
-      "[CreditExchange]" => $a,
-      "[CreditExchange.Data]" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$c&P="),
-      "[CreditExchange.ID]" => md5($this->timestamp.rand(0, 9999)),
-      "[CreditExchange.Points]" => $y["Points"],
-      "[CreditExchange.Points.Minimum]" => $i
-     ], $this->Page("b9c61e4806cf07c0068f1721678bef1e")]);
-    }
    } elseif($a == "ContactList") {
     $hli = ["Acquaintances", "Close Contacts", "Contacts"];
     $opt = ["Acquaintances", "Close Contacts", "Contacts"];

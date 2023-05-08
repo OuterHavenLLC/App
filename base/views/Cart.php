@@ -102,9 +102,22 @@
    $username = (!empty($username)) ? $username : $you;
    if($this->system->ID != $username) {
     $t = ($username == $you) ? $y : $this->system->Member($username);
+    $i = 1000;
     $id = md5($t["Login"]["Username"]);
     $shop = $this->system->Data("Get", ["shop", $id]) ?? [];
     $shop = $this->system->FixMissing($shop, ["Title"]);
+    $creditExchange = $this->Element([
+     "p", "Credit Exchange requires a minimum of 1,000 points to be converted."
+    ]);
+    if($y["Points"] >= $i) {
+     $creditExchange = $this->Change([[
+      "[CreditExchange]" => "CE",
+      "[CreditExchange.Data]" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P="),
+      "[CreditExchange.ID]" => md5($this->timestamp.rand(0, 9999)),
+      "[CreditExchange.Points]" => $y["Points"],
+      "[CreditExchange.Points.Minimum]" => $i
+     ], $this->Page("b9c61e4806cf07c0068f1721678bef1e")]);
+    }
     $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? 0;
     $discountCodes = ($discountCodes == 0) ? $this->system->Change([
      [
@@ -117,7 +130,7 @@
      ["class" => "CenterText"]
     ]);
     $r = $this->system->Change([[
-     "[Cart.CreditExchange]" => $this->system->Select("CE", NULL, $id),
+     "[Cart.CreditExchange]" => $creditExchange,
      "[Cart.DiscountCodes]" => $discountCodes,
      "[Cart.List]" => $this->view(base64_encode("Search:Containers"), [
       "Data" => [
