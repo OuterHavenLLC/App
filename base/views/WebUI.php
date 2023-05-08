@@ -34,7 +34,38 @@
     $r = $this->system->Change([[
      "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
      "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
-     "[Member.SecurePIN]" => $y["Login"]["PIN"]
+     "[Member.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "PIN req",
+        "maxlen" => 8,
+        "name" => "PIN",
+        "pattern" => "\d*",
+        "placeholder" => "PIN",
+        "type" => "number"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "PIN"
+       ],
+       "Type" => "Text"
+      ],
+      [
+       "Attributes" => [
+        "class" => "req sPIN",
+        "name" => "sPIN",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Login"]["PIN"]
+      ]
+     ])
     ], $this->system->Page("723a9e510879c2c16bf9690ffe7273b5")]);
    }
    return $r;
@@ -76,6 +107,7 @@
      "[Menu.Company.PressReleases]" => "v=$search&lPG=PG&st=PR",
      "[Menu.Company.Statistics]" => "v=".base64_encode("Company:Statistics"),
      "[Menu.Company.VVA]" => "v=".base64_encode("Company:VVA"),
+     "[Menu.LockScreen]" => "v=".base64_encode("WebUI:LockScreen"),
      "[Menu.Mainstream]" => "v=$search&st=Mainstream",
      "[Menu.Member.Articles]" => "v=$search&st=MBR-LLP",
      "[Menu.Member.Articles.FSTID]" => md5("MemberArticles"),

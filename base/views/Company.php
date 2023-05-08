@@ -89,7 +89,7 @@
     $preSet = $preSets[$id] ?? [];
     $body = $preSet["Body"] ?? base64_encode("");
     $description = $preSet["Description"] ?? "";
-    $title = $preSet["Title"] ?? "New Email";
+    $title = $preSet["Title"] ?? "New Mail";
     $r = $this->system->Change([[
      "[Email.Body]" => $body,
      "[Email.ID]" => $id,

@@ -449,7 +449,7 @@
    $h = $a["Header"] ?? "Error";
    $o = $a["Option"] ?? "&nbsp;";
    $o2 = $a["Option2"] ?? $this->Element(["button", "Okay", [
-    "class" => "dBC v2 v2w"
+    "class" => "BB dBC v2 v2w"
    ]]);
    return $this->Change([[
     "[Dialog.Body]" => $b,
@@ -872,9 +872,62 @@
   function RecursiveChange(array $a) {
    $_HTML = $a[2] ?? 0;
    $r = $a[1];
-   foreach($a[0] as $k => $v) {
-    $v = ($_HTML == 0) ? $v : htmlentities($v);
-    $r = preg_replace($k, $v, $r);
+   foreach($a[0] as $key => $value) {
+    $v = ($_HTML == 0) ? $value : htmlentities($value);
+    $r = preg_replace($key, $value, $r);
+   }
+   return $r;
+  }
+  function RenderInputs(array $a) {
+   $inputs = $a ?? [];
+   $r = "";
+   foreach($inputs as $key => $input) {
+    $input = $this->FixMissing($input, [
+     "Name",
+     "Options",
+     "Value"
+    ]);
+    $attributes = $input["Attributes"] ?? [];
+    $type = $input["Type"] ?? "Text";
+    if(is_array($attributes) && !empty($type)) {
+     $options = $input["Options"] ?? [];
+     $options = $this->FixMissing($options, [
+      "Container",
+      "ContainerClass",
+      "Header",
+      "HeaderText",
+      "Label"
+     ]);
+     $renderInput = "";
+     $renderInputAttributes = "";
+     $renderOptionGroup = $input["OptionGroup"] ?? [];
+     if($type != "Select") {
+      foreach($attributes as $attribute => $value) {
+       $renderInputAttributes .= " $attribute=\"$value\"";
+      }
+     } if($type == "Select") {
+      foreach($renderOptionGroup as $optionGroup => $option) {
+       $selected = ($option["Selected"] == 1) ? " selected" : "";
+       $renderOptionGroup .= "<option value=\"".$option["Value"]."\"$selected>".$option["Text"]."</option>\r\n";
+      }
+      $renderInput = $this->Element(["select", $this->Element([
+       "optgroup", $renderOptionGroup, ["label" => $input["Name"]]
+      ]), $attributes]);
+     } if($type == "Text") {
+      $renderInput = "<input $renderInputAttributes value=\"".$input["Value"]."\"/>\r\n";
+     } if($options["Header"] == 1) {
+      $renderInput = $this->Element([
+       "h4", $options["HeaderText"], ["class" => "UpperCase"]
+      ]).$renderInput;
+     } if($options["Container"] == 1) {
+      $renderInput = $this->Element(["div", $renderInput, [
+       "class" => $options["ContainerClass"]
+      ]]);
+     } if($options["Label"] == 1) {
+      $renderInput = $this->Element(["label", $renderInput]);
+     }
+     $r .= $renderInput;
+    }
    }
    return $r;
   }

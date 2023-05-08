@@ -719,13 +719,46 @@
   }
   function SignIn(array $a) {
    return $this->system->Dialog([
-    "Body" => $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005"),
+    "Body" => $this->system->Change([[
+     "[SignIn.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "UN",
+        "placeholder" => "Username",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Username"
+       ],
+       "Type" => "Text"
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "PW",
+        "placeholder" => "Password",
+        "type" => "password"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Password"
+       ],
+       "Type" => "Text"
+      ]
+     ])
+    ], $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005")]),
     "Header" => "Sign In",
     "Option" => $this->system->Element(["button", "Cancel", [
-     "class" => "dBC v2 v2w"
+     "class" => "BB dBC v2 v2w"
     ]]),
     "Option2" => $this->system->Element(["button", "Sign In", [
-     "class" => "BBB SendData v2 v2w",
+     "class" => "BB BBB SendData v2 v2w",
      "data-form" => ".SignIn",
      "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignIn"))
     ]])
