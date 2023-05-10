@@ -159,12 +159,25 @@
     $at4input = ".PGE_$id-ATTP";
     $at4 = base64_encode("Attach to the Article.:$at4input");
     $at4input = "$at4input .rATT";
+    $categories = ($y["Rank"] == md5("High Command")) ? [
+     "CA" => "Article",
+     "EXT" => "Extension",
+     "JE" => "Journal Entry",
+     "PR" => "Press Release",
+     "TPL-BLG" => "Blog Template",
+     "TPL-CA" => "Community Archive Template"
+    ] : [
+     "CA" => "Article",
+     "JE" => "Journal Entry",
+     "TPL-BLG" => "Blog Template",
+     "TPL-CA" => "Community Archive Template"
+    ];
     $category = $Page["Category"] ?? "CA";
     $em = base64_encode("LiveView:EditorMossaic");
     $ep = base64_encode("LiveView:EditorProducts");
     $es = base64_encode("LiveView:EditorSingle");
     $nsfw = $Page["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $options = $this->system->Select("PageCategory", "LI req v2w", $category);
+    $options = "";
     $privacy = $Page["Privacy"] ?? $y["Privacy"]["Profile"];
     $sc = base64_encode("Search:Containers");
     if($y["Rank"] == md5("High Command")) {
@@ -315,8 +328,61 @@
       ]
      ]),
      "[Article.Options]" => $options,
-     "[Article.Options.NSFW]" => $this->system->Select("nsfw", "LI v2w", $nsfw),
-     "[Article.Options.Privacy]" => $this->system->Select("Privacy", "LI v2w", $privacy)
+     "[Article.Options.Standard]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => $categories,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Category"
+       ],
+       "Name" => "PageCategory",
+       "Title" => "Article Category",
+       "Type" => "Select",
+       "Value" => $category
+      ]
+     ]).$this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "Kid-Friendly",
+        1 => "Adults Only"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Content Status"
+       ],
+       "Name" => "nsfw",
+       "Title" => "Content Status",
+       "Type" => "Select",
+       "Value" => $nsfw
+      ]
+     ]).$this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        md5("Acquaintances") => "Acquaintances",
+        md5("Close Contacts") => "Close Contacts",
+        md5("Contacts") => "Contacts",
+        md5("Private") => "Private",
+        md5("Public") => "Public"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Privacy"
+       ],
+       "Name" => "Privacy",
+       "Title" => "Privacy",
+       "Type" => "Select",
+       "Value" => $privacy
+      ]
+     ])
     ], $this->system->Page("68526a90bfdbf5ea5830d216139585d7")]);
     $frbtn = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",

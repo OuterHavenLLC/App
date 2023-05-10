@@ -220,7 +220,7 @@
     foreach($value as $key2 => $value2) {
      $ks = "";
      foreach($value2 as $key3 => $value3) {
-      $stat = $this->system->core["STAT"][$key3] ?? "";
+      $stat = $this->system->core["STAT"][$key3] ?? $key3;
       $ks .= $this->system->Change([[
        "[Statistics.Statistic]" => $this->system->Change([[
         $key3 => $stat

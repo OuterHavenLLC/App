@@ -5,7 +5,7 @@
    try {
     $this->cypher = New Cypher;
     $this->DocumentRoot = $_SERVER["DOCUMENT_ROOT"] ?? "/home/mike/public_html";
-    $this->ID = "ohc";
+    $this->ID = "App";
     $this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
     $this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
     $this->ShopID = "Mike";
@@ -234,6 +234,7 @@
      "LI" => "Logins",
      "MBR" => "New Members",
      "Visits" => "Visitors",
+     "PG" => "New Articles",
      "PGu" => "Article Updates",
      "PROD" => "New Products",
      "PRODu" => "Product Updates",
@@ -907,12 +908,17 @@
        $renderInputAttributes .= " $attribute=\"$value\"";
       }
      } if($type == "Select") {
-      foreach($renderOptionGroup as $optionGroup => $option) {
-       $selected = ($option["Selected"] == 1) ? " selected" : "";
-       $renderOptionGroup .= "<option value=\"".$option["Value"]."\"$selected>".$option["Text"]."</option>\r\n";
+      $optionGroup = "";
+      foreach($renderOptionGroup as $option => $text) {
+       $selected = ($input["Value"] == $option) ? " selected" : "";
+       $optionGroup .= "<option value=\"$option\"$selected>$text</option>\r\n";
       }
       $renderInput = $this->Element(["select", $this->Element([
-       "optgroup", $renderOptionGroup, ["label" => $input["Name"]]
+       "optgroup", $optionGroup, [
+        "class" => "LI v2 v2w",
+        "label" => $options["HeaderText"],
+        "name" => $input["Name"]
+       ]
       ]), $attributes]);
      } elseif($type == "Text") {
       $renderInput = "<input $renderInputAttributes value=\"".$input["Value"]."\"/>\r\n";
@@ -1410,48 +1416,6 @@
     $r = $this->Element([
      "select", $this->Element([
       "optgroup", $r, ["label" => "Content Status"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "PageCategory") {
-    if($_HC == 1) {
-     $hli = [
-      "Article",
-      "Extension",
-      "Journal Entry",
-      "Press Release",
-      "Blog Template",
-      "Community Archive Template"
-     ];
-     $opt = [
-      "CA",
-      "EXT",
-      "JE",
-      "PR",
-      "TPL-BLG",
-      "TPL-CA"
-     ];
-    } else {
-     $hli = [
-      "Article",
-      "Journal Entry",
-      "Blog Template",
-      "Community Archive Template"
-     ];
-     $opt = [
-      "CA",
-      "JE",
-      "TPL-BLG",
-      "TPL-CA"
-     ];
-    }
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"".base64_encode($opt)."\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Choose a Category..."]
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "ProductCategory") {
