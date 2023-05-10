@@ -919,11 +919,11 @@
      } elseif($type == "TextBox") {
       $renderInput = "<textarea $renderInputAttributes>".$input["Value"]."</textarea>\r\n";
       if($options["WYSIWYG"] == 1) {
-       $renderInput = "<textarea $renderInputAttributes>".base64_encode($input["Value"])."</textarea>\r\n";
-       $renderInput = $this->system->Change([[
+       $renderInput = "<textarea $renderInputAttributes rows=\"40\">".base64_encode($input["Value"])."</textarea>\r\n";
+       $renderInput = $this->Change([[
         "[WYSIWYG.ID]" => $attributes["id"],
         "[WYSIWYG.TextBox]" => $renderInput
-       ], $this->system->Page("XXXX")]);
+       ], $this->Page("8980452420b45c1e6e526a7134d6d411")]);
       }
      } if($options["Header"] == 1) {
       $renderInput = $this->Element([

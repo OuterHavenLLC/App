@@ -111,12 +111,8 @@
   }
   function Edit(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
-    "ID",
-    "new"
-   ]);
    $frbtn = "";
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $r = $this->system->Change([[
     "[Error.Header]" => "Error",
@@ -200,36 +196,127 @@
     $fr = $this->system->Change([[
      "[Article.Action]" => $action,
      "[Article.AdditionalContent]" => $additionalContent,
-     "[Article.Attachments]" => $attf,
-     "[Article.Attachments.LiveView]" => base64_encode("v=$em&AddTo=$at3input&ID="),
-     "[Article.Body]" => $this->system->WYSIWYG([
-      "Body" => $this->system->PlainText([
-       "Data" => $Page["Body"],
-       "Decode" => 1
-      ]),
-      "adm" => 1,
-      "opt" => [
-       "id" => "XBPBody",
-       "class" => "$dvi Body Xdecode req",
-       "name" => "Body",
-       "placeholder" => "Body",
-       "rows" => 20
+     "[Article.Header]" => $header,
+     "[Article.ID]" => $id,
+     "[Article.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTF",
+        "data-a" => "#ATTL$id-ATTF",
+        "data-u" => base64_encode("v=$em&AddTo=$at3input&ID="),
+        "name" => "rATTF",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditPage$id-ATTF"
+       ],
+       "Type" => "Text",
+       "Value" => $attf
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTI",
+        "data-a" => "#ATTL$id-ATTI",
+        "data-u" => base64_encode("v=$es&AddTo=$atinput&ID="),
+        "name" => "rATTI",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditPage$id-ATTI"
+       ],
+       "Type" => "Text",
+       "Value" => $Page["ICO-SRC"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTP",
+        "data-a" => "#ATTL$id-ATTP",
+        "data-u" => base64_encode("v=$ep&AddTo=$at4input&BNDL="),
+        "name" => "rATTP",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditPage$id-ATTP"
+       ],
+       "Type" => "Text",
+       "Value" => $products
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $Page["Title"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $Page["Description"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "$dvi Body Xdecode req",
+        "id" => "EditPageBody$id",
+        "name" => "Body",
+        "placeholder" => "Body"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body",
+        "WYSIWYG" => 1
+       ],
+       "Type" => "TextBox",
+       "Value" => $this->system->PlainText([
+        "Data" => $Page["Body"],
+        "Decode" => 1
+       ])
       ]
      ]),
-     "[Article.Description]" => $Page["Description"],
-     "[Article.Header]" => $header,
-     "[Article.ICO]" => $Page["ICO-SRC"],
-     "[Article.ICO.LiveView]" => base64_encode("v=$es&AddTo=$atinput&ID="),
-     "[Article.ID]" => $id,
-     "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Page;$id")),
-     "[Article.New]" => $new,
      "[Article.Options]" => $options,
      "[Article.Options.NSFW]" => $this->system->Select("nsfw", "LI v2w", $nsfw),
-     "[Article.Options.Privacy]" => $this->system->Select("Privacy", "LI v2w", $privacy),
-     "[Article.Products]" => $products,
-     "[Article.Products.LiveView]" => base64_encode("v=$ep&AddTo=$at4input&BNDL="),
-     "[Article.Title]" => $Page["Title"],
-     "[UIV.IN]" => "UIE$crid".md5($time)
+     "[Article.Options.Privacy]" => $this->system->Select("Privacy", "LI v2w", $privacy)
     ], $this->system->Page("68526a90bfdbf5ea5830d216139585d7")]);
     $frbtn = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
