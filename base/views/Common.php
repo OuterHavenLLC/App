@@ -627,6 +627,8 @@
     $r = "Your PINs must match.";
    } elseif(empty($data["Username"])) {
     $r = "A Username is required.";
+   } elseif($data["Username"] == $this->system->ID) {
+    $r = $this->system->ID." is the system profile and cannot be used.";
    } elseif($ck == 0) {
     $r = "You must be $_MinimumAge or older to sign up.";
    } elseif($i > 0) {
