@@ -111,7 +111,10 @@
   }
   function Edit(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "new"]);
+   $data = $this->system->FixMissing($data, [
+    "ID",
+    "new"
+   ]);
    $frbtn = "";
    $id = $data["ID"];
    $new = $data["new"] ?? 0;

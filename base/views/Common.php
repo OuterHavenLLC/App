@@ -755,10 +755,10 @@
     ], $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005")]),
     "Header" => "Sign In",
     "Option" => $this->system->Element(["button", "Cancel", [
-     "class" => "BB dBC v2 v2w"
+     "class" => "dBC v2 v2w"
     ]]),
     "Option2" => $this->system->Element(["button", "Sign In", [
-     "class" => "BB BBB SendData v2 v2w",
+     "class" => "BBB SendData v2 v2w",
      "data-form" => ".SignIn",
      "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignIn"))
     ]])

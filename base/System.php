@@ -449,7 +449,7 @@
    $h = $a["Header"] ?? "Error";
    $o = $a["Option"] ?? "&nbsp;";
    $o2 = $a["Option2"] ?? $this->Element(["button", "Okay", [
-    "class" => "BB dBC v2 v2w"
+    "class" => "dBC v2 v2w"
    ]]);
    return $this->Change([[
     "[Dialog.Body]" => $b,
@@ -896,6 +896,7 @@
       "ContainerClass",
       "Header",
       "HeaderText",
+      "WYSIWYG",
       "Label"
      ]);
      $renderInput = "";
@@ -913,8 +914,17 @@
       $renderInput = $this->Element(["select", $this->Element([
        "optgroup", $renderOptionGroup, ["label" => $input["Name"]]
       ]), $attributes]);
-     } if($type == "Text") {
+     } elseif($type == "Text") {
       $renderInput = "<input $renderInputAttributes value=\"".$input["Value"]."\"/>\r\n";
+     } elseif($type == "TextBox") {
+      $renderInput = "<textarea $renderInputAttributes>".$input["Value"]."</textarea>\r\n";
+      if($options["WYSIWYG"] == 1) {
+       $renderInput = "<textarea $renderInputAttributes>".base64_encode($input["Value"])."</textarea>\r\n";
+       $renderInput = $this->system->Change([[
+        "[WYSIWYG.ID]" => $attributes["id"],
+        "[WYSIWYG.TextBox]" => $renderInput
+       ], $this->system->Page("XXXX")]);
+      }
      } if($options["Header"] == 1) {
       $renderInput = $this->Element([
        "h4", $options["HeaderText"], ["class" => "UpperCase"]
@@ -1792,7 +1802,7 @@
   public static function SystemImage($a = NULL) {
    $x = New System;
    if(!empty($a)) {
-    $r = $x->efs."ohc/".$x->core["IMG"][$a[1]];
+    $r = $x->efs.$x->ID."/".$x->core["IMG"][$a[1]];
     $x->__destruct();
     return $r;
    }
