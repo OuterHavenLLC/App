@@ -911,7 +911,7 @@
      } if($type == "Check") {
       $selected = ($options["Selected"] == 1) ? " checked" : "";
       $renderInput = $this->Element([
-       "div", "<input $renderInputAttributes type=\"radio\" value=\"".$input["Value"]."\"$selected/>", [
+       "div", "<input $renderInputAttributes type=\"checkbox\" value=\"".$input["Value"]."\"$selected>", [
         "class" => "Desktop25"
        ]
       ]).$this->Element([

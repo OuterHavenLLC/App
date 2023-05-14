@@ -666,7 +666,7 @@
     $birthMonths = [];
     $birthYears = [];
     $choseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
-    $choseMinimalDesign (!empty($choseMinimalDesign)) ? 1 : 0;
+    $choseMinimalDesign = (!empty($choseMinimalDesign)) ? 1 : 0;
     $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
     for($i = 1; $i <= 12; $i++) {
      $birthMonths[$i] = $i;
@@ -900,20 +900,6 @@
      "[Preferences.Links.NewPassword]" => "v=".base64_encode("Profile:NewPassword"),
      "[Preferences.Links.NewPIN]" => "v=".base64_encode("Profile:NewPIN"),
      "[Preferences.Personal]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Personal_AboutPage",
-        "placeholder" => "Personalize your About section"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "About Section"
-       ],
-       "Type" => "TextBox",
-       "Value" => $y["Personal"]["AboutPage"]
-      ],
       [
        "Attributes" => [
         "name" => "Personal_MinimalDesign"
