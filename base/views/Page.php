@@ -178,7 +178,7 @@
     $es = base64_encode("LiveView:EditorSingle");
     $nsfw = $Page["NSFW"] ?? $y["Privacy"]["NSFW"];
     $options = "";
-    $privacy = $Page["Privacy"] ?? $y["Privacy"]["Profile"];
+    $privacy = $Page["Privacy"] ?? $y["Privacy"]["Posts"];
     $sc = base64_encode("Search:Containers");
     if($y["Rank"] == md5("High Command")) {
      $options .= "<input class=\"HC\" name=\"HC\" type=\"hidden\" value=\"1\"/>\r\n";
@@ -343,45 +343,13 @@
        "Type" => "Select",
        "Value" => $category
       ]
-     ]).$this->system->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "Kid-Friendly",
-        1 => "Adults Only"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Content Status"
-       ],
-       "Name" => "nsfw",
-       "Title" => "Content Status",
-       "Type" => "Select",
-       "Value" => $nsfw
-      ]
-     ]).$this->system->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        md5("Acquaintances") => "Acquaintances",
-        md5("Close Contacts") => "Close Contacts",
-        md5("Contacts") => "Contacts",
-        md5("Private") => "Private",
-        md5("Public") => "Public"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Privacy"
-       ],
-       "Name" => "Privacy",
-       "Title" => "Privacy",
-       "Type" => "Select",
-       "Value" => $privacy
-      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
      ])
     ], $this->system->Page("68526a90bfdbf5ea5830d216139585d7")]);
     $frbtn = $this->system->Element(["button", $action, [
