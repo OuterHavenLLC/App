@@ -147,16 +147,16 @@
    return $r;
   }
   function Bulletins(array $a) {
-   $d = $a["Data"] ?? [];
-   $ec = "Denied";
+   $accessCode = "Denied";
    $r = [];
    $tpl = $this->system->Page("ae30582e627bc060926cfacf206920ce");
    $y = $this->you;
-   if($y["Login"]["Username"] != $this->system->ID) {
-    $ec = "Accepted";
+   $you = $y["Login"]["Username"];
+   if($this->system->ID != $you) {
+    $accessCode = "Accepted";
     $bulletins = $this->system->Data("Get", [
      "bulletins",
-     md5($y["Login"]["Username"])
+     md5($you)
     ]) ?? [];
     foreach($bulletins as $key => $value) {
      if($value["Seen"] == 0) {
@@ -181,14 +181,10 @@
       ]);
      }
     }
-    $this->system->Data("Save", [
-     "bulletins",
-     md5($y["Login"]["Username"]),
-     $bulletins
-    ]);
+    $this->system->Data("Save", ["bulletins", md5($you), $bulletins]);
    }
    return $this->system->JSONResponse([
-    $ec,
+    $accessCode,
     base64_encode(json_encode($r, true)),
     base64_encode($tpl)
    ]);
@@ -669,7 +665,8 @@
     ]]);*/
     $birthMonths = [];
     $birthYears = [];
-    $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
+    $choseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
+    $choseMinimalDesign (!empty($choseMinimalDesign)) ? 1 : 0;
     $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
     for($i = 1; $i <= 12; $i++) {
      $birthMonths[$i] = $i;
@@ -677,9 +674,51 @@
      $birthYears[$i] = $i;
     }
     $r = $this->system->Change([[
-     "[Preferences.Donations.Patreon]" => $y["Donations"]["Patreon"],
-     "[Preferences.Donations.PayPal]" => $y["Donations"]["PayPal"],
-     "[Preferences.Donations.SubscribeStar]" => $y["Donations"]["SubscribeStar"],
+     "[Preferences.Donations.Patreon]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "Donations_Patreon",
+        "placeholder" => "JohnDoe",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Header" => 1,
+        "HeaderText" => "Patreon"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Donations"]["Patreon"]
+      ]
+     ]),
+     "[Preferences.Donations.PayPal]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "Donations_PayPal",
+        "placeholder" => "JohnDoe",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Header" => 1,
+        "HeaderText" => "PayPal"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Donations"]["PayPal"]
+      ]
+     ]),
+     "[Preferences.Donations.SubscribeStar]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "Donations_SubscribeStar",
+        "placeholder" => "JohnDoe",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Header" => 1,
+        "HeaderText" => "SubscribeStar"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Donations"]["SubscribeStar"]
+      ]
+     ]),
      "[Preferences.General]" => $this->system->RenderInputs([
       [
        "Attributes" => [
@@ -856,13 +895,41 @@
        "Value" => $y["Personal"]["Birthday"]["Year"]
       ]
      ]),
-     "[Preferences.General.Username]" => md5($you),
      "[Preferences.ID]" => md5($you),
      "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode(md5($y["Login"]["Username"]))),
      "[Preferences.Links.NewPassword]" => "v=".base64_encode("Profile:NewPassword"),
      "[Preferences.Links.NewPIN]" => "v=".base64_encode("Profile:NewPIN"),
-     "[Preferences.Personal.AboutPage]" => $y["Personal"]["AboutPage"],
-     "[Preferences.Personal.MinimalDesign]" => $this->system->Select("Personal_MinimalDesign", "req v2 v2w", $minimalDesign),
+     "[Preferences.Personal]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "Personal_AboutPage",
+        "placeholder" => "Personalize your About section"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "About Section"
+       ],
+       "Type" => "TextBox",
+       "Value" => $y["Personal"]["AboutPage"]
+      ],
+      [
+       "Attributes" => [
+        "name" => "Personal_MinimalDesign"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Minimal Design",
+        "Selected" => $choseMinimalDesign
+       ],
+       "Text" => "Choose whether or not to render design and social media elements such as reactions",
+       "Type" => "Check",
+       "Value" => 1
+      ]
+     ]),
      "[Preferences.Privacy.Albums]" => $this->system->Select("Privacy_Albums", "req v2w", $y["Privacy"]["Albums"]),
      "[Preferences.Privacy.Archive]" => $this->system->Select("Privacy_Archive", "req v2w", $y["Privacy"]["Archive"]),
      "[Preferences.Privacy.Articles]" => $this->system->Select("Privacy_Articles", "req v2w", $y["Privacy"]["Articles"]),
@@ -902,9 +969,8 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, [
-    "DN",
+    "Personal_DisplayName",
     "PIN",
-    "UN",
     "email"
    ]);
    $email = $data["Personal_Email"] ?? "";

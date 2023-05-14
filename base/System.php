@@ -886,6 +886,7 @@
     $input = $this->FixMissing($input, [
      "Name",
      "Options",
+     "Text",
      "Value"
     ]);
     $attributes = $input["Attributes"] ?? [];
@@ -907,7 +908,16 @@
       foreach($attributes as $attribute => $value) {
        $renderInputAttributes .= " $attribute=\"$value\"";
       }
-     } if($type == "Select") {
+     } if($type == "Check") {
+      $selected = ($options["Selected"] == 1) ? " checked" : "";
+      $renderInput = $this->Element([
+       "div", "<input $renderInputAttributes type=\"radio\" value=\"".$input["Value"]."\"$selected/>", [
+        "class" => "Desktop25"
+       ]
+      ]).$this->Element([
+       "div", $input["Text"], ["class" => "Desktop75s"]
+      ]);
+     } elseif($type == "Select") {
       $optionGroup = "";
       foreach($renderOptionGroup as $option => $text) {
        $selected = ($input["Value"] == $option) ? " selected" : "";
