@@ -712,23 +712,25 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $tpl = $this->system->Page("ae30582e627bc060926cfacf206920ce");
     foreach($bulletins as $key => $value) {
      $t = $this->system->Member($value["From"]);
-     $display = ($t["Personal"]["DisplayName"] == $this->system->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
-     $pic = $this->system->ProfilePicture($t, "margin:5%;width:90%");
-     $value["ID"] = $key;
-     array_push($msg, [
-      "[Bulletin.Date]" => base64_encode($this->system->TimeAgo($value["Sent"])),
-      "[Bulletin.From]" => base64_encode($display),
-      "[Bulletin.ID]" => base64_encode($key),
-      "[Bulletin.Message]" => base64_encode($this->view($message, [
-       "Data" => $value
-      ])),
-      "[Bulletin.Options]" => base64_encode($this->view($options, [
-       "Data" => [
-        "Bulletin" => base64_encode(json_encode($value, true))
-       ]
-      ])),
-      "[Bulletin.Picture]" => base64_encode($pic)
-     ]);
+     if(!empty($t["Personal"])) {
+      $display = ($t["Personal"]["DisplayName"] == $this->system->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
+      $pic = $this->system->ProfilePicture($t, "margin:5%;width:90%");
+      $value["ID"] = $key;
+      array_push($msg, [
+       "[Bulletin.Date]" => base64_encode($this->system->TimeAgo($value["Sent"])),
+       "[Bulletin.From]" => base64_encode($display),
+       "[Bulletin.ID]" => base64_encode($key),
+       "[Bulletin.Message]" => base64_encode($this->view($message, [
+        "Data" => $value
+       ])),
+       "[Bulletin.Options]" => base64_encode($this->view($options, [
+        "Data" => [
+         "Bulletin" => base64_encode(json_encode($value, true))
+        ]
+       ])),
+       "[Bulletin.Picture]" => base64_encode($pic)
+      ]);
+     }
     }
    } elseif($st == "CA" || $st == "PR") {
     $ec = "Accepted";

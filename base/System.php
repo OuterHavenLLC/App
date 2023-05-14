@@ -1255,19 +1255,6 @@
       "optgroup", $r, ["label" => "Minimal Design"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif($a == "Personal_RelationshipStatus") {
-    $hli = ["Single", "In a Relationship", "Engaged", "Married", "Divorced", "Widowed"];
-    $opt = ["Single", "In a Relationship", "Engaged", "Married", "Divorced", "Widowed"];
-    foreach($opt as &$opt) {
-     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"".md5($opt)."\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Relationship Status"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "PFType") {
     $hli = ["Private", "Public"];
     $opt = ["Private", "Public"];

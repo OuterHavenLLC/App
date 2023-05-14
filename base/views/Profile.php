@@ -761,7 +761,6 @@
        "Type" => "Select",
        "Value" => $y["Activity"]["OnlineStatus"]
       ],
-      // OTHER INPUTS
       [
        "Attributes" => [
         "class" => "Bio Xdecode",
@@ -780,7 +779,7 @@
       ],
       [
        "Attributes" => [
-        "name" => "Description",
+        "name" => "Personal_Description",
         "placeholder" => "Describe yourself..."
        ],
        "Options" => [
@@ -791,6 +790,42 @@
        ],
        "Type" => "TextBox",
        "Value" => $y["Personal"]["Description"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        md5("Engaged") => "Engaged",
+        md5("In a Relationship") => "In a Relationship",
+        md5("It's Complicated") => "It's Complicated",
+        md5("Married") => "Married",
+        md5("Single") => "Single",
+        md5("Swinger") => "Swinger",
+        md5("Widowed") => "Widowed"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Relationship Status"
+       ],
+       "Name" => "Personal_RelationshipStatus",
+       "Type" => "Select",
+       "Value" => $y["Personal"]["RelationshipStatus"]
+      ],
+      [
+       "Attributes" => [
+        "name" => "Personal_RelationshipWith",
+        "placeholder" => "Who with? (if anyone)",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Who with? (if anyone)"
+       ],
+       "Type" => "Text",
+       "Value" => $relationshipWith
       ]
      ]),
      "[Preferences.General.Birthday]" => $this->system->RenderInputs([
@@ -821,9 +856,6 @@
        "Value" => $y["Personal"]["Birthday"]["Year"]
       ]
      ]),
-     "[Preferences.General.Relationship]" => "",
-     "[Preferences.General.RelationshipStatus]" => $this->system->Select("Personal_RelationshipStatus", "req v2w", $y["Personal"]["RelationshipStatus"]),
-     "[Preferences.General.RelationshipWith]" => $relationshipWith,
      "[Preferences.General.Username]" => md5($you),
      "[Preferences.ID]" => md5($you),
      "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode(md5($y["Login"]["Username"]))),
@@ -946,8 +978,8 @@
     $newMember["Privacy"]["LookMeUp"] = $data["Index"];
     $newMember["Privacy"]["NSFW"] = $data["nsfw"];
     $newMember["Rank"] = $y["Rank"];
-    $this->system->Data("Save", ["mbr", md5($you), $newMember]);
-    $r = "Your Preferences were saved!";
+    #$this->system->Data("Save", ["mbr", md5($you), $newMember]);
+    $r = "Your Preferences were saved!".json_encode($newMember, true);
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
