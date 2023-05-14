@@ -767,6 +767,13 @@
    ]);
   }
   function SignUp(array $a) {
+   $birthMonths = [];
+   $birthYears = [];
+   for($i = 1; $i <= 12; $i++) {
+    $birthMonths[$i] = $i;
+   } for($i = 1776; $i <= date("Y"); $i++) {
+    $birthYears[$i] = $i;
+   }
    return $this->system->Card([
     "Front" => $this->system->Change([[
      "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),

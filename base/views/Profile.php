@@ -663,25 +663,165 @@
      "[Error.Message]" => "You must sign in to continue."
     ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
    } elseif($ck == 1 && $ck2 == 1) {
-    $button = $this->system->Element(["button", "Save", [
+    /*$button = $this->system->Element(["button", "Save", [
      "class" => "CardButton dBO",
      "data-type" => "v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".Preferences".md5($you))."&ID=".md5($you)."&Processor=".base64_encode("v=".base64_encode("Profile:Save"))."&Text=".base64_encode("Are you sure you want to update your preferences?")
-    ]]);
-    $minimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
+    ]]);*/
+    $birthMonths = [];
+    $birthYears = [];
+    $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
     $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
+    for($i = 1; $i <= 12; $i++) {
+     $birthMonths[$i] = $i;
+    } for($i = 1776; $i <= date("Y"); $i++) {
+     $birthYears[$i] = $i;
+    }
     $r = $this->system->Change([[
      "[Preferences.Donations.Patreon]" => $y["Donations"]["Patreon"],
      "[Preferences.Donations.PayPal]" => $y["Donations"]["PayPal"],
      "[Preferences.Donations.SubscribeStar]" => $y["Donations"]["SubscribeStar"],
-     "[Preferences.General.Bio]" => $y["Personal"]["Bio"],
-     "[Preferences.General.Birthday.Month]" => $y["Personal"]["Birthday"]["Month"],
-     "[Preferences.General.Birthday.Year]" => $y["Personal"]["Birthday"]["Year"],
-     "[Preferences.General.Description]" => $y["Personal"]["Description"],
-     "[Preferences.General.DisplayName]" => $y["Personal"]["DisplayName"],
-     "[Preferences.General.Email]" => $y["Personal"]["Email"],
-     "[Preferences.General.FirstName]" => $y["Personal"]["FirstName"],
-     "[Preferences.General.Gender]" => $this->system->Select("gender", "req", $y["Personal"]["Gender"]),
-     "[Preferences.General.OnlineStatus]" => $this->system->Select("OnlineStatus", "req v2w", $y["Activity"]["OnlineStatus"]),
+     "[Preferences.General]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "name",
+        "placeholder" => "John",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "First Name"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Personal"]["FirstName"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Personal_DisplayName",
+        "placeholder" => "John Doe",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Display Name"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Personal"]["DisplayName"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        "Female" => "Female",
+        "Male" => "Male"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Gender"
+       ],
+       "Name" => "Personal_Gender",
+       "Type" => "Select",
+       "Value" => $y["Personal"]["Gender"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Personal_Email",
+        "placeholder" => "johnny.test@outerhaven.nyc",
+        "type" => "email"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "E-Mail"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Personal"]["Email"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "Offline",
+        1 => "Online"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Online Status"
+       ],
+       "Name" => "OnlineStatus",
+       "Type" => "Select",
+       "Value" => $y["Activity"]["OnlineStatus"]
+      ],
+      // OTHER INPUTS
+      [
+       "Attributes" => [
+        "class" => "Bio Xdecode",
+        "id" => "EditBio",
+        "name" => "Personal_Bio",
+        "placeholder" => "A short Autobiography..."
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Biography",
+        "WYSIWYG" => 1
+       ],
+       "Type" => "TextBox"
+      ],
+      [
+       "Attributes" => [
+        "name" => "Description",
+        "placeholder" => "Describe yourself..."
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $y["Personal"]["Description"]
+      ]
+     ]),
+     "[Preferences.General.Birthday]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => $birthMonths,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Month"
+       ],
+       "Name" => "BirthMonth",
+       "Type" => "Select",
+       "Value" => $y["Personal"]["Birthday"]["Month"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => $birthYears,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Year"
+       ],
+       "Name" => "BirthYear",
+       "Type" => "Select",
+       "Value" => $y["Personal"]["Birthday"]["Year"]
+      ]
+     ]),
+     "[Preferences.General.Relationship]" => "",
      "[Preferences.General.RelationshipStatus]" => $this->system->Select("Personal_RelationshipStatus", "req v2w", $y["Personal"]["RelationshipStatus"]),
      "[Preferences.General.RelationshipWith]" => $relationshipWith,
      "[Preferences.General.Username]" => md5($you),

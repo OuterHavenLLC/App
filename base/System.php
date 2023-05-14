@@ -914,12 +914,11 @@
        $optionGroup .= "<option value=\"$option\"$selected>$text</option>\r\n";
       }
       $renderInput = $this->Element(["select", $this->Element([
-       "optgroup", $optionGroup, [
-        "class" => "LI v2 v2w",
-        "label" => $options["HeaderText"],
-        "name" => $input["Name"]
-       ]
-      ]), $attributes]);
+       "optgroup", $optionGroup, ["label" => $options["HeaderText"]]
+      ]), [
+       "class" => "LI v2 v2w",
+       "name" => $input["Name"]
+      ]]);
      } elseif($type == "Text") {
       $renderInput = "<input $renderInputAttributes value=\"".$input["Value"]."\"/>\r\n";
      } elseif($type == "TextBox") {
@@ -1217,19 +1216,6 @@
     $r = $this->Element([
      "select", $this->Element([
       "optgroup", $r, ["label" => "Allow to be Indexed?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "OnlineStatus") {
-    $hli = ["Online", "Offline"];
-    $opt = [1, 0];
-    foreach($opt as $opt) {
-     $s = ($opt == $y["Activity"]["OnlineStatus"]) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Online Status"]
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "Open") {

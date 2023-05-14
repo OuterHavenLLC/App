@@ -572,8 +572,7 @@
      "Header" => "Forbidden"
     ]);
    } elseif(!empty($id)) {
-    $category = base64_decode($data["PageCategory"]);
-    $category = ($y["Rank"] != md5("High Command") && $category == "EXT") ? "CA" : $category;
+    $category = ($y["Rank"] != md5("High Command") && $category == "EXT") ? "CA" : $data["PageCategory"];
     $i = 0;
     $isPublic = (in_array($category, ["CA", "JE"])) ? 1 : 0;
     $now = $this->system->timestamp;
@@ -609,7 +608,7 @@
      $modifiedBy = $Page["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["nsfw"] ?? $y["Privacy"]["NSFW"];
-     $privacy = $data["pri"] ?? $y["Privacy"]["Articles"];
+     $privacy = $data["Privacy"] ?? $y["Privacy"]["Articles"];
      $products = $Page["Products"] ?? [];
      $subscribers = $Page["Subscribers"] ?? [];
      if(!empty($data["rATTI"])) {
