@@ -1161,10 +1161,12 @@
     $newMember["Personal"]["CoverPhoto"] = $y["Personal"]["CoverPhoto"];
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
-    $newMember["Privacy"]["LookMeUp"] = $data["Index"];
     $newMember["Rank"] = $y["Rank"];
     #$this->system->Data("Save", ["mbr", md5($you), $newMember]);
-    $r = "Your Preferences were saved!".json_encode($newMember, true);
+    $r = "Your Preferences were saved!".json_encode([
+     "Current" => $y,
+     "Updated" => $newMember
+    ], true);
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
