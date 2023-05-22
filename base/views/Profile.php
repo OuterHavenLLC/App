@@ -916,32 +916,155 @@
        "Value" => 1
       ]
      ]),
-     "[Preferences.Privacy.Albums]" => $this->system->Select("Privacy_Albums", "req v2w", $y["Privacy"]["Albums"]),
-     "[Preferences.Privacy.Archive]" => $this->system->Select("Privacy_Archive", "req v2w", $y["Privacy"]["Archive"]),
-     "[Preferences.Privacy.Articles]" => $this->system->Select("Privacy_Articles", "req v2w", $y["Privacy"]["Articles"]),
-     "[Preferences.Privacy.Comments]" => $this->system->Select("Privacy_Comments", "req v2w", $y["Privacy"]["Comments"]),
-     "[Preferences.Privacy.ContactInfo]" => $this->system->Select("Privacy_ContactInfo", "req v2w", $y["Privacy"]["ContactInfo"]),
-     "[Preferences.Privacy.ContactInfoEmails]" => $this->system->Select("Privacy_ContactInfoEmails", "req v2w", $y["Privacy"]["ContactInfoEmails"]),
-     "[Preferences.Privacy.ContactRequests]" => $this->system->Select("Privacy_ContactRequests", "req v2w", $y["Privacy"]["ContactRequests"]),
-     "[Preferences.Privacy.Contacts]" => $this->system->Select("Privacy_Contacts", "req v2w", $y["Privacy"]["Contacts"]),
-     "[Preferences.Privacy.Contributions]" => $this->system->Select("Privacy_Contributions", "req v2w", $y["Privacy"]["Contributions"]),
-     "[Preferences.Privacy.DLL]" => $this->system->Select("Privacy_DLL", "req v2w", $y["Privacy"]["DLL"]),
-     "[Preferences.Privacy.Donate]" => $this->system->Select("Privacy_ContactInfoDonate", "req v2w", $y["Privacy"]["ContactInfoDonate"]),
-     "[Preferences.Privacy.ForumsType]" => $this->system->Select("Privacy_ForumsType", "req v2w", $y["Privacy"]["ForumsType"]),
-     "[Preferences.Privacy.Gender]" => $this->system->Select("Privacy_Gender", "req v2w", $y["Privacy"]["Gender"]),
-     "[Preferences.Privacy.Journal]" => $this->system->Select("Privacy_Journal", "req v2w", $y["Privacy"]["Journal"]),
-     "[Preferences.Privacy.LastActivity]" => $this->system->Select("Privacy_LastActivity", "req v2w", $y["Privacy"]["LastActivity"]),
-     "[Preferences.Privacy.LookMeUp]" => $this->system->Select("Index", "req v2w", $y["Privacy"]["LookMeUp"]),
-     "[Preferences.Privacy.MSG]" => $this->system->Select("Privacy_MSG", "req v2w", $y["Privacy"]["MSG"]),
-     "[Preferences.Privacy.NSFW]" => $this->system->Select("nsfw", "req v2w", $y["Privacy"]["NSFW"]),
-     "[Preferences.Privacy.OnlineStatus]" => $this->system->Select("Privacy_OnlineStatus", "req v2w", $y["Privacy"]["OnlineStatus"]),
-     "[Preferences.Privacy.Posts]" => $this->system->Select("Privacy_Posts", "req v2w", $y["Privacy"]["Posts"]),
-     "[Preferences.Privacy.Products]" => $this->system->Select("Privacy_Products", "req v2w", $y["Privacy"]["Products"]),
-     "[Preferences.Privacy.Profile]" => $this->system->Select("Privacy_Profile", "req v2w", $y["Privacy"]["Profile"]),
-     "[Preferences.Privacy.Registered]" => $this->system->Select("Privacy_Registered", "req v2w", $y["Privacy"]["Registered"]),
-     "[Preferences.Privacy.RelationshipStatus]" => $this->system->Select("Privacy_RelationshipStatus", "req v2w", $y["Privacy"]["RelationshipStatus"]),
-     "[Preferences.Privacy.RelationshipWith]" => $this->system->Select("Privacy_RelationshipWith", "req v2w", $y["Privacy"]["RelationshipWith"]),
-     "[Preferences.Privacy.Shop]" => $this->system->Select("Privacy_Shop", "req v2w", $y["Privacy"]["Shop"])
+     "[Preferences.Privacy]" => $this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Albums",
+      "Title" => "Albums",
+      "Value" => $y["Privacy"]["Albums"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Archive",
+      "Title" => "Archive",
+      "Value" => $y["Privacy"]["Archive"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Albums",
+      "Title" => "Albums",
+      "Value" => $y["Privacy"]["Albums"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Articles",
+      "Title" => "Articles",
+      "Value" => $y["Privacy"]["Articles"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Comments",
+      "Title" => "Comments",
+      "Value" => $y["Privacy"]["Comments"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_ContactInfoEmails",
+      "Title" => "Contact Emails",
+      "Value" => $y["Privacy"]["ContactInfoEmails"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_ContactInfo",
+      "Title" => "Contact Information",
+      "Value" => $y["Privacy"]["ContactInfo"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_ContactRequests",
+      "Title" => "Contact Requests",
+      "Value" => $y["Privacy"]["ContactRequests"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Contacts",
+      "Title" => "Contacts",
+      "Value" => $y["Privacy"]["Contacts"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Contributions",
+      "Title" => "Contributions",
+      "Value" => $y["Privacy"]["Contributions"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_DLL",
+      "Title" => "Downloads",
+      "Value" => $y["Privacy"]["DLL"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_ContactInfoDonate",
+      "Title" => "Donations",
+      "Value" => $y["Privacy"]["ContactInfoDonate"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_ForumsType",
+      "Title" => "Forum Type",
+      "Value" => $y["Privacy"]["ForumsType"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Gender",
+      "Title" => "Gender",
+      "Value" => $y["Privacy"]["Gender"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Journal",
+      "Title" => "Journal",
+      "Value" => $y["Privacy"]["Journal"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_LastActivity",
+      "Title" => "Last Activity",
+      "Value" => $y["Privacy"]["LastActivity"]
+     ]).$this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "No",
+        1 => "Yes"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Look Me Up"
+       ],
+       "Name" => "Privacy_LookMeUp",
+       "Title" => "Allow others to search for you?",
+       "Type" => "Select",
+       "Value" => $y["Privacy"]["LookMeUp"]
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_MSG",
+      "Title" => "Messages",
+      "Value" => $y["Privacy"]["MSG"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "Privacy_NSFW",
+      "Title" => "NSFW",
+      "Value" => $y["Privacy"]["NSFW"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_OnlineStatus",
+      "Title" => "Online Status",
+      "Value" => $y["Privacy"]["OnlineStatus"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Posts",
+      "Title" => "Posts",
+      "Value" => $y["Privacy"]["Posts"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Products",
+      "Title" => "Products",
+      "Value" => $y["Privacy"]["Products"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Profile",
+      "Title" => "Profile",
+      "Value" => $y["Privacy"]["Profile"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Registered",
+      "Title" => "Registered",
+      "Value" => $y["Privacy"]["Registered"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_RelationshipStatus",
+      "Title" => "Relationship Status",
+      "Value" => $y["Privacy"]["RelationshipStatus"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_RelationshipWith",
+      "Title" => "Relationship With",
+      "Value" => $y["Privacy"]["RelationshipWith"]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "Privacy",
+      "Name" => "Privacy_Shop",
+      "Title" => "Shop",
+      "Value" => $y["Privacy"]["Shop"]
+     ])
     ], $this->system->Page("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
    return $this->system->Card([
@@ -1028,7 +1151,6 @@
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
     $newMember["Privacy"]["LookMeUp"] = $data["Index"];
-    $newMember["Privacy"]["NSFW"] = $data["nsfw"];
     $newMember["Rank"] = $y["Rank"];
     #$this->system->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!".json_encode($newMember, true);
