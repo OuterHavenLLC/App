@@ -96,7 +96,10 @@
       ]);
      }
     } elseif($bulletin["Type"] == "InviteToArticle") {
-     $article = $this->system->Data("Get", ["pg", $data["ArticleID"]]) ?? [];
+     $article = $this->system->Data("Get", [
+      "pg",
+      $data["ArticleID"]
+     ]) ?? [];
      $r = $this->system->Element([
       "button", "Take me to <em>".$article["Title"]."</em>", [
        "class" => "BBB Close dB2O v2 v2w",
@@ -1162,11 +1165,8 @@
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
     $newMember["Rank"] = $y["Rank"];
-    #$this->system->Data("Save", ["mbr", md5($you), $newMember]);
-    $r = "Your Preferences were saved!".json_encode([
-     "Current" => $y,
-     "Updated" => $newMember
-    ], true);
+    $this->system->Data("Save", ["mbr", md5($you), $newMember]);
+    $r = "Your Preferences were saved!";
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1199,9 +1199,10 @@
   function SaveDelete(array $a) {
    $data = $a["Data"] ?? [];
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    // DELETE PROFILE
    /* DELETE CONVERSATION
-   if($y["Login"]["Username"] == $this->system->ID) {
+   if($this->system->ID == $you) {
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
       "p", "You must be signed in to continue."
@@ -1209,9 +1210,9 @@
      "Header" => "Forbidden"
     ]);
    } elseif(1 == 1) {
-    if(!empty($this->system->Data("Get", ["conversation", md5("MBR_".$y["Login"]["Username"])]))) {
+    if(!empty($this->system->Data("Get", ["conversation", md5("MBR_$you")]))) {
      $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => md5("MBR_".$y["Login"]["Username"])]
+      "Data" => ["ID" => md5("MBR_$you")]
      ]);
     }
    }
@@ -1318,7 +1319,9 @@
     ]);
    } elseif(!is_numeric($data["NewPIN"]) || !is_numeric($data["NewPIN2"])) {
     $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "PINs must be numeric (0-9)."]),
+     "Body" => $this->system->Element([
+      "p", "PINs must be numeric (0-9)."
+     ]),
      "Header" => "Error"
     ]);
    } elseif(md5($data["CurrentPIN"]) != $y["Login"]["PIN"]) {

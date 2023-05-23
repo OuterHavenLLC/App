@@ -689,7 +689,6 @@
     ],
     "Pages" => $pages,
     "Personal" => [
-     "AboutPage" => "<p>About Page Template</p>",
      "Age" => $age,
      "Bio" => "",
      "Birthday" => [
