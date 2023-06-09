@@ -409,12 +409,65 @@
    $frbtn = "";
    $y = $this->you;
    if(!empty($id)) {
+    $content = [];
+    $contentOptions = $y["Blogs"] ?? [];
     $id = base64_decode($id);
+    foreach($contentOptions as $key => $value) {
+     $blog = $this->Data("Get", ["blg", $value]) ?? [];
+     $content[$blog["ID"]] = $blog["Title"];
+    }
     $fr = $this->system->Change([[
-     "[Content.ID]" => $id,
-     "[Content.List]" => $this->system->Select("ListBlogs", "LI req v2 v2w", $id),
-     "[Content.Member]" => $data["Member"],
-     "[Content.Role]" => $this->system->Select("Role", "LI req v2 v2w")
+     "[Invite.ID]" => $id,
+     "[Invite.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "Member",
+        "placeholder" => $this->system->ID,
+        "type" => "text"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $data["Member"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => $content,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Invite To"
+       ],
+       "Name" => "ListBlogs",
+       "Type" => "Select",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "Administrator",
+        1 => "Contributor"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Role"
+       ],
+       "Name" => "Role",
+       "Type" => "Select",
+       "Value" => 1
+      ]
+     ])
     ], $this->system->Page("80e444c34034f9345eee7399b4467646")]);
     $frbtn = $this->system->Element(["button", "Send Invite", [
      "class" => "CardButton SendData dB2C",

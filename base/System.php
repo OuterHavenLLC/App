@@ -1164,42 +1164,6 @@
       "optgroup", $r, ["label" => "Quantity"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif($a == "ListArticles") {
-    foreach($y["Pages"] as $key => $value) {
-     $page = $this->Data("Get", ["pg", $value]) ?? [];
-     $opt = $page["ID"];
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$page["Title"]."</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Choose an Article..."]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "ListBlogs") {
-    foreach($y["Blogs"] as $key => $value) {
-     $blog = $this->Data("Get", ["blg", $value]) ?? [];
-     $opt = $blog["ID"];
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$blog["Title"]."</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Choose a Blog..."]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "ListForums") {
-    foreach($y["Forums"] as $key => $value) {
-     $forum = $this->Data("Get", ["pf", $value]) ?? [];
-     $opt = $forum["ID"];
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$forum["Title"]."</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Choose a Forum..."]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "Live") {
     $hli = ["Sandbox", "Production"];
     $opt = [0, 1];
@@ -1322,8 +1286,18 @@
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "Role") {
-    $hli = ["Administrator", "Contributor"];
-    $opt = [0, 1];
+    $roles = [
+     0 => "Administrator",
+     1 => "Contributor"
+    ];
+    $hli = [
+     "Administrator",
+     "Contributor"
+    ];
+    $opt = [
+     0,
+     1
+    ];
     foreach($opt as $opt) {
      $ck = ($opt == 1 || $opt == $c) ? 1 : 0;
      $s = ($ck == 1) ? " selected=\"selected\"" : "";

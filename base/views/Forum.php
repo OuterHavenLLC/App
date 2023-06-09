@@ -320,13 +320,65 @@
    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    $y = $this->you;
    if(!empty($id)) {
+    $content = [];
+    $contentOptions = $y["Forums"] ?? [];
     $id = base64_decode($id);
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
-    $r = $this->system->Change([[
-     "[Content.ID]" => $id,
-     "[Content.List]" => $this->system->Select("ListForums", "LI req v2 v2w", $id),
-     "[Content.Member]" => $data["Member"],
-     "[Content.Role]" => $this->system->Select("Role", "LI req v2 v2w")
+    foreach($contentOptions as $key => $value) {
+     $forum = $this->Data("Get", ["pf", $value]) ?? [];
+     $content[$forum["ID"]] = $forum["Title"];
+    }
+    $fr = $this->system->Change([[
+     "[Invite.ID]" => $id,
+     "[Invite.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "Member",
+        "placeholder" => $this->system->ID,
+        "type" => "text"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $data["Member"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => $content,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Invite To"
+       ],
+       "Name" => "ListForums",
+       "Type" => "Select",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "Administrator",
+        1 => "Contributor"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Role"
+       ],
+       "Name" => "Role",
+       "Type" => "Select",
+       "Value" => 1
+      ]
+     ])
     ], $this->system->Page("80e444c34034f9345eee7399b4467646")]);
     $button = $this->system->Element(["button", "Send Invite", [
      "class" => "CardButton SendData dB2C",
