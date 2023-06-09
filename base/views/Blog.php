@@ -10,19 +10,24 @@
    $id = $data["ID"];
    $mbr = $data["Member"];
    $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Blog Identifier is missing."]),
+    "Body" => $this->system->Element([
+     "p", "The Blog Identifier is missing."
+    ]),
     "Header" => "Error"
    ]);
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($mbr)) {
     $id = base64_decode($id);
     $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
     $mbr = base64_decode($mbr);
     $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You cannot banish yourself."]),
+     "Body" => $this->system->Element([
+      "p", "You cannot banish yourself."
+     ]),
      "Header" => "Error"
     ]);
-    if($mbr != $blog["UN"] && $mbr != $y["Login"]["Username"]) {
+    if($mbr != $blog["UN"] && $mbr != $you) {
      $r = $this->system->Dialog([
       "Body" => $this->system->Element([
        "p", "Are you sure you want to banish $mbr from <em>".$blog["Title"]."</em>?"
@@ -120,16 +125,19 @@
      "ID" => base64_encode($id)
     ]]);
     $coverPhotoSource = $blog["ICO-SRC"] ?? "";
-    $description = $this->system->Element(["textarea", $blog["Description"], [
+    $description = $blog["Description"] ?? "";
+    $description = $this->system->Element(["textarea", $description, [
      "maxlen" => 180,
      "name" => "Description",
      "placeholder" => "Description"
     ]]);
     $header = ($new == 1) ? "New Blog" : "Edit ".$blog["Title"];
-    $nsfw = $blog["NSFW"] ?? $y["privacy_opt"]["NSFW"];
-    $privacy = $blog["Privacy"] ?? $y["privacy_opt"]["Profile"];
+    $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $privacy = $blog["Privacy"] ?? $y["Privacy"]["Profile"];
+    $template = $blog["TPL"] ?? "";
+    $title = $blog["Title"] ?? "";
     $r = $this->system->Change([[
-     "[Blog.Actions.Template]" => $this->system->Select("TPL-BLG", "req v2 v2w", $blog["TPL"]),
+     "[Blog.Actions.Template]" => $this->system->Select("TPL-BLG", "req v2 v2w", $template),
      "[Blog.Actions.NSFW]" => $this->system->Select("nsfw", "req v2 v2w", $nsfw),
      "[Blog.Actions.Privacy]" => $this->system->Select("Privacy", "req v2 v2w", $privacy),
      "[Blog.AdditionalContent]" => $additionalContent,
@@ -140,7 +148,7 @@
      "[Blog.Header]" => $header,
      "[Blog.ID]" => $id,
      "[Blog.New]" => $new,
-     "[Blog.Title]" => $blog["Title"]
+     "[Blog.Title]" => $title
     ], $this->system->Page("7759aead7a3727dd2baed97550872677")]);
     $button = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",

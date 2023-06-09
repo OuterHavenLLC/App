@@ -47,32 +47,17 @@
      "[Album.Inputs]" => $this->system->RenderInputs([
       [
        "Attributes" => [
-        "class" => "req",
-        "name" => "Description",
-        "placeholder" => "Description"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $description
-      ],
-      [
-       "Attributes" => [
         "name" => "ID",
-        "type" => "text"
+        "type" => "hidden"
        ],
        "Options" => [],
        "Type" => "Text",
        "Value" => $id
-      ]
+      ],
       [
        "Attributes" => [
         "name" => "new",
-        "type" => "text"
+        "type" => "hidden"
        ],
        "Options" => [],
        "Type" => "Text",
@@ -93,6 +78,21 @@
        ],
        "Type" => "Text",
        "Value" => $title
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $description
       ]
      ]).$this->system->RenderVisibilityFilter([
       "Filter" => "NSFW",
