@@ -43,12 +43,65 @@
     $r = $this->system->Change([[
      "[Album.AdditionalContent]" => $additionalContent,
      "[Album.Header]" => $header,
-     "[Album.Description]" => $description,
      "[Album.ID]" => $id,
-     "[Album.New]" => $new,
-     "[Album.Options.NSFW]" => $this->system->Select("nsfw", "req v2w", $nsfw),
-     "[Album.Options.Privacy]" => $this->system->Select("Privacy", "req v2w", $privacy),
-     "[Album.Title]" => $title
+     "[Album.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $description
+      ],
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "text"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ]
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "text"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $title
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ])
     ], $this->system->Page("760cd577207eb0d2121509d7212038d4")]);
     $button = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
