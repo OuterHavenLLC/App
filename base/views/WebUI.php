@@ -79,7 +79,7 @@
    $support = (in_array($y["Rank"], $support)) ? "<!--SUPPORT OPTIONS-->" : "";
    $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->system->Element([
     "button", "Shop", [
-     "class" => "CloseNetMap LI NPS",
+     "class" => "CloseNetMap NPS Small v2",
      "data-type" => "v=".base64_encode("Shop:Home")."&UN=".base64_encode($you)
     ]
    ]) : "";
