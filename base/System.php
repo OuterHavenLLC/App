@@ -1351,28 +1351,6 @@
       "optgroup", $r, ["label" => "Send Occasional E-Mails?"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif($a == "TPL-BLG") {
-    $hli = [];
-    $opt = [];
-    $tpl = $this->DatabaseSet("PG");
-    foreach($tpl as $k => $v) {
-     $v = str_replace("c.oh.pg.", "", $v);
-     $t = $this->Data("Get", ["pg", $v]) ?? [];
-     if($t["Category"] == "TPL-BLG") {
-      array_push($hli, $t["Title"]);
-      array_push($opt, str_replace("c.oh.pg.", "", $v));
-     }
-    }
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Choose a Template..."]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "TPL-CA") {
     $hli = [];
     $opt = [];

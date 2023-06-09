@@ -108,17 +108,16 @@
     ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    } elseif(!empty($id) || $new == 1) {
     $action = ($new == 1) ? "Post" : "Update";
-    $id = ($new == 1) ? md5($y["Login"]["Username"]."_BLG_".$this->system->timestamp) : $id;
+    $id = ($new == 1) ? md5($you."_BLG_".uniqid()) : $id;
     $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
     $atinput = ".BGE_$id-ATTI";
     $at = base64_encode("Set as the Blog Post's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
     $at2 = base64_encode("All done! Feel free to close this card.");
-    $at3 = base64_encode("v=$es&ID=");
     $additionalContent = $this->system->Change([
      [
       "[CP.ContentType]" => "Blog",
-      "[CP.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at2&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
+      "[CP.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at2&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
       "[CP.ID]" => $id
      ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
     ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
@@ -126,29 +125,111 @@
     ]]);
     $coverPhotoSource = $blog["ICO-SRC"] ?? "";
     $description = $blog["Description"] ?? "";
-    $description = $this->system->Element(["textarea", $description, [
-     "maxlen" => 180,
-     "name" => "Description",
-     "placeholder" => "Description"
-    ]]);
     $header = ($new == 1) ? "New Blog" : "Edit ".$blog["Title"];
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $blog["Privacy"] ?? $y["Privacy"]["Profile"];
+    $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
     $template = $blog["TPL"] ?? "";
+    $templateOptions = $this->system->DatabaseSet("PG") ?? [];
+    $templates = [];
     $title = $blog["Title"] ?? "";
+    foreach($templateOptions as $key => $value) {
+     $value = str_replace("c.oh.pg.", "", $value);
+     $t = $this->system->Data("Get", ["pg", $value]) ?? [];
+     if($t["Category"] == "TPL-BLG") {
+      $templates[$value] = $t["Title"];
+     }
+    }
     $r = $this->system->Change([[
-     "[Blog.Actions.Template]" => $this->system->Select("TPL-BLG", "req v2 v2w", $template),
-     "[Blog.Actions.NSFW]" => $this->system->Select("nsfw", "req v2 v2w", $nsfw),
-     "[Blog.Actions.Privacy]" => $this->system->Select("Privacy", "req v2 v2w", $privacy),
      "[Blog.AdditionalContent]" => $additionalContent,
-     "[Blog.ATTU]" => $at3,
-     "[Blog.CoverPhoto]" => $coverPhotoSource,
-     "[Blog.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
-     "[Blog.Description]" => $description,
      "[Blog.Header]" => $header,
      "[Blog.ID]" => $id,
-     "[Blog.New]" => $new,
-     "[Blog.Title]" => $title
+     "[Blog.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTI",
+        "data-a" => "#ATTL$id-ATTI",
+        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+        "name" => "rATTI",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "BGE_$id-ATTI"
+       ],
+       "Type" => "Text",
+       "Value" => $coverPhotoSource
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $title
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $description
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => $templates,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Template"
+       ],
+       "Name" => "TPL-BLG",
+       "Type" => "Select",
+       "Value" => $template
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ])
     ], $this->system->Page("7759aead7a3727dd2baed97550872677")]);
     $button = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
