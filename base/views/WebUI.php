@@ -21,6 +21,14 @@
    }
    return $r;
   }
+  function Error(array $a) {
+   $data = $a["Data"] ?? [];
+   return $this->system->Element([
+    "h1", "Error"
+   ]).$this->system->Element([
+    "p", $data["Error"]
+   ]);
+  }
   function LockScreen(array $a) {
    $y = $this->you;
    if($this->system->ID == $y["Login"]["Username"]) {

@@ -100,6 +100,7 @@
      "[BlogPost.ICO]" => $coverPhoto,
      "[BlogPost.ICO.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[BlogPost.ID]" => $id,
+     "[BlogPost.Inputs]" => "",
      "[BlogPost.New]" => $new,
      "[BlogPost.Options.NSFW]" => $this->system->Select("nsfw", "req v2 v2w", $nsfw),
      "[BlogPost.Options.Privacy]" => $this->system->Select("Privacy", "req v2 v2w", $privacy),

@@ -55,7 +55,12 @@
   $c = $data["_cmd"] ?? "";
   $c = (!empty($c)) ? explode("/", urldecode($c)) : [$c];
   $c = $gw->system->FixMissing($c, [0, 1, 2, 3]);
-  if($c[0] == "MadeInNY") {
+  if($c[0] == "Errors") {
+   # ERRORS
+   $r = $gw->view(base64_encode("WebUI:Error"), ["Data" => [
+    "Error" => $c[1]
+   ]]);
+  } elseif($c[0] == "MadeInNY") {
    # MADE IN NEW YORK
    $r = $gw->view(base64_encode("Shop:MadeInNewYork"), ["Data" => [
     "pub" => 1
@@ -73,6 +78,14 @@
      ]]);
     }
    }
+  } elseif($c[0] == "Member") {
+   # PROFILES
+   $r = $gw->view(base64_encode("Profile:Home"), ["Data" => [
+    "back" => 0,
+    "onProf" => 1,
+    "UN" => base64_encode($c[1]),
+    "pub" => 1
+   ]]);
   } elseif($c[0] == "PMC" || $c[0] == "defense") {
    # OUTER HAVEN P.M.C.
    $r = $gw->view(base64_encode("PMC:Home"), ["Data" => [
@@ -141,16 +154,8 @@
     "UN" => base64_encode($c[1]),
     "pub" => 1
    ]]);
-  } elseif($c[0] == "mbr") {
-   # PROFILES
-   $r = $gw->view(base64_encode("Profile:Home"), ["Data" => [
-    "back" => 0,
-    "onProf" => 1,
-    "UN" => base64_encode($c[1]),
-    "pub" => 1
-   ]]);
   } elseif($c[0] == "search") {
-   # TOPICS
+   # SEARCH
    $r = $gw->view(base64_encode("Search:ReSearch"), ["Data" => [
     "pub" => 1
    ]]);
