@@ -149,14 +149,14 @@
     } if(!empty($Page["Products"])) {
      $products = base64_encode(implode(";", $Page["Products"]));
     }
-    $atinput = ".PGE_$id-ATTI";
+    $atinput = ".EditPage$id-ATTI";
     $at = base64_encode("Set as the Article's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
     $at2 = base64_encode("All done! Feel free to close this card.");
-    $at3input = ".PGE_$id-ATTF";
+    $at3input = ".EditPage$id-ATTF";
     $at3 = base64_encode("Attach to the Article.:$at3input");
     $at3input = "$at3input .rATT";
-    $at4input = ".PGE_$id-ATTP";
+    $at4input = ".EditPage$id-ATTP";
     $at4 = base64_encode("Attach to the Article.:$at4input");
     $at4input = "$at4input .rATT";
     $categories = ($y["Rank"] == md5("High Command")) ? [

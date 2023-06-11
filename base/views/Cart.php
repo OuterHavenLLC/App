@@ -55,6 +55,7 @@
       $price = $product["Cost"] + $product["Profit"];
       $r = $this->system->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
+       "[AddToCart.Inputs]" => "",
        "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
        "[AddToCart.Member.Username]" => base64_encode($t["Login"]["Username"]),
        "[AddToCart.Product.ID]" => $id,
@@ -63,7 +64,7 @@
        "[AddToCart.Product.Price]" => number_format($price, 2),
        "[AddToCart.Product.Quantity]" => $this->system->Select("prodQTY", "req v2w", $quantity)
       ], $this->system->Page("624bcc664e9bff0002e01583e7706d83")]);
-      if($cat == "PHYS" && $t["Login"]["Username"] == $y["Login"]["Username"]) {
+      if($cat == "PHYS" && $t["Login"]["Username"] == $you) {
        $r = $this->system->Element([
         "p", "Physical orders are disabled as you own this shop.",
         ["class" => "CenterText"]
@@ -110,13 +111,13 @@
      "p", "Credit Exchange requires a minimum of 1,000 points to be converted."
     ]);
     if($y["Points"] >= $i) {
-     $creditExchange = $this->Change([[
+     $creditExchange = $this->system->Change([[
       "[CreditExchange]" => "CE",
       "[CreditExchange.Data]" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P="),
-      "[CreditExchange.ID]" => md5($this->timestamp.rand(0, 9999)),
+      "[CreditExchange.ID]" => md5(uniqid().rand(0, 9999)),
       "[CreditExchange.Points]" => $y["Points"],
       "[CreditExchange.Points.Minimum]" => $i
-     ], $this->Page("b9c61e4806cf07c0068f1721678bef1e")]);
+     ], $this->system->Page("b9c61e4806cf07c0068f1721678bef1e")]);
     }
     $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? 0;
     $discountCodes = ($discountCodes == 0) ? $this->system->Change([

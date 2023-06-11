@@ -34,11 +34,11 @@
      "Title",
      "TPL"
     ]);
-    $atinput = ".BGE_$id-ATTI";
+    $atinput = ".EditBlogPost$id-ATTI";
     $at = base64_encode("Set as the Blog Post's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
     $at2 = base64_encode("All done! Feel free to close this card.");
-    $at3input = ".BGE_$id-ATTF";
+    $at3input = ".EditBlogPost$id-ATTF";
     $at3 = base64_encode("Attach to the Blog Post.:$at3input");
     $at3input = "$at3input .rATT";
     if(!empty($post["Attachments"])) {
@@ -64,7 +64,7 @@
     $additionalContent = $this->system->Change([
      [
       "[CP.ContentType]" => "Blog Post",
-      "[CP.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at2&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
+      "[CP.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at2&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
       "[CP.ID]" => $id
      ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
     ]).$this->system->Change([
@@ -84,11 +84,7 @@
     $r = $this->system->Change([[
      "[Blog.ID]" => $blog["ID"],
      "[BlogPost.AdditionalContent]" => $additionalContent,
-     "[BlogPost.Attachments]" => $attf,
-     "[BlogPost.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
      "[BlogPost.Header]" => $header,
-     "[BlogPost.ICO]" => $coverPhoto,
-     "[BlogPost.ICO.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[BlogPost.ID]" => $id,
      "[BlogPost.Inputs]" => $this->system->RenderInputs([
       [
@@ -117,6 +113,36 @@
        "Options" => [],
        "Type" => "Text",
        "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTF",
+        "data-a" => "#ATTL$id-ATTF",
+        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
+        "name" => "rATTF",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditBlogPost$id-ATTF"
+       ],
+       "Type" => "Text",
+       "Value" => $attf
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTI",
+        "data-a" => "#ATTL$id-ATTI",
+        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+        "name" => "rATTI",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditBlogPost$id-ATTI"
+       ],
+       "Type" => "Text",
+       "Value" => $coverPhoto
       ],
       [
        "Attributes" => [
@@ -329,7 +355,9 @@
    $id = $data["ID"];
    $title = $data["Title"] ?? "";
    $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Blog Identifier is missing."]),
+    "Body" => $this->system->Element([
+     "p", "The Blog Identifier is missing."
+    ]),
     "Header" => "Error"
    ]);
    $y = $this->you;
