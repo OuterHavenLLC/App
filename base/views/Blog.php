@@ -213,6 +213,8 @@
       "Name" => "nsfw",
       "Title" => "Content Status",
       "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
      ]).$this->system->RenderInputs([
       [
        "Attributes" => [],
@@ -227,8 +229,6 @@
        "Type" => "Select",
        "Value" => $template
       ]
-     ]).$this->system->RenderVisibilityFilter([
-      "Value" => $privacy
      ])
     ], $this->system->Page("7759aead7a3727dd2baed97550872677")]);
     $button = $this->system->Element(["button", $action, [

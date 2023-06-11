@@ -110,8 +110,8 @@
    ]);
   }
   function Edit(array $a) {
+   $buttion = "";
    $data = $a["Data"] ?? [];
-   $frbtn = "";
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $r = $this->system->Change([[
@@ -207,7 +207,6 @@
      ], $this->system->Page("8356860c249e93367a750f3b4398e493")
     ]);
     $fr = $this->system->Change([[
-     "[Article.Action]" => $action,
      "[Article.AdditionalContent]" => $additionalContent,
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,
@@ -352,7 +351,7 @@
       "Value" => $privacy
      ])
     ], $this->system->Page("68526a90bfdbf5ea5830d216139585d7")]);
-    $frbtn = $this->system->Element(["button", $action, [
+    $button = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditPage$id",
      "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
@@ -360,7 +359,7 @@
    }
    return $this->system->Card([
     "Front" => $fr,
-    "FrontButton" => $frbtn
+    "FrontButton" => $button
    ]);
   }
   function Home(array $a) {

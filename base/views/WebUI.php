@@ -24,7 +24,7 @@
   function Error(array $a) {
    $data = $a["Data"] ?? [];
    return $this->system->Element([
-    "h1", "Error"
+    "h1", "Something went wrong...", ["class" => "UpperCase"]
    ]).$this->system->Element([
     "p", $data["Error"]
    ]);

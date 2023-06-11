@@ -51,6 +51,16 @@
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Profile"];
     $search = base64_encode("Search:Containers");
+    $template = $post["TPL"] ?? "";
+    $templateOptions = $this->system->DatabaseSet("PG") ?? [];
+    $templates = [];
+    foreach($templateOptions as $key => $value) {
+     $value = str_replace("c.oh.pg.", "", $value);
+     $t = $this->system->Data("Get", ["pg", $value]) ?? [];
+     if($t["Category"] == "TPL-CA") {
+      $templates[$value] = $t["Title"];
+     }
+    }
     $additionalContent = $this->system->Change([
      [
       "[CP.ContentType]" => "Blog Post",
@@ -76,43 +86,117 @@
      "[BlogPost.AdditionalContent]" => $additionalContent,
      "[BlogPost.Attachments]" => $attf,
      "[BlogPost.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
-     "[BlogPost.Body]" => $this->system->WYSIWYG([
-      "UN" => $you,
-      "Body" => $this->system->PlainText([
-       "Data" => $post["Body"],
-       "Decode" => 1
-      ]),
-      "adm" => 1,
-      "opt" => [
-       "id" => "XBPBody",
-       "class" => "$dvi Body Xdecode req",
-       "name" => "Body",
-       "placeholder" => "Body",
-       "rows" => 20
-      ]
-     ]),
-     "[BlogPost.Description]" => $this->system->Element(["textarea", $post["Description"], [
-      "maxlen" => 180,
-      "name" => "Description",
-      "placeholder" => "Description"
-     ]]),
      "[BlogPost.Header]" => $header,
      "[BlogPost.ICO]" => $coverPhoto,
      "[BlogPost.ICO.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[BlogPost.ID]" => $id,
-     "[BlogPost.Inputs]" => "",
-     "[BlogPost.New]" => $new,
-     "[BlogPost.Options.NSFW]" => $this->system->Select("nsfw", "req v2 v2w", $nsfw),
-     "[BlogPost.Options.Privacy]" => $this->system->Select("Privacy", "req v2 v2w", $privacy),
-     "[BlogPost.Options.Template]" => $this->system->Select("TPL-CA", "req v2 v2w", $post["TPL"]),
-     "[BlogPost.Title]" => $post["Title"],
-     "[UIV.IN]" => $dvi
+     "[BlogPost.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "BLG",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $blog["ID"]
+      ],
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $post["Title"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $post["Description"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "$dvi Body Xdecode req",
+        "id" => "EditPageBody$id",
+        "name" => "Body",
+        "placeholder" => "Body"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body",
+        "WYSIWYG" => 1
+       ],
+       "Type" => "TextBox",
+       "Value" => $this->system->PlainText([
+        "Data" => $post["Body"],
+        "Decode" => 1
+       ])
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ]).$this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => $templates,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Template"
+       ],
+       "Name" => "TPL-BLG",
+       "Type" => "Select",
+       "Value" => $template
+      ]
+     ])
     ], $this->system->Page("15961ed0a116fbd6cfdb793f45614e44")]);
-    $button = $this->system->Element(["button", $action, [
+    /*$button = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditBlogPost$id",
      "data-processor" => base64_encode("v=".base64_encode("BlogPost:Save"))
-    ]]);
+    ]]);*/
    }
    return $this->system->Card([
     "Front" => $r,
