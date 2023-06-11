@@ -294,11 +294,12 @@
    $type = $data["Type"] ?? "Web";
    $r = "&nbsp;";
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($list)) {
     $list = $this->system->ShuffleList($list);
     $r = "";
     foreach($list as $key => $value) {
-     $t = ($key == $y["Login"]["Username"]) ? $y : $this->system->Member($key);
+     $t = ($key == $you) ? $y : $this->system->Member($key);
      $r .= $this->system->Element([
       "button", $this->system->ProfilePicture($t, "margin:5%;width:90%"), [
        "class" => "Small dB2O",

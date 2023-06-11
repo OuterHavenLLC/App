@@ -55,9 +55,35 @@
       $price = $product["Cost"] + $product["Profit"];
       $r = $this->system->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
-       "[AddToCart.Inputs]" => "",
-       "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
-       "[AddToCart.Member.Username]" => base64_encode($t["Login"]["Username"]),
+       "[AddToCart.Inputs]" => $this->system->RenderInputs([
+        [
+         "Attributes" => [
+          "name" => "Product",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "Shop",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => md5($t["Login"]["Username"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "UN",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => base64_encode($t["Login"]["Username"])
+        ]
+       ]),
        "[AddToCart.Product.ID]" => $id,
        "[AddToCart.Product.Instructions]" => $inst,
        "[AddToCart.Product.LowStock]" => $ls,
@@ -71,7 +97,8 @@
        ]);
       } elseif($cat == "SUB") {
        $sub = $this->system->Element([
-        "h4", "Already Subscribed", ["class" => "UpperCase CenterText"]
+        "h4", "Already Subscribed",
+        ["class" => "UpperCase CenterText"]
        ]);
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
         $r = ($y["Subscriptions"]["VIP"]["A"] == 1) ? $sub : $r;
@@ -111,19 +138,48 @@
      "p", "Credit Exchange requires a minimum of 1,000 points to be converted."
     ]);
     if($y["Points"] >= $i) {
+     $creditExchange = md5(uniqid().rand(0, 9999));
+     $creditExchangeProcessor = base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P=");
      $creditExchange = $this->system->Change([[
-      "[CreditExchange]" => "CE",
-      "[CreditExchange.Data]" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P="),
-      "[CreditExchange.ID]" => md5(uniqid().rand(0, 9999)),
-      "[CreditExchange.Points]" => $y["Points"],
-      "[CreditExchange.Points.Minimum]" => $i
+      "[CreditExchange.Data]" => $creditExchangeProcessor,
+      "[CreditExchange.ID]" => $creditExchange,
+      "[CreditExchange.Points]" => $i,
+      "[CreditExchange.Quantity]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "class" => "RI$creditExchange",
+         "data-u" => $creditExchangeProcessor,
+         "max" => $y["Points"],
+         "min" => $i,
+         "name" => "CE",
+         "type" => "range"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "NONAME"
+        ],
+        "Type" => "Text",
+        "Value" => $i
+       ]
+      ])
      ], $this->system->Page("b9c61e4806cf07c0068f1721678bef1e")]);
     }
     $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? 0;
     $discountCodes = ($discountCodes == 0) ? $this->system->Change([
      [
-      "[DiscountCodes.Save]" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
-      "[DiscountCodes.Shop.ID]" => $id,
+      "[DiscountCodes.Input]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "class" => "DiscountCodes",
+         "data-id" => $id,
+         "data-u" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
+         "type" => "text"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $i
+       ]
+      ]),
       "[DiscountCodes.Shop.Title]" => $shop["Title"]
      ], $this->system->Page("0511fae6fcc6f9c583dfe7669b0217cc")
     ]) : $this->system->Element([
