@@ -2,14 +2,15 @@
  Class Vote extends GW {
   function __construct() {
    parent::__construct();
+   $this->NoID = $this->system->Element([
+    "div", "Missing Vote ID", ["class" => "CenterText InnerMargin"]
+   ]);
    $this->you = $this->system->Member($this->system->Username());
   }
   function Containers(array $a) {
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Element([
-    "p", "Missing Vote ID", ["class" => "CenterText InnerMargin"]
-   ]);
+   $r = $this->NoID;
    $refresh = $data["Refresh"] ?? 0;
    $type = $data["Type"] ?? 1;
    $you = $this->you["Login"]["Username"];
@@ -30,7 +31,7 @@
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? " v2 v2w" : $class;
-    $processor = "v=".base64_encode("Vote:Save")."&Type=$type&Vote=";
+    $processor = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
     $voteDown = ($_Votes[$you] == "Down") ? "BBB " : "";
     $voteUp = ($_Votes[$you] == "Up") ? "BBB " : "";
     $votes = $_VoteUp - $_VoteDown;
@@ -51,9 +52,7 @@
   function Save(array $a) {
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Element([
-    "p", "Missing Vote ID", ["class" => "CenterText InnerMargin"]
-   ]);
+   $r = $this->NoID;
    $type = $data["Type"] ?? "";
    $vote = $data["Vote"] ?? "";
    if(!empty($id)) {
