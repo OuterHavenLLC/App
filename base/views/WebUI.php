@@ -159,8 +159,8 @@
      "Data" => "[sIMG:CPW]"
     ]),
     "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".md5($this->system->ShopID)),
-    "[Gateway.SignIn]" => "v=".base64_encode("Common:SignIn"),
-    "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Common:SignUp"))
+    "[Gateway.SignIn]" => "v=".base64_encode("Profile:SignIn"),
+    "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
    ], $this->system->Page("db69f503c7c6c1470bd9620b79ab00d7")]);
   }
   function SwitchLanguages() {

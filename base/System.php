@@ -832,7 +832,7 @@
      "/\[IMG:s=(.*?)&w=(.*?)\]/is" => "<img src=\"$1\" style=\"width:$2\"/>",
      "/\[P:(.*?)\]/is" => "<p>$1</p>",
      "/@+([A-Za-z0-9_]+)/" => $this->Element(["button", "@$1", [
-      "onclick" => "W('".$this->base."/mbr/$1', '_blank');"
+      "onclick" => "W('".$this->base."/@$1', '_blank');"
      ]]),
      "/#+([A-Za-z0-9_]+)/" => $this->Element(["button", "#$1", [
       "onclick" => "W('".$this->base."/topics/$1', '_blank');"
