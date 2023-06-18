@@ -25,10 +25,11 @@
       $_VoteUp++;
      }
     }
-    $class = ($type == 1) ? "" : "";
-    $class = ($type == 2) ? "" : $class;
-    $class = ($type == 3) ? "Desktop66 " : $class;
-    $class = ($type == 4) ? "" : $class;
+    $class = "Vote VoteFor$id";
+    $class .= ($type == 1) ? "" : "";
+    $class .= ($type == 2) ? "" : $class;
+    $class .= ($type == 3) ? " Desktop66" : $class;
+    $class .= ($type == 4) ? " v2 v2w" : $class;
     $processor = "v=".base64_encode("Vote:Save")."&Type=$type&Vote=";
     $voteDown = ($_Votes[$you] == "Down") ? "BBB " : "";
     $voteUp = ($_Votes[$you] == "Up") ? "BBB " : "";
@@ -41,9 +42,9 @@
      "[Vote.Up.Processor]" => $processor."Up",
      "[Vote.Total]" => $this->system->ShortNumber($votes)
     ], $this->system->Page("39a550decb7f3f764445b33e847a7042")]);
-    $r = ($refresh == 0) ? $this->system->Element(["div", $r, [
-     "class" => $class."Vote VoteFor$id"
-    ]]) : $r;
+    $r = ($refresh == 0) ? $this->system->Element([
+     "div", $r, ["class" => $class]
+    ]) : $r;
    }
    return $r;
   }
