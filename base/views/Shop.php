@@ -409,9 +409,8 @@
         "data-type" => base64_encode("v=".base64_encode("Shop:Payroll"))
        ]
       ]) : "";
-      $reactions = ($id != md5($you)) ? $this->view(base64_encode("Common:Reactions"), ["Data" => [
-       "CRID" => $id,
-       "T" => $t["Login"]["Username"],
+      $votes = ($id != md5($you)) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+       "ID" => $id,
        "Type" => 4
       ]]) : "";
       $search = base64_encode("Search:Containers");
@@ -451,7 +450,7 @@
          "pubP" => $pub,
          "st" => "MiNY"
         ]]),
-       "[Shop.Reactions]" => $reactions,
+       "[Shop.Reactions]" => $votes,
        "[Shop.Subscribe]" => $subscribe,
        "[Shop.Title]" => $shop["Title"],
        "[Shop.Welcome]" => $this->system->PlainText([

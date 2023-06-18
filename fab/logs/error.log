@@ -337,3 +337,36 @@
 [2023-05-22  01:47:44] INFO fserve/fserve_client_create checking for file /style.css (/home/mike/public_html/fab/web/style.css)
 [2023-05-22  01:47:44] INFO fserve/fserve_client_create checking for file /icecast.png (/home/mike/public_html/fab/web/icecast.png)
 [2023-05-22  01:47:44] INFO fserve/fserve_client_create checking for file /favicon.ico (/home/mike/public_html/fab/web/favicon.ico)
+[2023-06-06  23:43:01] INFO main/_server_proc Caught halt request, shutting down...
+[2023-06-06  23:43:01] INFO main/main Shutting down
+[2023-06-06  23:43:01] INFO fserve/fserve_shutdown file serving stopped
+[2023-06-06  23:43:01] INFO slave/_slave_thread shutting down current relays
+[2023-06-06  23:43:01] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-06-06  23:43:01] INFO auth/auth_shutdown Auth shutdown
+[2023-06-06  23:43:01] INFO yp/yp_shutdown YP thread down
+[2023-06-06  23:43:02] INFO stats/stats_shutdown stats thread finished
+[2023-06-06  23:45:28] INFO main/main Icecast 2.4.4 server started
+[2023-06-06  23:45:28] INFO yp/yp_update_thread YP update thread started
+[2023-06-06  23:45:28] INFO connection/get_ssl_certificate No SSL capability on any configured ports
+[2023-06-06  23:53:41] INFO main/_server_proc Caught halt request, shutting down...
+[2023-06-06  23:53:41] INFO main/main Shutting down
+[2023-06-06  23:53:41] INFO fserve/fserve_shutdown file serving stopped
+[2023-06-06  23:53:42] INFO slave/_slave_thread shutting down current relays
+[2023-06-06  23:53:42] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-06-06  23:53:42] INFO auth/auth_shutdown Auth shutdown
+[2023-06-06  23:53:42] INFO yp/yp_shutdown YP thread down
+[2023-06-06  23:53:42] INFO stats/stats_shutdown stats thread finished
+[2023-06-06  23:57:44] INFO main/main Icecast 2.4.4 server started
+[2023-06-06  23:57:44] INFO yp/yp_update_thread YP update thread started
+[2023-06-06  23:57:44] INFO connection/get_ssl_certificate No SSL capability on any configured ports
+[2023-06-18  00:34:45] INFO main/_server_proc Caught halt request, shutting down...
+[2023-06-18  00:34:45] INFO main/main Shutting down
+[2023-06-18  00:34:45] INFO fserve/fserve_shutdown file serving stopped
+[2023-06-18  00:34:46] INFO slave/_slave_thread shutting down current relays
+[2023-06-18  00:34:46] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-06-18  00:34:46] INFO auth/auth_shutdown Auth shutdown
+[2023-06-18  00:34:46] INFO yp/yp_shutdown YP thread down
+[2023-06-18  00:34:46] INFO stats/stats_shutdown stats thread finished
+[2023-06-18  00:37:14] INFO main/main Icecast 2.4.4 server started
+[2023-06-18  00:37:14] INFO yp/yp_update_thread YP update thread started
+[2023-06-18  00:37:14] INFO connection/get_ssl_certificate No SSL capability on any configured ports

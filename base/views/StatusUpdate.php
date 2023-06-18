@@ -128,9 +128,8 @@
       "Type" => base64_encode("DLC")
      ]]);
     }
-    $reactions = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), ["Data" => [
-     "CRID" => $update["ID"],
-     "T" => $op["Login"]["Username"],
+    $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+     "ID" => $update["ID"],
      "Type" => 3
     ]])) : $this->system->Element([
      "div", "&nbsp;", ["class" => "Desktop66"]
@@ -156,7 +155,7 @@
      "[StatusUpdate.Modified]" => $modified,
      "[StatusUpdate.Options]" => $opt,
      "[StatusUpdate.ProfilePicture]" => $this->system->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-     "[StatusUpdate.Reactions]" => $reactions,
+     "[StatusUpdate.Reactions]" => $votes,
      "[StatusUpdate.Share]" => base64_encode("v=".base64_encode("StatusUpdate:Share")."&ID=".base64_encode($update["ID"])."&UN=".base64_encode($update["From"]))
     ], $this->system->Page("2e76fb1523c34ed0c8092cde66895eb1")]);
    }

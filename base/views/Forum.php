@@ -212,9 +212,8 @@
      $_BlockText .= " <em>".$forum["Title"]."</em>";
      $_JoinCommand = ($active == 0) ? "Join" : "Leave";
      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $actions = ($active == 1 && $ck == 0) ? $this->view(base64_encode("Common:Reactions"), ["Data" => [
-      "CRID" => $id,
-      "T" => $forum["UN"],
+     $actions = ($active == 1 && $ck == 0) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+      "ID" => $id,
       "Type" => 4
      ]]) : "";
      $actions .= ($bl == 0 && $ck == 0) ? $this->system->Element(["button", $_BlockText, [

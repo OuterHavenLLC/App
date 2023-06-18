@@ -186,9 +186,8 @@
      ]]);
     }
     $actions = ($this->system->ID != $you) ? $actions : "";
-    $reactions = ($ck == 0) ? $this->view(base64_encode("Common:Reactions"), ["Data" => [
-     "CRID" => $id,
-     "T" => $t["Login"]["Username"],
+    $votes = ($ck == 0) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+     "ID" => $id,
      "Type" => 4
     ]]) : "";
     $r = $this->system->Change([[
@@ -200,7 +199,7 @@
      "[Album.Modified]" => $this->system->TimeAgo($alb["Modified"]),
      "[Album.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Album;".$t["Login"]["Username"].";$id")),
      "[Album.Owner]" => $t["Personal"]["DisplayName"],
-     "[Album.Reactions]" => $reactions,
+     "[Album.Reactions]" => $votes,
      "[Album.Share]" => base64_encode("v=".base64_encode("Album:Share")."&ID=$id&UN=$tun"),
      "[Album.Title]" => $alb["Title"],
      "[Album.View]" => $this->view(base64_encode("Album:List"), ["Data" => [

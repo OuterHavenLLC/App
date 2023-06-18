@@ -315,36 +315,6 @@
    }
    return $r;
   }
-  function Reactions(array $a) {
-   $data = $a["Data"] ?? [];
-   $crid = $data["CRID"] ?? "";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   $r = $this->system->Data("Get", ["react", $crid]) ?? [];
-   $rd = $r["Dislike"] ?? [];
-   $rdi = count($rd);
-   $rd = (in_array($you, $rd)) ? 1 : 0;
-   $rl = $r["Like"] ?? [];
-   $rli = count($rl);
-   $rl = (in_array($you, $rl)) ? 1 : 0;
-   $t = $data["Type"] ?? "";
-   $u = "v=".base64_encode("Common:SaveReaction")."&CRID=[CRID]&type=[type]";
-   $b3d = ($rd == 1) ? "BBB " : "";
-   $b3l = ($rl == 1) ? "BBB " : "";
-   $tpl = ($t == 1) ? "b6ce0e83f7b83ed314cafd5f94523752" : "";
-   $tpl = ($t == 2) ? "7e2608e18e95e25fc3b04fe265e540f5" : $tpl;
-   $tpl = ($t == 3) ? "39a550decb7f3f764445b33e847a7042" : $tpl;
-   $tpl = ($t == 4) ? "cfa1ecf724126fd8a95d750c95f8179e" : $tpl;
-   $tpl = $this->system->Page($tpl);
-   return $this->system->Change([[
-    "[Reaction.CRID]" => base64_encode($data["CRID"]),
-    "[Reaction.BBB.Dislike]" => $b3d,
-    "[Reaction.BBB.Like]" => $b3l,
-    "[Reaction.Dislike]" => $this->system->ShortNumber($rdi),
-    "[Reaction.Like]" => $this->system->ShortNumber($rli),
-    "[Reaction.Processor]" => base64_encode($u)
-   ], $tpl]);
-  }
   function SaveBlacklist(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["BC", "BU", "content", "list"]);
@@ -483,46 +453,14 @@
       }
      }
      $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "The Content was reported."]),
+      "Body" => $this->system->Element([
+       "p", "The Content was reported."
+      ]),
       "Header" => "Done"
      ]);
     }
    }
    return $r;
-  }
-  function SaveReaction(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["CRID", "type"]);
-   $crid = $data["CRID"];
-   $type = $data["type"];
-   $r = "NO CRID";
-   $y = $this->you;
-   if(!empty($crid) && !empty($crid)) {
-    $accessCode = "Accepted";
-    $crid = base64_decode($crid);
-    $type = base64_decode($type);
-    $react = $this->system->Data("Get", ["react", $crid]) ?? [];
-    $dl = $react[$type] ?? [];
-    if(!in_array($y["Login"]["Username"], $dl)) {
-     array_push($dl, $y["Login"]["Username"]);
-     $react[$type] = $dl;
-     $dl = 1;
-    } else {
-     $r2 = [];
-     foreach($dl as $k => $v) {
-      if($v != $y["Login"]["Username"]) {
-       array_push($r2, $y["Login"]["Username"]);
-      }
-     }
-     $react[$type] = $r2;
-     $dl = 0;
-    }
-    $this->system->Data("Save", ["react", $crid, $react]);
-    $r = $dl;
-   }
-   $dlc = count($react[$type]);
-   return $this->JSONResponse([$ec, $r, $dl, $dlc]);
   }
   function SwitchMember(array $a) {
    return $this->system->Dialog([

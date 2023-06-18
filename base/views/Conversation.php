@@ -107,7 +107,7 @@
     $c = $this->system->Data("Get", ["conversation", $crid]) ?? [];
     $ch = base64_encode("Conversation:Home");
     $im = base64_encode("LiveView:InlineMossaic");
-    $react = base64_encode("Common:Reactions");
+    $vote = base64_encode("Vote:Containers");
     if($l == 1) {
      $r = $this->system->Change([[
       "[Comment.Editor]" => base64_encode("v=$edit&CRID=".$data["CRID"]."&new=1")
@@ -156,9 +156,8 @@
         "[Comment.Options]" => $opt,
         "[Comment.OriginalPoster]" => $op,
         "[Comment.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Comment.Reactions]" => $this->view($react, ["Data" => [
-         "CRID" => $k,
-         "T" => $v["From"],
+        "[Comment.Reactions]" => $this->view($vote, ["Data" => [
+         "ID" => $k,
          "Type" => 3
         ]]),
         "[Comment.Replies]" => $this->view($ch, ["Data" => [
@@ -227,9 +226,8 @@
        "[Reply.Options]" => $opt,
        "[Reply.OriginalPoster]" => $op,
        "[Reply.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-       "[Reply.Reactions]" => $this->view($react, ["Data" => [
-        "CRID" => $k,
-        "T" => $v["From"],
+       "[Reply.Reactions]" => $this->view($vote, ["Data" => [
+        "ID" => $k,
         "Type" => 3
        ]]),
        "[Reply.Replies]" => $this->view($ch, ["Data" => [
@@ -299,9 +297,8 @@
         "[Reply.Options]" => $opt,
         "[Reply.OriginalPoster]" => $op,
         "[Reply.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Reply.Reactions]" => $this->view($react, ["Data" => [
-         "CRID" => $k,
-         "T" => $v["From"],
+        "[Reply.Reactions]" => $this->view($vote, ["Data" => [
+         "ID" => $k,
          "Type" => 3
         ]])
        ], $tpl]);

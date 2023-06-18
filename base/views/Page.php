@@ -451,9 +451,8 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->system->Element(["em", $modified]);
      }
-     $reactions = ($Page["UN"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), ["Data" => [
-      "CRID" => $id,
-      "T" => $t["Login"]["Username"],
+     $votes = ($Page["UN"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+      "ID" => $id,
       "Type" => 2
      ]])) : "";
      $subscribe = ($Page["UN"] != $you && $this->system->ID != $you) ? 1 : 0;
@@ -490,7 +489,7 @@
       "[Article.Description]" => $Page["Description"],
       "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Page;$id")),
       "[Article.Modified]" => $modified,
-      "[Article.Reactions]" => $reactions,
+      "[Article.Reactions]" => $votes,
       "[Article.Share]" => base64_encode("v=".base64_encode("Page:Share")."&ID=".base64_encode($id)."&UN=".base64_encode($Page["UN"])),
       "[Article.Subscribe]" => $subscribe,
       "[Article.Title]" => $Page["Title"],

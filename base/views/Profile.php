@@ -334,9 +334,8 @@
      $_Block = ($_youBlockedThem == 0) ? "B" : "U";
      $_BlockText = ($_youBlockedThem == 0) ? "Block" : "Unblock";
      $_VIP = $t["Subscriptions"]["VIP"]["A"];
-     $actions = $this->view(base64_encode("Common:Reactions"), ["Data" => [
-      "CRID" => md5($id),
-      "T" => $id,
+     $actions = $this->view(base64_encode("Vote:Containers"), ["Data" => [
+      "ID" => md5($id),
       "Type" => 4
      ]]);
      $actions .= $this->system->Element(["button", $_BlockText, [
@@ -925,7 +924,7 @@
         "HeaderText" => "Minimal Design",
         "Selected" => $choseMinimalDesign
        ],
-       "Text" => "Choose whether or not to render design and social media elements such as reactions",
+       "Text" => "Choose whether or not to render design and social media elements such as votes",
        "Type" => "Check",
        "Value" => 1
       ]

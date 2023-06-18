@@ -302,9 +302,8 @@
       "data-type" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($post["UN"]))
      ]
     ]);
-    $reactions = ($post["UN"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), ["Data" => [
-     "CRID" => $id,
-     "T" => $t["Login"]["Username"],
+    $votes = ($post["UN"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+     "ID" => $id,
      "Type" => 2
     ]])) : "";
     $r = $this->system->Change([[
@@ -332,7 +331,7 @@
      "[Article.Description]" => $post["Description"],
      "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("BlogPost;".$post["ID"])),
      "[Article.Modified]" => $modified,
-     "[Article.Reactions]" => $reactions,
+     "[Article.Reactions]" => $votes,
      "[Article.Share]" => base64_encode("v=".base64_encode("BlogPost:Share")."&ID=$combinedID&UN=".base64_encode($post["UN"])),
      "[Article.Subscribe]" => "",
      "[Article.Title]" => $post["Title"],

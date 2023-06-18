@@ -344,9 +344,8 @@
       "Display" => 1
      ]);
      $coverPhoto = (!empty($blog["ICO"])) ? $this->system->CoverPhoto(base64_encode($blog["ICO"])) : $coverPhoto;
-     $reactions = ($blog["UN"] != $you) ? $this->view(base64_encode("Common:Reactions"), ["Data" => [
-      "CRID" => $id,
-      "T" => $blog["UN"],
+     $votes = ($blog["UN"] != $you) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+      "ID" => $id,
       "Type" => 4
      ]]) : "";
      $search = base64_encode("Search:Containers");
@@ -384,7 +383,7 @@
        "ID" => base64_encode($id),
        "st" => "BGP",
       ]]),
-      "[Blog.Reactions]" => $reactions,
+      "[Blog.Reactions]" => $votes,
       "[Blog.Subscribe]" => $subscribe,
       "[Blog.Title]" => $blog["Title"]
      ], $this->system->Page($tpl)]);

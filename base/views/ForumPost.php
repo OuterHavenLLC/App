@@ -184,9 +184,8 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->system->Element(["em", $modified]);
      }
-     $reactions = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), ["Data" => [
-      "CRID" => $id,
-      "T" => $op["Login"]["Username"],
+     $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+      "ID" => $id,
       "Type" => 3
      ]])) : $this->system->Element([
       "div", "&nbsp;", ["class" => "Desktop66"]
@@ -213,7 +212,7 @@
       "[ForumPost.Modified]" => $modified,
       "[ForumPost.OriginalPoster]" => $display,
       "[ForumPost.ProfilePicture]" => $this->system->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-      "[ForumPost.Reactions]" => $reactions,
+      "[ForumPost.Reactions]" => $votes,
       "[ForumPost.Title]" => $post["Title"],
       "[ForumPost.Share]" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id))
      ], $this->system->Page("d2be822502dd9de5e8b373ca25998c37")]);

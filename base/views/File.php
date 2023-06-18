@@ -119,9 +119,8 @@
      "[Error.Message]" => "The File <em>$id</em> could not be found."
     ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
     if(!empty($file) && $bl == 0) {
-     $actions = ($username != $you) ? $this->view(base64_encode("Common:Reactions"), ["Data" => [
-      "CRID" => $id,
-      "T" => $t["Login"]["Username"],
+     $actions = ($username != $you) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+      "ID" => $id,
       "Type" => 4
      ]]).$this->system->Element([
       "button", "Block", [

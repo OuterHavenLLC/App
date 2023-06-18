@@ -438,7 +438,6 @@
   function Lists(array $a) {
    $base = $this->system->base;
    $blu = base64_encode("Common:SaveBlacklist");
-   $cr = base64_encode("Common:Reactions");
    $data = $a["Data"] ?? [];
    $key = $this->system->core["SQL"]["Key"];
    $b2 = $data["b2"] ?? "Search";
@@ -1367,9 +1366,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = " &bull; Modified ".$_Time." by ".$_Member;
         $modified = $this->system->Element(["em", $modified]);
        }
-       $reactions = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), ["Data" => [
-        "CRID" => $post["ID"],
-        "T" => $op["Login"]["Username"],
+       $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+        "ID" => $post["ID"],
         "Type" => 3
        ]])) : base64_encode($this->system->Element([
         "div", "&nbsp;", ["class" => "Desktop66"]
@@ -1390,7 +1388,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[ForumPost.Modified]" => base64_encode($modified),
         "[ForumPost.OriginalPoster]" => base64_encode($display),
         "[ForumPost.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-        "[ForumPost.Reactions]" => $reactions,
+        "[ForumPost.Reactions]" => $votes,
         "[ForumPost.Title]" => base64_encode($post["Title"])
        ]);
       }
@@ -1464,7 +1462,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($bl == 0 && $illegal == 0) {
       $att = "";
-      $op = ($from == $y["Login"]["Username"]) ? $y : $this->system->Member($from);
+      $op = ($from == $you) ? $y : $this->system->Member($from);
       $cms = $this->system->Data("Get", [
        "cms",
        md5($op["Login"]["Username"])
@@ -1474,7 +1472,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "Contacts" => $cms["Contacts"],
        "Privacy" => $op["Privacy"]["Posts"],
        "UN" => $from,
-       "Y" => $y["Login"]["Username"]
+       "Y" => $you
       ]);
       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
        $att = (!empty($su["Attachments"])) ? $this->view($attlv, ["Data" => [
@@ -1501,10 +1499,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = " &bull; Modified ".$_Time;
         $modified = $this->system->Element(["em", $modified]);
        }
-       $reactions = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), [
+       $votes = ($op["Login"]["Username"] == $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
         "Data" => [
-         "CRID" => $v,
-         "T" => $op["Login"]["Username"],
+         "ID" => $su["ID"],
          "Type" => 3
         ]
        ])) : base64_encode($this->system->Element([
@@ -1525,7 +1522,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.Modified]" => base64_encode($modified),
         "[StatusUpdate.OriginalPoster]" => base64_encode($op["Personal"]["DisplayName"]),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-        "[StatusUpdate.Reactions]" => $reactions
+        "[StatusUpdate.Reactions]" => $votes
        ]);
       }
      }
@@ -1800,10 +1797,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = " &bull; Modified ".$_Time;
         $modified = $this->system->Element(["em", $modified]);
        }
-       $reactions = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), [
+       $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
         "Data" => [
-         "CRID" => $id,
-         "T" => $op["Login"]["Username"],
+         "ID" => $id,
          "Type" => 3
         ]
        ])) : base64_encode($this->system->Element([
@@ -1824,7 +1820,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.Modified]" => base64_encode($modified),
         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-        "[StatusUpdate.Reactions]" => $reactions
+        "[StatusUpdate.Reactions]" => $votes
        ]);
       }
      }
@@ -2130,10 +2126,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $modified = " &bull; Modified ".$_Time;
          $modified = $this->system->Element(["em", $modified]);
         }
-        $reactions = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Common:Reactions"), [
+        $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
          "Data" => [
-          "CRID" => $v,
-          "T" => $op["Login"]["Username"],
+          "ID" => $v,
           "Type" => 3
          ]
         ])) : base64_encode($this->system->Element([
@@ -2154,7 +2149,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "[StatusUpdate.Modified]" => base64_encode($modified),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.Reactions]" => $reactions
+         "[StatusUpdate.Reactions]" => $votes
         ]);
        }
       }
