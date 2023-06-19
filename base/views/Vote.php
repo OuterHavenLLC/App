@@ -26,11 +26,11 @@
       $_VoteUp++;
      }
     }
-    $class = "Vote VoteFor$id";
+    $class = "Bar Vote VoteFor$id";
     $class .= ($type == 1) ? "" : "";
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
-    $class .= ($type == 4) ? " v2 v2w" : $class;
+    $class .= ($type == 4) ? "" : $class;
     $processor = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
     $voteDown = ($_Votes[$you] == "Down") ? "BBB " : "";
     $voteUp = ($_Votes[$you] == "Up") ? "BBB " : "";
