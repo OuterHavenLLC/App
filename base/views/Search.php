@@ -1499,7 +1499,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = " &bull; Modified ".$_Time;
         $modified = $this->system->Element(["em", $modified]);
        }
-       $votes = ($op["Login"]["Username"] == $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
+       $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
         "Data" => [
          "ID" => $su["ID"],
          "Type" => 3

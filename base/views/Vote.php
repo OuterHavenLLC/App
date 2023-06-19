@@ -54,9 +54,20 @@
    $id = $data["ID"] ?? "";
    $r = $this->NoID;
    $type = $data["Type"] ?? "";
-   $vote = $data["Vote"] ?? "";
+   $yourVote = $data["Vote"] ?? "";
+   $you = $this->you["Login"]["Username"];
    if(!empty($id)) {
-    // RECORD OR REMOVE VOTE
+    $votes = $this->system->Data("Get", ["votes", $id]) ?? [];
+    $youVoted = $votes[$you] ?? 0;
+    if($youVoted != 0) {
+     foreach($votes as $member => $vote) {
+      if($member != $you) {
+       $newVotes[$member] = $vote;
+      }
+     }
+    }
+    $newVotes[$you] = $yourVote;
+    $this->system->Data("Save", ["votes", $id, $newVotes]);
     $r = $this->view(base64_encode("Vote:Containers"), ["Data" => [
      "ID" => $id,
      "Refresh" => 1,
