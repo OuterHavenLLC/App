@@ -866,7 +866,8 @@
     $r = $base.base64_decode($pp);
    }
    return $this->PlainText([
-    "Data" => "<img class=\"c2\" src=\"$r\"$b/>", "Display" => 1
+    "Data" => "<img class=\"c2\" src=\"$r\"$b/>",
+    "Display" => 1
    ]);
   }
   function RecursiveChange(array $a) {
@@ -897,6 +898,7 @@
       "ContainerClass",
       "Header",
       "HeaderText",
+      "Selected",
       "WYSIWYG",
       "Label"
      ]);
@@ -910,11 +912,15 @@
      } if($type == "Check") {
       $selected = ($options["Selected"] == 1) ? " checked" : "";
       $renderInput = $this->Element([
-       "div", "<input $renderInputAttributes type=\"checkbox\" value=\"".$input["Value"]."\"$selected>", [
-        "class" => "Desktop25"
-       ]
+       "div", NULL, ["class" => "NONAME"]
       ]).$this->Element([
-       "div", $input["Text"], ["class" => "Desktop75s"]
+       "label", $this->Element([
+        "div", "<input $renderInputAttributes type=\"checkbox\" value=\"".$input["Value"]."\"$selected>",
+        ["class" => "Desktop33"]
+       ]).$this->Element([
+        "div", $this->Element(["p", $input["Text"]]),
+        ["class" => "Desktop66"]
+       ]), ["class" => "InnderMargin"]
       ]);
      } elseif($type == "Select") {
       $optionGroup = "";

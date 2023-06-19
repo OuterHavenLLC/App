@@ -91,9 +91,80 @@
     $description = $preSet["Description"] ?? "";
     $title = $preSet["Title"] ?? "New Mail";
     $r = $this->system->Change([[
-     "[Email.Body]" => $body,
      "[Email.ID]" => $id,
-     "[Email.Description]" => $description,
+     "[Email.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $title
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $description
+      ],
+      [
+       "Attributes" => [
+        "class" => "Body Xdecode req",
+        "id" => "EditMailBody$id",
+        "name" => "Body",
+        "placeholder" => "Body"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body",
+        "WYSIWYG" => 1
+       ],
+       "Type" => "TextBox",
+       "Value" => $this->system->PlainText([
+        "Data" => $body,
+        "Decode" => 1
+       ])
+      ]
+     ]),
+     "[Email.Save]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "Save"
+       ],
+       "Options" => [],
+       "Text" => "Save this template as a pre-set for future use.",
+       "Type" => "Check",
+       "Value" => 1
+      ]
+     ]),
      "[Email.Title]" => $title
     ], $this->system->Page("81ccdda23bf18e557bc0ba3071c1c2d4")]);
    }

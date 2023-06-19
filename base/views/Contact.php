@@ -8,13 +8,12 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["Username"]);
    $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing. Data: ".json_encode($data, true)]),
+    "Body" => $this->system->Element(["p", "The Username is missing."]),
     "Header" => "Error"
    ]);
    $responseType = "Dialog";
-   $username = $data["Username"];
+   $username = $data["Username"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
@@ -76,13 +75,19 @@
     $contacts = $contacts["Contacts"] ?? [];
     $contact = $contacts[$username];
     $t = $this->system->Member($username);
+    $profilePicture = $t["Personal"]["ProfilePicture"] ?? "";
+    $profilePicture = (!empty($profilePicture)) ? $this->system->efs.base64_decode($profilePicture); : "[sIMG:LOGO]";
+    $profilePicture = $this->PlainText([
+     "Data" => $profilePicture,
+     "Display" => 1
+    ]);
     $r = $this->system->Change([[
      "[Contact.Card]" => base64_encode("CARD=1&v=$card&UN=".$data["UN"]),
      "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
      "[Contact.ID]" => md5($username),
      "[Contact.List]" => $this->system->Select("ContactList", "req v2 v2w", $contact["List"]),
      "[Contact.Notes]" => $contact["Notes"],
-     "[Contact.ProfilePicture]" => $this->system->ProfilePicture($t, "width:100%"),
+     "[Contact.ProfilePicture]" => $profilePicture,
      "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save")),
      "[Contact.Username]" => $username
     ], $this->system->Page("297c6906ec2f4cb2013789358c5ea77b")]);
