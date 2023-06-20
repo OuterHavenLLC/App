@@ -7,68 +7,139 @@
   function Edit(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
-    "CID",
+    "CommentID",
     "CRID",
     "ID",
-    "LVL",
+    "Level",
     "new"
    ]);
    $button = "";
    $new = $data["new"] ?? 0;
    $crid = $data["CRID"];
-   $cid = $data["CID"];
+   $cid = $data["CommentID"];
    $id = $data["ID"];
-   $level = $data["LVL"] ?? base64_encode(1);
+   $level = $data["Level"] ?? base64_encode(1);
    $save = base64_encode("Conversation:Save");
    $r = $this->system->Change([[
     "[Error.Header]" => "Not Found",
     "[Error.Message]" => "The Conversation Identifier is missing."
    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($crid)) {
     $action = ($new == 1) ? "Post" : "Update";
+    $attachments = "";
     $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
-    $dlc = "";
     $level = (!empty($level)) ? base64_decode($level) : 1;
-    $l2 = base64_encode($level);
-    $cr = ($level == 1) ? "Comment" : "Reply";
+    $conmentType = ($level == 1) ? "Comment" : "Reply";
     $crid = (!empty($crid)) ? base64_decode($crid) : $crid;
     $id = (!empty($id)) ? base64_decode($id) : $id;
-    $id = ($new == 1) ? md5($y["Login"]["Username"]."_CR_".$this->system->timestamp) : $id;
-    $ide = md5($crid);
+    $id = ($new == 1) ? md5($you."_CR_".$this->system->timestamp) : $id;
     $c = $this->system->Data("Get", ["conversation", $crid]) ?? [];
     $c = $c[$id] ?? [];
+    if(!empty($c["Attachments"])) {
+     $attachments = base64_encode(implode(";", $c["Attachments"]));
+    }
     $body = $c["Body"] ?? "";
     $body = (!empty($body)) ? base64_decode($body) : $body;
-    if(!empty($c["DLC"])) {
-     $dlc = base64_encode(implode(";", $c["DLC"]));
-    }
-    $at = base64_encode("Added to $cr!");
-    $at2 = base64_encode("Add Downloadable Content to $cr:.ATTDLC$ide");
-    $em = base64_encode("LiveView:EditorMossaic");
-    $h = ($new == 1) ? "New $cr" : "Edit $cr";
-    $lv = base64_encode("v=$em&ID=");
+    $at = base64_encode("Added to $conmentType!");
+    $at2 = base64_encode("Add Downloadable Content to $conmentType:.EditComment$id");
+    $header = ($new == 1) ? "New $conmentType" : "Edit $conmentType";
     $nsfw = $c["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $c["Privacy"] ?? $y["Privacy"]["Comments"];
-    $sc = base64_encode("Search:Containers");
     $additionalContent = $this->system->Change([[
-     "[DLC.ContentType]" => $cr,
-     "[DLC.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at2&Added=$at&UN=".$y["Login"]["Username"]),
+     "[DLC.ContentType]" => $conmentType,
+     "[DLC.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&UN=".$y["Login"]["Username"]),
      "[DLC.ID]" => md5($crid)
     ], $this->system->Page("47470fec24054847fc1232df998eafbd")]);
     $r = $this->system->Change([[
      "[Conversation.AdditionalContent]" => $additionalContent,
-     "[Conversation.Body]" => $body,
-     "[Conversation.CommentID]" => $cid,
-     "[Conversation.CRID]" => $crid,
-     "[Conversation.DownloadableContent]" => $dlc,
-     "[Conversation.DownloadableContent.LiveView]" => $lv,
-     "[Conversation.Header]" => $h,
+     "[Conversation.Header]" => $header,
      "[Conversation.ID]" => $id,
-     "[Conversation.Level]" => $level,
-     "[Conversation.New]" => $new,
-     "[Conversation.NSFW]" => $this->system->Select("nsfw", "req v2w", $nsfw),
-     "[Conversation.Privacy]" => $this->system->Select("Privacy", "req v2w", $privacy)
+     "[Conversation.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTDLC",
+        "data-a" => "#ATTL$id-ATTDLC",
+        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
+        "name" => "rATTDLC",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditComment$id-ATTF"
+       ],
+       "Type" => "Text",
+       "Value" => $attachments
+      ],
+      [
+       "Attributes" => [
+        "name" => "CommentID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $cid
+      ],
+      [
+       "Attributes" => [
+        "name" => "CRID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $crid
+      ],
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "Level",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $level
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Body",
+        "placeholder" => "Say something..."
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body"
+       ],
+       "Type" => "TextBox",
+       "Value" => $body
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ])
     ], $this->system->Page("0426a7fc6b31e5034b6c2cec489ea638")]);
     $button = $this->system->Element(["button", $action, [
      "class" => "CardButton",
@@ -83,13 +154,16 @@
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["CID", "CRID"]);
-   $cid = $data["CID"];
+   $data = $this->system->FixMissing($data, [
+    "CommentID",
+    "CRID"
+   ]);
+   $cid = $data["CommentID"];
    $crid = $data["CRID"];
    $edit = base64_encode("Conversation:Edit");
    $hide = base64_encode("Conversation:MarkAsHidden");
    $i = 0;
-   $l = $data["LVL"] ?? base64_encode(1);
+   $l = $data["Level"] ?? base64_encode(1);
    $r = $this->system->Change([[
     "[Error.Back]" => "",
     "[Error.Header]" => "Not Found",
@@ -137,7 +211,7 @@
        ]).$this->system->Element([
         "div", $this->system->Element(["button", "Hide", [
          "class" => "InnerMargin dBO",
-         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&LVL=$l"
+         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l"
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
        $cr .= $this->system->Change([[
@@ -159,9 +233,9 @@
          "Type" => 3
         ]]),
         "[Comment.Replies]" => $this->view($ch, ["Data" => [
-         "CID" => base64_encode($k),
+         "CommentID" => base64_encode($k),
          "CRID" => base64_encode($crid),
-         "LVL" => base64_encode(2)
+         "Level" => base64_encode(2)
         ]])
        ], $tpl]);
        $i++;
@@ -202,12 +276,12 @@
        $opt = ($v["From"] == $y["Login"]["Username"] && $y["Login"]["Username"] != $this->system->ID) ? $this->system->Element([
         "div", $this->system->Element(["button", "Edit", [
          "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=$edit&CID=".base64_encode($v["CommentID"])."&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&LVL=".$data["LVL"])
+         "data-type" => base64_encode("v=$edit&CommentID=".base64_encode($v["CommentID"])."&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->system->Element([
         "div", $this->system->Element(["button", "Hide", [
          "class" => "InnerMargin dBO",
-         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&LVL=$l"
+         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l"
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
       $cr .= $this->system->Change([[
@@ -229,9 +303,9 @@
         "Type" => 3
        ]]),
        "[Reply.Replies]" => $this->view($ch, ["Data" => [
-        "CID" => base64_encode($k),
+        "CommentID" => base64_encode($k),
         "CRID" => base64_encode($crid),
-        "LVL" => base64_encode(3)
+        "Level" => base64_encode(3)
        ]])
       ], $tpl]);
       $i++;
@@ -240,7 +314,7 @@
     $r = ($i > 0) ? $cr : $r;
     $r .= $this->system->Change([[
      "[Reply.DisplayName]" => $display,
-     "[Reply.Editor]" => base64_encode("v=$edit&new=1&CID=".$data["CID"]."&CRID=".$data["CRID"]."&LVL=".$data["LVL"])
+     "[Reply.Editor]" => base64_encode("v=$edit&new=1&CommentID=".$data["CommentID"]."&CRID=".$data["CRID"]."&Level=".$data["Level"])
     ], $this->system->Page("f6876eb53ff51bf537b1b1848500bdab")]);
    } elseif($l == 3) {
      # REPLIES TO REPLIES
@@ -273,12 +347,12 @@
        $opt = ($v["From"] == $y["Login"]["Username"] && $y["Login"]["Username"] != $this->system->ID) ? $this->system->Element([
         "div", $this->system->Element(["button", "Edit", [
          "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&LVL=".$data["LVL"])
+         "data-type" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->system->Element([
         "div", $this->system->Element(["button", "Hide", [
          "class" => "InnerMargin dBO",
-         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&LVL=$l"
+         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l"
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
        $cr .= $this->system->Change([[
@@ -306,73 +380,104 @@
      $r = ($i > 0) ? $cr : $r;
      $r .= $this->system->Change([[
       "[Reply.DisplayName]" => $display,
-      "[Reply.Editor]" => base64_encode("v=$edit&new=1&CID=".$data["CID"]."&CRID=".$data["CRID"]."&LVL=".$data["LVL"])
+      "[Reply.Editor]" => base64_encode("v=$edit&new=1&CommentID=".$data["CommentID"]."&CRID=".$data["CRID"]."&Level=".$data["Level"])
      ], $this->system->Page("f6876eb53ff51bf537b1b1848500bdab")]);
     }
    }
    return $r;
   }
   function Save(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, [
-    "CID", "CRID", "ID", "LVL", "new"
+    "CommentID",
+    "CRID",
+    "ID",
+    "Level",
+    "new"
    ]);
-   $ec = "Denied";
    $new = $data["new"] ?? 0;
-   $cid = $data["CID"];
+   $cid = $data["CommentID"];
    $crid = $data["CRID"];
    $id = $data["ID"];
-   $l = $data["LVL"] ?? 1;
-   $cr = ($l == 1) ? "comment" : "reply";
+   $level = $data["Level"] ?? 1;
+   $commentType = ($level == 1) ? "comment" : "reply";
    $pu = ($new == 1) ? "posted" : "updated";
    $r = $this->system->Dialog([
     "Body" => $this->system->Element([
-     "p", "The Conversation or $cr Identifier is missing."
+     "p", "The Conversation or $commentType Identifier is missing."
     ]),
     "Header" => "Error"
    ]);
    $y = $this->you;
    if(!empty($crid) && !empty($id)) {
+    $accessCode = "Accepted";
     $ch = base64_encode("Conversation:Home");
-    $ec = "Accepted";
-    $cc = ($l > 1) ? "Comment$cid" : "Conversation$crid";
+    $cc = ($level > 1) ? "Comment$cid" : "Conversation$crid";
     $con = $this->system->Data("Get", ["conversation", $crid]) ?? [];
     $created = $con[$id]["Created"] ?? $this->system->timestamp;
     $illegal = $con[$id]["Illegal"] ?? 0;
     $nsfw = $con[$id]["NSFW"] ?? $y["Privacy"]["NSFW"];
     $nsfw = $data["nsfw"] ?? $nsfw;
-    $pri = $con[$id]["Privacy"] ?? $y["Privacy"]["Comments"];
-    $pri = $data["pri"] ?? $pri;
+    $privacy = $con[$id]["Privacy"] ?? $y["Privacy"]["Comments"];
+    $privacy = $data["pri"] ?? $privacy;
+    if(!empty($data["rATTDLC"])) {
+     $dlc = array_reverse(explode(";", base64_decode($data["rATTDLC"])));
+     foreach($dlc as $dlc) {
+      if(!empty($dlc)) {
+       $f = explode("-", base64_decode($dlc));
+       if(!empty($f[0]) && !empty($f[1])) {
+        array_push($attachments, base64_encode($f[0]."-".$f[1]));
+       }
+      }
+     }
+    }
+    $attachments = array_unique($attachments);
     $con[$id] = [
+     "Attachments" => $attachments,
      "Body" => base64_encode($data["Body"]),
      "CommentID" => $cid,
      "Created" => $created,
      "From" => $y["Login"]["Username"],
      "Illegal" => $illegal,
-     "Level" => $l,
+     "Level" => $level,
      "Modified" => $this->system->timestamp,
      "NSFW" => $nsfw,
-     "Privacy" => $pri
+     "Privacy" => $privacy
     ];
     $cid = base64_encode($cid);
     $crid = base64_encode($crid);
-    $l = base64_encode($l);
+    $level = base64_encode($level);
     $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "Your $cr was $pu."]),
+     "Body" => $this->system->Element([
+      "p", "Your $commentType was $actionTaken."
+     ]),
      "Header" => "Done"
     ]);
     $this->system->Data("Save", ["conversation", $data["CRID"], $con]);
    }
-   return $this->system->JSONResponse([$ec, $r]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
+   ]);
   }
   function MarkAsHidden(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["CRID", "ID", "LVL"]);
+   $data = $this->system->FixMissing($data, [
+    "CRID",
+    "ID",
+    "Level"
+   ]);
    $crid = $data["CRID"];
    $id = $data["ID"];
-   $l = $data["LVL"];
+   $l = $data["Level"];
    $cr = ($l == 1) ? "comment" : "reply";
    $r = $this->system->Dialog([
     "Body" => $this->system->Element([
