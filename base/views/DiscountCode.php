@@ -6,19 +6,22 @@
   }
   function Edit(array $a) {
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "new"]);
+   $data = $this->system->FixMissing($data, [
+    "ID",
+    "new"
+   ]);
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $action = ($new == 1) ? "Post" : "Update";
-   $id = ($new == 1) ? md5("DC_$you".$this->system->timestamp) : $data["ID"];
+   $id = $data["ID"] ?? md5($you."_DC_".$this->system->timestamp);
    $discount = $this->system->Data("Get", ["dc", md5($you)]) ?? [];
    $discount = $discount[$id] ?? [];
    $code = $discount["Code"] ?? base64_encode("");
    $dollarAmount = $discount["DollarAmount"] ?? 1.00;
    $percentile = $discount["Percentile"] ?? 5;
    $quantity = $discount["Quantity"] ?? 0;
-   $fr = $this->system->Change([[
+   $r = $this->system->Change([[
     "[Discount.Code]" => base64_decode($code),
     "[Discount.DollarAmount]" => $dollarAmount,
     "[Discount.ID]" => $id,
@@ -26,14 +29,14 @@
     "[Discount.PercentOff]" => $this->system->Select("Percentile", "req v2w", $percentile),
     "[Discount.Quantity]" => $this->system->Select("DiscountCodeQTY", "req v2w", $quantity),
    ], $this->system->Page("47e35864b11d8bdc255b0aec513337c0")]);
-   $frbtn = $this->system->Element(["button", $action, [
+   $button = $this->system->Element(["button", $action, [
     "class" => "CardButton SendData",
     "data-form" => ".Discount$id",
     "data-processor" => base64_encode("v=".base64_encode("DiscountCode:Save"))
    ]]);
    return $this->system->Card([
-    "Front" => $fr,
-    "FrontButton" => $frbtn
+    "Front" => $r,
+    "FrontButton" => $button
    ]);
   }
   function Save(array $a) {

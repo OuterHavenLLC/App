@@ -32,7 +32,7 @@
     $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
     $level = (!empty($level)) ? base64_decode($level) : 1;
     $conmentType = ($level == 1) ? "Comment" : "Reply";
-    $crid = (!empty($crid)) ? base64_decode($crid) : $crid;
+    $crid = base64_decode($crid);
     $id = (!empty($id)) ? base64_decode($id) : $id;
     $id = ($new == 1) ? md5($you."_CR_".$this->system->timestamp) : $id;
     $c = $this->system->Data("Get", ["conversation", $crid]) ?? [];
@@ -49,8 +49,8 @@
     $privacy = $c["Privacy"] ?? $y["Privacy"]["Comments"];
     $additionalContent = $this->system->Change([[
      "[DLC.ContentType]" => $conmentType,
-     "[DLC.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&UN=".$y["Login"]["Username"]),
-     "[DLC.ID]" => md5($crid)
+     "[DLC.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&UN=$you"),
+     "[DLC.ID]" => $id
     ], $this->system->Page("47470fec24054847fc1232df998eafbd")]);
     $r = $this->system->Change([[
      "[Conversation.AdditionalContent]" => $additionalContent,
@@ -119,7 +119,8 @@
       ],
       [
        "Attributes" => [
-        "class" => "req",
+        "class" => "Body Xdecode req",
+        "id" => "EditPageBody$id",
         "name" => "Body",
         "placeholder" => "Say something..."
        ],
@@ -127,10 +128,14 @@
         "Container" => 1,
         "ContainerClass" => "NONAME",
         "Header" => 1,
-        "HeaderText" => "Body"
+        "HeaderText" => "Body",
+        "WYSIWYG" => 1
        ],
        "Type" => "TextBox",
-       "Value" => $body
+       "Value" => $this->system->PlainText([
+        "Data" => $body,
+        "Decode" => 1
+       ])
       ]
      ]).$this->system->RenderVisibilityFilter([
       "Filter" => "NSFW",
@@ -142,8 +147,8 @@
      ])
     ], $this->system->Page("0426a7fc6b31e5034b6c2cec489ea638")]);
     $button = $this->system->Element(["button", $action, [
-     "class" => "CardButton",
-     "data-form" => ".ConversationEditor".md5($crid),
+     "class" => "CardButton SendData",
+     "data-form" => ".ConversationEditor$id",
      "data-processor" => base64_encode("v=".base64_encode("Conversation:Save"))
     ]]);
    }
@@ -397,13 +402,12 @@
     "Level",
     "new"
    ]);
-   $new = $data["new"] ?? 0;
    $cid = $data["CommentID"];
    $crid = $data["CRID"];
    $id = $data["ID"];
    $level = $data["Level"] ?? 1;
+   $new = $data["new"] ?? 0;
    $commentType = ($level == 1) ? "comment" : "reply";
-   $pu = ($new == 1) ? "posted" : "updated";
    $r = $this->system->Dialog([
     "Body" => $this->system->Element([
      "p", "The Conversation or $commentType Identifier is missing."
@@ -411,17 +415,20 @@
     "Header" => "Error"
    ]);
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($crid) && !empty($id)) {
     $accessCode = "Accepted";
-    $ch = base64_encode("Conversation:Home");
+    $actionTaken = ($new == 1) ? "posted" : "updated";
+    $attachments = [];
     $cc = ($level > 1) ? "Comment$cid" : "Conversation$crid";
     $con = $this->system->Data("Get", ["conversation", $crid]) ?? [];
     $created = $con[$id]["Created"] ?? $this->system->timestamp;
+    $home = base64_encode("Conversation:Home");
     $illegal = $con[$id]["Illegal"] ?? 0;
     $nsfw = $con[$id]["NSFW"] ?? $y["Privacy"]["NSFW"];
     $nsfw = $data["nsfw"] ?? $nsfw;
     $privacy = $con[$id]["Privacy"] ?? $y["Privacy"]["Comments"];
-    $privacy = $data["pri"] ?? $privacy;
+    $privacy = $data["Privacy"] ?? $privacy;
     if(!empty($data["rATTDLC"])) {
      $dlc = array_reverse(explode(";", base64_decode($data["rATTDLC"])));
      foreach($dlc as $dlc) {
@@ -436,26 +443,27 @@
     $attachments = array_unique($attachments);
     $con[$id] = [
      "Attachments" => $attachments,
-     "Body" => base64_encode($data["Body"]),
+     "Body" => $this->system->PlainText([
+      "Data" => $data["Body"],
+      "Encode" => 1,
+      "HTMLEncode" => 1
+     ]),
      "CommentID" => $cid,
      "Created" => $created,
-     "From" => $y["Login"]["Username"],
+     "From" => $you,
      "Illegal" => $illegal,
      "Level" => $level,
      "Modified" => $this->system->timestamp,
      "NSFW" => $nsfw,
      "Privacy" => $privacy
     ];
-    $cid = base64_encode($cid);
-    $crid = base64_encode($crid);
-    $level = base64_encode($level);
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
       "p", "Your $commentType was $actionTaken."
      ]),
      "Header" => "Done"
     ]);
-    $this->system->Data("Save", ["conversation", $data["CRID"], $con]);
+    $this->system->Data("Save", ["conversation", $crid, $con]);
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
