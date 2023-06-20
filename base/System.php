@@ -1145,20 +1145,6 @@
       "optgroup", $r, ["label" => "Year"]
      ]), ["class" => "v2", "name" => $a]
     ]);
-   } elseif($a == "ContactList") {
-    $hli = ["Acquaintances", "Close Contacts", "Contacts"];
-    $opt = ["Acquaintances", "Close Contacts", "Contacts"];
-    foreach($opt as $opt) {
-     $o = md5($opt);
-     $s = ($c == $o) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$o\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Choose a Contact List..."]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "DiscountCodeQTY") {
     $c = $c ?? 100;
     for($i = 1; $i < 100; $i++) {

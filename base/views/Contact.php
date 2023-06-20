@@ -85,11 +85,50 @@
      "[Contact.Card]" => base64_encode("CARD=1&v=$card&UN=".$data["UN"]),
      "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
      "[Contact.ID]" => md5($username),
-     "[Contact.List]" => $this->system->Select("ContactList", "req v2 v2w", $contact["List"]),
-     "[Contact.Notes]" => $contact["Notes"],
+     "[Contact.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        md5("Acquaintances") => "Acquaintances",
+        md5("Close Contacts") => "Close Contacts",
+        md5("Contacts") => "Contacts"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Contact List"
+       ],
+       "Name" => "ContactList",
+       "Type" => "Select",
+       "Value" => $contact["List"]
+      ],
+      [
+       "Attributes" => [
+        "name" => "Notes",
+        "placeholder" => "Write a note about ".$t["Personal"]["DisplayName"]."..."
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Notes"
+       ],
+       "Type" => "TextBox",
+       "Value" => $contact["Notes"]
+      ],
+      [
+       "Attributes" => [
+        "name" => "Username",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $username
+      ]
+     ]),
      "[Contact.ProfilePicture]" => $profilePicture,
-     "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save")),
-     "[Contact.Username]" => $username
+     "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save"))
     ], $this->system->Page("297c6906ec2f4cb2013789358c5ea77b")]);
    }
    return $r;

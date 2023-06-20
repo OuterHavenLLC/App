@@ -18,7 +18,7 @@
    $crid = $data["CRID"];
    $cid = $data["CID"];
    $id = $data["ID"];
-   $l = $data["LVL"] ?? base64_encode(1);
+   $level = $data["LVL"] ?? base64_encode(1);
    $save = base64_encode("Conversation:Save");
    $r = $this->system->Change([[
     "[Error.Header]" => "Not Found",
@@ -29,17 +29,17 @@
     $action = ($new == 1) ? "Post" : "Update";
     $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
     $dlc = "";
-    $l = (!empty($l)) ? base64_decode($l) : 1;
-    $l2 = base64_encode($l);
-    $cr = ($l == 1) ? "Comment" : "Reply";
+    $level = (!empty($level)) ? base64_decode($level) : 1;
+    $l2 = base64_encode($level);
+    $cr = ($level == 1) ? "Comment" : "Reply";
     $crid = (!empty($crid)) ? base64_decode($crid) : $crid;
     $id = (!empty($id)) ? base64_decode($id) : $id;
     $id = ($new == 1) ? md5($y["Login"]["Username"]."_CR_".$this->system->timestamp) : $id;
     $ide = md5($crid);
     $c = $this->system->Data("Get", ["conversation", $crid]) ?? [];
     $c = $c[$id] ?? [];
-    $cb = $c["Body"] ?? "";
-    $cb = (!empty($cb)) ? base64_decode($cb) : $cb;
+    $body = $c["Body"] ?? "";
+    $body = (!empty($body)) ? base64_decode($body) : $body;
     if(!empty($c["DLC"])) {
      $dlc = base64_encode(implode(";", $c["DLC"]));
     }
@@ -58,16 +58,14 @@
     ], $this->system->Page("47470fec24054847fc1232df998eafbd")]);
     $r = $this->system->Change([[
      "[Conversation.AdditionalContent]" => $additionalContent,
-     "[Conversation.Body]" => $cb,
+     "[Conversation.Body]" => $body,
      "[Conversation.CommentID]" => $cid,
      "[Conversation.CRID]" => $crid,
-     "[Conversation.ConversationID]" => $crid,
      "[Conversation.DownloadableContent]" => $dlc,
      "[Conversation.DownloadableContent.LiveView]" => $lv,
      "[Conversation.Header]" => $h,
      "[Conversation.ID]" => $id,
-     "[Conversation.IDE]" => $ide,
-     "[Conversation.Level]" => $l,
+     "[Conversation.Level]" => $level,
      "[Conversation.New]" => $new,
      "[Conversation.NSFW]" => $this->system->Select("nsfw", "req v2w", $nsfw),
      "[Conversation.Privacy]" => $this->system->Select("Privacy", "req v2w", $privacy)
