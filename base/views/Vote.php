@@ -31,21 +31,67 @@
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? "" : $class;
-    $processor = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
-    $voteDown = ($_Votes[$you] == "Down") ? "BBB " : "";
-    $voteUp = ($_Votes[$you] == "Up") ? "BBB " : "";
+    $retract = "v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type";
+    $save = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
+    $down = ($_Votes[$you] == "Down") ? $this->system->Element([
+     "button", "Down", [
+      "class" => "Selected VoteDown v2 v2w",
+      "onclick" => "xLoad('.VoteFor$id', '$retract');"
+     ]
+    ]) : $this->system->Element([
+     "button", "Down", [
+      "class" => "VoteDown v2 v2w",
+      "onclick" => "xLoad('.VoteFor$id', '".$save."Down');"
+     ]
+    ]);
+    $up = ($_Votes[$you] == "Up") ? $this->system->Element([
+     "button", "Up", [
+      "class" => "Selected VoteUp v2 v2w",
+      "onclick" => "xLoad('.VoteFor$id', '$retract');"
+     ]
+    ]) : $this->system->Element([
+     "button", "Up", [
+      "class" => "VoteUp v2 v2w",
+      "onclick" => "xLoad('.VoteFor$id', '".$save."Up');"
+     ]
+    ]);
     $votes = $_VoteUp - $_VoteDown;
-    $r = $this->system->Change([[
-     "[Vote.Down]" => $voteDown,
-     "[Vote.Down.Processor]" => $processor."Down",
-     "[Vote.ID]" => $id,
-     "[Vote.Up]" => $voteUp,
-     "[Vote.Up.Processor]" => $processor."Up",
-     "[Vote.Total]" => $this->system->ShortNumber($votes)
-    ], $this->system->Page("39a550decb7f3f764445b33e847a7042")]);
+    $r = $this->system->Element(["div", $up, [
+     "class" => "Desktop33"
+    ]]).$this->system->Element(["div", $this->system->Element([
+     "div", $this->system->ShortNumber($votes),
+     ["class" => "CenterText InnerMargin"]
+    ]), [
+     "class" => "Desktop33"
+    ]]).$this->system->Element(["div", $down, [
+     "class" => "Desktop33"
+    ]]);
     $r = ($refresh == 0) ? $this->system->Element([
      "div", $r, ["class" => $class]
     ]) : $r;
+   }
+   return $r;
+  }
+  function Retract(array $a) {
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = $this->NoID;
+   $type = $data["Type"] ?? "";
+   $you = $this->you["Login"]["Username"];
+   if(!empty($id)) {
+    $newVotes = [];
+    $votes = $this->system->Data("Get", ["votes", $id]) ?? [];
+    foreach($votes as $member => $vote) {
+     if($member != $you) {
+      $newVotes[$member] = $vote;
+     }
+    }
+    $this->system->Data("Save", ["votes", $id, $newVotes]);
+    $r = $this->view(base64_encode("Vote:Containers"), ["Data" => [
+     "ID" => $id,
+     "Refresh" => 1,
+     "Type" => $type
+    ]]);
    }
    return $r;
   }
@@ -59,7 +105,7 @@
    if(!empty($id)) {
     $votes = $this->system->Data("Get", ["votes", $id]) ?? [];
     $votes[$you] = $vote;
-    $this->system->Data("Save", ["votes", $id, $newVotes]);
+    $this->system->Data("Save", ["votes", $id, $votes]);
     $r = $this->view(base64_encode("Vote:Containers"), ["Data" => [
      "ID" => $id,
      "Refresh" => 1,
