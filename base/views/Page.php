@@ -451,10 +451,11 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->system->Element(["em", $modified]);
      }
-     $votes = ($Page["UN"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+     $votes = ($Page["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $votes = base64_encode($this->view($votes, ["Data" => [
       "ID" => $id,
       "Type" => 2
-     ]])) : "";
+     ]]));
      $subscribe = ($Page["UN"] != $you && $this->system->ID != $you) ? 1 : 0;
      $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
      $subscribe = ($subscribe == 1) ? $this->system->Change([[

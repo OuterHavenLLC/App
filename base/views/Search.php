@@ -1366,12 +1366,11 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = " &bull; Modified ".$_Time." by ".$_Member;
         $modified = $this->system->Element(["em", $modified]);
        }
-       $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+       $votes = base64_encode($this->view($votes, ["Data" => [
         "ID" => $post["ID"],
         "Type" => 3
-       ]])) : base64_encode($this->system->Element([
-        "div", "&nbsp;", ["class" => "Desktop66"]
-       ]));
+       ]]));
        array_push($msg, [
         "[ForumPost.Actions]" => base64_encode($actions),
         "[ForumPost.Attachments]" => base64_encode($att),
@@ -1499,13 +1498,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = " &bull; Modified ".$_Time;
         $modified = $this->system->Element(["em", $modified]);
        }
-       $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
+       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+       $votes = base64_encode($this->view($votes, [
         "Data" => [
          "ID" => $su["ID"],
          "Type" => 3
         ]
-       ])) : base64_encode($this->system->Element([
-        "div", "&nbsp;", ["class" => "Desktop66"]
        ]));
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($att),
@@ -1797,13 +1795,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = " &bull; Modified ".$_Time;
         $modified = $this->system->Element(["em", $modified]);
        }
-       $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
+       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+       $votes = base64_encode($this->view($votes, [
         "Data" => [
          "ID" => $id,
          "Type" => 3
         ]
-       ])) : base64_encode($this->system->Element([
-        "div", "&nbsp;", ["class" => "Desktop66"]
        ]));
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($att),
@@ -1972,7 +1969,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]);
        $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
        $ck3 = $g["Open"] ?? 0;
-       $ck = ($ck == 1 && $ck2 == 1 && $ck4 == 1) ? 1 : 0;
+       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
        $illegal = $g["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        if($t["Login"]["Username"] == $y["Login"]["Username"] || ($bl == 0 && $ck == 1) && $illegal == 0) {
@@ -2126,13 +2123,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $modified = " &bull; Modified ".$_Time;
          $modified = $this->system->Element(["em", $modified]);
         }
-        $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), [
+        $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+        $votes = base64_encode($this->view($votes, [
          "Data" => [
           "ID" => $v,
           "Type" => 3
          ]
-        ])) : base64_encode($this->system->Element([
-         "div", "&nbsp;", ["class" => "Desktop66"]
         ]));
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($att),

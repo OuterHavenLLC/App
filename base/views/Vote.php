@@ -30,7 +30,7 @@
     $class .= ($type == 1) ? "" : "";
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
-    $class .= ($type == 4) ? "" : $class;
+    $class .= ($type == 4) ? " Medium" : $class;
     $retract = "v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type";
     $save = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
     $down = ($_Votes[$you] == "Down") ? $this->system->Element([
@@ -111,6 +111,45 @@
      "Refresh" => 1,
      "Type" => $type
     ]]);
+   }
+   return $r;
+  }
+  function ViewCount(array $a) {
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = $this->NoID;
+   $type = $data["Type"] ?? 1;
+   $you = $this->you["Login"]["Username"];
+   if(!empty($id)) {
+    $_VoteDown = 0;
+    $_VoteUp = 0;
+    $_Votes = $this->system->Data("Get", ["votes", $id]) ?? [];
+    $_Votes[$you] = $_Votes[$you] ?? "";
+    foreach($_Votes as $member => $vote) {
+     if($vote == "Down") {
+      $_VoteDown++;
+     } elseif($vote == "Up") {
+      $_VoteUp++;
+     }
+    }
+    $class = "Bar Vote VoteFor$id";
+    $class .= ($type == 1) ? "" : "";
+    $class .= ($type == 2) ? "" : $class;
+    $class .= ($type == 3) ? " Desktop66" : $class;
+    $class .= ($type == 4) ? " Medium" : $class;
+    $votes = $_VoteUp - $_VoteDown;
+    $r = $this->system->Element([
+     "div", $this->system->Element(["div", "&nbsp;", [
+      "class" => "Desktop33"
+     ]]).$this->system->Element(["div", $this->system->Element([
+      "div", $this->system->ShortNumber($votes),
+      ["class" => "CenterText InnerMargin"]
+     ]), [
+      "class" => "Desktop33"
+     ]]).$this->system->Element(["div", "&nbsp;", [
+      "class" => "Desktop33"
+     ]]), ["class" => $class]
+    ]);
    }
    return $r;
   }

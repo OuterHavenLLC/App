@@ -186,10 +186,11 @@
      ]]);
     }
     $actions = ($this->system->ID != $you) ? $actions : "";
-    $votes = ($ck == 0) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+    $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+    $votes = $this->view($votes, ["Data" => [
      "ID" => $id,
      "Type" => 4
-    ]]) : "";
+    ]]);
     $r = $this->system->Change([[
      "[Album.Actions]" => $actions,
      "[Album.CoverPhoto]" => $coverPhoto,

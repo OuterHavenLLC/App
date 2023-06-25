@@ -128,12 +128,11 @@
       "Type" => base64_encode("DLC")
      ]]);
     }
-    $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+    $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+    $votes = $this->view($votes, ["Data" => [
      "ID" => $update["ID"],
      "Type" => 3
-    ]])) : $this->system->Element([
-     "div", "&nbsp;", ["class" => "Desktop66"]
-    ]);
+    ]]);
     $r = $this->system->Change([[
      "[StatusUpdate.Attachments]" => $att,
      "[StatusUpdate.Body]" => $this->system->PlainText([

@@ -300,12 +300,14 @@
     $r = "";
     foreach($list as $key => $value) {
      $t = ($key == $you) ? $y : $this->system->Member($key);
-     $r .= $this->system->Element([
-      "button", $this->system->ProfilePicture($t, "margin:5%;width:90%"), [
-       "class" => "Small dB2O",
-       "data-e" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($t["Login"]["Username"]))
-      ]
-     ]);
+     if(!empty($t["Login"])) {
+      $r .= $this->system->Element([
+       "button", $this->system->ProfilePicture($t, "margin:5%;width:90%"), [
+        "class" => "Small dB2O",
+        "data-e" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($t["Login"]["Username"]))
+       ]
+      ]);
+     }
     }
     $r = $this->system->Element([
      "h4", "Contributors", ["class" => "UpperCase"]

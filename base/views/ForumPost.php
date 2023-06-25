@@ -184,12 +184,11 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->system->Element(["em", $modified]);
      }
-     $votes = ($op["Login"]["Username"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+     $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $votes = base64_encode($this->view($votes, ["Data" => [
       "ID" => $id,
       "Type" => 3
-     ]])) : $this->system->Element([
-      "div", "&nbsp;", ["class" => "Desktop66"]
-     ]);
+     ]]));
      $fr = $this->system->Change([[
       "[ForumPost.Actions]" => $actions,
       "[ForumPost.Attachments]" => $att,

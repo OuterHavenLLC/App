@@ -212,10 +212,11 @@
      $_BlockText .= " <em>".$forum["Title"]."</em>";
      $_JoinCommand = ($active == 0) ? "Join" : "Leave";
      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $actions = ($active == 1 && $ck == 0) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+     $_Votes = ($active == 1 && $ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $actions = $this->view($_Votes, ["Data" => [
       "ID" => $id,
       "Type" => 4
-     ]]) : "";
+     ]]);
      $actions .= ($bl == 0 && $ck == 0) ? $this->system->Element(["button", $_BlockText, [
       "class" => "BLK GoToParent dB2C Small v2 v2w",
       "data-cmd" => base64_encode($_BlockCommand),

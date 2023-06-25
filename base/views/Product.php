@@ -275,10 +275,11 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->system->Element(["em", $modified]);
      }
-     $votes = ($t["Login"]["Username"] != $you) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+     $votes = ($t["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $votes =  ? $this->view($votes, ["Data" => [
       "ID" => $product["ID"],
       "Type" => 4
-     ]]) : "";
+     ]]);
      $r = $this->system->Change([[
       "[Product.Actions]" => $actions,
       "[Product.Back]" => $bck,

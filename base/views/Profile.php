@@ -334,7 +334,8 @@
      $_Block = ($_youBlockedThem == 0) ? "B" : "U";
      $_BlockText = ($_youBlockedThem == 0) ? "Block" : "Unblock";
      $_VIP = $t["Subscriptions"]["VIP"]["A"];
-     $actions = $this->view(base64_encode("Vote:Containers"), ["Data" => [
+     $_Votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $actions = $this->view($_Votes, ["Data" => [
       "ID" => md5($id),
       "Type" => 4
      ]]);

@@ -409,10 +409,11 @@
         "data-type" => base64_encode("v=".base64_encode("Shop:Payroll"))
        ]
       ]) : "";
-      $votes = ($id != md5($you)) ? $this->view(base64_encode("Vote:Containers"), ["Data" => [
+      $votes = ($id != md5($you)) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+      $votes = $this->view($votes, ["Data" => [
        "ID" => $id,
        "Type" => 4
-      ]]) : "";
+      ]]);
       $search = base64_encode("Search:Containers");
       $subscribe = (md5($you) != $id && $this->system->ID != $you) ? 1 : 0;
       $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";

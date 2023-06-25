@@ -302,10 +302,11 @@
       "data-type" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($post["UN"]))
      ]
     ]);
-    $votes = ($post["UN"] != $you) ? base64_encode($this->view(base64_encode("Vote:Containers"), ["Data" => [
+    $votes = ($post["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+    $votes = base64_encode($votes, ["Data" => [
      "ID" => $id,
      "Type" => 2
-    ]])) : "";
+    ]]) : "";
     $r = $this->system->Change([[
      "[Article.Actions]" => $profile,
      "[Article.Attachments]" => $attachments,
