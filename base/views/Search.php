@@ -7,6 +7,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Containers(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
@@ -37,8 +38,8 @@
      $lis = "Search Extensions";
      $lo =  ($notAnon == 1) ? $this->system->Element([
       "button", "New Page", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
       ]
      ]) : "";
      $tpl = "e3de2c4c383d11d97d62a198f15ee885";
@@ -47,8 +48,8 @@
      $lis = "Search Pre-Sets";
      $lo =  ($notAnon == 1) ? $this->system->Element([
       "button", "New Email", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("Company:MassMail")."&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("Company:MassMail")."&new=1")
       ]
      ]) : "";
     } elseif($st == "BGP") {
@@ -159,8 +160,8 @@
      $lis = "Search Codes";
      $lo = ($notAnon == 1) ? $this->system->Element([
       "button", "New Code", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=$dce&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$dce&new=1")
       ]
      ]) : "";
     } elseif($st == "FAB") {
@@ -221,8 +222,8 @@
      $lis = "Search Albums";
      $lo = ($ck == 1 && $notAnon == 1) ? $this->system->Element([
       "button", "New Album", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=$ae&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$ae&new=1")
       ]
      ]) : "";
     } elseif($st == "MBR-BLG") {
@@ -233,8 +234,8 @@
      $lis = "Search your Blogs";
      if($y["Subscriptions"]["Blogger"]["A"] == 1 && $notAnon == 1) {
       $lo .= $this->system->Element(["button", "New Blog", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=$be&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$be&new=1")
       ]]);
      }
     } elseif($st == "MBR-CA") {
@@ -251,11 +252,10 @@
      $lis = "Search Your Private and Public Forums";
      $lo = ($notAnon == 1) ? $this->system->Element([
       "button", "New Forum", [
-       "class" => "dB2O v2", "data-type" => base64_encode("v=$fe&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$fe&new=1")
       ]
-     ]).$this->system->Element(["button", "Delete Forums", [
-      "class" => "dBO v2", "data-type" => "v=$fd&all=1"
-     ]]) : "";
+     ]) : "";
      $tpl = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "MBR-JE") {
      $t = $this->system->Member(base64_decode($data["UN"]));
@@ -271,8 +271,8 @@
      $pe = base64_encode("Page:Edit");
      $lo = ($notAnon == 1) ? $this->system->Element([
       "button", "New Page", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=$pe&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$pe&new=1")
       ]
      ]) : "";
     } elseif($st == "MBR-SU") {
@@ -356,8 +356,8 @@
       $ck = ($isArtist == 1 && $member == $you && $notAnon == 1) ? 1 : 0;
       if($ck == 1 && $i == 0) {
        $lo .= $this->system->Element(["button", "New Product", [
-        "class" => "dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Product:Edit")."&new=1")
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&new=1")
        ]]);
        $i++;
       }
@@ -377,8 +377,8 @@
      $pe = base64_encode("Page:Edit");
      $lo = ($y["Rank"] == md5("High Command") && $notAnon == 1) ? $this->system->Element([
       "button", "New Article", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=$pe&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$pe&new=1")
       ]
      ]) : "";
     } elseif($st == "S-Blogger") {
@@ -388,8 +388,8 @@
      $lis = "Search Blogs";
      if($y["Subscriptions"]["Blogger"]["A"] == 1 && $notAnon == 1) {
       $lo = $this->system->Element(["button", "New Blog", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=$be&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$be&new=1")
       ]]);
      }
     } elseif($st == "SHOP") {
@@ -433,6 +433,14 @@
     ]) : $r;
    }
    $r = ($card == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
    return $r;
   }
   function Lists(array $a) {

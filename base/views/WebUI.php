@@ -87,37 +87,37 @@
    $support = (in_array($y["Rank"], $support)) ? "<!--SUPPORT OPTIONS-->" : "";
    $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->system->Element([
     "button", "Shop", [
-     "class" => "CloseNetMap NPS Small v2",
-     "data-type" => "v=".base64_encode("Shop:Home")."&UN=".base64_encode($you)
+     "class" => "CloseNetMap Small UpdateContent v2",
+     "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&UN=".base64_encode($you))
     ]
    ]) : "";
    if($this->system->ID == $you) {
     $r = $this->system->Change([[
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-     "[Menu.Company.Defense]" => "v=".base64_encode("PMC:Home"),
+     "[Menu.Company.Defense]" => base64_encode("v=".base64_encode("PMC:Home")),
      "[Menu.Company.Home]" => "v=".base64_encode("Company:Home"),
      "[Menu.Company.IncomeDisclosure]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($this->system->ShopID),
-     "[Menu.Company.PressReleases]" => "v=$search&lPG=PG&st=PR",
-     "[Menu.Company.Statistics]" => "v=".base64_encode("Company:Statistics"),
-     "[Menu.Company.VVA]" => "v=".base64_encode("Company:VVA"),
+     "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
+     "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
+     "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
      "[Menu.LostAndFound]" => base64_encode("v=".base64_encode("LostAndFound:Home")),
-     "[Menu.Mainstream]" => "v=$search&st=Mainstream",
-     "[Menu.MiNY]" => "v=".base64_encode("Shop:MadeInNewYork"),
-     "[Menu.OptIn]" => "v=".base64_encode("WebUI:OptIn")
+     "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
+     "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
+     "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn"))
     ], $this->system->Page("73859ffa637c369b9fa88399a27b5598")]);
    } else {
     $r = $this->system->Change([[
      "[Menu.Administration]" => $admin,
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-     "[Menu.Company.Home]" => "v=".base64_encode("Company:Home"),
-     "[Menu.Company.Defense]" => "v=".base64_encode("PMC:Home"),
-     "[Menu.Company.IncomeDisclosure]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($this->system->ShopID),
-     "[Menu.Company.PressReleases]" => "v=$search&lPG=PG&st=PR",
-     "[Menu.Company.Statistics]" => "v=".base64_encode("Company:Statistics"),
-     "[Menu.Company.VVA]" => "v=".base64_encode("Company:VVA"),
-     "[Menu.LockScreen]" => "v=".base64_encode("WebUI:LockScreen"),
-     "[Menu.Mainstream]" => "v=$search&st=Mainstream",
-     "[Menu.Member.Articles]" => "v=$search&st=MBR-LLP",
+     "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
+     "[Menu.Company.Defense]" => base64_encode("v=".base64_encode("PMC:Home")),
+     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->system->ShopID)),
+     "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
+     "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
+     "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
+     "[Menu.LockScreen]" => base64_encode("v=".base64_encode("WebUI:LockScreen")),
+     "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
+     "[Menu.Member.Articles]" => base64_encode("v=$search&st=MBR-LLP"),
      "[Menu.Member.Articles.FSTID]" => md5("MemberArticles"),
      "[Menu.Member.Blacklist]" => "v=".base64_encode("Common:Blacklist"),
      "[Menu.Member.Blacklist.FSTID]" => md5("Blacklist"),
@@ -126,26 +126,26 @@
      "[Menu.Member.BulletinCenter]" => "v=".base64_encode("Profile:BulletinCenter"),
      "[Menu.Member.Contacts]" => "v=$search&st=Contacts",
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"],
-     "[Menu.Member.Files]" => "v=$search&UN=".base64_encode($you)."&lPG=Files&st=XFS",
-     "[Menu.Member.Forums]" => "v=$search&lPG=MBR-Forums&st=MBR-Forums",
+     "[Menu.Member.Files]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=Files&st=XFS"),
+     "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
      "[Menu.Member.Shop]" => $shop,
-     "[Menu.Member.Library]" => "v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB",
+     "[Menu.Member.Library]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
      "[Menu.Member.NewArticle]" => base64_encode("v=".base64_encode("Page:Edit")."&new=1"),
      "[Menu.Member.Preferences]" => base64_encode("v=".base64_encode("Profile:Preferences")),
-     "[Menu.Member.Profile]" => "v=".base64_encode("Profile:Home")."&UN=".base64_encode($you),
-     "[Menu.Member.Subscriptions]" => "v=".base64_encode("Subscription:Index"),
-     "[Menu.Member.Switch]" => "v=".base64_encode("Common:SwitchMember"),
+     "[Menu.Member.Profile]" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($you)),
+     "[Menu.Member.Subscriptions]" => base64_encode("v=".base64_encode("Subscription:Index")),
+     "[Menu.Member.Switch]" => base64_encode("v=".base64_encode("Common:SwitchMember")),
      "[Menu.Member.UpdateStatus]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you)),
-     "[Menu.Member.Username]" => $y["Login"]["Username"],
+     "[Menu.Member.Username]" => $you,
      "[Menu.MiNY]" => "v=".base64_encode("Shop:MadeInNewYork"),
      "[Menu.MiNY.History]" => "'N/A', 'v=".base64_encode("Shop:History")."&ID=".md5($this->system->ShopID)."', '".md5("ShoppingHistory")."'",
-     "[Menu.Search.Archive]" => "v=$search&lPG=Archive&st=CA",
-     "[Menu.Search.Artists]" => "v=$search&lPG=Shops&st=SHOP",
-     "[Menu.Search.Blogs]" => "v=$search&lPG=Blogs&st=BLG",
-     "[Menu.Search.Members]" => "v=$search&lPG=Members&st=MBR",
-     "[Menu.Search.PublicForums]" => "v=$search&lPG=Forums&st=Forums",
+     "[Menu.Search.Archive]" => base64_encode("v=$search&lPG=Archive&st=CA"),
+     "[Menu.Search.Artists]" => base64_encode("v=$search&lPG=Shops&st=SHOP"),
+     "[Menu.Search.Blogs]" => base64_encode("v=$search&lPG=Blogs&st=BLG"),
+     "[Menu.Search.Members]" => base64_encode("v=$search&lPG=Members&st=MBR"),
+     "[Menu.Search.PublicForums]" => base64_encode("v=$search&lPG=Forums&st=Forums"),
      "[Menu.Support.Manage]" => $support,
-     "[Menu.SwitchLanguages]" => "v=".base64_encode("WebUI:SwitchLanguages")
+     "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
     ], $this->system->Page("d14e3045df35f4d9784d45ac2c0fe73b")]);
    }
    return $r;

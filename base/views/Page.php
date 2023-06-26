@@ -40,6 +40,14 @@
      ]);
     }
    }
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
    return $r;
   }
   function Card(array $a) {
@@ -65,7 +73,16 @@
      ]), ["class" => "NONAME"]
     ]);
    }
-   return $this->system->Card(["Front" => $r]);
+   $r = $this->system->Card(["Front" => $r]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function ChangeMemberRole(array $a) {
    $accessCode = "Denied";
@@ -75,7 +92,9 @@
    $id = $data["ID"];
    $member = $data["Member"];
    $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."]),
+    "Body" => $this->system->Element([
+     "p", "The Forum Identifier is missing."
+    ]),
     "Header" => "Error"
    ]);
    $y = $this->you;
@@ -357,10 +376,19 @@
      "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
     ]]);
    }
-   return $this->system->Card([
+   $r = $this->system->Card([
     "Front" => $fr,
     "FrontButton" => $button
    ]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function Home(array $a) {
    $base = $this->system->efs;
@@ -512,6 +540,14 @@
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
    ]) : $r;
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
    return $r;
   }
   function Invite(array $a) {
@@ -591,10 +627,19 @@
      "data-processor" => base64_encode("v=".base64_encode("Page:SendInvite"))
     ]]);
    }
-   return $this->system->Card([
+   $r = $this->system->Card([
     "Front" => $fr,
     "FrontButton" => $frbtn
    ]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -827,6 +872,14 @@
      ]);
     }
    }
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
    return $r;
   }
   function SaveDelete(array $a) {
@@ -1026,7 +1079,16 @@
      "[Share.Title]" => $Page["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   $r = $this->system->Card(["Front" => $r]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function Subscribe(array $a) {
    $accessCode = "Denied";

@@ -25,6 +25,14 @@
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
    ]) : $r;
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
    return $r;
   }
   function Home(array $a) {
@@ -52,6 +60,14 @@
    ], $this->system->Page("0a24912129c7df643f36cb26038300d6")]);
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
+   ]) : $r;
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]) : $r;
    return $r;
   }
@@ -168,10 +184,19 @@
      "[Email.Title]" => $title
     ], $this->system->Page("81ccdda23bf18e557bc0ba3071c1c2d4")]);
    }
-   return $this->system->Card([
+   $r = $this->system->Card([
     "Front" => $r,
     "FrontButton" => $button
    ]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function Partners(array $a) {
    $partners = $this->system->Member($this->system->ShopID);
@@ -190,9 +215,18 @@
      "[IncomeDisclosure.Partner.Title]" => $value["Title"]
     ], $template]);
    }
-   return $this->system->Change([[
+   $r = $this->system->Change([[
     "[Partners.Table]" => $partnersList
    ], $this->system->Page("2c726e65e5342489621df8fea850dc47")]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function SendMassMail(array $a) {
    $accessCode = "Denied";
@@ -309,9 +343,18 @@
      "[IncomeDisclosure.Table.Year.Lists]" => $stk
     ], $tpl]);
    }
-   return $this->system->Change([[
+   $r = $this->system->Change([[
     "[Statistics.Table]" => $st
    ], $this->system->Page("0ba6b9256b4c686505aa66d23bec6b5c")]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function VVA(array $a) {
    $data = $a["Data"] ?? [];
@@ -334,6 +377,14 @@
    $r = ($data["CARD"] == 1) ? $this->system->Card(["Front" => $r]) : $r;
    $r = ($data["pub"] == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
+   ]) : $r;
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]) : $r;
    return $r;
   }

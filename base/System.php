@@ -31,8 +31,8 @@
     "[Admin.Feedback]" => "v=$search&st=Feedback",
     "[Admin.Files]" => "v=$album&AID=".md5("unsorted")."&UN=".base64_encode($this->ID),
     "[Admin.MassMail]" => "v=$search&st=ADM-MassMail",
-    "[Admin.Pages]" => "v=$search&st=ADM-LLP",
-    "[Admin.RenewSubscriptions]" => "v=$renewSubscriptions",
+    "[Admin.Pages]" => base64_encode("v=$search&st=ADM-LLP"),
+    "[Admin.RenewSubscriptions]" => base64_encode("v=$renewSubscriptions"),
     "[Admin.Server]" => "https://www.digitalocean.com/",
     "[Admin.WHM]" => "admin.outerhaven.nyc:2086"
    ], $this->Page("5c1ce5c08e2add4d1487bcd2193315a7")]);
