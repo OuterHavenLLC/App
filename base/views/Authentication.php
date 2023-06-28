@@ -5,24 +5,22 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function ArticleChangeMemberRole(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $mbr = $data["Member"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Article Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $y = $this->you;
-   if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
     $r = $this->system->Change([[
@@ -77,29 +75,34 @@
      "[Roles.Title]" => $Page["Title"]
     ], $this->system->Page("270d16c83b59b067231b0c6124a4038d")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function AuthorizeChange(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $form = $data["Form"] ?? "";
    $id = $data["ID"] ?? "";
    $processor = $data["Processor"] ?? "";
    $text = $data["Text"] ?? base64_encode("Do you authorize this Change?");
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Form, Identifier or Processor are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Form Identifier or Processor are missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($form) && !empty($id) && !empty($processor)) {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[Authorize.PIN]" => $this->system->RenderInputs([
       [
@@ -123,27 +126,32 @@
      "[Authorize.Processor]" => $processor
     ], $this->system->Page("7f6ec4e23b8b7c616bb7d79b2d1d3157")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function BlogChangeMemberRole(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $mbr = $data["Member"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
     $r = $this->system->Change([[
@@ -198,27 +206,31 @@
      "[Roles.Title]" => $blog["Title"]
     ], $this->system->Page("270d16c83b59b067231b0c6124a4038d")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteAlbum(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $aid = $data["AID"] ?? md5("unsorted");
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Album Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Album Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($aid)) {
+    $accessCode = "Accepted";
     $album = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
     $album = $album["Albums"][$aid] ?? [];
     $r = $this->system->Change([[
@@ -251,23 +263,32 @@
      "[Delete.Title]" => $album["Title"]
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteBlog(array $a) {
+   $accessCode = "Denied";
    $delete = base64_encode("Blog:SaveDelete");
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Blog Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You must sign in to continue."]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
     $r = $this->system->Change([[
@@ -300,24 +321,31 @@
      "[Delete.Title]" => $blog["Title"]
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteBlogPost(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Blog-Post Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Blog-Post Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You must sign in to continue."]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $post = explode("-", base64_decode($id));
     $post = $this->system->Data("Get", ["bp", $post[1]]) ?? [];
     $r = $this->system->Change([[
@@ -350,24 +378,31 @@
      "[Delete.Title]" => $post["Title"]
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteDiscountCode(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Code Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Code Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[Delete.Inputs]" => $this->system->RenderInputs([
       [
@@ -398,26 +433,31 @@
      "[Delete.Title]" => "this Discount Code"
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteFAB(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Broadcaster Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Broadcaster Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
+    $accessCode = "Accepted";
     $id = base64_decode($data["ID"]);
     $fab = $this->system->Data("Get", [
      "x",
@@ -454,28 +494,32 @@
      "[Delete.Title]" => $fab
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteFile(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $username = $data["UN"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The File Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The File Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id) && !empty($username)) {
+    $accessCode = "Accepted";
     $username = base64_decode($username);
     $files = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
     $files = $files["Files"] ?? [];
@@ -514,25 +558,29 @@
      "[Delete.Title]" => $file["Title"]
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteForum(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif($id == "cb3e432f76b38eaa66c7269d658bd7ea") {
     $r = $this->system->Dialog([
      "Body" => $this->system->Element([
@@ -541,6 +589,7 @@
      "Header" => "Forbidden"
     ]);
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
     $title = $forum["Title"] ?? "all forums";
@@ -574,29 +623,34 @@
      "[Delete.Title]" => $title
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteForumPost(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["FID", "ID"]);
    $all = $data["all"] ?? 0;
    $fid = $data["FID"];
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum or Post Identifiers are missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif((!empty($fid) && !empty($id))) {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[Delete.Inputs]" => $this->system->RenderInputs([
       [
@@ -627,26 +681,31 @@
      "[Delete.Title]" => $post["Title"]
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeletePage(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Article Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
+    $accessCode = "Accepted";
     $page = $this->system->Data("Get", ["pg", $data["ID"]]) ?? [];
     $r = $this->system->Change([[
      "[Delete.Inputs]" => $this->system->RenderInputs([
@@ -678,28 +737,33 @@
      "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete"))
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteProduct(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
    $all = $data["all"] ?? 0;
    $pd = base64_encode("Product:SaveDelete");
+   $r = [
+    "Body" => "The Product Identifier is missing."
+   ];
    $y = $this->you;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Product Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
+    $accessCode = "Accepted";
     $product = $this->system->Data("Get", ["miny", $data["ID"]]) ?? [];
     $r = $this->system->Change([[
      "[Delete.Inputs]" => $this->system->RenderInputs([
@@ -731,26 +795,31 @@
      "[Delete.Title]" => $product["Title"]
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DeleteStatusUpdate(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Update Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Update Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $r = $this->system->Change([[
      "[Delete.Inputs]" => $this->system->RenderInputs([
@@ -782,27 +851,32 @@
      "[Delete.Title]" => "this post"
     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function PFChangeMemberRole(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $mbr = $data["Member"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must sign in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
     $r = $this->system->Change([[
@@ -857,7 +931,14 @@
      "[Roles.Title]" => $forum["Title"]
     ], $this->system->Page("270d16c83b59b067231b0c6124a4038d")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

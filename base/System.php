@@ -589,6 +589,14 @@
    }
    return $r;
   }
+  function GetViewFromJSON(string $data) {
+   $r = json_decode($data, true);
+   $r = $r["Response"] ?? [];
+   $r = $r["Web"] ?? $this->Element([
+    "p", "No View Data<br/>Source Data: $data"
+   ]);
+   return $r;
+  }
   function JSONResponse(array $a) {
    return json_encode($a, true);
   }

@@ -216,7 +216,10 @@
     }
     $this->system->Data("Save", ["mbr", md5($you), $y]);
     $this->system->Data("Save", ["shop", md5($you), $shop]);
-    $r = $this->view($main, ["Data" => ["st" => "Mainstream"]]);
+    $r = $this->view($main, ["Data" => [
+     "st" => "Mainstream"
+    ]]);
+    $r = $this->system->GetViewFromJSON($r);
    }
    return $this->system->Change([[
     "[OH.MainContent]" => $r,

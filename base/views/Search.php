@@ -7,7 +7,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Containers(array $a) {
-   $accessCode = "Accepted";
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
@@ -23,16 +23,16 @@
    $li = "query=$query&st=$st&v=$sl";
    $lit = md5($st.$this->system->timestamp.rand(0, 1776));
    $lo = "";
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "An empty or invalid list type was supplied.<br/>Data: ".json_encode($data, true)
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The List Type is missing.",
+    "Header" => "Not Found"
+   ];
    $tpl = "6dc4eecde24bf5f5e70da253aaac2b68";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $notAnon = ($this->system->ID != $you) ? 1 : 0;
    if($ck == 1) {
+    $accessCode = "Accepted";
     if($st == "ADM-LLP") {
      $h = "Network Extensions";
      $lis = "Search Extensions";
@@ -433,15 +433,14 @@
     ]) : $r;
    }
    $r = ($card == 1) ? $this->system->Card(["Front" => $r]) : $r;
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+   return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Lists(array $a) {
    $base = $this->system->base;
@@ -1827,6 +1826,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.Modified]" => base64_encode($modified),
         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
+        "[StatusUpdate.VoteID]" => base64_encode($id),
         "[StatusUpdate.Votes]" => $votes
        ]);
       }
@@ -2150,6 +2150,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "[StatusUpdate.Modified]" => base64_encode($modified),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
+         "[StatusUpdate.VoteID]" => base64_encode($id),
          "[StatusUpdate.Votes]" => $votes
         ]);
        }

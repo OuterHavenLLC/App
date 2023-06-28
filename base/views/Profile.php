@@ -9,14 +9,14 @@
    $list = base64_encode("Profile:BulletinsList");
    $search = base64_encode("Search:Containers");
    $r = $this->system->Change([[
-    "[BulletinCenter.Bulletins]" => $this->view($search, ["Data" => [
+    "[BulletinCenter.Bulletins]" => $this->system->GetViewFromJSON($this->view($search, ["Data" => [
      "st" => "Bulletins"
-    ]]),
+    ]])),
     "[BulletinCenter.ContactRequests]" => "v=$list&type=".base64_encode("ContactsRequests"),
-    "[BulletinCenter.Contacts]" => $this->view($search, ["Data" => [
+    "[BulletinCenter.Contacts]" => $this->system->GetViewFromJSON($this->view($search, ["Data" => [
      "Chat" => 0,
      "st" => "ContactsChatList"
-    ]])
+    ]]))
    ], $this->system->Page("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -25,7 +25,7 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]);;
+   ]);
   }
   function BulletinMessage(array $a) {
    $accessCode = "Accepted";
@@ -226,7 +226,7 @@
     "st" => "ContactsRequests"
    ]]) : "";
    return $this->system->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
      "Web" => $r
