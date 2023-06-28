@@ -34,10 +34,19 @@
     "data-form" => ".Discount$id",
     "data-processor" => base64_encode("v=".base64_encode("DiscountCode:Save"))
    ]]);
-   return $this->system->Card([
+   $r = $this->system->Card([
     "Front" => $r,
     "FrontButton" => $button
    ]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -137,7 +146,16 @@
     ]);
     $this->system->Data("Save", ["dc", md5($you), $discount2]);
    }
-   return $this->system->JSONResponse([$accessCode, $r]);
+   $r = $this->system->JSONResponse([$accessCode, $r]);
+   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
+    #"AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]) : $r;
+   return $r;
   }
   function __destruct() {
    // DESTROYS THIS CLASS

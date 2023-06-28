@@ -345,10 +345,7 @@
      ]);
      $coverPhoto = (!empty($blog["ICO"])) ? $this->system->CoverPhoto(base64_encode($blog["ICO"])) : $coverPhoto;
      $votes = ($blog["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = $this->view($votes, ["Data" => [
-      "ID" => $id,
-      "Type" => 4
-     ]]);
+     $votes = base64_encode("v=$votes&ID=$id&Type=4");
      $search = base64_encode("Search:Containers");
      $subscribe = ($blog["UN"] != $you && $this->system->ID != $you) ? 1 : 0;
      $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";

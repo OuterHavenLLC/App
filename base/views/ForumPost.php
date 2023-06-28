@@ -185,10 +185,7 @@
       $modified = $this->system->Element(["em", $modified]);
      }
      $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = base64_encode($this->view($votes, ["Data" => [
-      "ID" => $id,
-      "Type" => 3
-     ]]));
+     $votes = base64_encode("v=$votes&ID=$id&Type=3");
      $fr = $this->system->Change([[
       "[ForumPost.Actions]" => $actions,
       "[ForumPost.Attachments]" => $att,
@@ -211,9 +208,9 @@
       "[ForumPost.Modified]" => $modified,
       "[ForumPost.OriginalPoster]" => $display,
       "[ForumPost.ProfilePicture]" => $this->system->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-      "[ForumPost.Reactions]" => $votes,
       "[ForumPost.Title]" => $post["Title"],
-      "[ForumPost.Share]" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id))
+      "[ForumPost.Share]" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id)),
+      "[ForumPost.Votes]" => $votes
      ], $this->system->Page("d2be822502dd9de5e8b373ca25998c37")]);
     }
    }

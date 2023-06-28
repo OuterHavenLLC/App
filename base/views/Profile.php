@@ -5,6 +5,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function BulletinCenter(array $a) {
+   $accessCode = "Accepted";
    $list = base64_encode("Profile:BulletinsList");
    $search = base64_encode("Search:Containers");
    $r = $this->system->Change([[
@@ -17,21 +18,21 @@
      "st" => "ContactsChatList"
     ]])
    ], $this->system->Page("6cbe240071d79ac32edbe98679fcad39")]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);;
   }
   function BulletinMessage(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $request = $data["Data"]["Request"] ?? "";
    $type = $data["Type"] ?? "";
    $message = "Message required for Bulletin type <em>$type</em>.";
+   $request = $data["Data"]["Request"] ?? "";
    if($type == "ArticleUpdate") {
     $message = "Updated their article.";
    } elseif($type == "ContactRequest") {
@@ -48,17 +49,17 @@
    } elseif($type == "NewProduct") {
     $message = "Added a product to their shop.";
    }
-   $message = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $message
     ],
     "ResponseType" => "View"
-   ]) : $message;
-   return $message;
+   ]);
   }
   function BulletinOptions(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $bulletin = $data["Bulletin"] ?? "";
    $bulletin = (!empty($bulletin)) ? base64_decode($bulletin) : [];
@@ -164,15 +165,14 @@
      ]);
     }
    }
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Bulletins(array $a) {
    $accessCode = "Denied";
@@ -225,36 +225,31 @@
    $r = ($type == "ContactsRequests") ? $this->view($search, ["Data" => [
     "st" => "ContactsRequests"
    ]]) : "";
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function ChangeRank(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["PIN", "Rank", "Username"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Member Identifier or Rank are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Member Identifier or Rank are missing."
+   ];
    $rank = $data["Rank"];
    $responseType = "Dialog";
    $username = $data["Username"];
    $y = $this->you;
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
+    $r = [
      "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    ];
    } elseif(!empty($rank) && !empty($username)) {
     $accessCode = "Accepted";
     $member = $this->system->Member($username);
@@ -279,6 +274,7 @@
    ]);
   }
   function Donate(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $opt = "";
    $t = $this->system->Member(base64_decode($data["UN"]));
@@ -312,21 +308,20 @@
      ]
     ]) : "";
    }
-   $r = $this->system->Dialog([
+   $r = [
     "Body" => $this->system->Element(["div", $opt, ["class" => "scr"]]),
-    "Header" => "Donate to $display"
-   ]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["CARD", "UN", "b2", "lPG"]);
    $b2 = $data["b2"];
@@ -339,11 +334,10 @@
    $t = $this->system->Member(base64_decode($data["UN"]));
    $id = $t["Login"]["Username"];
    $display = ($id == $this->system->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
-   $r = $this->system->Change([[
-    "[Error.Back]" => $back,
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The requested Member could not be found."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The requested Member could not be found.",
+    "Header" => "Not Found"
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
@@ -357,11 +351,10 @@
     $ck2 = ($privacy["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->config["minAge"])) ? 1 : 0;
     $ckart = 0;
     $public = md5("Public");
-    $r = $this->system->Change([[
-     "[Error.Back]" => $back,
-     "[Error.Header]" => "Not Found",
-     "[Error.Message]" => "The requested Member could not be found."
-    ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+    $r = [
+     "Body" => "The Member may have reduced their visibility.",
+     "Header" => "Not Found"
+    ];
     $search = base64_encode("Search:Containers");
     $theirContacts = $_theirContacts["Contacts"] ?? [];
     $theirRequests = $_theirContacts["Requests"] ?? [];
@@ -372,16 +365,12 @@
      "Y" => $you
     ]);
     if($_theyBlockedYou == 0 && ($ck == 1 || $ck2 == 1 || $visible == 1)) {
+     $accessCode = "Accepted";
      $_Artist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $_Block = ($_youBlockedThem == 0) ? "B" : "U";
      $_BlockText = ($_youBlockedThem == 0) ? "Block" : "Unblock";
      $_VIP = $t["Subscriptions"]["VIP"]["A"];
-     $_Votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $actions = $this->view($_Votes, ["Data" => [
-      "ID" => md5($id),
-      "Type" => 4
-     ]]);
-     $actions .= $this->system->Element(["button", $_BlockText, [
+     $actions = $this->system->Element(["button", $_BlockText, [
       "class" => "BLK Small v2",
       "data-cmd" => base64_encode($_Block),
       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($display)."&content=".base64_encode($id)."&list=".base64_encode("Members")."&BC=")
@@ -534,6 +523,8 @@
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$display keeps their Journal to themselves."
      ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $votes = base64_encode("v=$votes&ID=".md5($id)."&Type=4");
      $r = $this->system->Change([[
       "[Member.Actions]" => $actions,
       "[Member.AddContact]" => $addContact,
@@ -560,7 +551,8 @@
       "[Member.Stream]" => $this->view($search, ["Data" => [
        "UN" => base64_encode($id),
        "st" => "MBR-SU"
-      ]])
+      ]]),
+      "[Member.Votes]" => $votes
      ], $this->system->Page("72f902ad0530ad7ed5431dac7c5f9576")]);
     }
    }
@@ -1696,6 +1688,7 @@
    return $r;
   }
   function SignIn(array $a) {
+   $accessCode = "Denied";
    $r = $this->system->Dialog([
     "Body" => $this->system->Change([[
      "[SignIn.Inputs]" => $this->system->RenderInputs([
@@ -1733,7 +1726,7 @@
     ], $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005")]),
     "Header" => "Sign In",
     "Option" => $this->system->Element(["button", "Cancel", [
-     "class" => "dBC v2 v2w"
+     "class" => "CloseDialog v2 v2w"
     ]]),
     "Option2" => $this->system->Element(["button", "Sign In", [
      "class" => "BBB SendData v2 v2w",
@@ -1741,17 +1734,17 @@
      "data-processor" => base64_encode("v=".base64_encode("Profile:SaveSignIn"))
     ]])
    ]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function SignUp(array $a) {
+   $accessCode = "Accepeted";
    $birthMonths = [];
    $birthYears = [];
    for($i = 1; $i <= 12; $i++) {
@@ -1773,15 +1766,14 @@
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

@@ -129,23 +129,23 @@
    ]);
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $buttion = "";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Article Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $time = $this->system->timestamp;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
    } elseif(!empty($id) || $new == 1) {
+    $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $attf = "";
     $id = (!empty($id)) ? base64_decode($id) : $id;
@@ -225,7 +225,7 @@
       "[XFS.ID]" => $id
      ], $this->system->Page("8356860c249e93367a750f3b4398e493")
     ]);
-    $fr = $this->system->Change([[
+    $r = $this->system->Change([[
      "[Article.AdditionalContent]" => $additionalContent,
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,
@@ -375,20 +375,19 @@
      "data-form" => ".EditPage$id",
      "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
     ]]);
+    $r = $this->system->Card([
+     "Front" => $r,
+     "FrontButton" => $button
+    ]);
    }
-   $r = $this->system->Card([
-    "Front" => $fr,
-    "FrontButton" => $button
-   ]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Home(array $a) {
    $base = $this->system->efs;
@@ -479,11 +478,6 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->system->Element(["em", $modified]);
      }
-     $votes = ($Page["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = base64_encode($this->view($votes, ["Data" => [
-      "ID" => $id,
-      "Type" => 2
-     ]]));
      $subscribe = ($Page["UN"] != $you && $this->system->ID != $you) ? 1 : 0;
      $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
      $subscribe = ($subscribe == 1) ? $this->system->Change([[
@@ -493,6 +487,8 @@
       "[Subscribe.Text]" => $subscribeText,
       "[Subscribe.Title]" => $Page["Title"]
      ], $this->system->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
+     $votes = ($Page["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $votes = base64_encode("v=$votes&ID=$id&Type=2");
      $r = $this->system->Change([[
       "[Article.Actions]" => $actions,
       "[Article.Attachments]" => $attachments,
@@ -518,10 +514,10 @@
       "[Article.Description]" => $Page["Description"],
       "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Page;$id")),
       "[Article.Modified]" => $modified,
-      "[Article.Reactions]" => $votes,
       "[Article.Share]" => base64_encode("v=".base64_encode("Page:Share")."&ID=".base64_encode($id)."&UN=".base64_encode($Page["UN"])),
       "[Article.Subscribe]" => $subscribe,
       "[Article.Title]" => $Page["Title"],
+      "[Article.Votes]" => $votes,
       "[Member.DisplayName]" => $t["Personal"]["DisplayName"],
       "[Member.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
       "[Member.Description]" => $description
@@ -653,21 +649,17 @@
    ]);
    $new = $data["new"] ?? 0;
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Article Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $category = ($y["Rank"] != md5("High Command") && $category == "EXT") ? "CA" : $data["PageCategory"];
     $i = 0;
@@ -682,12 +674,10 @@
       $i++;
      }
     } if($i > 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Article <em>$title</em> is taken."
-      ]),
+     $r = [
+      "Body" => "The Article <em>$title</em> is taken.",
       "Header" => "Error"
-     ]);
+     ];
     } else {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
@@ -792,12 +782,10 @@
       "UN" => $author
      ]]);
      $this->system->Data("Save", ["mbr", md5($you), $y]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The $newCategory has been $actionTaken!"
-      ]),
+     $r = [
+      "Body" => "The $newCategory has been $actionTaken!",
       "Header" => "Done"
-     ]);
+     ];
      if($new == 1) {
       $this->system->Statistic("PG");
      } else {

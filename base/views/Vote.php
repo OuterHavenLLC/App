@@ -8,6 +8,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Containers(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = $this->NoID;
@@ -15,6 +16,7 @@
    $type = $data["Type"] ?? 1;
    $you = $this->you["Login"]["Username"];
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $_VoteDown = 0;
     $_VoteUp = 0;
     $_Votes = $this->system->Data("Get", ["votes", $id]) ?? [];
@@ -27,7 +29,7 @@
      }
     }
     $class = "Bar Vote VoteFor$id";
-    $class .= ($type == 1) ? "" : "";
+    $class .= "";
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? " Medium" : $class;
@@ -35,24 +37,28 @@
     $save = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
     $down = ($_Votes[$you] == "Down") ? $this->system->Element([
      "button", "Down", [
-      "class" => "Selected VoteDown v2 v2w",
-      "onclick" => "xLoad('.VoteFor$id', '$retract');"
+      "class" => "Selected UpdateContent v2 v2w",
+      "data-container" => ".VoteFor$id",
+      "data-view" => $retract
      ]
     ]) : $this->system->Element([
      "button", "Down", [
-      "class" => "VoteDown v2 v2w",
-      "onclick" => "xLoad('.VoteFor$id', '".$save."Down');"
+      "class" => "UpdateContent v2 v2w",
+      "data-container" => ".VoteFor$id",
+      "data-view" => $save."Up"
      ]
     ]);
     $up = ($_Votes[$you] == "Up") ? $this->system->Element([
      "button", "Up", [
-      "class" => "Selected VoteUp v2 v2w",
-      "onclick" => "xLoad('.VoteFor$id', '$retract');"
+      "class" => "Selected UpdateContent v2 v2w",
+      "data-container" => ".VoteFor$id",
+      "data-view" => $retract
      ]
     ]) : $this->system->Element([
      "button", "Up", [
-      "class" => "VoteUp v2 v2w",
-      "onclick" => "xLoad('.VoteFor$id', '".$save."Up');"
+      "class" => "UpdateContent v2 v2w",
+      "data-container" => ".VoteFor$id",
+      "data-view" => $save."Up"
      ]
     ]);
     $votes = $_VoteUp - $_VoteDown;
@@ -70,7 +76,14 @@
      "div", $r, ["class" => $class]
     ]) : $r;
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Retract(array $a) {
    $data = $a["Data"] ?? [];

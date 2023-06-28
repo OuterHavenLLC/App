@@ -212,11 +212,6 @@
      $_BlockText .= " <em>".$forum["Title"]."</em>";
      $_JoinCommand = ($active == 0) ? "Join" : "Leave";
      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $_Votes = ($active == 1 && $ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $actions = $this->view($_Votes, ["Data" => [
-      "ID" => $id,
-      "Type" => 4
-     ]]);
      $actions .= ($bl == 0 && $ck == 0) ? $this->system->Element(["button", $_BlockText, [
       "class" => "BLK GoToParent dB2C Small v2 v2w",
       "data-cmd" => base64_encode($_BlockCommand),
@@ -271,6 +266,8 @@
       "[Forum.Title]" => $forum["Title"]
      ], $this->system->Page("4c3a04a91734ce56bef85d474294202d")]) : "";
      $search = base64_encode("Search:Containers");
+     $votes = ($active == 1 && $ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $votes = base64_encode("v=$votes&ID=$id&Type=4");
      $r = $this->system->Change([[
       "[Forum.About]" => $forum["About"],
       "[Forum.Actions]" => $actions,
@@ -299,7 +296,8 @@
        "ID" => base64_encode($id),
        "st" => "Forums-Posts"
       ]]),
-      "[Forum.Title]" => $forum["Title"]
+      "[Forum.Title]" => $forum["Title"],
+      "[Forum.Votes]" => $votes
      ], $this->system->Page("4159d14e4e8a7d8936efca6445d11449")]);
     }
    }

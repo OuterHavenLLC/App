@@ -276,10 +276,7 @@
       $modified = $this->system->Element(["em", $modified]);
      }
      $votes = ($t["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes =  ? $this->view($votes, ["Data" => [
-      "ID" => $product["ID"],
-      "Type" => 4
-     ]]);
+     $votes = base64_encode("v=$votes&ID=".$product["ID"]."&Type=4");
      $r = $this->system->Change([[
       "[Product.Actions]" => $actions,
       "[Product.Back]" => $bck,
@@ -311,9 +308,9 @@
       "[Product.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
       "[Product.Modified]" => $modified,
-      "[Product.Reactions]" => $votes,
       "[Product.Title]" => $product["Title"],
       "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"])
+      "[Product.Votes]" => $votes
      ], $this->system->Page("96a6768e7f03ab4c68c7532be93dee40")]);
     }
    }

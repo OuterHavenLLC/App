@@ -5,20 +5,22 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN", "SU", "body", "new"]);
    $id = $data["SU"];
    $new = $data["new"] ?? 0;
    $now = $this->system->timestamp;
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Post Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Post Identifier is missing.",
+    "Header" => "Not Found"
+   ];
    $to = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) || $new == 1) {
+    $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($you."_SU_$now") : $id;
     $at2 = base64_encode("All done! Feel free to close this card.");
@@ -83,21 +85,31 @@
      "data-form" => ".EditStatusUpdate$id",
      "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
     ]]);
+    $r = $this->system->Card([
+     "Front" => $r,
+     "FrontButton" => $button
+    ]);
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Post Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Post Identifier is missing.",
+    "Header" => "Not Found"
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["SU"])) {
+    $accessCode = "Accepted";
     $att = "";
     $con = base64_encode("Conversation:Home");
     $update = $this->system->Data("Get", ["su", $data["SU"]]) ?? [];
@@ -129,10 +141,7 @@
      ]]);
     }
     $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-    $votes = $this->view($votes, ["Data" => [
-     "ID" => $update["ID"],
-     "Type" => 3
-    ]]);
+    $votes = base64_encode("v=$votes&ID=".$update["ID"]."&Type=1");
     $r = $this->system->Change([[
      "[StatusUpdate.Attachments]" => $att,
      "[StatusUpdate.Body]" => $this->system->PlainText([
@@ -154,12 +163,20 @@
      "[StatusUpdate.Modified]" => $modified,
      "[StatusUpdate.Options]" => $opt,
      "[StatusUpdate.ProfilePicture]" => $this->system->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-     "[StatusUpdate.Reactions]" => $votes,
-     "[StatusUpdate.Share]" => base64_encode("v=".base64_encode("StatusUpdate:Share")."&ID=".base64_encode($update["ID"])."&UN=".base64_encode($update["From"]))
+     "[StatusUpdate.Share]" => base64_encode("v=".base64_encode("StatusUpdate:Share")."&ID=".base64_encode($update["ID"])."&UN=".base64_encode($update["From"])),
+     "[StatusUpdate.Votes]" => $votes
     ], $this->system->Page("2e76fb1523c34ed0c8092cde66895eb1")]);
+    $r = $this->system->Card([
+     "Front" => $r
+    ]);
    }
-   return $this->system->Card([
-    "Front" => $r
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function Save(array $a) {
@@ -325,19 +342,21 @@
    ]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
    $un = $data["UN"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($un)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $un = base64_decode($un);
-    $t = ($un == $y["Login"]["Username"]) ? $y : $this->system->Member($un);
+    $t = ($un == $you) ? $y : $this->system->Member($un);
     $body = $this->system->PlainText([
      "Data" => $this->system->Element([
       "p", "Check out ".$t["Personal"]["DisplayName"]."'s status update!"
@@ -357,8 +376,18 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $t["Personal"]["DisplayName"]."'s status update"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = $this->system->Card([
+     "Front" => $r
+    ]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

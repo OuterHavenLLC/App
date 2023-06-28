@@ -10,11 +10,17 @@
    $documentRoot = $_SERVER["DOCUMENT_ROOT"]."/base/views/";
    $group = $a[0] ?? "NA";
    $view = $a[1] ?? "NoView";
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The group <em>$group</em> could not be loaded."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = $this->system->JSONResponse([
+    "AccessCode" => "Denied",
+    "Response" => [
+     "JSON" => "",
+     "Web" => [
+      "Body" => "The group <em>$group</em> could not be loaded.",
+      "Header" => "Not Found"
+     ]
+    ],
+    "ResponseType" => "View"
+   ]);
    if(file_exists($documentRoot."$group.php")) {
     require_once($documentRoot."$group.php");
     $this->render = New $group;

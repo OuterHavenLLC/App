@@ -233,15 +233,12 @@
         "[Comment.Options]" => $opt,
         "[Comment.OriginalPoster]" => $op,
         "[Comment.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Comment.Reactions]" => $this->view($vote, ["Data" => [
-         "ID" => $k,
-         "Type" => 3
-        ]]),
         "[Comment.Replies]" => $this->view($ch, ["Data" => [
          "CommentID" => base64_encode($k),
          "CRID" => base64_encode($crid),
          "Level" => base64_encode(2)
-        ]])
+        ]]),
+        "[Comment.Votes]" => base64_encode("v=$vote&ID=$k&Type=3")
        ], $tpl]);
        $i++;
       }
@@ -303,15 +300,12 @@
        "[Reply.Options]" => $opt,
        "[Reply.OriginalPoster]" => $op,
        "[Reply.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-       "[Reply.Reactions]" => $this->view($vote, ["Data" => [
-        "ID" => $k,
-        "Type" => 3
-       ]]),
        "[Reply.Replies]" => $this->view($ch, ["Data" => [
         "CommentID" => base64_encode($k),
         "CRID" => base64_encode($crid),
         "Level" => base64_encode(3)
-       ]])
+       ]]),
+       "[Reply.Votes]" => base64_encode("v=$vote&ID=$k&Type=3")
       ], $tpl]);
       $i++;
      }
@@ -374,10 +368,7 @@
         "[Reply.Options]" => $opt,
         "[Reply.OriginalPoster]" => $op,
         "[Reply.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Reply.Reactions]" => $this->view($vote, ["Data" => [
-         "ID" => $k,
-         "Type" => 3
-        ]])
+        "[Reply.Votes]" => base64_encode("v=$vote&ID=$k&Type=3")
        ], $tpl]);
        $i++;
       }

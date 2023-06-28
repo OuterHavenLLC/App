@@ -410,10 +410,7 @@
        ]
       ]) : "";
       $votes = ($id != md5($you)) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-      $votes = $this->view($votes, ["Data" => [
-       "ID" => $id,
-       "Type" => 4
-      ]]);
+      $votes = base64_encode("v=$votes&ID=$id&Type=4");
       $search = base64_encode("Search:Containers");
       $subscribe = (md5($you) != $id && $this->system->ID != $you) ? 1 : 0;
       $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
@@ -451,13 +448,13 @@
          "pubP" => $pub,
          "st" => "MiNY"
         ]]),
-       "[Shop.Reactions]" => $votes,
        "[Shop.Subscribe]" => $subscribe,
        "[Shop.Title]" => $shop["Title"],
        "[Shop.Welcome]" => $this->system->PlainText([
         "Data" => $shop["Welcome"],
         "HTMLDecode" => 1
-       ])
+       ]),
+       "[Shop.Votes]" => $votes
       ], $this->system->Page("f009776d658c21277f8cfa611b843c24")]);
      }
     }

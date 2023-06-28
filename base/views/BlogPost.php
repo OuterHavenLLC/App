@@ -303,10 +303,7 @@
      ]
     ]);
     $votes = ($post["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-    $votes = base64_encode($votes, ["Data" => [
-     "ID" => $id,
-     "Type" => 2
-    ]]) : "";
+    $votes = base64_encode("v=$votes&ID=$id&Type=2");
     $r = $this->system->Change([[
      "[Article.Actions]" => $profile,
      "[Article.Attachments]" => $attachments,

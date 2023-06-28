@@ -116,8 +116,8 @@
       $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
       $lo = ($Page["UN"] == $you && $notAnon == 1) ? $this->system->Element([
        "button", "Add Contributors", [
-        "class" => "dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Page:Invite")."&ID=$id")
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Page:Invite")."&ID=$id")
        ]
       ]) : "";
      } elseif($type == "Blog") {
@@ -126,8 +126,8 @@
       $h = "Blog Contributors";
       $lo = ($blog["UN"] == $you && $notAnon == 1) ? $this->system->Element([
        "button", "Add Contributors", [
-        "class" => "dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=$id")
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=$id")
        ]
       ]) : "";
      } elseif($type == "Forum") {
@@ -136,8 +136,8 @@
       $h = "Forum Members";
       $lo = ($forum["UN"] == $you && $notAnon == 1) ? $this->system->Element([
        "button", "Invite Members", [
-        "class" => "dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Forum:Invite")."&FID=".base64_encode($id))
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Forum:Invite")."&FID=".base64_encode($id))
        ]
       ]) : "";
      } elseif($type == "Shop") {
@@ -146,8 +146,8 @@
       $shop = $this->system->Data("Get", ["shop", $id]) ?? [];
       $lo = ($id == md5($you) && $notAnon == 1) ? $this->system->Element([
        "button", "Hire Members", [
-        "class" => "dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1")
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1")
        ]
       ]) : "";
      } else {
@@ -171,8 +171,8 @@
      $lis = "Search Stations";
      $lo = ($notAnon == 1) ? $this->system->Element([
       "button", "Add a Broadcaster", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=$fe&new=1")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$fe&new=1")
       ]
      ]) : "";
     } elseif($st == "Feedback") {
@@ -203,8 +203,8 @@
      $h = "The ".$st;
      $lis = "Search the Mainstream";
      $lo = $this->system->Element(["button", "Say Something", [
-      "class" => "BBB MobileFull dB2O v2 v2w",
-      "data-type" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($y["Login"]["Username"]))
+      "class" => "BBB MobileFull OpenCard v2 v2w",
+      "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($y["Login"]["Username"]))
      ]]);
      $tpl = "f2513ac8d0389416b680c75ed5667774";
     } elseif($st == "MBR") {
@@ -290,8 +290,8 @@
      $lis = "Search Posts";
      $lo = (($bl == 0 || $ck == 1) && $notAnon == 1) ? $this->system->Element([
       "button", "Say Something", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($t["Login"]["Username"]))
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($t["Login"]["Username"]))
       ]
      ]) : "";
      $tpl = "8568ac7727dae51ee4d96334fa891395";
@@ -365,8 +365,8 @@
      $ck = ($t["Login"]["Username"] == $you && $notAnon == 1) ? 1 : 0;
      $lo .= ($isArtist == 1 && $ck == 1) ? $this->system->Element([
       "button", "Discount Codes", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("Search:Containers")."&st=DC")
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&st=DC")
       ]
      ]) : "";
      $tpl = "e3de2c4c383d11d97d62a198f15ee885";
@@ -497,7 +497,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "Display" => 1,
          "HTMLDecode" => 1
         ])),
-        "[X.LI.Delete]" => base64_encode("v=$delete&ID=$id"),
+        "[X.LI.Delete]" => base64_encode(base64_encode("v=$delete&ID=$id")),
         "[X.LI.K]" => base64_encode($id),
         "[X.LI.C]" => base64_encode($Page["Category"]),
         "[X.LI.DT]" => base64_encode(base64_encode("v=$edit&ID=".base64_encode($id)))
@@ -564,14 +564,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $combinedID = base64_encode($blog["ID"]."-".$post["ID"]);
         $actions .= $this->system->Element([
          "button", "Delete", [
-          "class" => "InnerMargin dBO",
-          "data-type" => "v=".base64_encode("Authentication:DeleteBlogPost")."&ID=$combinedID"
+          "class" => "InnerMargin OpenDialog",
+          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteBlogPost")."&ID=$combinedID")
          ]
         ]);
         $actions .= ($_IsBlogger == 1) ? $this->system->Element([
          "button", "Edit", [
-          "class" => "InnerMargin dB2O",
-          "data-type" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$blog["ID"]."&Post=".$post["ID"])
+          "class" => "InnerMargin OpenCard",
+          "data-view" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$blog["ID"]."&Post=".$post["ID"])
          ]
         ]) : "";
        }
@@ -908,8 +908,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      ]);
      if($bl == 0 && $bl2 == 0 && $ck == 1) {
       $opt = $this->system->Element(["button", "View Profile", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("CARD=1&v=$home&back=1&b2=$b2&lPG=$lpg&pub=0&UN=".base64_encode($t["Login"]["Username"]))
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("CARD=1&v=$home&back=1&b2=$b2&lPG=$lpg&pub=0&UN=".base64_encode($t["Login"]["Username"]))
       ]]);
       array_push($msg, [
        "[X.LI.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
@@ -1023,13 +1023,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $mbr = base64_encode($t["Login"]["Username"]);
         $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
          "button", "Banish", [
-          "class" => "dBO v2",
-          "data-type" => "v=$ban&ID=$eid&Member=$mbr"
+          "class" => "OpenDialog v2",
+          "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
          ]
         ]).$this->system->Element([
          "button", "Change Role", [
-          "class" => "dBO v2",
-          "data-type" => "v=$cr&ID=$eid&Member=$mbr"
+          "class" => "OpenDialog v2",
+          "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
          ]
         ]) : "";
        }
@@ -1064,13 +1064,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $mbr = base64_encode($t["Login"]["Username"]);
         $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
          "button", "Banish", [
-          "class" => "dBO v2",
-          "data-type" => "v=$ban&ID=$eid&Member=$mbr"
+          "class" => "OpenDialog v2",
+          "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
          ]
         ]).$this->system->Element([
          "button", "Change Role", [
-          "class" => "dBO v2",
-          "data-type" => "v=$cr&ID=$eid&Member=$mbr"
+          "class" => "OpenDialog v2",
+          "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
          ]
         ]) : "";
        }
@@ -1105,13 +1105,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $mbr = base64_encode($t["Login"]["Username"]);
         $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
          "button", "Banish", [
-          "class" => "dBO v2",
-          "data-type" => "v=$ban&ID=$eid&Member=$mbr"
+          "class" => "OpenDialog v2",
+          "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
          ]
         ]).$this->system->Element([
          "button", "Change Role", [
-          "class" => "dBO v2",
-          "data-type" => "v=$cr&ID=$eid&Member=$mbr"
+          "class" => "OpenDialog v2",
+          "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
          ]
         ]) : "";
        }
@@ -1123,11 +1123,11 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $displayname = $t["Personal"]["DisplayName"];
        $memberID = base64_encode($member);
        $opt = ($ck == 1) ? $this->system->Element(["button", "Edit", [
-        "class" => "dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
        ]]).$this->system->Element(["button", "Fire", [
-        "class" => "dBO v2",
-        "data-type" => "v=".base64_encode("Shop:Banish")."&ID=$eid&UN=$memberID"
+        "class" => "OpenDialog v2",
+        "data-view" => base64_encode("v=".base64_encode("Shop:Banish")."&ID=$eid&UN=$memberID")
        ]]) : "";
       }
       array_push($msg, [
@@ -1342,21 +1342,21 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        if($ck == 1) {
         $actions .= $this->system->Element([
          "button", "Delete", [
-          "class" => "InnerMargin dBO",
-          "data-type" => "v=".base64_encode("Authentication:DeleteForumPost")."&FID=$id&ID=".$post["ID"]
+          "class" => "InnerMargin OpenDialog",
+          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteForumPost")."&FID=$id&ID=".$post["ID"])
          ]
         ]);
         $actions .= ($admin == 1 || $ck == 1) ? $this->system->Element([
          "button", "Edit", [
-          "class" => "InnerMargin dB2O",
-          "data-type" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$id&ID=".$post["ID"])
+          "class" => "InnerMargin OpenCard",
+          "data-view" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$id&ID=".$post["ID"])
          ]
         ]) : "";
        }
        $actions .= ($forum["Type"] == "Public") ? $this->system->Element([
         "button", "Share", [
-         "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id."-".$post["ID"]))
+         "class" => "InnerMargin OpenCard",
+         "data-view" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id."-".$post["ID"]))
         ]
        ]) : "";
        $att = (!empty($post["Attachments"])) ? $this->view($attlv, ["Data" => [
@@ -1423,13 +1423,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $ico = (!empty($v["ICO"])) ? "$base/efs/".$v["ICO"] : $ico;
       $opt = ($ck == 1) ? $this->system->Element([
        "div", $this->system->Element(["button", "Delete", [
-        "class" => "A BB dBO v2 v2w",
-        "data-type" => "v=$fd&ID=$k"
+        "class" => "A BB OpenDialog v2 v2w",
+        "data-view" => base64_encode("v=$fd&ID=$k")
        ]]), ["class" => "Desktop50"]
       ]).$this->system->Element([
        "div", $this->system->Element(["button", "Edit", [
-        "class" => "BB dB2O v2 v2w",
-        "data-type" => base64_encode("v=$fe&ID=".base64_encode($k))
+        "class" => "BB OpenCard v2 v2w",
+        "data-view" => base64_encode("v=$fe&ID=".base64_encode($k))
        ]]), ["class" => "esktop0"]
       ]) : "";
       array_push($msg, [
@@ -1489,13 +1489,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $display = ($op["Login"]["Username"] == $this->system->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $edit = ($op["Login"]["Username"] == $you) ? $this->system->Element([
         "button", "Delete", [
-         "class" => "InnerMargin dBO",
-         "data-type" => "v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($v)
+         "class" => "InnerMargin OpenDialog",
+         "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($v))
         ]
        ]).$this->system->Element([
         "button", "Edit", [
-         "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$v")
+         "class" => "InnerMargin OpenCard",
+         "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$v")
         ]
        ]) : "";
        $modified = $su["Modified"] ?? "";
@@ -1571,8 +1571,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "Display" => 1
        ]) : $de;
        $opt = $this->system->Element(["button", "View Profile", [
-        "class" => "dB2O v2",
-        "data-type" => base64_encode("CARD=1&v=$home&UN=".base64_encode($t["Login"]["Username"]))
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("CARD=1&v=$home&UN=".base64_encode($t["Login"]["Username"]))
        ]]);
        array_push($msg, [
         "[X.LI.DisplayName]" => base64_encode($display),
@@ -1786,13 +1786,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $display = ($op["Login"]["Username"] == $this->system->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $edit = ($op["Login"]["Username"] == $you) ? $this->system->Element([
         "button", "Delete", [
-         "class" => "InnerMargin dBO",
-         "data-type" => "v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($id)
+         "class" => "InnerMargin OpenDialog",
+         "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($id))
         ]
        ]).$this->system->Element([
         "button", "Edit", [
-         "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$id")
+         "class" => "InnerMargin OpenCard",
+         "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$id")
         ]
        ]) : "";
        $modified = $su["Modified"] ?? "";
@@ -1810,6 +1810,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "Type" => 3
         ]
        ]));
+       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+       $votes = base64_encode("v=$votes&ID=$id&Type=1");
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($att),
         "[StatusUpdate.Body]" => base64_encode($this->system->PlainText([
@@ -1825,7 +1827,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.Modified]" => base64_encode($modified),
         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-        "[StatusUpdate.Reactions]" => $votes
+        "[StatusUpdate.Votes]" => $votes
        ]);
       }
      }
@@ -2114,13 +2116,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $display = ($op["Login"]["Username"] == $this->system->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $edit = ($op["Login"]["Username"] == $you) ? $this->system->Element([
          "button", "Delete", [
-          "class" => "InnerMargin dBO",
-          "data-type" => "v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($v)
+          "class" => "InnerMargin OpenDialog",
+          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($v))
          ]
         ]).$this->system->Element([
          "button", "Edit", [
-          "class" => "InnerMargin dB2O",
-          "data-type" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$v")
+          "class" => "InnerMargin OpenCard",
+          "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$v"))
          ]
         ]) : "";
         $modified = $su["Modified"] ?? "";
@@ -2132,12 +2134,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $modified = $this->system->Element(["em", $modified]);
         }
         $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-        $votes = base64_encode($this->view($votes, [
-         "Data" => [
-          "ID" => $v,
-          "Type" => 3
-         ]
-        ]));
+        $votes = base64_encode("v=$votes&ID=$v&Type=1");
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($att),
          "[StatusUpdate.Body]" => base64_encode($this->system->PlainText([
@@ -2153,7 +2150,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "[StatusUpdate.Modified]" => base64_encode($modified),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.Reactions]" => $votes
+         "[StatusUpdate.Votes]" => $votes
         ]);
        }
       }
