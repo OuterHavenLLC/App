@@ -57,21 +57,6 @@
     "," => ""
    ], htmlentities($a)]);
   }
-  function Card(array $a) {
-   $ack = [
-    "Back",
-    "Front",
-    "FrontButton"
-   ];
-   for($i = 0; $i < count($ack); $i++) {
-    $a[$ack[$i]] = $a[$ack[$i]] ?? "";
-   } if(!empty($a["Front"])) {
-    return $this->Change([[
-     "[Card.Front]" => $a["Front"],
-     "[Card.Front.Button]" => $a["FrontButton"]
-    ], $this->Page("50adcf59f82d808c78d94f5aa640b69d")]);
-   }
-  }
   function Change(array $a) {
    $r = $a[1] ?? "";
    $ls = $a[0] ?? "";
@@ -445,20 +430,6 @@
   function Decrypt($data) {
    return $this->cypher->Decrypt($data);
   }
-  function Dialog(array $a) {
-   $b = $a["Body"] ?? $this->Element(["p", "Unknown Error"]);
-   $h = $a["Header"] ?? "Error";
-   $o = $a["Option"] ?? "&nbsp;";
-   $o2 = $a["Option2"] ?? $this->Element(["button", "Okay", [
-    "class" => "dBC v2 v2w"
-   ]]);
-   return $this->Change([[
-    "[Dialog.Body]" => $b,
-    "[Dialog.Header]" => $h,
-    "[Dialog.Options.A]" => $o,
-    "[Dialog.Options.B]" => $o2
-   ], $this->Page("082ee385e1ac8bfd783a038340a85bff")]);
-  }
   function Encrypt($data) {
    return $this->cypher->Encrypt($data);
   }
@@ -587,14 +558,6 @@
      $r = $source;
     }
    }
-   return $r;
-  }
-  function GetViewFromJSON(string $data) {
-   $r = json_decode($data, true);
-   $r = $r["Response"] ?? [];
-   $r = $r["Web"] ?? $this->Element([
-    "p", "No View Data<br/>Source Data: $data"
-   ]);
    return $r;
   }
   function JSONResponse(array $a) {
@@ -967,6 +930,14 @@
      $r .= $renderInput;
     }
    }
+   return $r;
+  }
+  function RenderView(string $data) {
+   $r = json_decode($data, true);
+   $r = $r["Response"] ?? [];
+   $r = $r["Web"] ?? $this->Element([
+    "p", "No View Data<br/>Source Data: $data"
+   ]);
    return $r;
   }
   function RenderVisibilityFilter(array $a) {

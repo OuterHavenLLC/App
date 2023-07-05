@@ -36,10 +36,10 @@
       "[Feedback.Title]" => $title
      ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
     }
-    $r = $this->system->Card([
-     "Front" => $r,
-     "FrontButton" => $button
-    ]);
+    $r = [
+     "Action" => $button,
+     "Front" => $r
+    ];
    } elseif($pub == 1) {
     $r = $this->system->Change([[
      "[Error.Back]" =. "",
@@ -81,7 +81,7 @@
   function NewThread(array $a) {
    $id = md5("Feedback");
    $y = $this->you;
-   return $this->system->Card([
+   return [
     "Front" => $this->system->Change([[
      "[Contact.Body]" => $this->system->WYSIWYG([
       "Body" => NULL,
@@ -106,7 +106,7 @@
      "data-form" => ".ContactForm$id",
      "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
     ]])
-   ]);
+   ];
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -122,12 +122,9 @@
     "Subject",
     "Priority"
    ]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "An internal error has ocurred."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "An internal error has ocurred."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["MSG"])) {
@@ -176,12 +173,10 @@
      $feedback
     ]);
     $this->system->Statistic("FS");
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "We will be in touch as soon as possible!"
-     ]),
+    $r = [
+     "Body" => "We will be in touch as soon as possible!",
      "Header" => "Thank you"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -206,12 +201,9 @@
     "UseParaphrasedQuestion"
    ]);
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Feedback Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Feedback Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["Message"]) && !empty($id)) {
@@ -251,10 +243,10 @@
      ]);
     }
     $this->system->Data("Save", ["knowledge", $id, $feedback]);
-    $r = $this->system->Dialog([
+    $r = [
      "Body" => "Your response has been sent.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,

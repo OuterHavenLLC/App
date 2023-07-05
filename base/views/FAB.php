@@ -56,7 +56,10 @@
     "data-u" => base64_encode("v=".base64_encode("FAB:Save")),
     "id" => "fSub"
    ]]);
-   return $this->system->Card(["Front" => $fr, "FrontButton" =>$frbtn]);
+   return [
+    "Action" => $frbtn,
+    "Front" => $fr
+   ];
   }
   function Save(array $a) {
    $d = $a["Data"] ?? [];
@@ -69,19 +72,14 @@
    $y = $this->you;
    $id = $d["ID"];
    $pu = ($new == 1) ? "posted" : "updated";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Station Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Station Identifier is missing."
+   ];
    if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $ec = "Accepted";
     $fab = $this->system->Data("Get", [
@@ -121,13 +119,15 @@
      "UN" => $y["Login"]["Username"],
      "URL" => $d["URL"]
     ];
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Station <em>$ttl</em> was $pu!"
-     ]),
+    $r = [
+     "Body" => "The Station <em>$ttl</em> was $pu!",
      "Header" => "Done"
+    ];
+    $this->system->Data("Save", [
+     "x",
+     md5("FreeAmericaBroadcasting"),
+     $fab
     ]);
-    $this->system->Data("Save", ["x", md5("FreeAmericaBroadcasting"), $fab]);
    }
    return $this->system->JSONResponse([$ec, $r]);
   }
@@ -136,32 +136,20 @@
    $d = $this->system->DecodeBridgeData($d);
    $d = $this->system->FixMissing($d, ["ID", "all", "new"]);
    $ec = "Denied";
-   $all = $d["all"] ?? 0;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Station Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Station Identifier is missing."
+   ];
    if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
-   } elseif($all == 1) {
-    $ec = "Accepted";
-    $fab = $this->system->core["SYS"]["FAB"];
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "<em>Free America Broadcasting</em> was reset."
-     ]),
-     "Header" => "Done"
-    ]);
+    ];
    } elseif(!empty($d["ID"])) {
     $ec = "Accepted";
-    $fab = $this->system->Data("Get", ["x", md5("FreeAmericaBroadcasting")]);
+    $fab = $this->system->Data("Get", [
+     "x",
+     md5("FreeAmericaBroadcasting")
+    ]);
     $fab2 = [];
     $id = base64_decode($d["ID"]);
     $ttl = "The Broadcaster";
@@ -175,10 +163,10 @@
      }
     }
     $fab = $fab2;
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "<em>$ttl</em> was deleted."]),
+    $r = [
+     "Body" => "<em>$ttl</em> was deleted.",
      "Header" => "Done"
-    ]);
+    ];
     $this->system->Data("Save", [
      "x",
      md5("FreeAmericaBroadcasting"),

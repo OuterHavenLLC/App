@@ -5,23 +5,24 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["AID", "new"]);
    $id = $data["AID"];
    $new = $data["new"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Album Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Album Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
    } elseif(!empty($id) || $new == 1) {
+    $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
@@ -109,9 +110,17 @@
      "data-processor" => base64_encode("v=".base64_encode("Album:Save"))
     ]]);
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
+   $r = [
+    "Action" => $button,
+    "Front" => $r
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function Home(array $a) {
@@ -206,9 +215,9 @@
      ]])
     ], $this->system->Page("91c56e0ee2a632b493451aa044c32515")]);
    }
-   return $this->system->Card([
+   return [
     "Front" => $r
-   ]);
+   ];
   }
   function List(array $a) {
    $data = $a["Data"] ?? [];
@@ -257,21 +266,17 @@
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $now = $this->system->timestamp;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Album Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Album Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
     $accessCode = "Accepted";
@@ -295,12 +300,10 @@
     ];
     $_FileSystem["Albums"] = $albums;
     $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Album was $actionTaken."
-     ]),
+    $r = [
+     "Body" => "The Album was $actionTaken.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -317,33 +320,24 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Album Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Album Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The default Album cannot be deleted."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The default Album cannot be deleted."
+    ];
     if($id != md5("unsorted")) {
      $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
      $accessCode = "Accepted";
@@ -370,12 +364,10 @@
      $this->system->Data("Purge", ["local", $id]);
      $this->system->Data("Purge", ["react", $id]);
      $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Album <em>$title</em> was successfully deleted."
-      ]),
+     $r = [
+      "Body" => "The Album <em>$title</em> was successfully deleted.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
    return $this->system->JSONResponse([
@@ -425,7 +417,9 @@
      "[Share.Title]" => $fileSystem["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS

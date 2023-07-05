@@ -152,14 +152,13 @@
    return $r;
   }
   function RenewAll(array $a) {
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "You do not have permission to access this view."
-    ]),
-    "Header" => "Error"
-   ]);
+   $accessCode = "Denied";
+   $r = [
+    "Body" => "You do not have permission to access this view."
+   ];
    $y = $this->you;
    if($y["Rank"] == md5("High Command")) {
+    $accessCode = "Accepted";
     foreach($y["Subscriptions"] as $key => $value) {
      $y["Subscriptions"][$key] = [
       "A" => 1,
@@ -168,14 +167,19 @@
      ];
     }
     $this->system->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "Your subscriptions have been renewed!"
-     ]),
+    $r = [
+     "Body" => "Your subscriptions have been renewed!",
      "Header" => "Done"
-    ]);
+    ];
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

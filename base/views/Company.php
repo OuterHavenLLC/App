@@ -72,6 +72,7 @@
    return $r;
   }
   function MassMail(array $a) {
+   $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["AID", "new"]);
@@ -94,6 +95,7 @@
      "[Error.Message]" => "This is an administrative function."
     ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    } elseif(!empty($id) || $new == 1) {
+    $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($you.uniqid("MassMail-")) : $id;
     $button = $this->system->Element(["button", $action, [
@@ -184,19 +186,18 @@
      "[Email.Title]" => $title
     ], $this->system->Page("81ccdda23bf18e557bc0ba3071c1c2d4")]);
    }
-   $r = $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = [
+    "Action" => $button,
+    "Front" => $r
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Partners(array $a) {
    $partners = $this->system->Member($this->system->ShopID);
@@ -244,35 +245,25 @@
    $new = $data["new"] ?? 0;
    $preSets = $this->system->Data("Get", ["x", md5("MassMail")]) ?? [];
    $nextSend = $preSets["NextSend"] ?? strtotime($now);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Pre-Set Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Pre-Set Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
    } elseif($y["Rank"] != md5("High Command")) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "This is an administrative function."
-     ]),
+    $r = [
+     "Body" => "This is an administrative function.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(strtotime($now) < $nextSend) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You may not send an email yet, please try again later."
-     ]),
+    $r = [
+     "Body" => "You may not send an email yet, please try again later.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } else {
     $accessCode = "Accepted";
     $contactList = $this->system->Data("Get", [
@@ -297,12 +288,10 @@
      ];
     }
     $this->system->Data("Save", ["x", md5("MassMail"), $preSets]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "Your email has been sent to every Member who elected to receive occasional emails."
-     ]),
+    $r = [
+     "Body" => "Your email has been sent to every Member who elected to receive occasional emails.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -374,7 +363,9 @@
    $r = $this->system->Change([[
     "[VVA.Back]" => $bck
    ], $this->system->Page("a7977ac51e7f8420f437c70d801fc72b")]);
-   $r = ($data["CARD"] == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = ($data["CARD"] == 1) ? [
+    "Front" => $r
+   ] : $r;
    $r = ($data["pub"] == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
    ]) : $r;

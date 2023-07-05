@@ -128,12 +128,14 @@
    return $r;
   }
   function ViewCount(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = $this->NoID;
    $type = $data["Type"] ?? 1;
    $you = $this->you["Login"]["Username"];
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $_VoteDown = 0;
     $_VoteUp = 0;
     $_Votes = $this->system->Data("Get", ["votes", $id]) ?? [];
@@ -146,7 +148,7 @@
      }
     }
     $class = "Bar Vote VoteFor$id";
-    $class .= ($type == 1) ? "" : "";
+    $class .= "";
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? " Medium" : $class;
@@ -164,7 +166,14 @@
      ]]), ["class" => $class]
     ]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

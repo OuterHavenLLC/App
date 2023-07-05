@@ -153,26 +153,22 @@
    ]);
   }
   function SaveShare(array $a) {
+   $accessCode = "Denied";
    $d = $a["Data"] ?? [];
    $d = $this->system->DecodeBridgeData($d);
    $d = $this->system->FixMissing($d, ["ID", "UN"]);
    $ec = "Denied";
    $id = $d["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Member or Message Identifiers are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Member or Message Identifiers are missing."
+   ];
    $un = $d["UN"];
    $y = $this->you;
    if($y["UN"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id) && !empty($un)) {
     $i = 0;
     $x = $this->system->DatabaseSet("MBR");
@@ -185,10 +181,10 @@
       }
      }
     } if($i == 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "The Member $un does not exist."]),
+     $r = [
+      "Body" => "The Member $un does not exist.",
       "Header" => "Forbidden"
-     ]);
+     ];
     } else {
      $ec = "Accepted";
      $this->view(base64_encode("Chat:Save"), ["Data" => [
@@ -196,10 +192,10 @@
       "Share" => $this->system->PlainText(["Data" => 1, "Processor" => 1]),
       "To" => $this->system->PlainText(["Data" => $un, "Processor" => 1])
      ]]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "The message was sent to $un."]),
+     $r = [
+      "Body" => "The message was sent to $un.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
    return $this->system->JSONResponse([$ec, $r]);
@@ -210,21 +206,16 @@
    $d = $this->system->FixMissing($d, ["ID", "UN"]);
    $ec = "Denied";
    $id = $d["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum or Message Identifiers are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum or Message Identifiers are missing."
+   ];
    $un = $d["UN"];
    $y = $this->you;
    if($y["UN"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id) && !empty($un)) {
     $active = 0;
     $i = 0;
@@ -249,10 +240,10 @@
       }
      }
     } if($active == 0 && $i == 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "The Forum does not exist."]),
+     $r = [
+      "Body" => "The Forum does not exist.",
       "Header" => "Forbidden"
-     ]);
+     ];
     } else {
      $ec = "Accepted";
      $this->view(base64_encode("Chat:Save"), ["Data" => [
@@ -261,10 +252,10 @@
       "Share" => $this->system->PlainText(["Data" => 1, "Processor" => 1]),
       "To" => $this->system->PlainText(["Data" => $un, "Processor" => 1])
      ]]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "The message was sent to $ttl."]),
+     $r = [
+      "Body" => "The message was sent to $ttl.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
    return $this->system->JSONResponse([$ec, $r]);
@@ -296,7 +287,10 @@
      "id" => "fSub"
     ]]);
    }
-   return $this->system->Card(["Front" => $r, "FrontButton" => $btn]);
+   return [
+    "Action" => $btn,
+    "Front" => $r
+   ];
   }
   function ShareGroup(array $a) {
    $btn = "";
@@ -325,7 +319,10 @@
      "id" => "fSub"
     ]]);
    }
-   return $this->system->Card(["Front" => $r, "FrontButton" => $btn]);
+   return [
+    "Action" => $btn,
+    '"Front" => $r
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS

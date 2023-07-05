@@ -426,13 +426,18 @@
      "[XS.UI]" => $li
     ], $this->system->Page($tpl)]);
    } if(in_array($st, ["DC", "FAB", "MBR-MiNY"])) {
-    $r = $this->system->Card(["Front" => $r]);
-   } else {
-    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
+    $r = [
+     "Front" => $r
+    ];
+   } elseif($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
-    ]) : $r;
+    ]);
+    $r = $this->system->RenderView($r);
    }
-   $r = ($card == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = ($card == 1) ? [
+    "Front" => $r
+   ] : $r;
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

@@ -5,16 +5,25 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Home() {
-   $r = $this->system->Change([[
-    "[LostAndFound.Options.Password]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPassword")),
-    "[LostAndFound.Options.PIN]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPIN")),
-    "[LostAndFound.Options.Username]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername"))
-   ], $this->system->Page("65c5bed973a21411e6167bbdc721bbe4")]);
-   return $this->system->Card([
-    "Front" => $r
+   $accessCode = "Accepted";
+   $r = [
+    "Front" => $this->system->Change([[
+     "[LostAndFound.Options.Password]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPassword")),
+     "[LostAndFound.Options.PIN]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPIN")),
+     "[LostAndFound.Options.Username]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername"))
+    ], $this->system->Page("65c5bed973a21411e6167bbdc721bbe4")])
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function RecoverPassword(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "2FAReturn",
@@ -51,9 +60,17 @@
      "[LostAndFound.Recovery.Type]" => "Password"
     ], $this->system->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function RecoverPIN(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "2FAReturn",
@@ -90,9 +107,17 @@
      "[LostAndFound.Recovery.Type]" => "PIN"
     ], $this->system->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function RecoverUsername(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "2FAReturn",
@@ -125,7 +150,14 @@
      "[LostAndFound.Recovery.Type]" => "Username"
     ], $this->system->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

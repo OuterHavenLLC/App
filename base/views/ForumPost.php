@@ -89,10 +89,10 @@
      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
     ]]);
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
+   return [
+    "Action" => $button,
+    "Front" => $r
+   ];
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
@@ -214,7 +214,9 @@
      ], $this->system->Page("d2be822502dd9de5e8b373ca25998c37")]);
     }
    }
-   return $this->system->Card(["Front" => $fr]);
+   return [
+    "Front" => $fr
+   ];
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -224,21 +226,16 @@
    $fid = $data["FID"];
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Post Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Post Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif((!empty($fid) && !empty($id)) || $new == 1) {
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
@@ -275,12 +272,10 @@
     $illegal = $post["Illegal"] ?? 0;
     $modifiedBy = $post["ModifiedBy"] ?? [];
     $modifiedBy[$now] = $you;
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "Your post has been $actionTaken."
-     ]),
+    $r = [
+     "Body" => "Your post has been $actionTaken.",
      "Header" => "Done"
-    ]);
+    ];
     $this->system->Data("Save", ["post", $id, [
      "Attachments" => $att,
      "Body" => $this->system->PlainText([
@@ -315,23 +310,19 @@
    $data = $this->system->FixMissing($data, ["FID", "ID", "PIN"]);
    $fid = $data["FID"];
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Post Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Post Identifier is missing."
+   ];
    $y = $this->you;
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => ["p", "The PINs do not match."
+    ];
    } elseif($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = explode("-", base64_decode($id));
@@ -353,10 +344,10 @@
     $this->system->Data("Purge", ["post", $id]);
     $this->system->Data("Purge", ["react", $id]);
     $this->system->Data("Save", ["pf", $fid, $forum]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The post was deleted."]),
+    $r = [
+     "Body" => "The post was deleted.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -401,7 +392,9 @@
      "[Share.Title]" => "Forum Post"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS

@@ -5,6 +5,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "ID",
@@ -34,19 +35,18 @@
     "data-form" => ".Discount$id",
     "data-processor" => base64_encode("v=".base64_encode("DiscountCode:Save"))
    ]]);
-   $r = $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = [
+    "Action" => $button,
+    "Front" => $r
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -61,26 +61,21 @@
     "new"
    ]);
    $new = $data["new"] ?? 0;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Code Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Code Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Code is missing."]),
+    $r = [
+     "Body" => "The Code is missing.",
      "Header" => "Error"
-    ]);
+    ];
     if(!empty($data["DC"])) {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
@@ -91,12 +86,10 @@
       "Percentile" => $data["Percentile"],
       "Quantity" => $data["DiscountCodeQTY"]
      ];
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Code <em>".$data["DC"]."</em> was $actionTaken!"
-      ]),
+     $r = [
+      "Body" => "The Code <em>".$data["DC"]."</em> was $actionTaken!",
       "Header" => "Done"
-     ]);
+     ];
      $this->system->Data("Save", ["dc", md5($you), $discount]);
     }
    }
@@ -115,21 +108,17 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["ID"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Code Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Code Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
     $discount = $this->system->Data("Get", ["dc", md5($you)]) ?? [];
@@ -140,22 +129,20 @@
      }
     }
     $discount = $newDiscount;
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Code was removed."]),
+    $r = [
+     "Body" => "The Code was removed.",
      "Header" => "Done"
-    ]);
+    ];
     $this->system->Data("Save", ["dc", md5($you), $discount2]);
    }
-   $r = $this->system->JSONResponse([$accessCode, $r]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

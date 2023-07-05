@@ -109,21 +109,16 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["ID"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Languages Package Identirifer is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Languages Package Identirifer is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
     $lt = $this->system->Data("Get", ["local", $data["ID"]]);
@@ -141,12 +136,10 @@
       }
      }
     }
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Localization was saved."
-     ]),
+    $r = [
+     "Body" => "The Localization was saved.",
      "Header" => "Done"
-    ]);
+    ];
     #$this->system->Data("Save", ["local", $data["ID"], $lt]);
    }
    return $this->system->JSONResponse([

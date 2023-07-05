@@ -152,10 +152,10 @@
      "data-processor" => base64_encode("v=".base64_encode("Conversation:Save"))
     ]]);
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
+   return [
+    "Action" => $button,
+    "Front" => $r
+   ];
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
@@ -399,12 +399,9 @@
    $level = $data["Level"] ?? 1;
    $new = $data["new"] ?? 0;
    $commentType = ($level == 1) ? "comment" : "reply";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Conversation or $commentType Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Conversation or $commentType Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($crid) && !empty($id)) {
@@ -448,12 +445,10 @@
      "NSFW" => $nsfw,
      "Privacy" => $privacy
     ];
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "Your $commentType was $actionTaken."
-     ]),
+    $r = [
+     "Body" => "Your $commentType was $actionTaken.",
      "Header" => "Done"
-    ]);
+    ];
     $this->system->Data("Save", ["conversation", $crid, $con]);
    }
    return $this->system->JSONResponse([
@@ -478,31 +473,24 @@
    $id = $data["ID"];
    $l = $data["Level"];
    $cr = ($l == 1) ? "comment" : "reply";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Conversation or $cr Identifier are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Conversation or $cr Identifier are missing."
+   ];
    $y = $this->you;
    if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($crid) && !empty($id)) {
     $conversation = $this->system->Data("Get", ["conversation", $crid]) ?? [];
     $comment = $conversation[$id] ?? [];
     $comment["Privacy"] = md5("Private");
     $conversation[$id] = $comment;
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The $cr is hidden, only you can see it."
-     ]),
+    $r = [
+     "Body" => "The $cr is hidden, only you can see it.",
      "Header" => "Done"
-    ]);
+    ];
     $this->system->Data("Save", ["conversation", $crid, $conversation]);
    }
    return $r;

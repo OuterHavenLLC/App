@@ -224,10 +224,10 @@
      "data-processor" => base64_encode("v=".base64_encode("BlogPost:Save"))
     ]]);*/
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
+   return [
+    "Action" => $button,
+    "Front" => $r
+   ];
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
@@ -351,21 +351,16 @@
    $new = $data["new"] ?? 0;
    $id = $data["ID"];
    $title = $data["Title"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Blog Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id) && !empty($title)) {
     $i = 0;
     $coverPhoto = "";
@@ -382,12 +377,9 @@
       }
      }
     } if($i > 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Post <em>$title</em> is taken."
-      ]),
-      "Header" => "Error"
-     ]);
+     $r = [
+      "Body" => "The Post <em>$title</em> is taken."
+     ];
     } else {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted to <em>".$blog["Title"]."</em>" : "updated";
@@ -463,12 +455,10 @@
      $this->system->Data("Save", ["blg", $data["BLG"], $blog]);
      $this->system->Data("Save", ["bp", $id, $post]);
      $this->system->Data("Save", ["mbr", md5($you), $y]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Post <em>$title</em> was $actionTaken!"
-      ]),
+     $r = [
+      "Body" => "The Post <em>$title</em> was $actionTaken!",
       "Header" => "Done"
-     ]);
+     ];
      if($new == 1) {
       $this->system->Statistic("BGP");
       foreach($subscribers as $key => $value) {
@@ -502,26 +492,20 @@
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["ID", "PIN"]);
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Blog or Post Identifier are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Blog or Post Identifier are missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = explode("-", $id);
@@ -545,10 +529,10 @@
     $this->system->Data("Purge", ["local", $post]);
     $this->system->Data("Purge", ["react", $post]);
     $this->system->Data("Save", ["blg", $blog["ID"], $blog]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Blog Post was deleted."]),
+    $r = [
+     "Body" => "The Blog Post was deleted.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -596,7 +580,9 @@
      "[Share.Title]" => $post["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS

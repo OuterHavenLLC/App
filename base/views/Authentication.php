@@ -233,35 +233,41 @@
     $accessCode = "Accepted";
     $album = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
     $album = $album["Albums"][$aid] ?? [];
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $dialogID = "Delete$aid";
+    $r = [
+     "Body" => "You are about to permanently delete ".$album["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $album["ID"]
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $album["ID"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("Album:SaveDelete")),
-     "[Delete.Title]" => $album["Title"]
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Album:SaveDelete")),
+      "[Delete.Title]" => $album["Title"]
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -290,36 +296,42 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
+    $dialogID = "Delete$id";
     $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $r = [
+     "Body" => "You are about to permanently delete ".$blog["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $blog["ID"]
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $blog["ID"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("Blog:SaveDelete")),
-     "[Delete.Title]" => $blog["Title"]
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Blog:SaveDelete")),
+      "[Delete.Title]" => $blog["Title"]
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -348,35 +360,41 @@
     $accessCode = "Accepted";
     $post = explode("-", base64_decode($id));
     $post = $this->system->Data("Get", ["bp", $post[1]]) ?? [];
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $dialogID = "Delete".$post[1];
+    $r = [
+     "Body" => "You are about to permanently delete ".$post["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => base64_decode($id)
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => base64_decode($id)
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:SaveDelete")),
-     "[Delete.Title]" => $post["Title"]
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:SaveDelete")),
+      "[Delete.Title]" => $post["Title"]
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -403,35 +421,41 @@
     ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $dialogID = "Delete".$data["ID"];
+    $r = [
+     "Body" => "You are about to permanently delete this Discount Code."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $data["ID"]
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $data["ID"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("DiscountCode:SaveDelete")),
-     "[Delete.Title]" => "this Discount Code"
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("DiscountCode:SaveDelete")),
+      "[Delete.Title]" => "this Discount Code"
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -464,35 +488,41 @@
      md5("FreeAmericaBroadcasting")
     ]) ?? [];
     $fab = $fab[$id]["Title"] ?? "Broadcaster";
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $dialogID = "Delete$id";
+    $r = [
+     "Body" => "You are about to permanently delete $fab."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $data["ID"]
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $data["ID"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("FAB:SaveDelete")),
-     "[Delete.Title]" => $fab
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("FAB:SaveDelete")),
+      "[Delete.Title]" => $fab
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -520,6 +550,7 @@
     ];
    } elseif(!empty($id) && !empty($username)) {
     $accessCode = "Accepted";
+    $dialogID = "Delete$id";
     $username = base64_decode($username);
     $files = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
     $files = $files["Files"] ?? [];
@@ -528,35 +559,40 @@
      "fs"
     ]) : $files;
     $file = $files[$id] ?? [];
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $r = [
+     "Body" => "You are about to permanently delete ".$file["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => "$username-$id"
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => "$username-$id"
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("File:SaveDelete")."&ParentView=".$data["ParentView"]),
-     "[Delete.Title]" => $file["Title"]
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("File:SaveDelete")."&ParentView=".$data["ParentView"]),
+      "[Delete.Title]" => $file["Title"]
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -582,46 +618,50 @@
      "Header" => "Forbidden"
     ];
    } elseif($id == "cb3e432f76b38eaa66c7269d658bd7ea") {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You cannot delete this forum."
-     ]),
+    $r = [
+     "Body" => "You cannot delete this forum.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
+    $dialogID = "Delete$id";
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
-    $title = $forum["Title"] ?? "all forums";
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $title = $forum["Title"] ?? "this Forum";
+    $r = [
+     "Body" => "You are about to permanently delete ".$forum["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $id
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("Forum:SaveDelete")),
-     "[Delete.Title]" => $title
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Forum:SaveDelete")),
+      "[Delete.Title]" => $title
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -651,35 +691,41 @@
     ];
    } elseif((!empty($fid) && !empty($id))) {
     $accessCode = "Accepted";
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $dialogID = "Delete$id";
+    $r = [
+     "Body" => "You are about to permanently delete ".$post["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => base64_encode("$fid-$id")
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => base64_encode("$fid-$id")
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("ForumPost:SaveDelete")),
-     "[Delete.Title]" => $post["Title"]
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("ForumPost:SaveDelete")),
+      "[Delete.Title]" => $post["Title"]
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -706,36 +752,42 @@
     ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
+    $dialogID = "Delete".$data["ID"];
     $page = $this->system->Data("Get", ["pg", $data["ID"]]) ?? [];
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $r = [
+     "Body" => "You are about to permanently delete ".$page["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $page["ID"]
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $page["ID"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Title]" => $page["Title"],
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete"))
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Title]" => $page["Title"],
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete"))
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -764,36 +816,42 @@
     ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
+    $dialogID = "Delete".$data["ID"];
     $product = $this->system->Data("Get", ["miny", $data["ID"]]) ?? [];
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $r = [
+     "Body" => "You are about to permanently delete ".$product["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $product["ID"]
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $product["ID"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:SaveDelete")),
-     "[Delete.Title]" => $product["Title"]
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:SaveDelete")),
+      "[Delete.Title]" => $product["Title"]
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -821,35 +879,41 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $r = $this->system->Change([[
-     "[Delete.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
+    $dialogID = "Delete$id";
+    $r = [
+     "Body" => "You are about to permanently delete ".$post["Title"]."."
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->system->Change([[
+      "[Delete.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $id
        ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:SaveDelete")),
-     "[Delete.Title]" => "this post"
-    ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")]);
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:SaveDelete")),
+      "[Delete.Title]" => "this post"
+     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,

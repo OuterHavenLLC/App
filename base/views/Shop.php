@@ -6,73 +6,63 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Banish(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Username is missing."
+   ];
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You must sign in to continue."]),
+    $r = [
+     "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($username)) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You cannot fire yourself."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You cannot fire yourself."
+    ];
     $username = base64_decode($username);
     if($username != $you) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "You are about to fire $username. Are you sure?"
-      ]),
-       "Header" => "Fire $username?",
-       "Option" => $this->system->Element([
-       "button", "Cancel", ["class" => "dBC v2 v2w"]
-      ]),
-      "Option2" => $this->system->Element([
-       "button", "Fire $username", [
-        "class" => "BBB dBC dBO v2 v2w",
-        "data-type" => "v=".base64_encode("Shop:SaveBanish")."&UN=".$data["UN"]
+     $r = [
+      "Body" => "You are about to fire $username. Are you sure?",
+      "Header" => "Fire $username?",
+      "Options" => [
+       $this->system->Element(["button", "Cancel", [
+        "class" => "CloseDialog v2 v2w"
+       ]]),
+       $this->system->Element(["button", "Fire $username", [
+        "class" => "BBB CloseDialog OpenDialog v2 v2w",
+        "data-view" => base64_encode("v=".base64_encode("Shop:SaveBanish")."&UN=".$data["UN"])
        ]
       ])
-     ]);
+     ];
     }
    }
    return $r;
   }
   function CompleteOrder(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
-   $ec = "Denied";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Order Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Order Identifier is missing."
+   ];
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($data["ID"])) {
-    $ec = "Accepted";
+    $accessCode = "Accepted";
     $id = base64_decode($data["ID"]);
-    $po = $this->system->Data("Get", [
-     "po",
-     md5($y["Login"]["Username"])
-    ]) ?? [];
+    $po = $this->system->Data("Get", ["po", md5($you)]) ?? [];
     $po[$id]["Complete"] = 1;
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The order has been marked as complete!"
-     ]),
-     "Header" => "Done!"
-    ]);
-    $this->system->Data("Save", ["po", md5($y["Login"]["Username"]), $po]);
+    $r = [
+     "Body" => "The order has been marked as complete!",
+     "Header" => "Done"
+    ];
+    $this->system->Data("Save", ["po", md5($you), $po]);
    }
-  return $this->system->JSONResponse([$ec, $r]);
+   return $this->system->JSONResponse([$accessCode, $r]);
   }
   function Edit(array $a) {
    $data = $a["Data"] ?? [];
@@ -170,11 +160,11 @@
      ])
     ], $this->system->Page("201c1fca2d1214dddcbabdc438747c9f")]);
    }
-   return $this->system->Card([
-    "Back" => $back,
+   return [
+    "Action" => $button,
+    "Back" => $back
     "Front" => $r,
-    "FrontButton" => $button,
-   ]);
+   ];
   }
   function EditPartner(array $a) {
    $data = $a["Data"] ?? [];
@@ -227,10 +217,10 @@
      "data-processor" => base64_encode("v=".base64_encode("Shop:SavePartner"))
     ]]);
    }
-   return $this->system->Card([
-    "Front" => $fr,
-    "FrontButton" => $frbtn
-   ]);
+   return [
+    "Action" => $frbtn,
+    "Front" => $fr
+   ];
   }
   function History(array $a) {
    $data = $a["Data"] ?? [];
@@ -322,6 +312,7 @@
    return $r;
   }
   function Home(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "CARD",
@@ -459,12 +450,17 @@
      }
     }
    }
-   $r = ($data["CARD"] == 1) ? $this->system->Card(["Front" => $r]) : $r;
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = ($data["CARD"] == 1) ? [
+    "Front" => $r
+   ] : $r;
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
+   $r = $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -499,9 +495,12 @@
     ]]),
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&CS=$callsign&UN=$username&pub=$pub")
    ], $this->system->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
    return $r;
   }
   function Payroll(array $a) {
@@ -605,26 +604,25 @@
      "[IncomeDisclosure.Table]" => $yearTable
     ], $this->system->Page("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "Unknown error."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "Unknown error."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $shops = $this->system->DatabaseSet("MBR");
     $title = $data["Title"] ?? "";
@@ -637,12 +635,10 @@
       $i++;
      }
     } if($i > 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Shop <em>$title</em> is taken."
-      ]),
+     $r = [
+      "Body" => "The Shop <em>$title</em> is taken.",
       "Header" => "Error"
-     ]);
+     ];
     } else {
      $accessCode = "Accepted";
      $shop = $this->system->Data("Get", ["shop", $id]) ?? [];
@@ -705,10 +701,10 @@
      ])
     ];
     $this->system->Data("Save", ["shop", $id, $shop]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "$title has been updated."]),
+    $r = [
+     "Body" => "$title has been updated.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -721,30 +717,29 @@
    ]);
   }
   function SaveBanish(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing."]),
+   $r = [
+    "Body" => "The Username is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["UN"])) {
     $username = base64_decode($data["UN"]);
     if($username == $you) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "You cannot fire yourself."]),
+     $r = [
+      "Body" => "You cannot fire yourself.",
       "Header" => "Error"
-     ]);
+     ];
     } else {
+     $accessCode = "Accepted";
      $newContributors = [];
      $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
      $contributors = $shop["Contributors"] ?? [];
@@ -755,13 +750,20 @@
      }
      $shop["Contributors"] = $newContributors;
      $this->system->Data("Save", ["shop", md5($you), $shop]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "You fired $username."]),
+     $r = [
+      "Body" => "You fired $username.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveCreditExChange(array $a) {
    $accessCode = "Denied";
@@ -772,44 +774,45 @@
     "UN"
    ]);
    $points = base64_decode($data["P"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "Unknown error."]),
+   $r = [
+    "Body" => "Unknown error.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(is_numeric($points)) {
     $points = ($points < $y["Points"]) ? $points : $y["Points"];
     $credits = $points * 0.00001;
     $creditsDecimal = number_format($credits, 2);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You requested more credits than you can afford."
-     ]),
+    $r = [
+     "Body" => "You requested more credits than you can afford.",
      "Header" => "Error"
-    ]);
+    ];
     if($points < $y["Points"]) {
      $accessCode = "Accepted";
      $yourCredits = $y["Shopping"]["Cart"][$data["ID"]]["Credits"] ?? 0;
      $y["Shopping"]["Cart"][$data["ID"]]["Credits"] = $creditsDecimal + $yourCredits;
      $y["Points"] = $y["Points"] - $points;
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "<em>$points</em> points were converted to $<em>$creditsDecimal</em> credits, and have <em>".$y["Points"]."</em> remaining."
-      ]),
+     $r = [
+      "Body" => "<em>$points</em> points were converted to $<em>$creditsDecimal</em> credits, and have <em>".$y["Points"]."</em> remaining.",
       "Header" => "Done"
-     ]);
+     ];
      $this->system->Data("Save", ["mbr", md5($you), $y]);
     }
    }
-   return $this->system->JSONResponse([$accessCode, $r]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveDiscountCodes(array $a) {
    $accessCode = "Denied";
@@ -864,20 +867,17 @@
     "new"
    ]);
    $new = $data["new"] ?? 0;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Username is missing."
+   ];
    $y = $this->you;
    $username = $data["UN"];
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($username)) {
     $i = 0;
     $members = $this->system->DatabaseSet("MBR");
@@ -887,12 +887,10 @@
       $i++;
      }
     } if($i == 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Member <em>$username</em> does not exist."
-      ]),
+     $r = [
+      "Body" => "The Member <em>$username</em> does not exist.",
       "Header" => "Done"
-     ]);
+     ];
     } else {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "hired" : "updated";
@@ -920,12 +918,10 @@
       ]);
      }
      $this->system->Data("Save", ["shop", md5($you), $shop]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "Your Partner $username was $actionTaken."
-      ]),
+     $r = [
+      "Body" => "Your Partner $username was $actionTaken.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
    return $this->system->JSONResponse([
@@ -971,7 +967,9 @@
      "[Share.Title]" => $shop["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function Subscribe(array $a) {
    $accessCode = "Denied";
@@ -979,21 +977,16 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Shop Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to subscribe."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to subscribe.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $responseType = "UpdateText";

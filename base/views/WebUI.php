@@ -6,7 +6,9 @@
   }
   function Containers(array $a) {
    $data = $a["Data"] ?? [];
-   $content = $data["Content"] ?? $this->view(base64_encode("WebUI:OptIn"), []);
+   $content = $this->view(base64_encode("WebUI:OptIn"), []);
+   $content = $thie->system->RenderView($content);
+   $content = $data["Content"] ?? $content;
    $type = $data["Type"] ?? "";
    if($type == "Chat") {
     $r = $this->system->Change([[
@@ -30,14 +32,14 @@
    ]);
   }
   function LockScreen(array $a) {
+   $accessCode = "Accepted";
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "If you are signed in, you can lock your session."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "If you are signed in, you can lock your session.",
      "Header" => "Lock"
-    ]);
+    ];
    } else {
     $r = $this->system->Change([[
      "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
@@ -76,9 +78,20 @@
      ])
     ], $this->system->Page("723a9e510879c2c16bf9690ffe7273b5")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Menu(array $a) {
+   $accessCode = "Denied";
+   $r = [
+    "Body" => "Could not load the Network Map..."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $admin = ($y["Rank"] == md5("High Command")) ? $this->system->AdminMenu() : "";
@@ -92,6 +105,7 @@
     ]
    ]) : "";
    if($this->system->ID == $you) {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Defense]" => base64_encode("v=".base64_encode("PMC:Home")),
@@ -106,6 +120,7 @@
      "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn"))
     ], $this->system->Page("73859ffa637c369b9fa88399a27b5598")]);
    } else {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[Menu.Administration]" => $admin,
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
@@ -148,10 +163,18 @@
      "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
     ], $this->system->Page("d14e3045df35f4d9784d45ac2c0fe73b")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function OptIn(array $a) {
-   return $this->system->Change([[
+   $accessCode = "Accepted";
+   $r = $this->system->Change([[
     "[Gateway.About]" => base64_encode("v=".base64_encode("Page:Card")."&ID=".base64_encode("a7b00d61b747827ec4ae74c358da6a01")),
     "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
     "[Gateway.CoverPhoto]" => $this->system->PlainText([
@@ -162,6 +185,14 @@
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
     "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
    ], $this->system->Page("db69f503c7c6c1470bd9620b79ab00d7")]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SwitchLanguages() {
    $languages = $this->system->Languages() ?? [];
@@ -171,7 +202,7 @@
      $options .= $this->system->Element(["button", $value, [
       "class" => "LI Reg v2 v2w",
       "data-type" => $key,
-      "onclick" => "FSTX();"
+      "onclick" => "CloseFirSTEPTool();"
      ]]);
     }//TEMP
    }
@@ -180,11 +211,13 @@
    ], $this->system->Page("350d1d8dfa7ce14e12bd62f5f5f27d30")]);
   }
   function UIContainers(array $a) {
+   $accessCode = "Accepted";
    $main = base64_encode("Search:Containers");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
+    $r = $this->system->RenderView($r);
    } else {
     $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
     foreach($y["Subscriptions"] as $subscription => $data) {
@@ -211,7 +244,11 @@
        }
        $manifest = $newManifest;
       }
-      $this->system->Data("Save", ["pfmanifest", $sonsOfLiberty, $manifest]);
+      $this->system->Data("Save", [
+       "pfmanifest",
+       $sonsOfLiberty,
+       $manifest
+      ]);
      }
     }
     $this->system->Data("Save", ["mbr", md5($you), $y]);
@@ -219,13 +256,21 @@
     $r = $this->view($main, ["Data" => [
      "st" => "Mainstream"
     ]]);
-    $r = $this->system->GetViewFromJSON($r);
+    $r = $this->system->RenderView($r);
    }
-   return $this->system->Change([[
+   $r = $this->system->Change([[
     "[OH.MainContent]" => $r,
     "[OH.TopBar.NetMap]" => base64_encode("v=".base64_encode("WebUI:Menu")),
     "[OH.TopBar.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
    ], $this->system->Page("dd5e4f7f995d5d69ab7f696af4786c49")]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

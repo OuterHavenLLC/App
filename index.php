@@ -2,7 +2,7 @@
  require_once("base/Bootloader.php");
  $data = array_merge($_GET, $_POST);
  $doNotEncode = [
-  "CSS",
+  "Design",
   "JS",
   "Maintanance"
  ];
@@ -11,16 +11,16 @@
  $view = $data["v"] ?? "";
  $r = "";
  $gw->system->Setup("SYS");
- if($api == "CSS") {
+ if($api == "Design") {
   header("content-type: text/CSS");
   $r = $gw->system->Page("d4efcd44be4b2ef2a395f0934a9e446a");
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
-  if($view == "F") {
+  if($view == "Cypher") {
    $r = $gw->system->Page("9899b8bb388bf8520c3b5cee4ef6778b");
-  } elseif($view == "F2") {
+  } elseif($view == "Functions") {
    $r = $gw->system->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
-  } elseif($view == "GW") {
+  } elseif($view == "GUI") {
    $r = $gw->system->Page("a62f482184a8b2eefa006a37890666d7");
   }
   $r = $gw->system->Change([[
@@ -180,6 +180,7 @@
   } else {
    $gw->system->Statistic("Visits");
    $r = $gw->view(base64_encode("WebUI:UIContainers"), []);
+   $r = $gw->system->RenderView($r);
   }
   $r = $gw->system->Change([[
    "[Body]" => $r,

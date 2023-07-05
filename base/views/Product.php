@@ -156,11 +156,11 @@
      "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
     ]]);
    }
-   return $this->system->Card([
+   return [
+    "Action" => $frbtn,
     "Back" => $bck,
-    "Front" => $fr,
-    "FrontButton" => $frbtn
-   ]);
+    "Front" => $fr
+   ];
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
@@ -314,7 +314,9 @@
      ], $this->system->Page("96a6768e7f03ab4c68c7532be93dee40")]);
     }
    }
-   $r = ($data["CARD"] == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = ($data["CARD"] == 1) ? [
+    "Front" => $r
+   ] : $r;
    return $r;
   }
   function Save(array $a) {
@@ -322,21 +324,16 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["ID", "Title", "new"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Product Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Product Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($data["ID"])) {
     $i = 0;
     $new = $data["new"] ?? 0;
@@ -353,12 +350,9 @@
       $id = $value;
      }
     } if($i > 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Product <em>$title</em> has already been taken. Please choose a different one."
-      ]),
-      "Header" => "Error"
-     ]);
+     $r = [
+      "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
+     ];
     } else {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
@@ -473,12 +467,10 @@
      $this->system->Data("Save", ["miny", $id, $product]);
      $this->system->Data("Save", ["mbr", md5($you), $y]);
      $this->system->Data("Save", ["shop", md5($you), $shop]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Product <em>$title</em> has been successfully $actionTaken!"
-      ]),
+     $r = [
+      "Body" => "The Product <em>$title</em> has been successfully $actionTaken!",
       "Header" => "Done"
-     ]);
+     ];
      if($new == 1) {
       $subscribers = $shop["Subscribers"] ?? [];
       foreach($subscribers as $key => $value) {
@@ -512,26 +504,20 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Product Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Product Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
@@ -550,10 +536,10 @@
     $this->system->Data("Purge", ["local", $id]);
     $this->system->Data("Purge", ["react", $id]);
     $this->system->Data("Save", ["shop", md5($you), $shop]);*/
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Product was deleted.".json_encode($shop, true)]),
+    $r = [
+     "Body" => "The Product was deleted.".json_encode($shop, true),
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([$ec, $r]);
   }
@@ -599,7 +585,9 @@
      "[Share.Title]" => $product["Title"]." by $shop"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS

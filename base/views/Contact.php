@@ -8,21 +8,18 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Username is missing."
+   ];
    $responseType = "Dialog";
    $username = $data["Username"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($username) && $username != $you) {
     $accessCode = "Accepted";
     $responseType = "Destruct";
@@ -59,10 +56,9 @@
   function Options(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Username is missing."
+   ];
    $username = $data["UN"];
    $y = $this->you;
    if(!empty($username)) {
@@ -143,10 +139,9 @@
     "bulletin",
     "decline"
    ]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Username is missing."
+   ];
    $responseType = "Dialog";
    $username = $data["Username"];
    $y = $this->you;
@@ -263,20 +258,17 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["Username", "notes"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Username is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Username is missing."
+   ];
    $username = $data["Username"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($username) && $username != $you) {
     $accessCode = "Accepted";
     $cms = $this->system->Data("Get", ["cms", md5($you)]) ?? [];
@@ -289,12 +281,10 @@
     ];
     $cms["Contacts"] = $contacts;
     $this->system->Data("Save", ["cms", md5($you), $cms]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "$username's information has been updated."
-     ]),
+    $r = [
+     "Body" => "$username's information has been updated.",
      "Header" => "Contact Updated"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,

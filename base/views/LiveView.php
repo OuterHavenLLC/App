@@ -10,21 +10,14 @@
   function GetCode(array $a) {
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["Code", "Type"]);
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Code or Code Type are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Code or Code Type are missing."
+   ];
    if(!empty($data["Code"]) && !empty($data["Type"])) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "Paste the code below anywhere within the text you want it to appear in."
-     ]).$this->system->Element([
-      "p", "[".$data["Type"].":".$data["Code"]."]"
-     ]),
+    $r = [
+     "Body" => "Paste the code below anywhere within the text you want it to appear in.<br/>[".$data["Type"].":".$data["Code"]."]",
      "Header" => "Embed Code"
-    ]);
+    ];
    }
    return $r;
   }

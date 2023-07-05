@@ -9,35 +9,31 @@
    $data = $this->system->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
     $id = base64_decode($id);
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
     $mbr = base64_decode($mbr);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You cannot banish yourself."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You cannot banish yourself."
+    ];
     if($mbr != $forum["UN"] && $mbr != $y["Login"]["Username"]) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "Are you sure you want to banish $mbr from <em>".$forum["Title"]."</em>?"
-      ]),
+     $r = [
+      "Body" => "Are you sure you want to banish $mbr from <em>".$forum["Title"]."</em>?",
       "Header" => "Banish $mbr?",
-      "Option" => $this->system->Element(["button", "Cancel", [
-       "class" => "dBC v2 v2w"
-      ]]),
-      "Option2" => $this->system->Element(["button", "Banish $mbr", [
-       "class" => "BBB dBC dBO v2 v2w",
-       "data-type" => "v=".base64_encode("Forum:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"]
-      ]])
-     ]);
+      "Options" => [
+       $this->system->Element(["button", "Cancel", [
+        "class" => "CloseDialog v2 v2w"
+       ]]),
+       $this->system->Element(["button", "Banish $mbr", [
+        "class" => "BBB CloseDialog OpenDialog v2 v2w",
+        "data-view" => base64_encode("v=".base64_encode("Forum:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"])
+       ]])
+      ]
+     ];
     }
    }
    return $r;
@@ -49,16 +45,14 @@
    $data = $this->system->FixMissing($data, ["ID", "PIN", "Member"]);
    $id = $data["ID"];
    $member = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."
+   ];
    $y = $this->you;
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif(!empty($id) && !empty($member)) {
     $accessCode = "Accepted";
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
@@ -66,12 +60,10 @@
     $role = ($data["Role"] == 1) ? "Member" : "Admin";
     $manifest[$member] = $role;
     $this->system->Data("Save", ["pfmanifest", $id, $manifest]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "$member's Role within <em>".$forum["Title"]."</em> was Changed to $role."
-     ]),
+    $r = [
+     "Body" => "$member's Role within <em>".$forum["Title"]."</em> was Changed to $role.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -151,11 +143,11 @@
      "data-processor" => base64_encode("v=".base64_encode("Forum:Save"))
     ]]);
    }
-   return $this->system->Card([
+   return [
+    "Action" => $frbtn,
     "Back" => $bck,
-    "Front" => $fr,
-    "FrontButton" => $frbtn
-   ]);
+    "Front" => $fr
+   ];
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
@@ -301,7 +293,9 @@
      ], $this->system->Page("4159d14e4e8a7d8936efca6445d11449")]);
     }
    }
-   $r = ($data["CARD"] == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = ($data["CARD"] == 1) ? [
+    "Front" => $r
+   ] : $r;
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
    ]) : $r;
@@ -384,10 +378,10 @@
      "data-processor" => base64_encode("v=".base64_encode("Forum:SendInvite"))
     ]]);
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
+   return [
+    "Action" => $button,
+    "Front" => $r
+   ];
   }
   function LeaveOrJoin(array $a) {
    $accessCode = "Denied";
@@ -395,10 +389,9 @@
    $data = $this->system->DecodeBridgeData($data);
    $command = $data["Command"] ?? "";
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $responseType = "Dialog";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -481,18 +474,16 @@
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $now = $this->system->timestamp;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
-   if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $coverPhoto = "";
@@ -551,12 +542,10 @@
      "Type" => $data["PFType"]
     ]]);
     $actionTaken = ($new == 1) ? "published" : "updated";
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Forum <em>$title</em> was $actionTaken."
-     ]),
+    $r = [
+     "Body" => "The Forum <em>$title</em> was $actionTaken.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -572,26 +561,23 @@
    $data = $this->system->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
-   if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id) && !empty($mbr)) {
     $id = base64_decode($id);
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
     $mbr = base64_decode($mbr);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You cannot banish yourself."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You cannot banish yourself."
+    ];
     if($mbr != $forum["UN"] && $mbr != $y["Login"]["Username"]) {
      $manifest = $this->system->Data("Get", ["pfmanifest", $id]) ?? [];
      $newManifest = [];
@@ -601,12 +587,10 @@
       }
      }
      $this->system->Data("Save", ["pfmanifest", $id, $newManifest]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "$mbr was banished from <em>".$forum["Title"]."</em>."
-      ]),
+     $r = [
+      "Body" => "$mbr was banished from <em>".$forum["Title"]."</em>.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
    return $r;
@@ -618,23 +602,19 @@
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["ID", "PIN", "all"]);
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
@@ -663,12 +643,10 @@
       $newForums[$key] = $value;
      }
     }
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Forum ($id, temp) was deleted.".json_encode($y["Forums"], true)
-     ]),
+    $r = [
+     "Body" => "The Forum ($id, temp) was deleted.".json_encode($y["Forums"], true),
      "Header" => "Done"
-    ]);
+    ];
     $y["Forums"] = $newForums;
     #$this->system->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
    }
@@ -694,10 +672,9 @@
    $i = 0;
    $id = $data["ID"];
    $mbr = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
@@ -711,31 +688,21 @@
       }
      }
     } if($i == 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Member $mbr does not exist."
-      ]),
-      "Header" => "Error"
-     ]);
+     $r = [
+      "Body" => "The Member $mbr does not exist."
+     ];
     } elseif(empty($forum["ID"])) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "The Forum does not exist."]),
-      "Header" => "Error"
-     ]);
+     $r = [
+      "Body" => "The Forum does not exist."
+     ];
     } elseif($mbr == $forum["UN"]) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "$mbr owns <em>".$forum["Title"]."</em>."
-      ]),
-      "Header" => "Error"
-     ]);
+     $r = [
+      "Body" => "$mbr owns <em>".$forum["Title"]."</em>."
+     ];
     } elseif($mbr == $y["Login"]["Username"]) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "You are already a member of this forum."
-      ]),
-      "Header" => "Error"
-     ]);
+     $r = [
+      "Body" => "You are already a member of this forum."
+     ];
     } else {
      $active = 0;
      $manifest = $this->system->Data("Get", ["pfmanifest", $forum["ID"]]) ?? [];
@@ -744,12 +711,9 @@
        $active++;
       }
      } if($active == 1) {
-      $r = $this->system->Dialog([
-       "Body" => $this->system->Element([
-        "p", "$mbr is already an active member of <em>".$forum["Title"]."</em>."
-       ]),
-       "Header" => "Error"
-      ]);
+      $r = [
+       "Body" => "$mbr is already an active member of <em>".$forum["Title"]."</em>."
+      ];
      } else {
       $accessCode = "Accepted";
       $role = ($data["Role"] == 1) ? "Member" : "Admin";
@@ -768,12 +732,10 @@
        "To" => $mbr,
        "Type" => "InviteToForum"
       ]);
-      $r = $this->system->Dialog([
-       "Body" => $this->system->Element([
-        "p", "$mbr was notified of your invitation."
-       ]),
+      $r = [
+       "Body" => "$mbr was notified of your invitation.",
        "Header" => "Invitation Sent"
-      ]);
+      ];
      }
     }
    }
@@ -826,7 +788,9 @@
      ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
     }
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS

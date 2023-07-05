@@ -230,12 +230,9 @@
     "UN"
    ]);
    $id = $data["Product"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Member or Product Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Member or Product Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["UN"]) && !empty($id)) {
@@ -262,16 +259,16 @@
     $cart["Products"][$id]["Instructions"] = $data["Instructions"];
     $cart["Products"][$id]["QTY"] = $cart["Products"][$id]["QTY"] ?? 0;
     $cart["Products"][$id]["QTY"] = $cart["Products"][$id]["QTY"] + $quantity;
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "<em>$productTitle</em> was added to your cart for <em>$title</em>!"
-     ]),
+    $r = [
+     "Body" => "<em>$productTitle</em> was added to your cart for <em>$title</em>!",
      "Header" => "Added to Cart",
-     "Option" => $this->system->Element(["button", "View My Cart", [
-      "class" => "CloseAllCards dBC v2 v2w",
-      "onclick" => "FST('N/A', '$view', '".md5("Cart")."');"
-     ]])
-    ]);
+     "Options" => [
+      $this->system->Element(["button", "View My Cart", [
+       "class" => "CloseAllCards dBC v2 v2w",
+       "onclick" => "FST('N/A', '$view', '".md5("Cart")."');"
+      ]])
+     ]
+    ];
     $y["Shopping"]["Cart"][$shop] = $cart;
     $this->system->Data("Save", ["mbr", md5($you), $y]);
    }
@@ -293,12 +290,9 @@
    ]);
    $productID = $data["ProductID"];
    $shopID = $data["ShopID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Shop or Product Identifier are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Shop or Product Identifier are missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($productID) && !empty($shopID)) {
@@ -312,12 +306,10 @@
      }
     }
     $y["Shopping"]["Cart"][$shopID]["Products"] = $newProducts;
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Product was removed from your cart."
-     ]),
+    $r = [
+     "Body" => "The Product was removed from your cart.",
      "Header" => "Done"
-    ]);
+    ];
     $this->system->Data("Save", ["mbr", md5($you), $y]);
    }
    return $r;

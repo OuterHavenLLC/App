@@ -6,17 +6,19 @@
   }
   function BulletinCenter(array $a) {
    $accessCode = "Accepted";
+   $bulletins = $this->view($search, ["Data" => [
+    "st" => "Bulletins"
+   ]]);
+   $contacts = $this->view($search, ["Data" => [
+    "Chat" => 0,
+    "st" => "ContactsChatList"
+   ]]);
    $list = base64_encode("Profile:BulletinsList");
    $search = base64_encode("Search:Containers");
    $r = $this->system->Change([[
-    "[BulletinCenter.Bulletins]" => $this->system->GetViewFromJSON($this->view($search, ["Data" => [
-     "st" => "Bulletins"
-    ]])),
+    "[BulletinCenter.Bulletins]" => $this->system->RenderView($bulletins),
     "[BulletinCenter.ContactRequests]" => "v=$list&type=".base64_encode("ContactsRequests"),
-    "[BulletinCenter.Contacts]" => $this->system->GetViewFromJSON($this->view($search, ["Data" => [
-     "Chat" => 0,
-     "st" => "ContactsChatList"
-    ]]))
+    "[BulletinCenter.Contacts]" => $this->system->RenderView($contacts)
    ], $this->system->Page("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -556,7 +558,9 @@
      ], $this->system->Page("72f902ad0530ad7ed5431dac7c5f9576")]);
     }
    }
-   $r = ($data["CARD"] == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = ($data["CARD"] == 1) ? [
+    "Front" => $r
+   ] : $r;
    $r = ($you == $this->system->ID && $pub == 1) ? $this->view(base64_encode("WebUI:OptIn"), []) : $r;
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
@@ -576,24 +580,18 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
    $manifest = [];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Member Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Member Identifier is missing."
+   ];
    $responseType = "Dialog";
    $y = $this->you;
    if(!empty($data["ID"])) {
     $t = base64_decode($data["ID"]);
     $t = ($t == $y["Login"]["Username"]) ? $y : $this->system->Member($t);
     $display = $t["Personal"]["DisplayName"];
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "$display is already a VIP Member."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "$display is already a VIP Member."
+    ];
     if($t["Subscriptions"]["VIP"]["A"] == 0) {
      $_VIPForum = "cb3e432f76b38eaa66c7269d658bd7ea";
      $accessCode = "Accepted";
@@ -610,13 +608,15 @@
       }
      }
      $this->system->Data("Save", ["pfmanifest", $_VIPForum, $manifest]);
-     $this->system->Data("Save", ["mbr", md5($t["Login"]["Username"]), $t]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "$display is now a VIP Member."
-      ]),
-      "Header" => "Done"
+     $this->system->Data("Save", [
+      "mbr",
+      md5($t["Login"]["Username"]),
+      $t
      ]);
+     $r = [
+      "Body" => "$display is now a VIP Member.",
+      "Header" => "Done"
+     ];
     }
    }
    return $this->system->JSONResponse([
@@ -652,12 +652,10 @@
   function NewPassword(array $a) {
    $y = $this->you;
    if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Error"
-    ]);
+    ];
    } else {
     $r = $this->system->Change([[
      "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
@@ -679,12 +677,9 @@
   function NewPIN(array $a) {
    $y = $this->you;
    if($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
    } else {
     $r = $this->system->Change([[
      "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
@@ -1141,11 +1136,11 @@
      ])
     ], $this->system->Page("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
-   $r = $this->system->Card([
+   $r = [
+    "Action" => $button,
     "Back" => "",
-    "Front" => $r,
-    "FrontButton" => $button
-   ]);
+    "Front" => $r
+   ];
    $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
     #"AccessCode" => $accessCode,
     "Response" => [
@@ -1241,10 +1236,10 @@
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
-     "Web" => $this->system->Dialog([
-      "Body" => $this->system->Element(["p", $r]),
+     "Web" => [
+      "Body" => $r,
       "Header" => $header
-     ])
+     ]
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseDialog"
@@ -1255,12 +1250,10 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(1 == 1) {
     // DEACTIVATE PROFILE
    }
@@ -1280,12 +1273,10 @@
    // DELETE PROFILE
    /* DELETE CONVERSATION
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(1 == 1) {
     if(!empty($this->system->Data("Get", ["conversation", md5("MBR_$you")]))) {
      $this->view(base64_encode("Conversation:SaveDelete"), [
@@ -1315,50 +1306,35 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(empty($data["CurrentPassword"])) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must enter your current Password."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You must enter your current Password."
+    ];
    } elseif(empty($data["NewPassword"]) || empty($data["NewPassword2"])) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must enter and confirm your new Password."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You must enter and confirm your new Password."
+    ];
    } elseif(md5($data["CurrentPassword"]) != $y["Login"]["Password"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Passwords do not match."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The Passwords do not match."
+    ];
    } elseif($data["NewPassword"] != $data["NewPassword2"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The new Passwords do not match."
-     ]),
+    $r = [
+     "Body" => "The new Passwords do not match.",
      "Header" => "Error"
-    ]);
+    ];
    } else {
     $accessCode = "Accepted";
     $y["Login"]["Password"] = md5($data["NewPassword"]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "Your Password has been updated."
-     ]),
+    $r = [
+     "Body" => "Your Password has been updated.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1382,51 +1358,38 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(empty($data["CurrentPIN"])) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must enter your current PIN."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You must enter your current PIN."
+    ];
    } elseif(empty($data["NewPIN"]) || empty($data["NewPIN2"])) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must enter and confirm your new PIN."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "You must enter and confirm your new PIN."
+    ];
    } elseif(!is_numeric($data["NewPIN"]) || !is_numeric($data["NewPIN2"])) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "PINs must be numeric (0-9)."
-     ]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "PINs must be numeric (0-9)."
+    ];
    } elseif(md5($data["CurrentPIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif($data["NewPIN"] != $data["NewPIN2"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The new PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The new PINs do not match."
+    ];
    } else {
     $accessCode = "Accepted";
     $y["Login"]["PIN"] = md5($data["NewPIN"]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "Your PIN has been updated."]),
+    $r = [
+     "Body" => "Your PIN has been updated.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1483,10 +1446,10 @@
      $r = "The Member <em>$username</em> could not be found.";
     }
    } if($accessCode == "Denied") {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", $r]),
+    $r = [
+     "Body" => $r,
      "Header" => "Sign In Failed"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1644,9 +1607,9 @@
    return $r;
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN"]);
-   $ec = "Denied";
    $r = $this->system->Change([[
     "[Error.Header]" => "Error",
     "[Error.Message]" => "The Share Sheet Identifier is missing."
@@ -1654,6 +1617,7 @@
    $un = $data["UN"];
    $y = $this->you;
    if(!empty($un)) {
+    $accessCode = "Accepted";
     $un = base64_decode($un);
     $t = ($un == $y["Login"]["Username"]) ? $y : $this->system->Member($un);
     $body = $this->system->PlainText([
@@ -1676,21 +1640,30 @@
      "[Share.Title]" => $t["Personal"]["DisplayName"]."'s Profile"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   $r = $this->system->Card(["Front" => $r]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = [
+    "Front" => $r
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function SignIn(array $a) {
    $accessCode = "Denied";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Change([[
+   $r = [
+    "Actions" => [
+     $this->system->Element(["button", "Sign In", [
+      "class" => "BBB SendData v2 v2w",
+      "data-form" => ".SignIn",
+      "data-processor" => base64_encode("v=".base64_encode("Profile:SaveSignIn"))
+     ]])
+    ],
+    "Header" => "Sign In",
+    "Scrollable" => $this->system->Change([[
      "[SignIn.Inputs]" => $this->system->RenderInputs([
       [
        "Attributes" => [
@@ -1723,17 +1696,8 @@
        "Type" => "Text"
       ]
      ])
-    ], $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005")]),
-    "Header" => "Sign In",
-    "Option" => $this->system->Element(["button", "Cancel", [
-     "class" => "CloseDialog v2 v2w"
-    ]]),
-    "Option2" => $this->system->Element(["button", "Sign In", [
-     "class" => "BBB SendData v2 v2w",
-     "data-form" => ".SignIn",
-     "data-processor" => base64_encode("v=".base64_encode("Profile:SaveSignIn"))
-    ]])
-   ]);
+    ], $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005")])
+   ];
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -1752,7 +1716,7 @@
    } for($i = 1776; $i <= date("Y"); $i++) {
     $birthYears[$i] = $i;
    }
-   $r = $this->system->Card([
+   $r = [
     "Front" => $this->system->Change([[
      "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
      "[SignUp.Age.Month]" => $this->system->Select("BirthMonth", "req v2w"),
@@ -1765,8 +1729,8 @@
      ], true)),
      "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
-   ]);
-   $r = $this->system->JSONResponse([
+   ];
+   return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

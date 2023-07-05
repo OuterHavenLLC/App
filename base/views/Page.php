@@ -5,58 +5,59 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Banish(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Forum Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
     $id = base64_decode($id);
     $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
     $mbr = base64_decode($mbr);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You cannot banish yourself."]),
+    $r = [
+     "Body" => "You cannot banish yourself.",
      "Header" => "Error"
-    ]);
+    ];
     if($mbr != $Page["UN"] && $mbr != $y["Login"]["Username"]) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "Are you sure you want to banish $mbr from <em>".$Page["Title"]."</em>?"
-      ]),
+    $accessCode = "Accepted";
+     $r = [
+      "Body" => "Are you sure you want to banish $mbr from <em>".$Page["Title"]."</em>?",
       "Header" => "Banish $mbr?",
-      "Option" => $this->system->Element(["button", "Cancel", [
-       "class" => "dBC v2 v2w"
-      ]]),
-      "Option2" => $this->system->Element(["button", "Banish $mbr", [
-       "class" => "BBB dBC dBO v2 v2w",
-       "data-type" => "v=".base64_encode("Page:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"]
-      ]])
-     ]);
+      "Options" => [
+       $this->system->Element(["button", "Cancel", [
+        "class" => "CloseDialog v2 v2w"
+       ]]),
+       $this->system->Element(["button", "Banish $mbr", [
+        "class" => "BBB CloseDialog OpenDialog v2 v2w",
+        "data-view" => base64_encode("v=".base64_encode("Page:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"])
+       ]])
+      ]
+     ];
     }
    }
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Card(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Article Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Article Identifier is missing.",
+    "Header" => "Not Found"
+   ];
    if(!empty($data["ID"])) {
+    $accessCode = "Accepted";
     $Page = $this->system->Data("Get", [
      "pg",
      base64_decode($data["ID"])
@@ -73,16 +74,17 @@
      ]), ["class" => "NONAME"]
     ]);
    }
-   $r = $this->system->Card(["Front" => $r]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = [
+    "Front" => $r
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function ChangeMemberRole(array $a) {
    $accessCode = "Denied";
@@ -91,18 +93,14 @@
    $data = $this->system->FixMissing($data, ["ID", "PIN", "Member"]);
    $id = $data["ID"];
    $member = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Forum Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $y = $this->you;
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif(!empty($id) && !empty($member)) {
     $accessCode = "Accepted";
     $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
@@ -111,12 +109,10 @@
     $contributors[$member] = $role;
     $Page["Contributors"] = $contributors;
     $this->system->Data("Save", ["pg", $id, $Page]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "$member's Role within <em>".$Page["Title"]."</em> was Changed to $role."
-     ]),
+    $r = [
+     "Body" => "$member's Role within <em>".$Page["Title"]."</em> was Changed to $role.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -375,10 +371,10 @@
      "data-form" => ".EditPage$id",
      "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
     ]]);
-    $r = $this->system->Card([
-     "Front" => $r,
-     "FrontButton" => $button
-    ]);
+    $r = [
+     "Action" => $button,
+     "Front" => $r
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -390,6 +386,7 @@
    ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $base = $this->system->efs;
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
@@ -409,14 +406,14 @@
     "data-type" => $data["lPG"]
    ]]) : "";
    $pub = $data["pub"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Back]" => $bck,
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The requested Article could not be found."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The requested Article could not be found.",
+    "Header" => "Not Found"
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $active = 0;
     $admin = 0;
     $bl = $this->system->CheckBlocked([$y, "Pages", $id]);
@@ -532,21 +529,23 @@
      ]);
     }
    }
-   $r = ($card == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = ($card == 1) ? [
+    "Front" => $r
+   ] : $r;
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
    ]) : $r;
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Invite(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
@@ -557,6 +556,7 @@
    $frbtn = "";
    $y = $this->you;
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $content = [];
     $contentOptions = $y["Pages"] ?? [];
     $id = base64_decode($id);
@@ -623,19 +623,18 @@
      "data-processor" => base64_encode("v=".base64_encode("Page:SendInvite"))
     ]]);
    }
-   $r = $this->system->Card([
-    "Front" => $fr,
-    "FrontButton" => $frbtn
-   ]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = [
+    "Action" => $frbtn,
+    "Front" => $fr
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -816,33 +815,32 @@
    ]);
   }
   function SaveBanish(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Article Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
-   if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id) && !empty($mbr)) {
     $id = base64_decode($id);
     $mbr = base64_decode($mbr);
     $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "You cannot banish yourself."]),
+    $r = [
+     "Body" => "You cannot banish yourself.",
      "Header" => "Error"
-    ]);
-    if($mbr != $Page["UN"] && $mbr != $y["Login"]["Username"]) {
+    ];
+    if($mbr != $Page["UN"] && $mbr != $you) {
+     $accessCode = "Accepted";
      $contributors = $Page["Contributors"] ?? [];
      $newContributors = [];
      foreach($contributors as $member => $role) {
@@ -852,23 +850,20 @@
      }
      $Page["Contributors"] = $newContributors;
      $this->system->Data("Save", ["pg", $id, $Page]);
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "$mbr was banished from <em>".$Page["Title"]."</em>."
-      ]),
+     $r = [
+      "Body" => "$mbr was banished from <em>".$Page["Title"]."</em>.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function SaveDelete(array $a) {
    $accessCode = "Denied";
@@ -876,26 +871,22 @@
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["ID", "PIN"]);
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Article Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
+    $r = [
+     "Body" => "The PINs do not match.",
      "Header" => "Error"
-    ]);
-   } elseif($this->system->ID == $y["Login"]["Username"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    ];
+   } elseif($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $newPages = [];
@@ -914,10 +905,10 @@
     $this->system->Data("Purge", ["pg", $id]);
     $this->system->Data("Purge", ["react", $id]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Page was deleted."]),
+    $r = [
+     "Body" => "The Page was deleted.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -941,12 +932,10 @@
    $i = 0;
    $id = $data["ID"];
    $mbr = $data["Member"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Article Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
     $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
@@ -960,29 +949,25 @@
       }
      }
     } if($i == 0) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Member $mbr does not exist."
-      ]),
+     $r = [
+      "Body" => "The Member $mbr does not exist.",
       "Header" => "Error"
-     ]);
+     ];
     } elseif(empty($Page["ID"])) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "The Article does not exist."]),
+     $r = [
+      "Body" => "The Article does not exist.",
       "Header" => "Error"
-     ]);
+     ];
     } elseif($mbr == $Page["UN"]) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "$mbr owns <em>".$Page["Title"]."</em>."
-      ]),
+     $r = [
+      "Body" => "$mbr owns <em>".$Page["Title"]."</em>.",
       "Header" => "Error"
-     ]);
+     ];
     } elseif($mbr == $y["Login"]["Username"]) {
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element(["p", "You are already a contributor."]),
+     $r = [
+      "Body" => "You are already a contributor.",
       "Header" => "Error"
-     ]);
+     ];
     } else {
      $active = 0;
      $contributors = $Page["Contributors"] ?? [];
@@ -991,12 +976,10 @@
        $active++;
       }
      } if($active == 1) {
-      $r = $this->system->Dialog([
-       "Body" => $this->system->Element([
-        "p", "$mbr is already a contributor."
-       ]),
+      $r = [
+       "Body" => "$mbr is already a contributor.",
        "Header" => "Error"
-      ]);
+      ];
      } else {
       $accessCode = "Accepted";
       $role = ($data["Role"] == 1) ? "Member" : "Admin";
@@ -1012,12 +995,10 @@
        "Type" => "InviteToArticle"
       ]);
       $this->system->Data("Save", ["pg", $id, $Page]) ?? [];
-      $r = $this->system->Dialog([
-       "Body" => $this->system->Element([
-        "p", "$mbr was notified of your invitation."
-       ]),
+      $r = [
+       "Body" => "$mbr was notified of your invitation.",
        "Header" => "Invitation Sent"
-      ]);
+      ];
      }
     }
    }
@@ -1032,9 +1013,9 @@
    ]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
-   $accessCode = "Denied";
    $id = $data["ID"];
    $r = $this->system->Change([[
     "[Error.Header]" => "Error",
@@ -1067,16 +1048,17 @@
      "[Share.Title]" => $Page["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   $r = $this->system->Card(["Front" => $r]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   $r = [
+    "Front" => $r
+   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Subscribe(array $a) {
    $accessCode = "Denied";
@@ -1084,21 +1066,17 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Article Identifier is missing."
-    ]),
+   $r = [
+    "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
-   ]);
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to subscribe."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to subscribe.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $responseType = "UpdateText";

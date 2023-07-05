@@ -185,7 +185,9 @@
      "[Illegal.Processor]" => base64_encode($processor)
     ], $this->system->Page("0eaea9fae43712d8c810c737470021b3")]);
    }
-   return $this->system->Card(["Front" => $r]);
+   return [
+    "Front" => $r
+   ];
   }
   function Income(array $a) {
    $data = $a["Data"] ?? [];
@@ -347,18 +349,14 @@
    $data = $this->system->FixMissing($data, ["ID", "Type"]);
    $id = $data["ID"];
    $type = $data["Type"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Content Identifier or Type are missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Content Identifier or Type are missing."
+   ];
    $y = $this->you;
    if(!empty($id) && !empty($type)) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Content Type is incorrect.<br/>ID: $id<br/>Type: ".base64_decode($type)]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The Content Type is incorrect.<br/>ID: $id<br/>Type: ".base64_decode($type)
+    ];
     $type = base64_decode($type);
     $types = [
      "CriminalActs",
@@ -454,29 +452,29 @@
        }
       }
      }
-     $r = $this->system->Dialog([
-      "Body" => $this->system->Element([
-       "p", "The Content was reported."
-      ]),
+     $r = [
+      "Body" => "The Content was reported.",
       "Header" => "Done"
-     ]);
+     ];
     }
    }
    return $r;
   }
   function SwitchMember(array $a) {
-   return $this->system->Dialog([
+   return [
     "Body" => $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005"),
     "Header" => "Switch Members",
-    "Option" => $this->system->Element(["button", "Cancel", [
-     "class" => "dBC v2 v2w"
-    ]]),
-    "Option2" => $this->system->Element(["button", "Switch", [
-     "class" => "BBB SendData v2 v2w",
-     "data-form" => "#login",
-     "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignIn"))
-    ]])
-   ]);
+    "Options" => [
+     $this->system->Element(["button", "Cancel", [
+      "class" => "CloseDialog v2 v2w"
+     ]]),
+     $this->system->Element(["button", "Switch", [
+      "class" => "BBB SendData v2 v2w",
+      "data-form" => "#login",
+      "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignIn"))
+     ]])
+    ]
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS

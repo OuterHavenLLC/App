@@ -85,10 +85,10 @@
      "data-form" => ".EditStatusUpdate$id",
      "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
     ]]);
-    $r = $this->system->Card([
-     "Front" => $r,
-     "FrontButton" => $button
-    ]);
+    $r = [
+     "Action" => $button,
+     "Front" => $r
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -166,9 +166,9 @@
      "[StatusUpdate.Share]" => base64_encode("v=".base64_encode("StatusUpdate:Share")."&ID=".base64_encode($update["ID"])."&UN=".base64_encode($update["From"])),
      "[StatusUpdate.Votes]" => $votes
     ], $this->system->Page("2e76fb1523c34ed0c8092cde66895eb1")]);
-    $r = $this->system->Card([
+    $r = [
      "Front" => $r
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -185,12 +185,9 @@
    $data = $this->system->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Update Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Update Identifier is missing."
+   ];
    $to = $data["To"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -251,12 +248,10 @@
     $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
     $this->system->Data("Save", ["su", $update["ID"], $update]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Status Update was $actionTaken."
-     ]),
+    $r = [
+     "Body" => "The Status Update was $actionTaken.",
      "Header" => "Done"
-    ]);
+    ];
     if($new == 1) {
      $this->system->Statistic("SU");
     } else {
@@ -279,26 +274,20 @@
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, ["ID", "PIN"]);
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Update Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Update Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The PINs do not match."]),
-     "Header" => "Error"
-    ]);
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
    } elseif($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $mainstream = $this->system->Data("Get", ["x", "mainstream"]) ?? [];
@@ -326,10 +315,10 @@
     $this->system->Data("Save", ["mbr", md5($you), $y]);
     $this->system->Data("Save", ["stream", md5($you), $stream]);
     $this->system->Data("Save", ["x", "mainstream", $mainstream]);
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element(["p", "The Post was deleted."]),
+    $r = [
+     "Body" => "The Post was deleted.",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -376,9 +365,9 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $t["Personal"]["DisplayName"]."'s status update"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = $this->system->Card([
+    $r = [
      "Front" => $r
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,

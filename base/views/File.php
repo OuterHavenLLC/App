@@ -66,10 +66,10 @@
      "data-processor" => base64_encode("v=".base64_encode("File:Save"))
     ]]);
    }
-   return $this->system->Card([
-    "Front" => $r,
-    "FrontButton" => $frbtn
-   ]);
+   return [
+    "Action" => $frbtn,
+    "Front" => $r
+   ];
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
@@ -224,7 +224,9 @@
      ], $this->system->Page("c31701a05a48069702cd7590d31ebd63")]);
     }
    }
-   $r = ($data["CARD"] == 1) ? $this->system->Card(["Front" => $r]) : $r;
+   $r = ($data["CARD"] == 1) ? [
+    "Front" => $r
+   ] : $r;
    $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
     "Data" => ["Content" => $r]
    ]) : $r;
@@ -243,21 +245,16 @@
     "Privacy"
    ]);
    $id = $data["ID"];
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The File Identifier is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The File Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $album = $data["Album"] ?? md5("unsorted");
@@ -285,12 +282,10 @@
      $this->system->Data("Save", ["fs", md5($you), $fileSystem]);
     }
     $this->system->Statistic("ULu");
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The file <em>".$file["Title"]."</em> was updated.<br/>"
-     ]),
+    $r = [
+     "Body" => "The file <em>".$file["Title"]."</em> was updated.<br/>",
      "Header" => "Done"
-    ]);
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -369,11 +364,13 @@
     }
    }
    $header = ($accessCode == "Denied") ? "Error" : "Done";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element(["p", $r]),
+   $r = [
+    "Body" => $r,
     "Header" => $header,
-    "Option2" => $acknowledge
-   ]);
+    "Options" => [
+     $acknowledge
+    ]
+   ];
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -388,21 +385,16 @@
    $data = $a["Data"];
    $file = $data["DLC"] ?? "";
    $type = $data["FT"] ?? "";
-   $r = $this->system->Dialog([
-    "Body" => $this->system->Element([
-     "p", "The Photo type is missing."
-    ]),
-    "Header" => "Error"
-   ]);
+   $r = [
+    "Body" => "The Photo type is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "You must be signed in to continue."
-     ]),
+    $r = [
+     "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
-    ]);
+    ];
    } elseif(!empty($file) && !empty($type)) {
     $type = base64_decode($type);
     $cp = ($type == "CoverPhoto") ? "Cover Photo" : "Profile Picture";
@@ -416,12 +408,10 @@
      $image = $dbi[0]."/".$fs["Files"][$dbi[1]]["Name"];
      $y["Personal"][$type] = base64_encode($image);
     }
-    $r = $this->system->Dialog([
-     "Body" => $this->system->Element([
-      "p", "The Photo was set as your $cp.<br/>".json_encode($y["Personal"], true)
-     ]),
+    $r = [
+     "Body" => "The Photo was set as your $cp.<br/>".json_encode($y["Personal"], true),
      "Header" => "Done"
-    ]);
+    ];
     #$this->system->Data("Save", ["mbr", md5($you), $y]);
    }
    return $r;
@@ -464,9 +454,9 @@
      "[Share.Title]" => $file["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
    }
-   return $this->system->Card([
+   return [
     "Front" => $r
-   ]);
+   ];
   }
   function SaveUpload(array $a) {
    $_Failed = [];
@@ -728,9 +718,9 @@
      }
     }
    }
-   return $this->system->Card([
+   return [
     "Front" => $r
-   ]);
+   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS
