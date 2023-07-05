@@ -235,7 +235,7 @@
     $album = $album["Albums"][$aid] ?? [];
     $dialogID = "Delete$aid";
     $r = [
-     "Body" => "You are about to permanently delete ".$album["Title"]."."
+     "Body" => "You are about to permanently delete ".$album["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -299,7 +299,7 @@
     $dialogID = "Delete$id";
     $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
     $r = [
-     "Body" => "You are about to permanently delete ".$blog["Title"]."."
+     "Body" => "You are about to permanently delete ".$blog["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -362,7 +362,7 @@
     $post = $this->system->Data("Get", ["bp", $post[1]]) ?? [];
     $dialogID = "Delete".$post[1];
     $r = [
-     "Body" => "You are about to permanently delete ".$post["Title"]."."
+     "Body" => "You are about to permanently delete ".$post["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -423,7 +423,7 @@
     $accessCode = "Accepted";
     $dialogID = "Delete".$data["ID"];
     $r = [
-     "Body" => "You are about to permanently delete this Discount Code."
+     "Body" => "You are about to permanently delete this Discount Code.",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -490,7 +490,7 @@
     $fab = $fab[$id]["Title"] ?? "Broadcaster";
     $dialogID = "Delete$id";
     $r = [
-     "Body" => "You are about to permanently delete $fab."
+     "Body" => "You are about to permanently delete $fab.",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -560,7 +560,7 @@
     ]) : $files;
     $file = $files[$id] ?? [];
     $r = [
-     "Body" => "You are about to permanently delete ".$file["Title"]."."
+     "Body" => "You are about to permanently delete ".$file["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -629,7 +629,7 @@
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
     $title = $forum["Title"] ?? "this Forum";
     $r = [
-     "Body" => "You are about to permanently delete ".$forum["Title"]."."
+     "Body" => "You are about to permanently delete ".$forum["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -693,7 +693,7 @@
     $accessCode = "Accepted";
     $dialogID = "Delete$id";
     $r = [
-     "Body" => "You are about to permanently delete ".$post["Title"]."."
+     "Body" => "You are about to permanently delete ".$post["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -755,7 +755,7 @@
     $dialogID = "Delete".$data["ID"];
     $page = $this->system->Data("Get", ["pg", $data["ID"]]) ?? [];
     $r = [
-     "Body" => "You are about to permanently delete ".$page["Title"]."."
+     "Body" => "You are about to permanently delete ".$page["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -819,7 +819,7 @@
     $dialogID = "Delete".$data["ID"];
     $product = $this->system->Data("Get", ["miny", $data["ID"]]) ?? [];
     $r = [
-     "Body" => "You are about to permanently delete ".$product["Title"]."."
+     "Body" => "You are about to permanently delete ".$product["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[
@@ -881,7 +881,7 @@
     $id = base64_decode($id);
     $dialogID = "Delete$id";
     $r = [
-     "Body" => "You are about to permanently delete ".$post["Title"]."."
+     "Body" => "You are about to permanently delete this update.",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->system->Change([[

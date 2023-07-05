@@ -26,17 +26,17 @@
     $username = base64_decode($username);
     if($username != $you) {
      $r = [
-      "Body" => "You are about to fire $username. Are you sure?",
-      "Header" => "Fire $username?",
-      "Options" => [
+      "Actions" => [
        $this->system->Element(["button", "Cancel", [
         "class" => "CloseDialog v2 v2w"
        ]]),
        $this->system->Element(["button", "Fire $username", [
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
         "data-view" => base64_encode("v=".base64_encode("Shop:SaveBanish")."&UN=".$data["UN"])
-       ]
-      ])
+       ]])
+      ],
+      "Body" => "You are about to fire $username. Are you sure?",
+      "Header" => "Fire $username?"
      ];
     }
    }

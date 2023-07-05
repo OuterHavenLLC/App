@@ -26,9 +26,7 @@
     if($mbr != $Page["UN"] && $mbr != $y["Login"]["Username"]) {
     $accessCode = "Accepted";
      $r = [
-      "Body" => "Are you sure you want to banish $mbr from <em>".$Page["Title"]."</em>?",
-      "Header" => "Banish $mbr?",
-      "Options" => [
+      "Actions" => [
        $this->system->Element(["button", "Cancel", [
         "class" => "CloseDialog v2 v2w"
        ]]),
@@ -36,7 +34,9 @@
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
         "data-view" => base64_encode("v=".base64_encode("Page:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"])
        ]])
-      ]
+      ],
+      "Body" => "Are you sure you want to banish $mbr from <em>".$Page["Title"]."</em>?",
+      "Header" => "Banish $mbr?"
      ];
     }
    }

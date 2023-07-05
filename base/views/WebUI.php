@@ -43,6 +43,7 @@
    } else {
     $accessCode = "Accepted";
     $r = [
+     "NoClose" => 1,
      "Scrollable" => $this->system->Change([[
       "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
       "[Member.DisplayName]" => $y["Personal"]["DisplayName"],

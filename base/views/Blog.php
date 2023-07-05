@@ -23,9 +23,7 @@
     ];
     if($mbr != $blog["UN"] && $mbr != $you) {
      $r = [
-      "Body" => "Are you sure you want to banish $mbr from <em>".$blog["Title"]."</em>?",
-      "Header" => "Banish $mbr?",
-      "Options" => [
+      "Actions" => [
        $this->system->Element(["button", "Cancel", [
         "class" => "CloseDialog v2 v2w"
        ]]),
@@ -33,7 +31,9 @@
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
         "data-type" => base64_encode("v=".base64_encode("Blog:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"])
        ]])
-      ]
+      ],
+      "Body" => "Are you sure you want to banish $mbr from <em>".$blog["Title"]."</em>?",
+      "Header" => "Banish $mbr?"
      ];
     }
    }
