@@ -32,7 +32,7 @@
    ]);
   }
   function LockScreen(array $a) {
-   $accessCode = "Accepted";
+   $accessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
@@ -41,42 +41,45 @@
      "Header" => "Lock"
     ];
    } else {
-    $r = $this->system->Change([[
-     "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
-     "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
-     "[Member.Inputs]" => $this->system->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "PIN req",
-        "maxlen" => 8,
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
+    $accessCode = "Accepted";
+    $r = [
+     "Scrollable" => $this->system->Change([[
+      "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
+      "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
+      "[Member.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "class" => "PIN req",
+         "maxlen" => 8,
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "NONAME",
+         "Header" => 1,
+         "HeaderText" => "PIN"
+        ],
+        "Type" => "Text"
        ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "PIN"
-       ],
-       "Type" => "Text"
-      ],
-      [
-       "Attributes" => [
-        "class" => "req sPIN",
-        "name" => "sPIN",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Login"]["PIN"]
-      ]
-     ])
-    ], $this->system->Page("723a9e510879c2c16bf9690ffe7273b5")]);
+       [
+        "Attributes" => [
+         "class" => "req sPIN",
+         "name" => "sPIN",
+         "type" => "hidden"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "NONAME"
+        ],
+        "Type" => "Text",
+        "Value" => $y["Login"]["PIN"]
+       ]
+      ])
+     ], $this->system->Page("723a9e510879c2c16bf9690ffe7273b5")])
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
