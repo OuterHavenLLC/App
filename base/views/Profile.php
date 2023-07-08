@@ -6,6 +6,7 @@
   }
   function BulletinCenter(array $a) {
    $accessCode = "Accepted";
+   $search = base64_encode("Search:Containers");
    $bulletins = $this->view($search, ["Data" => [
     "st" => "Bulletins"
    ]]);
@@ -14,7 +15,6 @@
     "st" => "ContactsChatList"
    ]]);
    $list = base64_encode("Profile:BulletinsList");
-   $search = base64_encode("Search:Containers");
    $r = $this->system->Change([[
     "[BulletinCenter.Bulletins]" => $this->system->RenderView($bulletins),
     "[BulletinCenter.ContactRequests]" => "v=$list&type=".base64_encode("ContactsRequests"),

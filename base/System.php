@@ -22,21 +22,6 @@
     ]);
    }
   }
-  function AdminMenu() {
-   $album = base64_encode("Album:List");
-   $renewSubscriptions = base64_encode("Subscription:RenewAll");
-   $search = base64_encode("Search:Containers");
-   return $this->Change([[
-    "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
-    "[Admin.Feedback]" => "v=$search&st=Feedback",
-    "[Admin.Files]" => "v=$album&AID=".md5("unsorted")."&UN=".base64_encode($this->ID),
-    "[Admin.MassMail]" => "v=$search&st=ADM-MassMail",
-    "[Admin.Pages]" => base64_encode("v=$search&st=ADM-LLP"),
-    "[Admin.RenewSubscriptions]" => base64_encode("v=$renewSubscriptions"),
-    "[Admin.Server]" => "https://www.digitalocean.com/",
-    "[Admin.WHM]" => "admin.outerhaven.nyc:2086"
-   ], $this->Page("5c1ce5c08e2add4d1487bcd2193315a7")]);
-  }
   function ByteNotation(int $a, $b = "MB") {
    $units = [
     "GB" => number_format($a / 1073741824, 2),

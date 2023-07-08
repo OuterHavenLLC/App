@@ -96,10 +96,19 @@
    $r = [
     "Body" => "Could not load the Network Map..."
    ];
+   $search = base64_encode("Search:Containers");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $admin = ($y["Rank"] == md5("High Command")) ? $this->system->AdminMenu() : "";
-   $search = base64_encode("Search:Containers");
+   $admin = ($y["Rank"] == md5("High Command")) ? $this->system->Change([[
+    "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
+    "[Admin.Feedback]" => "v=$search&st=Feedback",
+    "[Admin.Files]" => "v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->system->ID),
+    "[Admin.MassMail]" => "v=$search&st=ADM-MassMail",
+    "[Admin.Pages]" => base64_encode("v=$search&st=ADM-LLP"),
+    "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
+    "[Admin.Server]" => "https://www.digitalocean.com/",
+    "[Admin.WHM]" => "admin.outerhaven.nyc:2086"
+   ], $this->system->Page("5c1ce5c08e2add4d1487bcd2193315a7")]) : "";
    $support = [md5("High Command"), md5("Support")];
    $support = (in_array($y["Rank"], $support)) ? "<!--SUPPORT OPTIONS-->" : "";
    $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->system->Element([
@@ -137,13 +146,10 @@
      "[Menu.LockScreen]" => base64_encode("v=".base64_encode("WebUI:LockScreen")),
      "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
      "[Menu.Member.Articles]" => base64_encode("v=$search&st=MBR-LLP"),
-     "[Menu.Member.Articles.FSTID]" => md5("MemberArticles"),
-     "[Menu.Member.Blacklist]" => "v=".base64_encode("Common:Blacklist"),
-     "[Menu.Member.Blacklist.FSTID]" => md5("Blacklist"),
-     "[Menu.Member.Blogs]" => "v=$search&st=MBR-BLG",
-     "[Menu.Member.Blogs.FSTID]" => md5("MemberBlogs"),
-     "[Menu.Member.BulletinCenter]" => "v=".base64_encode("Profile:BulletinCenter"),
-     "[Menu.Member.Contacts]" => "v=$search&st=Contacts",
+     "[Menu.Member.Blacklist]" => base64_encode("v=".base64_encode("Common:Blacklist")),
+     "[Menu.Member.Blogs]" => base64_encode("v=$search&st=MBR-BLG"),
+     "[Menu.Member.BulletinCenter]" => base64_encode("v=".base64_encode("Profile:BulletinCenter")),
+     "[Menu.Member.Contacts]" => base64_encode("v=$search&st=Contacts"),
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"],
      "[Menu.Member.Files]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=Files&st=XFS"),
      "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
@@ -157,7 +163,7 @@
      "[Menu.Member.UpdateStatus]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you)),
      "[Menu.Member.Username]" => $you,
      "[Menu.MiNY]" => "v=".base64_encode("Shop:MadeInNewYork"),
-     "[Menu.MiNY.History]" => "'N/A', 'v=".base64_encode("Shop:History")."&ID=".md5($this->system->ShopID)."', '".md5("ShoppingHistory")."'",
+     "[Menu.MiNY.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=".md5($this->system->ShopID)),
      "[Menu.Search.Archive]" => base64_encode("v=$search&lPG=Archive&st=CA"),
      "[Menu.Search.Artists]" => base64_encode("v=$search&lPG=Shops&st=SHOP"),
      "[Menu.Search.Blogs]" => base64_encode("v=$search&lPG=Blogs&st=BLG"),
