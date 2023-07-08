@@ -395,3 +395,25 @@
 [2023-06-25  20:59:24] INFO main/main Icecast 2.4.4 server started
 [2023-06-25  20:59:24] INFO yp/yp_update_thread YP update thread started
 [2023-06-25  20:59:24] INFO connection/get_ssl_certificate No SSL capability on any configured ports
+[2023-06-28  01:04:58] INFO main/_server_proc Caught halt request, shutting down...
+[2023-06-28  01:04:58] INFO main/main Shutting down
+[2023-06-28  01:04:58] INFO fserve/fserve_shutdown file serving stopped
+[2023-06-28  01:04:58] INFO slave/_slave_thread shutting down current relays
+[2023-06-28  01:04:58] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-06-28  01:04:58] INFO auth/auth_shutdown Auth shutdown
+[2023-06-28  01:04:58] INFO yp/yp_shutdown YP thread down
+[2023-06-28  01:04:59] INFO stats/stats_shutdown stats thread finished
+[2023-06-28  15:33:13] INFO main/main Icecast 2.4.4 server started
+[2023-06-28  15:33:13] INFO yp/yp_update_thread YP update thread started
+[2023-06-28  15:33:13] INFO connection/get_ssl_certificate No SSL capability on any configured ports
+[2023-07-04  00:07:06] INFO main/_server_proc Caught halt request, shutting down...
+[2023-07-04  00:07:06] INFO main/main Shutting down
+[2023-07-04  00:07:06] INFO fserve/fserve_shutdown file serving stopped
+[2023-07-04  00:07:07] INFO slave/_slave_thread shutting down current relays
+[2023-07-04  00:07:07] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-07-04  00:07:07] INFO auth/auth_shutdown Auth shutdown
+[2023-07-04  00:07:07] INFO yp/yp_shutdown YP thread down
+[2023-07-04  00:07:07] INFO stats/stats_shutdown stats thread finished
+[2023-07-04  00:08:35] INFO main/main Icecast 2.4.4 server started
+[2023-07-04  00:08:35] INFO yp/yp_update_thread YP update thread started
+[2023-07-04  00:08:35] INFO connection/get_ssl_certificate No SSL capability on any configured ports
