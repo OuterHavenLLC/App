@@ -1396,8 +1396,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[ForumPost.Modified]" => base64_encode($modified),
         "[ForumPost.OriginalPoster]" => base64_encode($display),
         "[ForumPost.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-        "[ForumPost.Reactions]" => $votes,
-        "[ForumPost.Title]" => base64_encode($post["Title"])
+        "[ForumPost.Title]" => base64_encode($post["Title"]),
+        "[ForumPost.VoteID]" => base64_encode($post["ID"]),
+        "[ForumPost.Votes]" => base64_encode($votes)
        ]);
       }
      }
@@ -1524,7 +1525,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.Modified]" => base64_encode($modified),
         "[StatusUpdate.OriginalPoster]" => base64_encode($op["Personal"]["DisplayName"]),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-        "[StatusUpdate.Reactions]" => $votes
+        "[StatusUpdate.VoteID]" => base64_encode($su["ID"]),
+        "[StatusUpdate.Votes]" => base64_encode($votes)
        ]);
       }
      }
@@ -2140,7 +2142,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "[StatusUpdate.Modified]" => base64_encode($modified),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.VoteID]" => base64_encode($id),
+         "[StatusUpdate.VoteID]" => base64_encode($v),
          "[StatusUpdate.Votes]" => base64_encode($votes)
         ]);
        }
