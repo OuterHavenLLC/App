@@ -7,7 +7,7 @@
   function Containers(array $a) {
    $data = $a["Data"] ?? [];
    $content = $this->view(base64_encode("WebUI:OptIn"), []);
-   $content = $thie->system->RenderView($content);
+   $content = $this->system->RenderView($content);
    $content = $data["Content"] ?? $content;
    $type = $data["Type"] ?? "";
    if($type == "Chat") {

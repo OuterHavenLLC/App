@@ -28,7 +28,7 @@
       $_VoteUp++;
      }
     }
-    $class = "Bar Vote VoteFor$id";
+    $class = "Pill VoteFor$id";
     $class .= "";
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
@@ -147,7 +147,7 @@
       $_VoteUp++;
      }
     }
-    $class = "Bar Vote VoteFor$id";
+    $class = "Pill VoteFor$id";
     $class .= "";
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
