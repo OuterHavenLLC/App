@@ -213,7 +213,7 @@
     } elseif($st == "MBR-ALB") {
      $ae = base64_encode("Album:Edit");
      $un = base64_decode($data["UN"]);
-     $t = ($un == $y["Login"]["Username"]) ? $y : $this->system->Member($un);
+     $t = ($un == $you) ? $y : $this->system->Member($un);
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $h = ($ck == 1) ? "Your Albums" : $t["Personal"]["DisplayName"]."'s Albums";
      $b2 = $b2 ?? $h;
@@ -1379,10 +1379,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = $this->system->Element(["em", $modified]);
        }
        $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-       $votes = base64_encode($this->view($votes, ["Data" => [
-        "ID" => $post["ID"],
-        "Type" => 3
-       ]]));
+       $votes = base64_encode("v=$votes&ID=".$post["ID"]."&Type=1");
        array_push($msg, [
         "[ForumPost.Actions]" => base64_encode($actions),
         "[ForumPost.Attachments]" => base64_encode($att),
@@ -1511,12 +1508,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = $this->system->Element(["em", $modified]);
        }
        $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-       $votes = base64_encode($this->view($votes, [
-        "Data" => [
-         "ID" => $su["ID"],
-         "Type" => 3
-        ]
-       ]));
+       $votes = base64_encode("v=$votes&ID=".$su["ID"]."&Type=1");
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($att),
         "[StatusUpdate.Body]" => base64_encode($this->system->PlainText([
@@ -1613,7 +1605,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "Contacts" => $fr["Contacts"],
        "Privacy" => $pri,
        "UN" => $t["Login"]["Username"],
-       "Y" => $y["Login"]["Username"]
+       "Y" => $you
       ]);
       $illegal = $v["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
@@ -1808,13 +1800,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $modified = $this->system->Element(["em", $modified]);
        }
        $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-       $votes = base64_encode($this->view($votes, [
-        "Data" => [
-         "ID" => $id,
-         "Type" => 3
-        ]
-       ]));
-       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
        $votes = base64_encode("v=$votes&ID=$id&Type=1");
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($att),
@@ -1832,7 +1817,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
         "[StatusUpdate.VoteID]" => base64_encode($id),
-        "[StatusUpdate.Votes]" => $votes
+        "[StatusUpdate.Votes]" => base64_encode($votes)
        ]);
       }
      }
@@ -2156,7 +2141,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->system->ProfilePicture($op, "margin:5%;width:90%")),
          "[StatusUpdate.VoteID]" => base64_encode($id),
-         "[StatusUpdate.Votes]" => $votes
+         "[StatusUpdate.Votes]" => base64_encode($votes)
         ]);
        }
       }

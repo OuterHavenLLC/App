@@ -158,6 +158,7 @@
    ];
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "CommentID",
@@ -169,18 +170,20 @@
    $hide = base64_encode("Conversation:MarkAsHidden");
    $i = 0;
    $l = $data["Level"] ?? base64_encode(1);
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Conversation Identifier is missing."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The Conversation Identifier is missing.",
+    "Header" => "Not Found"
+   ];
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($crid)) {
+    $accessCode = "Accepted";
     $anon = "Anonymous";
     $cr = "";
     $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
     $crid = (!empty($crid)) ? base64_decode($crid) : $crid;
     $l = base64_decode($l);
+    $l = $l ?? 1;
     $c = $this->system->Data("Get", ["conversation", $crid]) ?? [];
     $ch = base64_encode("Conversation:Home");
     $im = base64_encode("LiveView:InlineMossaic");
@@ -191,7 +194,7 @@
      ], $this->system->Page("97e7d7d9a85b30e10ab51b23623ccee5")]);
      $tpl = $this->system->Page("8938c49b85c52a5429cc8a9f46c14616");
      foreach($c as $k => $v) {
-      $t = ($v["From"] == $y["Login"]["Username"]) ? $y : $this->system->Member($v["From"]);
+      $t = ($v["From"] == $you) ? $y : $this->system->Member($v["From"]);
       $bl = $this->system->CheckBlocked([$y, "Comments", $k]);
       $cms = $this->system->Data("Get", ["cms", md5($v["From"])]) ?? [];
       $ck = ($v["NSFW"] == 0 || ($y["age"] >= $this->system->core["minAge"])) ? 1 : 0;
@@ -199,7 +202,7 @@
        "Contacts" => $cms["Contacts"],
        "Privacy" => $v["Privacy"],
        "UN" => $t["Login"]["Username"],
-       "Y" => $y["Login"]["Username"]
+       "Y" => $you
       ]);
       $ck3 = ($v["Level"] == 1) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1) {
@@ -208,15 +211,15 @@
         "ID" => base64_encode(implode(";", $dlc))
        ]]) : "";
        $op = ($v["From"] == $this->system->ID) ? $anon : $v["From"];
-       $opt = ($v["From"] == $y["Login"]["Username"] && $y["Login"]["Username"] != $this->system->ID) ? $this->system->Element([
+       $opt = ($v["From"] == $you && $you != $this->system->ID) ? $this->system->Element([
         "div", $this->system->Element(["button", "Edit", [
-         "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k))
+         "class" => "InnerMargin OpenDialog",
+         "data-view" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k))
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->system->Element([
         "div", $this->system->Element(["button", "Hide", [
-         "class" => "InnerMargin dBO",
-         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l"
+         "class" => "InnerMargin OpenDialog",
+         "data-view" => base64_encode("v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l")
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
        $cr .= $this->system->Change([[
@@ -254,7 +257,7 @@
      $r = $this->system->Page("cc3c7b726c1d7f9c50f5f7869513bd80");
      $tpl = $this->system->Page("ccf260c40f8fa63be5686f5ceb2b95b1");
      foreach($c as $k => $v) {
-      $t = ($v["From"] == $y["Login"]["Username"]) ? $y : $this->system->Member($v["From"]);
+      $t = ($v["From"] == $you) ? $y : $this->system->Member($v["From"]);
       $bl = $this->system->CheckBlocked([$y, "Replies", $k]);
       $cms = $this->system->Data("Get", [
        "cms",
@@ -266,7 +269,7 @@
        "Contacts" => $cms["Contacts"],
        "Privacy" => $v["Privacy"],
        "UN" => $t["Login"]["Username"],
-       "Y" => $y["Login"]["Username"]
+       "Y" => $you
       ]);
       $ck4 = ($v["Level"] == 2) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) {
@@ -275,7 +278,7 @@
         "ID" => base64_encode(implode(";", $dlc))
        ]]) : "";
        $op = ($v["From"] == $this->system->ID) ? $anon : $v["From"];
-       $opt = ($v["From"] == $y["Login"]["Username"] && $y["Login"]["Username"] != $this->system->ID) ? $this->system->Element([
+       $opt = ($v["From"] == $you && $you != $this->system->ID) ? $this->system->Element([
         "div", $this->system->Element(["button", "Edit", [
          "class" => "InnerMargin dB2O",
          "data-type" => base64_encode("v=$edit&CommentID=".base64_encode($v["CommentID"])."&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
@@ -322,7 +325,7 @@
      $r = $this->system->Page("cc3c7b726c1d7f9c50f5f7869513bd80");
      $tpl = $this->system->Page("3847a50cd198853fe31434b6f4e922fd");
      foreach($c as $k => $v) {
-      $t = ($v["From"] == $y["Login"]["Username"]) ? $y : $this->system->Member($v["From"]);
+      $t = ($v["From"] == $you) ? $y : $this->system->Member($v["From"]);
       $bl = $this->system->CheckBlocked([$y, "Replies", $k]);
       $cms = $this->system->Data("Get", [
        "cms",
@@ -334,7 +337,7 @@
        "Contacts" => $cms["Contacts"],
        "Privacy" => $v["Privacy"],
        "UN" => $t["Login"]["Username"],
-       "Y" => $y["Login"]["Username"]
+       "Y" => $you
       ]);
       $ck4 = ($v["Level"] == 3) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) {
@@ -343,7 +346,7 @@
         "ID" => base64_encode(implode(";", $dlc))
        ]]) : "";
        $op = ($v["From"] == $this->system->ID) ? $anon : $v["From"];
-       $opt = ($v["From"] == $y["Login"]["Username"] && $y["Login"]["Username"] != $this->system->ID) ? $this->system->Element([
+       $opt = ($v["From"] == $you && $you != $this->system->ID) ? $this->system->Element([
         "div", $this->system->Element(["button", "Edit", [
          "class" => "InnerMargin dB2O",
          "data-type" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
@@ -380,7 +383,14 @@
      ], $this->system->Page("f6876eb53ff51bf537b1b1848500bdab")]);
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";

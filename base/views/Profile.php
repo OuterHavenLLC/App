@@ -324,6 +324,7 @@
   }
   function Home(array $a) {
    $accessCode = "Denied";
+   $_ViewTitle = $this->system->core["SYS"]["Title"];
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["CARD", "UN", "b2", "lPG"]);
    $b2 = $data["b2"];
@@ -371,6 +372,7 @@
      $_Artist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $_Block = ($_youBlockedThem == 0) ? "B" : "U";
      $_BlockText = ($_youBlockedThem == 0) ? "Block" : "Unblock";
+     $_ViewTitle = $t["Personal"]["DisplayName"]." @ ".$_ViewTitle;
      $_VIP = $t["Subscriptions"]["VIP"]["A"];
      $actions = $this->system->Element(["button", $_BlockText, [
       "class" => "BLK Small v2",
@@ -392,24 +394,32 @@
      ]]);
      $actions = ($id != $you) ? $actions : "";
      $addContact = "";
-     $albums = ($ck == 1 || $privacy["Albums"] == $public || $visible == 1) ? $this->view($search, ["Data" => [
-      "UN" => base64_encode($id),
-      "st" => "MBR-ALB"
-     ]]) : $this->system->Change([[
+     $albums = $this->system->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$display keeps their media albums to themselves."
      ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
-     $articles = ($ck == 1 || $privacy["Archive"] == $public || $visible == 1) ? $this->view($search, ["Data" => [
-      "UN" => base64_encode($id),
-      "b2" => $b2,
-      "lPG" => $lpg,
-      "st" => "MBR-CA"
-     ]]) : $this->system->Change([[
+     if($ck == 1 || $privacy["Albums"] == $public || $visible == 1) {
+      $albums = $this->view($search, ["Data" => [
+       "UN" => base64_encode($id),
+       "st" => "MBR-ALB"
+      ]]);
+      $albums = $this->system->RenderView($albums);
+     }
+     $articles = $this->system->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$display keeps their archive contributions to themselves."
      ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     if($ck == 1 || $privacy["Archive"] == $public || $visible == 1) {
+      $articles = $this->view($search, ["Data" => [
+       "UN" => base64_encode($id),
+       "b2" => $b2,
+       "lPG" => $lpg,
+       "st" => "MBR-CA"
+      ]]);
+      $articles = $this->system->RenderView($articles);
+     }
      $bio = "You have not added an Autobiography";
      $bio = ($ck == 0) ? "$display has not added an Autobiography." : $bio;
      $bio = (!empty($t["Bio"])) ? $this->system->PlainText([
@@ -418,27 +428,35 @@
       "Display" => 1,
       "HTMLDecode" => 1
      ]) : $bio;
-     $blogs = ($ck == 1 || $privacy["Posts"] == $public || $visible == 1) ? $this->view($search, ["Data" => [
-      "UN" => base64_encode($id),
-      "b2" => $b2,
-      "lPG" => $lpg,
-      "st" => "MBR-BLG"
-     ]]) : $this->system->Change([[
+     $blogs = $this->system->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$display keeps their blogs to themselves."
      ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     if($ck == 1 || $privacy["Posts"] == $public || $visible == 1) {
+      $blogs = $this->view($search, ["Data" => [
+       "UN" => base64_encode($id),
+       "b2" => $b2,
+       "lPG" => $lpg,
+       "st" => "MBR-BLG"
+      ]]);
+      $blogs = $this->system->RenderView($blogs);
+     }
      $ChangeRank = "";
-     $contacts = ($ck == 1 || $privacy["Contacts"] == $public || $visible == 1) ? $this->view($search, ["Data" => [
-      "UN" => base64_encode($id),
-      "b2" => $b2,
-      "lPG" => $lpg,
-      "st" => "ContactsProfileList"
-     ]]) : $this->system->Change([[
+     $contacts = $this->system->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$display keeps their contacts to themselves."
      ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     if($ck == 1 || $privacy["Contacts"] == $public || $visible == 1) {
+      $contacts = $this->view($search, ["Data" => [
+       "UN" => base64_encode($id),
+       "b2" => $b2,
+       "lPG" => $lpg,
+       "st" => "ContactsProfileList"
+      ]]);
+      $contacts = $this->system->RenderView($contacts);
+     }
      $contactRequestsAllowed = $this->system->CheckPrivacy([
       "Contacts" => $theirContacts,
       "Privacy" => $t["Privacy"]["ContactRequests"],
@@ -515,16 +533,25 @@
       "Data" => $t["Personal"]["Description"],
       "Display" => 1
      ]) : $description;
-     $journal = ($ck == 1 || $privacy["Journal"] == $public || $visible == 1) ? $this->view($search, ["Data" => [
-      "UN" => base64_encode($id),
-      "b2" => $b2,
-      "lPG" => $lpg,
-      "st" => "MBR-JE"
-     ]]) : $this->system->Change([[
+     $journal = $this->system->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$display keeps their Journal to themselves."
      ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     if($ck == 1 || $privacy["Journal"] == $public || $visible == 1) {
+      $journal = $this->view($search, ["Data" => [
+       "UN" => base64_encode($id),
+       "b2" => $b2,
+       "lPG" => $lpg,
+       "st" => "MBR-JE"
+      ]]);
+      $journal = $this->system->RenderView($journal);
+     }
+     $stream = $this->view($search, ["Data" => [
+       "UN" => base64_encode($id),
+       "st" => "MBR-SU"
+      ]]);
+     $stream = $this->system->RenderView($stream);
      $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=".md5($id)."&Type=4");
      $r = $this->system->Change([[
@@ -550,10 +577,7 @@
       "[Member.ID]" => md5($id),
       "[Member.Journal]" => $journal,
       "[Member.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:2em;width:calc(100% - 4em)"),
-      "[Member.Stream]" => $this->view($search, ["Data" => [
-       "UN" => base64_encode($id),
-       "st" => "MBR-SU"
-      ]]),
+      "[Member.Stream]" => $stream,
       "[Member.Votes]" => $votes
      ], $this->system->Page("72f902ad0530ad7ed5431dac7c5f9576")]);
     }
@@ -561,19 +585,24 @@
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r
    ] : $r;
-   $r = ($you == $this->system->ID && $pub == 1) ? $this->view(base64_encode("WebUI:OptIn"), []) : $r;
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   if($pub == 1) {
+    if($this->system->ID == $you) {
+     $r = $this->view(base64_encode("WebUI:OptIn"), []);
+     $r = $this->system->RenderView($r);
+    }
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+    "ResponseType" => "View",
+    "Title" => $_ViewTitle
+   ]);
   }
   function MakeVIP(array $a) {
    $accessCode = "Denied";
@@ -650,13 +679,16 @@
    return json_encode($bulletins);
   }
   function NewPassword(array $a) {
+   $accessCode = "Denied";
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Error"
     ];
    } else {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
      "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
@@ -664,60 +696,61 @@
      "[Member.Username]" => $y["Login"]["Username"]
     ], $this->system->Page("08302aec8e47d816ea0b3f80ad87503c")]);
    }
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function NewPIN(array $a) {
+   $accessCode = "Denied";
    $y = $this->you;
-   if($this->system->ID == $y["Login"]["Username"]) {
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue."
     ];
    } else {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[Member.ProfilePicture]" => $this->system->ProfilePicture($y, "margin:5%;width:90%"),
      "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
      "[Member.Update]" => base64_encode("v=".base64_encode("Profile:SavePIN"))
     ], $this->system->Page("867bd8480f46eea8cc3d2a2ed66590b7")]);
    }
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Preferences(array $a) {
-   $button = "";
+   $accessCode = "Denied";
+   $action = "";
    $minAge = $this->system->core["minRegAge"] ?? 13;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $ck = ($y["Personal"]["Age"] >= $minAge) ? 1 : 0;
    $ck2 = ($this->system->ID != $you) ? 1 : 0;
    if($ck == 0) {
-    $r = $this->system->Change([[
-     "[Error.Back]" => "",
-     "[Error.Header]" => "Not of Age",
-     "[Error.Message]" => "As a security measure, you must be aged $minAge or older in order to take full control of your profile and absolve yourself of your parent account."
-    ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+    $r = [
+     "Body" => "As a security measure, you must be aged $minAge or older in order to take full control of your profile and absolve yourself of your parent account.",
+     "Header" => "Not of Age"
+    ];
    } elseif($ck2 == 0) {
-    $r = $this->system->Change([[
-     "[Error.Back]" => "",
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
    } elseif($ck == 1 && $ck2 == 1) {
-    $button = $this->system->Element(["button", "Save", [
+    $accessCode = "Accepted";
+    $action = $this->system->Element(["button", "Save", [
      "class" => "CardButton dBO",
      "data-type" => "v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".Preferences".md5($you))."&ID=".md5($you)."&Processor=".base64_encode("v=".base64_encode("Profile:Save"))."&Text=".base64_encode("Are you sure you want to update your preferences?")
     ]]);
@@ -1137,19 +1170,17 @@
     ], $this->system->Page("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
    $r = [
-    "Action" => $button,
-    "Back" => "",
+    "Action" => $action,
     "Front" => $r
    ];
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -1596,15 +1627,14 @@
      "[2FA.Error.ViewPairID]" => "2FAStep1"
     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
    }
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Share(array $a) {
    $accessCode = "Denied";

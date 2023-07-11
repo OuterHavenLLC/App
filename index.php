@@ -52,6 +52,7 @@
    $r = $gw->view($view, ["Data" => $data]);
   }
  } else {
+  $_ViewTitle = $gw->system->core["SYS"]["Title"];
   $c = $data["_cmd"] ?? "";
   $c = (!empty($c)) ? explode("/", urldecode($c)) : [$c];
   $c = $gw->system->FixMissing($c, [0, 1, 2, 3]);
@@ -86,6 +87,7 @@
     "UN" => base64_encode($c[1]),
     "pub" => 1
    ]]);
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "PMC" || $c[0] == "defense") {
    # OUTER HAVEN P.M.C.
    $r = $gw->view(base64_encode("PMC:Home"), ["Data" => [
@@ -180,16 +182,15 @@
   } else {
    $gw->system->Statistic("Visits");
    $r = $gw->view(base64_encode("WebUI:UIContainers"), []);
-   $r = $gw->system->RenderView($r);
   }
   $r = $gw->system->Change([[
-   "[Body]" => $r,
+   "[Body]" => $gw->system->RenderView($r),
    "[Description]" => $gw->system->core["SYS"]["Description"],
    "[Keywords]" => $gw->system->core["SYS"]["Keywords"],
-   "[Title]" => $gw->system->core["SYS"]["Title"]
+   "[Title]" => $_ViewTitle
   ], $gw->system->PlainText([
    "BBCodes" => 1,
-   "Data" => file_get_contents($_SERVER["DOCUMENT_ROOT"]."/index.txt"),
+   "Data" => file_get_contents("./index.txt"),
    "Display" => 1
   ])]);
  } if(!empty($api) && !in_array($api, $doNotEncode)) {
