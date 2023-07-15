@@ -507,6 +507,19 @@
   }
   function MadeInNewYork(array $a) {
    $accessCode = "Accepted";
+   $_Search = base64_encode("Search:Containers");
+   $_Artists = $this->view($_Search, ["Data" => [
+    "b2" => "Made in New York",
+    "lPG" => "MadeInNY",
+    "st" => "SHOP"
+   ]]);
+   $_Artists = $this->system->RenderView($_Artists);
+   $_Products = $this->view($_Search, ["Data" => [
+    "b2" => "Made in New York",
+    "lPG" => "MadeInNY",
+    "st" => "SHOP-Products"
+   ]]);
+   $_Products = $this->system->RenderView($_Products);
    $data = $a["Data"] ?? [];
    $bck = $data["back"] ?? "";
    $callsign = $this->system->Data("Get", [
@@ -514,22 +527,12 @@
     "355fd2f096bdb49883590b8eeef72b9c"
    ]) ?? [];
    $callsign = $this->system->CallSign($callsign["Title"]);
-   $lpg = "MadeInNY";
    $pub = $data["pub"] ?? 0;
-   $sc = base64_encode("Search:Containers");
    $username = base64_encode($this->system->ShopID);
    $r = $this->system->Change([[
-    "[MadeInNY.Artists]" => $this->view($sc, ["Data" => [
-     "b2" => "Made in New York",
-     "lPG" => $lpg,
-     "st" => "SHOP"
-    ]]),
+    "[MadeInNY.Artists]" => $_Artists,
     "[MadeInNY.Back]" => $bck,
-    "[MadeInNY.Products]" => $this->view($sc, ["Data" => [
-     "b2" => "Made in New York",
-     "lPG" => $lpg,
-     "st" => "SHOP-Products"
-    ]]),
+    "[MadeInNY.Products]" => $_Products,
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&CS=$callsign&UN=$username&pub=$pub")
    ], $this->system->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {
@@ -997,7 +1000,7 @@
    $username = $data["UN"];
    $y = $this->you;
    if(!empty($username)) {
-    $accessCode = "Accepted":
+    $accessCode = "Accepted";
     $username = base64_decode($username);
     $t = ($username == $y["Login"]["Username"]) ? $y : $this->system->Member($username);
     $body = $this->system->PlainText([
