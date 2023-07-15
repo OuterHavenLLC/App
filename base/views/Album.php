@@ -124,15 +124,16 @@
    ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["AID"] ?? "";
    $b2 = $data["b2"] ?? "Albums";
    $b2 = urlencode($b2);
    $bck = $data["back"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Album Identifier is missing."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The Album Identifier is missing.",
+    "Header" => "Not Found"
+   ];
    $xfsLimit = $this->system->core["XFS"]["limits"]["Total"] ?? 0;
    $xfsLimit = str_replace(",", "", $xfsLimit)."MB";
    $xfsUsage = 0;
@@ -177,6 +178,7 @@
      ]
     ]) : "";
     if($ck == 1) {
+     $accessCode = "Accepted";
      $actions .= ($ck2 == 1) ? $this->system->Element([
       "button", "Add Files", [
        "class" => "Small dB2O v2",
@@ -214,12 +216,21 @@
       "UN" => $tun
      ]])
     ], $this->system->Page("91c56e0ee2a632b493451aa044c32515")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function List(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "AID",
@@ -234,23 +245,31 @@
    $b2 = $data["b2"] ?? "Albums";
    $bck = $data["back"] ?? 0;
    $un = $data["UN"] ?? $y["Login"]["Username"];
-   $bck = ($bck == 1) ? $this->system->Element(["button", "Back to $b2", [
-    "class" => "GoToParent LI head",
-    "data-type" => $data["lPG"]
-   ]]) : "";
-   $r = $this->system->Change([[
-    "[Error.Back]" => $bck,
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The requested Album could not be found."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The requested Album could not be found.",
+    "Header" => "Not Found"
+   ];
    if(!empty($id)) {
-    $r = $bck.$this->view(base64_encode("Search:Containers"), ["Data" => [
+    $accessCode = "Accepted";
+    $back = ($bck == 1) ? $this->system->Element(["button", "Back to $b2", [
+     "class" => "GoToParent LI head",
+     "data-type" => $data["lPG"]
+    ]]) : "";
+    $r = $this->view(base64_encode("Search:Containers"), ["Data" => [
      "AID" => $id,
      "UN" => $un,
      "st" => "MBR-XFS"
     ]]);
+    $r = $back.$this->system->RenderView($r);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -339,8 +358,8 @@
      "Body" => "The default Album cannot be deleted."
     ];
     if($id != md5("unsorted")) {
-     $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
      $accessCode = "Accepted";
+     $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
      $albums = $_FileSystem["Albums"] ?? [];
      $files = $_FileSystem["Files"] ?? [];
      $newAlbums = [];
@@ -381,17 +400,18 @@
    ]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
    $un = $data["UN"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($un)) {
+    $accessCode = "Accepted";
     $un = base64_decode($un);
     $code = base64_encode("$un;$id");
     $t = ($un == $you) ? $y : $this->system->Member($un);
@@ -416,10 +436,18 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $fileSystem["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

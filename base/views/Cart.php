@@ -5,13 +5,13 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Add(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "T"]);
    $id = $data["ID"];
-   $r = $this->system->Element([
-    "p", "You must be signed in to make purchases.",
-    ["class" => "CenterText"]
-   ]);
+   $r = [
+    "Body" => "You must be signed in to make purchases.",
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["T"]) && $this->system->ID != $you) {
@@ -22,11 +22,12 @@
      md5($t["Login"]["Username"])
     ]) ?? [];
     if($sub == 0 && $id == "c7054e9c7955203b721d142dedc9e540") {
-     $r = $this->system->Element([
-      "p", "Pay your commisiion via the Subscriptions page, and you will automatically be subscribed.",
-      ["class" => "CenterText"]
-     ]);
+     $r = [
+      "Body" => "Pay your commisiion via the Subscriptions page, and you will automatically be subscribed.",
+      "Header" => "Commission Due"
+     ];
     } else {
+     $accessCode = "Accepted";
      $product = $this->system->Data("Get", ["miny", $id]) ?? [];
      $cat = $product["Category"] ?? "";
      $i = $product["Instructions"] ?? "";
@@ -119,16 +120,27 @@
      }
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $r = $this->system->Page("8b3e21c565a8220fb6eb0a4433fe0739");
+   $r = [
+    "Scrollable" => $this->system->Page("8b3e21c565a8220fb6eb0a4433fe0739")
+   ];
    $username = base64_decode($data["UN"]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $username = (!empty($username)) ? $username : $you;
    if($this->system->ID != $username) {
+    $accessCode = "Accepted";
     $t = ($username == $you) ? $y : $this->system->Member($username);
     $i = 1000;
     $id = md5($t["Login"]["Username"]);
@@ -201,23 +213,41 @@
      "[Cart.Summary]" => "v=".base64_encode("Cart:Summary")."&UN=".$data["UN"]
     ], $this->system->Page("ac678179fb0fb0c66cd45d738991abb9")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Remove(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "ProductID",
     "ShopID"
    ]);
-   $r = "&nbsp;";
+   $r = [
+    "Body" => "The Product or Shop Identifiers are missing."
+   ];
    if(!empty($data["ProductID"]) && !empty($data["ShopID"])) {
+    $accessCode = "Accepted";
     $r = $this->system->Change([[
      "[RemoveFromCart.ProductID]" => $data["ProductID"],
      "[RemoveFromCart.ShopID]" => $data["ShopID"],
      "[RemoveFromCart.Remove]" => base64_encode("Cart:SaveRemove")
     ], $this->system->Page("554566eff3c7949301784c2be0a6be07")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveAdd(array $a) {
    $accessCode = "Denied";
@@ -283,6 +313,7 @@
    ]);
   }
   function SaveRemove(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "ProductID",
@@ -296,6 +327,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($productID) && !empty($shopID)) {
+    $accessCode = "Accepted";
     $newProducts = [];
     $productID = base64_decode($productID);
     $shopID = base64_decode($shopID);
@@ -312,9 +344,17 @@
     ];
     $this->system->Data("Save", ["mbr", md5($you), $y]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Summary(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN"]);
    $y = $this->you;
@@ -369,7 +409,7 @@
      "onclick" => "FST('N/A', 'v=".base64_encode("Pay:Checkout")."&UN=".$data["UN"]."', '".md5("ShoppingCart$username-Checkout")."');"
     ]
    ]) : "";
-   return $this->system->Change([[
+   $r = $this->system->Change([[
     "[Cart.Continue]" => $continue,
     "[Cart.Summary.Discount]" => number_format($credits + $discountCode, 2),
     "[Cart.Summary.Subtotal]" => number_format($subtotal, 2),

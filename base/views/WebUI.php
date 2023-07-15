@@ -21,14 +21,30 @@
      "[OH.MainContent]" => $content
     ], $this->system->Page("606c44e9e7eac67c34c5ad8d1062b003")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Error(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   return $this->system->Element([
+   $r = $this->system->Element([
     "h1", "Something went wrong...", ["class" => "UpperCase"]
    ]).$this->system->Element([
     "p", $data["Error"]
+   ]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function LockScreen(array $a) {
@@ -101,9 +117,9 @@
    $you = $y["Login"]["Username"];
    $admin = ($y["Rank"] == md5("High Command")) ? $this->system->Change([[
     "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
-    "[Admin.Feedback]" => "v=$search&st=Feedback",
-    "[Admin.Files]" => "v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->system->ID),
-    "[Admin.MassMail]" => "v=$search&st=ADM-MassMail",
+    "[Admin.Feedback]" => base64_encode("v=$search&st=Feedback"),
+    "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->system->ID)),
+    "[Admin.MassMail]" => base64_encode("v=$search&st=ADM-MassMail"),
     "[Admin.Pages]" => base64_encode("v=$search&st=ADM-LLP"),
     "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
     "[Admin.Server]" => "https://www.digitalocean.com/",
@@ -122,8 +138,8 @@
     $r = $this->system->Change([[
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Defense]" => base64_encode("v=".base64_encode("PMC:Home")),
-     "[Menu.Company.Home]" => "v=".base64_encode("Company:Home"),
-     "[Menu.Company.IncomeDisclosure]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($this->system->ShopID),
+     "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home"),
+          "[Menu.Company.IncomeDisclosure]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($this->system->ShopID)),
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
@@ -205,6 +221,7 @@
    ]);
   }
   function SwitchLanguages() {
+   $accessCode = "Accepted";
    $languages = $this->system->Languages() ?? [];
    $options = "";
    foreach($languages as $key => $value) {
@@ -216,9 +233,17 @@
      ]]);
     }//TEMP
    }
-   return $this->system->Change([[
+   $r = $this->system->Change([[
     "[LanguageSwitch.Options]" => $options
    ], $this->system->Page("350d1d8dfa7ce14e12bd62f5f5f27d30")]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function UIContainers(array $a) {
    $accessCode = "Accepted";

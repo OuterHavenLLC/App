@@ -5,17 +5,17 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $pub = $data["pub"] ?? 0;
    if($pub == 0) {
-    $button = "";
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Not Found",
-     "[Error.Message]" => "The Feedback Identifier is missing."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "The Feedback Identifier is missing."
+    ];
     if(!empty($id)) {
-     $button = $this->system->Element(["button", "Respond", [
+     $accessCode = "Accepted";
+     $action = $this->system->Element(["button", "Respond", [
       "class" => "CardButton SendData",
       "data-form" => ".FeedbackEditor$id",
       "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
@@ -37,10 +37,11 @@
      ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
     }
     $r = [
-     "Action" => $button,
+     "Action" => $action,
      "Front" => $r
     ];
    } elseif($pub == 1) {
+    $accessode = "Accepted";
     $r = $this->system->Change([[
      "[Error.Back]" =. "",
      "[Error.Header]" => "Let's Talk!",
@@ -50,8 +51,8 @@
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
     ]).$this->system->Element([
      "div", $this->system->Element(["button", "Send Feedback", [
-      "class" => "BBB dB2O v2 v2w",
-      "data-type" => base64_encode("v=".base64_encode("Feedback:NewThread"))
+      "class" => "BBB OpenDialog v2 v2w",
+      "data-view" => base64_encode("v=".base64_encode("Feedback:NewThread"))
      ]]), ["class" => "Desktop33 MobilfFull"]
     ]).$this->system->Element([
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
@@ -76,12 +77,20 @@
      "Data" => ["Content" => $r]
     ]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function NewThread(array $a) {
+   $accessCode = "Accepted";
    $id = md5("Feedback");
    $y = $this->you;
-   return [
+   $r = [
     "Front" => $this->system->Change([[
      "[Contact.Body]" => $this->system->WYSIWYG([
       "Body" => NULL,
@@ -107,6 +116,14 @@
      "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
     ]])
    ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -258,12 +275,16 @@
    ]);
   }
   function Stream(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Page("2ce9b2d2a7f5394df6a71df2f0400873");
+   $r = [
+    "Scrollable" => $this->system->Page("2ce9b2d2a7f5394df6a71df2f0400873")
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
     $r = "";
     $thread = $feedback["Thread"] ?? [];
@@ -282,7 +303,14 @@
      ], $tpl]);
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

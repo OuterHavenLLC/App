@@ -54,6 +54,7 @@
    ]);
   }
   function Options(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN"]);
    $r = [
@@ -62,6 +63,7 @@
    $username = $data["UN"];
    $y = $this->you;
    if(!empty($username)) {
+    $accessCode = "Accepted";
     $username = base64_decode($username);
     $card = base64_encode("Profile:Home");
     $contacts = $this->system->Data("Get", [
@@ -127,7 +129,14 @@
      "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save"))
     ], $this->system->Page("297c6906ec2f4cb2013789358c5ea77b")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Requests(array $a) {
    $accessCode = "Denied";
@@ -296,10 +305,14 @@
    ]);
   }
   function Status(array $a) {
-   $r = [];
+   $accessCode = "Denied";
+   $r = [
+    "Body" => "One or both Usernames are missing."
+   ];
    $them = $a["Them"] ?? "";
    $you = $a["You"] ?? "";
    if(!empty($them) && !empty($you)) {
+    $accessCode = "Accepted";
     $theirContacts = $this->system->Data("Get", ["cms", md5($them)]) ?? [];
     $theirRequests = $theirContacts["Requests"] ?? [];
     $theirContacts = $theirContacts["Contacts"] ?? [];
@@ -332,7 +345,14 @@
      "YouRequested" => $youRequested
     ];
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

@@ -30,13 +30,13 @@
     "[Discount.PercentOff]" => $this->system->Select("Percentile", "req v2w", $percentile),
     "[Discount.Quantity]" => $this->system->Select("DiscountCodeQTY", "req v2w", $quantity),
    ], $this->system->Page("47e35864b11d8bdc255b0aec513337c0")]);
-   $button = $this->system->Element(["button", $action, [
+   $action = $this->system->Element(["button", $action, [
     "class" => "CardButton SendData",
     "data-form" => ".Discount$id",
     "data-processor" => base64_encode("v=".base64_encode("DiscountCode:Save"))
    ]]);
    $r = [
-    "Action" => $button,
+    "Action" => $action,
     "Front" => $r
    ];
    return $this->system->JSONResponse([

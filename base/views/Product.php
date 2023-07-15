@@ -6,22 +6,22 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
-   $fr = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Product Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Product Identifier is missing."
+   ];
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $fr = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
    } elseif(!empty($id) || $new == 1) {
+    $accessCode = "Accepted";
     $_YourPrivacy = $y["Privacy"] ?? [];
     $action = ($new == 1) ? "Post" : "Update";
     $attachmentsachments = "";
@@ -77,7 +77,7 @@
     } if(!empty($product["DLC"])) {
      $dlc = base64_encode(implode(";", $product["DLC"]));
     }
-    $bck = $this->system->Change([
+    $additionalContent = $this->system->Change([
      [
       "[CP.ContentType]" => "Product",
       "[CP.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
@@ -110,7 +110,8 @@
     ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
      "ID" => base64_encode($id)
     ]]);
-    $fr = $this->system->Change([[
+    $r = $this->system->Change([[
+     "[Product.AdditionalContent]" => $additionalContent,
      "[Product.Attachments]" => $attachmentsachments,
      "[Product.Attachments.LiveView]" => $at4lv,
      "[Product.Bundled]" => $bundle,
@@ -150,19 +151,27 @@
      "[Product.Quantity]" => $quantity,
      "[Product.Title]" => $product["Title"]
     ], $this->system->Page("3e5dc31db9719800f28abbaa15ce1a37")]);
-    $frbtn = $this->system->Element(["button", $action, [
+    $action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".Product$id",
      "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
     ]]);
+    $r = [
+     "Action" => $action,
+     "Front" => $r
+    ];
    }
-   return [
-    "Action" => $frbtn,
-    "Back" => $bck,
-    "Front" => $fr
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "AddTo",
@@ -184,15 +193,14 @@
     "data-type" => ".OHCC;$lpg"
    ]]) : "";
    $pub = $data["pub"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Back]" => $bck,
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The requested Product could not be found."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The requested Product could not be found."
+   ];
    $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($pub == 1) {
+    $accessCode = "Accepted";
     $products = $this->system->DatabaseSet("PROD") ?? [];
     foreach($products as $key => $value) {
      $product = str_replace("c.oh.miny.", "", $value);
@@ -204,6 +212,7 @@
      }
     }
    } if((!empty($id) || $i > 0) && !empty($data["UN"])) {
+    $accessCode = "Accepted";
     $base = $this->system->base;
     $username = base64_decode($data["UN"]);
     $t = ($username == $you) ? $y : $this->system->Member($username);
@@ -312,12 +321,19 @@
       "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"])
       "[Product.Votes]" => $votes
      ], $this->system->Page("96a6768e7f03ab4c68c7532be93dee40")]);
+     $r = ($data["CARD"] == 1) ? [
+      "Front" => $r
+     ] : $r;
     }
    }
-   $r = ($data["CARD"] == 1) ? [
-    "Front" => $r
-   ] : $r;
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -544,18 +560,18 @@
    return $this->system->JSONResponse([$ec, $r]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
-   $ec = "Denied";
    $id = $data["ID"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($username)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
     $username = base64_decode($username);
@@ -584,10 +600,18 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $product["Title"]." by $shop"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

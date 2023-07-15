@@ -19,22 +19,23 @@
    }
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Forbidden",
-    "[Error.Message]" => "The File Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The File Identifier is missing."
+   ];
    $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
    } elseif(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
@@ -60,18 +61,27 @@
      "[File.Title]" => $file["Title"],
      "[File.Username]" => $username
     ], $this->system->Page("7c85540db53add027bddeb42221dd104")]);
-    $frbtn = $this->system->Element(["button", "Update", [
+    $action = $this->system->Element(["button", "Update", [
      "class" => "CardButton SendData",
      "data-form" => ".EditFile$id",
      "data-processor" => base64_encode("v=".base64_encode("File:Save"))
     ]]);
+    $r = [
+     "Action" => $action,
+     "Front" => $r
+    ];
    }
-   return [
-    "Action" => $frbtn,
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "AddTo",
@@ -90,10 +100,9 @@
    ]) : "";
    $id = $data["ID"] ?? "";
    $pub = $data["pub"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The File Identifier or Username are missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The File Identifier or Username are missing."
+   ];
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -114,11 +123,11 @@
      "fs"
     ]) : $files["Files"];
     $file = $files[$id] ?? [];
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Not Found",
-     "[Error.Message]" => "The File <em>$id</em> could not be found."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "The File <em>$id</em> could not be found."
+    ];
     if(!empty($file) && $bl == 0) {
+     $accessCode = "Accepted";
      $actions = ($username != $you) ? $this->system->Element([
       "button", "Block", [
        "class" => "BLK Small v2",
@@ -227,10 +236,20 @@
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r
    ] : $r;
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   return $r;
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -382,6 +401,7 @@
    ]);
   }
   function SaveProfileImage(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"];
    $file = $data["DLC"] ?? "";
    $type = $data["FT"] ?? "";
@@ -396,6 +416,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($file) && !empty($type)) {
+    $accessCode = "Accepted";
     $type = base64_decode($type);
     $cp = ($type == "CoverPhoto") ? "Cover Photo" : "Profile Picture";
     $dbi = explode("-", base64_decode($file));
@@ -414,20 +435,28 @@
     ];
     #$this->system->Data("Save", ["mbr", md5($you), $y]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
    $username = $data["UN"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($username)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $username = base64_decode($username);
     $code = base64_encode("$username;$id");
@@ -453,15 +482,23 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($you)),
      "[Share.Title]" => $file["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveUpload(array $a) {
+   $accessCode = "Denied";
    $_Failed = [];
    $_Passed = [];
-   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $err = "Internal Error";
    $id = $data["AID"] ?? md5("unsorted");
@@ -642,10 +679,11 @@
     "Response" => [
      "JSON" => $r
     ],
-    "ResponseType" => "N/A"
+    "ResponseType" => "View"
    ]);
   }
   function Upload(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "AID",
@@ -655,10 +693,9 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
    } elseif(!empty($albumID)) {
     $_HC = ($y["Rank"] == md5("High Command")) ? 1 : 0;
     $username = $data["UN"] ?? $you;
@@ -672,10 +709,9 @@
     }
     $xfsUsage = $this->system->ByteNotation($xfsUsage)."MB";
     $limit = $this->system->Change([["MB" => "", "," => ""], $xfsLimit]);
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You may have reached your upload limit. You have used $xfsUsage and exceeded the limit of $xfsLimit."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You may have reached your upload limit. You have used $xfsUsage and exceeded the limit of $xfsLimit."
+    ];
     $used = $this->system->Change([["MB" => "", "," => ""], $xfsUsage]);
     $uploadsAllowed = $y["Subscriptions"]["XFS"]["A"] ?? 0;
     $uploadsAllowed = ($_HC == 1 || $used < $limit) ? 1 : $uploadsAllowed;
@@ -686,11 +722,12 @@
       "x",
       "fs"
      ]) : $files;
-     $r = $this->system->Change([[
-      "[Error.Header]" => "Forbidden",
-      "[Error.Message]" => "You do not have permission to upload files to $username's Library."
-     ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+     $r = [
+      "Body" => "You do not have permission to upload files to $username's Library.",
+      "Header" => "Forbidden"
+     ];
      if($ck == 1 || $ck2 == 1) {
+      $accessCode = "Accepted";
       $limit = ($ck == 1 || $y["Subscriptions"]["Artist"]["A"] == 1) ? "You do not have a cumulative upload limit" : "Your cumulative file upload limit is $xfsLimit";
       $options = "<input name=\"UN\" type=\"hidden\" value=\"$username\"/>\r\n";
       if($ck == 1) {
@@ -715,12 +752,20 @@
        "[Upload.Processor]" => base64_encode("v=".base64_encode("File:SaveUpload")),
        "[Upload.Title]" => $title
       ], $this->system->Page("bf6bb3ddf61497a81485d5eded18e5f8")]);
+      return [
+       "Front" => $r
+      ];
      }
     }
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

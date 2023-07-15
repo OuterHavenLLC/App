@@ -5,6 +5,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Index(array $a) {
+   $accessCode = "Accepted";
    $active = "";
    $ai = 0;
    $base = $this->system->base;
@@ -32,25 +33,33 @@
      ["class" => "CenterText InnerMargin UpperCase"]
     ]);
    }
-   return $this->system->Change([[
+   $r = $this->system->Change([[
     "[Subscriptions.Active]" => $active
    ], $this->system->Page("81c6e3ce434e1b052240cf71ec7b1bc3")]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $s = $data["sub"] ?? base64_encode("");
    $s = base64_decode($s);
    $search = base64_encode("Search:Containers");
    $sub = $this->system->core["SUB"][$s] ?? [];
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Subscription Identifier is missing."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The Subscription Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $ysub = $y["Subscriptions"][$s] ?? [];
    if(!empty($s)) {
+    $accessCode = "Accepted";
     if($ysub["A"] == 0) {
      $r = $this->system->Page("ffdcc2a6f8e1265543c190fef8e7982f");
     } else {
@@ -149,7 +158,14 @@
      }
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function RenewAll(array $a) {
    $accessCode = "Denied";

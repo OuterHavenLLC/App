@@ -5,6 +5,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
+   $accessCode = "Accepted";
    $d = $a["Data"] ?? [];
    $d = $this->system->FixMissing($d, ["ID", "new"]);
    $y = $this->you;
@@ -39,7 +40,7 @@
    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
     "ID" => base64_encode($id)
    ]]);
-   $fr = $this->system->Change([[
+   $r = $this->system->Change([[
     "[FAB.Header]" => $h,
     "[FAB.Description]" => $fab["Description"],
     "[FAB.ICO]" => $fab["ICO-SRC"],
@@ -50,24 +51,31 @@
     "[FAB.Title]" => $fab["Title"],
     "[FAB.URL]" => $fab["URL"]
    ], $this->system->Page("9989bd7cf0facb4cbca6d6c8825a588b")]);
-   $frbtn = $this->system->Element(["button", $pu, [
-    "class" => "BB Xedit v2",
-    "data-type" => ".FAB$id",
-    "data-u" => base64_encode("v=".base64_encode("FAB:Save")),
-    "id" => "fSub"
+   $action = $this->system->Element(["button", $pu, [
+    "class" => "BB SendData v2",
+    "data-form" => ".FAB$id",
+    "data-processor" => base64_encode("v=".base64_encode("FAB:Save"))
    ]]);
-   return [
-    "Action" => $frbtn,
-    "Front" => $fr
+   $r = [
+    "Action" => $action,
+    "Front" => $r
    ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
+   $accessCode = "Denied";
    $d = $a["Data"] ?? [];
    $d = $this->system->DecodeBridgeData($d);
    $d = $this->system->FixMissing($d, [
     "ID", "Listen", "Role", "Title", "URL", "new", "nsfw"
    ]);
-   $ec = "Denied";
    $new = $d["new"] ?? 0;
    $y = $this->you;
    $id = $d["ID"];
@@ -81,7 +89,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $ec = "Accepted";
+    $accessCode = "Accepted";
     $fab = $this->system->Data("Get", [
      "x",
      md5("FreeAmericaBroadcasting")
@@ -129,13 +137,20 @@
      $fab
     ]);
    }
-   return $this->system->JSONResponse([$ec, $r]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveDelete(array $a) {
+   $accessCode = "Denied";
    $d = $a["Data"] ?? [];
    $d = $this->system->DecodeBridgeData($d);
-   $d = $this->system->FixMissing($d, ["ID", "all", "new"]);
-   $ec = "Denied";
+   $d = $this->system->FixMissing($d, ["ID", "new"]);
    $r = [
     "Body" => "The Station Identifier is missing."
    ];
@@ -145,7 +160,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($d["ID"])) {
-    $ec = "Accepted";
+    $accessCode = "Accepted";
     $fab = $this->system->Data("Get", [
      "x",
      md5("FreeAmericaBroadcasting")
@@ -173,7 +188,14 @@
      $fab
     ]);
    }
-   return $this->system->JSONResponse([$ec, $r]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

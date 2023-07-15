@@ -10,10 +10,20 @@
    // DEMOCRATIZED CONTENT MODERATION
    // HOUSE = 2X POPULATION OF SENATE, EX: 200:100 OR 800:400 RATIOS
    $r = $this->system->Page("Congress");
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   return $r;
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

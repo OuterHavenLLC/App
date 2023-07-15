@@ -5,24 +5,23 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
-   $button = "";
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["FID", "ID", "new"]);
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Forum Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
    $fid = $data["FID"];
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
    } elseif((!empty($fid) && !empty($id)) || $new == 1) {
+    $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $att = "";
     $id = ($new == 1) ? md5($you."_Post_".$this->system->timestamp) : $id;
@@ -83,24 +82,31 @@
      "[ForumPost.Title]" => $title,
      "[UIV.IN]" => "UIE$id"
     ], $this->system->Page("cabbfc915c2edd4d4cba2835fe68b1cc")]);
-    $button = $this->system->Element(["button", $action, [
+    $action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".ForumPost$id",
      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
     ]]);
+    $r = [
+     "Action" => $action,
+     "Front" => $r
+    ];
    }
-   return [
-    "Action" => $button,
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $fr = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Forum or Post Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
-   $frbtn = "";
+   $r = [
+    "Body" => "The Forum or Post Identifier is missing."
+   ];
    $fid = $data["FID"] ?? "";
    $id = $data["ID"] ?? "";
    $now = $this->system->timestamp;
@@ -111,10 +117,9 @@
     $admin = 0;
     $forum = $this->system->Data("Get", ["pf", $fid]) ?? [];
     $post = $this->system->Data("Get", ["post", $id]) ?? [];
-    $fr = $this->system->Change([[
-     "[Error.Header]" => "Not Found",
-     "[Error.Message]" => "The requested Forum Post could not be found."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "The requested Forum Post could not be found."
+    ];
     $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
     $ck2 = ($active == 1 || $forum["Type"] == "Public") ? 1 : 0;
     $cms = $this->system->Data("Get", ["cms", md5($post["From"])]) ?? [];
@@ -136,6 +141,7 @@
     $op = ($ck == 1) ? $y : $this->system->Member($post["From"]);
     $privacy = $post["Privacy"] ?? $op["Privacy"]["Posts"];
     if($ck == 1 || $ck2 == 1) {
+     $accessCode = "Accepted";
      $bl = $this->system->CheckBlocked([$y, "Status Updates", $id]);
      $blc = ($bl == 0) ? "B" : "U";
      $blt = ($bl == 0) ? "Block" : "Unblock";
@@ -186,7 +192,7 @@
      }
      $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=$id&Type=3");
-     $fr = $this->system->Change([[
+     $r = $this->system->Change([[
       "[ForumPost.Actions]" => $actions,
       "[ForumPost.Attachments]" => $att,
       "[ForumPost.Body]" => $this->system->PlainText([
@@ -212,11 +218,19 @@
       "[ForumPost.Share]" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id)),
       "[ForumPost.Votes]" => $votes
      ], $this->system->Page("d2be822502dd9de5e8b373ca25998c37")]);
+     $r = [
+      "Front" => $r
+     ];
     }
    }
-   return [
-    "Front" => $fr
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -359,17 +373,16 @@
    ]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
-   $ec = "Denied";
    $id = $data["ID"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $y = $this->you;
    if(!empty($id)) {
-    $id = base64_decode($id);
+    $accessCode = "Accepted";$id = base64_decode($id);
     $post = explode("-", $id);
     $post = $this->system->Data("Get", ["post", $post[1]]) ?? [];
     $body = $this->system->PlainText([
@@ -391,10 +404,18 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => "Forum Post"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

@@ -593,6 +593,7 @@
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
+    $r = $this->system->RenderView($r);
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1277,6 +1278,7 @@
    ]);
   }
   function SaveDeactivate(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1286,10 +1288,11 @@
      "Header" => "Forbidden"
     ];
    } elseif(1 == 1) {
+    $accessCode = "Accepted";
     // DEACTIVATE PROFILE
    }
    return $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1298,6 +1301,7 @@
    ]);
   }
   function SaveDelete(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1309,6 +1313,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(1 == 1) {
+    $accessCode = "Accepted";
     if(!empty($this->system->Data("Get", ["conversation", md5("MBR_$you")]))) {
      $this->view(base64_encode("Conversation:SaveDelete"), [
       "Data" => ["ID" => md5("MBR_$you")]
@@ -1317,7 +1322,7 @@
    }
    */
    return $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1618,7 +1623,7 @@
     ]]);
     $this->system->Statistic("MBR");
     $r = $this->system->Change([[
-     "[Success.SignIn]" => "v=".base64_encode("Common:SignIn"),
+     "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
      "[Success.Username]" => $username
     ], $this->system->Page("872fd40c7c349bf7220293f3eb64ab45")]);
    } if($accessCode != "Accepted") {
@@ -1640,10 +1645,9 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN"]);
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $un = $data["UN"];
    $y = $this->you;
    if(!empty($un)) {
@@ -1669,10 +1673,10 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $t["Personal"]["DisplayName"]."'s Profile"
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   $r = [
-    "Front" => $r
-   ];
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

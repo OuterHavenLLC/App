@@ -6,12 +6,16 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Checkout(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $r = "";
+   $r = [
+    "Body" => "The Shop Identifier is missing"
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $username = $data["UN"] ?? base64_encode($you);
    if(!empty($username)) {
+    $accessCode = "Accepted";
     $username = base64_decode($username);
     $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
     $t = ($username == $you) ? $y : $this->system->Member($username);
@@ -122,9 +126,17 @@
      }
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Commission(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = number_format(base64_decode($amount), 2);
@@ -141,7 +153,11 @@
     "PayPalEmailLive"
    ]);
    $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
+   $r = [
+    "Body" => "Something went wrong..."
+   ];
    if($paymentProcessor == "Braintree") {
+    $accessCode = "Accepted";
     require_once($this->bt);
     $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
     $token = base64_decode($payments["BraintreeToken"]);
@@ -167,6 +183,7 @@
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
    } elseif($paymentProcessor == "PayPal") {
+    $accessCode = "Accepted";
     $paypal = ($shop["Live"] == 1) ? [
      "ClientID" => $payments["PayPalClientIDLive"]
     ] : [
@@ -184,9 +201,17 @@
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Donation(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = base64_decode($amount);
@@ -203,7 +228,11 @@
     "PayPalEmailLive"
    ]);
    $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
+   $r = [
+    "Body" => "Something went wrong..."
+   ];
    if($paymentProcessor == "Braintree") {
+    $accessCode = "Accepted";
     require_once($this->bt);
     $environment = ($shop["Live"] == 1) ? "production" : "sandbox";
     $braintree = ($shop["Live"] == 1) ? [
@@ -240,6 +269,7 @@
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
    } elseif($paymentProcessor == "PayPal") {
+    $accessCode = "Accepted";
     $paypal = ($shop["Live"] == 1) ? [
      "ClientID" => $payments["PayPalClientIDLive"]
     ] : [
@@ -257,9 +287,17 @@
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
     ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Disbursement(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "Amount",
@@ -269,29 +307,24 @@
    ]);
    $amount = $data["Amount"];
    $username = $data["UN"];
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Member, Month, or Year Identifiers are missing, or the keys are missing."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The Member, Month, or Year Identifiers are missing, or the keys are missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["Amount"]) && !empty($data["Month"]) && !empty($data["UN"]) && !empty($data["Year"])) {
     $amount = base64_decode($amount);
     $username = base64_decode($data["UN"]);
     $t = $this->system->Member($username);
-    $r = $this->system->Change([
-     [
-      "[Error.Back]" => "",
-      "[Error.Header]" => "No Payment Necessary",
-      "[Error.Message]" => "You cannot pay ".$t["Personal"]["DisplayName"]." as there are no funds to disburse. Funds: $amount."
-     ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")
-    ]);
+    $r = [
+     "Body" => "You cannot pay ".$t["Personal"]["DisplayName"]." as there are no funds to disburse. Funds: $amount."
+    ];
     if($amount == 0) {
      $income = $this->system->Data("Get", ["id", md5($you)]) ?? [];
      $income[$data["Year"]][$data["Month"]][$username]["Paid"] = 1;
      #$this->system->Data("Save", ["id", md5($you), $income]);
     } else {
+     $accessCode = "Accepted";
      $amount = number_format($amount, 2);
      $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
      $payments = $shop["Processing"] ?? [];
@@ -363,9 +396,17 @@
      }
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DisbursementComplete(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "Month",
@@ -375,15 +416,14 @@
     "payment_method_nonce",
     "order_ID"
    ]);
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Member Identifier or Payment Type are missing."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The Member Identifier or Payment Type are missing."
+   ];
    $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["Month"]) && !empty($data["Year"]) && !empty($username)) {
+    $accessCode = "Accepted";
     $amount = $data["amount"] ?? base64_encode(0);
     $amount = str_replace(",", "", base64_decode($amount));
     $amount = number_format($amount, 2);
@@ -472,9 +512,17 @@
      ], $this->system->Page("70881ae11e9353107ded2bed93620ef4")]);
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function ProcessCartOrder(array $a) {
+   $accessCode = "Accepted";
    $bundle = $a["Bundled"] ?? 0;
    $orderID = $a["PayPalOrderID"] ?? "N/A";
    $physicalOrders = $a["PhysicalOrders"] ?? [];
@@ -637,9 +685,17 @@
      "Response" => $r
     ];
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveCheckout(array $a) {
+   $accessCode = "Accepted";
    $ck = 0;
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
@@ -796,9 +852,17 @@
      ], $this->system->Page("83d6fedaa3fa042d53722ec0a757e910")]);
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveCommissionOrDonation(array $a) {
+   $accessCode = "Accepted";
    $ck = 0;
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
@@ -900,7 +964,14 @@
      "[Commission.Type]" => $amount
     ], $this->system->Page("f2bea3c1ebf2913437fcfdc0c1601ce0")]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

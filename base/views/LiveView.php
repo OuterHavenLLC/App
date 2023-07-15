@@ -8,20 +8,30 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function GetCode(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["Code", "Type"]);
    $r = [
     "Body" => "The Code or Code Type are missing."
    ];
    if(!empty($data["Code"]) && !empty($data["Type"])) {
+    $accessCode = "Accepted";
     $r = [
      "Body" => "Paste the code below anywhere within the text you want it to appear in.<br/>[".$data["Type"].":".$data["Code"]."]",
      "Header" => "Embed Code"
     ];
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function EditorSingle(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["AddTo", "ID"]);
    $i = 0;
@@ -53,9 +63,17 @@
     }
    }
    $r = ($i == 0) ? $this->NoResults : $r;
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function EditorMossaic(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["AddTo", "ID"]);
    $i2 = 0;
@@ -90,9 +108,17 @@
     }
    }
    $r = ($i2 == 0) ? $this->NoResults : $r;
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function EditorProducts(array $a) {
+   $accessCode = "Accepted";
    $coverPhoto = $this->system->PlainText([
     "Data" => "[sIMG:MiNY]",
     "Display" => 1
@@ -126,9 +152,17 @@
     }
    }
    $r = ($i2 == 0) ? $this->NoResults : $r;
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function InlineMossaic(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "Type"]);
    $id = $data["ID"];
@@ -237,7 +271,14 @@
      ]);
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

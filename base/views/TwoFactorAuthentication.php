@@ -16,18 +16,16 @@
     "ViewPairID"
    ]);
    $ck = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
-   $r = $this->system->Change([[
-    "[2FA.Error.Message]" => "An email address is required in order for us to continue the verification process.",
-    "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
-   ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   $r = [
+    "Body" => "An email address is required in order for us to continue the verification process."
+   ];
    if(!empty($data["Email"]) && $ck == 0) {
-    $accessCode = "Accepted";
     $email = $data["Email"];
     $emailIsRegistered = 0;
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "The email <strong>$email</strong> is not registered to any Member.",
+    $r = [
+     "Body" => "The email <strong>$email</strong> is not registered to any Member.",
      "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    ];
     $members = $this->system->DatabaseSet("MBR") ?? [];
     foreach($members as $key => $value) {
      $value = str_replace("c.oh.mbr.", "", $value);
@@ -36,6 +34,7 @@
       $emailIsRegistered++;
      }
     } if($emailIsRegistered > 0) {
+     $accessCode = "Accepted";
      $_VerificationCode = uniqid("OH-");
      $_SecureVerificationCode = md5($_VerificationCode);
      $this->system->SendEmail([
@@ -56,25 +55,24 @@
      ], $this->system->Page("ab9d092807adfadc3184c8ab844a1406")]);
     }
    } elseif($ck == 1) {
-    $accessCode = "Accepted";
     $_VerificationCode = md5($data["2FA"]);
     $_SecureVerificationCode = $data["2FAconfirm"];
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "The code you entered does not match the one we sent you.",
-     "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "The code you entered does not match the one we sent you."
+    ];
     if($_VerificationCode == $_SecureVerificationCode) {
-     $r = $this->system->Change([[
-      "[2FA.Error.Message]" => "The Return View ID is missing.",
-      "[2FA.Error.ViewPairID]" => "LostAndFound"
-     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+     $r = [
+      "Body" => "The Return View ID is missing."
+     ];
      if(!empty($data["ReturnView"])) {
+      $accessCode = "Accepted";
       $returnView = base64_decode($data["ReturnView"]);
       $returnView = json_decode($returnView, true);
       $r = $this->view(base64_encode($returnView["Group"].":".$returnView["View"]), ["Data" => [
        "2FAReturn" => 1,
        "Email" => base64_encode($data["Email"])
       ]]);
+      $r = $this->system->RenderView($r);
      }
     }
    }
@@ -126,59 +124,49 @@
    $ck = ($ck == 1 && $data["PIN"] == $data["PIN2"]) ? 1 : 0;
    $i = 0;
    $inputs = [];
-   $r = $this->system->Change([[
-    "[2FA.Error.Message]" => "Something went wrong...",
-    "[2FA.Error.ViewPairID]" => "SignUp"
-   ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+   $r = [
+    "Body" => "Something went wrong..."
+   ];
    foreach($required as $key) {
     if(!empty($data[$key])) {
      $i++;
      $inputs[$key] = $data[$key] ?? "";
     }
    } if(empty($data["Email"])) {
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "An Email is required.",
-     "[2FA.Error.ViewPairID]" => "SignUp"
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "An Email is required."
+    ];
    } elseif(empty($data["Password"])) {
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "A Password is required.",
-     "[2FA.Error.ViewPairID]" => "SignUp"
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "A Password is required."
+    ];
    } elseif($data["Password"] != $data["Password2"]) {
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "Your Passwords must match.",
-     "[2FA.Error.ViewPairID]" => "SignUp"
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "Your passwords must match."
+    ];
    } elseif(!is_numeric($data["PIN"]) != !is_numeric($data["PIN2"])) {
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "Your PINs must be numeric.",
-     "[2FA.Error.ViewPairID]" => "SignUp"
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "Your PINs must be numeric."
+    ];
    } elseif($data["PIN"] != $data["PIN2"]) {
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "Your PINs must match.",
-     "[2FA.Error.ViewPairID]" => "SignUp"
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "Your PINs must match."
+    ];
    } elseif(empty($data["Username"])) {
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "A Username is required.",
-     "[2FA.Error.ViewPairID]" => "SignUp"
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "A Username is required."
+    ];
    } elseif($ck == 1 && $i == count($required)) {
     $ck = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
-    $r = $this->system->Change([[
-     "[2FA.Error.Message]" => "An email address is required in order for us to continue the verification process.",
-     "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
-    ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    $r = [
+     "Body" => "An email address is required in order for us to continue the verification process."
+    ];
     if(!empty($data["Email"]) && $ck == 0) {
-     $accessCode = "Accepted";
      $email = $data["Email"];
      $emailIsRegistered = 0;
-     $r = $this->system->Change([[
-      "[2FA.Error.Message]" => "The email <strong>$email</strong> is already in use.",
-      "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
-     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+     $r = [
+      "Body" => "The email <strong>$email</strong> is already in use."
+     ];
      $members = $this->system->DatabaseSet("MBR") ?? [];
      foreach($members as $key => $value) {
       $value = str_replace("c.oh.mbr.", "", $value);
@@ -187,6 +175,7 @@
        $emailIsRegistered++;
       }
      } if($emailIsRegistered == 0) {
+      $accessCode = "Accepted";
       $_VerificationCode = uniqid("OH-");
       $_SecureVerificationCode = md5($_VerificationCode);
       $_Inputs = "";
@@ -217,15 +206,13 @@
      $accessCode = "Accepted";
      $_VerificationCode = md5($data["2FA"]);
      $_SecureVerificationCode = $data["2FAconfirm"];
-     $r = $this->system->Change([[
-      "[2FA.Error.Message]" => "The code you entered does not match the one we sent you.",
-      "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
-     ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+     $r = [
+      "Body" => "The code you entered does not match the one we sent you."
+     ];
      if($_VerificationCode == $_SecureVerificationCode) {
-      $r = $this->system->Change([[
-       "[2FA.Error.Message]" => "The Return View ID is missing.",
-       "[2FA.Error.ViewPairID]" => "LostAndFound"
-      ], $this->system->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+      $r = [
+       "Body" => "The Return View ID is missing."
+      ];
       if(!empty($data["ReturnView"])) {
        $returnView = base64_decode($data["ReturnView"]);
        $returnView = json_decode($returnView, true);
@@ -243,6 +230,7 @@
         "Username" => $data["Username"],
         "Gender" => $data["Personal_Gender"]
        ]]);
+       $r = $this->system->RenderView($r);
       }
      }
     }

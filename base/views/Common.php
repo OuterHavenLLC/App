@@ -5,25 +5,43 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Blacklist(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $y = $this->you;
-   return $this->system->Change([[
+   $r = $this->system->Change([[
     "[Blacklist.Categories]" => "[base]/base/JD.php?_API=OH&v=".base64_encode("Common:BlacklistCategories")
    ], $this->system->Page("03d53918c3da9fbc174f94710182a8f2")]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function BlacklistCategories(array $a) {
+   $accessCode = "Accepted";
    $r = "";
    $y = $this->you;
    $y = $y["Blocked"] ?? [];
    foreach($y as $key => $value) {
     $r .= $this->system->Element(["button", $key, [
      "class" => "LI",
-     "onclick" => "FST('N/A', 'v=".base64_encode("Search:Containers")."&st=BL&BL=".base64_encode($key)."', '".md5("Blacklist$key")."');"
+     "data-fst" => base64_encode("v=".base64_encode("Search:Containers")."&st=BL&BL=".base64_encode($key)."', '".md5("Blacklist$key"))
     ]]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function DesignView(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $dv = $data["DV"] ?? "";
    $r = (!empty($dv)) ? $this->system->PlainText([
@@ -35,17 +53,25 @@
    ]) : $this->system->Element([
     "p", "Add content to reveal its design...", ["class" => "CenterText"]
    ]);
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Illegal(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Content Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Content Identifier is missing."
+   ];
    $y = $this->you;
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $id = explode(";", base64_decode($id));
     $att = "";
     $body = "";
@@ -184,23 +210,32 @@
      "[Illegal.ID]" => base64_encode(implode(";", $id)),
      "[Illegal.Processor]" => base64_encode($processor)
     ], $this->system->Page("0eaea9fae43712d8c810c737470021b3")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Income(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The requested Income Disclosure could not be found."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The requested Income Disclosure could not be found.",
+    "Header" => "Not Found"
+   ];
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($username)) {
+    $accessCode = "Accepted";
     $_Day = $this->system->Page("ca72b0ed3686a52f7db1ae3b2f2a7c84");
     $_Month = $this->system->Page("2044776cf5f8b7307b3c4f4771589111");
     $_Partner = $this->system->Page("a10a03f2d169f34450792c146c40d96d");
@@ -284,12 +319,23 @@
      "[IncomeDisclosure.Table]" => $yearTable
     ], $this->system->Page("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
    }
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   return $r;
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function MemberGrid(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $list = $data["List"] ?? [];
    $rows = $data["Rows"] ?? 9;
@@ -317,9 +363,17 @@
      "div", $r, ["class" => "SideScroll"]
     ]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveBlacklist(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["BC", "BU", "content", "list"]);
    $b2 = [];
@@ -342,9 +396,17 @@
    }
    $y[$bl][$l] = array_unique($b2);
    $this->system->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveIllegal(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "Type"]);
    $id = $data["ID"];
@@ -366,6 +428,7 @@
      "Terrorism"
     ];
     if(in_array($type, $types)) {
+     $accessCode = "Accepted";
      $id = explode(";", base64_decode($id));
      $limit = $this->system->core["SYS"]["Illegal"] ?? 777;
      $weight = ($type == "CriminalActs") ? ($limit / 1000) : 0;
@@ -458,10 +521,18 @@
      ];
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SwitchMember(array $a) {
-   return [
+   $accessCode = "Accepted";
+   $r = [
     "Body" => $this->system->Page("ff434d30a54ee6d6bbe5e67c261b2005"),
     "Header" => "Switch Members",
     "Options" => [
@@ -475,6 +546,14 @@
      ]])
     ]
    ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

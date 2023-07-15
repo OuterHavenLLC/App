@@ -25,11 +25,9 @@
     ];
     $username = base64_decode($username);
     if($username != $you) {
+     $accessCode = "Accepted";
      $r = [
       "Actions" => [
-       $this->system->Element(["button", "Cancel", [
-        "class" => "CloseDialog v2 v2w"
-       ]]),
        $this->system->Element(["button", "Fire $username", [
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
         "data-view" => base64_encode("v=".base64_encode("Shop:SaveBanish")."&UN=".$data["UN"])
@@ -40,7 +38,14 @@
      ];
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function CompleteOrder(array $a) {
    $accessCode = "Denied";
@@ -62,21 +67,27 @@
     ];
     $this->system->Data("Save", ["po", md5($you), $po]);
    }
-   return $this->system->JSONResponse([$accessCode, $r]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
-   $back = "";
-   $button = "";
    $id = $data["ID"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Shop Identifier is missing."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $shop = $this->system->Data("Get", ["shop", $id]) ?? [];
     $atinput = ".Shop$id-CoverPhoto";
@@ -93,7 +104,7 @@
     ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
      "ID" => base64_encode($id)
     ]]);
-    $button = $this->system->Element(["button", "Update", [
+    $action = $this->system->Element(["button", "Update", [
      "class" => "CardButton SendData",
      "data-form" => ".Shop$id",
      "data-processor" => base64_encode("v=".base64_encode("Shop:Save"))
@@ -159,30 +170,36 @@
       ]
      ])
     ], $this->system->Page("201c1fca2d1214dddcbabdc438747c9f")]);
+    $r = [
+     "Action" => $action,
+     "Front" => $r,
+    ];
    }
-   return [
-    "Action" => $button,
-    "Back" => $back
-    "Front" => $r,
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function EditPartner(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN", "new"]);
-   $fr = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Partner Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Partner Identifier is missing."
+   ];
    $frbtn = "";
    $new = $data["new"] ?? 0;
    $username = (!empty($data["UN"])) ? base64_decode($data["UN"]) : "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $fr = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
    } elseif(!empty($username) || $new == 1) {
     if($new == 1) {
      $action = "Hire";
@@ -201,7 +218,7 @@
      $inputType = "hidden";
      $title = $partner["Title"];
     }
-    $fr = $this->system->Change([[
+    $r = $this->system->Change([[
      "[Partner.Company]" => $company,
      "[Partner.Description]" => $description,
      "[Partner.Header]" => $header,
@@ -211,35 +228,48 @@
      "[Partner.Username]" => $username,
      "[Partner.Username.InputType]" => $inputType
     ], $this->system->Page("a361fab3e32893af6c81a15a81372bb7")]);
-    $frbtn = $this->system->Element(["button", $action, [
+    $action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".Partner".md5($username),
      "data-processor" => base64_encode("v=".base64_encode("Shop:SavePartner"))
     ]]);
+    $r = [
+     "Action" => $action,
+     "Front" => $r
+    ];
    }
-   return [
-    "Action" => $frbtn,
-    "Front" => $fr
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function History(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID"]);
    $i = 0;
+   $si = base64_encode("Profile:SignIn");
+   $su = base64_encode("Profile:SignUp");
    $y = $this->you;
-   $si = base64_encode("Common:SignIn");
-   $su = base64_encode("Common:SignUp");
-   if($y["Login"]["Username"] == $this->system->ID) {
-    $r = $this->system->Change([[
-     "[ShoppingHistory.SignIn]" => base64_encode("v=$si"),
-     "[ShoppingHistory.SignUp]" => base64_encode("v=$su")
-    ], $this->system->Page("530578e8f5a619e234704ea1f6cd3d64")]);
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
+    $r = [
+     "Header" => "Sign In",
+     "Scrollable" => $this->system->Change([[
+      "[ShoppingHistory.SignIn]" => base64_encode("v=$si"),
+      "[ShoppingHistory.SignUp]" => base64_encode("v=$su")
+     ], $this->system->Page("530578e8f5a619e234704ea1f6cd3d64")])
+    ];
    } else {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Error",
-     "[Error.Message]" => "The Shop Identifier is missing."
-    ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+    $r = [
+     "Body" => "The Shop Identifier is missing."
+    ];
     if(!empty($data["ID"])) {
+     $accessCode = "Accepted";
      $h = $y["Shopping"]["History"] ?? [];
      $h = $h[$data["ID"]] ?? [];
      $h2 = [];
@@ -309,7 +339,14 @@
      ], $this->system->Page("20664fb1019341a3ea2e539360108ac3")]);
     }
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
    $accessCode = "Accepted";
@@ -459,17 +496,17 @@
     ]);
     $r = $this->system->RenderView($r);
    }
-   $r = $this->system->JSONResponse([
+   return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function MadeInNewYork(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $bck = $data["back"] ?? "";
    $callsign = $this->system->Data("Get", [
@@ -501,9 +538,17 @@
     ]);
     $r = $this->system->RenderView($r);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Payroll(array $a) {
+   $accessCode = "Accepted";
    $_Day = $this->system->Page("ca72b0ed3686a52f7db1ae3b2f2a7c84");
    $_Month = $this->system->Page("2044776cf5f8b7307b3c4f4771589111");
    $_Partner = $this->system->Page("210642ff063d1b3cbe0b2468aba070f2");
@@ -603,10 +648,18 @@
      "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
      "[IncomeDisclosure.Table]" => $yearTable
     ], $this->system->Page("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -935,16 +988,16 @@
    ]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN"]);
-   $ec = "Denied";
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $username = $data["UN"];
    $y = $this->you;
    if(!empty($username)) {
+    $accessCode = "Accepted":
     $username = base64_decode($username);
     $t = ($username == $y["Login"]["Username"]) ? $y : $this->system->Member($username);
     $body = $this->system->PlainText([
@@ -966,10 +1019,18 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $shop["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Subscribe(array $a) {
    $accessCode = "Denied";

@@ -5,25 +5,31 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["Blog", "Post", "new"]);
    $blog = $data["Blog"];
    $button = "";
    $new = $data["new"] ?? 0;
    $post = $data["Post"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Blog Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
    } elseif((!empty($blog) && !empty($post)) || $new == 1) {
+    $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
+    /*$action = $this->system->Element(["button", $action, [
+     "class" => "CardButton SendData",
+     "data-form" => ".EditBlogPost$id",
+     "data-processor" => base64_encode("v=".base64_encode("BlogPost:Save"))
+    ]]);*/
     $attf = "";
     $blog = $this->system->Data("Get", ["blg", $blog]) ?? [];
     $id = ($new == 1) ? md5($you."_BP_".$this->system->timestamp) : $post;
@@ -218,18 +224,22 @@
       ]
      ])
     ], $this->system->Page("15961ed0a116fbd6cfdb793f45614e44")]);
-    /*$button = $this->system->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".EditBlogPost$id",
-     "data-processor" => base64_encode("v=".base64_encode("BlogPost:Save"))
-    ]]);*/
+    $r = [
+     "Action" => $action,
+     "Front" => $r
+    ];
    }
-   return [
-    "Action" => $button,
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "Blog",
@@ -246,14 +256,14 @@
    $i = 0;
    $post = $data["Post"];
    $pub = $data["pub"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Back]" => $bck,
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The requested Blog Post could not be found."
-   ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+   $r = [
+    "Body" => "The requested Blog Post could not be found.",
+    "Header" => "Not Found"
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($pub == 1) {
+    $accessCode = "Accepted";
     $blogPosts = $this->system->DatabaseSet("BlogPosts");
     foreach($blogPosts as $key => $value) {
      $blogPost = $this->system->Data("Get", ["bp", $value]) ?? [];
@@ -263,6 +273,7 @@
      }
     }
    } if((!empty($blog) && !empty($post)) || $i > 0) {
+    $accessCode = "Accepted";
     $combinedID = base64_encode("$blog-$post");
     $post = $this->system->Data("Get", ["bp", $post]) ?? [];
     $t = ($post["UN"] == $you) ? $y : $this->system->Member($t);
@@ -337,11 +348,20 @@
      "[Member.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
      "[Member.Description]" => $description
     ], $this->system->Page($tpl)]);
+   } if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
    }
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
    $accessCode = "Denied";
@@ -545,17 +565,18 @@
    ]);
   }
   function Share(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "UN"]);
    $ec = "Denied";
    $id = $data["ID"];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Share Sheet Identifier is missing."
+   ];
    $un = $data["UN"];
    $y = $this->you;
    if(!empty($id) && !empty($un)) {
+    $accessCode = "Accepted";
     $id = base64_decode($id);
     $post = $this->system->Data("Get", ["bp", $id]) ?? [];
     $un = base64_decode($un);
@@ -579,10 +600,18 @@
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $post["Title"]
     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    $r = [
+     "Front" => $r
+    ];
    }
-   return [
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

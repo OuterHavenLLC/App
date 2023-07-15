@@ -86,12 +86,14 @@
    ]);
   }
   function Retract(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = $this->NoID;
    $type = $data["Type"] ?? "";
    $you = $this->you["Login"]["Username"];
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $newVotes = [];
     $votes = $this->system->Data("Get", ["votes", $id]) ?? [];
     foreach($votes as $member => $vote) {
@@ -106,9 +108,17 @@
      "Type" => $type
     ]]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Save(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = $this->NoID;
@@ -116,6 +126,7 @@
    $vote = $data["Vote"] ?? "";
    $you = $this->you["Login"]["Username"];
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $votes = $this->system->Data("Get", ["votes", $id]) ?? [];
     $votes[$you] = $vote;
     $this->system->Data("Save", ["votes", $id, $votes]);
@@ -125,7 +136,14 @@
      "Type" => $type
     ]]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function ViewCount(array $a) {
    $accessCode = "Denied";

@@ -9,9 +9,12 @@
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $r = $this->system->Page("5f3a58adef65d3fbd25f0c3ec26d0aa6");
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

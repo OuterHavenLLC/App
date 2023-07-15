@@ -5,6 +5,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Donate(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $donate = "v=".base64_encode("Pay:Donation")."&amount=";
    $pub = $data["pub"] ?? 0;
@@ -22,20 +23,23 @@
     "[Donate.2000]" => $donate.base64_encode(2000),
     "[Donate.FSTID]" => md5("Donation_Pay")
    ], $this->system->Page("39e1ff34ec859482b7e38e012f81a03f")]);
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function Home(array $a) {
+   $accessCode = "Accepted";
    $b2 = urlencode($this->system->core["SYS"]["Title"]);
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
@@ -58,18 +62,20 @@
     "[OHC.Statistics]" => $this->view(base64_encode("Company:Statistics"), []),
     "[OHC.VVA]" => "OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
    ], $this->system->Page("0a24912129c7df643f36cb26038300d6")]);
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function MassMail(array $a) {
    $accessCode = "Denied";
@@ -78,22 +84,21 @@
    $data = $this->system->FixMissing($data, ["AID", "new"]);
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Pre-Set Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Pre-Set Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->system->ID == $you) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
    } elseif($y["Rank"] != md5("High Command")) {
-    $r = $this->system->Change([[
-     "[Error.Header]" => "Forbidden",
-     "[Error.Message]" => "This is an administrative function."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    $r = [
+     "Body" => "This is an administrative function.",
+     "Header" => "Forbidden"
+    ];
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
@@ -185,11 +190,11 @@
      ]),
      "[Email.Title]" => $title
     ], $this->system->Page("81ccdda23bf18e557bc0ba3071c1c2d4")]);
+    $r = [
+     "Action" => $button,
+     "Front" => $r
+    ];
    }
-   $r = [
-    "Action" => $button,
-    "Front" => $r
-   ];
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -200,6 +205,7 @@
    ]);
   }
   function Partners(array $a) {
+   $accessCode = "Accepted";
    $partners = $this->system->Member($this->system->ShopID);
    $shop = $this->system->Data("Get", [
     "shop",
@@ -219,15 +225,14 @@
    $r = $this->system->Change([[
     "[Partners.Table]" => $partnersList
    ], $this->system->Page("2c726e65e5342489621df8fea850dc47")]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function SendMassMail(array $a) {
    $accessCode = "Denied";
@@ -304,6 +309,7 @@
    ]);
   }
   function Statistics(array $a) {
+   $accessCode = "Accepted";
    $st = "";
    $statistics = $this->system->Data("Get", ["x", "stats"]) ?? [];
    $tpl = $this->system->Page("676193c49001e041751a458c0392191f");
@@ -335,17 +341,17 @@
    $r = $this->system->Change([[
     "[Statistics.Table]" => $st
    ], $this->system->Page("0ba6b9256b4c686505aa66d23bec6b5c")]);
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function VVA(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "CARD",
@@ -366,18 +372,20 @@
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r
    ] : $r;
-   $r = ($data["pub"] == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
-   $r = (isset($data["JSONResponse"]) && $data["JSONResponse"] == 1) ? $this->system->JSONResponse([
-    #"AccessCode" => $accessCode,
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]) : $r;
-   return $r;
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

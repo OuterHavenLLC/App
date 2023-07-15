@@ -5,6 +5,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "CommentID",
@@ -13,21 +14,25 @@
     "Level",
     "new"
    ]);
-   $button = "";
    $new = $data["new"] ?? 0;
    $crid = $data["CRID"];
    $cid = $data["CommentID"];
    $id = $data["ID"];
    $level = $data["Level"] ?? base64_encode(1);
    $save = base64_encode("Conversation:Save");
-   $r = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Conversation Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "The Conversation Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($crid)) {
+    $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
+    $action = $this->system->Element(["button", $action, [
+     "class" => "CardButton SendData",
+     "data-form" => ".ConversationEditor$id",
+     "data-processor" => base64_encode("v=".base64_encode("Conversation:Save"))
+    ]]);
     $attachments = "";
     $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
     $level = (!empty($level)) ? base64_decode($level) : 1;
@@ -146,16 +151,19 @@
       "Value" => $privacy
      ])
     ], $this->system->Page("0426a7fc6b31e5034b6c2cec489ea638")]);
-    $button = $this->system->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".ConversationEditor$id",
-     "data-processor" => base64_encode("v=".base64_encode("Conversation:Save"))
-    ]]);
+    $r = [
+     "Action" => $action,
+     "Front" => $r
+    ];
    }
-   return [
-    "Action" => $button,
-    "Front" => $r
-   ];
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
    $accessCode = "Denied";
@@ -472,6 +480,7 @@
    ]);
   }
   function MarkAsHidden(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
    $data = $this->system->FixMissing($data, [
@@ -487,13 +496,18 @@
     "Body" => "The Conversation or $cr Identifier are missing."
    ];
    $y = $this->you;
-   if($y["Login"]["Username"] == $this->system->ID) {
+   $you = $y["Login"]["Username"];
+   if($this->system->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($crid) && !empty($id)) {
-    $conversation = $this->system->Data("Get", ["conversation", $crid]) ?? [];
+    $accessCode = "Accepted";
+    $conversation = $this->system->Data("Get", [
+     "conversation",
+     $crid
+    ]) ?? [];
     $comment = $conversation[$id] ?? [];
     $comment["Privacy"] = md5("Private");
     $conversation[$id] = $comment;
@@ -503,19 +517,45 @@
     ];
     $this->system->Data("Save", ["conversation", $crid, $conversation]);
    }
-   return $r;
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function SaveDelete(array $a) {
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Conversation Identifier is missing."
+   ];
    if(!empty($id)) {
-    $conversation = $this->system->Data("Get", ["conversation", $id]) ?? [];
+    $conversation = $this->system->Data("Get", [
+     "conversation",
+     $id
+    ]) ?? [];
     foreach($conversation as $key => $value) {
      $this->system->Data("Purge", ["local", $key]);
      $this->system->Data("Purge", ["react", $key]);
     }
     $this->system->Data("Purge", ["conversation", $id]);
+    $r = [
+     "Body" => "The Conversation was deleted.",
+     "Header" => "Done"
+    ];
    }
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

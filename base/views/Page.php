@@ -532,9 +532,12 @@
    $r = ($card == 1) ? [
     "Front" => $r
    ] : $r;
-   $r = ($pub == 1) ? $this->view(base64_encode("WebUI:Containers"), [
-    "Data" => ["Content" => $r]
-   ]) : $r;
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->system->RenderView($r);
+   }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -549,11 +552,9 @@
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
-   $fr = $this->system->Change([[
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Article Identifier is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
-   $frbtn = "";
+   $r = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $y = $this->you;
    if(!empty($id)) {
     $accessCode = "Accepted";
@@ -564,7 +565,7 @@
      $page = $this->Data("Get", ["pg", $value]) ?? [];
      $content[$page["ID"]] = $page["Title"];
     }
-    $fr = $this->system->Change([[
+    $r = $this->system->Change([[
      "[Invite.ID]" => $id,
      "[Invite.Inputs]" => $this->system->RenderInputs([
       [
@@ -617,16 +618,16 @@
       ]
      ])
     ], $this->system->Page("80e444c34034f9345eee7399b4467646")]);
-    $frbtn = $this->system->Element(["button", "Send Invite", [
+    $action = $this->system->Element(["button", "Send Invite", [
      "class" => "CardButton SendData dB2C",
      "data-form" => ".Invite$id",
      "data-processor" => base64_encode("v=".base64_encode("Page:SendInvite"))
     ]]);
+    $r = [
+     "Action" => $action,
+     "Front" => $r
+    ];
    }
-   $r = [
-    "Action" => $frbtn,
-    "Front" => $fr
-   ];
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
