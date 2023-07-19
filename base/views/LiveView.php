@@ -174,6 +174,7 @@
    if(!empty($id)) {
     $attachments = explode(";", base64_decode($id));
     $count = count($attachments);
+    $r = "";
     if($type == "Artist") {
      for($i = 0; $i < $count; $i++) {
       if(!empty($attachments[$i])) {
@@ -182,8 +183,8 @@
         $t = ($member == $you) ? $y : $this->system->Member($mbr);
         $r .= $this->system->Element([
          "button", $this->system->ProfilePicture($t, "margin:5%;width:90%"), [
-          "class" => "Small dB2O",
-          "data-e" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($f[0]))
+          "class" => "Small OpenCard",
+          "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($f[0]))
          ]
         ]);
        }
@@ -206,8 +207,8 @@
           "T" => $f[0],
           "Y" => $you
          ]), [
-          "class" => "K4i Medium dB2O",
-          "data-type" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
+          "class" => "K4i Medium OpenCard",
+          "data-view" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
          ]
         ]);
        }
@@ -257,8 +258,8 @@
         $t = ($member == $you) ? $y : $this->system->Member($mbr);
         $r .= $this->system->Element([
          "button", $this->system->ProfilePicture($t, "margin:5%;width:90%"), [
-          "class" => "Small dB2O",
-          "data-e" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($f[0]))
+          "class" => "OpenCard Small",
+          "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($f[0]))
          ]
         ]);
        }
