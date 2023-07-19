@@ -5,6 +5,7 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Containers(array $a) {
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $content = $this->view(base64_encode("WebUI:OptIn"), []);
    $content = $this->system->RenderView($content);

@@ -201,28 +201,19 @@
     } else {
      $options .= "<input class=\"HC\" name=\"HC\" type=\"hidden\" value=\"0\"/>\r\n";
     }
-    $additionalContent = $this->system->Change([
-     [
-      "[CP.ContentType]" => "Page",
-      "[CP.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
-      "[CP.ID]" => $id
-     ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]).$this->system->Change([
-     [
-      "[UIV.IN]" => $dvi,
-      "[UIV.OUT]" => "UIV$crid".md5($time),
-      "[UIV.U]" => base64_encode("v=$dv&DV=")
-     ], $this->system->Page("7780dcde754b127656519b6288dffadc")
-    ]).$this->system->Change([
-     [
-      "[XFS.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
-      "[XFS.ID]" => $id
-     ], $this->system->Page("8356860c249e93367a750f3b4398e493")
-    ]);
     $r = $this->system->Change([[
-     "[Article.AdditionalContent]" => $additionalContent,
+     "[Article.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Page",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
+       "[Extras.DesignView.Origin]" => $dvi,
+       "[Extras.DesignView.Destination]" => "UIV$crid".md5($time),
+       "[Extras.DesignView.Processor]" => base64_encode("v=$dv&DV="),
+       "[Extras.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
+     ]),
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,
      "[Article.Inputs]" => $this->system->RenderInputs([
