@@ -201,16 +201,10 @@
     $r = $this->system->Change([[
      "[Cart.CreditExchange]" => $creditExchange,
      "[Cart.DiscountCodes]" => $discountCodes,
-     "[Cart.List]" => $this->view(base64_encode("Search:Containers"), [
-      "Data" => [
-       "CRID" => md5("Shop$id"),
-       "UN" => $t["Login"]["Username"],
-       "st" => "CART"
-      ]
-     ]),
+     "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&CRID=".md5("Shop$id")."&UN=".$t["Login"]["Username"]."&st=CART"),
      "[Cart.Shop.ID]" => $id,
      "[Cart.Shop.Title]" => $shop["Title"],
-     "[Cart.Summary]" => "v=".base64_encode("Cart:Summary")."&UN=".$data["UN"]
+     "[Cart.Summary]" => base64_encode("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])
     ], $this->system->Page("ac678179fb0fb0c66cd45d738991abb9")]);
    }
    return $this->system->JSONResponse([
@@ -405,8 +399,8 @@
    $mayContinue = ($cartCount > 0 && $subtotal > 0) ? 1 : 0;
    $continue = ($mayContinue == 1) ? $this->system->Element([
     "button", "Continue", [
-     "class" => "BB BBB v2 v2w",
-     "onclick" => "FST('N/A', 'v=".base64_encode("Pay:Checkout")."&UN=".$data["UN"]."', '".md5("ShoppingCart$username-Checkout")."');"
+     "class" => "BBB OpenFirSTEPTool v2 v2w",
+     "data-fst" => base64_encode("v=".base64_encode("Pay:Checkout")."&UN=".$data["UN"])
     ]
    ]) : "";
    $r = $this->system->Change([[
@@ -416,6 +410,14 @@
     "[Cart.Summary.Tax]" => number_format($tax, 2),
     "[Cart.Summary.Total]" => number_format($tax + $total, 2)
    ], $this->system->Page("94eb319f456356da1d6e102670686a29")]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

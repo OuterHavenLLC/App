@@ -401,6 +401,7 @@
       ]])
      ], $this->system->Page("f844c17ae6ce15c373c2bd2a691d0a9a")]);
     } elseif($ck == 1 || $ck2 == 1) {
+     $_Search = base64_encode("Search:Containers");
      $bl = $this->system->CheckBlocked([$t, "Members", $you]);
      $cms = $this->system->Data("Get", ["cms", $id]) ?? [];
      $ck2 = $this->system->CheckPrivacy([
@@ -431,15 +432,26 @@
         "data-type" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($id))
        ]
       ]) : "";
+      $partners = $this->view($_Search, ["Data" => [
+        "ID" => base64_encode($id),
+        "Type" => base64_encode("Shop"),
+        "st" => "Contributors"
+       ]]);
+      $partners = $this->system->RenderView($partners);
       $payroll = ($id == md5($you)) ? $this->system->Element([
        "button", "Payroll", [
-        "class" => "Small dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Shop:Payroll"))
+        "class" => "Small OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Shop:Payroll"))
        ]
       ]) : "";
-      $votes = ($id != md5($you)) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-      $votes = base64_encode("v=$votes&ID=$id&Type=4");
-      $search = base64_encode("Search:Containers");
+      $products = $this->view($_Search, ["Data" => [
+       "UN" => base64_encode($t["Login"]["Username"]),
+       "b2" => $shop["Title"],
+       "lPG" => "MiNY$id",
+       "pubP" => $pub,
+       "st" => "MiNY"
+      ]]);
+      $products = $this->system->RenderView($products);
       $subscribe = (md5($you) != $id && $this->system->ID != $you) ? 1 : 0;
       $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
       $subscribe = ($subscribe == 1) ? $this->system->Change([[
@@ -449,10 +461,12 @@
        "[Subscribe.Text]" => $subscribeText,
        "[Subscribe.Title]" => $shop["Title"]
       ], $this->system->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
+      $votes = ($id != md5($you)) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+      $votes = base64_encode("v=$votes&ID=$id&Type=4");
       $r = $this->system->Change([[
        "[Shop.Back]" => $bck,
        "[Shop.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
-       "[Shop.Cart]" => "v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&PFST=$pub",
+       "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&PFST=$pub"),
        "[Shop.Conversation]" => $this->system->Change([[
         "[Conversation.CRID]" => $id,
         "[Conversation.CRIDE]" => base64_encode($id),
@@ -461,21 +475,11 @@
        ], $this->system->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
        "[Shop.Disclaimer]" => $disclaimer,
        "[Shop.Edit]" => $edit,
-       "[Shop.History]" => "v=".base64_encode("Shop:History")."&ID=$id&PFST=$pub",
+       "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id&PFST=$pub"),
        "[Shop.ID]" => $id,
-       "[Shop.Partners]" => $this->view($search, ["Data" => [
-        "ID" => base64_encode($id),
-        "Type" => base64_encode("Shop"),
-        "st" => "Contributors"
-       ]]),
+       "[Shop.Partners]" => $partners,
        "[Shop.Payroll]" => $payroll,
-       "[Shop.ProductList]" => $this->view($search, ["Data" => [
-         "UN" => base64_encode($t["Login"]["Username"]),
-         "b2" => $shop["Title"],
-         "lPG" => "MiNY$id",
-         "pubP" => $pub,
-         "st" => "MiNY"
-        ]]),
+       "[Shop.ProductList]" => $products,
        "[Shop.Subscribe]" => $subscribe,
        "[Shop.Title]" => $shop["Title"],
        "[Shop.Welcome]" => $this->system->PlainText([
