@@ -212,7 +212,7 @@
        "[Extras.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
-      ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,

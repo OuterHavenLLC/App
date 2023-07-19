@@ -17,7 +17,7 @@
    $list = base64_encode("Profile:BulletinsList");
    $r = $this->system->Change([[
     "[BulletinCenter.Bulletins]" => $this->system->RenderView($bulletins),
-    "[BulletinCenter.ContactRequests]" => "v=$list&type=".base64_encode("ContactsRequests"),
+    "[BulletinCenter.ContactRequests]" => base64_encode("v=$list&type=".base64_encode("ContactsRequests")),
     "[BulletinCenter.Contacts]" => $this->system->RenderView($contacts)
    ], $this->system->Page("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->system->JSONResponse([
@@ -224,9 +224,12 @@
    $search = base64_encode("Search:Containers");
    $type = $data["type"] ?? base64_encode("");
    $type = base64_decode($type);
-   $r = ($type == "ContactsRequests") ? $this->view($search, ["Data" => [
-    "st" => "ContactsRequests"
-   ]]) : "";
+   if($type == "ContactsRequests") {
+    $r = $this->view($search, ["Data" => [
+     "st" => "ContactsRequests"
+    ]]);
+    $r = $this->system->RenderView($r);
+   }
    return $this->system->JSONResponse([
     "AccessCode" => "Accepted",
     "Response" => [
