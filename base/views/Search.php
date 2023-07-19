@@ -1299,7 +1299,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $active = 0;
     $admin = 0;
-    $attlv = base64_encode("LiveView:InlineMossaic");
     $id = $data["ID"] ?? "";
     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
     $home = base64_encode("ForumPost:Home");
@@ -1317,7 +1316,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     if($active == 1 || $admin == 1 || $forum["Type"] == "Public") {
      foreach($posts as $key => $value) {
       $actions = "";
-      $att = "";
       $bl = $this->system->CheckBlocked([$y, "Forum Posts", $value]);
       $post = $this->system->Data("Get", ["post", $value]) ?? [];
       $cms = $this->system->Data("Get", ["cms", md5($post["From"])]) ?? [];
@@ -1333,6 +1331,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "Y" => $you
       ]);
       if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
+       $att = "";
+       if(!empty($post["Attachments"])) {
+        $att =  $this->view(base64_encode("LiveView:InlineMossaic"), [
+         "Data" => [
+          "ID" => base64_encode(implode(";", $post["Attachments"])),
+          "Type" => base64_encode("DLC")
+         ]
+        ]);
+        $att = $this->system->RenderView($att);
+       }
        $bl = $this->system->CheckBlocked([$y, "Status Updates", $id]);
        $con = base64_encode("Conversation:Home");
        $actions = ($post["From"] != $you) ? $this->system->Element([
@@ -1363,10 +1371,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "data-view" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id."-".$post["ID"]))
         ]
        ]) : "";
-       $att = (!empty($post["Attachments"])) ? $this->view($attlv, ["Data" => [
-        "ID" => base64_encode(implode(";", $post["Attachments"])),
-        "Type" => base64_encode("DLC")
-       ]]) : "";
        $display = ($op["Login"]["Username"] == $this->system->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $memberRole = ($op["Login"]["Username"] == $forum["UN"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
        $modified = $post["ModifiedBy"] ?? [];
@@ -1777,10 +1781,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
       $ck2 = 1;
       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
-       $att = (!empty($su["Attachments"])) ? $this->view($attlv, ["Data" => [
-        "ID" => base64_encode(implode(";", $su["Attachments"])),
-        "Type" => base64_encode("DLC")
-       ]]) : "";
+       $att = "";
+       if(!empty($su["Attachments"])) {
+        $att =  $this->view(base64_encode("LiveView:InlineMossaic"), [
+         "Data" => [
+          "ID" => base64_encode(implode(";", $su["Attachments"])),
+          "Type" => base64_encode("DLC")
+         ]
+        ]);
+        $att = $this->system->RenderView($att);
+       }
        $display = ($op["Login"]["Username"] == $this->system->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $edit = ($op["Login"]["Username"] == $you) ? $this->system->Element([
         "button", "Delete", [
@@ -2069,7 +2079,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "US-SU") {
     $ec = "Accepted";
     $edit = base64_encode("StatusUpdate:Edit");
-    $attlv = base64_encode("LiveView:InlineMossaic");
     $tpl = $this->system->Page("18bc18d5df4b3516c473b82823782657");
     $x = $this->system->DatabaseSet("SU") ?? [];
     foreach($x as $k => $v) {
@@ -2083,10 +2092,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $bl = $this->system->CheckBlocked([$y, "Status Updates", $v]);
       $from = $from ?? $this->system->ID;
       if($bl == 0 || $from == $you) {
-       $att = (!empty($su["Attachments"])) ? $this->view($attlv, ["Data" => [
-        "ID" => base64_encode(implode(";", $su["Attachments"])),
-        "Type" => base64_encode("DLC")
-       ]]) : "";
+       $att = "";
+       if(!empty($su["Attachments"])) {
+        $att =  $this->view(base64_encode("LiveView:InlineMossaic"), [
+         "Data" => [
+          "ID" => base64_encode(implode(";", $su["Attachments"])),
+          "Type" => base64_encode("DLC")
+         ]
+        ]);
+        $att = $this->system->RenderView($att);
+       }
        $op = ($from == $y["Login"]["Username"]) ? $y : $this->system->Member($from);
        $cms = $this->system->Data("Get", [
         "cms",
