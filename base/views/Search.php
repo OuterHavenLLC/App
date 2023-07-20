@@ -76,7 +76,6 @@
      $li .= "&b2=".urlencode("the Archive")."&lPG=$lpg";
      $lis = "Search Articles";
     } elseif($st == "CART") {
-     $data = $this->system->FixMissing($data, ["UN"]);
      $t = $data["UN"] ?? $you;
      $t = ($t == $you) ? $y : $this->system->Member($t);
      $shop = $this->system->Data("Get", [
@@ -812,14 +811,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $coverPhoto = $p["ICO"] ?? $coverPhoto;
       $coverPhoto = base64_encode($coverPhoto);
       $newCartList[$k] = $v;
+      $remove = $this->view($remove, ["Data" => [
+       "ProductID" => base64_encode($k),
+       "ShopID" => base64_encode($data["ID"])
+      ]]);
+      $remove = $this->system->RenderView($remove);
       array_push($msg, [
        "[X.LI.I]" => base64_encode($this->system->CoverPhoto($coverPhoto)),
        "[X.LI.T]" => base64_encode($p["Title"]),
        "[X.LI.D]" => base64_encode($p["Description"].$you),
-       "[X.LI.Remove]" => base64_encode($this->view($remove, ["Data" => [
-        "ProductID" => base64_encode($k),
-        "ShopID" => base64_encode($data["ID"])
-       ]]))
+       "[X.LI.Remove]" => base64_encode($remove)
       ]);
      }
     }

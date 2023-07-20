@@ -201,7 +201,7 @@
     $r = $this->system->Change([[
      "[Cart.CreditExchange]" => $creditExchange,
      "[Cart.DiscountCodes]" => $discountCodes,
-     "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&CRID=".md5("Shop$id")."&UN=".$t["Login"]["Username"]."&st=CART"),
+     "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&UN=".$t["Login"]["Username"]."&st=CART"),
      "[Cart.Shop.ID]" => $id,
      "[Cart.Shop.Title]" => $shop["Title"],
      "[Cart.Summary]" => base64_encode("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])

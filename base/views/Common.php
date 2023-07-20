@@ -337,13 +337,14 @@
   function MemberGrid(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $list = $data["List"] ?? [];
+   $list = $data["List"] ?? "";
    $rows = $data["Rows"] ?? 9;
    $type = $data["Type"] ?? "Web";
-   $r = "&nbsp;";
+   $r = $this->system->Element(["p", "Nothing yet..."]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($list)) {
+    $list = json_decode(base64_decode($list), true);
     $list = $this->system->ShuffleList($list);
     $r = "";
     foreach($list as $key => $value) {
@@ -351,8 +352,8 @@
      if(!empty($t["Login"])) {
       $r .= $this->system->Element([
        "button", $this->system->ProfilePicture($t, "margin:5%;width:90%"), [
-        "class" => "Small dB2O",
-        "data-e" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($t["Login"]["Username"]))
+        "class" => "OpenCard Small",
+        "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($t["Login"]["Username"]))
        ]
       ]);
      }

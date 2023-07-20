@@ -383,8 +383,8 @@
       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($display)."&content=".base64_encode($id)."&list=".base64_encode("Members")."&BC=")
      ]]);
      $actions .= ($_Artist == 1) ? $this->system->Element(["button", "Donate", [
-      "class" => "Small dBO v2",
-      "data-type" => "v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id)
+      "class" => "OpenCardSmall v2",
+      "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id))
      ]]) : "";
      $actions .= ($_VIP == 0 && $id != $you && $y["Rank"] == md5("High Command")) ? $this->system->Element(["button", "Make VIP", [
       "class" => "SendData Small v2",
@@ -470,6 +470,7 @@
       "Them" => $id,
       "You" => $you
      ]);
+     $contactStatus = $this->system->RenderView($contactStatus);
      if($contactRequestsAllowed == 1 && $id != $you) {
       $cancel = (in_array($you, $theirRequests)) ? 1 : 0;
       if($contactStatus["TheyHaveYou"] == 0 && $contactStatus["YouHaveThem"] == 0) {
@@ -550,13 +551,7 @@
       ]]);
       $journal = $this->system->RenderView($journal);
      }
-     $stream = $this->view($search, ["Data" => [
-       "UN" => base64_encode($id),
-       "st" => "MBR-SU"
-      ]]);
-     $stream = $this->system->RenderView($stream);
      $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = base64_encode("v=$votes&ID=".md5($id)."&Type=4");
      $r = $this->system->Change([[
       "[Member.Actions]" => $actions,
       "[Member.AddContact]" => $addContact,
@@ -580,8 +575,8 @@
       "[Member.ID]" => md5($id),
       "[Member.Journal]" => $journal,
       "[Member.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:2em;width:calc(100% - 4em)"),
-      "[Member.Stream]" => $stream,
-      "[Member.Votes]" => $votes
+      "[Member.Stream]" => base64_encode("v=$search&UN=".base64_encode($id)."&st=MBR-SU"),
+      "[Member.Votes]" => base64_encode("v=$votes&ID=".md5($id)."&Type=4")
      ], $this->system->Page("72f902ad0530ad7ed5431dac7c5f9576")]);
     }
    }
