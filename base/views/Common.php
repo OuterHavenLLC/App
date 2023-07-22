@@ -340,16 +340,18 @@
    $list = $data["List"] ?? "";
    $rows = $data["Rows"] ?? 9;
    $type = $data["Type"] ?? "Web";
-   $r = $this->system->Element(["p", "Nothing yet..."]);
+   $r = $this->system->Element(["p", "None, yet..."]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($list)) {
+    $i = 0;
     $list = json_decode(base64_decode($list), true);
     $list = $this->system->ShuffleList($list);
     $r = "";
     foreach($list as $key => $value) {
      $t = ($key == $you) ? $y : $this->system->Member($key);
      if(!empty($t["Login"])) {
+      $i++;
       $r .= $this->system->Element([
        "button", $this->system->ProfilePicture($t, "margin:5%;width:90%"), [
         "class" => "OpenCard Small",
@@ -358,6 +360,9 @@
       ]);
      }
     }
+    $r = ($i == 0) ? $this->system->Element([
+     "p", "None, yet..."
+    ]) : $r;
     $r = $this->system->Element([
      "h4", "Contributors", ["class" => "UpperCase"]
     ]).$this->system->Element([

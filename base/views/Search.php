@@ -997,143 +997,145 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $displayname = "Anonymous";
       $opt = "";
       $t = ($member == $you) ? $y : $this->system->Member($member);
-      if($type == "Article") {
-       $ban = base64_encode("Page:Banish");
-       $bl = $this->system->CheckBlocked([$t, "Members", $you]);
-       $bl2 = $this->system->CheckBlocked([$y, "Members", $member]);
-       $cr = base64_encode("Authentication:ArticleChangeMemberRole");
-       $cms = $this->system->Data("Get", [
-        "cms",
-        md5($t["Login"]["Username"])
-       ]) ?? [];
-       $ck = $this->system->CheckPrivacy([
-        "Contacts" => $cms["Contacts"],
-        "Privacy" => $t["Privacy"]["Profile"],
-        "UN" => $member,
-        "Y" => $you
-       ]);
-       $ck2 = ($Page["UN"] == $you || $admin == 1) ? 1 : 0;
-       $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
-       if($bl == 0 && $bl2 == 0 && ($ck == 1 || $ck2 == 1)) {
-        $ck = ($Page["UN"] != $member) ? 1 : 0;
-        $description = "You have not added a Description.";
-        $description = ($member != $you) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
-        $description = (!empty($t["Description"])) ? $this->system->PlainText([
-         "BBCodes" => 1,
-         "Data" => $t["Description"],
-         "Display" => 1
-        ]) : $description;
+      if(!empty($t["Login"])) {
+       if($type == "Article") {
+        $ban = base64_encode("Page:Banish");
+        $bl = $this->system->CheckBlocked([$t, "Members", $you]);
+        $bl2 = $this->system->CheckBlocked([$y, "Members", $member]);
+        $cr = base64_encode("Authentication:ArticleChangeMemberRole");
+        $cms = $this->system->Data("Get", [
+         "cms",
+         md5($t["Login"]["Username"])
+        ]) ?? [];
+        $ck = $this->system->CheckPrivacy([
+         "Contacts" => $cms["Contacts"],
+         "Privacy" => $t["Privacy"]["Profile"],
+         "UN" => $member,
+         "Y" => $you
+        ]);
+        $ck2 = ($Page["UN"] == $you || $admin == 1) ? 1 : 0;
+        $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
+        if($bl == 0 && $bl2 == 0 && ($ck == 1 || $ck2 == 1)) {
+         $ck = ($Page["UN"] != $member) ? 1 : 0;
+         $description = "You have not added a Description.";
+         $description = ($member != $you) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
+         $description = (!empty($t["Description"])) ? $this->system->PlainText([
+          "BBCodes" => 1,
+          "Data" => $t["Description"],
+          "Display" => 1
+         ]) : $description;
+         $displayname = $t["Personal"]["DisplayName"];
+         $eid = base64_encode($Page["ID"]);
+         $mbr = base64_encode($t["Login"]["Username"]);
+         $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
+          "button", "Banish", [
+           "class" => "OpenDialog v2",
+           "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
+          ]
+         ]).$this->system->Element([
+          "button", "Change Role", [
+           "class" => "OpenDialog v2",
+           "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
+          ]
+         ]) : "";
+        }
+       } elseif($type == "Blog") {
+        $ban = base64_encode("Blog:Banish");
+        $bl = $this->system->CheckBlocked([$t, "Members", $you]);
+        $bl2 = $this->system->CheckBlocked([$y, "Members", $member]);
+        $cr = base64_encode("Authentication:BlogChangeMemberRole");
+        $cms = $this->system->Data("Get", [
+         "cms",
+         md5($t["Login"]["Username"])
+        ]) ?? [];
+        $ck = $this->system->CheckPrivacy([
+         "Contacts" => $cms["Contacts"],
+         "Privacy" => $t["Privacy"]["Profile"],
+         "UN" => $member,
+         "Y" => $you
+        ]);
+        $ck2 = ($blog["UN"] == $you || $admin == 1) ? 1 : 0;
+        $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
+        if($bl == 0 && $bl2 == 0 && ($ck == 1 || $ck2 == 1)) {
+         $ck = ($blog["UN"] != $member) ? 1 : 0;
+         $description = "You have not added a Description.";
+         $description = ($member != $you) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
+         $description = (!empty($t["Description"])) ? $this->system->PlainText([
+          "BBCodes" => 1,
+          "Data" => $t["Description"],
+          "Display" => 1
+         ]) : $description;
+         $displayname = $t["Personal"]["DisplayName"];
+         $eid = base64_encode($blog["ID"]);
+         $mbr = base64_encode($t["Login"]["Username"]);
+         $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
+          "button", "Banish", [
+           "class" => "OpenDialog v2",
+           "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
+          ]
+         ]).$this->system->Element([
+          "button", "Change Role", [
+           "class" => "OpenDialog v2",
+           "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
+          ]
+         ]) : "";
+        }
+       } elseif($type == "Forum") {
+        $ban = base64_encode("Forum:Banish");
+        $bl = $this->system->CheckBlocked([$t, "Members", $you]);
+        $bl2 = $this->system->CheckBlocked([$y, "Members", $member]);
+        $cr = base64_encode("Authentication:PFChangeMemberRole");
+        $cms = $this->system->Data("Get", [
+         "cms",
+         md5($t["Login"]["Username"])
+        ]) ?? [];
+        $ck = $this->system->CheckPrivacy([
+         "Contacts" => $cms["Contacts"],
+         "Privacy" => $t["Privacy"]["Profile"],
+         "UN" => $member,
+         "Y" => $you
+        ]);
+        $ck2 = ($forum["UN"] == $you || $admin == 1) ? 1 : 0;
+        $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
+        if($bl == 0 && $bl2 == 0 && ($ck == 1 || $ck2 == 1)) {
+         $ck = ($forum["UN"] != $member) ? 1 : 0;
+         $description = "You have not added a Description.";
+         $description = ($member != $you) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
+         $description = (!empty($t["Personal"]["Description"])) ? $this->system->PlainText([
+          "BBCodes" => 1,
+          "Data" => $t["Personal"]["Description"],
+          "Display" => 1
+         ]) : $description;
+         $displayname = $t["Personal"]["DisplayName"];
+         $eid = base64_encode($forum["ID"]);
+         $mbr = base64_encode($t["Login"]["Username"]);
+         $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
+          "button", "Banish", [
+           "class" => "OpenDialog v2",
+           "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
+          ]
+         ]).$this->system->Element([
+          "button", "Change Role", [
+           "class" => "OpenDialog v2",
+           "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
+          ]
+         ]) : "";
+        }
+       } elseif($type == "Shop") {
+        $ck = ($id == md5($you)) ? 1 : 0;
+        $ck = ($ck == 1 && $member != $you) ? 1 : 0;
+        $description = "<b>".$role["Title"]."</b><br/>".$role["Description"];
+        $eid = base64_encode($id);
         $displayname = $t["Personal"]["DisplayName"];
-        $eid = base64_encode($Page["ID"]);
-        $mbr = base64_encode($t["Login"]["Username"]);
-        $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
-         "button", "Banish", [
-          "class" => "OpenDialog v2",
-          "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
-         ]
-        ]).$this->system->Element([
-         "button", "Change Role", [
-          "class" => "OpenDialog v2",
-          "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
-         ]
-        ]) : "";
+        $memberID = base64_encode($member);
+        $opt = ($ck == 1) ? $this->system->Element(["button", "Edit", [
+         "class" => "OpenCard v2",
+         "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
+        ]]).$this->system->Element(["button", "Fire", [
+         "class" => "OpenDialog v2",
+         "data-view" => base64_encode("v=".base64_encode("Shop:Banish")."&ID=$eid&UN=$memberID")
+        ]]) : "";
        }
-      } elseif($type == "Blog") {
-       $ban = base64_encode("Blog:Banish");
-       $bl = $this->system->CheckBlocked([$t, "Members", $you]);
-       $bl2 = $this->system->CheckBlocked([$y, "Members", $member]);
-       $cr = base64_encode("Authentication:BlogChangeMemberRole");
-       $cms = $this->system->Data("Get", [
-        "cms",
-        md5($t["Login"]["Username"])
-       ]) ?? [];
-       $ck = $this->system->CheckPrivacy([
-        "Contacts" => $cms["Contacts"],
-        "Privacy" => $t["Privacy"]["Profile"],
-        "UN" => $member,
-        "Y" => $you
-       ]);
-       $ck2 = ($blog["UN"] == $you || $admin == 1) ? 1 : 0;
-       $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
-       if($bl == 0 && $bl2 == 0 && ($ck == 1 || $ck2 == 1)) {
-        $ck = ($blog["UN"] != $member) ? 1 : 0;
-        $description = "You have not added a Description.";
-        $description = ($member != $you) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
-        $description = (!empty($t["Description"])) ? $this->system->PlainText([
-         "BBCodes" => 1,
-         "Data" => $t["Description"],
-         "Display" => 1
-        ]) : $description;
-        $displayname = $t["Personal"]["DisplayName"];
-        $eid = base64_encode($blog["ID"]);
-        $mbr = base64_encode($t["Login"]["Username"]);
-        $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
-         "button", "Banish", [
-          "class" => "OpenDialog v2",
-          "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
-         ]
-        ]).$this->system->Element([
-         "button", "Change Role", [
-          "class" => "OpenDialog v2",
-          "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
-         ]
-        ]) : "";
-       }
-      } elseif($type == "Forum") {
-       $ban = base64_encode("Forum:Banish");
-       $bl = $this->system->CheckBlocked([$t, "Members", $you]);
-       $bl2 = $this->system->CheckBlocked([$y, "Members", $member]);
-       $cr = base64_encode("Authentication:PFChangeMemberRole");
-       $cms = $this->system->Data("Get", [
-        "cms",
-        md5($t["Login"]["Username"])
-       ]) ?? [];
-       $ck = $this->system->CheckPrivacy([
-        "Contacts" => $cms["Contacts"],
-        "Privacy" => $t["Privacy"]["Profile"],
-        "UN" => $member,
-        "Y" => $you
-       ]);
-       $ck2 = ($forum["UN"] == $you || $admin == 1) ? 1 : 0;
-       $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
-       if($bl == 0 && $bl2 == 0 && ($ck == 1 || $ck2 == 1)) {
-        $ck = ($forum["UN"] != $member) ? 1 : 0;
-        $description = "You have not added a Description.";
-        $description = ($member != $you) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
-        $description = (!empty($t["Personal"]["Description"])) ? $this->system->PlainText([
-         "BBCodes" => 1,
-         "Data" => $t["Personal"]["Description"],
-         "Display" => 1
-        ]) : $description;
-        $displayname = $t["Personal"]["DisplayName"];
-        $eid = base64_encode($forum["ID"]);
-        $mbr = base64_encode($t["Login"]["Username"]);
-        $opt = ($ck == 1 && $ck2 == 1) ? $this->system->Element([
-         "button", "Banish", [
-          "class" => "OpenDialog v2",
-          "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
-         ]
-        ]).$this->system->Element([
-         "button", "Change Role", [
-          "class" => "OpenDialog v2",
-          "data-view" => base64_encode("v=$cr&ID=$eid&Member=$mbr")
-         ]
-        ]) : "";
-       }
-      } elseif($type == "Shop") {
-       $ck = ($id == md5($you)) ? 1 : 0;
-       $ck = ($ck == 1 && $member != $you) ? 1 : 0;
-       $description = "<b>".$role["Title"]."</b><br/>".$role["Description"];
-       $eid = base64_encode($id);
-       $displayname = $t["Personal"]["DisplayName"];
-       $memberID = base64_encode($member);
-       $opt = ($ck == 1) ? $this->system->Element(["button", "Edit", [
-        "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
-       ]]).$this->system->Element(["button", "Fire", [
-        "class" => "OpenDialog v2",
-        "data-view" => base64_encode("v=".base64_encode("Shop:Banish")."&ID=$eid&UN=$memberID")
-       ]]) : "";
       }
       array_push($msg, [
        "[X.LI.DisplayName]" => base64_encode($displayname),
