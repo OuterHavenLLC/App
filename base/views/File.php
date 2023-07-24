@@ -48,18 +48,90 @@
     $album = $this->system->Element(["p", "System Library`"]);
     if($this->system->ID != $username) {
      $album = $file["AID"] ?? md5("unsorted");
-     $album = $this->system->Select("Album", "req v2w", $album);
+     $albums = [];
+     foreach($fileSystem["Albums"] as $key => $album) {
+      $albums[$key] = $album["Title"];
+     }
+     $album = $this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => $albums,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Album"
+       ],
+       "Name" => "Album",
+       "Title" => "Album",
+       "Type" => "Select",
+       "Value" => $album
+      ]
+     ]);
     }
     $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $file["Privacy"];
     $r = $this->system->Change([[
      "[File.Album]" => $album,
-     "[File.Description]" => $file["Description"],
      "[File.ID]" => $id,
-     "[File.NSFW]" => $this->system->Select("nsfw", "req v2w", $nsfw),
-     "[File.Privacy]" => $this->system->Select("Privacy", "req v2w", $privacy),
-     "[File.Title]" => $file["Title"],
-     "[File.Username]" => $username
+     "[File.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "UN",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $username
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $file["Title"]
+      ],
+      [
+       "Attributes" => [
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $file["Description"]
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ]),
+     "[File.Title]" => $file["Title"]
     ], $this->system->Page("7c85540db53add027bddeb42221dd104")]);
     $action = $this->system->Element(["button", "Update", [
      "class" => "CardButton SendData",
@@ -149,11 +221,11 @@
      $ck = ($this->system->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
      $actions .= ($ck == 1 || $username == $you) ? $this->system->Element([
       "button", "Delete", [
-       "class" => "Small dBO v2",
-       "data-type" => "v=".base64_encode("Authentication:DeleteFile")."&AID=".$file["AID"]."&ID=$id&ParentView=".$this->system->PlainText([
+       "class" => "OpenDialog Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteFile")."&AID=".$file["AID"]."&ID=$id&ParentView=".$this->system->PlainText([
         "Data" => $data["lPG"],
         "Encode" => 1
-       ])."&UN=".base64_encode($username)
+       ])."&UN=".base64_encode($username))
       ]
      ]) : "";
      $actions .= $this->system->Element([
@@ -164,8 +236,8 @@
      ]);
      $actions .= ($ck == 1 || $username == $you) ? $this->system->Element([
       "button", "Edit", [
-       "class" => "Small dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($id)."&UN=".base64_encode($username))
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($id)."&UN=".base64_encode($username))
       ]
      ]) : "";
      $fileCheck = $this->system->CheckFileType([$file["EXT"], "Photo"]);
@@ -191,8 +263,8 @@
       $type = base64_encode($type);
       $setAsProfileImage = ($_Size == 1) ? $this->system->Element([
        "button", "Set as Your $cp", [
-        "class" => "Disable dBO v2",
-        "data-type" => "v=".base64_encode("File:SaveProfileImage")."&DLC=$attachmentID&FT=$type"
+        "class" => "OpenDialog Disable v2",
+        "data-view" => base64_encode("v=".base64_encode("File:SaveProfileImage")."&DLC=$attachmentID&FT=$type")
        ]
       ]) : "";
      }
@@ -276,7 +348,6 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $album = $data["Album"] ?? md5("unsorted");
     $username = $data["UN"] ?? $you;
     $fileSystem = $this->system->Data("Get", ["fs", md5($username)]) ?? [];
     $files = ($this->system->ID == $username) ? $this->system->Data("Get", [
@@ -285,7 +356,7 @@
     ]) : $fileSystem["Files"];
     $now = $this->system->timestamp;
     $file = $files[$id] ?? [];
-    $file["AID"] = $album ?? $files[$id]["Created"];
+    $file["AID"] = $data["Album"] ?? md5("unsorted");
     $file["Created"] = $files[$id]["Created"] ?? $now;
     $file["Description"] = $data["Description"];
     $file["Illegal"] = $files[$id]["Illegal"] ?? 0;
@@ -710,7 +781,7 @@
     $xfsUsage = $this->system->ByteNotation($xfsUsage)."MB";
     $limit = $this->system->Change([["MB" => "", "," => ""], $xfsLimit]);
     $r = [
-     "Body" => "You may have reached your upload limit. You have used $xfsUsage and exceeded the limit of $xfsLimit."
+     "Body" => "You have reached your upload limit. You have used $xfsUsage and exceeded the limit of $xfsLimit."
     ];
     $used = $this->system->Change([["MB" => "", "," => ""], $xfsUsage]);
     $uploadsAllowed = $y["Subscriptions"]["XFS"]["A"] ?? 0;
@@ -746,14 +817,13 @@
        ]);
        $title = $fileSystem["Albums"][$albumID]["Title"] ?? "Unsorted";
       }
-      $r = $this->system->Change([[
-       "[Upload.Limit]" => $limit,
-       "[Upload.Options]" => $options,
-       "[Upload.Processor]" => base64_encode("v=".base64_encode("File:SaveUpload")),
-       "[Upload.Title]" => $title
-      ], $this->system->Page("bf6bb3ddf61497a81485d5eded18e5f8")]);
       return [
-       "Front" => $r
+       "Front" => $this->system->Change([[
+        "[Upload.Limit]" => $limit,
+        "[Upload.Options]" => $options,
+        "[Upload.Processor]" => base64_encode("v=".base64_encode("File:SaveUpload")),
+        "[Upload.Title]" => $title
+       ], $this->system->Page("bf6bb3ddf61497a81485d5eded18e5f8")])
       ];
      }
     }

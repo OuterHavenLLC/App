@@ -67,29 +67,20 @@
       $templates[$value] = $t["Title"];
      }
     }
-    $additionalContent = $this->system->Change([
-     [
-      "[CP.ContentType]" => "Blog Post",
-      "[CP.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at2&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-      "[CP.ID]" => $id
-     ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
-    ]).$this->system->Change([
-     [
-      "[UIV.IN]" => $dvi,
-      "[UIV.OUT]" => "UIV$id",
-      "[UIV.U]" => base64_encode("v=$dv&DV=")
-     ], $this->system->Page("7780dcde754b127656519b6288dffadc")
-    ]).$this->system->Change([
-     [
-      "[XFS.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
-      "[XFS.ID]" => $id
-     ], $this->system->Page("8356860c249e93367a750f3b4398e493")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
     $r = $this->system->Change([[
      "[Blog.ID]" => $blog["ID"],
-     "[BlogPost.AdditionalContent]" => $additionalContent,
+     "[BlogPost.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Blog Post",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => $dvi,
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[BlogPost.Header]" => $header,
      "[BlogPost.ID]" => $id,
      "[BlogPost.Inputs]" => $this->system->RenderInputs([
@@ -283,6 +274,8 @@
      "ID" => base64_encode(implode(";", $post["Attachments"])),
      "Type" => base64_encode("DLC")
     ]]) : "";
+    $contributors = $post["Contributors"] ?? [];
+    $contributors = base64_encode(json_encode($contributors, true));
     $coverPhoto = $this->system->PlainText([
      "Data" => "[sIMG:CP]",
      "Display" => 1
@@ -309,12 +302,12 @@
     }
     $profile = $this->system->Element([
      "button", "See more...", [
-      "class" => "dB2O v2",
-      "data-type" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($post["UN"]))
+      "class" => "OpenCard v2",
+      "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($post["UN"]))
      ]
     ]);
     $votes = ($post["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-    $votes = base64_encode("v=$votes&ID=$id&Type=2");
+    $votes = base64_encode("v=$votes&ID=".$post["ID"]."&Type=2");
     $r = $this->system->Change([[
      "[Article.Actions]" => $profile,
      "[Article.Attachments]" => $attachments,
@@ -326,9 +319,7 @@
       "Display" => 1,
       "HTMLDecode" => 1
      ]),
-     "[Article.Contributors]" => $this->view(base64_encode("Common:MemberGrid"), ["Data" => [
-      "List" => $contributors
-     ]]),
+     "[Article.Contributors]" => $contributors,
      "[Article.Conversation]" => $this->system->Change([[
       "[Conversation.CRID]" => $post["ID"],
       "[Conversation.CRIDE]" => base64_encode($post["ID"]),

@@ -120,15 +120,6 @@
     $at = base64_encode("Set as the Blog Post's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
     $at2 = base64_encode("All done! Feel free to close this card.");
-    $additionalContent = $this->system->Change([
-     [
-      "[CP.ContentType]" => "Blog",
-      "[CP.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at2&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-      "[CP.ID]" => $id
-     ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
     $coverPhotoSource = $blog["ICO-SRC"] ?? "";
     $description = $blog["Description"] ?? "";
     $header = ($new == 1) ? "New Blog" : "Edit ".$blog["Title"];
@@ -146,7 +137,18 @@
      }
     }
     $r = $this->system->Change([[
-     "[Blog.AdditionalContent]" => $additionalContent,
+     "[Blog.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Blog",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => "N/A",
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=$at2&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[Blog.Header]" => $header,
      "[Blog.ID]" => $id,
      "[Blog.Inputs]" => $this->system->RenderInputs([

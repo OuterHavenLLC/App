@@ -10,18 +10,17 @@
    $donate = "v=".base64_encode("Pay:Donation")."&amount=";
    $pub = $data["pub"] ?? 0;
    $r = $this->system->Change([[
-    "[Donate.5]" => $donate.base64_encode(5),
-    "[Donate.10]" => $donate.base64_encode(10),
-    "[Donate.15]" => $donate.base64_encode(15),
-    "[Donate.20]" => $donate.base64_encode(20),
-    "[Donate.25]" => $donate.base64_encode(25),
-    "[Donate.30]" => $donate.base64_encode(30),
-    "[Donate.35]" => $donate.base64_encode(35),
-    "[Donate.40]" => $donate.base64_encode(40),
-    "[Donate.45]" => $donate.base64_encode(45),
-    "[Donate.1000]" => $donate.base64_encode(1000),
-    "[Donate.2000]" => $donate.base64_encode(2000),
-    "[Donate.FSTID]" => md5("Donation_Pay")
+    "[Donate.5]" => base64_encode($donate.base64_encode(5)),
+    "[Donate.10]" => base64_encode($donate.base64_encode(10)),
+    "[Donate.15]" => base64_encode($donate.base64_encode(15)),
+    "[Donate.20]" => base64_encode($donate.base64_encode(20)),
+    "[Donate.25]" => base64_encode($donate.base64_encode(25)),
+    "[Donate.30]" => base64_encode($donate.base64_encode(30)),
+    "[Donate.35]" => base64_encode($donate.base64_encode(35)),
+    "[Donate.40]" => base64_encode($donate.base64_encode(40)),
+    "[Donate.45]" => base64_encode($donate.base64_encode(45)),
+    "[Donate.1000]" => base64_encode($donate.base64_encode(1000)),
+    "[Donate.2000]" => base64_encode($donate.base64_encode(2000))
    ], $this->system->Page("39e1ff34ec859482b7e38e012f81a03f")]);
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [

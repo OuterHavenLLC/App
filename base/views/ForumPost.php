@@ -8,10 +8,10 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["FID", "ID", "new"]);
+   $forumID = $data["FID"];
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
-   $fid = $data["FID"];
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $y = $this->you;
@@ -20,7 +20,7 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif((!empty($fid) && !empty($id)) || $new == 1) {
+   } elseif((!empty($forumID) && !empty($id)) || $new == 1) {
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $att = "";
@@ -43,50 +43,114 @@
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Posts"];
     $title = $post["Title"] ?? "";
-    $additionalContent = $this->system->Change([
-     [
-      "[UIV.IN]" => $designViewEditor,
-      "[UIV.OUT]" => "UIV$id",
-      "[UIV.U]" => base64_encode("v=$dv&DV=")
-     ], $this->system->Page("7780dcde754b127656519b6288dffadc")
-    ]).$this->system->Change([
-     [
-      "[XFS.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at3&Added=$at2&UN=".$you),
-      "[XFS.ID]" => $id
-     ], $this->system->Page("8356860c249e93367a750f3b4398e493")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
     $r = $this->system->Change([[
-     "[ForumPost.AdditionalContent]" => $additionalContent,
-     "[ForumPost.Attachments]" => $att,
-     "[ForumPost.Attachments.LiveView]" => base64_encode("v=$em&AddTo=$atinput&ID="),
-     "[ForumPost.Body]" => $this->system->WYSIWYG([
-      "UN" => $you,
-      "Body" => $this->system->PlainText(["Data" => $body]),
-      "adm" => 1,
-      "opt" => [
-       "id" => "XSUBody",
-       "class" => "$designViewEditor Body Xdecode req",
-       "name" => "Body",
-       "placeholder" => "Body",
-       "rows" => 20
-      ]
+     "[ForumPost.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Forum Post",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => $designViewEditor,
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
-     "[ForumPost.ForumID]" => $fid,
      "[ForumPost.Header]" => $header,
      "[ForumPost.ID]" => $id,
-     "[ForumPost.New]" => $new,
-     "[ForumPost.Options.NSFW]" => $this->system->Select("nsfw", "req v2 v2w", $nsfw),
-     "[ForumPost.Options.Privacy]" => $this->system->Select("Privacy", "req v2 v2w", $privacy),
-     "[ForumPost.Title]" => $title,
-     "[UIV.IN]" => "UIE$id"
+     "[ForumPost.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "FID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $forumID
+      ],
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTF",
+        "data-a" => "#ATTL$id-ATTF",
+        "data-u" => base64_encode("v=$em&AddTo=$atinput&ID="),
+        "name" => "rATTF",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditForumPost$id-ATTF"
+       ],
+       "Type" => "Text",
+       "Value" => $att
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $post["Title"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "$designViewEditor Body Xdecode req",
+        "id" => "EditForumPostBody$id",
+        "name" => "Body",
+        "placeholder" => "Body"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body",
+        "WYSIWYG" => 1
+       ],
+       "Type" => "TextBox",
+       "Value" => $this->system->PlainText([
+        "Data" => $post["Body"],
+        "Decode" => 1
+       ])
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ])
     ], $this->system->Page("cabbfc915c2edd4d4cba2835fe68b1cc")]);
-    $action = $this->system->Element(["button", $action, [
+    /*$action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".ForumPost$id",
      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
-    ]]);
+    ]]);*/
     $r = [
      "Action" => $action,
      "Front" => $r
@@ -125,7 +189,7 @@
     $cms = $this->system->Data("Get", ["cms", md5($post["From"])]) ?? [];
     $ck3 = $this->system->CheckPrivacy([
      "Contacts" => $cms["Contacts"],
-     "Privacy" => $privacy,
+     "Privacy" => $post["Privacy"],
      "UN" => $post["From"],
      "Y" => $you
     ]);
@@ -330,7 +394,7 @@
    $y = $this->you;
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
     $r = [
-     "Body" => ["p", "The PINs do not match."
+     "Body" => "The PINs do not match."
     ];
    } elseif($this->system->ID == $y["Login"]["Username"]) {
     $r = [

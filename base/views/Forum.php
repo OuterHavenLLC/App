@@ -55,7 +55,7 @@
    $id = $data["ID"];
    $member = $data["Member"];
    $r = [
-    "Body" => $this->system->Element(["p", "The Forum Identifier is missing."
+    "Body" => "p", "The Forum Identifier is missing."
    ];
    $y = $this->you;
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
@@ -121,29 +121,136 @@
     $sc = base64_encode("Search:Containers");
     $title = $forum["Title"] ?? "My Forum";
     $type = $forum["Type"] ?? $y["Privacy"]["ForumsType"];
-    $additionalContent = $this->system->Change([
-     [
-      "[CP.ContentType]" => "Forum",
-      "[CP.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
-      "[CP.ID]" => $id
-     ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
     $r = $this->system->Change([[
      "[Forum.About]" => $about,
-     "[Forum.AdditionalContent]" => $additionalContent,
-     "[Forum.Created]" => $created,
-     "[Forum.Description]" => $description,
+     "[Forum.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Forum",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => "N/A",
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[Forum.Header]" => $header,
-     "[Forum.ICO]" => $coverPhoto,
-     "[Forum.ICO.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Forum.ID]" => $id,
-     "[Forum.NSFW]" => $this->system->Select("nsfw", "LI req v2 v2w", $nsfw),
-     "[Forum.New]" => $new,
-     "[Forum.Privacy]" => $this->system->Select("Privacy", "LI req v2 v2w", $privacy),
-     "[Forum.Title]" => $title,
-     "[Forum.Type]" => $this->system->Select("PFType", "LI req v2 v2w", $type)
+     "[Forum.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "Created",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $created
+      ],
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTI",
+        "data-a" => "#ATTL$id-ATTI",
+        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+        "name" => "rATTI",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Forum$id-ATTI"
+       ],
+       "Type" => "Text",
+       "Value" => $coverPhoto
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $title
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "About",
+        "placeholder" => "Tell us about your Forum..."
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "About"
+       ],
+       "Type" => "TextBox",
+       "Value" => $about
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Describe yout Forum..."
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $description
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        md5("Private") => "Private",
+        md5("Publid") => "Publid"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Forum Type"
+       ],
+       "Name" => "PageCategory",
+       "Title" => "Forum Type",
+       "Type" => "Select",
+       "Value" => $type
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ])
     ], $this->system->Page("8304362aea73bddb2c12eb3f7eb226dc")]);
     $action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
@@ -209,48 +316,45 @@
     }
     $ck = ($admin == 1 || $forum["UN"] == $you) ? 1 : 0;
     $r = [
-     "Body" => "<em>".$forum["Title"]."</em> is invite-only."
+     "Body" => "<em>".$forum["Title"]."</em> is invite-only.",
      "Header" => "Private Forum"
     ];
     if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
      $accessCode = "Accepted";
-     $_BlockCommand = ($bl == 0) ? "B" : "U";
-     $_BlockText = ($bl == 0) ? "Block" : "Unblock";
-     $_BlockText .= " <em>".$forum["Title"]."</em>";
      $_JoinCommand = ($active == 0) ? "Join" : "Leave";
      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $actions .= ($bl == 0 && $ck == 0) ? $this->system->Element(["button", $_BlockText, [
-      "class" => "BLK GoToParent dB2C Small v2 v2w",
-      "data-cmd" => base64_encode($_BlockCommand),
+     $actions = ($bl == 0 && $ck == 0) ? $this->system->Element(["button", "Block", [
+      "class" => "Block CloseCard GoToParent Small v2 v2w",
+      "data-cmd" => base64_encode("B"),
       "data-type" => ".OHCC;$lpg",
       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($f["Title"])."&content=".base64_encode($f["ID"])."&list=".base64_encode("Forums")."&BC=")
      ]]) : "";
      $actions .= ($active == 1 || $ck == 1) ? $this->system->Element([
       "button", "Chat", [
-       "class" => "Small dB2C v2 v2w",
-       "onclick" => "FST('N/A', 'v=".base64_encode("Chat:Home")."&GroupChat=1&to=".base64_encode($id)."', '".md5("Chat$id")."');"
+       "class" => "OpenCard Small v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&GroupChat=1&to=".base64_encode($id))
       ]
      ]) : "";
      $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->system->Element([
       "button", "Delete", [
-       "class" => "Small dBO dB2C v2",
-       "data-type" => "v=".base64_encode("Authentication:DeleteForum")."&ID=".base64_encode($id)
+       "class" => "CloseCard OpenDialog Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteForum")."&ID=".base64_encode($id))
       ]
      ]) : "";
      $actions .= ($admin == 1) ? $this->system->Element(["button", "Edit", [
-      "class" => "Small dB2O v2 v2w",
-      "data-type" => base64_encode("v=".base64_encode("Forum:Edit")."&ID=$id")
+      "class" => "OpenCard Small v2 v2w",
+      "data-view" => base64_encode("v=".base64_encode("Forum:Edit")."&ID=$id")
      ]]) : "";
      $actions .= ($active == 1 || $ck == 1 || $forum["Type"] == "Public") ? $this->system->Element([
       "button", "Post", [
-       "class" => "Small dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$id&new=1")
+       "class" => "OpenCard Small v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$id&new=1")
       ]
      ]) : "";
      $actions .= ($forum["Type"] == "Public") ? $this->system->Element([
       "button", "Share", [
-       "class" => "Small dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("Forum:Share")."&ID=".base64_encode($id))
+       "class" => "OpenCard Small v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Forum:Share")."&ID=".base64_encode($id))
       ]
      ]) : "";
      $coverPhoto = $this->system->PlainText([
@@ -260,8 +364,8 @@
      $coverPhoto = (!empty($forum["ICO"])) ? base64_encode($forum["ICO"]) : $coverPhoto;
      $invite = ($active == 1 && $forum["ID"] == $_SonsOfLiberty) ? $this->system->Element([
       "button", "Invite", [
-       "class" => "BB dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($forum["ID"]))
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($forum["ID"]))
       ]
      ]) : "";
      $join = ($ck == 0 && $f["Type"] == "Public") ? $this->system->Change([[
@@ -272,39 +376,27 @@
       "[Forum.Join.Username]" => $you,
       "[Forum.Title]" => $forum["Title"]
      ], $this->system->Page("4c3a04a91734ce56bef85d474294202d")]) : "";
+     $manifest = base64_encode(json_encode($manifest, true));
      $search = base64_encode("Search:Containers");
      $votes = ($active == 1 && $ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = base64_encode("v=$votes&ID=$id&Type=4");
      $r = $this->system->Change([[
       "[Forum.About]" => $forum["About"],
       "[Forum.Actions]" => $actions,
-      "[Forum.Administrators]" => $this->view($search, ["Data" => [
-       "Admin" => base64_encode($forum["UN"]),
-       "ID" => base64_encode($id),
-       "st" => "Forums-Admin"
-      ]]),
+      "[Forum.Administrators]" => base64_encode("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin"),
       "[Forum.Back]" => $bck,
-      "[Forum.Contributors]" => $this->view($search, ["Data" => [
-       "ID" => base64_encode($id),
-       "Type" => base64_encode("Forum"),
-       "st" => "Contributors"
-      ]]),
-      "[Forum.Contributors.Featured]" => $this->view(base64_encode("Common:MemberGrid"), ["Data" => [
-       "List" => $manifest
-      ]]),
+      "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
+      "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=$manifest"),
       "[Forum.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
       "[Forum.Description]" => $this->system->PlainText([
        "Data" => $forum["Description"],
        "HTMLDncode" => 1
       ]),
+      "[Forum.ID]" => $id,
       "[Forum.Invite]" => $invite,
       "[Forum.Join]" => $join,
-      "[Forum.Stream]" => $this->view($search, ["Data" => [
-       "ID" => base64_encode($id),
-       "st" => "Forums-Posts"
-      ]]),
+      "[Forum.Stream]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=Forums-Posts"),
       "[Forum.Title]" => $forum["Title"],
-      "[Forum.Votes]" => $votes
+      "[Forum.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
      ], $this->system->Page("4159d14e4e8a7d8936efca6445d11449")]);
     }
    }
@@ -600,7 +692,7 @@
    ]);
   }
   function SaveBanish(array $a) {
-   $accessCode = "Denied":
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];

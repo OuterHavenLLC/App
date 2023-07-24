@@ -147,7 +147,6 @@
     $id = (!empty($id)) ? base64_decode($id) : $id;
     $id = ($new == 1) ? md5($you."_PG_".$time) : $id;
     $crid = md5("PG_$id");
-    $dv = base64_encode("Common:DesignView");
     $dvi = "UIE$crid".md5($time);
     $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
     $Page = $this->system->FixMissing($Page, [
@@ -195,21 +194,16 @@
     $options = "";
     $privacy = $Page["Privacy"] ?? $y["Privacy"]["Posts"];
     $sc = base64_encode("Search:Containers");
-    if($y["Rank"] == md5("High Command")) {
-     $options .= "<input class=\"HC\" name=\"HC\" type=\"hidden\" value=\"1\"/>\r\n";
-     $options .= "<input name=\"new\" type=\"hidden\" value=\"$new\"/>\r\n";
-    } else {
-     $options .= "<input class=\"HC\" name=\"HC\" type=\"hidden\" value=\"0\"/>\r\n";
-    }
+    $_HC = ($y["Rank"] == md5("High Command")) ? 1 : 0;
     $r = $this->system->Change([[
      "[Article.AdditionalContent]" => $this->system->Change([
       [
        "[Extras.ContentType]" => "Page",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
        "[Extras.DesignView.Origin]" => $dvi,
-       "[Extras.DesignView.Destination]" => "UIV$crid".md5($time),
-       "[Extras.DesignView.Processor]" => base64_encode("v=$dv&DV="),
-       "[Extras.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
       ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
@@ -225,6 +219,15 @@
        "Options" => [],
        "Type" => "Text",
        "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "HC",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $_HC
       ],
       [
        "Attributes" => [

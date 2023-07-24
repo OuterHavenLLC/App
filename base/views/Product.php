@@ -77,41 +77,19 @@
     } if(!empty($product["DLC"])) {
      $dlc = base64_encode(implode(";", $product["DLC"]));
     }
-    $additionalContent = $this->system->Change([
-     [
-      "[CP.ContentType]" => "Product",
-      "[CP.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
-      "[CP.ID]" => $id
-     ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
-    ]).$this->system->Change([
-     [
-      "[DLC.ContentType]" => "Product",
-      "[DLC.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at3&Added=$at&UN=$you"),
-      "[DLC.ID]" => $id
-     ], $this->system->Page("47470fec24054847fc1232df998eafbd")
-    ]).$this->system->Change([
-     [
-      "[MiNY.ContentType]" => "Product",
-      "[MiNY.Products]" => base64_encode("v=$search&CARD=1&st=MBR-MiNY&AddTo=$at5&Added=$at"),
-      "[MiNY.ID]" => $id
-     ], $this->system->Page("0bbe6ad6e68508ac19d3f89af425e369")
-    ]).$this->system->Change([
-     [
-      "[UIV.IN]" => $dvi,
-      "[UIV.OUT]" => "UIV$id",
-      "[UIV.U]" => base64_encode("v=$dv&DV=")
-     ], $this->system->Page("7780dcde754b127656519b6288dffadc")
-    ]).$this->system->Change([
-     [
-      "[XFS.ContentType]" => "Product",
-      "[XFS.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at4&Added=$at&UN=$you"),
-      "[XFS.ID]" => $id
-     ], $this->system->Page("8356860c249e93367a750f3b4398e493")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
     $r = $this->system->Change([[
-     "[Product.AdditionalContent]" => $additionalContent,
+     "[Product.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Product",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => $dvi,
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[Product.Attachments]" => $attachmentsachments,
      "[Product.Attachments.LiveView]" => $at4lv,
      "[Product.Bundled]" => $bundle,

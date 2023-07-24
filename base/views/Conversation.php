@@ -52,13 +52,19 @@
     $header = ($new == 1) ? "New $conmentType" : "Edit $conmentType";
     $nsfw = $c["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $c["Privacy"] ?? $y["Privacy"]["Comments"];
-    $additionalContent = $this->system->Change([[
-     "[DLC.ContentType]" => $conmentType,
-     "[DLC.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&UN=$you"),
-     "[DLC.ID]" => $id
-    ], $this->system->Page("47470fec24054847fc1232df998eafbd")]);
     $r = $this->system->Change([[
-     "[Conversation.AdditionalContent]" => $additionalContent,
+     "[Conversation.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => $commentType,
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => "N/A",
+       "[Extras.DesignView.Destination]" => "N/A",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[Conversation.Header]" => $header,
      "[Conversation.ID]" => $id,
      "[Conversation.Inputs]" => $this->system->RenderInputs([

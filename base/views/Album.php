@@ -38,11 +38,19 @@
     $privacy = $alb["Privacy"] ?? $y["Privacy"]["Albums"];
     $title = $alb["Title"] ?? "";
     $header = ($new == 1) ? "Create New Album" : "Edit $title";
-    $additionalContent = $this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
     $r = $this->system->Change([[
-     "[Album.AdditionalContent]" => $additionalContent,
+     "[Album.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Album",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => "N/A",
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[Album.Header]" => $header,
      "[Album.ID]" => $id,
      "[Album.Inputs]" => $this->system->RenderInputs([
@@ -172,7 +180,7 @@
     ]);
     $actions = ($ck == 0) ? $this->system->Element([
      "button", $blt, [
-      "class" => "BLK Small v2",
+      "class" => "Block Small v2",
       "data-cmd" => base64_encode($blc),
       "data-u" => base64_encode("v=$blu&BU=".base64_encode("<em>".$alb["Title"]."</em>")."&content=".base64_encode($abl)."&list=".base64_encode("Albums")."&BC=")
      ]
@@ -181,24 +189,23 @@
      $accessCode = "Accepted";
      $actions .= ($ck2 == 1) ? $this->system->Element([
       "button", "Add Files", [
-       "class" => "Small dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=".$t["Login"]["Username"])
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=".$t["Login"]["Username"])
       ]
      ]) : "";
      $actions .= ($id != md5("unsorted")) ? $this->system->Element([
       "button", "Delete Album", [
-       "class" => "Small dBO dB2C v2 v2w",
-       "data-type" => "v=".base64_encode("Authentication:DeleteAlbum")."&AID=$id&UN=$tun"
+       "class" => "CloseCard OpenDialog Small v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteAlbum")."&AID=$id&UN=$tun")
       ]
      ]) : "";
      $actions .= $this->system->Element(["button", "Edit Album", [
-      "class" => "Small dB2O v2 v2w",
-      "data-type" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$id&UN=$tun")
+      "class" => "OpenCard Small v2 v2w",
+      "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$id&UN=$tun")
      ]]);
     }
     $actions = ($this->system->ID != $you) ? $actions : "";
     $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-    $votes = base64_encode("v=$votes&ID=$id&Type=4");
     $r = $this->system->Change([[
      "[Album.Actions]" => $actions,
      "[Album.CoverPhoto]" => $coverPhoto,
@@ -208,13 +215,10 @@
      "[Album.Modified]" => $this->system->TimeAgo($alb["Modified"]),
      "[Album.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Album;".$t["Login"]["Username"].";$id")),
      "[Album.Owner]" => $t["Personal"]["DisplayName"],
-     "[Album.Reactions]" => $votes,
      "[Album.Share]" => base64_encode("v=".base64_encode("Album:Share")."&ID=$id&UN=$tun"),
+     "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$tun"),
      "[Album.Title]" => $alb["Title"],
-     "[Album.View]" => $this->view(base64_encode("Album:List"), ["Data" => [
-      "AID" => $id,
-      "UN" => $tun
-     ]])
+     "[Album.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
     ], $this->system->Page("91c56e0ee2a632b493451aa044c32515")]);
     $r = [
      "Front" => $r

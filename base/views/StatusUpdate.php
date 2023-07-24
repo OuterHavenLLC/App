@@ -30,20 +30,6 @@
     $att = "";
     $dv = base64_encode("Common:DesignView");
     $dvi = "UIE$id";
-    $additionalContent = $this->system->Change([
-     [
-      "[UIV.IN]" => $dvi,
-      "[UIV.OUT]" => "UIV$id",
-      "[UIV.U]" => base64_encode("v=$dv&DV=")
-     ], $this->system->Page("7780dcde754b127656519b6288dffadc")
-    ]).$this->system->Change([
-     [
-      "[XFS.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
-      "[XFS.ID]" => $id
-     ], $this->system->Page("8356860c249e93367a750f3b4398e493")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
     $em = base64_encode("LiveView:EditorMossaic");
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->system->Data("Get", ["su", $id]) ?? [];
@@ -56,7 +42,18 @@
     $privacy = $update["Privacy"] ?? $y["Privacy"]["Posts"];
     $to = (!empty($to)) ? base64_decode($to) : $to;
     $r = $this->system->Change([[
-     "[Update.AdditionalContent]" => $additionalContent,
+     "[Update.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Status Update",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => $dvi,
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[Update.Attachments]" => $att,
      "[Update.Attachments.LiveView]" => base64_encode("v=$em&AddTo=$at3input&ID="),
      "[Update.Body]" => $this->system->WYSIWYG([
