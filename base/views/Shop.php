@@ -428,30 +428,16 @@
       $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
       $edit = ($ck == 1) ? $this->system->Element([
        "button", "Edit", [
-        "class" => "Small dB2O v2",
-        "data-type" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($id))
+        "class" => "OpenCard Small v2",
+        "data-view" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($id))
        ]
       ]) : "";
-      $partners = $this->view($_Search, ["Data" => [
-        "ID" => base64_encode($id),
-        "Type" => base64_encode("Shop"),
-        "st" => "Contributors"
-       ]]);
-      $partners = $this->system->RenderView($partners);
       $payroll = ($id == md5($you)) ? $this->system->Element([
        "button", "Payroll", [
-        "class" => "Small OpenCard v2",
+        "class" => "OpenCard Small v2",
         "data-view" => base64_encode("v=".base64_encode("Shop:Payroll"))
        ]
       ]) : "";
-      $products = $this->view($_Search, ["Data" => [
-       "UN" => base64_encode($t["Login"]["Username"]),
-       "b2" => $shop["Title"],
-       "lPG" => "MiNY$id",
-       "pubP" => $pub,
-       "st" => "MiNY"
-      ]]);
-      $products = $this->system->RenderView($products);
       $subscribe = (md5($you) != $id && $this->system->ID != $you) ? 1 : 0;
       $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
       $subscribe = ($subscribe == 1) ? $this->system->Change([[
@@ -462,7 +448,6 @@
        "[Subscribe.Title]" => $shop["Title"]
       ], $this->system->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
       $votes = ($id != md5($you)) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-      $votes = base64_encode("v=$votes&ID=$id&Type=4");
       $r = $this->system->Change([[
        "[Shop.Back]" => $bck,
        "[Shop.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
@@ -477,16 +462,16 @@
        "[Shop.Edit]" => $edit,
        "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id&PFST=$pub"),
        "[Shop.ID]" => $id,
-       "[Shop.Partners]" => $partners,
+       "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
        "[Shop.Payroll]" => $payroll,
-       "[Shop.ProductList]" => $products,
+       "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=MiNY$id&pubP=$pub&st=MiNY"),
        "[Shop.Subscribe]" => $subscribe,
        "[Shop.Title]" => $shop["Title"],
        "[Shop.Welcome]" => $this->system->PlainText([
         "Data" => $shop["Welcome"],
         "HTMLDecode" => 1
        ]),
-       "[Shop.Votes]" => $votes
+       "[Shop.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
       ], $this->system->Page("f009776d658c21277f8cfa611b843c24")]);
      }
     }
@@ -555,17 +540,17 @@
    ]);
   }
   function Payroll(array $a) {
-   $accessCode = "Accepted";
+   $accessCode = "Denied";
    $_Day = $this->system->Page("ca72b0ed3686a52f7db1ae3b2f2a7c84");
    $_Month = $this->system->Page("2044776cf5f8b7307b3c4f4771589111");
    $_Partner = $this->system->Page("210642ff063d1b3cbe0b2468aba070f2");
    $_Sale = $this->system->Page("a2adc6269f67244fc703a6f3269c9dfe");
    $_Year = $this->system->Page("676193c49001e041751a458c0392191f");
    $data = $a["Data"] ?? [];
-   $r = $this->system->Change([[
-    "[Error.Header]" => "No Data",
-    "[Error.Message]" => "You have not earned any income yet..."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   $r = [
+    "Body" => "You have not earned any income yet...",
+    "Header" => "No Data"
+   ];
    $y = $this->you;
    $yearTable = "";
    $you = $y["Login"]["Username"];
@@ -573,6 +558,7 @@
    $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
    foreach($payroll as $year => $yearData) {
     if(is_array($yearData)) {
+     $accessCode = "Accepted";
      $monthTable = "";
      if($year != "UN") {
       foreach($yearData as $month => $monthData) {

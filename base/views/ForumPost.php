@@ -23,6 +23,11 @@
    } elseif((!empty($forumID) && !empty($id)) || $new == 1) {
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
+    $action = $this->system->Element(["button", $action, [
+     "class" => "CardButton SendData",
+     "data-form" => ".ForumPost$id",
+     "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
+    ]]);
     $att = "";
     $id = ($new == 1) ? md5($you."_Post_".$this->system->timestamp) : $id;
     $dv = base64_encode("Common:DesignView");
@@ -146,11 +151,6 @@
       "Value" => $privacy
      ])
     ], $this->system->Page("cabbfc915c2edd4d4cba2835fe68b1cc")]);
-    /*$action = $this->system->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".ForumPost$id",
-     "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
-    ]]);*/
     $r = [
      "Action" => $action,
      "Front" => $r

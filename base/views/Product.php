@@ -296,7 +296,7 @@
       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
       "[Product.Modified]" => $modified,
       "[Product.Title]" => $product["Title"],
-      "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"])
+      "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"]),
       "[Product.Votes]" => $votes
      ], $this->system->Page("96a6768e7f03ab4c68c7532be93dee40")]);
      $r = ($data["CARD"] == 1) ? [

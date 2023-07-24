@@ -14,27 +14,108 @@
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $action = ($new == 1) ? "Post" : "Update";
    $id = $data["ID"] ?? md5($you."_DC_".$this->system->timestamp);
-   $discount = $this->system->Data("Get", ["dc", md5($you)]) ?? [];
-   $discount = $discount[$id] ?? [];
-   $code = $discount["Code"] ?? base64_encode("");
-   $dollarAmount = $discount["DollarAmount"] ?? 1.00;
-   $percentile = $discount["Percentile"] ?? 5;
-   $quantity = $discount["Quantity"] ?? 0;
-   $r = $this->system->Change([[
-    "[Discount.Code]" => base64_decode($code),
-    "[Discount.DollarAmount]" => $dollarAmount,
-    "[Discount.ID]" => $id,
-    "[Discount.New]" => $new,
-    "[Discount.PercentOff]" => $this->system->Select("Percentile", "req v2w", $percentile),
-    "[Discount.Quantity]" => $this->system->Select("DiscountCodeQTY", "req v2w", $quantity),
-   ], $this->system->Page("47e35864b11d8bdc255b0aec513337c0")]);
+   $action = ($new == 1) ? "Post" : "Update";
    $action = $this->system->Element(["button", $action, [
     "class" => "CardButton SendData",
     "data-form" => ".Discount$id",
     "data-processor" => base64_encode("v=".base64_encode("DiscountCode:Save"))
    ]]);
+   $discount = $this->system->Data("Get", ["dc", md5($you)]) ?? [];
+   $discount = $discount[$id] ?? [];
+   $code = $discount["Code"] ?? base64_encode("");
+   $dollarAmount = $discount["DollarAmount"] ?? 1.00;
+   $percentages = [];
+   $percentile = $discount["Percentile"] ?? 5;
+   $quantities = [];
+   $quantity = $discount["Quantity"] ?? 0;
+   for($i = 1; $i < 100; $i++) {
+    $percentages[$i] = $i;
+   } for($i = 1; $i < 100; $i++) {
+    $quantities[$i] = $i;
+   }
+   $r = $this->system->Change([[
+    "[Discount.Inputs]" => $this->system->RenderInputs([
+     [
+      "Attributes" => [
+       "name" => "ID",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $id
+     ],
+     [
+      "Attributes" => [
+       "name" => "new",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $new
+     ],
+     [
+      "Attributes" => [
+       "class" => "req",
+       "name" => "DC",
+       "placeholder" => "Diacount Code",
+       "type" => "text"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "NONAME",
+       "Header" => 1,
+       "HeaderText" => "Discount Code"
+      ],
+      "Type" => "Text",
+      "Value" => base64_decode($code)
+     ],
+     [
+      "Attributes" => [
+       "class" => "req",
+       "name" => "DollarAmount",
+       "placeholder" => "Dollar Amount",
+       "type" => "text"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "NONAME",
+       "Header" => 1,
+       "HeaderText" => "Dollar Amount"
+      ],
+      "Type" => "Text",
+      "Value" => $dollarAmount
+     ],
+     [
+      "Attributes" => [],
+      "OptionGroup" => $percentages,
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Percent Off"
+      ],
+      "Name" => "Percentile",
+      "Title" => "Percent Off",
+      "Type" => "Select",
+      "Value" => $percentile
+     ],
+     [
+      "Attributes" => [],
+      "OptionGroup" => $quantities,
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Quantity"
+      ],
+      "Name" => "DiscountCodeQTY",
+      "Title" => "Quantity",
+      "Type" => "Select",
+      "Value" => $quantity
+     ]
+    ])
+   ], $this->system->Page("47e35864b11d8bdc255b0aec513337c0")]);
    $r = [
     "Action" => $action,
     "Front" => $r
