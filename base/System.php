@@ -1598,50 +1598,21 @@
    return $r;
   }
   function WYSIWYG($a) {
-   $r = "";
-   $ta = "";
-   foreach($a["opt"] as $k => $v) {
-    $ta .= " $k=\"$v\"";
-   }
-   $tan = "textarea#".$a["opt"]["id"];
-   // BEGIN TPL (WYSIWYG)
-   $r .= $this->Element(["button", "Basic Text Formatting", [
-    "class" => "PGS NNW", "data-type" => ".B"
-   ]]).$this->Element([
-    "div", $this->Element(["button", $this->Element(["strong", "B"]), [
-     "class" => "iTXT v2",
-     "data-type" => base64_encode("B;$tan"),
-     "data-value" => "[B:Bold Text]",
-     "id" => "XbuildUI"
-    ]]).$this->Element(["button", "<i>I</i>", [
-     "class" => "iTXT v2",
-     "data-type" => base64_encode("I;$tan"),
-     "data-value" => "[B:Italic Text]",
-     "id" => "XbuildUI"
-    ]]).$this->Element(["button", "<u>U</u>", [
-     "class" => "iTXT v2",
-     "data-type" => base64_encode("U;$tan"),
-     "data-value" => "[B:Underlined Text]",
-     "id" => "XbuildUI"
-    ]]).$this->Element(["button", "Break", [
-     "class" => "iTXT v2", "data-type" => base64_encode("BR;$tan")
-    ]]).$this->Element(["button", "Div", [
-     "class" => "iTXT v2", "data-type" => base64_encode("DIV;$tan")
-    ]]), ["class" => "B PGSCC h"]
-   ]).$this->Element(["button", "Attachments", [
-    "class" => "PGS NNW", "data-type" => ".E"
-   ]]).$this->Element([
-    "div", $this->Element(["button", "File", [
-     "class" => "iTXT v2", "data-type" => base64_encode("ATT;$tan")
-    ]]).$this->Element(["button", "Link", [
-     "class" => "iTXT v2", "data-type" => base64_encode("URL;$tan")
-    ]]).$this->Element(["button", "Page", [
-     "class" => "iTXT v2", "data-type" => base64_encode("LLP;$tan")
-    ]]), ["class" => "E PGSCC h"]
+   return $this->RenderInputs([
+    [
+     "Attributes" => [
+      "class" => "req",
+      "disabled" => "true",
+      "name" => "Body",
+      "type" => "hidden"
+     ],
+     "Options" => [],
+     "Type" => "Text",
+     "Value" => ""
+    ]
+   ]).$this->Element([
+    "p", "Coming soon..."
    ]);
-   $r .= "<textarea$ta>".base64_encode($a["Body"])."</textarea>\r\n";
-   return $this->Element(["div", $r, ["class" => "PGSC WYSIWYG"]]);
-   // END TPL (WYSIWYG)
   }
   public static function Extension($a = NULL) {
    $x = New System;

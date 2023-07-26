@@ -239,16 +239,18 @@
       ]
      ]),
      "[Contact.ID]" => $id,
-     "[Contact.Options.Index]" => $this->system->Select("Index", "req v2w"),
+     "[Contact.Inputs]" => $this->system->RenderInputs([
+     ])
+     /*"[Contact.Options.Index]" => $this->system->Select("Index", "req v2w"),
      "[Contact.Options.Priority]" => $this->system->Select("Priority", "req v2w"),
      "[Contact.Options.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w"),
      "[Member.Email]" => $y["Personal"]["Email"],
-     "[Member.Name]" => $y["Personal"]["FirstName"]
+     "[Member.Name]" => $y["Personal"]["FirstName"]*/
     ], $this->system->Page("2b5ca0270981e891ce01dba62ef32fe4")]),
     "FrontButton" => $this->system->Element(["button", "Send", [
      "class" => "CardButton SendData",
      "data-form" => ".ContactForm$id",
-     "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
+     #"data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
     ]])
    ];
    return $this->system->JSONResponse([
