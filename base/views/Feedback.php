@@ -226,6 +226,11 @@
    $id = md5("Feedback");
    $y = $this->you;
    $r = [
+    "Action" => $this->system->Element(["button", "Send", [
+     "class" => "CardButton SendData",
+     "data-form" => ".ContactForm$id",
+     "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
+    ]]),
     "Front" => $this->system->Change([[
      "[Feedback.ID]" => $id,
      "[Feedback.Inputs]" => $this->system->RenderInputs([
@@ -339,7 +344,7 @@
        ],
        "Name" => "Priority",
        "Type" => "Select",
-       "Value" => 1
+       "Value" => 2
       ],
       [
        "Attributes" => [],
@@ -358,12 +363,7 @@
        "Value" => 0
       ]
      ])
-    ], $this->system->Page("2b5ca0270981e891ce01dba62ef32fe4")]),
-    "FrontButton" => $this->system->Element(["button", "Send", [
-     "class" => "CardButton SendData",
-     "data-form" => ".ContactForm$id",
-     "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
-    ]])
+    ], $this->system->Page("2b5ca0270981e891ce01dba62ef32fe4")])
    ];
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,

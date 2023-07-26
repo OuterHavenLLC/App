@@ -13,16 +13,16 @@
    $you = $y["Login"]["Username"];
    foreach($y["Subscriptions"] as $key => $value) {
     $subscription = $this->system->core["SUB"][$key];
-    $coverPhoto = $this->system->PlainText([
-     "Data" => "[sIMG:MiNY]",
-     "Display" => 1
+    $subscription = $this->system->Element([
+     "button", $this->system->Element([
+      "h4", $subscription["Title"]
+     ]).$this->system->Element([
+      "p", $subscription["Description"]
+     ]), [
+      "class" => "K4i OpenCard",
+      "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
+     ]
     ]);
-    $subscription = $this->system->Change([[
-     "[X.LI.D]" => $subscription["Description"],
-     "[X.LI.DT]" => "Subscriptions;".base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key)),
-     "[X.LI.I]" => $coverPhoto,
-     "[X.LI.T]" => $subscription["Title"]
-    ], $this->system->Page("e7829132e382ee4ab843f23685a123cf")]);
     if($value["A"] == 1) {
      $active .= $subscription;
      $ai++;
@@ -157,6 +157,9 @@
       $r = $this->system->Page("a0891fc91ad185b6a99f1ba501b3c9be");
      }
     }
+    $r = [
+     "Front" => $r
+    ];
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
