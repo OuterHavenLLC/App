@@ -227,30 +227,142 @@
    $y = $this->you;
    $r = [
     "Front" => $this->system->Change([[
-     "[Contact.Body]" => $this->system->WYSIWYG([
-      "Body" => NULL,
-      "adm" => 1,
-      "opt" => [
-       "id" => "CompanyFeedbackBody",
-       "class" => "req",
-       "name" => "MSG",
-       "placeholder" => "What's on your mind?",
-       "rows" => 20
+     "[Feedback.ID]" => $id,
+     "[Feedback.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Email",
+        "placeholder" => "johnny.test@outerhaven.nyc",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "E-Mail"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Personal"]["Email"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Name",
+        "placeholder" => "John Doe",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Name"
+       ],
+       "Type" => "Text",
+       "Value" => $y["Personal"]["FirstName"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Phone",
+        "placeholder" => "7777777777",
+        "type" => "number"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Phone Number"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Subject",
+        "placeholder" => "Subject",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Subject"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Message",
+        "placeholder" => "Say Something..."
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body"
+       ],
+       "Type" => "TextBox",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "No",
+        1 => "Yes"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Allow Indexing?"
+       ],
+       "Name" => "Index",
+       "Type" => "Select",
+       "Value" => 0
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        1 => "High",
+        2 => "Normal",
+        3 => "Low"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Priority"
+       ],
+       "Name" => "Priority",
+       "Type" => "Select",
+       "Value" => 1
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "No",
+        1 => "Yes"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Send Occasional Emails?"
+       ],
+       "Name" => "SendOccasionalEmails",
+       "Type" => "Select",
+       "Value" => 0
       ]
-     ]),
-     "[Contact.ID]" => $id,
-     "[Contact.Inputs]" => $this->system->RenderInputs([
      ])
-     /*"[Contact.Options.Index]" => $this->system->Select("Index", "req v2w"),
-     "[Contact.Options.Priority]" => $this->system->Select("Priority", "req v2w"),
-     "[Contact.Options.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w"),
-     "[Member.Email]" => $y["Personal"]["Email"],
-     "[Member.Name]" => $y["Personal"]["FirstName"]*/
     ], $this->system->Page("2b5ca0270981e891ce01dba62ef32fe4")]),
     "FrontButton" => $this->system->Element(["button", "Send", [
      "class" => "CardButton SendData",
      "data-form" => ".ContactForm$id",
-     #"data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
+     "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
     ]])
    ];
    return $this->system->JSONResponse([
@@ -314,7 +426,7 @@
     ];
     array_push($feedback["Thread"], [
      "Body" => $this->system->PlainText([
-      "Data" => $data["MSG"],
+      "Data" => $data["Message"],
       "Encode" => 1,
       "HTMLEncode" => 1
      ]),

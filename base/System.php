@@ -1597,17 +1597,16 @@
    $r = (!empty($sk)) ? $this->Credentials("UN", $sk) : $this->ID;
    return $r;
   }
-  function WYSIWYG($a) {
+  function WYSIWYG() {
    return $this->RenderInputs([
     [
      "Attributes" => [
       "class" => "req",
       "disabled" => "true",
-      "name" => "Body",
-      "type" => "hidden"
+      "name" => "Body"
      ],
      "Options" => [],
-     "Type" => "Text",
+     "Type" => "TextBox",
      "Value" => ""
     ]
    ]).$this->Element([
