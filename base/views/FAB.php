@@ -24,30 +24,39 @@
     "NSFW",
     "Title",
     "URL"
-   ]);ßßß
+   ]);
    $ttl = $fab["Title"] ?? "Broadcaster";
    $at = base64_encode("Added to $ttl!");
    $at2 = base64_encode("Set as Product Cover Photo:.ATTI$id");
-   $h = ($new == 1) ? "New Broadcaster" : "Edit [FAB.Title]";
+   $h = ($new == 1) ? "New Broadcaster" : "Edit $ttl";
    $pu = ($new == 1) ? "Post" : "Update";
-   $sc = base64_encode("Search:Containers");
-   $bck = $this->system->Change([
-    [
-     "[CP.ContentType]" => "Broadcaster",
-     "[CP.Files]" => base64_encode("v=$sc&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".$y["Login"]["Username"]),
-     "[CP.ID]" => $id
-    ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
-   ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-    "ID" => base64_encode($id)
-   ]]);
    $r = $this->system->Change([[
+    "[FAB.AdditionalContent]" => $this->system->Change([
+     [
+      "[Extras.ContentType]" => "Broadcaster",
+      "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+      "[Extras.DesignView.Origin]" => "N/A",
+      "[Extras.DesignView.Destination]" => "UIV$id",
+      "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+      "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=$at2&UN=$you"),
+      "[Extras.ID]" => $id,
+      "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+     ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+    ]),
     "[FAB.Header]" => $h,
     "[FAB.Description]" => $fab["Description"],
     "[FAB.ICO]" => $fab["ICO-SRC"],
     "[FAB.ID]" => $id,
     "[FAB.Listen]" => $fab["Listen"],
     "[FAB.New]" => $new,
-    "[FAB.NSFW]" => $this->system->Select("nsfw", "req v2 v2w", $fab["NSFW"]),
+    "[FAB.NSFW]" => $this->system->RenderVisibilityFilter([
+     "Filter" => "NSFW",
+     "Name" => "nsfw",
+     "Title" => "Content Status",
+     "Value" => 0
+    ]).$this->system->RenderVisibilityFilter([
+     "Value" => md5("Public")
+    ]),
     "[FAB.Title]" => $fab["Title"],
     "[FAB.URL]" => $fab["URL"]
    ], $this->system->Page("9989bd7cf0facb4cbca6d6c8825a588b")]);

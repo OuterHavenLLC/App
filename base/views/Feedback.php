@@ -28,11 +28,90 @@
      }
      $r = $this->system->Change([[
       "[Feedback.ID]" => $id,
-      "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
-      "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
-      "[Feedback.Options.UseParaphrasedQuestion]" => $this->system->Select("UseParaphrasedQuestion", "req v2w", $feedback["UseParaphrasedQuestion"]),
-      "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
-      "[Feedback.ParaphrasedQuestion]" => $paraphrasedQuestion,
+      "[Feedback.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $id
+       ],
+       [
+        "Attributes" => [
+         "name" => "ParaphrasedQuestion",
+         "placeholder" => "Paraphrased Question",
+         "type" => "text"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $paraphrasedQuestion
+       ],
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "Message",
+         "placeholder" => "Say something..."
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "NONAME"
+        ],
+        "Type" => "TextBox",
+        "Value" => ""
+       ],
+       [
+        "Attributes" => [],
+        "OptionGroup" => [
+         0 => "No",
+         1 => "Yes"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Paraphrase"
+        ],
+        "Name" => "UseParaphrasedQuestion",
+        "Type" => "Select",
+        "Value" => $feedback["UseParaphrasedQuestion"]
+       ],
+       [
+        "Attributes" => [],
+        "OptionGroup" => [
+         1 => "High",
+         2 => "Normal",
+         3 => "Low"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Priority"
+        ],
+        "Name" => "Priority",
+        "Type" => "Select",
+        "Value" => $feedback["Priority"]
+       ],
+       [
+        "Attributes" => [],
+        "OptionGroup" => [
+         0 => "No",
+         1 => "Yes"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Resolved"
+        ],
+        "Name" => "Resolved",
+        "Type" => "Select",
+        "Value" => $feedback["Resolved"]
+       ]
+      ]),
+      "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title
      ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
     }
@@ -43,7 +122,7 @@
    } elseif($pub == 1) {
     $accessode = "Accepted";
     $r = $this->system->Change([[
-     "[Error.Back]" =. "",
+     "[Error.Back]" => "",
      "[Error.Header]" => "Let's Talk!",
      "[Error.Message]" => "We want to hear from you, send us your feedback."
     ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
@@ -66,16 +145,72 @@
      }
      $r = $this->system->Change([[
       "[Feedback.ID]" => $id,
-      "[Feedback.Options.Priority]" => $this->system->Select("Priority", "req v2w", $feedback["Priority"]),
-      "[Feedback.Options.Resolved]" => $this->system->Select("Resolved", "req v2w", $feedback["Resolved"]),
+      "[Feedback.Inputs]" => $this->system->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "ID",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $id
+       ],
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "Message",
+         "placeholder" => "Say something..."
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "NONAME"
+        ],
+        "Type" => "TextBox",
+        "Value" => ""
+       ],
+       [
+        "Attributes" => [],
+        "OptionGroup" => [
+         1 => "High",
+         2 => "Normal",
+         3 => "Low"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Priority"
+        ],
+        "Name" => "Priority",
+        "Type" => "Select",
+        "Value" => $feedback["Priority"]
+       ],
+       [
+        "Attributes" => [],
+        "OptionGroup" => [
+         0 => "No",
+         1 => "Yes"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Resolved"
+        ],
+        "Name" => "Resolved",
+        "Type" => "Select",
+        "Value" => $feedback["Resolved"]
+       ]
+      ]),
       "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
-      "[Feedback.Stream]" => "v=".base64_encode("Feedback:Stream")."&ID=$id",
+      "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title
      ], $this->system->Page("599e260591d6dca59a8e0a52f5bd64be")]);
     }
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
+    $r = $this->system->RenderView($r);
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
