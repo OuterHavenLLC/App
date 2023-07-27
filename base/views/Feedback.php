@@ -239,7 +239,7 @@
         "class" => "req",
         "name" => "Email",
         "placeholder" => "johnny.test@outerhaven.nyc",
-        "type" => "text"
+        "type" => "email"
        ],
        "Options" => [
         "Container" => 1,
@@ -270,6 +270,7 @@
        "Attributes" => [
         "class" => "req",
         "name" => "Phone",
+        "pattern" => "\d*",
         "placeholder" => "7777777777",
         "type" => "number"
        ],
