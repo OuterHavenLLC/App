@@ -1063,32 +1063,6 @@
       "optgroup", $r, ["label" => "Payment Processor"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif(strpos($a, "Privacy") !== false) {
-    $hli = ["Acquaintances", "Close Contacts", "Contacts", "Private", "Public"];
-    $opt = ["Acquaintances", "Close Contacts", "Contacts", "Private", "Public"];
-    foreach($opt as $opt) {
-     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"".md5($opt)."\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Privacy"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "Album") {
-    $fileSystem = $this->Data("Get", [
-     "fs",
-     md5($y["Login"]["Username"])
-    ]) ?? [];
-    foreach($fileSystem["Albums"] as $k => $v) {
-     $r .= "<option value=\"$k\">".$v["Title"]."</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Album"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "BirthMonth") {
     for($i = 1; $i <= 12; $i++) {
      $s = ((empty($c) && $i == date("m")) || $i == $c) ? " selected=\"selected\"" : "";
@@ -1110,16 +1084,6 @@
      ]), ["class" => "v2", "name" => $a]
     ]);
    } elseif($a == "DiscountCodeQTY") {
-    $c = $c ?? 100;
-    for($i = 1; $i < 100; $i++) {
-     $s = ($c == $i) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$i\"$s>$i</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Quantity"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "Live") {
     $hli = ["Sandbox", "Production"];
     $opt = [0, 1];
@@ -1135,18 +1099,6 @@
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "Index") {
-    $hli = ["No", "Yes"];
-    $opt = [0, 1];
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Allow to be Indexed?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "Open") {
     $hli = ["Closed", "Open"];
     $opt = [0, 1];
@@ -1185,32 +1137,7 @@
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "PFType") {
-    $hli = ["Private", "Public"];
-    $opt = ["Private", "Public"];
-    foreach($opt as $opt) {
-     $o = md5($opt);
-     $s = ($c == $o) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$o\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Choose a Forum Type..."]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "Priority") {
-    $hli = ["High", "Normal", "Low"];
-    $opt = [1, 2, 3];
-    foreach($opt as $opt) {
-     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"".md5($opt)."\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Priority"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "Rank") {
     if($_HC == 1) {
      $hli = ["High Command", "Member", "Support"];
@@ -1229,71 +1156,9 @@
      ]), ["class" => $cl, "name" => $a]
     ]);
    } elseif($a == "Resolved") {
-    $hli = ["No", "Yes"];
-    $opt = [0, 1];
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Is the issue esolved?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "Role") {
-    $roles = [
-     0 => "Administrator",
-     1 => "Contributor"
-    ];
-    $hli = [
-     "Administrator",
-     "Contributor"
-    ];
-    $opt = [
-     0,
-     1
-    ];
-    foreach($opt as $opt) {
-     $ck = ($opt == 1 || $opt == $c) ? 1 : 0;
-     $s = ($ck == 1) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Who is allowed to make changes?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "SOE") {
-    $hli = [
-     "I do not want to recieve occasional E-Mails or Promotional offers.",
-     "I want occasional E-Mails and Promotional offers!"
-    ];
-    $opt = [0, 1];
-    foreach($opt as $opt) {
-     $s = ($opt == 1) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Send Occasional E-Mails?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "UseParaphrasedQuestion") {
-    $hli = ["No", "Yes"];
-    $opt = [0, 1];
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Prefer paraphrased question over the original?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "gender") {
     $hli = ["Male", "Female"];
     $opt = ["Male", "Female"];
@@ -1312,18 +1177,6 @@
      $i++;
     }
    } elseif($a == "nsfw") {
-    $hli = ["Adults Only", "Kid-Friendly"];
-    $opt = [1, 0];
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Content Status"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
    } elseif($a == "ProductCategory") {
     if($_HC == 1) {
      $hli = ["Architecture", "Download", "Donation", "Physical", "Subscription"];

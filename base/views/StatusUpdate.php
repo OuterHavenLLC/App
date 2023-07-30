@@ -13,28 +13,30 @@
    $new = $data["new"] ?? 0;
    $now = $this->system->timestamp;
    $r = [
-    "Body" => "The Post Identifier is missing.",
-    "Header" => "Not Found"
+    "Body" => "The Post Identifier is missing."
    ];
    $to = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
-    $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($you."_SU_$now") : $id;
+    $action = ($new == 1) ? "Post" : "Update";
+    $action = $this->system->Element(["button", $action, [
+     "class" => "CardButton SendData",
+     "data-form" => ".EditStatusUpdate$id",
+     "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
+    ]]);
     $at2 = base64_encode("All done! Feel free to close this card.");
     $at3input = ".StatusUpdate$id-ATTF";
     $at3 = base64_encode("Attach to your Post.:$at3input");
     $at3input = "$at3input .rATT";
     $att = "";
-    $dv = base64_encode("Common:DesignView");
-    $dvi = "UIE$id";
-    $em = base64_encode("LiveView:EditorMossaic");
+    $designViewEditor = "UIE$id";
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->system->Data("Get", ["su", $id]) ?? [];
     $body = $update["Body"] ?? "";
-    $body = (!empty($data["body"])) ? base64_decode($data["body"]) : $body;
+    $body = $data["body"] ?? $body;
     if(!empty($update["Attachments"])) {
      $att = base64_encode(implode(";", $update["Attachments"]));
     }
@@ -46,7 +48,7 @@
       [
        "[Extras.ContentType]" => "Status Update",
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => $dvi,
+       "[Extras.DesignView.Origin]" => $designViewEditor,
        "[Extras.DesignView.Destination]" => "UIV$id",
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
@@ -54,36 +56,91 @@
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
       ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
-     "[Update.Attachments]" => $att,
-     "[Update.Attachments.LiveView]" => base64_encode("v=$em&AddTo=$at3input&ID="),
-     "[Update.Body]" => $this->system->WYSIWYG([
-      "UN" => $you,
-      "Body" => $this->system->PlainText(["Data" => $body]),
-      "adm" => 1,
-      "opt" => [
-       "id" => "XSUBody",
-       "class" => "$dvi Body Xdecode req",
-       "name" => "Body",
-       "placeholder" => "Body",
-       "rows" => 20
-      ]
-     ]),
-     "[Update.From]" => $you,
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
-     "[Update.New]" => $new,
-     "[Update.NSFW]" => $this->system->Select("nsfw", "req v2 v2w", $nsfw),
-     "[Update.Privacy]" => $this->system->Select("Privacy", "req v2 v2w", $privacy),
-     "[Update.To]" => $to,
+     "[Update.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "From",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $you
+      ],
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "To",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $to
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTF",
+        "data-a" => "#ATTL$id-ATTF",
+        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
+        "name" => "rATTF",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditUpdate$id-ATTF"
+       ],
+       "Type" => "Text",
+       "Value" => $att
+      ],
+      [
+       "Attributes" => [
+        "class" => "$designViewEditor Body Xdecode req",
+        "id" => "EditPageBody$id",
+        "name" => "Body",
+        "placeholder" => "Body"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body",
+        "WYSIWYG" => 1
+       ],
+       "Type" => "TextBox",
+       "Value" => $this->system->PlainText([
+        "Data" => $body
+       ])
+      ]
+     ]).$this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ]),
      "[UIV.IN]" => "UIE$id"
     ], $this->system->Page("7cc50dca7d9bbd7b7d0e3dd7e2450112")]);
-    $button = $this->system->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".EditStatusUpdate$id",
-     "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
-    ]]);
     $r = [
-     "Action" => $button,
+     #"Action" => $action,
      "Front" => $r
     ];
    }

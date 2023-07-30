@@ -124,7 +124,7 @@
     "[Admin.Pages]" => base64_encode("v=$search&st=ADM-LLP"),
     "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
     "[Admin.Server]" => "https://www.digitalocean.com/",
-    "[Admin.WHM]" => "admin.outerhaven.nyc:2086"
+    "[Admin.WHM]" => "https://admin.outerhaven.nyc:2087/"
    ], $this->system->Page("5c1ce5c08e2add4d1487bcd2193315a7")]) : "";
    $support = [md5("High Command"), md5("Support")];
    $support = (in_array($y["Rank"], $support)) ? "<!--SUPPORT OPTIONS-->" : "";

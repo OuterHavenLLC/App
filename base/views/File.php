@@ -808,12 +808,13 @@
        $title = "System Library";
       } elseif($ck2 == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"$albumID\"/>\r\n";
-       $options .= $this->system->Element([
-        "div", $this->system->Select("Privacy", "req v2w", $y["Privacy"]["Posts"]),
-        ["class" => "Desktop50"]
-       ]).$this->system->Element([
-        "div", $this->system->Select("nsfw", "req v2w", $y["Privacy"]["NSFW"]),
-        ["class" => "Desktop50"]
+       $options .= $this->system->RenderVisibilityFilter([
+        "Filter" => "NSFW",
+        "Name" => "nsfw",
+        "Title" => "Content Status",
+        "Value" => $y["Privacy"]["NSFW"]
+       ]).$this->system->RenderVisibilityFilter([
+        "Value" => $y["Privacy"]["Posts"]
        ]);
        $title = $fileSystem["Albums"][$albumID]["Title"] ?? "Unsorted";
       }
