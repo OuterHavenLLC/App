@@ -36,7 +36,7 @@
     $attachments = "";
     $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
     $level = (!empty($level)) ? base64_decode($level) : 1;
-    $conmentType = ($level == 1) ? "Comment" : "Reply";
+    $commentType = ($level == 1) ? "Comment" : "Reply";
     $crid = base64_decode($crid);
     $id = (!empty($id)) ? base64_decode($id) : $id;
     $id = ($new == 1) ? md5($you."_CR_".$this->system->timestamp) : $id;
@@ -47,9 +47,9 @@
     }
     $body = $c["Body"] ?? "";
     $body = (!empty($body)) ? base64_decode($body) : $body;
-    $at = base64_encode("Added to $conmentType!");
-    $at2 = base64_encode("Add Downloadable Content to $conmentType:.EditComment$id");
-    $header = ($new == 1) ? "New $conmentType" : "Edit $conmentType";
+    $at = base64_encode("Added to $commentType!");
+    $at2 = base64_encode("Add Downloadable Content to $commentType:.EditComment$id");
+    $header = ($new == 1) ? "New $commentType" : "Edit $commentType";
     $nsfw = $c["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $c["Privacy"] ?? $y["Privacy"]["Comments"];
     $r = $this->system->Change([[

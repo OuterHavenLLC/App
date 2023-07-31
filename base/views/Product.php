@@ -231,19 +231,19 @@
      }
      $actions .= ($t["Login"]["Username"] == $you) ? $this->system->Element([
       "button", "Delete", [
-       "class" => "Small dBO dB2C v2",
-       "data-type" => "v=".base64_encode("Authentication:DeleteProduct")."&ID=".$product["ID"]
+       "class" => "CloseCard OpenDialog Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteProduct")."&ID=".$product["ID"])
       ]
      ]) : "";
      $actions .= ($active == 1) ? $this->system->Element([
       "button", "Edit", [
-       "class" => "Small dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("Product:Edit")."&ID=".$product["ID"])
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&ID=".$product["ID"])
       ]
      ]) : "";
      $bck = ($data["CARD"] != 1 && $pub == 1) ? $this->system->Element([
       "button", "See more at <em>".$shop["Title"]."</em>", [
-       "class" => "LI dB2C header",
+       "class" => "CloseCard LI header",
        "onclick" => "W('$base/MadeInNewYork/".$t["Login"]["Username"]."/', '_top');"
       ]
      ]) : $bck;
@@ -263,7 +263,6 @@
       $modified = $this->system->Element(["em", $modified]);
      }
      $votes = ($t["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = base64_encode("v=$votes&ID=".$product["ID"]."&Type=4");
      $r = $this->system->Change([[
       "[Product.Actions]" => $actions,
       "[Product.Back]" => $bck,
@@ -272,18 +271,13 @@
        "Display" => 1,
        "HTMLDecode" => 1
       ]),
+      "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=".$product["ID"]."&T=".$t["Login"]["Username"]),
       "[Product.Brief.Category]" => $this->system->Element([
        "p", $this->system->ProductCategory($product["Category"]),
        ["class" => "CenterText"]
       ]),
       "[Product.Brief.Description]" => $product["Description"],
       "[Product.Brief.Icon]" => "{product_category}",
-      "[Product.Brief.Options]" => $this->view(base64_encode("Cart:Add"), [
-       "Data" => [
-        "ID" => $product["ID"],
-        "T" => $t["Login"]["Username"]
-       ]
-      ]),
       "[Product.Bundled]" => $bundle,
       "[Product.Conversation]" => $this->system->Change([[
        "[Conversation.CRID]" => $product["ID"],
@@ -294,10 +288,11 @@
       "[Product.Created]" => $this->system->TimeAgo($product["Created"]),
       "[Product.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
+      "[Product.ID]" => $product["ID"],
       "[Product.Modified]" => $modified,
       "[Product.Title]" => $product["Title"],
       "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"]),
-      "[Product.Votes]" => $votes
+      "[Product.Votes]" => base64_encode("v=$votes&ID=".$product["ID"]."&Type=4")
      ], $this->system->Page("96a6768e7f03ab4c68c7532be93dee40")]);
      $r = ($data["CARD"] == 1) ? [
       "Front" => $r
