@@ -30,30 +30,48 @@
      $accessCode = "Accepted";
      $product = $this->system->Data("Get", ["miny", $id]) ?? [];
      $cat = $product["Category"] ?? "";
-     $i = $product["Instructions"] ?? "";
+     $hasInstructions = $product["Instructions"] ?? "";
+     $productQuantity = $product["Quantity"] ?? 0;
      $id = $product["ID"] ?? "";
+     $quantities = [];
      $quantity = $product["Quantity"] ?? 0;
      $ck = (!empty($id)) ? 1 : 0;
      $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $ck3 = $shop["Open"] ?? 0;
      $ck4 = ($quantity != 0) ? 1 : 0;
      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) ? 1 : 0;
-     if($ck == 1 || ($t["Login"]["Username"] == $this->system->ShopID && $quantity != 0)) {
-      $inst = ($cat == "PHYS" && $i == 1) ? $this->system->Element([
+     for($i = 0; $i <= $productQuantity; $i++) {
+      $quantities[$i] = $i;
+     } if($ck == 1 || ($t["Login"]["Username"] == $this->system->ShopID && $quantity != 0)) {
+      $instructions = ($cat == "PHYS" && $hasInstructions == 1) ? $this->system->Element([
        "p", "Please add your shipping address.",
        ["class" => "CenterText"]
       ]) : "";
-      $inst .= ($i == 1) ? $this->system->Element([
+      $instructions .= ($hasInstructions == 1) ? $this->system->Element([
        "textarea", NULL, [
         "name" => "Instructions",
         "placeholder" => "Write your instructions here..."
        ]
       ]) : "";
-      $ls = ($quantity > 0 && $quantity < 20) ? $this->system->Element([
+      $lowStock = ($quantity > 0 && $quantity < 20) ? $this->system->Element([
        "p", "This is selling fast, act soon before it's sold out!",
        ["class" => "CenterText"]
       ]) : "";
       $price = $product["Cost"] + $product["Profit"];
+      $quantity = ($quantity != "-1") ? $this->system->RenderInputs([
+       [
+        "Attributes" => [],
+        "OptionGroup" => $quantities,
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull"
+        ],
+        "Name" => "Quantity",
+        "Title" => "Quantity",
+        "Type" => "Select",
+        "Value" => $quantity
+       ]
+      ]) : "";
       $r = $this->system->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
        "[AddToCart.Inputs]" => $this->system->RenderInputs([
@@ -86,10 +104,10 @@
         ]
        ]),
        "[AddToCart.Product.ID]" => $id,
-       "[AddToCart.Product.Instructions]" => $inst,
-       "[AddToCart.Product.LowStock]" => $ls,
+       "[AddToCart.Product.Instructions]" => $instructions,
+       "[AddToCart.Product.LowStock]" => $lowStock,
        "[AddToCart.Product.Price]" => number_format($price, 2),
-       "[AddToCart.Product.Quantity]" => $this->system->Select("prodQTY", "req v2w", $quantity)
+       "[AddToCart.Product.Quantity]" => $quantity
       ], $this->system->Page("624bcc664e9bff0002e01583e7706d83")]);
       if($cat == "PHYS" && $t["Login"]["Username"] == $you) {
        $r = $this->system->Element([
@@ -272,7 +290,7 @@
     $title = $shop["Title"] ?? "Made in New York";
     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
     $productTitle = $product["Title"];
-    $quantity = $data["prodQTY"] ?? 1;
+    $quantity = $data["Quantity"] ?? 1;
     $view = "v=".base64_encode("Cart:Home")."&UN=".base64_encode($t["Login"]["Username"]);
     $cart = $y["Shopping"]["Cart"][$shop] ?? [];
     $cart["UN"] = $t["Login"]["Username"];

@@ -21,15 +21,20 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
-    $accessCode = "Accepted";
     $_YourPrivacy = $y["Privacy"] ?? [];
-    $action = ($new == 1) ? "Post" : "Update";
-    $attachmentsachments = "";
+    $accessCode = "Accepted";
+    $id = ($new == 1) ? md5("MiNY_PROD_$you".$this->system->timestamp) : $id;
+    /*$action = ($new == 1) ? "Post" : "Update";
+    $action = $this->system->Element(["button", $action, [
+     "class" => "CardButton SendData",
+     "data-form" => ".Product$id",
+     "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
+    ]]);*/
+    $attachments = "";
     $bundle = "";
     $dlc = "";
-    $id = ($new == 1) ? md5("MiNY_PROD_$you".$this->system->timestamp) : $id;
     $dv = base64_encode("Common:DesignView");
-    $dvi = "UIE$id";
+    $designViewEditor = "UIE$id";
     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
     $product = $this->system->FixMissing($product, [
      "Description",
@@ -71,7 +76,7 @@
     $search = base64_encode("Search:Containers");
     $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
     if(!empty($product["Attachments"])) {
-     $attachmentsachments = base64_encode(implode(";", $product["Attachments"]));
+     $attachments = base64_encode(implode(";", $product["Attachments"]));
     } if(!empty($product["Bundled"])) {
      $bundle = base64_encode(implode(";", $product["Bundled"]));
     } if(!empty($product["DLC"])) {
@@ -82,7 +87,7 @@
       [
        "[Extras.ContentType]" => "Product",
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => $dvi,
+       "[Extras.DesignView.Origin]" => $designViewEditor,
        "[Extras.DesignView.Destination]" => "UIV$id",
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
@@ -90,7 +95,7 @@
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
       ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
-     "[Product.Attachments]" => $attachmentsachments,
+     "[Product.Attachments]" => $attachments,
      "[Product.Attachments.LiveView]" => $at4lv,
      "[Product.Bundled]" => $bundle,
      "[Product.Bundled.LiveView]" => $at5lv,
@@ -108,7 +113,7 @@
       "adm" => 1,
       "opt" => [
        "id" => "XPRODBody",
-       "class" => "$dvi Body Xdecode req",
+       "class" => "$designViewEditor Body Xdecode req",
        "name" => "Body",
        "placeholder" => "Body",
        "rows" => 20
@@ -116,6 +121,8 @@
      ]),
      "[Product.Header]" => $header,
      "[Product.ID]" => $id,
+     "[Product.Inputs]" => $this->system->RenderInputs([
+     ]),
      "[Product.New]" => $new,
      "[Product.Category]" => $this->system->Select("ProductCategory", "req v2w", $category),
      "[Product.Expiration.Quantity]" => $this->system->Select("ProductExpiresQuantity", "req v2w"),
@@ -129,13 +136,8 @@
      "[Product.Quantity]" => $quantity,
      "[Product.Title]" => $product["Title"]
     ], $this->system->Page("3e5dc31db9719800f28abbaa15ce1a37")]);
-    $action = $this->system->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".Product$id",
-     "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
-    ]]);
     $r = [
-     "Action" => $action,
+     #"Action" => $action,
      "Front" => $r
     ];
    }
@@ -289,6 +291,7 @@
       "[Product.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
       "[Product.ID]" => $product["ID"],
+      "[Product.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Product;".$product["ID"])),
       "[Product.Modified]" => $modified,
       "[Product.Title]" => $product["Title"],
       "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"]),
