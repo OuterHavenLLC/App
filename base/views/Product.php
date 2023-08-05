@@ -24,12 +24,12 @@
     $_YourPrivacy = $y["Privacy"] ?? [];
     $accessCode = "Accepted";
     $id = ($new == 1) ? md5("MiNY_PROD_$you".$this->system->timestamp) : $id;
-    /*$action = ($new == 1) ? "Post" : "Update";
+    $action = ($new == 1) ? "Post" : "Update";
     $action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditProduct$id",
      "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
-    ]]);*/
+    ]]);
     $attachments = "";
     $bundledProducts = "";
     $dlc = "";

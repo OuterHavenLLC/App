@@ -520,12 +520,37 @@
       }
       $addContact = ($you != $this->system->ID) ? $addContact : "";
      } if($id != $you && $y["Rank"] == md5("High Command") || $y["Rank"] == md5("Partner")) {
-      $ChangeRank = $this->system->Change([[
+      if($y["Rank"] == md5("High Command")) {
+       $ranks = [
+        "High Command" => "High Command",
+        "Member" => "Member",
+        "Support" => "Support"
+       ];
+      } elseif($y["Rank"] == md5("Support")) {
+       $ranks = [
+        "Member" => "Member",
+        "Support" => "Support"
+       ];
+      }
+      $changeRank = $this->system->Change([[
        "[Ranks.Authentication]" => "v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".MemberRank".md5($id))."&ID=".md5($id)."&Processor=".base64_encode("v=".base64_encode("Profile:ChangeRank"))."&Text=".base64_encode("Do you authorize the Change of $display's rank?"),
        "[Ranks.DisplayName]" => $display,
        "[Ranks.ID]" => md5($id),
        "[Ranks.Username]" => $id,
-       "[Ranks.Option]" => $this->system->Select("Rank", "req v2 v2w")
+       "[Ranks.Option]" => $this->system->RenderInputs([
+        [
+         "Attributes" => [],
+         "OptionGroup" => $ranks,
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Rank"
+         ],
+         "Name" => "Rank",
+         "Title" => "Rank",
+         "Type" => "Select",
+         "Value" => $y["Rank"]
+        ]
+       ])
       ], $this->system->Page("914dd9428c38eecf503e3a5dda861559")]);
      }
      $gender = $t["Personal"]["Gender"] ?? "Male";
@@ -560,7 +585,7 @@
       "[Member.Blogs]" => $blogs,
       "[Member.Back]" => $back,
       "[Member.Bio]" => $bio,
-      "[Member.ChangeRank]" => $ChangeRank,
+      "[Member.ChangeRank]" => $changeRank,
       "[Member.CoverPhoto]" => $this->system->CoverPhoto($t["Personal"]["CoverPhoto"]),
       "[Member.Contacts]" => $contacts,
       "[Member.Conversation]" => $this->system->Change([[
@@ -1504,7 +1529,7 @@
     "Name",
     "Password",
     "Password2",
-    "Personal_Gender",
+    "Gender",
     "PIN",
     "PIN2",
     "SOE",
@@ -1514,7 +1539,7 @@
    $birthYear = $data["BirthYear"] ?? 1995;
    $age = date("Y") - $birthYear;
    $ck = ($age > $_MinimumAge) ? 1 : 0;
-   $firstName = ($data["Personal_Gender"] == "Male") ? "John" : "Jane";
+   $firstName = ($data["Gender"] == "Male") ? "John" : "Jane";
    $i = 0;
    $members = $this->system->DatabaseSet("MBR");
    $password = $data["Password"];
@@ -1589,7 +1614,7 @@
       "DisplayName" => $username,
       "Email" => $data["Email"],
       "FirstName" => $firstName,
-      "Gender" => $data["Personal_Gender"],
+      "Gender" => $data["Gender"],
       "Password" => $password,
       "PIN" => md5($data["PIN"]),
       "Username" => $username
@@ -1745,21 +1770,219 @@
    $birthYears = [];
    for($i = 1; $i <= 12; $i++) {
     $birthMonths[$i] = $i;
-   } for($i = 1776; $i <= date("Y"); $i++) {
+   } for($i = 1776; $i <= (date("Y") - 18); $i++) {
     $birthYears[$i] = $i;
    }
    $r = [
     "Front" => $this->system->Change([[
      "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
-     "[SignUp.Age.Month]" => $this->system->Select("BirthMonth", "req v2w"),
-     "[SignUp.Age.Year]" => $this->system->Select("BirthYear", "req v2w"),
-     "[SignUp.Gender]" => $this->system->Select("gender", "req"),
-     "[SignUp.MinAge]" => $this->system->core["minAge"],
-     "[SignUp.ReturnView]" => base64_encode(json_encode([
-      "Group" => "Profile",
-      "View" => "SaveSignUp"
-     ], true)),
-     "[SignUp.SendOccasionalEmails]" => $this->system->Select("SOE", "req v2w")
+     "[SignUp.MinimumAge]" => $this->system->core["minAge"],
+     "[SignUp.Basic]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "ReturnView",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => base64_encode(json_encode([
+        "Group" => "Profile",
+        "View" => "SaveSignUp"
+       ], true))
+      ],
+      [
+       "Attributes" => [
+        "name" => "ViewPairID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => "SignUp"
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => $birthMonths,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Birth Month"
+       ],
+       "Name" => "BirthMonth",
+       "Title" => "Category",
+       "Type" => "Select",
+       "Value" => 10
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => $birthYears,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Birth Year"
+       ],
+       "Name" => "BirthYear",
+       "Title" => "Category",
+       "Type" => "Select",
+       "Value" => 1995
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        "Female" => "Female",
+        "Male" => "Male"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Gender"
+       ],
+       "Name" => "Gender",
+       "Title" => "Gender",
+       "Type" => "Select",
+       "Value" => "Male"
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Email",
+        "placeholder" => "johnny.test@outerhaven.nyc",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Email"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "No",
+        1 => "Yes"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Receive Occasional Emails?"
+       ],
+       "Name" => "SOE",
+       "Title" => "Receive Emails?",
+       "Type" => "Select",
+       "Value" => 1
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Name",
+        "placeholder" => "John",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Name"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Username",
+        "placeholder" => "JohnnyTest",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Username"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ]
+     ]),
+     "[SignUp.Password]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Password",
+        "placeholder" => "Password",
+        "type" => "password"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Password"
+       ],
+       "Title" => "Password",
+       "Type" => "Text",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Password2",
+        "placeholder" => "Confirm Password",
+        "type" => "password"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Confirm Password"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ]
+     ]),
+     "[SignUp.PIN]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "req",
+        "maxlen" => 8,
+        "name" => "PIN",
+        "pattern" => "\d*",
+        "placeholder" => "PIN",
+        "type" => "number"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "PIN"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "maxlen" => 8,
+        "name" => "PIN2",
+        "pattern" => "\d*",
+        "placeholder" => "Confirm PIN",
+        "type" => "number"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Confirm PIN"
+       ],
+       "Type" => "Text",
+       "Value" => ""
+      ]
+     ])
     ], $this->system->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ];
    return $this->system->JSONResponse([

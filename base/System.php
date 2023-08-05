@@ -1035,11 +1035,9 @@
    }
   }
   function Select($a, $b = NULL, $c = NULL) {
-   $cl = $b ?? "v2 v2w";
+   $cl = "v2 v2w";
    $i = 0;
    $r = "";
-   $y = $this->Member($this->Username());
-   $_HC = ($y["Rank"] == md5("High Command")) ? 1 : 0;
    if(strpos($a, "PaymentProcessor") !== false) {
     $hli = ["Braintree", "PayPal"];
     $opt = ["Braintree", "PayPal"];
@@ -1053,27 +1051,6 @@
       "optgroup", $r, ["label" => "Payment Processor"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif($a == "BirthMonth") {
-    for($i = 1; $i <= 12; $i++) {
-     $s = ((empty($c) && $i == date("m")) || $i == $c) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$i\"$s>$i</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Month"]
-     ]), ["class" => "v2", "name" => $a]
-    ]);
-   } elseif($a == "BirthYear") {
-    for($i = 1776; $i < date("Y"); $i++) {
-     $s = ((empty($c) && $i == date("Y")) || $i == $c) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$i\"$s>$i</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Year"]
-     ]), ["class" => "v2", "name" => $a]
-    ]);
-   } elseif($a == "DiscountCodeQTY") {
    } elseif($a == "Live") {
     $hli = ["Sandbox", "Production"];
     $opt = [0, 1];
@@ -1088,7 +1065,6 @@
       "optgroup", $r, ["label" => "Payment Environment"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif($a == "Index") {
    } elseif($a == "Open") {
     $hli = ["Closed", "Open"];
     $opt = [0, 1];
@@ -1113,59 +1089,6 @@
       "optgroup", $r, ["label" => "Percent Off"]
      ]), ["class" => $cl, "name" => $a]
     ]);
-   } elseif($a == "Personal_MinimalDesign") {
-    $hli = ["Off", "On"];
-    $opt = [0, 1];
-    foreach($opt as &$opt) {
-     $s = ($c == md5($opt)) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"".md5($opt)."\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Minimal Design"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "PFType") {
-   } elseif($a == "Priority") {
-   } elseif($a == "Rank") {
-    if($_HC == 1) {
-     $hli = ["High Command", "Member", "Support"];
-     $opt = ["High Command", "Member", "Support"];
-    } else {
-     $hli = ["Member", "Support"];
-     $opt = ["Member", "Support"];
-    }
-    foreach($opt as $opt) {
-     $r .= "<option value=\"$opt\">".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Select a Rank"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "Resolved") {
-   } elseif($a == "Role") {
-   } elseif($a == "SOE") {
-   } elseif($a == "UseParaphrasedQuestion") {
-   } elseif($a == "gender") {
-    $hli = ["Male", "Female"];
-    $opt = ["Male", "Female"];
-    $r = "";
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " checked" : "";
-     $r .= $this->Element([
-      "div", $this->Element([
-       "div",
-       "<input class=\"req\" name=\"Personal_Gender\" type=\"radio\" value=\"$opt\"$s/>",
-       ["class" => "Desktop25"]
-      ]).$this->Element([
-       "div", "<p>".$hli[$i]."</p>", ["class" => "Desktop75s"]
-      ]), ["class" => "Desktop50"]
-     ]);
-     $i++;
-    }
    }
    return $r;
   }
