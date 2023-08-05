@@ -690,7 +690,7 @@
      ]);
      $this->system->Data("Purge", ["local", $value]);
      $this->system->Data("Purge", ["post", $value]);
-     $this->system->Data("Purge", ["react", $value]);
+     $this->system->Data("Purge", ["votes", $value]);
     } foreach($blogs as $key => $value) {
      if($id != $value) {
       array_push($newBlogs, $value);

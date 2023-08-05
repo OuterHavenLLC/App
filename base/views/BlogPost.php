@@ -538,7 +538,7 @@
     $blog["Posts"] = $newPosts;
     $this->system->Data("Purge", ["bp", $post]);
     $this->system->Data("Purge", ["local", $post]);
-    $this->system->Data("Purge", ["react", $post]);
+    $this->system->Data("Purge", ["votes", $post]);
     $this->system->Data("Save", ["blg", $blog["ID"], $blog]);
     $r = [
      "Body" => "The Blog Post was deleted.",

@@ -898,7 +898,7 @@
     $y["Pages"] = $newPages;
     $this->system->Data("Purge", ["local", $id]);
     $this->system->Data("Purge", ["pg", $id]);
-    $this->system->Data("Purge", ["react", $id]);
+    $this->system->Data("Purge", ["votes", $id]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
     $r = [
      "Body" => "The Page was deleted.",

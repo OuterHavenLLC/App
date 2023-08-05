@@ -420,7 +420,7 @@
     ]);
     $this->system->Data("Purge", ["local", $id]);
     $this->system->Data("Purge", ["post", $id]);
-    $this->system->Data("Purge", ["react", $id]);
+    $this->system->Data("Purge", ["votes", $id]);
     $this->system->Data("Save", ["pf", $fid, $forum]);
     $r = [
      "Body" => "The post was deleted.",

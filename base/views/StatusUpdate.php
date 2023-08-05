@@ -365,7 +365,7 @@
      "Data" => ["ID" => $id]
     ]);
     $this->system->Data("Purge", ["local", $id]);
-    $this->system->Data("Purge", ["react", $id]);
+    $this->system->Data("Purge", ["votes", $id]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
     $this->system->Data("Save", ["stream", md5($you), $stream]);
     $this->system->Data("Save", ["x", "mainstream", $mainstream]);

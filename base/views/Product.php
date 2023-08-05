@@ -521,15 +521,15 @@
      }
     }
     $shop["Products"] = $newProducts;
-    /*$this->view(base64_encode("Conversation:SaveDelete"), [
+    $this->view(base64_encode("Conversation:SaveDelete"), [
      "Data" => ["ID" => $id]
     ]);
     $this->system->Data("Purge", ["miny", $id]);
     $this->system->Data("Purge", ["local", $id]);
-    $this->system->Data("Purge", ["react", $id]);
-    $this->system->Data("Save", ["shop", md5($you), $shop]);*/
+    $this->system->Data("Purge", ["votes", $id]);
+    $this->system->Data("Save", ["shop", md5($you), $shop]);
     $r = [
-     "Body" => "The Product was deleted.".json_encode($shop, true),
+     "Body" => "The Product was deleted.",
      "Header" => "Done"
     ];
    }

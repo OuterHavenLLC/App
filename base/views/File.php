@@ -433,7 +433,7 @@
        $this->view(base64_encode("Conversation:SaveDelete"), [
         "Data" => ["ID" => $key]
        ]);
-       $this->system->Data("Purge", ["react", $key]);
+       $this->system->Data("Purge", ["votes", $key]);
        unlink($this->system->DocumentRoot."/efs/$username/thumbnail.$baseName.png");
        unlink($this->system->DocumentRoot."/efs/$username/".$value["Name"]);
       }

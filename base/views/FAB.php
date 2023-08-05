@@ -182,7 +182,7 @@
       $fab2[$k] = $v;
      } else {
       $this->system->Data("Purge", ["local", $id]);
-      $this->system->Data("Purge", ["react", $id]);
+      $this->system->Data("Purge", ["votes", $id]);
       $ttl = $v["Title"];
      }
     }

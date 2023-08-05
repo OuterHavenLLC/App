@@ -385,7 +385,7 @@
       "Data" => ["ID" => $id]
      ]);
      $this->system->Data("Purge", ["local", $id]);
-     $this->system->Data("Purge", ["react", $id]);
+     $this->system->Data("Purge", ["votes", $id]);
      $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
      $r = [
       "Body" => "The Album <em>$title</em> was successfully deleted.",

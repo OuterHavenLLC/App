@@ -772,7 +772,7 @@
      }
      $this->system->Data("Purge", ["local", $value]);
      #$this->system->Data("Purge", ["post", $value]);
-     $this->system->Data("Purge", ["react", $value]);
+     $this->system->Data("Purge", ["votes", $value]);
     } if(!empty($this->system->Data("Get", ["conversation", $id]))) {
      $this->view(base64_encode("Conversation:SaveDelete"), [
       "Data" => ["ID" => $id]

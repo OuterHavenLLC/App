@@ -546,7 +546,7 @@
     ]) ?? [];
     foreach($conversation as $key => $value) {
      $this->system->Data("Purge", ["local", $key]);
-     $this->system->Data("Purge", ["react", $key]);
+     $this->system->Data("Purge", ["votes", $key]);
     }
     $this->system->Data("Purge", ["conversation", $id]);
     $r = [
