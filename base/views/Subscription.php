@@ -12,20 +12,22 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    foreach($y["Subscriptions"] as $key => $value) {
-    $subscription = $this->system->core["SUB"][$key];
-    $subscription = $this->system->Element([
-     "button", $this->system->Element([
-      "h4", $subscription["Title"]
-     ]).$this->system->Element([
-      "p", $subscription["Description"]
-     ]), [
-      "class" => "K4i OpenCard",
-      "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
-     ]
-    ]);
-    if($value["A"] == 1) {
-     $active .= $subscription;
-     $ai++;
+    $subscription = $this->system->core["SUB"][$key] ?? [];
+    if(!empty($subscription)) {
+     $subscription = $this->system->Element([
+      "button", $this->system->Element([
+       "h4", $subscription["Title"]
+      ]).$this->system->Element([
+       "p", $subscription["Description"]
+      ]), [
+       "class" => "K4i OpenCard",
+       "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
+      ]
+     ]);
+     if($value["A"] == 1) {
+      $active .= $subscription;
+      $ai++;
+     }
     }
    } if($ai == 0 || $this->system->ID == $you) {
     $active = $this->system->Element([
@@ -112,7 +114,7 @@
         ]]),
         "[Artist.ID]" => md5($you),
         "[Artist.Payroll]" => base64_encode("v=".base64_encode("Shop:Payroll")),
-        "[Artist.Revenue]" => "v=".base64_encode("Common:Income")."&UN=".base64_encode($you)
+        "[Artist.Revenue]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($you))
        ], $this->system->Page("20820f4afd96c9e32440beabed381d36")]);
       }
      } elseif($s == "Blogger") {
@@ -121,18 +123,9 @@
         "Data" => "[sIMG:CP]",
         "Display" => 1
        ]),
-       "[Blogger.List]" => $this->view($search, [
-        "Data" => ["st" => "S-Blogger"]
-       ]),
+       "[Blogger.List]" => base64_encode("v=$search&st=S-Blogger"),
        "[Blogger.Title]" => $sub["Title"]
       ], $this->system->Page("566f9967f00f97350e54b0ee14faef36")]);
-     } elseif($s == "Developer") {
-      $r = $this->system->Change([[
-       "[Developer.CoverPhoto]" => $this->system->PlainText([
-        "Data" => "[sIMG:CP]",
-        "Display" => 1
-       ])
-      ], $this->system->Page("c936edd5c57aca06897b44fed29d0843")]);
      } elseif($s == "VIP") {
       $forum = base64_encode("Forum:Home");
       $id = base64_encode("cb3e432f76b38eaa66c7269d658bd7ea");

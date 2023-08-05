@@ -224,14 +224,9 @@
        "Title" => "Blogger",
        "Term" => [1, "month"]
       ],
-      "Developer" => [
-       "Description" => "Contribute to the platform.",
-       "Title" => "Developer",
-       "Term" => [1, "year"]
-      ],
       "VIP" => [
        "Description" => "Enjoy access to all subscriptions, and exclusive content.",
-       "Title" => "V.I.P. Access",
+       "Title" => "V.I.P.",
        "Term" => [1, "month"]
       ],
       "XFS" => [
@@ -707,11 +702,6 @@
       "A" => 1,
       "B" => $now,
       "E" => $this->TimePlus($now, 1, "month")
-     ],
-     "Developer" => [
-      "A" => 0,
-      "B" => $now,
-      "E" => $now
      ],
      "VIP" => [
       "A" => 0,

@@ -581,7 +581,7 @@
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
         # V.I.P. Subscription
         foreach($y["Subscriptions"] as $sk => $sv) {
-         if(!in_array($sk, ["Artist", "Developer"])) {
+         if($sk == "Artist") {
           $y["Subscriptions"][$sk] = [
            "A" => 1,
            "B" => $now,
@@ -589,12 +589,6 @@
           ];
          }
         }
-       } elseif($id == "39d05985f0667a69f3a725d5afd1265c") {
-        $y["Subscriptions"]["Developer"] = [
-         "A" => 1,
-         "B" => $now,
-         "E" => $this->system->TimePlus($now, 1, $subscriptionTerm)
-        ];
        } elseif($id == "5bfb3f44cdb9d3f2cd969a23f0e37093") {
         $y["Subscriptions"]["XFS"] = [
          "A" => 1,

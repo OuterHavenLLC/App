@@ -517,7 +517,7 @@
     $products = $shop["Products"] ?? [];
     foreach($products as $key => $value) {
      if($id != $value) {
-      array_push($newProducts, $value);
+      $newProducts[$key] = $value;
      }
     }
     $shop["Products"] = $newProducts;
@@ -533,7 +533,15 @@
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([$ec, $r]);
+   return $this->system->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
   }
   function Share(array $a) {
    $accessCode = "Denied";
