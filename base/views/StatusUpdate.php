@@ -140,7 +140,7 @@
      "[UIV.IN]" => "UIE$id"
     ], $this->system->Page("7cc50dca7d9bbd7b7d0e3dd7e2450112")]);
     $r = [
-     #"Action" => $action,
+     "Action" => $action,
      "Front" => $r
     ];
    }

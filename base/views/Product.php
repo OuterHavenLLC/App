@@ -27,11 +27,11 @@
     /*$action = ($new == 1) ? "Post" : "Update";
     $action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
-     "data-form" => ".Product$id",
+     "data-form" => ".EditProduct$id",
      "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
     ]]);*/
     $attachments = "";
-    $bundle = "";
+    $bundledProducts = "";
     $dlc = "";
     $dv = base64_encode("Common:DesignView");
     $designViewEditor = "UIE$id";
@@ -46,39 +46,52 @@
      "Price",
      "Title"
     ]);
-    $category = $product["Category"] ?? "";
-    $coverPhoto = $product["ICO-SRC"] ?? "";
     $title = $product["Title"] ?? "Product";
     $at = base64_encode("Added to $title!");
     $at2input = ".ATTI$id";
     $at2 = base64_encode("Set as Product Cover Photo:$at2input");
     $at2input = "$at2input .rATT";
-    $at2lv = base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$at2input&ID=");
     $at3input = ".ATTDLC$id";
     $at3 = base64_encode("Add Downloadable Content to $title:$at3input");
     $at3input = "$at3input .rATT";
-    $at3lv = base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID=");
     $at4input = ".ATTF$id";
     $at4 = base64_encode("Add to $title Demo Files:$at4input");
     $at4input = "$at4input .rATT";
-    $at4lv = base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at4input&ID=");
     $at5input = ".ATTP$id";
     $at5 = base64_encode("Add to $title Bundle:.ATTP$id");
     $at5input = "$at4input .rATT";
-    $at5lv = base64_encode("v=".base64_encode("LiveView:EditorProducts")."&AddTo=$at5input&BNDL=");
+    $categories = ($y["Rank"] == md5("High Command")) ? [
+     "ARCH" => "Architecture",
+     "DLC" => "Downloadable",
+     "DONATE" => "Donation",
+     "PHYS" => "Physical Product",
+     "SUB" => "Subscription"
+    ] : [
+     "DLC" => "Downloadable",
+     "DONATE" => "Donation",
+     "PHYS" => "Physical Product"
+    ];
+    $category = $product["Category"] ?? "";
     $cost = $product["Cost"] ?? 0.00;
+    $coverPhoto = $product["ICO-SRC"] ?? "";
     $created = $product["Created"] ?? $this->system->timestamp;
+    $expirationQuantities = [];
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
+    $editorLiveView = base64_encode("LiveView:EditorMossaic");
     $nsfw = $product["NSFW"] ?? $_YourPrivacy["NSFW"];
     $privacy = $product["Privacy"] ?? $_YourPrivacy["Products"];
     $profit = $product["Profit"] ?? 0.00;
+    $quantities = [];
     $quantity = $product["Quantity"] ?? "-1";
     $search = base64_encode("Search:Containers");
     $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
-    if(!empty($product["Attachments"])) {
+    for($i = 1; $i <= 100; $i++) {
+     $expirationQuantities[$i] = $i;
+     $quantities[$i] = $i;
+    } if(!empty($product["Attachments"])) {
      $attachments = base64_encode(implode(";", $product["Attachments"]));
     } if(!empty($product["Bundled"])) {
-     $bundle = base64_encode(implode(";", $product["Bundled"]));
+     $bundledProducts = base64_encode(implode(";", $product["Bundled"]));
     } if(!empty($product["DLC"])) {
      $dlc = base64_encode(implode(";", $product["DLC"]));
     }
@@ -95,46 +108,310 @@
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
       ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
-     "[Product.Attachments]" => $attachments,
-     "[Product.Attachments.LiveView]" => $at4lv,
-     "[Product.Bundled]" => $bundle,
-     "[Product.Bundled.LiveView]" => $at5lv,
-     "[Product.Cost]" => $cost,
-     "[Product.CoverPhoto]" => $coverPhoto,
-     "[Product.CoverPhoto.LiveView]" => $at2lv,
-     "[Product.Created]" => $created,
-     "[Product.Description]" => $product["Description"],
-     "[Product.Disclaimer]" => $product["Disclaimer"],
-     "[Product.DownloadableContent]" => $dlc,
-     "[Product.DownloadableContent.LiveView]" => $at3lv,
-     "[Product.Body]" => $this->system->WYSIWYG([
-      "UN" => $you,
-      "Body" => $product["Body"],
-      "adm" => 1,
-      "opt" => [
-       "id" => "XPRODBody",
-       "class" => "$designViewEditor Body Xdecode req",
-       "name" => "Body",
-       "placeholder" => "Body",
-       "rows" => 20
-      ]
-     ]),
      "[Product.Header]" => $header,
      "[Product.ID]" => $id,
      "[Product.Inputs]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "name" => "Created",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $created
+      ],
+      [
+       "Attributes" => [
+        "name" => "ID",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $id
+      ],
+      [
+       "Attributes" => [
+        "name" => "new",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $new
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTF",
+        "data-a" => "#ATTL$id-ATTF",
+        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
+        "name" => "rATTF",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditProduct$id-ATTF"
+       ],
+       "Type" => "Text",
+       "Value" => $attachments
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTDLC",
+        "data-a" => "#ATTL$id-ATTDLC",
+        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
+        "name" => "rATTDLC",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditProduct$id-ATTDLC"
+       ],
+       "Type" => "Text",
+       "Value" => $dlc
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTI",
+        "data-a" => "#ATTL$id-ATTI",
+        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
+        "name" => "rATTI",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditProduct$id-ATTI"
+       ],
+       "Type" => "Text",
+       "Value" => $coverPhoto
+      ],
+      [
+       "Attributes" => [
+        "class" => "rATT rATT$id-ATTP",
+        "data-a" => "#ATTL$id-ATTP",
+        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
+        "name" => "rATTP",
+        "type" => "hidden"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "EditProduct$id-ATTP"
+       ],
+       "Type" => "Text",
+       "Value" => $bundledProducts
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Title",
+        "placeholder" => "Title",
+        "type" => "text"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Title"
+       ],
+       "Type" => "Text",
+       "Value" => $product["Title"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Description",
+        "placeholder" => "Description"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Description"
+       ],
+       "Type" => "TextBox",
+       "Value" => $product["Description"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "req",
+        "name" => "Disclaimer",
+        "placeholder" => "Disclaimer"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Disclaimer"
+       ],
+       "Type" => "TextBox",
+       "Value" => $product["Disclaimer"]
+      ],
+      [
+       "Attributes" => [
+        "class" => "$designViewEditor Body Xdecode req",
+        "id" => "EditProductBody$id",
+        "name" => "Body",
+        "placeholder" => "Body"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "NONAME",
+        "Header" => 1,
+        "HeaderText" => "Body",
+        "WYSIWYG" => 1
+       ],
+       "Type" => "TextBox",
+       "Value" => $this->system->PlainText([
+        "Data" => $product["Body"],
+        "Decode" => 1
+       ])
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => $categories,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Category"
+       ],
+       "Name" => "ProductCategory",
+       "Title" => "Category",
+       "Type" => "Select",
+       "Value" => $category
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "No",
+        0 => "Yes"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Instructions"
+       ],
+       "Name" => "ProductInstructions",
+       "Title" => "Instructions",
+       "Type" => "Select",
+       "Value" => $product["Instructions"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        0 => "Administrator",
+        1 => "Contributor"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Role"
+       ],
+       "Name" => "Role",
+       "Type" => "Select",
+       "Value" => $product["Role"]
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        "Month" => "Month",
+        "Year" => "Year"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Subscription Term"
+       ],
+       "Name" => "ProductSubscriptionTerm",
+       "Title" => "Subscription Term",
+       "Type" => "Select",
+       "Value" => $subscriptionTerm
+      ]
      ]),
-     "[Product.New]" => $new,
-     "[Product.Category]" => $this->system->Select("ProductCategory", "req v2w", $category),
-     "[Product.Expiration.Quantity]" => $this->system->Select("ProductExpiresQuantity", "req v2w"),
-     "[Product.Expiration.TimeSpan]" => $this->system->Select("ProductExpiresTimeSpan", "req v2w"),
-     "[Product.Instructions]" => $this->system->Select("ProductInstructions", "req v2w", $product["Instructions"]),
-     "[Product.NSFW]" => $this->system->Select("nsfw", "req v2w", $nsfw),
-     "[Product.Privacy]" => $this->system->Select("Privacy", "req v2w", $privacy),
-     "[Product.Role]" => $this->system->Select("Role", "req v2w", $product["Role"]),
-     "[Product.SubscriptionTerm]" => $this->system->Select("ProductSubscriptionTerm", "req v2w", $subscriptionTerm),
-     "[Product.Profit]" => $profit,
-     "[Product.Quantity]" => $quantity,
-     "[Product.Title]" => $product["Title"]
+     "[Product.Expiration]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [],
+       "OptionGroup" => $expirationQuantities,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Quantity"
+       ],
+       "Name" => "ProductExpiresQuantity",
+       "Title" => "Quantity",
+       "Type" => "Select",
+       "Value" => ""
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => [
+        "Month" => "Month",
+        "Year" => "Year"
+       ],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Time Frame"
+       ],
+       "Name" => "ProductExpiresTimeSpan",
+       "Title" => "Time Frame",
+       "Type" => "Select",
+       "Value" => ""
+      ]
+     ]),
+     "[Product.Inventory]" => $this->system->RenderInputs([
+      [
+       "Attributes" => [
+        "class" => "CheckIfNumeric",
+        "data-symbols" = > "Y",
+        "maxlen" => "7",
+        "name" => "Cost",
+        "placeholder" => "5.00",
+        "type" => "text"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $cost
+      ],
+      [
+       "Attributes" => [
+        "class" => "CheckIfNumeric",
+        "data-symbols" = > "Y",
+        "maxlen" => "7",
+        "name" => "Profit",
+        "placeholder" => "5.00",
+        "type" => "text"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => $profit
+      ],
+      [
+       "Attributes" => [],
+       "OptionGroup" => $quantities,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Quantity"
+       ],
+       "Name" => "Quantity",
+       "Title" => "Quantity",
+       "Type" => "Select",
+       "Value" => $quantity
+      ]
+     ]),
+     "[Product.Visibility]" => $this->system->RenderVisibilityFilter([
+      "Filter" => "NSFW",
+      "Name" => "nsfw",
+      "Title" => "Content Status",
+      "Value" => $nsfw
+     ]).$this->system->RenderVisibilityFilter([
+      "Value" => $privacy
+     ])
     ], $this->system->Page("3e5dc31db9719800f28abbaa15ce1a37")]);
     $r = [
      #"Action" => $action,
