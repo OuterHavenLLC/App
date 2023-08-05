@@ -33,8 +33,6 @@
     $attachments = "";
     $bundledProducts = "";
     $dlc = "";
-    $dv = base64_encode("Common:DesignView");
-    $designViewEditor = "UIE$id";
     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
     $product = $this->system->FixMissing($product, [
      "Description",
@@ -76,8 +74,9 @@
     $coverPhoto = $product["ICO-SRC"] ?? "";
     $created = $product["Created"] ?? $this->system->timestamp;
     $expirationQuantities = [];
-    $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
+    $designViewEditor = "UIE$id";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
+    $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
     $nsfw = $product["NSFW"] ?? $_YourPrivacy["NSFW"];
     $privacy = $product["Privacy"] ?? $_YourPrivacy["Products"];
     $profit = $product["Profit"] ?? 0.00;
@@ -260,8 +259,7 @@
        ],
        "Type" => "TextBox",
        "Value" => $this->system->PlainText([
-        "Data" => $product["Body"],
-        "Decode" => 1
+        "Data" => $product["Body"]
        ])
       ],
       [
@@ -366,26 +364,36 @@
       [
        "Attributes" => [
         "class" => "CheckIfNumeric",
-        "data-symbols" = > "Y",
+        "data-symbols" => "Y",
         "maxlen" => "7",
         "name" => "Cost",
         "placeholder" => "5.00",
         "type" => "text"
        ],
-       "Options" => [],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Cost"
+       ],
        "Type" => "Text",
        "Value" => $cost
       ],
       [
        "Attributes" => [
         "class" => "CheckIfNumeric",
-        "data-symbols" = > "Y",
+        "data-symbols" => "Y",
         "maxlen" => "7",
         "name" => "Profit",
         "placeholder" => "5.00",
         "type" => "text"
        ],
-       "Options" => [],
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull",
+        "Header" => 1,
+        "HeaderText" => "Profit"
+       ],
        "Type" => "Text",
        "Value" => $profit
       ],

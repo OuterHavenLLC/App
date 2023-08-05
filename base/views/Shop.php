@@ -90,26 +90,6 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $shop = $this->system->Data("Get", ["shop", $id]) ?? [];
-    $atinput = ".Shop$id-CoverPhoto";
-    $at = base64_encode("Set as the Shop's Cover Photo:$atinput");
-    $at2 = base64_encode("All done! Feel free to close this card.");
-    $atinput = "$atinput .rATT";
-    $search = base64_encode("Search:Containers");
-    $back = $this->system->Change([
-     [
-      "[CP.ContentType]" => "Shop",
-      "[CP.Files]" => base64_encode("v=$search&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-      "[CP.ID]" => $id
-     ], $this->system->Page("dc027b0a1f21d65d64d539e764f4340a")
-    ]).$this->view(base64_encode("Language:Edit"), ["Data" => [
-     "ID" => base64_encode($id)
-    ]]);
-    $action = $this->system->Element(["button", "Update", [
-     "class" => "CardButton SendData",
-     "data-form" => ".Shop$id",
-     "data-processor" => base64_encode("v=".base64_encode("Shop:Save"))
-    ]]);
-    $coverPhoto = $shop["CoverPhotoSource"] ?? "";
     $shop = $this->system->FixMissing($shop, [
      "Description",
      "Live",
@@ -117,6 +97,20 @@
      "Title",
      "Welcome"
     ]);
+    $atinput = ".Shop$id-CoverPhoto";
+    $at = base64_encode("Set as the Shop's Cover Photo:$atinput");
+    $at2 = base64_encode("All done! Feel free to close this card.");
+    $atinput = "$atinput .rATT";
+    $action = $this->system->Element([
+     "button", "Coming soon...", ["class" => "CardButton"]
+    ]);
+    /*$action = $this->system->Element(["button", "Update", [
+     "class" => "CardButton SendData",
+     "data-form" => ".Shop$id",
+     "data-processor" => base64_encode("v=".base64_encode("Shop:Save"))
+    ]]);*/
+    $coverPhoto = $shop["CoverPhotoSource"] ?? "";
+    $designViewEditor = "UIE$id";
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $privacy = $shop["Privacy"] ?? $y["Privacy"]["Shop"];
@@ -130,8 +124,21 @@
      "PayPalClientIDLive",
      "PayPalEmailLive"
     ]);
+    $search = base64_encode("Search:Containers");
     $tax = $shop["Tax"] ?? 10.00;
     $r = $this->system->Change([[
+     "[Shop.AdditionalContent]" => $this->system->Change([
+      [
+       "[Extras.ContentType]" => "Shop",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => $designViewEditor,
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
      "[Shop.CoverPhoto]" => $coverPhoto,
      "[Shop.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Shop.Description]" => $shop["Description"],
@@ -155,20 +162,8 @@
      "[Shop.Privacy]" => $this->system->Select("Privacy", "LI v2w", $privacy),
      "[Shop.Tax]" => $this->system->Select("Percentile", "req v2w", $tax),
      "[Shop.Title]" => $shop["Title"],
-     "[Shop.Welcome]" => $this->system->WYSIWYG([
-      "Body" => $this->system->PlainText([
-       "Data" => base64_encode($shop["Welcome"]),
-       "Decode" => 1
-      ]),
-      "adm" => 1,
-      "opt" => [
-       "id" => "WelcomeMessage",
-       "class" => "UIE$id".md5($this->system->timestamp)." Welcome Xdecode req",
-       "name" => "Welcome",
-       "placeholder" => "Welcome Message",
-       "rows" => 20
-      ]
-     ])
+     "[Shop.Welcome]" => ""
+     //  "name" => "Welcome", must be WYSIWYG TextBox
     ], $this->system->Page("201c1fca2d1214dddcbabdc438747c9f")]);
     $r = [
      "Action" => $action,
