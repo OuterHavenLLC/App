@@ -86,6 +86,7 @@
     $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
     for($i = 1; $i <= 100; $i++) {
      $expirationQuantities[$i] = $i;
+    } for($i = -1; $i <= 100; $i++) {
      $quantities[$i] = $i;
     } if(!empty($product["Attachments"])) {
      $attachments = base64_encode(implode(";", $product["Attachments"]));
@@ -280,7 +281,7 @@
        "Attributes" => [],
        "OptionGroup" => [
         0 => "No",
-        0 => "Yes"
+        1 => "Yes"
        ],
        "Options" => [
         "Container" => 1,
@@ -422,7 +423,7 @@
      ])
     ], $this->system->Page("3e5dc31db9719800f28abbaa15ce1a37")]);
     $r = [
-     #"Action" => $action,
+     "Action" => $action,
      "Front" => $r
     ];
    }
@@ -620,11 +621,10 @@
     $title = $data["Title"] ?? "New Product";
     foreach($products as $key => $value) {
      $product = str_replace("c.oh.miny.", "", $value);
-     $product = $this->system->Data("Get", ["shop", $product]) ?? [];
+     $product = $this->system->Data("Get", ["miny", $product]) ?? [];
      $callSignsMatch = ($data["CallSign"] == $this->system->CallSign($product["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
-      $id = $value;
      }
     } if($i > 0) {
      $r = [
@@ -638,12 +638,18 @@
      $attachments = [];
      $bundle = [];
      $category = base64_decode($data["ProductCategory"]);
-     $cats = ["ARCH", "DLC", "DONATE", "PHYS", "SUB"];
+     $cats = [
+      "ARCH",
+      "DLC",
+      "DONATE",
+      "PHYS",
+      "SUB"
+     ];
      $cost = $data["Cost"] ?? 5.00;
      $created = $product["Created"] ?? $now;
-     $dlc = [];
      $coverPhoto = "";
      $coverPhotoSource = "";
+     $dlc = [];
      $expirationQuantity = $data["ProductExpiresQuantity"] ?? 1;
      $expirationTimeSpan = $data["ProductExpiresTimeSpan"] ?? "year";
      $illegal = $product["Illegal"] ?? 0;
@@ -741,11 +747,11 @@
       "Title" => $title,
       "UN" => $username
      ];
-     $this->system->Data("Save", ["miny", $id, $product]);
+     /*$this->system->Data("Save", ["miny", $id, $product]);
      $this->system->Data("Save", ["mbr", md5($you), $y]);
-     $this->system->Data("Save", ["shop", md5($you), $shop]);
+     $this->system->Data("Save", ["shop", md5($you), $shop]);*/
      $r = [
-      "Body" => "The Product <em>$title</em> has been successfully $actionTaken!",
+      "Body" => "The Product <em>$title</em> has been $actionTaken!",
       "Header" => "Done"
      ];
      if($new == 1) {
