@@ -21,7 +21,6 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
-    $_YourPrivacy = $y["Privacy"] ?? [];
     $accessCode = "Accepted";
     $id = ($new == 1) ? md5("MiNY_PROD_$you".$this->system->timestamp) : $id;
     $action = ($new == 1) ? "Post" : "Update";
@@ -77,8 +76,8 @@
     $designViewEditor = "UIE$id";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
-    $nsfw = $product["NSFW"] ?? $_YourPrivacy["NSFW"];
-    $privacy = $product["Privacy"] ?? $_YourPrivacy["Products"];
+    $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
     $profit = $product["Profit"] ?? 0.00;
     $quantities = [];
     $quantity = $product["Quantity"] ?? "-1";
@@ -289,7 +288,7 @@
         "Header" => 1,
         "HeaderText" => "Instructions"
        ],
-       "Name" => "ProductInstructions",
+       "Name" => "Instructions",
        "Title" => "Instructions",
        "Type" => "Select",
        "Value" => $product["Instructions"]
@@ -322,7 +321,7 @@
         "Header" => 1,
         "HeaderText" => "Subscription Term"
        ],
-       "Name" => "ProductSubscriptionTerm",
+       "Name" => "SubscriptionTerm",
        "Title" => "Subscription Term",
        "Type" => "Select",
        "Value" => $subscriptionTerm
@@ -338,10 +337,10 @@
         "Header" => 1,
         "HeaderText" => "Quantity"
        ],
-       "Name" => "ProductExpiresQuantity",
+       "Name" => "ExpirationQuantity",
        "Title" => "Quantity",
        "Type" => "Select",
-       "Value" => ""
+       "Value" => 1
       ],
       [
        "Attributes" => [],
@@ -355,10 +354,10 @@
         "Header" => 1,
         "HeaderText" => "Time Frame"
        ],
-       "Name" => "ProductExpiresTimeSpan",
+       "Name" => "ExpirationTimeSpan",
        "Title" => "Time Frame",
        "Type" => "Select",
-       "Value" => ""
+       "Value" => "Year"
       ]
      ]),
      "[Product.Inventory]" => $this->system->RenderInputs([
@@ -615,7 +614,6 @@
    } elseif(!empty($data["ID"])) {
     $i = 0;
     $new = $data["new"] ?? 0;
-    $now = $this->system->timestamp;
     $products = $this->system->DatabaseSet("PROD") ?? [];
     $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
     $title = $data["Title"] ?? "New Product";
@@ -623,7 +621,7 @@
      $product = str_replace("c.oh.miny.", "", $value);
      $product = $this->system->Data("Get", ["miny", $product]) ?? [];
      $callSignsMatch = ($data["CallSign"] == $this->system->CallSign($product["Title"])) ? 1 : 0;
-     if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
+     if($callSignsMatch == 1 && $id != $product["ID"] && $i == 0) {
       $i++;
      }
     } if($i > 0) {
@@ -638,7 +636,7 @@
      $attachments = [];
      $bundle = [];
      $category = base64_decode($data["ProductCategory"]);
-     $cats = [
+     $categories = [
       "ARCH",
       "DLC",
       "DONATE",
@@ -650,13 +648,14 @@
      $coverPhoto = "";
      $coverPhotoSource = "";
      $dlc = [];
-     $expirationQuantity = $data["ProductExpiresQuantity"] ?? 1;
-     $expirationTimeSpan = $data["ProductExpiresTimeSpan"] ?? "year";
+     $expirationQuantity = $data["ExpirationQuantity"] ?? 1;
+     $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
      $illegal = $product["Illegal"] ?? 0;
      $modified = $product["Modified"] ?? $now;
      $modifiedBy = $product["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $newProducts = $shop["Products"] ?? [];
+     $now = $this->system->timestamp;
      $points = $this->system->core["PTS"];
      $profit = $data["Profit"] ?? 0.00;
      $quantity = $data["Quantity"] ?? "-1";
@@ -711,7 +710,7 @@
         array_push($bundle, $db[$i]);
        }
       }
-     } if(in_array($category, $cats)) {
+     } if(in_array($category, $categories)) {
       $points = $points["Products"][$category];
      } else {
       $points = $points["Default"];
@@ -719,7 +718,6 @@
       array_push($newProducts, $id);
       $shop["Products"] = array_unique($newProducts);
      }
-     $y["Points"] = $y["Points"] + $points;
      $product = [
       "Attachments" => $attachments,
       "Body" => $data["Body"],
@@ -735,27 +733,29 @@
       "ICO-SRC" => base64_encode($coverPhotoSource),
       "ID" => $id,
       "Illegal" => $illegal,
-      "Instructions" => $data["ProductInstructions"],
+      "Instructions" => $data["Instructions"],
       "Modified" => $modified,
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $data["nsfw"],
       "Points" => $points,
+      "Privacy" => $data["Privacy"],
       "Profit" => number_format($profit, 2),
       "Quantity" => $quantity,
       "Role" => $data["Role"],
-      "SubscriptionTerm" => $data["ProductSubscriptionTerm"],
+      "SubscriptionTerm" => $data["SubscriptionTerm"],
       "Title" => $title,
       "UN" => $username
      ];
      /*$this->system->Data("Save", ["miny", $id, $product]);
-     $this->system->Data("Save", ["mbr", md5($you), $y]);
      $this->system->Data("Save", ["shop", md5($you), $shop]);*/
      $r = [
-      "Body" => "The Product <em>$title</em> has been $actionTaken!",
+      "Body" => "The Product <em>".$product["Title"]."</em> has been $actionTaken!",
       "Header" => "Done"
      ];
      if($new == 1) {
       $subscribers = $shop["Subscribers"] ?? [];
+      $y["Points"] = $y["Points"] + $points;
+      $this->system->Data("Save", ["mbr", md5($you), $y]);
       foreach($subscribers as $key => $value) {
        $this->system->SendBulletin([
         "Data" => [
