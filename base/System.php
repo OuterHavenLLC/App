@@ -1034,64 +1034,6 @@
     mail($a["To"], $a["Title"], $message, $headers);
    }
   }
-  function Select($a, $b = NULL, $c = NULL) {
-   $cl = "v2 v2w";
-   $i = 0;
-   $r = "";
-   if(strpos($a, "PaymentProcessor") !== false) {
-    $hli = ["Braintree", "PayPal"];
-    $opt = ["Braintree", "PayPal"];
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Payment Processor"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "Live") {
-    $hli = ["Sandbox", "Production"];
-    $opt = [0, 1];
-    foreach($opt as $opt) {
-     $ck = ($opt == 0 || $opt == $c) ? 1 : 0;
-     $s = ($ck == 1) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Payment Environment"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "Open") {
-    $hli = ["Closed", "Open"];
-    $opt = [0, 1];
-    foreach($opt as $opt) {
-     $s = ($c == $opt) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$opt\"$s>".$hli[$i]."</option>\r\n";
-     $i++;
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Open or Closed?"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   } elseif($a == "Percentile") {
-    $c = $c ?? 100;
-    for($i = 1; $i < 100; $i++) {
-     $s = ($c == $i) ? " selected=\"selected\"" : "";
-     $r .= "<option value=\"$i\"$s>$i%</option>\r\n";
-    }
-    $r = $this->Element([
-     "select", $this->Element([
-      "optgroup", $r, ["label" => "Percent Off"]
-     ]), ["class" => $cl, "name" => $a]
-    ]);
-   }
-   return $r;
-  }
   function Setup(string $a) {
    $documentRoot = $this->DocumentRoot;
    if(!empty($a)) {
