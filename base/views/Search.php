@@ -37,7 +37,7 @@
      $h = "Network Extensions";
      $lis = "Search Extensions";
      $lo =  ($notAnon == 1) ? $this->system->Element([
-      "button", "New Page", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
       ]
@@ -47,7 +47,7 @@
      $h = "Mass Mail";
      $lis = "Search Pre-Sets";
      $lo =  ($notAnon == 1) ? $this->system->Element([
-      "button", "New Email", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Company:MassMail")."&new=1")
       ]
@@ -114,7 +114,7 @@
       $id = base64_decode($id);
       $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
       $lo = ($Page["UN"] == $you && $notAnon == 1) ? $this->system->Element([
-       "button", "Add Contributors", [
+       "button", "+", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Page:Invite")."&ID=$id")
        ]
@@ -124,7 +124,7 @@
       $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
       $h = "Blog Contributors";
       $lo = ($blog["UN"] == $you && $notAnon == 1) ? $this->system->Element([
-       "button", "Add Contributors", [
+       "button", "+", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=$id")
        ]
@@ -158,7 +158,7 @@
      $h = "Discount Codes";
      $lis = "Search Codes";
      $lo = ($notAnon == 1) ? $this->system->Element([
-      "button", "New Code", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$dce&new=1")
       ]
@@ -169,7 +169,7 @@
      $h = "Free America Broadcasting";
      $lis = "Search Stations";
      $lo = ($notAnon == 1) ? $this->system->Element([
-      "button", "Add a Broadcaster", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$fe&new=1")
       ]
@@ -220,7 +220,7 @@
      $li .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$lpg";
      $lis = "Search Albums";
      $lo = ($ck == 1 && $notAnon == 1) ? $this->system->Element([
-      "button", "New Album", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$ae&new=1")
       ]
@@ -232,7 +232,7 @@
      $li .= "&b2=Blogs&lPG=$lpg";
      $lis = "Search your Blogs";
      if($y["Subscriptions"]["Blogger"]["A"] == 1 && $notAnon == 1) {
-      $lo .= $this->system->Element(["button", "New Blog", [
+      $lo .= $this->system->Element(["button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$be&new=1")
       ]]);
@@ -250,7 +250,7 @@
      $li .= "&lPG=$lpg";
      $lis = "Search Your Private and Public Forums";
      $lo = ($notAnon == 1) ? $this->system->Element([
-      "button", "New Forum", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$fe&new=1")
       ]
@@ -269,7 +269,7 @@
      $pd = base64_encode("Authentication:DeletePage");
      $pe = base64_encode("Page:Edit");
      $lo = ($notAnon == 1) ? $this->system->Element([
-      "button", "New Page", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$pe&new=1")
       ]
@@ -354,7 +354,7 @@
      foreach($contributors as $member => $role) {
       $ck = ($isArtist == 1 && $member == $you && $notAnon == 1) ? 1 : 0;
       if($ck == 1 && $i == 0) {
-       $lo .= $this->system->Element(["button", "New Product", [
+       $lo .= $this->system->Element(["button", "+", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&new=1")
        ]]);
@@ -375,7 +375,7 @@
      $lis = "Search Articles";
      $pe = base64_encode("Page:Edit");
      $lo = ($y["Rank"] == md5("High Command") && $notAnon == 1) ? $this->system->Element([
-      "button", "New Article", [
+      "button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$pe&new=1")
       ]
@@ -386,7 +386,7 @@
      $li .= "&lPG=$st";
      $lis = "Search Blogs";
      if($y["Subscriptions"]["Blogger"]["A"] == 1 && $notAnon == 1) {
-      $lo = $this->system->Element(["button", "New Blog", [
+      $lo = $this->system->Element(["button", "+", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$be&new=1")
       ]]);
@@ -1198,7 +1198,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $modified = $this->system->TimeAgo($modified);
      $resolved = $feedback["Resolved"] ?? 0;
      $resolved = ($resolved == 1) ? "Resolved" : "Not Resolved";
-     $title = $feedback["Subject"] ?? "New Feedback";
+     $title = $feedback["Subject"] ?? "+";
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }

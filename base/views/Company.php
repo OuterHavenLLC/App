@@ -44,22 +44,12 @@
    $pub = $data["pub"] ?? 0;
    $sid = base64_encode($this->system->ShopID);
    $r = $this->system->Change([[
-    "[OHC.Earnings]" => $this->view(base64_encode("Common:Income"), [
-     "Data" => [
-      "UN" => base64_encode($this->system->ShopID)
-     ]
-    ]),
-    "[OHC.News]" => $this->view(base64_encode("Search:Containers"), [
-     "Data" => [
-      "b2" => $b2,
-      "lPG" => "OHC",
-      "st" => "PR"
-     ]
-    ]),
-    "[OHC.Partners]" => $this->view(base64_encode("Company:Partners"), []),
-    "[OHC.Shop]" => "OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$sid"),
-    "[OHC.Statistics]" => $this->view(base64_encode("Company:Statistics"), []),
-    "[OHC.VVA]" => "OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
+    "[OHC.Earnings]" => base64_encode("v=".base64_encode("Company:Income")."&UN=".base64_encode($this->system->ShopID)),
+    "[OHC.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
+    "[OHC.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
+    "[OHC.Shop]" => base64_encode("OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$sid")),
+    "[OHC.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
+    "[OHC.VVA]" => base64_encode("OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC"))
    ], $this->system->Page("0a24912129c7df643f36cb26038300d6")]);
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [

@@ -18,7 +18,11 @@
    $to = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($id) || $new == 1) {
+   if($this->system->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
     $id = ($new == 1) ? md5($you."_SU_$now") : $id;
     $action = ($new == 1) ? "Post" : "Update";

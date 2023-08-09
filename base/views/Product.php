@@ -6,32 +6,103 @@
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
-   $accessCode = "Denied";
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID"]);
-   $r = [
-    "Body" => "The Product Identifier is missing."
-   ];
-   $id = $data["ID"];
+   $data = $this->system->FixMissing($data, [
+    "Editor",
+    "ID"
+   ]);
+   $edit = base64_encode("Product:Edit");
+   $editor = $data["Editor"];
+   $id = $data["ID"] ?? md5(uniqid("Shop_Product_$you"));
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   $template = "00f3b49a6e3b39944e3efbcc98b4948d";
+   $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
+   $r = [
+    "Front" => $this->system->Change([[
+     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture"),
+     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation"),
+     "[Product.Download]" => base64_encode("v=$edit&Editor=Download"),
+     "[Product.Product]" => base64_encode("v=$edit&Editor=Product"),
+     "[Product.Service]" => base64_encode("v=$edit&Editor=Service"),
+     "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription")
+    ], $this->system->Page($template)])
+   ];
    if($this->system->ID == $you) {
+    $accessCode = "Denied";
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($id) || $new == 1) {
-    $accessCode = "Accepted";
-    $id = ($new == 1) ? md5("MiNY_PROD_$you".$this->system->timestamp) : $id;
+   } elseif(!empty($editor)) {
+    $_DesignViewEditor = "";
     $action = ($new == 1) ? "Post" : "Update";
+    $at = base64_encode("Added to Product!");
+    $at2input = ".ATTI$id";
+    $at2 = base64_encode("Set as Product Cover Photo:$at2input");
+    $at2input = "$at2input .rATT";
+    $at3input = ".ATTDLC$id";
+    $at3 = base64_encode("Add Downloadable Content to Product:$at3input");
+    $at3input = "$at3input .rATT";
+    $at4input = ".ATTF$id";
+    $at4 = base64_encode("Add to the Product's Demo Files:$at4input");
+    $at4input = "$at4input .rATT";
+    $at5input = ".ATTP$id";
+    $at5 = base64_encode("Add to Product Bundle:.ATTP$id");
+    $at5input = "$at4input .rATT";
+    $attachments = "";
+    $additionalContent = $this->system->Change([
+     [
+      "[Extras.ContentType]" => "Product",
+      "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+      "[Extras.DesignView.Origin]" => $_DesignViewEditor,
+      "[Extras.DesignView.Destination]" => "UIV$id",
+      "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+      "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
+      "[Extras.ID]" => $id,
+      "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+     ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+    ]);
+    $bundledProducts = "";
+    $dlc = "";
+    $editorLiveView = base64_encode("LiveView:EditorMossaic");
+    if($editor == "Architecture") {
+     $r = $this->system->Element([
+      "h1", $editor
+     ]).$this->system->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->system->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    } elseif($editor == "Donation") {
+     $r = $this->system->Element([
+      "h1", $editor
+     ]).$this->system->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->system->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    } elseif($editor == "Download") {
+     $r = $this->system->Element([
+      "h1", $editor
+     ]).$this->system->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->system->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    } elseif($editor == "Product") {
+     // DELIVERABLES / GENERAL EDITOR (TEMP)
+
+    // BEGIN GENERAL EDITOR (TEMP)
     $action = $this->system->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditProduct$id",
      "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
-    ]]);
-    $attachments = "";
-    $bundledProducts = "";
-    $dlc = "";
+    ]]); // INTEGRATE INTO EACH EDITOR'S TEMPLATE
     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
     $product = $this->system->FixMissing($product, [
      "Description",
@@ -43,20 +114,6 @@
      "Price",
      "Title"
     ]);
-    $title = $product["Title"] ?? "Product";
-    $at = base64_encode("Added to $title!");
-    $at2input = ".ATTI$id";
-    $at2 = base64_encode("Set as Product Cover Photo:$at2input");
-    $at2input = "$at2input .rATT";
-    $at3input = ".ATTDLC$id";
-    $at3 = base64_encode("Add Downloadable Content to $title:$at3input");
-    $at3input = "$at3input .rATT";
-    $at4input = ".ATTF$id";
-    $at4 = base64_encode("Add to $title Demo Files:$at4input");
-    $at4input = "$at4input .rATT";
-    $at5input = ".ATTP$id";
-    $at5 = base64_encode("Add to $title Bundle:.ATTP$id");
-    $at5input = "$at4input .rATT";
     $categories = ($y["Rank"] == md5("High Command")) ? [
      "ARCH" => "Architecture",
      "DLC" => "Downloadable",
@@ -73,8 +130,6 @@
     $coverPhoto = $product["ICO-SRC"] ?? "";
     $created = $product["Created"] ?? $this->system->timestamp;
     $expirationQuantities = [];
-    $designViewEditor = "UIE$id";
-    $editorLiveView = base64_encode("LiveView:EditorMossaic");
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
@@ -95,18 +150,7 @@
      $dlc = base64_encode(implode(";", $product["DLC"]));
     }
     $r = $this->system->Change([[
-     "[Product.AdditionalContent]" => $this->system->Change([
-      [
-       "[Extras.ContentType]" => "Product",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => $designViewEditor,
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
-      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[Product.AdditionalContent]" => $additionalContent,
      "[Product.Header]" => $header,
      "[Product.ID]" => $id,
      "[Product.Inputs]" => $this->system->RenderInputs([
@@ -271,7 +315,7 @@
         "Header" => 1,
         "HeaderText" => "Category"
        ],
-       "Name" => "ProductCategory",
+       "Name" => "Category",
        "Title" => "Category",
        "Type" => "Select",
        "Value" => $category
@@ -312,8 +356,8 @@
       [
        "Attributes" => [],
        "OptionGroup" => [
-        "Month" => "Month",
-        "Year" => "Year"
+        "month" => "Month",
+        "year" => "Year"
        ],
        "Options" => [
         "Container" => 1,
@@ -345,8 +389,8 @@
       [
        "Attributes" => [],
        "OptionGroup" => [
-        "Month" => "Month",
-        "Year" => "Year"
+        "month" => "Month",
+        "year" => "Year"
        ],
        "Options" => [
         "Container" => 1,
@@ -421,10 +465,28 @@
       "Value" => $privacy
      ])
     ], $this->system->Page("3e5dc31db9719800f28abbaa15ce1a37")]);
-    $r = [
-     "Action" => $action,
-     "Front" => $r
-    ];
+    // END GENERAL EDITOR (TEMP)
+
+    } elseif($editor == "Service") {
+     // INVOICE CREATOR
+     $r = $this->system->Element([
+      "h1", $editor
+     ]).$this->system->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->system->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    } elseif($editor == "Subscription") {
+     $r = $this->system->Element([
+      "h1", $editor
+     ]).$this->system->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->system->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    }
    }
    return $this->system->JSONResponse([
     "AccessCode" => $accessCode,
@@ -600,7 +662,11 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID", "Title", "new"]);
+   $data = $this->system->FixMissing($data, [
+    "ID",
+    "Title",
+    "new"
+   ]);
    $r = [
     "Body" => "The Product Identifier is missing."
    ];
@@ -632,10 +698,11 @@
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $id = $data["ID"];
+     $now = $this->system->timestamp;
      $product = $this->system->Data("Get", ["miny", $id]) ?? [];
      $attachments = [];
      $bundle = [];
-     $category = base64_decode($data["ProductCategory"]);
+     $category = base64_decode($data["Category"]);
      $categories = [
       "ARCH",
       "DLC",
@@ -655,7 +722,6 @@
      $modifiedBy = $product["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $newProducts = $shop["Products"] ?? [];
-     $now = $this->system->timestamp;
      $points = $this->system->core["PTS"];
      $profit = $data["Profit"] ?? 0.00;
      $quantity = $data["Quantity"] ?? "-1";
@@ -746,29 +812,32 @@
       "Title" => $title,
       "UN" => $username
      ];
-     /*$this->system->Data("Save", ["miny", $id, $product]);
-     $this->system->Data("Save", ["shop", md5($you), $shop]);*/
+     /* SAVING CORRUPTS THE PRODUCT DB
+     $this->system->Data("Save", ["miny", $id, $product]);
+     $this->system->Data("Save", ["shop", md5($you), $shop]);
+     */
      $r = [
-      "Body" => "The Product <em>".$product["Title"]."</em> has been $actionTaken!",
-      "Header" => "Done"
+      "Body" => "The Product <em>".$product["Title"]."</em> has been $actionTaken! We're debugging this view at the moment, so nothing will actually happen.",
+      "Header" => "Done",
+      "Scrollable" => json_encode($product, true)
      ];
      if($new == 1) {
       $subscribers = $shop["Subscribers"] ?? [];
       $y["Points"] = $y["Points"] + $points;
-      $this->system->Data("Save", ["mbr", md5($you), $y]);
+      #$this->system->Data("Save", ["mbr", md5($you), $y]);
       foreach($subscribers as $key => $value) {
-       $this->system->SendBulletin([
+       /*$this->system->SendBulletin([
         "Data" => [
          "ProductID" => $id,
          "ShopID" => base64_encode(md5($you))
         ],
         "To" => $value,
         "Type" => "NewProduct"
-       ]);
+       ]);*/
       }
-      $this->system->Statistic("PROD");
+      #$this->system->Statistic("PROD");
      } else {
-      $this->system->Statistic("PRODu");
+      #$this->system->Statistic("PRODu");
      }
     }
    }

@@ -1162,6 +1162,7 @@
   }
   function TimePlus($timestamp, $amount = 1, $period = "month") {
    $date = new DateTime($timestamp);
+   $period = strtolower($period);
    switch($period) {
     case "month":
      $date->add(new DateInterval("P".$amount."M"));
@@ -1235,22 +1236,6 @@
    $sk = $_COOKIE["SK"] ?? "";
    $r = (!empty($sk)) ? $this->Credentials("UN", $sk) : $this->ID;
    return $r;
-  }
-  function WYSIWYG() {
-   return $this->RenderInputs([
-    [
-     "Attributes" => [
-      "class" => "req",
-      "disabled" => "true",
-      "name" => "Body"
-     ],
-     "Options" => [],
-     "Type" => "TextBox",
-     "Value" => ""
-    ]
-   ]).$this->Element([
-    "p", "Coming soon..."
-   ]);
   }
   public static function Extension($a = NULL) {
    $x = New System;
