@@ -2,7 +2,7 @@
  Class Search extends GW {
   function __construct() {
    parent::__construct();
-   $this->illegal = $this->system->core["SYS"]["Illegal"] ?? 777;
+   $this->illegal = $this->system->core["App"]["Illegal"] ?? 777;
    $this->lists = base64_encode("Search:Lists");
    $this->you = $this->system->Member($this->system->Username());
   }
@@ -18,7 +18,7 @@
    $pub = $data["pub"] ?? 0;
    $query = $data["query"] ?? "";
    $sl = $this->lists;
-   $sta = $this->system->core["SYS"]["SearchIDs"];
+   $sta = $this->system->core["App"]["SearchIDs"];
    $ck = (!empty($st) && in_array($st, $sta)) ? 1 : 0;
    $li = "query=$query&st=$st&v=$sl";
    $lit = md5($st.$this->system->timestamp.rand(0, 1776));

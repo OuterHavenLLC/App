@@ -2,7 +2,7 @@
  Class Product extends GW {
   function __construct() {
    parent::__construct();
-   $this->illegal = $this->system->core["SYS"]["Illegal"];
+   $this->illegal = $this->system->core["App"]["Illegal"] ?? 777;
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
@@ -14,7 +14,7 @@
    ]);
    $edit = base64_encode("Product:Edit");
    $editor = $data["Editor"];
-   $id = $data["ID"] ?? md5(uniqid("Shop_Product_$you"));
+   $id = $data["ID"] ?? md5(uniqid("ShopProduct$you-"));
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -22,12 +22,12 @@
    $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
    $r = [
     "Front" => $this->system->Change([[
-     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture"),
-     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation"),
-     "[Product.Download]" => base64_encode("v=$edit&Editor=Download"),
-     "[Product.Product]" => base64_encode("v=$edit&Editor=Product"),
-     "[Product.Service]" => base64_encode("v=$edit&Editor=Service"),
-     "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription")
+     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&new=1"),
+     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&new=1"),
+     "[Product.Download]" => base64_encode("v=$edit&Editor=Download&new=1"),
+     "[Product.Product]" => base64_encode("v=$edit&Editor=Product&new=1"),
+     "[Product.Service]" => base64_encode("v=$edit&Editor=Service&new=1"),
+     "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
     ], $this->system->Page($template)])
    ];
    if($this->system->ID == $you) {
@@ -36,7 +36,7 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($editor)) {
-    $_DesignViewEditor = "";
+    $_DesignViewEditor = "EditProduct$id";
     $action = ($new == 1) ? "Post" : "Update";
     $at = base64_encode("Added to Product!");
     $at2input = ".ATTI$id";
@@ -289,7 +289,7 @@
       ],
       [
        "Attributes" => [
-        "class" => "$designViewEditor Body Xdecode req",
+        "class" => $_DesignViewEditor." Body Xdecode req",
         "id" => "EditProductBody$id",
         "name" => "Body",
         "placeholder" => "Body"
@@ -665,6 +665,7 @@
    $data = $this->system->FixMissing($data, [
     "ID",
     "Title",
+    "Type",
     "new"
    ]);
    $r = [
@@ -677,22 +678,32 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
+   } elseif(empty($data["Type"])) {
+    $r = [
+     "Body" => "The Product Type is missing."
+    ];
    } elseif(!empty($data["ID"])) {
     $i = 0;
     $new = $data["new"] ?? 0;
-    $products = $this->system->DatabaseSet("PROD") ?? [];
     $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
+    $contributors = $shop["Contributors"] ?? [];
+    $isContributor = (!empty($contributors[$you])) ? 1 : 0;
     $title = $data["Title"] ?? "New Product";
-    foreach($products as $key => $value) {
-     $product = str_replace("c.oh.miny.", "", $value);
-     $product = $this->system->Data("Get", ["miny", $product]) ?? [];
-     $callSignsMatch = ($data["CallSign"] == $this->system->CallSign($product["Title"])) ? 1 : 0;
-     if($callSignsMatch == 1 && $id != $product["ID"] && $i == 0) {
-      $i++;
+    if($type != "Service") {
+     $products = $this->system->DatabaseSet("PROD") ?? [];
+     foreach($products as $key => $value) {
+      $product = str_replace("c.oh.miny.", "", $value);
+      $product = $this->system->Data("Get", ["miny", $product]) ?? [];
+      $callSignsMatch = ($data["CallSign"] == $this->system->CallSign($product["Title"])) ? 1 : 0;
+      $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
+      $ck3 = ($product["UN"] == $you) ? 1 : 0;
+      if($ck == 0 && $ck2 == 0 && $ck3 == 0) {
+       $i++;
+      }
      }
     } if($i > 0) {
-     $r = [
-      "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
+      $r = [
+       "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
      ];
     } else {
      $accessCode = "Accepted";
@@ -817,7 +828,7 @@
      $this->system->Data("Save", ["shop", md5($you), $shop]);
      */
      $r = [
-      "Body" => "The Product <em>".$product["Title"]."</em> has been $actionTaken! We're debugging this view at the moment, so nothing will actually happen.",
+      "Body" => "The Product <em>$title</em> has been $actionTaken! We're debugging this view at the moment, so nothing will actually happen.",
       "Header" => "Done",
       "Scrollable" => json_encode($product, true)
      ];

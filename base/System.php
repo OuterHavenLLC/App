@@ -156,7 +156,70 @@
   function Core() {
    # CORE PREFERENCES (save to db and remove list)
    $r = [
-    "IMG" => [
+    "App" => [
+     "Description" => "The Wild-West of the Internet.",
+     "FAB" => [md5("FreeAmericaRadio") => [
+      "Description" => "Bringing you the latest developments at Outer Haven, as well as a variety of other topics.",
+      "ICO" => "",
+      "ICO-SRC" => "",
+      "Listen" => $this->base,
+      "NSFW" => 0,
+      "Role" => 0,
+      "Title" => "Free America Radio",
+      "UN" => $this->ShopID,
+      "URL" => $this->base.":8000/listen.pls?sid=1"
+     ]],
+     "Illegal" => 777,
+     "Keywords" => "Outer Haven, social entertainment, artist tools, social media, social discovery, creative community, hidden, deep web, private network, empowering expression, connect to the world, videos, music, share, playlists, mixes, profiles, discovery, discover, join the world with privatized social networking, NSA-free",
+     "Name" => "Outer Haven",
+     "ProductCategories" => [
+      "ARCH" => "Architecture",
+      "DLC" => "Downloadable Content",
+      "DONATE" => "Donation",
+      "PHYS" => "Physical Service",
+      "SUB" => "Subscription"
+     ],
+     "SearchIDs" => [
+      "ADM-LLP",
+      "ADM-MassMail",
+      "BGP",
+      "BL",
+      "BLG",
+      "Bulletins",
+      "CA",
+      "CART",
+      "Contacts",
+      "ContactsChatList",
+      "ContactsProfileList",
+      "ContactsRequests",
+      "Contributors",
+      "DC",
+      "FAB",
+      "Feedback",
+      "Forums",
+      "Forums-Admin",
+      "Forums-Posts",
+      "Knowledge",
+      "Mainstream",
+      "MBR",
+      "MBR-ALB",
+      "MBR-BLG",
+      "MBR-CA",
+      "MBR-Forums",
+      "MBR-JE",
+      "MBR-LLP",
+      "MBR-SU",
+      "MBR-XFS",
+      "MiNY",
+      "PR",
+      "S-Blogger",
+      "SHOP",
+      "SHOP-Orders",
+      "SHOP-Products",
+      "XFS"
+     ]
+    ],
+    "Media" => [
      "CHECK" => "875be5c73e0671200587f26139501a8c.png",
      "CODE" => "78569ee93f82cf2cd9415e7c4ca5e65b.png",
      "CP" => "738389d58a41d5f26908a79964532b0f.jpg",
@@ -234,69 +297,6 @@
        "Title" => "Unlimited File Storage",
        "Term" => [1, "month"]
       ]
-     ],
-     "SYS" => [
-      "Description" => "The Wild-West of the Internet.",
-      "FAB" => [md5("FreeAmericaRadio") => [
-       "Description" => "Bringing you the latest developments at Outer Haven, as well as a variety of other topics.",
-       "ICO" => "",
-       "ICO-SRC" => "",
-       "Listen" => $this->base,
-       "NSFW" => 0,
-       "Role" => 0,
-       "Title" => "Free America Radio",
-       "UN" => $this->ShopID,
-       "URL" => $this->base.":8000/listen.pls?sid=1"
-      ]],
-      "Illegal" => 777,
-      "Keywords" => "Outer Haven, social entertainment, artist tools, social media, social discovery, creative community, hidden, deep web, private network, empowering expression, connect to the world, videos, music, share, playlists, mixes, profiles, discovery, discover, join the world with privatized social networking, NSA-free",
-      "ProductCategories" => [
-       "ARCH" => "Architecture",
-       "DLC" => "Downloadable Content",
-       "DONATE" => "Donation",
-       "PHYS" => "Physical Service",
-       "SUB" => "Subscription"
-      ],
-      "SearchIDs" => [
-       "ADM-LLP",
-       "ADM-MassMail",
-       "BGP",
-       "BL",
-       "BLG",
-       "Bulletins",
-       "CA",
-       "CART",
-       "Contacts",
-       "ContactsChatList",
-       "ContactsProfileList",
-       "ContactsRequests",
-       "Contributors",
-       "DC",
-       "FAB",
-       "Feedback",
-       "Forums",
-       "Forums-Admin",
-       "Forums-Posts",
-       "Knowledge",
-       "Mainstream",
-       "MBR",
-       "MBR-ALB",
-       "MBR-BLG",
-       "MBR-CA",
-       "MBR-Forums",
-       "MBR-JE",
-       "MBR-LLP",
-       "MBR-SU",
-       "MBR-XFS",
-       "MiNY",
-       "PR",
-       "S-Blogger",
-       "SHOP",
-       "SHOP-Orders",
-       "SHOP-Products",
-       "XFS"
-      ],
-      "Title" => "Outer Haven"
      ],
      "XFS" => [
       "FT" => [
@@ -497,7 +497,7 @@
    return $r;
   }
   function GetCopyrightInformation() {
-   $ttl = $this->core["SYS"]["Title"];
+   $ttl = $this->core["App"]["Name"];
    return $this->Element([
     "p", "Copyright &copy; 2017-".date("Y")." <em>$ttl</em>.",
     ["class" => "CenterText"]
@@ -795,7 +795,7 @@
   }
   function ProductCategory($a) {
    $i = 0;
-   foreach($this->core["SYS"]["ProductCategories"] as $k => $v) {
+   foreach($this->core["App"]["ProductCategories"] as $k => $v) {
     if($i == 0 && $a == $k) {
      $r = $v;
     }
@@ -1037,12 +1037,12 @@
   function Setup(string $a) {
    $documentRoot = $this->DocumentRoot;
    if(!empty($a)) {
-    if($a == "FAR") {
-     $a = "$documentRoot/far/FAR.conf";
-     $template = "";
-    } elseif($a == "SYS") {
+    if($a == "App") {
      $a = "$documentRoot/.htaccess";
      $template = "97291f4b155f663aa79cc8b624323c5b";
+    } elseif($a == "FAB") {
+     $a = "$documentRoot/fab/FAB.conf";
+     $template = "";
     }
     $d = fopen($a, "w+");
     fwrite($d, $this->Page($template));
@@ -1266,7 +1266,7 @@
   public static function SystemImage($a = NULL) {
    $x = New System;
    if(!empty($a)) {
-    $r = $x->efs.$x->ID."/".$x->core["IMG"][$a[1]];
+    $r = $x->efs.$x->ID."/".$x->core["Media"][$a[1]];
     $x->__destruct();
     return $r;
    }

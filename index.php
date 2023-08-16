@@ -10,7 +10,7 @@
  $gw = New GW;
  $view = $data["v"] ?? "";
  $r = "";
- $gw->system->Setup("SYS");
+ $gw->system->Setup("App");
  if($api == "Design") {
   header("content-type: text/CSS");
   $r = $gw->system->Page("d4efcd44be4b2ef2a395f0934a9e446a");
@@ -52,7 +52,7 @@
    $r = $gw->view($view, ["Data" => $data]);
   }
  } else {
-  $_ViewTitle = $gw->system->core["SYS"]["Title"];
+  $_ViewTitle = $gw->system->core["App"]["Name"];
   $c = $data["_cmd"] ?? "";
   $c = (!empty($c)) ? explode("/", urldecode($c)) : [$c];
   $c = $gw->system->FixMissing($c, [0, 1, 2, 3]);
@@ -185,8 +185,8 @@
   }
   $r = $gw->system->Change([[
    "[Body]" => $gw->system->RenderView($r),
-   "[Description]" => $gw->system->core["SYS"]["Description"],
-   "[Keywords]" => $gw->system->core["SYS"]["Keywords"],
+   "[Description]" => $gw->system->core["App"]["Description"],
+   "[Keywords]" => $gw->system->core["App"]["Keywords"],
    "[Title]" => $_ViewTitle
   ], $gw->system->PlainText([
    "BBCodes" => 1,

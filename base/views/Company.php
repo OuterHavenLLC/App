@@ -39,7 +39,7 @@
   }
   function Home(array $a) {
    $accessCode = "Accepted";
-   $b2 = urlencode($this->system->core["SYS"]["Title"]);
+   $b2 = urlencode($this->system->core["App"]["Name"]);
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $sid = base64_encode($this->system->ShopID);

@@ -327,9 +327,14 @@
   }
   function Home(array $a) {
    $accessCode = "Denied";
-   $_ViewTitle = $this->system->core["SYS"]["Title"];
+   $_ViewTitle = $this->system->core["App"]["Name"];
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["CARD", "UN", "b2", "lPG"]);
+   $data = $this->system->FixMissing($data, [
+    "CARD",
+    "UN",
+    "b2",
+    "lPG"
+   ]);
    $b2 = $data["b2"];
    $back = $data["back"] ?? 0;
    $back = ($back == 1) ? $this->system->Element(["button", "Back to $b2", [

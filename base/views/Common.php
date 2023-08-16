@@ -436,7 +436,7 @@
     if(in_array($type, $types)) {
      $accessCode = "Accepted";
      $id = explode(";", base64_decode($id));
-     $limit = $this->system->core["SYS"]["Illegal"] ?? 777;
+     $limit = $this->system->core["App"]["Illegal"] ?? 777;
      $weight = ($type == "CriminalActs") ? ($limit / 1000) : 0;
      $weight = ($type == "ChildPorn") ? ($limit / 3) : $weight;
      $weight = ($type == "FairUse") ? ($limit / 100000) : $weight;
