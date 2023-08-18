@@ -88,12 +88,11 @@
        $commission = number_format($commission, 2);
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop["Open"] = 0;
+       $this->system->Data("Save", ["shop", md5($you), $shop]);
        $r = $this->system->Change([[
         "[Commission.Pay]" => base64_encode("v=".base64_encode("Pay:Commission")."&amount=".base64_encode($commission)),
         "[Commission.Total]" => $commission
        ], $this->system->Page("f844c17ae6ce15c373c2bd2a691d0a9a")]);
-       $this->system->Data("Save", ["shop", md5($you), $shop]);
-       $this->system->Data("Save", ["mbr", md5($you), $y]);
       } else {
        $r = $this->system->Change([[
         "[Artist.Charts]" => "",

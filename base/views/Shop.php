@@ -509,12 +509,12 @@
   }
   function EditPartner(array $a) {
    $accessCode = "Denied";
+   $action = "";
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, ["UN", "new"]);
    $r = [
     "Body" => "The Partner Identifier is missing."
    ];
-   $frbtn = "";
    $new = $data["new"] ?? 0;
    $username = (!empty($data["UN"])) ? base64_decode($data["UN"]) : "";
    $y = $this->you;
@@ -524,6 +524,7 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($username) || $new == 1) {
+    $accessCode = "Accepted";
     if($new == 1) {
      $action = "Hire";
      $company = "Company";
