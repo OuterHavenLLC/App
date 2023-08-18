@@ -1036,13 +1036,11 @@
   }
   function Setup(string $a) {
    $documentRoot = $this->DocumentRoot;
+   $template = "";
    if(!empty($a)) {
     if($a == "App") {
      $a = "$documentRoot/.htaccess";
      $template = "97291f4b155f663aa79cc8b624323c5b";
-    } elseif($a == "FAB") {
-     $a = "$documentRoot/fab/FAB.conf";
-     $template = "";
     }
     $d = fopen($a, "w+");
     fwrite($d, $this->Page($template));

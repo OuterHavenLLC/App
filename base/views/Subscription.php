@@ -73,25 +73,23 @@
       $income = $income[$_LastMonth[0]] ?? [];
       $income = $income[$_LastMonth[1]] ?? [];
       $paidCommission = $income["PaidCommission"] ?? 0;
-      if($commission > 0 && $paidCommission == 0) {
-       $sales = $income["Sales"] ?? [];
-       $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
-       foreach($sales as $day => $salesGroup) {
-        foreach($salesGroup as $daySales => $daySale) {
-         foreach($daySale as $id => $product) {
-          $price = $product["Cost"] + $product["Profit"];
-          $price = $price * $product["Quantity"];
-          $price = number_format($price, 2);
-          $commission = $commission + $price;
-         }
+      $sales = $income["Sales"] ?? [];
+      foreach($sales as $day => $salesGroup) {
+       foreach($salesGroup as $daySales => $daySale) {
+        foreach($daySale as $id => $product) {
+         $price = $product["Cost"] + $product["Profit"];
+         $price = $price * $product["Quantity"];
+         $price = number_format($price, 2);
+         $commission = $commission + $price;
         }
        }
+      } if($commission > 0 && $paidCommission == 0) {
+       $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
        $commission = number_format($commission, 2);
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop["Open"] = 0;
        $r = $this->system->Change([[
-        "[Commission.FSTID]" => md5("Commission_Pay"),
-        "[Commission.Pay]" => "v=".base64_encode("Pay:Commission")."&amount=".base64_encode($commission),
+        "[Commission.Pay]" => base64_encode("v=".base64_encode("Pay:Commission")."&amount=".base64_encode($commission)),
         "[Commission.Total]" => $commission
        ], $this->system->Page("f844c17ae6ce15c373c2bd2a691d0a9a")]);
        $this->system->Data("Save", ["shop", md5($you), $shop]);
@@ -99,19 +97,13 @@
       } else {
        $r = $this->system->Change([[
         "[Artist.Charts]" => "",
-        "[Artist.Contributors]" => $this->view($search, ["Data" => [
-         "ID" => base64_encode(md5($you)),
-         "Type" => base64_encode("Shop"),
-         "st" => "Contributors"
-        ]]),
+        "[Artist.Contributors]" => base64_encode("v=$search&ID=".base64_encode(md5($you))."&Type=".base64_encode("Shop")."&st=Contributors"),
         "[Artist.CoverPhoto]" => $this->system->PlainText([
          "Data" => "[sIMG:CP]",
          "Display" => 1
         ]),
         "[Artist.Hire]" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1"),
-        "[Artist.Orders]" => $this->view($search, ["Data" => [
-         "st" => "SHOP-Orders"
-        ]]),
+        "[Artist.Orders]" => base64_encode("v=$search&st=SHOP-Orders"),
         "[Artist.ID]" => md5($you),
         "[Artist.Payroll]" => base64_encode("v=".base64_encode("Shop:Payroll")),
         "[Artist.Revenue]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($you))
