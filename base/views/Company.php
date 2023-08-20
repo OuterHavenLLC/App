@@ -39,7 +39,7 @@
   }
   function Home(array $a) {
    $accessCode = "Accepted";
-   $b2 = urlencode($this->system->core["App"]["Name"]);
+   $b2 = urlencode($this->system->config["App"]["Name"]);
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $sid = base64_encode($this->system->ShopID);
@@ -309,7 +309,7 @@
     foreach($value as $key2 => $value2) {
      $ks = "";
      foreach($value2 as $key3 => $value3) {
-      $stat = $this->system->core["STAT"][$key3] ?? $key3;
+      $stat = $this->system->config["STAT"][$key3] ?? $key3;
       $ks .= $this->system->Change([[
        "[Statistics.Statistic]" => $this->system->Change([[
         $key3 => $stat

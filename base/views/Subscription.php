@@ -12,7 +12,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    foreach($y["Subscriptions"] as $key => $value) {
-    $subscription = $this->system->core["SUB"][$key] ?? [];
+    $subscription = $this->system->config["SUB"][$key] ?? [];
     if(!empty($subscription)) {
      $subscription = $this->system->Element([
       "button", $this->system->Element([
@@ -53,7 +53,7 @@
    $s = $data["sub"] ?? base64_encode("");
    $s = base64_decode($s);
    $search = base64_encode("Search:Containers");
-   $sub = $this->system->core["SUB"][$s] ?? [];
+   $sub = $this->system->config["SUB"][$s] ?? [];
    $r = [
     "Body" => "The Subscription Identifier is missing."
    ];

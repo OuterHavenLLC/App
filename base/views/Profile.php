@@ -327,7 +327,7 @@
   }
   function Home(array $a) {
    $accessCode = "Denied";
-   $_ViewTitle = $this->system->core["App"]["Name"];
+   $_ViewTitle = $this->system->config["App"]["Name"];
    $data = $a["Data"] ?? [];
    $data = $this->system->FixMissing($data, [
     "CARD",
@@ -762,7 +762,7 @@
   function Preferences(array $a) {
    $accessCode = "Denied";
    $action = "";
-   $minAge = $this->system->core["minRegAge"] ?? 13;
+   $minAge = $this->system->config["minRegAge"] ?? 13;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $ck = ($y["Personal"]["Age"] >= $minAge) ? 1 : 0;
@@ -1287,7 +1287,7 @@
     $newMember["Personal"]["FirstName"] = $firstName;
     $newMember["Personal"]["CoverPhoto"] = $y["Personal"]["CoverPhoto"];
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
-    $newMember["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+    $newMember["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
     $newMember["Rank"] = $y["Rank"];
     $this->system->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!";
@@ -1540,7 +1540,7 @@
     "SOE",
     "Username"
    ]);
-   $_MinimumAge = $this->system->core["minRegAge"];
+   $_MinimumAge = $this->system->config["minRegAge"];
    $birthYear = $data["BirthYear"] ?? 1995;
    $age = date("Y") - $birthYear;
    $ck = ($age > $_MinimumAge) ? 1 : 0;
@@ -1781,7 +1781,7 @@
    $r = [
     "Front" => $this->system->Change([[
      "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
-     "[SignUp.MinimumAge]" => $this->system->core["minAge"],
+     "[SignUp.MinimumAge]" => $this->system->config["minAge"],
      "[SignUp.Basic]" => $this->system->RenderInputs([
       [
        "Attributes" => [

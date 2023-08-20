@@ -462,7 +462,7 @@
       $blog["Posts"] = array_unique($blog["Posts"]);
      }
      $y["Activity"]["LastActive"] = $now;
-     $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+     $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
      $this->system->Data("Save", ["blg", $data["BLG"], $blog]);
      $this->system->Data("Save", ["bp", $id, $post]);
      $this->system->Data("Save", ["mbr", md5($you), $y]);

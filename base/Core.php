@@ -10,7 +10,7 @@
     $this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
     $this->ShopID = "Mike";
     $this->base = $this->ConfigureBaseURL();
-    $this->core = $this->Core();
+    $this->config = $this->Configuration();
     $this->efs = $this->ConfigureBaseURL("efs");
     $this->timestamp = date("Y-m-d h:i:sA");
     $this->region = $_COOKIE["region"] ?? "en_US";
@@ -76,7 +76,7 @@
    return $r;
   }
   function CheckFileType(array $a) {
-   $efs = $this->core["XFS"]["FT"];
+   $efs = $this->config["XFS"]["FT"];
    if(isset($a[1]) && in_array($a[1], $efs["_FT"])) {
     if($a[1] == $efs["_FT"][0]) {
      $all = $efs["A"];
@@ -124,37 +124,8 @@
    }
    return $r;
   }
-  function ConfigureBaseURL($a = NULL) {
-   $base = $_SERVER["HTTP_HOST"] ?? "outerhaven.nyc";
-   if($a == "efs") {
-    $r = "efs.$base/";
-   } else {
-    $r = $base;
-   }
-   return $this->ConfigureSecureHTTP().$r;
-  }
-  function ConfigureSecureHTTP() {
-   $r = $_SERVER["HTTPS"] ?? "on";
-   $r = (!empty($r) && $r == "on") ? "https" : "http";
-   return "$r://";
-  }
-  function ConvertCalendarMonths(int $a) {
-   $r = ($a == "01") ? "January" : $a;
-   $r = ($a == "02") ? "February" : $r;
-   $r = ($a == "03") ? "March" : $r;
-   $r = ($a == "04") ? "April" : $r;
-   $r = ($a == "05") ? "May" : $r;
-   $r = ($a == "06") ? "June" : $r;
-   $r = ($a == "07") ? "July" : $r;
-   $r = ($a == "08") ? "August" : $r;
-   $r = ($a == "09") ? "September" : $r;
-   $r = ($a == 10) ? "October" : $r;
-   $r = ($a == 11) ? "November" : $r;
-   $r = ($a == 12) ? "December" : $r;
-   return $r;
-  }
-  function Core() {
-   # CORE PREFERENCES (save to db and remove list)
+  function Configuration() {
+   # CONFIG PREFERENCES (save to db and remove list)
    $r = [
     "App" => [
      "Description" => "The Wild-West of the Internet.",
@@ -318,7 +289,36 @@
     "minAge" => 18,
     "minRegAge" => 13
    ];
-   $this->Data("Save", ["x", md5("core"), $r]);
+   $this->Data("Save", ["x", md5("config"), $r]);
+   return $r;
+  }
+  function ConfigureBaseURL($a = NULL) {
+   $base = $_SERVER["HTTP_HOST"] ?? "outerhaven.nyc";
+   if($a == "efs") {
+    $r = "efs.$base/";
+   } else {
+    $r = $base;
+   }
+   return $this->ConfigureSecureHTTP().$r;
+  }
+  function ConfigureSecureHTTP() {
+   $r = $_SERVER["HTTPS"] ?? "on";
+   $r = (!empty($r) && $r == "on") ? "https" : "http";
+   return "$r://";
+  }
+  function ConvertCalendarMonths(int $a) {
+   $r = ($a == "01") ? "January" : $a;
+   $r = ($a == "02") ? "February" : $r;
+   $r = ($a == "03") ? "March" : $r;
+   $r = ($a == "04") ? "April" : $r;
+   $r = ($a == "05") ? "May" : $r;
+   $r = ($a == "06") ? "June" : $r;
+   $r = ($a == "07") ? "July" : $r;
+   $r = ($a == "08") ? "August" : $r;
+   $r = ($a == "09") ? "September" : $r;
+   $r = ($a == 10) ? "October" : $r;
+   $r = ($a == 11) ? "November" : $r;
+   $r = ($a == 12) ? "December" : $r;
    return $r;
   }
   function CoverPhoto(string $a) {
@@ -497,7 +497,7 @@
    return $r;
   }
   function GetCopyrightInformation() {
-   $ttl = $this->core["App"]["Name"];
+   $ttl = $this->config["App"]["Name"];
    return $this->Element([
     "p", "Copyright &copy; 2017-".date("Y")." <em>$ttl</em>.",
     ["class" => "CenterText"]
@@ -510,7 +510,7 @@
    ]);
   }
   function GetSourceFromExtension(array $a) {
-   $_ALL = $this->core["XFS"]["FT"] ?? [];
+   $_ALL = $this->config["XFS"]["FT"] ?? [];
    $file = $a[1] ?? "";
    $source = "D.jpg";
    $r = $this->efs.$source;
@@ -584,7 +584,7 @@
     "SubscribeStar",
     "Username"
    ]);
-   $age = $a["Age"] ?? $this->core["minRegAge"];
+   $age = $a["Age"] ?? $this->config["minRegAge"];
    $birthMonth = $a["BirthMonth"] ?? 10;
    $birthYear = $a["BirthYear"] ?? 1995;
    $blogs = $a["Blogs"] ?? [];
@@ -795,7 +795,7 @@
   }
   function ProductCategory($a) {
    $i = 0;
-   foreach($this->core["App"]["ProductCategories"] as $k => $v) {
+   foreach($this->config["App"]["ProductCategories"] as $k => $v) {
     if($i == 0 && $a == $k) {
      $r = $v;
     }
@@ -1083,9 +1083,9 @@
   }
   function SQL(string $query, array $values) {
    try {
-    $core = $this->core["SQL"] ?? [];
+    $config = $this->config["SQL"] ?? [];
     $sql = "mysql:host=localhost;dbname=ReSearch";
-    $sql = new PDO($sql, $core["Username"], base64_decode($core["Password"]), [
+    $sql = new PDO($sql, $config["Username"], base64_decode($config["Password"]), [
      PDO::ATTR_PERSISTENT => true,
      PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     ]);
@@ -1264,7 +1264,7 @@
   public static function SystemImage($a = NULL) {
    $x = New System;
    if(!empty($a)) {
-    $r = $x->efs.$x->ID."/".$x->core["Media"][$a[1]];
+    $r = $x->efs.$x->ID."/".$x->config["Media"][$a[1]];
     $x->__destruct();
     return $r;
    }

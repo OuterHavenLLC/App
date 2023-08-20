@@ -2,7 +2,7 @@
  Class Search extends GW {
   function __construct() {
    parent::__construct();
-   $this->illegal = $this->system->core["App"]["Illegal"] ?? 777;
+   $this->illegal = $this->system->config["App"]["Illegal"] ?? 777;
    $this->lists = base64_encode("Search:Lists");
    $this->you = $this->system->Member($this->system->Username());
   }
@@ -18,7 +18,7 @@
    $pub = $data["pub"] ?? 0;
    $query = $data["query"] ?? "";
    $sl = $this->lists;
-   $sta = $this->system->core["App"]["SearchIDs"];
+   $sta = $this->system->config["App"]["SearchIDs"];
    $ck = (!empty($st) && in_array($st, $sta)) ? 1 : 0;
    $li = "query=$query&st=$st&v=$sl";
    $lit = md5($st.$this->system->timestamp.rand(0, 1776));
@@ -297,7 +297,7 @@
     } elseif($st == "MBR-XFS") {
      $aid = $data["AID"] ?? md5("unsorted");
      $fs = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
-     $xfsLimit = $this->system->core["XFS"]["limits"]["Total"] ?? 0;
+     $xfsLimit = $this->system->config["XFS"]["limits"]["Total"] ?? 0;
      $xfsLimit = $xfsLimit."MB";
      $xfsUsage = 0;
      foreach($fs["Files"] as $key => $value) {
@@ -450,7 +450,7 @@
    $base = $this->system->base;
    $blu = base64_encode("Common:SaveBlacklist");
    $data = $a["Data"] ?? [];
-   $key = $this->system->core["SQL"]["Key"];
+   $key = $this->system->config["SQL"]["Key"];
    $b2 = $data["b2"] ?? "Search";
    $i = 0;
    $msg = [];
@@ -559,7 +559,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "UN" => $post["UN"],
        "Y" => $you
       ]);
-      $ck2 = ($post["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+      $ck2 = ($post["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
       $illegal = $post["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && ($ck == 1 && $ck2 == 1) && $illegal == 0) {
@@ -691,7 +691,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $blog = $this->system->Data("Get", ["blg", $value]) ?? [];
      $cms = $this->system->Data("Get", ["cms", md5($blog["UN"])]);
      $bl = $this->system->CheckBlocked([$y, "Blogs", $blog["ID"]]);
-     $ck = ($y["Personal"]["Age"] >= $this->system->core["minAge"] || $bg["NSFW"] == 0) ? 1 : 0;
+     $ck = ($y["Personal"]["Age"] >= $this->system->config["minAge"] || $bg["NSFW"] == 0) ? 1 : 0;
      $ck2 = $this->system->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $blog["Privacy"],
@@ -760,7 +760,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        md5($t["Login"]["Username"])
       ]) ?? [];
       $ck = ($Page["Category"] == $st) ? 1 : 0;
-      $ck2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+      $ck2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
       $ck3 = (($st == "CA" && $Page["Category"] == "CA") || ($st == "PR" && $Page["Category"] == "PR")) ? 1 : 0;
       $ck4 = $this->system->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
@@ -1225,7 +1225,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $t = ($forum["UN"] == $you) ? $y : $this->system->Member($forum["UN"]);
      $cms = $this->system->Data("Get", ["cms", md5($t["Login"]["Username"])]);
      $ck = $forum["Open"] ?? 0;
-     $ck2 = ($y["Personal"]["Age"] >= $this->system->core["minAge"] || $forum["NSFW"] == 0) ? 1 : 0;
+     $ck2 = ($y["Personal"]["Age"] >= $this->system->config["minAge"] || $forum["NSFW"] == 0) ? 1 : 0;
      $ck3 = $this->system->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $forum["Privacy"],
@@ -1326,7 +1326,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $op = ($forum["UN"] == $you) ? $y : $this->system->Member($post["From"]);
       $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
-      $ck2 = ($y["Personal"]["Age"] >= $this->system->core["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
+      $ck2 = ($y["Personal"]["Age"] >= $this->system->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
       $ck3 = $this->system->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $post["Privacy"],
@@ -1426,7 +1426,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $bl = $this->system->CheckBlocked([
       $k, "Broadcasters", $y["Login"]["Username"]
      ]);
-     $ck = ($v["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->system->core["MinAge"]) ? 1 : 0;
+     $ck = ($v["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->system->config["MinAge"]) ? 1 : 0;
      if($bl == 0 && $ck == 1) {
       $ck = ($v["Role"] == 1 || $v["UN"] == $you) ? 1 : 0;
       $ico = (!empty($v["ICO"])) ? "$base/efs/".$v["ICO"] : $ico;
@@ -1483,7 +1483,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "cms",
        md5($op["Login"]["Username"])
       ]) ?? [];
-      $ck = ($y["Personal"]["Age"] >= $this->system->core["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
+      $ck = ($y["Personal"]["Age"] >= $this->system->config["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
       $ck2 = $this->system->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $op["Privacy"]["Posts"],
@@ -1609,7 +1609,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $nsfw = $v["NSFW"] ?? $t["Privacy"]["NSFW"];
       $pri = $v["Privacy"] ?? $t["Privacy"]["Albums"];
       $bl = $this->system->CheckBlocked([$y, "Albums", $abl]);
-      $ck = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+      $ck = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
       $ck2 = $this->system->CheckPrivacy([
        "Contacts" => $fr["Contacts"],
        "Privacy" => $pri,
@@ -1682,7 +1682,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $privacy = $tP["Profile"];
      $privacy = ($st == "CA") ? $tP["Contributions"] : $privacy;
      $privacy = ($st == "JE") ? $tP["Journal"] : $privacy;
-     $ck = ($Page["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+     $ck = ($Page["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
      $ck2 = $this->system->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $privacy,
@@ -1775,7 +1775,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "cms",
        md5($op["Login"]["Username"])
       ]) ?? [];
-      $ck = ($y["Personal"]["Age"] >= $this->system->core["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
+      $ck = ($y["Personal"]["Age"] >= $this->system->config["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
       $ck2 = $this->system->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $su["Privacy"],
@@ -1889,7 +1889,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     foreach($products as $key => $v) {
      $p = $this->system->Data("Get", ["miny", $v]) ?? [];
      $bl = $this->system->CheckBlocked([$y, "Products", $p["ID"]]);
-     $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+     $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
      $ck2 = (strtotime($this->system->timestamp) < $p["Expires"]) ? 1 : 0;
      $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
@@ -1926,7 +1926,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $bl = $this->system->CheckBlocked([$y, "Blogs", $value]);
      $bg = $this->system->Data("Get", ["blg", $value]) ?? [];
      $ck = ($bg["UN"] == $you) ? 1 : 0;
-     $ck2 = ($bg["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+     $ck2 = ($bg["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
      $illegal = $bg["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($bl == 0 && ($ck == 1 || $ck2 == 1) && $illegal == 0) {
@@ -2052,7 +2052,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $p = $this->system->Data("Get", ["miny", $p]) ?? [];
        $bl = $this->system->CheckBlocked([$y, "Products", $p["ID"]]);
        $une = base64_encode($v["Login"]["Username"]);
-       $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+       $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
        $ck2 = (strtotime($this->system->timestamp) < $p["Expires"]) ? 1 : 0;
        $ck3 = $v["Subscriptions"]["Artist"]["A"] ?? 0;
        $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
@@ -2110,7 +2110,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "cms",
         md5($op["Login"]["Username"])
        ]) ?? [];
-       $ck = ($y["Personal"]["Age"] >= $this->system->core["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
+       $ck = ($y["Personal"]["Age"] >= $this->system->config["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
        $ck2 = $this->system->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $op["Privacy"]["Posts"],

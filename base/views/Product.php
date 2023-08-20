@@ -2,7 +2,7 @@
  Class Product extends GW {
   function __construct() {
    parent::__construct();
-   $this->illegal = $this->system->core["App"]["Illegal"] ?? 777;
+   $this->illegal = $this->system->config["App"]["Illegal"] ?? 777;
    $this->you = $this->system->Member($this->system->Username());
   }
   function Edit(array $a) {
@@ -549,7 +549,7 @@
      md5($t["Login"]["Username"])
     ]) ?? [];
     $bl = $this->system->CheckBlocked([$y, "Products", $id]);
-    $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->core["minAge"])) ? 1 : 0;
+    $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
     $ck2 = (strtotime($this->system->timestamp) < $product["Expires"]) ? 1 : 0;
     $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
     $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
@@ -733,7 +733,7 @@
      $modifiedBy = $product["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $newProducts = $shop["Products"] ?? [];
-     $points = $this->system->core["PTS"];
+     $points = $this->system->config["PTS"];
      $profit = $data["Profit"] ?? 0.00;
      $quantity = $data["Quantity"] ?? "-1";
      $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);

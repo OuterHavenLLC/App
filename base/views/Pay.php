@@ -30,7 +30,7 @@
      "PayPalEmailLive"
     ]);
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
-    $paymentProcessors = $this->system->core["MiNY"]["PaymentProcessors"] ?? [];
+    $paymentProcessors = $this->system->config["MiNY"]["PaymentProcessors"] ?? [];
     if($paymentProcessor == "Braintree") {
      require_once($this->bt);
      $envrionment = ($shop["Live"] == 1) ? "production" : "sandbox";
@@ -552,7 +552,7 @@
        "Display" => 1
       ]);
       $coverPhoto = base64_encode($coverPhoto);
-      $points = $this->system->core["PTS"]["Products"];
+      $points = $this->system->config["PTS"]["Products"];
       $quantity = $product["Quantity"] ?? 1;
       $subscriptionTerm = $product["SubscriptionTerm"] ?? "month";
       if($category == "ARCH") {
@@ -910,7 +910,7 @@
     $ck = (!empty($data["order_ID"])) ? 1 : 0;
    } if($ck == 1) {
     $_MiNYContributors = $shop["Contributors"] ?? [];
-    $points = $this->system->core["PTS"]["Donations"] ?? 100;
+    $points = $this->system->config["PTS"]["Donations"] ?? 100;
     $saleType = (!empty($data["st"])) ? base64_decode($data["st"]) : "";
     $now = $this->system->timestamp;
     if($saleType == "Commission") {

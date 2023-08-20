@@ -142,7 +142,7 @@
     "Body" => "The Album Identifier is missing.",
     "Header" => "Not Found"
    ];
-   $xfsLimit = $this->system->core["XFS"]["limits"]["Total"] ?? 0;
+   $xfsLimit = $this->system->config["XFS"]["limits"]["Total"] ?? 0;
    $xfsLimit = str_replace(",", "", $xfsLimit)."MB";
    $xfsUsage = 0;
    $y = $this->you;

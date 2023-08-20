@@ -303,7 +303,7 @@
      "To" => $to
     ];
     $y["Activity"]["LastActivity"] = $this->system->timestamp;
-    $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+    $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
     $this->system->Data("Save", ["su", $update["ID"], $update]);
     $this->system->Data("Save", ["mbr", md5($you), $y]);
     $r = [

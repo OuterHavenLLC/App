@@ -568,7 +568,7 @@
       if($username == $you) {
        array_push($y["Blogs"], $id);
        $y["Blogs"] = array_unique($y["Blogs"]);
-       $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+       $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
       }
      }
      $this->system->Data("Save", ["blg", $id, [

@@ -341,7 +341,7 @@
      array_push($posts, $id);
      $forum["Posts"] = $posts;
      $y["Activity"]["LastActive"] = $now;
-     $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+     $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
      $this->system->Data("Save", ["pf", $fid, $forum]);
      $this->system->Data("Save", ["mbr", md5($you), $y]);
     }

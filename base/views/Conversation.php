@@ -211,7 +211,7 @@
       $t = ($v["From"] == $you) ? $y : $this->system->Member($v["From"]);
       $bl = $this->system->CheckBlocked([$y, "Comments", $k]);
       $cms = $this->system->Data("Get", ["cms", md5($v["From"])]) ?? [];
-      $ck = ($v["NSFW"] == 0 || ($y["age"] >= $this->system->core["minAge"])) ? 1 : 0;
+      $ck = ($v["NSFW"] == 0 || ($y["age"] >= $this->system->config["minAge"])) ? 1 : 0;
       $ck2 = $this->system->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $v["Privacy"],
@@ -278,7 +278,7 @@
        md5($t["Login"]["Username"])
       ]) ?? [];
       $ck = ($cid == $v["CommentID"]) ? 1 : 0;
-      $ck2 = ($v["NSFW"] == 0 || ($y["age"] >= $this->system->core["minAge"])) ? 1 : 0;
+      $ck2 = ($v["NSFW"] == 0 || ($y["age"] >= $this->system->config["minAge"])) ? 1 : 0;
       $ck3 = $this->system->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $v["Privacy"],
@@ -346,7 +346,7 @@
        md5($t["Login"]["Username"])
       ]) ?? [];
       $ck = ($cid == $v["CommentID"]) ? 1 : 0;
-      $ck2 = ($v["NSFW"] == 0 || ($y["age"] >= $this->system->core["minAge"])) ? 1 : 0;
+      $ck2 = ($v["NSFW"] == 0 || ($y["age"] >= $this->system->config["minAge"])) ? 1 : 0;
       $ck3 = $this->system->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $v["Privacy"],

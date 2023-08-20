@@ -616,7 +616,7 @@
         "Display" => 1
        ]);
        $id = $product["ID"];
-       $pts = $this->system->core["PTS"]["Products"];
+       $pts = $this->system->config["PTS"]["Products"];
        $qty = $product["Quantity"] ?? 0;
        $qty2 = $product["QTY"] ?? 0;
        if($cat == "ARCH") {

@@ -628,7 +628,7 @@
      $y["Forums"] = array_unique($y["Forums"]);
      $manifest = [];
      $manifest[$y["Login"]["Username"]] = "Admin";
-     $points = $this->system->core["PTS"]["NewContent"] ?? 0;
+     $points = $this->system->config["PTS"]["NewContent"] ?? 0;
      $y["Points"] = $y["Points"] + $points;
      $y["Activity"]["LastActive"] = $now;
      $this->system->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);

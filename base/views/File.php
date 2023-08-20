@@ -417,7 +417,7 @@
     ]) : $files;
     $file = $files[$id] ?? [];
     $newFiles = [];
-    $points = $this->system->core["PTS"]["DeleteFile"];
+    $points = $this->system->config["PTS"]["DeleteFile"];
     $r = "The File <strong>#$id</strong> could not be found.";
     if(!empty($file["AID"])) {
      $albumID = $file["AID"];
@@ -585,7 +585,7 @@
    } else {
     header("Content-Type: application/json");
     $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
-    $_DLC = $this->system->core["XFS"]["FT"] ?? [];
+    $_DLC = $this->system->config["XFS"]["FT"] ?? [];
     $username = base64_decode($username);
     $_HC = ($this->system->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
     $albumID = $data["AID"] ?? base64_encode(md5("unsorted"));
@@ -602,7 +602,7 @@
     $privacy = base64_decode($privacy);
     $root = $_SERVER["DOCUMENT_ROOT"]."/efs/$username/";
     $uploads = $a["Files"] ?? [];
-    $xfsLimits = $this->system->core["XFS"]["limits"] ?? [];
+    $xfsLimits = $this->system->config["XFS"]["limits"] ?? [];
     $xfsLimit = str_replace(",", "", $xfsLimits["Total"]);
     $xfsUsage = 0;
     foreach($files as $key => $info) {
@@ -627,19 +627,19 @@
      $tmp = $uploads["tmp_name"][$key];
      if(in_array($ext, $_DLC["A"])) {
       $ck3 = ($size2 < $xfsLimits["Audio"]) ? 1 : 0;
-      $type = $this->system->core["XFS"]["FT"]["_FT"][0];
+      $type = $this->system->config["XFS"]["FT"]["_FT"][0];
      } elseif(in_array($ext, $_DLC["P"])) {
       $ck3 = ($size2 < $xfsLimits["Images"]) ? 1 : 0;
-      $type = $this->system->core["XFS"]["FT"]["_FT"][2];
+      $type = $this->system->config["XFS"]["FT"]["_FT"][2];
      } elseif(in_array($ext, $_DLC["D"])) {
       $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
-      $type = $this->system->core["XFS"]["FT"]["_FT"][1];
+      $type = $this->system->config["XFS"]["FT"]["_FT"][1];
      } elseif(in_array($ext, $_DLC["V"])) {
       $ck3 = ($size2 < $xfsLimits["Videos"]) ? 1 : 0;
-      $type = $this->system->core["XFS"]["FT"]["_FT"][3];
+      $type = $this->system->config["XFS"]["FT"]["_FT"][3];
      } else {
       $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
-      $type = $this->system->core["XFS"]["FT"]["_FT"][1];
+      $type = $this->system->config["XFS"]["FT"]["_FT"][1];
      }
      $fileCheck = [
       "Checks" => [
@@ -711,7 +711,7 @@
         $_FileSystem = $_FileSystem ?? [];
         $_FileSystem["Albums"] = $albums;
         $_FileSystem["Files"] = $files;
-        if(in_array($ext, $this->system->core["XFS"]["FT"]["P"])) {
+        if(in_array($ext, $this->system->config["XFS"]["FT"]["P"])) {
          $thumbnail = $this->system->Thumbnail([
           "File" => $name,
           "Username" => $you
@@ -719,7 +719,7 @@
          $_FileSystem["Albums"][$albumID]["ICO"] = $thumbnail;
         }
         $_FileSystem["Albums"][$albumID]["Modified"] = $now;
-        $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+        $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
         $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
         $this->system->Data("Save", ["mbr", md5($you), $y]);
        }
@@ -772,7 +772,7 @@
     $username = $data["UN"] ?? $you;
     $fileSystem = $this->system->Data("Get", ["fs", md5($username)]) ?? [];
     $files = $fileSystem["Files"] ?? [];
-    $xfsLimit = $this->system->core["XFS"]["limits"]["Total"] ?? 0;
+    $xfsLimit = $this->system->config["XFS"]["limits"]["Total"] ?? 0;
     $xfsLimit = $xfsLimit."MB";
     $xfsUsage = 0;
     foreach($files as $key => $value) {

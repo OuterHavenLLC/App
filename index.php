@@ -39,7 +39,7 @@
   ])]);
  } elseif($api == "Maintanance") {
   # MAINTANANCE STATUS
-  $r = $gw->system->core[$c[0]];
+  $r = $gw->system->config[$c[0]];
  } elseif($api == "Web") {
   if($view == base64_encode("File:SaveUpload")) {
    $r = $gw->view($view, [
@@ -52,7 +52,7 @@
    $r = $gw->view($view, ["Data" => $data]);
   }
  } else {
-  $_ViewTitle = $gw->system->core["App"]["Name"];
+  $_ViewTitle = $gw->system->config["App"]["Name"];
   $c = $data["_cmd"] ?? "";
   $c = (!empty($c)) ? explode("/", urldecode($c)) : [$c];
   $c = $gw->system->FixMissing($c, [0, 1, 2, 3]);
@@ -185,8 +185,8 @@
   }
   $r = $gw->system->Change([[
    "[Body]" => $gw->system->RenderView($r),
-   "[Description]" => $gw->system->core["App"]["Description"],
-   "[Keywords]" => $gw->system->core["App"]["Keywords"],
+   "[Description]" => $gw->system->config["App"]["Description"],
+   "[Keywords]" => $gw->system->config["App"]["Keywords"],
    "[Title]" => $_ViewTitle
   ], $gw->system->PlainText([
    "BBCodes" => 1,

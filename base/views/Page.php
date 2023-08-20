@@ -746,7 +746,7 @@
        array_push($newPages, $id);
        $y["Activity"]["LastActive"] = $now;
        $y["Pages"] = array_unique($newPages);
-       $y["Points"] = $y["Points"] + $this->system->core["PTS"]["NewContent"];
+       $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
       }
      }
      $att = array_unique($att);

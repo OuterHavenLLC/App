@@ -1,6 +1,6 @@
 <?php
  ini_set("display_errors", "on");
- require_once(__DIR__."/System.php");
+ require_once(__DIR__."/Core.php");
  Class GW extends System {
   function __construct() {
    $this->system = New System;
