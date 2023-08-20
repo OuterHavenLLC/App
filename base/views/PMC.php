@@ -2,20 +2,20 @@
  Class PMC extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Home(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
-   $r = $this->system->Page("5f3a58adef65d3fbd25f0c3ec26d0aa6");
+   $r = $this->core->Page("5f3a58adef65d3fbd25f0c3ec26d0aa6");
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
-    $r = $this->system->RenderView($r);
+    $r = $this->core->RenderView($r);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

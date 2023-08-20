@@ -2,12 +2,12 @@
  Class Blog extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Banish(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "Member"]);
+   $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
    $r = [
@@ -18,7 +18,7 @@
    if(!empty($id) && !empty($mbr)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $mbr = base64_decode($mbr);
     $r = [
      "Body" => "You cannot banish yourself."
@@ -26,10 +26,10 @@
     if($mbr != $blog["UN"] && $mbr != $you) {
      $r = [
       "Actions" => [
-       $this->system->Element(["button", "Cancel", [
+       $this->core->Element(["button", "Cancel", [
         "class" => "CloseDialog v2 v2w"
        ]]),
-       $this->system->Element(["button", "Banish $mbr", [
+       $this->core->Element(["button", "Banish $mbr", [
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
         "data-type" => base64_encode("v=".base64_encode("Blog:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"])
        ]])
@@ -39,7 +39,7 @@
      ];
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -51,8 +51,8 @@
   function ChangeMemberRole(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID", "PIN", "Member"]);
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID", "PIN", "Member"]);
    $id = $data["ID"];
    $member = $data["Member"];
    $r = [
@@ -65,18 +65,18 @@
     ];
    } elseif(!empty($id) && !empty($member)) {
     $accessCode = "Accepted";
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $contributors = $blog["Contributors"] ?? [];
     $role = ($data["Role"] == 1) ? "Member" : "Admin";
     $contributors[$member] = $role;
     $blog["Contributors"] = $contributors;
-    $this->system->Data("Save", ["blg", $id, $blog]);
+    $this->core->Data("Save", ["blg", $id, $blog]);
     $r = [
      "Body" => "$member's Role within <em>".$blog["Title"]."</em> was Changed to $role.",
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -90,7 +90,7 @@
    $accessCode = "Denied";
    $action = "";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["BLG", "new"]);
+   $data = $this->core->FixMissing($data, ["BLG", "new"]);
    $id = $data["BLG"];
    $new = $data["new"] ?? 0;
    $es = base64_encode("LiveView:EditorSingle");
@@ -101,21 +101,21 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
-    $r = $this->system->Change([[
+   if($this->core->ID == $you) {
+    $r = $this->core->Change([[
      "[Error.Header]" => "Forbidden",
      "[Error.Message]" => "You must sign in to continue."
-    ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($you."_BLG_".uniqid()) : $id;
-    $action = $this->system->Element(["button", $action, [
+    $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditBlog$id",
      "data-processor" => base64_encode("v=".base64_encode("Blog:Save"))
     ]]);
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $atinput = ".BGE_$id-ATTI";
     $at = base64_encode("Set as the Blog Post's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
@@ -126,18 +126,18 @@
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
     $template = $blog["TPL"] ?? "";
-    $templateOptions = $this->system->DatabaseSet("PG") ?? [];
+    $templateOptions = $this->core->DatabaseSet("PG") ?? [];
     $templates = [];
     $title = $blog["Title"] ?? "";
     foreach($templateOptions as $key => $value) {
      $value = str_replace("c.oh.pg.", "", $value);
-     $t = $this->system->Data("Get", ["pg", $value]) ?? [];
+     $t = $this->core->Data("Get", ["pg", $value]) ?? [];
      if($t["Category"] == "TPL-BLG") {
       $templates[$value] = $t["Title"];
      }
     }
-    $r = $this->system->Change([[
-     "[Blog.AdditionalContent]" => $this->system->Change([
+    $r = $this->core->Change([[
+     "[Blog.AdditionalContent]" => $this->core->Change([
       [
        "[Extras.ContentType]" => "Blog",
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
@@ -147,11 +147,11 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=$at2&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
-      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Blog.Header]" => $header,
      "[Blog.ID]" => $id,
-     "[Blog.Inputs]" => $this->system->RenderInputs([
+     "[Blog.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -216,14 +216,14 @@
        "Type" => "TextBox",
        "Value" => $description
       ]
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Filter" => "NSFW",
       "Name" => "nsfw",
       "Title" => "Content Status",
       "Value" => $nsfw
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Value" => $privacy
-     ]).$this->system->RenderInputs([
+     ]).$this->core->RenderInputs([
       [
        "Attributes" => [],
        "OptionGroup" => $templates,
@@ -238,13 +238,13 @@
        "Value" => $template
       ]
      ])
-    ], $this->system->Page("7759aead7a3727dd2baed97550872677")]);
+    ], $this->core->Page("7759aead7a3727dd2baed97550872677")]);
     $r = [
      "Action" => $action,
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -256,7 +256,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "CARD",
     "CallSign",
     "ID",
@@ -264,7 +264,7 @@
     "lPG",
     "pub"
    ]);
-   $bck = ($data["back"] == 1) ? $this->system->Element([
+   $bck = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back to Blogs", [
      "class" => "GoToParent LI",
      "data-type" => $data["lPG"]
@@ -281,11 +281,11 @@
    $you = $y["Login"]["Username"];
    if($pub == 1) {
     $accessCode = "Accepted";
-    $blogs = $this->system->DatabaseSet("BLG") ?? [];
+    $blogs = $this->core->DatabaseSet("BLG") ?? [];
     foreach($blogs as $key => $value) {
      $value = str_replace("c.oh.blg.", "", $value);
-     $blog = $this->system->Data("Get", ["blg", $value]) ?? [];
-     $callSignsMatch = ($data["CallSign"] == $this->system->CallSign($blog["Title"])) ? 1 : 0;
+     $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
+     $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($blog["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
       $id = $value;
@@ -294,10 +294,10 @@
    } if(!empty($id) || $i > 0) {
     $active = 0;
     $admin = 0;
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $contributors = $blog["Contributorsa"] ?? [];
     $subscribers = $blog["Subscribers"] ?? [];
-    $owner = ($blog["UN"] == $you) ? $y : $this->system->Member($blog["UN"]);
+    $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     foreach($contributors as $member => $role) {
      if($active == 0 && $member == $you) {
       $active = 1;
@@ -311,74 +311,74 @@
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
      $actions = "";
      $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
-     $actions .= ($blog["UN"] != $you) ? $this->system->Element([
+     $actions .= ($blog["UN"] != $you) ? $this->core->Element([
       "button", "Block <em>".$blog["Title"]."</em>", [
        "class" => "Small UpdateButton v2",
        "data-cmd" => base64_encode("B"),
        "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($blog["Title"])."&content=".base64_encode($id)."&list=".base64_encode("Blogs")."&BC=")
       ]
      ]) : "";
-     $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->system->Element([
+     $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([
       "button", "Delete", [
        "class" => "CloseCard OpenDialog Small v2",
        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteBlog")."&ID=".base64_encode($id))
       ]
      ]) : "";
-     $actions .= ($_IsArtist == 1) ? $this->system->Element([
+     $actions .= ($_IsArtist == 1) ? $this->core->Element([
       "button", "Donate", [
        "class" => "OpenDialog Small v2",
        "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($owner["Login"]["Username"]))
       ]
      ]) : "";
-     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->system->Element([
+     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&BLG=$id")
       ]
      ]) : "";
-     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->system->Element([
+     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
       "button", "Invite", [
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=".base64_encode($id))
       ]
      ]) : "";
-     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->system->Element([
+     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
       "button", "Post", [
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$blog["ID"]."&new=1")
       ]
      ]) : "";
-     $actions .= $this->system->Element(["button", "Share", [
+     $actions .= $this->core->Element(["button", "Share", [
       "class" => "OpenCard Small v2",
       "data-view" => base64_encode("v=".base64_encode("Blog:Share")."&ID=".base64_encode($blog["ID"])."&UN=".base64_encode($blog["UN"]))
      ]]);
      $contributors = base64_encode(json_encode($contributors, true));
-     $coverPhoto = $this->system->PlainText([
+     $coverPhoto = $this->core->PlainText([
       "Data" => "[sIMG:CP]",
       "Display" => 1
      ]);
-     $coverPhoto = (!empty($blog["ICO"])) ? $this->system->CoverPhoto(base64_encode($blog["ICO"])) : $coverPhoto;
+     $coverPhoto = (!empty($blog["ICO"])) ? $this->core->CoverPhoto(base64_encode($blog["ICO"])) : $coverPhoto;
      $search = base64_encode("Search:Containers");
      $votes = ($blog["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=$id&Type=4");
-     $subscribe = ($blog["UN"] != $you && $this->system->ID != $you) ? 1 : 0;
+     $subscribe = ($blog["UN"] != $you && $this->core->ID != $you) ? 1 : 0;
      $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
-     $subscribe = ($subscribe == 1) ? $this->system->Change([[
+     $subscribe = ($subscribe == 1) ? $this->core->Change([[
       "[Subscribe.ContentID]" => $id,
       "[Subscribe.ID]" => md5($you),
       "[Subscribe.Processor]" => base64_encode("v=".base64_encode("Blog:Subscribe")),
       "[Subscribe.Text]" => $subscribeText,
       "[Subscribe.Title]" => $blog["Title"]
-     ], $this->system->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
+     ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
      $tpl = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Blog.About]" => "About ".$owner["Personal"]["DisplayName"],
       "[Blog.Actions]" => $actions,
       "[Blog.Back]" => $bck,
       "[Blog.CoverPhoto]" => $coverPhoto,
       "[Blog.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors"),
       "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=$contributors"),
-      "[Blog.Description]" => $this->system->PlainText([
+      "[Blog.Description]" => $this->core->PlainText([
        "BBCodes" => 1,
        "Data" => $blog["Description"],
        "Display" => 1,
@@ -389,7 +389,7 @@
       "[Blog.Subscribe]" => $subscribe,
       "[Blog.Title]" => $blog["Title"],
       "[Blog.Votes]" => $votes
-     ], $this->system->Page($tpl)]);
+     ], $this->core->Page($tpl)]);
      $r = ($data["CARD"] == 1) ? [
       "Front" => $r
      ] : $r;
@@ -399,9 +399,9 @@
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
-    $r = $this->system->RenderView($r);
+    $r = $this->core->RenderView($r);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -414,7 +414,7 @@
    $accessCode = "Denied";
    $action = "";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "Member"]);
+   $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $r = [
     "Body" => "The Blog Identifier is missing.",
@@ -424,7 +424,7 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $action = $this->system->Element(["button", "Send Invite", [
+    $action = $this->core->Element(["button", "Send Invite", [
      "class" => "CardButton SendData dB2C",
      "data-form" => ".Invite$id",
      "data-processor" => base64_encode("v=".base64_encode("Blog:SendInvite"))
@@ -435,9 +435,9 @@
      $blog = $this->Data("Get", ["blg", $value]) ?? [];
      $content[$blog["ID"]] = $blog["Title"];
     }
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Invite.ID]" => $id,
-     "[Invite.Inputs]" => $this->system->RenderInputs([
+     "[Invite.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -450,7 +450,7 @@
       [
        "Attributes" => [
         "name" => "Member",
-        "placeholder" => $this->system->ID,
+        "placeholder" => $this->core->ID,
         "type" => "text"
        ],
        "Options" => [],
@@ -487,13 +487,13 @@
        "Value" => 1
       ]
      ])
-    ], $this->system->Page("80e444c34034f9345eee7399b4467646")]);
+    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
     $r = [
      "Action" => $action,
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -505,8 +505,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID", "Title"]);
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID", "Title"]);
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
    $r = [
@@ -514,21 +514,21 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $blogs = $this->system->DatabaseSet("BLG");
+    $blogs = $this->core->DatabaseSet("BLG");
     $coverPhoto = "";
     $coverPhotoSource = "";
     $i = 0;
-    $now = $this->system->timestamp;
+    $now = $this->core->timestamp;
     $title = $data["Title"];
     foreach($blogs as $key => $value) {
      $value = str_replace("c.oh.blg.", "", $value);
-     $blog = $this->system->Data("Get", ["blg", $value]) ?? [];
+     $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
      if($id != $blog["ID"] && $title == $blog["Title"]) {
       $i++;
      }
@@ -538,7 +538,7 @@
      ];
     } else {
      $accessCode = "Accepted";
-     $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
      $author = $blog["UN"] ?? $you;
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $contributors = $blog["Contributors"] ?? [];
@@ -553,8 +553,8 @@
        if($i == 0 && !empty($dlc)) {
         $f = explode("-", base64_decode($dlc));
         if(!empty($f[0]) && !empty($f[1])) {
-         $t = $this->system->Member($f[0]);
-         $efs = $this->system->Data("Get", [
+         $t = $this->core->Member($f[0]);
+         $efs = $this->core->Data("Get", [
           "fs",
           md5($t["Login"]["Username"])
          ]) ?? [];
@@ -568,10 +568,10 @@
       if($username == $you) {
        array_push($y["Blogs"], $id);
        $y["Blogs"] = array_unique($y["Blogs"]);
-       $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
+       $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
       }
      }
-     $this->system->Data("Save", ["blg", $id, [
+     $this->core->Data("Save", ["blg", $id, [
       "Contributors" => $contributors,
       "Created" => $created,
       "ICO" => $coverPhoto,
@@ -588,19 +588,19 @@
       "Posts" => $posts,
       "UN" => $author
      ]]);
-     $this->system->Data("Save", ["mbr", md5($you), $y]);
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
      $r = [
       "Body" => "The Blog <em>$title</em> was $actionTaken!",
       "Header" => "Done"
      ];
      if($new == 1) {
-      $this->system->Statistic("BLG");
+      $this->core->Statistic("BLG");
      } else {
-      $this->system->Statistic("BLGu");
+      $this->core->Statistic("BLGu");
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -613,7 +613,7 @@
   function SaveBanish(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "Member"]);
+   $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $r = [
     "Body" => "The Article Identifier is missing."
@@ -621,7 +621,7 @@
    $username = $data["Member"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -629,7 +629,7 @@
    } elseif(!empty($id) && !empty($username)) {
     $id = base64_decode($id);
     $username = base64_decode($username);
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $r = [
      "Body" => "You cannot banish yourself."
     ];
@@ -643,14 +643,14 @@
       }
      }
      $blog["Contributors"] = $newContributors;
-     $this->system->Data("Save", ["blg", $id, $blog]);
+     $this->core->Data("Save", ["blg", $id, $blog]);
      $r = [
       "Body" => "$mbr was banished from <em>".$blog["Title"]."</em>.",
       "Header" => "Done"
      ];
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -662,8 +662,8 @@
   function SaveDelete(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID", "PIN"]);
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
    $id = $data["ID"];
    $r = [
     "Body" => "The Blog Identifier is missing."
@@ -674,7 +674,7 @@
     $r = [
      "Body" => "The PINs do not match."
     ];
-   } elseif($this->system->ID == $you) {
+   } elseif($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -682,15 +682,15 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $blogs = $y["Blogs"] ?? [];
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $newBlogs = [];
     foreach($blog["Posts"] as $key => $value) {
      $this->view(base64_encode("Conversation:SaveDelete"), [
       "Data" => ["ID" => $value]
      ]);
-     $this->system->Data("Purge", ["local", $value]);
-     $this->system->Data("Purge", ["post", $value]);
-     $this->system->Data("Purge", ["votes", $value]);
+     $this->core->Data("Purge", ["local", $value]);
+     $this->core->Data("Purge", ["post", $value]);
+     $this->core->Data("Purge", ["votes", $value]);
     } foreach($blogs as $key => $value) {
      if($id != $value) {
       array_push($newBlogs, $value);
@@ -700,16 +700,16 @@
     $this->view(base64_encode("Conversation:SaveDelete"), [
      "Data" => ["ID" => $id]
     ]);
-    $this->system->Data("Purge", ["blg", $id]);
-    $this->system->Data("Purge", ["local", $id]);
-    $this->system->Data("Purge", ["react", $id]);
-    $this->system->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Purge", ["blg", $id]);
+    $this->core->Data("Purge", ["local", $id]);
+    $this->core->Data("Purge", ["react", $id]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [
      "Body" => "The Blog <em>".$blog["Title"]."</em> was deleted.",
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -722,8 +722,8 @@
   function SendInvite(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "ID",
     "Member",
     "Role"
@@ -736,12 +736,12 @@
    ];
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
-    $members = $this->system->DatabaseSet("MBR");
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+    $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
      $value = str_replace("c.oh.mbr.", "", $value);
      if($i == 0) {
-      $t = $this->system->Data("Get", ["mbr", $value]) ?? [];
+      $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
       if($mbr == $t["Login"]["Username"]) {
        $i++;
       }
@@ -778,7 +778,7 @@
       $role = ($data["Role"] == 1) ? "Member" : "Admin";
       $contributors[$mbr] = $role;
       $blog["Contributors"] = $contributors;
-      $this->system->SendBulletin([
+      $this->core->SendBulletin([
        "Data" => [
         "BlogID" => $id,
         "Member" => $mbr,
@@ -787,7 +787,7 @@
        "To" => $mbr,
        "Type" => "InviteToBlog"
       ]);
-      $this->system->Data("Save", ["blg", $id, $blog]) ?? [];
+      $this->core->Data("Save", ["blg", $id, $blog]) ?? [];
       $r = [
        "Body" => "$mbr was notified of your invitation.",
        "Header" => "Invitation Sent"
@@ -795,7 +795,7 @@
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -808,7 +808,7 @@
   function Share(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "UN"]);
+   $data = $this->core->FixMissing($data, ["ID", "UN"]);
    $accesscode = "Denied";
    $id = $data["ID"];
    $r = [
@@ -819,19 +819,19 @@
    if(!empty($id) && !empty($un)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $un = base64_decode($un);
-    $t = ($un == $y["Login"]["Username"]) ? $y : $this->system->Member($un);
-    $body = $this->system->PlainText([
-     "Data" => $this->system->Element([
+    $t = ($un == $y["Login"]["Username"]) ? $y : $this->core->Member($un);
+    $body = $this->core->PlainText([
+     "Data" => $this->core->Element([
       "p", "Check out <em>".$blog["Title"]."</em> by ".$t["DN"]."!"
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "div", "[Blog:$id]", ["class" => "NONAME"]
      ]),
      "HTMLEncode" => 1
     ]);
     $body = base64_encode($body);
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Blog",
      "[Share.ContentID]" => "Blog",
      "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
@@ -840,12 +840,12 @@
      "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $blog["Title"]
-    ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
     $r = [
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -858,14 +858,14 @@
    $accessCode = "Denied";
    $responseType = "Dialog";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to subscribe.",
      "Header" => "Forbidden"
@@ -873,7 +873,7 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $responseType = "UpdateText";
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $subscribers = $blog["Subscribers"] ?? [];
     $subscribed = (in_array($you, $subscribers)) ? 1 : 0;
     if($subscribed == 1) {
@@ -890,9 +890,9 @@
      $r = "Unsubscribe";
     }
     $blog["Subscribers"] = $subscribers;
-    $this->system->Data("Save", ["blg", $id, $blog]);
+    $this->core->Data("Save", ["blg", $id, $blog]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

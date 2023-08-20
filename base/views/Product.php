@@ -2,13 +2,13 @@
  Class Product extends GW {
   function __construct() {
    parent::__construct();
-   $this->illegal = $this->system->config["App"]["Illegal"] ?? 777;
-   $this->you = $this->system->Member($this->system->Username());
+   $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Edit(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "Editor",
     "ID"
    ]);
@@ -21,16 +21,16 @@
    $template = "00f3b49a6e3b39944e3efbcc98b4948d";
    $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
    $r = [
-    "Front" => $this->system->Change([[
+    "Front" => $this->core->Change([[
      "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&new=1"),
      "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&new=1"),
      "[Product.Download]" => base64_encode("v=$edit&Editor=Download&new=1"),
      "[Product.Product]" => base64_encode("v=$edit&Editor=Product&new=1"),
      "[Product.Service]" => base64_encode("v=$edit&Editor=Service&new=1"),
      "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
-    ], $this->system->Page($template)])
+    ], $this->core->Page($template)])
    ];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $accessCode = "Denied";
     $r = [
      "Body" => "You must sign in to continue."
@@ -52,7 +52,7 @@
     $at5 = base64_encode("Add to Product Bundle:.ATTP$id");
     $at5input = "$at4input .rATT";
     $attachments = "";
-    $additionalContent = $this->system->Change([
+    $additionalContent = $this->core->Change([
      [
       "[Extras.ContentType]" => "Product",
       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
@@ -62,35 +62,35 @@
       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
       "[Extras.ID]" => $id,
       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
-     ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
     ]);
     $bundledProducts = "";
     $dlc = "";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
     if($editor == "Architecture") {
-     $r = $this->system->Element([
+     $r = $this->core->Element([
       "h1", $editor
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "p", "A new creator experience is comming soon..."
-     ]).$this->system->Element(["button", "Back", [
+     ]).$this->core->Element(["button", "Back", [
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
     } elseif($editor == "Donation") {
-     $r = $this->system->Element([
+     $r = $this->core->Element([
       "h1", $editor
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "p", "A new creator experience is comming soon..."
-     ]).$this->system->Element(["button", "Back", [
+     ]).$this->core->Element(["button", "Back", [
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
     } elseif($editor == "Download") {
-     $r = $this->system->Element([
+     $r = $this->core->Element([
       "h1", $editor
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "p", "A new creator experience is comming soon..."
-     ]).$this->system->Element(["button", "Back", [
+     ]).$this->core->Element(["button", "Back", [
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
@@ -98,13 +98,13 @@
      // DELIVERABLES / GENERAL EDITOR (TEMP)
 
     // BEGIN GENERAL EDITOR (TEMP)
-    $action = $this->system->Element(["button", $action, [
+    $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditProduct$id",
      "data-processor" => base64_encode("v=".base64_encode("Product:Save"))
     ]]); // INTEGRATE INTO EACH EDITOR'S TEMPLATE
-    $product = $this->system->Data("Get", ["miny", $id]) ?? [];
-    $product = $this->system->FixMissing($product, [
+    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->FixMissing($product, [
      "Description",
      "Disclaimer",
      "Body",
@@ -128,7 +128,7 @@
     $category = $product["Category"] ?? "";
     $cost = $product["Cost"] ?? 0.00;
     $coverPhoto = $product["ICO-SRC"] ?? "";
-    $created = $product["Created"] ?? $this->system->timestamp;
+    $created = $product["Created"] ?? $this->core->timestamp;
     $expirationQuantities = [];
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
@@ -149,11 +149,11 @@
     } if(!empty($product["DLC"])) {
      $dlc = base64_encode(implode(";", $product["DLC"]));
     }
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Product.AdditionalContent]" => $additionalContent,
      "[Product.Header]" => $header,
      "[Product.ID]" => $id,
-     "[Product.Inputs]" => $this->system->RenderInputs([
+     "[Product.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "Created",
@@ -302,7 +302,7 @@
         "WYSIWYG" => 1
        ],
        "Type" => "TextBox",
-       "Value" => $this->system->PlainText([
+       "Value" => $this->core->PlainText([
         "Data" => $product["Body"]
        ])
       ],
@@ -371,7 +371,7 @@
        "Value" => $subscriptionTerm
       ]
      ]),
-     "[Product.Expiration]" => $this->system->RenderInputs([
+     "[Product.Expiration]" => $this->core->RenderInputs([
       [
        "Attributes" => [],
        "OptionGroup" => $expirationQuantities,
@@ -404,7 +404,7 @@
        "Value" => "Year"
       ]
      ]),
-     "[Product.Inventory]" => $this->system->RenderInputs([
+     "[Product.Inventory]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "class" => "CheckIfNumeric",
@@ -456,39 +456,39 @@
        "Value" => $quantity
       ]
      ]),
-     "[Product.Visibility]" => $this->system->RenderVisibilityFilter([
+     "[Product.Visibility]" => $this->core->RenderVisibilityFilter([
       "Filter" => "NSFW",
       "Name" => "nsfw",
       "Title" => "Content Status",
       "Value" => $nsfw
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Value" => $privacy
      ])
-    ], $this->system->Page("3e5dc31db9719800f28abbaa15ce1a37")]);
+    ], $this->core->Page("3e5dc31db9719800f28abbaa15ce1a37")]);
     // END GENERAL EDITOR (TEMP)
 
     } elseif($editor == "Service") {
      // INVOICE CREATOR
-     $r = $this->system->Element([
+     $r = $this->core->Element([
       "h1", $editor
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "p", "A new creator experience is comming soon..."
-     ]).$this->system->Element(["button", "Back", [
+     ]).$this->core->Element(["button", "Back", [
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
     } elseif($editor == "Subscription") {
-     $r = $this->system->Element([
+     $r = $this->core->Element([
       "h1", $editor
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "p", "A new creator experience is comming soon..."
-     ]).$this->system->Element(["button", "Back", [
+     ]).$this->core->Element(["button", "Back", [
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -500,7 +500,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "AddTo",
     "Added",
     "CARD",
@@ -515,7 +515,7 @@
    $i = 0;
    $id = $data["ID"];
    $lpg = $data["lPG"];
-   $bck = ($data["back"] == 1) ? $this->system->Element(["button", "Back to ".$data["b2"], [
+   $bck = ($data["back"] == 1) ? $this->core->Element(["button", "Back to ".$data["b2"], [
     "class" => "GoToParent LI head",
     "data-type" => ".OHCC;$lpg"
    ]]) : "";
@@ -528,11 +528,11 @@
    $you = $y["Login"]["Username"];
    if($pub == 1) {
     $accessCode = "Accepted";
-    $products = $this->system->DatabaseSet("PROD") ?? [];
+    $products = $this->core->DatabaseSet("PROD") ?? [];
     foreach($products as $key => $value) {
      $product = str_replace("c.oh.miny.", "", $value);
-     $product = $this->system->Data("Get", ["shop", $product]) ?? [];
-     $callSignsMatch = ($data["CallSign"] == $this->system->CallSign($product["Title"])) ? 1 : 0;
+     $product = $this->core->Data("Get", ["shop", $product]) ?? [];
+     $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
       $id = $value;
@@ -540,22 +540,22 @@
     }
    } if((!empty($id) || $i > 0) && !empty($data["UN"])) {
     $accessCode = "Accepted";
-    $base = $this->system->base;
+    $base = $this->core->base;
     $username = base64_decode($data["UN"]);
-    $t = ($username == $you) ? $y : $this->system->Member($username);
-    $product = $this->system->Data("Get", ["miny", $id]) ?? [];
-    $shop = $this->system->Data("Get", [
+    $t = ($username == $you) ? $y : $this->core->Member($username);
+    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+    $shop = $this->core->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
     ]) ?? [];
-    $bl = $this->system->CheckBlocked([$y, "Products", $id]);
-    $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->system->config["minAge"])) ? 1 : 0;
-    $ck2 = (strtotime($this->system->timestamp) < $product["Expires"]) ? 1 : 0;
+    $bl = $this->core->CheckBlocked([$y, "Products", $id]);
+    $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+    $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
     $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
     $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
     $illegal = $product["Illegal"] ?? 0;
     $illegal = ($illegal < $this->illegal) ? 1 : 0;
-    $illegal = ($illegal == 1 && $t["Login"]["Username"] != $this->system->ShopID) ? 1 : 0;
+    $illegal = ($illegal == 1 && $t["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
     if($bl == 0 && $ck == 1 && $illegal == 0) {
      $actions = "";
      $active = 0;
@@ -567,7 +567,7 @@
      $addTo = $data["AddTo"] ?? base64_encode("");
      $addTo = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
      if(!empty($data["AddTo"]) && $t["Login"]["Username"] == $you) {
-      $actions .= $this->system->Element(["button", $addTo[0], [
+      $actions .= $this->core->Element(["button", $addTo[0], [
        "class" => "AddTo Small v2",
        "data-a" => base64_encode($t["Login"]["Username"]."-$value"),
        "data-c" => $data["Added"],
@@ -578,26 +578,26 @@
        ]))
       ]]);
      }
-     $actions .= ($t["Login"]["Username"] == $you) ? $this->system->Element([
+     $actions .= ($t["Login"]["Username"] == $you) ? $this->core->Element([
       "button", "Delete", [
        "class" => "CloseCard OpenDialog Small v2",
        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteProduct")."&ID=".$product["ID"])
       ]
      ]) : "";
-     $actions .= ($active == 1) ? $this->system->Element([
+     $actions .= ($active == 1) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&ID=".$product["ID"])
       ]
      ]) : "";
-     $bck = ($data["CARD"] != 1 && $pub == 1) ? $this->system->Element([
+     $bck = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
       "button", "See more at <em>".$shop["Title"]."</em>", [
        "class" => "CloseCard LI header",
        "onclick" => "W('$base/MadeInNewYork/".$t["Login"]["Username"]."/', '_top');"
       ]
      ]) : $bck;
      $bundle = "";
-     $coverPhoto = $product["ICO"] ?? $this->system->PlainText([
+     $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
       "Data" => "[sIMG:MiNY]",
       "Display" => 1
      ]);
@@ -607,35 +607,35 @@
       $modified = "";
      } else {
       $_Member = end($modified);
-      $_Time = $this->system->TimeAgo(array_key_last($modified));
+      $_Time = $this->core->TimeAgo(array_key_last($modified));
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
-      $modified = $this->system->Element(["em", $modified]);
+      $modified = $this->core->Element(["em", $modified]);
      }
      $votes = ($t["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Product.Actions]" => $actions,
       "[Product.Back]" => $bck,
-      "[Product.Body]" => $this->system->PlainText([
+      "[Product.Body]" => $this->core->PlainText([
        "Data" => $product["Body"],
        "Display" => 1,
        "HTMLDecode" => 1
       ]),
       "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=".$product["ID"]."&T=".$t["Login"]["Username"]),
-      "[Product.Brief.Category]" => $this->system->Element([
-       "p", $this->system->ProductCategory($product["Category"]),
+      "[Product.Brief.Category]" => $this->core->Element([
+       "p", $this->core->ProductCategory($product["Category"]),
        ["class" => "CenterText"]
       ]),
       "[Product.Brief.Description]" => $product["Description"],
       "[Product.Brief.Icon]" => "{product_category}",
       "[Product.Bundled]" => $bundle,
-      "[Product.Conversation]" => $this->system->Change([[
+      "[Product.Conversation]" => $this->core->Change([[
        "[Conversation.CRID]" => $product["ID"],
        "[Conversation.CRIDE]" => base64_encode($product["ID"]),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->system->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-      "[Product.Created]" => $this->system->TimeAgo($product["Created"]),
-      "[Product.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
+      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      "[Product.Created]" => $this->core->TimeAgo($product["Created"]),
+      "[Product.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
       "[Product.ID]" => $product["ID"],
       "[Product.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Product;".$product["ID"])),
@@ -643,13 +643,13 @@
       "[Product.Title]" => $product["Title"],
       "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"]),
       "[Product.Votes]" => base64_encode("v=$votes&ID=".$product["ID"]."&Type=4")
-     ], $this->system->Page("96a6768e7f03ab4c68c7532be93dee40")]);
+     ], $this->core->Page("96a6768e7f03ab4c68c7532be93dee40")]);
      $r = ($data["CARD"] == 1) ? [
       "Front" => $r
      ] : $r;
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -661,8 +661,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "ID",
     "Title",
     "Type",
@@ -673,7 +673,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -685,16 +685,16 @@
    } elseif(!empty($data["ID"])) {
     $i = 0;
     $new = $data["new"] ?? 0;
-    $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
     $contributors = $shop["Contributors"] ?? [];
     $isContributor = (!empty($contributors[$you])) ? 1 : 0;
     $title = $data["Title"] ?? "New Product";
     if($type != "Service") {
-     $products = $this->system->DatabaseSet("PROD") ?? [];
+     $products = $this->core->DatabaseSet("PROD") ?? [];
      foreach($products as $key => $value) {
       $product = str_replace("c.oh.miny.", "", $value);
-      $product = $this->system->Data("Get", ["miny", $product]) ?? [];
-      $callSignsMatch = ($data["CallSign"] == $this->system->CallSign($product["Title"])) ? 1 : 0;
+      $product = $this->core->Data("Get", ["miny", $product]) ?? [];
+      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
       $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
       $ck3 = ($product["UN"] == $you) ? 1 : 0;
       if($ck == 0 && $ck2 == 0 && $ck3 == 0) {
@@ -709,8 +709,8 @@
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $id = $data["ID"];
-     $now = $this->system->timestamp;
-     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
+     $now = $this->core->timestamp;
+     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
      $attachments = [];
      $bundle = [];
      $category = base64_decode($data["Category"]);
@@ -733,7 +733,7 @@
      $modifiedBy = $product["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $newProducts = $shop["Products"] ?? [];
-     $points = $this->system->config["PTS"];
+     $points = $this->core->config["PTS"];
      $profit = $data["Profit"] ?? 0.00;
      $quantity = $data["Quantity"] ?? "-1";
      $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
@@ -768,8 +768,8 @@
        if(!empty($db[$i]) && $i2 == 0) {
         $dbi = explode("-", base64_decode($db[$i]));
         if(!empty($dbi[0]) && !empty($dbi[1])) {
-         $t = $this->system->Member($dbi[0]);
-         $efs = $this->system->Data("Get", [
+         $t = $this->core->Member($dbi[0]);
+         $efs = $this->core->Data("Get", [
           "fs",
           md5($t["Login"]["Username"])
          ]) ?? [];
@@ -804,7 +804,7 @@
       "Created" => $created,
       "Description" => htmlentities($data["Description"]),
       "Disclaimer" => $data["Disclaimer"],
-      "Expires" => $this->system->TimePlus($now, $expirationQuantity, $expirationTimeSpan),
+      "Expires" => $this->core->TimePlus($now, $expirationQuantity, $expirationTimeSpan),
       "DLC" => $dlc,
       "ICO" => $coverPhoto,
       "ICO-SRC" => base64_encode($coverPhotoSource),
@@ -824,8 +824,8 @@
       "UN" => $username
      ];
      /* SAVING CORRUPTS THE PRODUCT DB
-     $this->system->Data("Save", ["miny", $id, $product]);
-     $this->system->Data("Save", ["shop", md5($you), $shop]);
+     $this->core->Data("Save", ["miny", $id, $product]);
+     $this->core->Data("Save", ["shop", md5($you), $shop]);
      */
      $r = [
       "Body" => "The Product <em>$title</em> has been $actionTaken! We're debugging this view at the moment, so nothing will actually happen.",
@@ -835,9 +835,9 @@
      if($new == 1) {
       $subscribers = $shop["Subscribers"] ?? [];
       $y["Points"] = $y["Points"] + $points;
-      #$this->system->Data("Save", ["mbr", md5($you), $y]);
+      #$this->core->Data("Save", ["mbr", md5($you), $y]);
       foreach($subscribers as $key => $value) {
-       /*$this->system->SendBulletin([
+       /*$this->core->SendBulletin([
         "Data" => [
          "ProductID" => $id,
          "ShopID" => base64_encode(md5($you))
@@ -846,13 +846,13 @@
         "Type" => "NewProduct"
        ]);*/
       }
-      #$this->system->Statistic("PROD");
+      #$this->core->Statistic("PROD");
      } else {
-      #$this->system->Statistic("PRODu");
+      #$this->core->Statistic("PRODu");
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -865,7 +865,7 @@
   function SaveDelete(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Product Identifier is missing."
@@ -876,14 +876,14 @@
     $r = [
      "Body" => "The PINs do not match."
     ];
-   } elseif($this->system->ID == $you) {
+   } elseif($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
     $newProducts = [];
     $products = $shop["Products"] ?? [];
     foreach($products as $key => $value) {
@@ -895,16 +895,16 @@
     $this->view(base64_encode("Conversation:SaveDelete"), [
      "Data" => ["ID" => $id]
     ]);
-    $this->system->Data("Purge", ["miny", $id]);
-    $this->system->Data("Purge", ["local", $id]);
-    $this->system->Data("Purge", ["votes", $id]);
-    $this->system->Data("Save", ["shop", md5($you), $shop]);
+    $this->core->Data("Purge", ["miny", $id]);
+    $this->core->Data("Purge", ["local", $id]);
+    $this->core->Data("Purge", ["votes", $id]);
+    $this->core->Data("Save", ["shop", md5($you), $shop]);
     $r = [
      "Body" => "The Product was deleted.",
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -917,7 +917,7 @@
   function Share(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "UN"]);
+   $data = $this->core->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
    $r = [
     "Body" => "The Share Sheet Identifier is missing."
@@ -928,24 +928,24 @@
    if(!empty($id) && !empty($username)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $product = $this->system->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
     $username = base64_decode($username);
-    $t = ($username == $you) ? $y : $this->system->Member($username);
-    $shop = $this->system->Data("Get", [
+    $t = ($username == $you) ? $y : $this->core->Member($username);
+    $shop = $this->core->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
     ]) ?? [];
     $shop = $shop["Title"];
-    $body = $this->system->PlainText([
-     "Data" => $this->system->Element([
+    $body = $this->core->PlainText([
+     "Data" => $this->core->Element([
       "p", "Check out <em>".$product["Title"]."</em> by $shop!"
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "div", "[Product:$id]", ["class" => "NONAME"]
      ]),
      "HTMLEncode" => 1
     ]);
     $body = base64_encode($body);
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Product",
      "[Share.ContentID]" => "Product",
      "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
@@ -954,12 +954,12 @@
      "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $product["Title"]." by $shop"
-    ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
     $r = [
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

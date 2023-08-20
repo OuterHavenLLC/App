@@ -2,12 +2,12 @@
  Class Forum extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Banish(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "Member"]);
+   $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
    $r = [
@@ -16,7 +16,7 @@
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
     $id = base64_decode($id);
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $mbr = base64_decode($mbr);
     $r = [
      "Body" => "You cannot banish yourself."
@@ -25,10 +25,10 @@
      $accessCode = "Accepted";
      $r = [
       "Actions" => [
-       $this->system->Element(["button", "Cancel", [
+       $this->core->Element(["button", "Cancel", [
         "class" => "CloseDialog v2 v2w"
        ]]),
-       $this->system->Element(["button", "Banish $mbr", [
+       $this->core->Element(["button", "Banish $mbr", [
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
         "data-view" => base64_encode("v=".base64_encode("Forum:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"])
        ]])
@@ -38,7 +38,7 @@
      ];
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -50,8 +50,8 @@
   function ChangeMemberRole(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID", "PIN", "Member"]);
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID", "PIN", "Member"]);
    $id = $data["ID"];
    $member = $data["Member"];
    $r = [
@@ -64,17 +64,17 @@
     ];
    } elseif(!empty($id) && !empty($member)) {
     $accessCode = "Accepted";
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
-    $manifest = $this->system->Data("Get", ["pfmanifest", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+    $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
     $role = ($data["Role"] == 1) ? "Member" : "Admin";
     $manifest[$member] = $role;
-    $this->system->Data("Save", ["pfmanifest", $id, $manifest]);
+    $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
     $r = [
      "Body" => "$member's Role within <em>".$forum["Title"]."</em> was Changed to $role.",
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -87,16 +87,16 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "new"]);
+   $data = $this->core->FixMissing($data, ["ID", "new"]);
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
-   $now = $this->system->timestamp;
+   $now = $this->core->timestamp;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue."
     ];
@@ -104,7 +104,7 @@
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($y["Login"]["Username"]."_FORUM_".$now) : $id;
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $about = $forum["About"] ?? "";
     $atinput = ".Forum$id-ATTI";
     $at = base64_encode("Set as the Forum's Cover Photo:$atinput");
@@ -121,9 +121,9 @@
     $sc = base64_encode("Search:Containers");
     $title = $forum["Title"] ?? "My Forum";
     $type = $forum["Type"] ?? $y["Privacy"]["ForumsType"];
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Forum.About]" => $about,
-     "[Forum.AdditionalContent]" => $this->system->Change([
+     "[Forum.AdditionalContent]" => $this->core->Change([
       [
        "[Extras.ContentType]" => "Forum",
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
@@ -133,11 +133,11 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
-      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Forum.Header]" => $header,
      "[Forum.ID]" => $id,
-     "[Forum.Inputs]" => $this->system->RenderInputs([
+     "[Forum.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "Created",
@@ -243,16 +243,16 @@
        "Type" => "Select",
        "Value" => $type
       ]
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Filter" => "NSFW",
       "Name" => "nsfw",
       "Title" => "Content Status",
       "Value" => $nsfw
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Value" => $privacy
      ])
-    ], $this->system->Page("8304362aea73bddb2c12eb3f7eb226dc")]);
-    $action = $this->system->Element(["button", $action, [
+    ], $this->core->Page("8304362aea73bddb2c12eb3f7eb226dc")]);
+    $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditForum$id",
      "data-processor" => base64_encode("v=".base64_encode("Forum:Save"))
@@ -262,7 +262,7 @@
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -274,7 +274,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "CARD",
     "ID",
     "b2",
@@ -285,9 +285,9 @@
    $id = $data["ID"];
    $lpg = $data["lPG"];
    $b2 = $data["b2"] ?? "Forums";
-   $b2 = $this->system->Element(["em", $b2]);
+   $b2 = $this->core->Element(["em", $b2]);
    $bck = $data["back"] ?? 0;
-   $bck = ($bck == 1) ? $this->system->Element(["button", "Back to $b2", [
+   $bck = ($bck == 1) ? $this->core->Element(["button", "Back to $b2", [
     "class" => "GoToParent LI header",
     "data-type" => ".OHCC;$lpg"
    ]]) : "";
@@ -298,14 +298,14 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $bl = $this->system->CheckBlocked([$y, "Forums", $id]);
+   $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
    if(!empty($id) && $bl == 0) {
     $id = base64_decode($id);
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $active = 0;
     $admin = 0;
-    $manifest = $this->system->Data("Get", ["pfmanifest", $id]) ?? [];
-    $notAnon = ($this->system->ID != $you) ? 1 : 0;
+    $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+    $notAnon = ($this->core->ID != $you) ? 1 : 0;
     foreach($manifest as $member => $role) {
      if($active == 0 && $member == $you) {
       $active = 1;
@@ -323,71 +323,71 @@
      $accessCode = "Accepted";
      $_JoinCommand = ($active == 0) ? "Join" : "Leave";
      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $actions = ($bl == 0 && $ck == 0) ? $this->system->Element(["button", "Block", [
+     $actions = ($bl == 0 && $ck == 0) ? $this->core->Element(["button", "Block", [
       "class" => "Block CloseCard GoToParent Small v2 v2w",
       "data-cmd" => base64_encode("B"),
       "data-type" => ".OHCC;$lpg",
       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($f["Title"])."&content=".base64_encode($f["ID"])."&list=".base64_encode("Forums")."&BC=")
      ]]) : "";
-     $actions .= ($active == 1 || $ck == 1) ? $this->system->Element([
+     $actions .= ($active == 1 || $ck == 1) ? $this->core->Element([
       "button", "Chat", [
        "class" => "OpenCard Small v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&GroupChat=1&to=".base64_encode($id))
       ]
      ]) : "";
-     $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->system->Element([
+     $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->core->Element([
       "button", "Delete", [
        "class" => "CloseCard OpenDialog Small v2",
        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteForum")."&ID=".base64_encode($id))
       ]
      ]) : "";
-     $actions .= ($admin == 1) ? $this->system->Element(["button", "Edit", [
+     $actions .= ($admin == 1) ? $this->core->Element(["button", "Edit", [
       "class" => "OpenCard Small v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("Forum:Edit")."&ID=$id")
      ]]) : "";
-     $actions .= ($active == 1 || $ck == 1 || $forum["Type"] == "Public") ? $this->system->Element([
+     $actions .= ($active == 1 || $ck == 1 || $forum["Type"] == "Public") ? $this->core->Element([
       "button", "Post", [
        "class" => "OpenCard Small v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$id&new=1")
       ]
      ]) : "";
-     $actions .= ($forum["Type"] == "Public") ? $this->system->Element([
+     $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
       "button", "Share", [
        "class" => "OpenCard Small v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Forum:Share")."&ID=".base64_encode($id))
       ]
      ]) : "";
-     $coverPhoto = $this->system->PlainText([
+     $coverPhoto = $this->core->PlainText([
       "Data" => "[sIMG:CP]",
       "Display" => 1
      ]);
      $coverPhoto = (!empty($forum["ICO"])) ? base64_encode($forum["ICO"]) : $coverPhoto;
-     $invite = ($active == 1 && $forum["ID"] == $_SonsOfLiberty) ? $this->system->Element([
+     $invite = ($active == 1 && $forum["ID"] == $_SonsOfLiberty) ? $this->core->Element([
       "button", "Invite", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($forum["ID"]))
       ]
      ]) : "";
-     $join = ($ck == 0 && $f["Type"] == "Public") ? $this->system->Change([[
+     $join = ($ck == 0 && $f["Type"] == "Public") ? $this->core->Change([[
       "[Forum.Join.Command]" => $_JoinCommand,
       "[Forum.Join.ID]" => $id,
       "[Forum.Join.Processor]" => base64_encode("v=".base64_encode("Forum:LeaveOrJoin")),
       "[Forum.Join.Text]" => $_JoinCommand,
       "[Forum.Join.Username]" => $you,
       "[Forum.Title]" => $forum["Title"]
-     ], $this->system->Page("4c3a04a91734ce56bef85d474294202d")]) : "";
+     ], $this->core->Page("4c3a04a91734ce56bef85d474294202d")]) : "";
      $manifest = base64_encode(json_encode($manifest, true));
      $search = base64_encode("Search:Containers");
      $votes = ($active == 1 && $ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Forum.About]" => $forum["About"],
       "[Forum.Actions]" => $actions,
       "[Forum.Administrators]" => base64_encode("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin"),
       "[Forum.Back]" => $bck,
       "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
       "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=$manifest"),
-      "[Forum.CoverPhoto]" => $this->system->CoverPhoto($coverPhoto),
-      "[Forum.Description]" => $this->system->PlainText([
+      "[Forum.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
+      "[Forum.Description]" => $this->core->PlainText([
        "Data" => $forum["Description"],
        "HTMLDncode" => 1
       ]),
@@ -397,7 +397,7 @@
       "[Forum.Stream]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=Forums-Posts"),
       "[Forum.Title]" => $forum["Title"],
       "[Forum.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
-     ], $this->system->Page("4159d14e4e8a7d8936efca6445d11449")]);
+     ], $this->core->Page("4159d14e4e8a7d8936efca6445d11449")]);
     }
    }
    $r = ($data["CARD"] == 1) ? [
@@ -407,9 +407,9 @@
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
-    $r = $this->system->RenderView($r);
+    $r = $this->core->RenderView($r);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -421,7 +421,7 @@
   function Invite(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "Member"]);
+   $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $r = [
     "Body" => "The Forum Identifier is missing."
@@ -436,9 +436,9 @@
      $forum = $this->Data("Get", ["pf", $value]) ?? [];
      $content[$forum["ID"]] = $forum["Title"];
     }
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Invite.ID]" => $id,
-     "[Invite.Inputs]" => $this->system->RenderInputs([
+     "[Invite.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -451,7 +451,7 @@
       [
        "Attributes" => [
         "name" => "Member",
-        "placeholder" => $this->system->ID,
+        "placeholder" => $this->core->ID,
         "type" => "text"
        ],
        "Options" => [],
@@ -488,8 +488,8 @@
        "Value" => 1
       ]
      ])
-    ], $this->system->Page("80e444c34034f9345eee7399b4467646")]);
-    $action = $this->system->Element(["button", "Send Invite", [
+    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
+    $action = $this->core->Element(["button", "Send Invite", [
      "class" => "CardButton CloseCard SendData",
      "data-form" => ".Invite$id",
      "data-processor" => base64_encode("v=".base64_encode("Forum:SendInvite"))
@@ -499,7 +499,7 @@
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -511,7 +511,7 @@
   function LeaveOrJoin(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->core->DecodeBridgeData($data);
    $command = $data["Command"] ?? "";
    $id = $data["ID"] ?? "";
    $r = [
@@ -522,13 +522,13 @@
    $you = $y["Login"]["Username"];
    if(!empty($command) && !empty($id)) {
     $accessCode = "Accepted";
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $ck = ($forum["UN"] == $you) ? 1 : 0;
-    $manifest = $this->system->Data("Get", ["pfmanifest", $id]) ?? [];
+    $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
     $responseType = "ReplaceContent";
     if($ck == 0 && $command == "Join") {
      $manifest[$you] = "Member";
-     $r = $this->system->Element([
+     $r = $this->core->Element([
       "p", "You've joined <em>".$forum["Title"]."</em>!"
      ]);
     } elseif($ck == 0 && $command == "Leave") {
@@ -539,13 +539,13 @@
       }
      }
      $manifest = $newManifest;
-     $r = $this->system->Element([
+     $r = $this->core->Element([
       "p", "Sorry to see you go, we hope to see you again!"
      ]);
     }
-    #$this->system->Data("Save", ["pfmanifest", $id, $manifest]);
+    #$this->core->Data("Save", ["pfmanifest", $id, $manifest]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -557,34 +557,34 @@
   function PublicHome(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "CallSign",
     "ID"
    ]);
    $callSign = $data["CallSign"] ?? "";
-   $callSign = $this->system->CallSign($callSign);
+   $callSign = $this->core->CallSign($callSign);
    $id = $data["ID"] ?? "";
    $r = [
     "Body" => "We could not find the Forum you were looking for."
    ];
    if(!empty($callSign) || !empty($id)) {
     $accessCode = "Accepted";
-    $forums = $this->system->DatabaseSet("PF") ?? [];
+    $forums = $this->core->DatabaseSet("PF") ?? [];
     foreach($forums as $key => $value) {
      $forum = str_replace("c.oh.pf.", "", $value);
-     $forum = $this->system->Data("Get", ["pf", $forum]) ?? [];
-     $forumCallSign = $this->system->CallSign($forum["Title"]);
+     $forum = $this->core->Data("Get", ["pf", $forum]) ?? [];
+     $forumCallSign = $this->core->CallSign($forum["Title"]);
      if($callSign == $forumCallSign || $id == $forum["ID"]) {
       $r = $this->view(base64_encode("Forum:Home"), ["Data" => [
        "ID" => $forum["ID"]
       ]]);
      }
     }
-   } if($y["Login"]["Username"] == $this->system->ID && $data["pub"] == 1) {
+   } if($y["Login"]["Username"] == $this->core->ID && $data["pub"] == 1) {
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
-    $r = $this->system->RenderView($r);
+    $r = $this->core->RenderView($r);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -596,8 +596,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "About",
     "Crweated",
     "Description",
@@ -608,13 +608,13 @@
    ]);
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
-   $now = $this->system->timestamp;
+   $now = $this->core->timestamp;
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -628,11 +628,11 @@
      $y["Forums"] = array_unique($y["Forums"]);
      $manifest = [];
      $manifest[$y["Login"]["Username"]] = "Admin";
-     $points = $this->system->config["PTS"]["NewContent"] ?? 0;
+     $points = $this->core->config["PTS"]["NewContent"] ?? 0;
      $y["Points"] = $y["Points"] + $points;
      $y["Activity"]["LastActive"] = $now;
-     $this->system->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
-     $this->system->Data("Save", ["pfmanifest", $id, $manifest]);
+     $this->core->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
+     $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
     } if(!empty($data["rATTI"])) {
      $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
      $i = 0;
@@ -640,8 +640,8 @@
       if($i == 0 && !empty($dlc)) {
        $f = explode("-", base64_decode($dlc));
        if(!empty($f[0]) && !empty($f[1])) {
-        $t = $this->system->Member($f[0]);
-        $efs = $this->system->Data("Get", [
+        $t = $this->core->Member($f[0]);
+        $efs = $this->core->Data("Get", [
          "fs",
          md5($t["Login"]["Username"])
         ]) ?? [];
@@ -652,15 +652,15 @@
       }
      }
     }
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
-    $created = $forum["Created"] ?? $this->system->timestamp;
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+    $created = $forum["Created"] ?? $this->core->timestamp;
     $illegal = $forum["Illegal"] ?? 0;
     $posts = $forum["Posts"] ?? [];
     $title = $data["Title"] ?? "My Forum";
-    $this->system->Data("Save", ["pf", $id, [
+    $this->core->Data("Save", ["pf", $id, [
      "About" => $data["About"],
      "Created" => $created,
-     "Description" => $this->system->PlainText([
+     "Description" => $this->core->PlainText([
       "Data" => $data["Description"],
       "HTMLEncode" => 1
      ]),
@@ -682,7 +682,7 @@
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -694,7 +694,7 @@
   function SaveBanish(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "Member"]);
+   $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
    $r = [
@@ -702,7 +702,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -710,27 +710,27 @@
    } elseif(!empty($id) && !empty($mbr)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $mbr = base64_decode($mbr);
     $r = [
      "Body" => "You cannot banish yourself."
     ];
     if($mbr != $forum["UN"] && $mbr != $y["Login"]["Username"]) {
-     $manifest = $this->system->Data("Get", ["pfmanifest", $id]) ?? [];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
      $newManifest = [];
      foreach($manifest as $member => $role) {
       if($forum["UN"] != $member && $mbr != $member) {
        $newManifest[$member] = $role;
       }
      }
-     $this->system->Data("Save", ["pfmanifest", $id, $newManifest]);
+     $this->core->Data("Save", ["pfmanifest", $id, $newManifest]);
      $r = [
       "Body" => "$mbr was banished from <em>".$forum["Title"]."</em>.",
       "Header" => "Done"
      ];
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -743,8 +743,8 @@
    $accessCode = "Denied";
    $all = $data["all"] ?? 0;
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID", "PIN", "all"]);
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID", "PIN", "all"]);
    $id = $data["ID"];
    $r = [
     "Body" => "The Forum Identifier is missing."
@@ -754,34 +754,34 @@
     $r = [
      "Body" => "The PINs do not match."
     ];
-   } elseif($this->system->ID == $y["Login"]["Username"]) {
+   } elseif($this->core->ID == $y["Login"]["Username"]) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $forums = $y["Forums"] ?? [];
     $newForums = [];
     foreach($forum["Posts"] as $key => $value) {
-     if(!empty($this->system->Data("Get", ["conversation", $value]))) {
+     if(!empty($this->core->Data("Get", ["conversation", $value]))) {
       #$this->view(base64_encode("Conversation:SaveDelete"), [
       # "Data" => ["ID" => $value]
       #]);
      }
-     $this->system->Data("Purge", ["local", $value]);
-     #$this->system->Data("Purge", ["post", $value]);
-     $this->system->Data("Purge", ["votes", $value]);
-    } if(!empty($this->system->Data("Get", ["conversation", $id]))) {
+     $this->core->Data("Purge", ["local", $value]);
+     #$this->core->Data("Purge", ["post", $value]);
+     $this->core->Data("Purge", ["votes", $value]);
+    } if(!empty($this->core->Data("Get", ["conversation", $id]))) {
      $this->view(base64_encode("Conversation:SaveDelete"), [
       "Data" => ["ID" => $id]
      ]);
     }
-    $this->system->Data("Purge", ["local", $id]);
-    $this->system->Data("Purge", ["pfmanifest", $id]);
-    $this->system->Data("Purge", ["pf", $id]);
-    $this->system->Data("Purge", ["react", $id]);
+    $this->core->Data("Purge", ["local", $id]);
+    $this->core->Data("Purge", ["pfmanifest", $id]);
+    $this->core->Data("Purge", ["pf", $id]);
+    $this->core->Data("Purge", ["react", $id]);
     foreach($forums as $key => $value) {
      if($id != $value) {
       $newForums[$key] = $value;
@@ -792,9 +792,9 @@
      "Header" => "Done"
     ];
     $y["Forums"] = $newForums;
-    #$this->system->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
+    #$this->core->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -807,8 +807,8 @@
   function SendInvite(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "ID",
     "Member",
     "Role"
@@ -821,12 +821,12 @@
    ];
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
-    $members = $this->system->DatabaseSet("MBR");
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+    $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
      $value = str_replace("c.oh.mbr.", "", $value);
      if($i == 0) {
-      $t = $this->system->Data("Get", ["mbr", $value]) ?? [];
+      $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
       if($mbr == $t["Login"]["Username"]) {
        $i++;
       }
@@ -849,7 +849,7 @@
      ];
     } else {
      $active = 0;
-     $manifest = $this->system->Data("Get", ["pfmanifest", $forum["ID"]]) ?? [];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $forum["ID"]]) ?? [];
      foreach($manifest as $member => $role) {
       if($mbr == $member) {
        $active++;
@@ -862,12 +862,12 @@
       $accessCode = "Accepted";
       $role = ($data["Role"] == 1) ? "Member" : "Admin";
       $manifest[$mbr] = $role;
-      $this->system->Data("Save", [
+      $this->core->Data("Save", [
        "pfmanifest",
        $forum["ID"],
        $manifest
       ]) ?? [];
-      $this->system->SendBulletin([
+      $this->core->SendBulletin([
        "Data" => [
         "ForumID" => $id,
         "Member" => $mbr,
@@ -883,7 +883,7 @@
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -895,7 +895,7 @@
   function Share(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID"]);
+   $data = $this->core->FixMissing($data, ["ID"]);
    $ec = "Denied";
    $id = $data["ID"];
    $r = [
@@ -909,18 +909,18 @@
     ];
     if($id != "cb3e432f76b38eaa66c7269d658bd7ea") {
      $accessCode = "Accepted";
-     $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
-     $body = $this->system->PlainText([
-      "Data" => $this->system->Element([
+     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+     $body = $this->core->PlainText([
+      "Data" => $this->core->Element([
        "p", "Check out <em>".$forum["Title"]."</em>!"
-      ]).$this->system->Element([
+      ]).$this->core->Element([
        "div", "[Forum:$id]",
        ["class" => "NONAME"]
       ]),
       "HTMLEncode" => 1
      ]);
      $body = base64_encode($body);
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Forum",
       "[Share.ContentID]" => "Forum",
       "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
@@ -929,13 +929,13 @@
       "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
       "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
       "[Share.Title]" => $forum["Title"]
-     ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+     ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
      $r = [
       "Front" => $r
      ];
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

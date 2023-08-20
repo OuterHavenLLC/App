@@ -1,16 +1,16 @@
 <?php
  ini_set("display_errors", "on");
  require_once(__DIR__."/Core.php");
- Class GW extends System {
+ Class GW extends Core {
   function __construct() {
-   $this->system = New System;
+   $this->core = New Core;
   }
   function view(string $a, array $b) {
    $a = explode(":", base64_decode($a));
-   $documentRoot = $_SERVER["DOCUMENT_ROOT"]."/base/views/";
+   $documentRoot = $this->core->DocumentRoot."/base/views/";
    $group = $a[0] ?? "NA";
    $view = $a[1] ?? "NoView";
-   $r = $this->system->JSONResponse([
+   $r = $this->core->JSONResponse([
     "AccessCode" => "Denied",
     "Response" => [
      "JSON" => "",
@@ -26,13 +26,13 @@
     $this->render = New $group;
     $r = $this->render->$view($b) ?? "";
     if(empty($r)) {
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Not Found",
       "[Error.Message]" => "The view <em>$view</em> from group <em>$group</em> was empty, and could not be loaded."
-     ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
     }
-    $r = $this->system->PlainText([
+    $r = $this->core->PlainText([
      "Data" => $r,
      "Display" => 1
     ]);

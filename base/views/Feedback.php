@@ -2,7 +2,7 @@
  Class Feedback extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Home(array $a) {
    $accessCode = "Denied";
@@ -15,20 +15,20 @@
     ];
     if(!empty($id)) {
      $accessCode = "Accepted";
-     $action = $this->system->Element(["button", "Respond", [
+     $action = $this->core->Element(["button", "Respond", [
       "class" => "CardButton SendData",
       "data-form" => ".FeedbackEditor$id",
       "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
      ]]);
-     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+     $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
      $title = $feedback["Subject"] ?? "New Feedback";
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Feedback.ID]" => $id,
-      "[Feedback.Inputs]" => $this->system->RenderInputs([
+      "[Feedback.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -113,7 +113,7 @@
       ]),
       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title
-     ], $this->system->Page("56718d75fb9ac2092c667697083ec73f")]);
+     ], $this->core->Page("56718d75fb9ac2092c667697083ec73f")]);
     }
     $r = [
      "Action" => $action,
@@ -121,31 +121,31 @@
     ];
    } elseif($pub == 1) {
     $accessode = "Accepted";
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Error.Back]" => "",
      "[Error.Header]" => "Let's Talk!",
      "[Error.Message]" => "We want to hear from you, send us your feedback."
-    ], $this->system->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
-    $r .= $this->system->Element([
+    ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+    $r .= $this->core->Element([
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
-    ]).$this->system->Element([
-     "div", $this->system->Element(["button", "Send Feedback", [
+    ]).$this->core->Element([
+     "div", $this->core->Element(["button", "Send Feedback", [
       "class" => "BBB OpenDialog v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("Feedback:NewThread"))
      ]]), ["class" => "Desktop33 MobilfFull"]
-    ]).$this->system->Element([
+    ]).$this->core->Element([
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
     ]);
     if(!empty($id)) {
-     $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+     $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
      $title = $feedback["Subject"] ?? "New Feedback";
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Feedback.ID]" => $id,
-      "[Feedback.Inputs]" => $this->system->RenderInputs([
+      "[Feedback.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -205,14 +205,14 @@
       "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title
-     ], $this->system->Page("599e260591d6dca59a8e0a52f5bd64be")]);
+     ], $this->core->Page("599e260591d6dca59a8e0a52f5bd64be")]);
     }
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
-    $r = $this->system->RenderView($r);
+    $r = $this->core->RenderView($r);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -226,14 +226,14 @@
    $id = md5("Feedback");
    $y = $this->you;
    $r = [
-    "Action" => $this->system->Element(["button", "Send", [
+    "Action" => $this->core->Element(["button", "Send", [
      "class" => "CardButton SendData",
      "data-form" => ".ContactForm$id",
      "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
     ]]),
-    "Front" => $this->system->Change([[
+    "Front" => $this->core->Change([[
      "[Feedback.ID]" => $id,
-     "[Feedback.Inputs]" => $this->system->RenderInputs([
+     "[Feedback.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "class" => "req",
@@ -364,9 +364,9 @@
        "Value" => 0
       ]
      ])
-    ], $this->system->Page("2b5ca0270981e891ce01dba62ef32fe4")])
+    ], $this->core->Page("2b5ca0270981e891ce01dba62ef32fe4")])
    ];
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -378,8 +378,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "Email",
     "Index",
     "MSG",
@@ -396,9 +396,9 @@
    $you = $y["Login"]["Username"];
    if(!empty($data["MSG"])) {
     $accessCode = "Accepted";
-    $now = $this->system->timestamp;
+    $now = $this->core->timestamp;
     if($data["SOE"] == 1) {
-     $contacts  = $this->system->Data("Get", [
+     $contacts  = $this->core->Data("Get", [
       "x",
       md5("ContactList")
      ]) ?? [];
@@ -410,7 +410,7 @@
       "UN" => $you,
       "Updated" => $now
      ];
-     $this->system->Data("Save", ["x", md5("ContactList"), $contacts]);
+     $this->core->Data("Save", ["x", md5("ContactList"), $contacts]);
     }
     $feedback = [
      "AllowIndexing" => $data["Index"],
@@ -426,7 +426,7 @@
      "UseParaphrasedQuestion" => 0
     ];
     array_push($feedback["Thread"], [
-     "Body" => $this->system->PlainText([
+     "Body" => $this->core->PlainText([
       "Data" => $data["Message"],
       "Encode" => 1,
       "HTMLEncode" => 1
@@ -434,18 +434,18 @@
      "From" => $you,
      "Sent" => $now
     ]);
-    $this->system->Data("Save", [
+    $this->core->Data("Save", [
      "knowledge",
      md5("KnowledgeBase-$now-".uniqid()),
      $feedback
     ]);
-    $this->system->Statistic("FS");
+    $this->core->Statistic("FS");
     $r = [
      "Body" => "We will be in touch as soon as possible!",
      "Header" => "Thank you"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -458,8 +458,8 @@
   function SaveResponse(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "ID",
     "Message",
     "ParaphrasedQuestion",
@@ -475,7 +475,7 @@
    $you = $y["Login"]["Username"];
    if(!empty($data["Message"]) && !empty($id)) {
     $accessCode = "Accepted";
-    $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+    $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
     if(!empty($data["ParaphrasedQuestion"])) {
      $feedback["ParaphrasedQuestion"] = $data["ParaphrasedQuestion"];
     } if(!empty($data["Priority"])) {
@@ -486,36 +486,36 @@
      $feedback["UseParaphrasedQuestion"] = $data["UseParaphrasedQuestion"];
     }
     array_push($feedback["Thread"], [
-     "Body" => $this->system->PlainText([
+     "Body" => $this->core->PlainText([
       "Data" => $data["Message"],
       "Encode" => 1,
       "HTMLEncode" => 1
      ]),
      "From" => $you,
-     "Sent" => $this->system->timestamp
+     "Sent" => $this->core->timestamp
     ]);
     if($feedback["Username"] != $you) {
-     $this->system->SendEmail([
-      "Message" => $this->system->Change([[
+     $this->core->SendEmail([
+      "Message" => $this->core->Change([[
        "[Email.Header]" => "{email_header}",
-       "[Email.Message]" => $this->system->PlainText([
+       "[Email.Message]" => $this->core->PlainText([
         "Data" => $data["Message"],
         "Display" => 1
        ]),
        "[Email.Name]" => $feedback["Name"],
-       "[Email.Link]" => $this->system->base."/feedback/$id"
-      ], $this->system->Page("dc901043662c5e71b5a707af782fdbc1")]),
+       "[Email.Link]" => $this->core->base."/feedback/$id"
+      ], $this->core->Page("dc901043662c5e71b5a707af782fdbc1")]),
       "Title" => "Re: ".$feedback["Subject"],
       "To" => $feedback["Email"]
      ]);
     }
-    $this->system->Data("Save", ["knowledge", $id, $feedback]);
+    $this->core->Data("Save", ["knowledge", $id, $feedback]);
     $r = [
      "Body" => "Your response has been sent.",
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -529,31 +529,31 @@
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = [
-    "Scrollable" => $this->system->Page("2ce9b2d2a7f5394df6a71df2f0400873")
+    "Scrollable" => $this->core->Page("2ce9b2d2a7f5394df6a71df2f0400873")
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $accessCode = "Accepted";
-    $feedback = $this->system->Data("Get", ["knowledge", $id]) ?? [];
+    $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
     $r = "";
     $thread = $feedback["Thread"] ?? [];
-    $tpl = $this->system->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
+    $tpl = $this->core->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
     foreach($thread as $key => $message) {
      $class = ($message["From"] != $you) ? "MSGt" : "MSGy";
-     $r .= $this->system->Change([[
+     $r .= $this->core->Change([[
       "[Message.Attachments]" => "",
       "[Message.Class]" => $class,
-      "[Message.MSG]" => $this->system->PlainText([
+      "[Message.MSG]" => $this->core->PlainText([
        "Data" => $message["Body"],
        "Decode" => 1,
        "HTMLDecode" => 1
       ]),
-      "[Message.Sent]" => $this->system->TimeAgo($message["Sent"])
+      "[Message.Sent]" => $this->core->TimeAgo($message["Sent"])
      ], $tpl]);
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

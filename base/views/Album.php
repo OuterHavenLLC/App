@@ -2,13 +2,13 @@
  Class Album extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Edit(array $a) {
    $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["AID", "new"]);
+   $data = $this->core->FixMissing($data, ["AID", "new"]);
    $id = $data["AID"];
    $new = $data["new"] ?? 0;
    $r = [
@@ -16,7 +16,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -26,20 +26,20 @@
     $action = ($new == 1) ? "Post" : "Update";
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
-    $t = ($t == $you) ? $y : $this->system->Member($t);
-    $fileSystem = $this->system->Data("Get", [
+    $t = ($t == $you) ? $y : $this->core->Member($t);
+    $fileSystem = $this->core->Data("Get", [
      "fs",
      md5($t["Login"]["Username"])
     ]) ?? [];
-    $id = ($new == 1) ? md5($t["Login"]["Username"].$this->system->timestamp) : $id;
+    $id = ($new == 1) ? md5($t["Login"]["Username"].$this->core->timestamp) : $id;
     $alb = $fileSystem["Albums"][$id] ?? [];
     $description = $alb["Description"] ?? "";
     $nsfw = $alb["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $alb["Privacy"] ?? $y["Privacy"]["Albums"];
     $title = $alb["Title"] ?? "";
     $header = ($new == 1) ? "Create New Album" : "Edit $title";
-    $r = $this->system->Change([[
-     "[Album.AdditionalContent]" => $this->system->Change([
+    $r = $this->core->Change([[
+     "[Album.AdditionalContent]" => $this->core->Change([
       [
        "[Extras.ContentType]" => "Album",
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
@@ -49,11 +49,11 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
-      ], $this->system->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Album.Header]" => $header,
      "[Album.ID]" => $id,
-     "[Album.Inputs]" => $this->system->RenderInputs([
+     "[Album.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -103,16 +103,16 @@
        "Type" => "TextBox",
        "Value" => $description
       ]
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Filter" => "NSFW",
       "Name" => "nsfw",
       "Title" => "Content Status",
       "Value" => $nsfw
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Value" => $privacy
      ])
-    ], $this->system->Page("760cd577207eb0d2121509d7212038d4")]);
-    $button = $this->system->Element(["button", $action, [
+    ], $this->core->Page("760cd577207eb0d2121509d7212038d4")]);
+    $button = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditAlbum$id",
      "data-processor" => base64_encode("v=".base64_encode("Album:Save"))
@@ -122,7 +122,7 @@
     "Action" => $button,
     "Front" => $r
    ];
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -142,27 +142,27 @@
     "Body" => "The Album Identifier is missing.",
     "Header" => "Not Found"
    ];
-   $xfsLimit = $this->system->config["XFS"]["limits"]["Total"] ?? 0;
+   $xfsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
    $xfsLimit = str_replace(",", "", $xfsLimit)."MB";
    $xfsUsage = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $fileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
+   $fileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
    foreach($fileSystem["Files"] as $k => $v) {
     $xfsUsage = $xfsUsage + $v["Size"];
    }
    $xfsUsage = number_format(round($xfsUsage / 1000));
    $xfsUsage = str_replace(",", "", $xfsUsage);
    if(!empty($id) || $new == 1) {
-    $t = ($data["UN"] == $you) ? $y : $this->system->Member($data["UN"]);
-    $fileSystem = $this->system->Data("Get", [
+    $t = ($data["UN"] == $you) ? $y : $this->core->Member($data["UN"]);
+    $fileSystem = $this->core->Data("Get", [
      "fs",
      md5($t["Login"]["Username"])
     ]) ?? [];
     $tun = base64_encode($t["Login"]["Username"]);
     $abl = base64_encode($t["Login"]["Username"]."-$id");
     $alb = $fileSystem["Albums"][$id] ?? [];
-    $bl = $this->system->CheckBlocked([$y, "Albums", $abl]);
+    $bl = $this->core->CheckBlocked([$y, "Albums", $abl]);
     $blc = ($bl == 0) ? "B" : "U";
     $blt = ($bl == 0) ? "Block" : "Unblock";
     $blt .= " <em>".$alb["Title"]."</em>";
@@ -170,15 +170,15 @@
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
     $ck2 = $y["subscr"]["XFS"]["A"] ?? 0;
     $ck2 = ($ck2 == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
-    $coverPhoto = $alb["ICO"] ?? $this->system->PlainText([
+    $coverPhoto = $alb["ICO"] ?? $this->core->PlainText([
      "Data" => "[sIMG:CP]",
      "Display" => 1
     ]);
-    $coverPhoto = $this->system->GetSourceFromExtension([
+    $coverPhoto = $this->core->GetSourceFromExtension([
      $t["Login"]["Username"],
      $coverPhoto
     ]);
-    $actions = ($ck == 0) ? $this->system->Element([
+    $actions = ($ck == 0) ? $this->core->Element([
      "button", $blt, [
       "class" => "Block Small v2",
       "data-cmd" => base64_encode($blc),
@@ -187,44 +187,44 @@
     ]) : "";
     if($ck == 1) {
      $accessCode = "Accepted";
-     $actions .= ($ck2 == 1) ? $this->system->Element([
+     $actions .= ($ck2 == 1) ? $this->core->Element([
       "button", "Add Files", [
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=".$t["Login"]["Username"])
       ]
      ]) : "";
-     $actions .= ($id != md5("unsorted")) ? $this->system->Element([
+     $actions .= ($id != md5("unsorted")) ? $this->core->Element([
       "button", "Delete Album", [
        "class" => "CloseCard OpenDialog Small v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteAlbum")."&AID=$id&UN=$tun")
       ]
      ]) : "";
-     $actions .= $this->system->Element(["button", "Edit Album", [
+     $actions .= $this->core->Element(["button", "Edit Album", [
       "class" => "OpenCard Small v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$id&UN=$tun")
      ]]);
     }
-    $actions = ($this->system->ID != $you) ? $actions : "";
+    $actions = ($this->core->ID != $you) ? $actions : "";
     $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Album.Actions]" => $actions,
      "[Album.CoverPhoto]" => $coverPhoto,
-     "[Album.Created]" => $this->system->TimeAgo($alb["Created"]),
+     "[Album.Created]" => $this->core->TimeAgo($alb["Created"]),
      "[Album.Description]" => $alb["Description"],
      "[Album.ID]" => $id,
-     "[Album.Modified]" => $this->system->TimeAgo($alb["Modified"]),
+     "[Album.Modified]" => $this->core->TimeAgo($alb["Modified"]),
      "[Album.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Album;".$t["Login"]["Username"].";$id")),
      "[Album.Owner]" => $t["Personal"]["DisplayName"],
      "[Album.Share]" => base64_encode("v=".base64_encode("Album:Share")."&ID=$id&UN=$tun"),
      "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$tun"),
      "[Album.Title]" => $alb["Title"],
      "[Album.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
-    ], $this->system->Page("91c56e0ee2a632b493451aa044c32515")]);
+    ], $this->core->Page("91c56e0ee2a632b493451aa044c32515")]);
     $r = [
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -236,7 +236,7 @@
   function List(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "AID",
     "UN",
     "b2",
@@ -255,7 +255,7 @@
    ];
    if(!empty($id)) {
     $accessCode = "Accepted";
-    $back = ($bck == 1) ? $this->system->Element(["button", "Back to $b2", [
+    $back = ($bck == 1) ? $this->core->Element(["button", "Back to $b2", [
      "class" => "GoToParent LI head",
      "data-type" => $data["lPG"]
     ]]) : "";
@@ -264,9 +264,9 @@
      "UN" => $un,
      "st" => "MBR-XFS"
     ]]);
-    $r = $back.$this->system->RenderView($r);
+    $r = $back.$this->core->RenderView($r);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -278,8 +278,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "ID",
     "Title",
     "new",
@@ -288,20 +288,20 @@
    ]);
    $id = $data["ID"];
    $new = $data["new"] ?? 0;
-   $now = $this->system->timestamp;
+   $now = $this->core->timestamp;
    $r = [
     "Body" => "The Album Identifier is missing.",
     "Header" => "Error"
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
+    $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "saved" : "updated";
     $albums = $_FileSystem["Albums"] ?? [];
@@ -322,13 +322,13 @@
      "Title" => $data["Title"]
     ];
     $_FileSystem["Albums"] = $albums;
-    $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
+    $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
     $r = [
      "Body" => "The Album was $actionTaken.",
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -341,7 +341,7 @@
   function SaveDelete(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Album Identifier is missing."
@@ -352,7 +352,7 @@
     $r = [
      "Body" => "The PINs do not match."
     ];
-   } elseif($this->system->ID == $you) {
+   } elseif($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -363,7 +363,7 @@
     ];
     if($id != md5("unsorted")) {
      $accessCode = "Accepted";
-     $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
+     $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
      $albums = $_FileSystem["Albums"] ?? [];
      $files = $_FileSystem["Files"] ?? [];
      $newAlbums = [];
@@ -384,16 +384,16 @@
      $this->view(base64_encode("Conversation:SaveDelete"), [
       "Data" => ["ID" => $id]
      ]);
-     $this->system->Data("Purge", ["local", $id]);
-     $this->system->Data("Purge", ["votes", $id]);
-     $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
+     $this->core->Data("Purge", ["local", $id]);
+     $this->core->Data("Purge", ["votes", $id]);
+     $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
      $r = [
       "Body" => "The Album <em>$title</em> was successfully deleted.",
       "Header" => "Done"
      ];
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -406,7 +406,7 @@
   function Share(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "UN"]);
+   $data = $this->core->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
    $un = $data["UN"];
    $r = [
@@ -418,19 +418,19 @@
     $accessCode = "Accepted";
     $un = base64_decode($un);
     $code = base64_encode("$un;$id");
-    $t = ($un == $you) ? $y : $this->system->Member($un);
-    $body = $this->system->PlainText([
-     "Data" => $this->system->Element([
+    $t = ($un == $you) ? $y : $this->core->Member($un);
+    $body = $this->core->PlainText([
+     "Data" => $this->core->Element([
       "p", "Check out ".$t["Personal"]["DisplayName"]."'s media album!"
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "div", "[Album:$code]", ["class" => "NONAME"]
      ]),
      "HTMLEncode" => 1
     ]);
     $body = base64_encode($body);
-    $fileSystem = $this->system->Data("Get", ["fs", md5($un)]) ?? [];
+    $fileSystem = $this->core->Data("Get", ["fs", md5($un)]) ?? [];
     $fileSystem = $fileSystem["Albums"][$id] ?? [];
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$code&Type=Album",
      "[Share.ContentID]" => "Album",
      "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
@@ -439,12 +439,12 @@
      "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
      "[Share.Title]" => $fileSystem["Title"]
-    ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
     $r = [
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

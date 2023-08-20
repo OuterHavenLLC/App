@@ -1,24 +1,24 @@
-<?php
+f<?php
  Class Chat extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Home(array $a) {
    $d = $a["Data"] ?? [];
-   $d = $this->system->FixMissing($d, ["GroupChat", "to"]);
+   $d = $this->core->FixMissing($d, ["GroupChat", "to"]);
    $group = $d["GroupChat"] ?? 0;
    $un = base64_decode($d["to"]);
    $y = $this->you;
    if($group == 1) {
     $active = "Active";
     $chat = md5("Chat_$un");
-    $dn = $this->system->Data("Get", ["pf", $un]) ?? [];
+    $dn = $this->core->Data("Get", ["pf", $un]) ?? [];
     $dn = $dn["Title"] ?? "Group Chat";
     $lobby = base64_encode("v=".base64_encode("Forum:About")."&ID=".$d["to"]);
     $t = [];
    } else {
-    $t = ($un == $y["UN"]) ? $y : $this->system->Member($un);
+    $t = ($un == $y["UN"]) ? $y : $this->core->Member($un);
     $active = ($t["oStatus"] == 1) ? "Online" : "Offline";
     $chat = md5("Chat_".$y["UN"]."-$un");
     $dn = $t["DN"];
@@ -27,7 +27,7 @@
    $at1 = base64_encode("Share with $dn in Chat:.ChatAttachments$chat-ATTF");
    $at2 = base64_encode("Added to Chat Message!");
    $sc = base64_encode("Search:Containers");
-   $r = $this->system->Change([[
+   $r = $this->core->Change([[
     "[Chat.ActivityStatus]" => $active,
     "[Chat.Attachments]" => base64_encode("v=$sc&AddTo=$at1&Added=$at2&UN=".$y["UN"]."&st=XFS"),
     "[Chat.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
@@ -36,29 +36,29 @@
     "[Chat.ID]" => $chat,
     "[Chat.List]" => "v=".base64_encode("Chat:List")."&GroupChat=$group&to=".$d["to"],
     "[Chat.Profile]" => $lobby,
-    "[Chat.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:10%;max-width:4em;width:90%"),
+    "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:10%;max-width:4em;width:90%"),
     "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
     "[Chat.To]" => $un,
     "[Chat.Type]" => $group
-   ], $this->system->Page("a4c140822e556243e3edab7cae46466d")]);
+   ], $this->core->Page("a4c140822e556243e3edab7cae46466d")]);
    return $r;
   }
   function List(array $a) {
    $d = $a["Data"] ?? [];
-   $d = $this->system->FixMissing($d, ["GroupChat", "to"]);
+   $d = $this->core->FixMissing($d, ["GroupChat", "to"]);
    $group = $d["GroupChat"] ?? 0;
    $msg = [];
-   $r = $this->system->Page("2ce9b2d2a7f5394df6a71df2f0400873");
+   $r = $this->core->Page("2ce9b2d2a7f5394df6a71df2f0400873");
    $t = $d["to"];
-   $tpl = $this->system->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
+   $tpl = $this->core->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($t)) {
     $attlv = base64_encode("LiveView:InlineMossaic");
     $t = base64_decode($t);
     $chat = ($group == 1) ? $t : md5($t);
-    $c = $this->system->Data("Get", ["msg", $chat]) ?? [];
-    $c2 = $this->system->Data("Get", ["msg", md5($y["UN"])]) ?? [];
+    $c = $this->core->Data("Get", ["msg", $chat]) ?? [];
+    $c2 = $this->core->Data("Get", ["msg", md5($y["UN"])]) ?? [];
     $c2 = ($group == 0) ? $c2 : [];
     $chat = array_merge($c, $c2);
     foreach($chat as $k => $v) {
@@ -73,14 +73,14 @@
         "Type" => base64_encode("DLC")
        ]]);
       }
-      $mc = (!empty($v["MSG"])) ? $this->system->Element([
+      $mc = (!empty($v["MSG"])) ? $this->core->Element([
        "p", base64_decode($v["MSG"])
       ]) : "";
       $msg[$k] = [
        "[Message.Attachments]" => $att,
        "[Message.Class]" => $class,
        "[Message.MSG]" => $mc,
-       "[Message.Sent]" => $this->system->TimeAgo($v["Timestamp"])
+       "[Message.Sent]" => $this->core->TimeAgo($v["Timestamp"])
       ];
      }
     }
@@ -89,7 +89,7 @@
     ksort($msg);
     foreach($msg as $k => $v) {
      $message = $tpl;
-     $r .= $this->system->Change([$v, $message]);
+     $r .= $this->core->Change([$v, $message]);
     }
    }
    return $r;
@@ -97,8 +97,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $d = $a["Data"] ?? [];
-   $d = $this->system->DecodeBridgeData($d);
-   $d = $this->system->FixMissing($d, [
+   $d = $this->core->DecodeBridgeData($d);
+   $d = $this->core->FixMissing($d, [
     "GroupChat",
     "MSG",
     "Share",
@@ -115,13 +115,13 @@
    $to = $d["To"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = "You must be signed in to continue.";
    } elseif(($ck == 1 || $ck2 == 1 || $ck3 == 1) && !empty($to)) {
     $accessCode = "Accepted";
     $att = [];
     $chat = ($group == 1) ? $to : md5($to);
-    $sent = $this->system->timestamp;
+    $sent = $this->core->timestamp;
     $to = ($group == 1 && $d["Share"] == 1) ? "" : $to;
     if(!empty($d["rATTF"])) {
      $dlc = array_reverse(explode(";", base64_decode($d["rATTF"])));
@@ -135,7 +135,7 @@
      }
     }
     $att = array_unique($att);
-    $msg = $this->system->Data("Get", ["msg", $chat]) ?? [];
+    $msg = $this->core->Data("Get", ["msg", $chat]) ?? [];
     $msg[$sent."_".$y["UN"]] = [
      "Attachments" => $att,
      "From" => $y["UN"],
@@ -145,9 +145,9 @@
      "To" => $to
     ];
     $r = "Sent";
-    #$this->system->Data("Save", ["msg", $chat, $msg]);
+    #$this->core->Data("Save", ["msg", $chat, $msg]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     $accessCode,
     $r
    ]);
@@ -155,8 +155,8 @@
   function SaveShare(array $a) {
    $accessCode = "Denied";
    $d = $a["Data"] ?? [];
-   $d = $this->system->DecodeBridgeData($d);
-   $d = $this->system->FixMissing($d, ["ID", "UN"]);
+   $d = $this->core->DecodeBridgeData($d);
+   $d = $this->core->FixMissing($d, ["ID", "UN"]);
    $ec = "Denied";
    $id = $d["ID"];
    $r = [
@@ -164,18 +164,18 @@
    ];
    $un = $d["UN"];
    $y = $this->you;
-   if($y["UN"] == $this->system->ID) {
+   if($y["UN"] == $this->core->ID) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id) && !empty($un)) {
     $i = 0;
-    $x = $this->system->DatabaseSet("MBR");
+    $x = $this->core->DatabaseSet("MBR");
     foreach($x as $k => $v) {
      $v = str_replace("c.oh.mbr.", "", $v);
      if($i == 0) {
-      $t = $this->system->Data("Get", ["mbr", $v]) ?? [];
+      $t = $this->core->Data("Get", ["mbr", $v]) ?? [];
       if($un == $t["UN"]) {
        $i++;
       }
@@ -188,9 +188,9 @@
     } else {
      $ec = "Accepted";
      $this->view(base64_encode("Chat:Save"), ["Data" => [
-      "MSG" => $this->system->PlainText(["Data" => $id, "Processor" => 1]),
-      "Share" => $this->system->PlainText(["Data" => 1, "Processor" => 1]),
-      "To" => $this->system->PlainText(["Data" => $un, "Processor" => 1])
+      "MSG" => $this->core->PlainText(["Data" => $id, "Processor" => 1]),
+      "Share" => $this->core->PlainText(["Data" => 1, "Processor" => 1]),
+      "To" => $this->core->PlainText(["Data" => $un, "Processor" => 1])
      ]]);
      $r = [
       "Body" => "The message was sent to $un.",
@@ -198,12 +198,12 @@
      ];
     }
    }
-   return $this->system->JSONResponse([$ec, $r]);
+   return $this->core->JSONResponse([$ec, $r]);
   }
   function SaveShareGroup(array $a) {
    $d = $a["Data"] ?? [];
-   $d = $this->system->DecodeBridgeData($d);
-   $d = $this->system->FixMissing($d, ["ID", "UN"]);
+   $d = $this->core->DecodeBridgeData($d);
+   $d = $this->core->FixMissing($d, ["ID", "UN"]);
    $ec = "Denied";
    $id = $d["ID"];
    $r = [
@@ -211,7 +211,7 @@
    ];
    $un = $d["UN"];
    $y = $this->you;
-   if($y["UN"] == $this->system->ID) {
+   if($y["UN"] == $this->core->ID) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -219,14 +219,14 @@
    } elseif(!empty($id) && !empty($un)) {
     $active = 0;
     $i = 0;
-    $un = $this->system->CallSign($un);
-    $x = $this->system->DatabaseSet("PF");
+    $un = $this->core->CallSign($un);
+    $x = $this->core->DatabaseSet("PF");
     foreach($x as $k => $v) {
      $v = str_replace("c.oh.pf.", "", $v);
      if($active == 0 && $i == 0) {
-      $f = $this->system->Data("Get", ["pf", $v]) ?? [];
-      if($un == $this->system->CallSign($f["Title"])) {
-       $manifest = $this->system->Data("Get", ["pfmanifest", $v]) ?? [];
+      $f = $this->core->Data("Get", ["pf", $v]) ?? [];
+      if($un == $this->core->CallSign($f["Title"])) {
+       $manifest = $this->core->Data("Get", ["pfmanifest", $v]) ?? [];
        foreach($manifest as $mk => $mv) {
         foreach($mv as $mk2 => $mv2) {
          if($active == 0 && $mk2 == $y["UN"]) {
@@ -247,10 +247,10 @@
     } else {
      $ec = "Accepted";
      $this->view(base64_encode("Chat:Save"), ["Data" => [
-      "GroupChat" => $this->system->PlainText(["Data" => 1, "Processor" => 1]),
-      "MSG" => $this->system->PlainText(["Data" => $id, "Processor" => 1]),
-      "Share" => $this->system->PlainText(["Data" => 1, "Processor" => 1]),
-      "To" => $this->system->PlainText(["Data" => $un, "Processor" => 1])
+      "GroupChat" => $this->core->PlainText(["Data" => 1, "Processor" => 1]),
+      "MSG" => $this->core->PlainText(["Data" => $id, "Processor" => 1]),
+      "Share" => $this->core->PlainText(["Data" => 1, "Processor" => 1]),
+      "To" => $this->core->PlainText(["Data" => $un, "Processor" => 1])
      ]]);
      $r = [
       "Body" => "The message was sent to $ttl.",
@@ -258,29 +258,29 @@
      ];
     }
    }
-   return $this->system->JSONResponse([$ec, $r]);
+   return $this->core->JSONResponse([$ec, $r]);
   }
   function Share(array $a) {
    $btn = "";
    $d = $a["Data"] ?? [];
-   $d = $this->system->FixMissing($d, ["GroupChat", "ID", "UN"]);
+   $d = $this->core->FixMissing($d, ["GroupChat", "ID", "UN"]);
    $id = $d["ID"];
-   $r = $this->system->Change([[
+   $r = $this->core->Change([[
     "[Error.Header]" => "Error",
     "[Error.Message]" => "The Share Data is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    $y = $this->you;
    if(!empty($id)) {
-    $id = base64_decode($this->system->PlainText([
+    $id = base64_decode($this->core->PlainText([
      "Data" => $id, "HTMLDencode" => 1
     ]));
-    $sid = md5($this->system->timestamp);
-    $r = $this->system->Change([[
+    $sid = md5($this->core->timestamp);
+    $r = $this->core->Change([[
      "[Share.AvailabilityView]" => base64_encode("v=".base64_encode("Common:AvailabilityCheck")."&at=".base64_encode("SendMessage")."&av="),
      "[Share.ID]" => $sid,
      "[Share.Message]" => $id
-    ], $this->system->Page("16b534e5d1b3838a98abfb3bcf3f7b99")]);
-    $btn = $this->system->Element(["button", "Send", [
+    ], $this->core->Page("16b534e5d1b3838a98abfb3bcf3f7b99")]);
+    $btn = $this->core->Element(["button", "Send", [
      "class" => "BB Xedit v2",
      "data-type" => ".ShareMessage$sid",
      "data-u" => base64_encode("v=".base64_encode("Chat:SaveShare")),
@@ -295,24 +295,24 @@
   function ShareGroup(array $a) {
    $btn = "";
    $d = $a["Data"] ?? [];
-   $d = $this->system->FixMissing($d, ["GroupChat", "ID", "UN"]);
+   $d = $this->core->FixMissing($d, ["GroupChat", "ID", "UN"]);
    $id = $d["ID"];
-   $r = $this->system->Change([[
+   $r = $this->core->Change([[
     "[Error.Header]" => "Error",
     "[Error.Message]" => "The Share Data is missing."
-   ], $this->system->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+   ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    $y = $this->you;
    if(!empty($id)) {
-    $id = base64_decode($this->system->PlainText([
+    $id = base64_decode($this->core->PlainText([
      "Data" => $id, "HTMLDencode" => 1
     ]));
-    $sid = md5($this->system->timestamp);
-    $r = $this->system->Change([[
+    $sid = md5($this->core->timestamp);
+    $r = $this->core->Change([[
      "[Share.AvailabilityView]" => base64_encode("v=".base64_encode("Common:AvailabilityCheck")."&at=".base64_encode("SendMessageGroup")."&av="),
      "[Share.ID]" => $sid,
      "[Share.Message]" => $id
-    ], $this->system->Page("16b534e5d1b3838a98abfb3bcf3f7b99")]);
-    $btn = $this->system->Element(["button", "Send", [
+    ], $this->core->Page("16b534e5d1b3838a98abfb3bcf3f7b99")]);
+    $btn = $this->core->Element(["button", "Send", [
      "class" => "BB Xedit v2",
      "data-type" => ".ShareMessage$sid",
      "data-u" => base64_encode("v=".base64_encode("Chat:SaveShareGroup")),

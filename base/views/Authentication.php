@@ -2,7 +2,7 @@
  Class Authentication extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function ArticleChangeMemberRole(array $a) {
    $accessCode = "Denied";
@@ -14,7 +14,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -22,9 +22,9 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $Page = $this->system->Data("Get", ["pg", $id]) ?? [];
-    $r = $this->system->Change([[
-     "[Roles.Inputs]" => $this->system->RenderInputs([
+    $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
+    $r = $this->core->Change([[
+     "[Roles.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -73,9 +73,9 @@
      ]),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Page:ChangeMemberRole")),
      "[Roles.Title]" => $Page["Title"]
-    ], $this->system->Page("270d16c83b59b067231b0c6124a4038d")]);
+    ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -96,15 +96,15 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($form) && !empty($id) && !empty($processor)) {
     $accessCode = "Accepted";
-    $r = $this->system->Change([[
-     "[Authorize.PIN]" => $this->system->RenderInputs([
+    $r = $this->core->Change([[
+     "[Authorize.PIN]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "class" => "req",
@@ -124,9 +124,9 @@
      "[Authorize.Form]" => base64_decode($form),
      "[Authorize.Text]" => base64_decode($text),
      "[Authorize.Processor]" => $processor
-    ], $this->system->Page("7f6ec4e23b8b7c616bb7d79b2d1d3157")]);
+    ], $this->core->Page("7f6ec4e23b8b7c616bb7d79b2d1d3157")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -145,7 +145,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -153,9 +153,9 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
-    $r = $this->system->Change([[
-     "[Roles.Inputs]" => $this->system->RenderInputs([
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+    $r = $this->core->Change([[
+     "[Roles.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -204,9 +204,9 @@
      ]),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Blog:ChangeMemberRole")),
      "[Roles.Title]" => $blog["Title"]
-    ], $this->system->Page("270d16c83b59b067231b0c6124a4038d")]);
+    ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -224,22 +224,22 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($aid)) {
     $accessCode = "Accepted";
-    $album = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
+    $album = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
     $album = $album["Albums"][$aid] ?? [];
     $dialogID = "Delete$aid";
     $r = [
      "Body" => "You are about to permanently delete ".$album["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -266,10 +266,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Album:SaveDelete")),
       "[Delete.Title]" => $album["Title"]
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -288,7 +288,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -297,13 +297,13 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $dialogID = "Delete$id";
-    $blog = $this->system->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $r = [
      "Body" => "You are about to permanently delete ".$blog["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -330,10 +330,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Blog:SaveDelete")),
       "[Delete.Title]" => $blog["Title"]
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -351,7 +351,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -359,14 +359,14 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $post = explode("-", base64_decode($id));
-    $post = $this->system->Data("Get", ["bp", $post[1]]) ?? [];
+    $post = $this->core->Data("Get", ["bp", $post[1]]) ?? [];
     $dialogID = "Delete".$post[1];
     $r = [
      "Body" => "You are about to permanently delete ".$post["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -393,10 +393,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:SaveDelete")),
       "[Delete.Title]" => $post["Title"]
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -408,13 +408,13 @@
   function DeleteDiscountCode(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID"]);
+   $data = $this->core->FixMissing($data, ["ID"]);
    $r = [
     "Body" => "The Code Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -426,8 +426,8 @@
      "Body" => "You are about to permanently delete this Discount Code.",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -454,10 +454,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("DiscountCode:SaveDelete")),
       "[Delete.Title]" => "this Discount Code"
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -469,13 +469,13 @@
   function DeleteFAB(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "UN"]);
+   $data = $this->core->FixMissing($data, ["ID", "UN"]);
    $r = [
     "Body" => "The Broadcaster Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -483,7 +483,7 @@
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
     $id = base64_decode($data["ID"]);
-    $fab = $this->system->Data("Get", [
+    $fab = $this->core->Data("Get", [
      "x",
      md5("FreeAmericaBroadcasting")
     ]) ?? [];
@@ -493,8 +493,8 @@
      "Body" => "You are about to permanently delete $fab.",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -521,10 +521,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("FAB:SaveDelete")),
       "[Delete.Title]" => $fab
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -543,7 +543,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -552,9 +552,9 @@
     $accessCode = "Accepted";
     $dialogID = "Delete$id";
     $username = base64_decode($username);
-    $files = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
+    $files = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
     $files = $files["Files"] ?? [];
-    $files = ($this->system->ID == $username) ? $this->system->Data("Get", [
+    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "x",
      "fs"
     ]) : $files;
@@ -563,8 +563,8 @@
      "Body" => "You are about to permanently delete ".$file["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -591,10 +591,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("File:SaveDelete")."&ParentView=".$data["ParentView"]),
       "[Delete.Title]" => $file["Title"]
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -612,7 +612,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -626,14 +626,14 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $dialogID = "Delete$id";
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $title = $forum["Title"] ?? "this Forum";
     $r = [
      "Body" => "You are about to permanently delete ".$forum["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -660,10 +660,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Forum:SaveDelete")),
       "[Delete.Title]" => $title
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -675,7 +675,7 @@
   function DeleteForumPost(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["FID", "ID"]);
+   $data = $this->core->FixMissing($data, ["FID", "ID"]);
    $all = $data["all"] ?? 0;
    $fid = $data["FID"];
    $id = $data["ID"];
@@ -684,7 +684,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -696,8 +696,8 @@
      "Body" => "You are about to permanently delete ".$post["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -724,10 +724,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("ForumPost:SaveDelete")),
       "[Delete.Title]" => $post["Title"]
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -739,13 +739,13 @@
   function DeletePage(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID"]);
+   $data = $this->core->FixMissing($data, ["ID"]);
    $r = [
     "Body" => "The Article Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -753,13 +753,13 @@
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
     $dialogID = "Delete".$data["ID"];
-    $page = $this->system->Data("Get", ["pg", $data["ID"]]) ?? [];
+    $page = $this->core->Data("Get", ["pg", $data["ID"]]) ?? [];
     $r = [
      "Body" => "You are about to permanently delete ".$page["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -786,10 +786,10 @@
       ]),
       "[Delete.Title]" => $page["Title"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete"))
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -801,7 +801,7 @@
   function DeleteProduct(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID"]);
+   $data = $this->core->FixMissing($data, ["ID"]);
    $all = $data["all"] ?? 0;
    $pd = base64_encode("Product:SaveDelete");
    $r = [
@@ -809,7 +809,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -817,13 +817,13 @@
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
     $dialogID = "Delete".$data["ID"];
-    $product = $this->system->Data("Get", ["miny", $data["ID"]]) ?? [];
+    $product = $this->core->Data("Get", ["miny", $data["ID"]]) ?? [];
     $r = [
      "Body" => "You are about to permanently delete ".$product["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -850,10 +850,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:SaveDelete")),
       "[Delete.Title]" => $product["Title"]
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -871,7 +871,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -884,8 +884,8 @@
      "Body" => "You are about to permanently delete this update.",
      "Header" => "Delete",
      "ID" => $dialogID,
-     "Scrollable" => $this->system->Change([[
-      "[Delete.Inputs]" => $this->system->RenderInputs([
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "name" => "ID",
@@ -912,10 +912,10 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:SaveDelete")),
       "[Delete.Title]" => "this post"
-     ], $this->system->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -934,7 +934,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -942,9 +942,9 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $forum = $this->system->Data("Get", ["pf", $id]) ?? [];
-    $r = $this->system->Change([[
-     "[Roles.Inputs]" => $this->system->RenderInputs([
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+    $r = $this->core->Change([[
+     "[Roles.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -993,9 +993,9 @@
      ]),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Forum:ChangeMemberRole")),
      "[Roles.Title]" => $forum["Title"]
-    ], $this->system->Page("270d16c83b59b067231b0c6124a4038d")]);
+    ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

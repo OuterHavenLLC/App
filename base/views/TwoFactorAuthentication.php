@@ -2,13 +2,13 @@
  Class TwoFactorAuthentication extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Email(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "2FA",
     "2FAconfirm",
     "Email",
@@ -26,10 +26,10 @@
      "Body" => "The email <strong>$email</strong> is not registered to any Member.",
      "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
     ];
-    $members = $this->system->DatabaseSet("MBR") ?? [];
+    $members = $this->core->DatabaseSet("MBR") ?? [];
     foreach($members as $key => $value) {
      $value = str_replace("c.oh.mbr.", "", $value);
-     $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
      if($email == $member["Personal"]["Email"]) {
       $emailIsRegistered++;
      }
@@ -37,22 +37,22 @@
      $accessCode = "Accepted";
      $_VerificationCode = uniqid("OH-");
      $_SecureVerificationCode = md5($_VerificationCode);
-     $this->system->SendEmail([
-      "Message" => $this->system->Element([
+     $this->core->SendEmail([
+      "Message" => $this->core->Element([
        "p", "Use the code below to verify your email address:"
-      ]).$this->system->Element([
+      ]).$this->core->Element([
        "h4", $_VerificationCode
       ]),
       "Title" => "Your Verification Code: $_VerificationCode",
       "To" => $email
      ]);
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[2FA.Confirm]" => $_SecureVerificationCode,
       "[2FA.Email]" => $email,
       "[2FA.Step2]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
       "[2FA.ReturnView]" => $data["ReturnView"],
       "[2FA.ViewPairID]" => $data["ViewPairID"]
-     ], $this->system->Page("ab9d092807adfadc3184c8ab844a1406")]);
+     ], $this->core->Page("ab9d092807adfadc3184c8ab844a1406")]);
     }
    } elseif($ck == 1) {
     $_VerificationCode = md5($data["2FA"]);
@@ -72,11 +72,11 @@
        "2FAReturn" => 1,
        "Email" => base64_encode($data["Email"])
       ]]);
-      $r = $this->system->RenderView($r);
+      $r = $this->core->RenderView($r);
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -88,8 +88,8 @@
   function FirstTime(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "2FA",
     "2FAconfirm",
     "BirthMonth",
@@ -167,10 +167,10 @@
      $r = [
       "Body" => "The email <strong>$email</strong> is already in use."
      ];
-     $members = $this->system->DatabaseSet("MBR") ?? [];
+     $members = $this->core->DatabaseSet("MBR") ?? [];
      foreach($members as $key => $value) {
       $value = str_replace("c.oh.mbr.", "", $value);
-      $member = $this->system->Data("Get", ["mbr", $value]) ?? [];
+      $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
       if($email == $member["Personal"]["Email"]) {
        $emailIsRegistered++;
       }
@@ -184,23 +184,23 @@
         $_Inputs.="<input name=\"$key\" type=\"hidden\" value=\"$value\"/>\r\n";
        }
       }
-      $this->system->SendEmail([
-       "Message" => $this->system->Element([
+      $this->core->SendEmail([
+       "Message" => $this->core->Element([
         "p", "Use the code below to verify your email address:"
-       ]).$this->system->Element([
+       ]).$this->core->Element([
         "h4", $_VerificationCode
        ]),
        "Title" => "Your Verification Code: $_VerificationCode",
        "To" => $email
       ]);
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[2FA.Confirm]" => $_SecureVerificationCode,
        "[2FA.Email]" => $email,
        "[2FA.Inputs]" => $_Inputs,
        "[2FA.Step2]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
        "[2FA.ReturnView]" => $data["ReturnView"],
        "[2FA.ViewPairID]" => $data["ViewPairID"]
-      ], $this->system->Page("e0513cfec7f3f4505d30c0c854e9dac2")]);
+      ], $this->core->Page("e0513cfec7f3f4505d30c0c854e9dac2")]);
      }
     } elseif($ck == 1) {
      $accessCode = "Accepted";
@@ -230,12 +230,12 @@
         "Username" => $data["Username"],
         "Gender" => $data["Personal_Gender"]
        ]]);
-       $r = $this->system->RenderView($r);
+       $r = $this->core->RenderView($r);
       }
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

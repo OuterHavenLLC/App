@@ -2,22 +2,22 @@
  Class Cart extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Add(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "T"]);
+   $data = $this->core->FixMissing($data, ["ID", "T"]);
    $id = $data["ID"];
    $r = [
     "Body" => "You must be signed in to make purchases.",
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["T"]) && $this->system->ID != $you) {
+   if(!empty($data["T"]) && $this->core->ID != $you) {
     $sub = $y["Subscriptions"]["Artist"]["A"] ?? 0;
-    $t = ($data["T"] == $you) ? $y : $this->system->Member($data["T"]);
-    $shop = $this->system->Data("Get", [
+    $t = ($data["T"] == $you) ? $y : $this->core->Member($data["T"]);
+    $shop = $this->core->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
     ]) ?? [];
@@ -28,7 +28,7 @@
      ];
     } else {
      $accessCode = "Accepted";
-     $product = $this->system->Data("Get", ["miny", $id]) ?? [];
+     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
      $cat = $product["Category"] ?? "";
      $hasInstructions = $product["Instructions"] ?? "";
      $productQuantity = $product["Quantity"] ?? 0;
@@ -42,23 +42,23 @@
      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) ? 1 : 0;
      for($i = 0; $i <= $productQuantity; $i++) {
       $quantities[$i] = $i;
-     } if($ck == 1 || ($t["Login"]["Username"] == $this->system->ShopID && $quantity != 0)) {
-      $instructions = ($cat == "PHYS" && $hasInstructions == 1) ? $this->system->Element([
+     } if($ck == 1 || ($t["Login"]["Username"] == $this->core->ShopID && $quantity != 0)) {
+      $instructions = ($cat == "PHYS" && $hasInstructions == 1) ? $this->core->Element([
        "p", "Please add your shipping address.",
        ["class" => "CenterText"]
       ]) : "";
-      $instructions .= ($hasInstructions == 1) ? $this->system->Element([
+      $instructions .= ($hasInstructions == 1) ? $this->core->Element([
        "textarea", NULL, [
         "name" => "Instructions",
         "placeholder" => "Write your instructions here..."
        ]
       ]) : "";
-      $lowStock = ($quantity > 0 && $quantity < 20) ? $this->system->Element([
+      $lowStock = ($quantity > 0 && $quantity < 20) ? $this->core->Element([
        "p", "This is selling fast, act soon before it's sold out!",
        ["class" => "CenterText"]
       ]) : "";
       $price = $product["Cost"] + $product["Profit"];
-      $quantity = ($quantity != "-1") ? $this->system->RenderInputs([
+      $quantity = ($quantity != "-1") ? $this->core->RenderInputs([
        [
         "Attributes" => [],
         "OptionGroup" => $quantities,
@@ -72,9 +72,9 @@
         "Value" => $quantity
        ]
       ]) : "";
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
-       "[AddToCart.Inputs]" => $this->system->RenderInputs([
+       "[AddToCart.Inputs]" => $this->core->RenderInputs([
         [
          "Attributes" => [
           "name" => "Product",
@@ -108,14 +108,14 @@
        "[AddToCart.Product.LowStock]" => $lowStock,
        "[AddToCart.Product.Price]" => number_format($price, 2),
        "[AddToCart.Product.Quantity]" => $quantity
-      ], $this->system->Page("624bcc664e9bff0002e01583e7706d83")]);
+      ], $this->core->Page("624bcc664e9bff0002e01583e7706d83")]);
       if($cat == "PHYS" && $t["Login"]["Username"] == $you) {
-       $r = $this->system->Element([
+       $r = $this->core->Element([
         "p", "Physical orders are disabled as you own this shop.",
         ["class" => "CenterText"]
        ]);
       } elseif($cat == "SUB") {
-       $sub = $this->system->Element([
+       $sub = $this->core->Element([
         "h4", "Already Subscribed",
         ["class" => "UpperCase CenterText"]
        ]);
@@ -132,13 +132,13 @@
        }
       }
      } else {
-      $r = $this->system->Element([
+      $r = $this->core->Element([
        "p", "Out of Stock", ["class" => "CenterText"]
       ]);
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -151,30 +151,30 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $r = [
-    "Scrollable" => $this->system->Page("8b3e21c565a8220fb6eb0a4433fe0739")
+    "Scrollable" => $this->core->Page("8b3e21c565a8220fb6eb0a4433fe0739")
    ];
    $username = base64_decode($data["UN"]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $username = (!empty($username)) ? $username : $you;
-   if($this->system->ID != $username) {
+   if($this->core->ID != $username) {
     $accessCode = "Accepted";
-    $t = ($username == $you) ? $y : $this->system->Member($username);
+    $t = ($username == $you) ? $y : $this->core->Member($username);
     $i = 1000;
     $id = md5($t["Login"]["Username"]);
-    $shop = $this->system->Data("Get", ["shop", $id]) ?? [];
-    $shop = $this->system->FixMissing($shop, ["Title"]);
+    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $shop = $this->core->FixMissing($shop, ["Title"]);
     $creditExchange = $this->Element([
      "p", "Credit Exchange requires a minimum of 1,000 points to be converted."
     ]);
     if($y["Points"] >= $i) {
      $creditExchange = md5(uniqid().rand(0, 9999));
      $creditExchangeProcessor = base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P=");
-     $creditExchange = $this->system->Change([[
+     $creditExchange = $this->core->Change([[
       "[CreditExchange.Data]" => $creditExchangeProcessor,
       "[CreditExchange.ID]" => $creditExchange,
       "[CreditExchange.Points]" => $i,
-      "[CreditExchange.Quantity]" => $this->system->RenderInputs([
+      "[CreditExchange.Quantity]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "class" => "RI$creditExchange",
@@ -192,12 +192,12 @@
         "Value" => $i
        ]
       ])
-     ], $this->system->Page("b9c61e4806cf07c0068f1721678bef1e")]);
+     ], $this->core->Page("b9c61e4806cf07c0068f1721678bef1e")]);
     }
     $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? 0;
-    $discountCodes = ($discountCodes == 0) ? $this->system->Change([
+    $discountCodes = ($discountCodes == 0) ? $this->core->Change([
      [
-      "[DiscountCodes.Input]" => $this->system->RenderInputs([
+      "[DiscountCodes.Input]" => $this->core->RenderInputs([
        [
         "Attributes" => [
          "class" => "DiscountCodes",
@@ -211,21 +211,21 @@
        ]
       ]),
       "[DiscountCodes.Shop.Title]" => $shop["Title"]
-     ], $this->system->Page("0511fae6fcc6f9c583dfe7669b0217cc")
-    ]) : $this->system->Element([
+     ], $this->core->Page("0511fae6fcc6f9c583dfe7669b0217cc")
+    ]) : $this->core->Element([
      "p", "<em>".base64_decode($discountCodes["Code"])."</em> was applied to your order!",
      ["class" => "CenterText"]
     ]);
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Cart.CreditExchange]" => $creditExchange,
      "[Cart.DiscountCodes]" => $discountCodes,
      "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&UN=".$t["Login"]["Username"]."&st=CART"),
      "[Cart.Shop.ID]" => $id,
      "[Cart.Shop.Title]" => $shop["Title"],
      "[Cart.Summary]" => base64_encode("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])
-    ], $this->system->Page("ac678179fb0fb0c66cd45d738991abb9")]);
+    ], $this->core->Page("ac678179fb0fb0c66cd45d738991abb9")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -237,7 +237,7 @@
   function Remove(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "ProductID",
     "ShopID"
    ]);
@@ -246,13 +246,13 @@
    ];
    if(!empty($data["ProductID"]) && !empty($data["ShopID"])) {
     $accessCode = "Accepted";
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[RemoveFromCart.ProductID]" => $data["ProductID"],
      "[RemoveFromCart.ShopID]" => $data["ShopID"],
      "[RemoveFromCart.Remove]" => base64_encode("Cart:SaveRemove")
-    ], $this->system->Page("554566eff3c7949301784c2be0a6be07")]);
+    ], $this->core->Page("554566eff3c7949301784c2be0a6be07")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -264,8 +264,8 @@
   function SaveAdd(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "Instructions",
     "Product",
     "Shop",
@@ -281,14 +281,14 @@
     $accessCode = "Accepted";
     $un = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($un);
-    $t = ($t == $you) ? $y : $this->system->Member($t);
-    $shop = $this->system->Data("Get", [
+    $t = ($t == $you) ? $y : $this->core->Member($t);
+    $shop = $this->core->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
     ]) ?? [];
     $shop = $data["Shop"] ?? md5($t["Login"]["Username"]);
     $title = $shop["Title"] ?? "Made in New York";
-    $product = $this->system->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
     $productTitle = $product["Title"];
     $quantity = $data["Quantity"] ?? 1;
     $view = "v=".base64_encode("Cart:Home")."&UN=".base64_encode($t["Login"]["Username"]);
@@ -305,16 +305,16 @@
      "Body" => "<em>$productTitle</em> was added to your cart for <em>$title</em>!",
      "Header" => "Added to Cart",
      "Options" => [
-      $this->system->Element(["button", "View My Cart", [
+      $this->core->Element(["button", "View My Cart", [
        "class" => "CloseAllCards dBC v2 v2w",
        "onclick" => "FST('N/A', '$view', '".md5("Cart")."');"
       ]])
      ]
     ];
     $y["Shopping"]["Cart"][$shop] = $cart;
-    $this->system->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -327,7 +327,7 @@
   function SaveRemove(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "ProductID",
     "ShopID"
    ]);
@@ -354,9 +354,9 @@
      "Body" => "The Product was removed from your cart.",
      "Header" => "Done"
     ];
-    $this->system->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -368,7 +368,7 @@
   function Summary(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["UN"]);
+   $data = $this->core->FixMissing($data, ["UN"]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $username = $data["UN"];
@@ -378,12 +378,12 @@
    $credits = $y["Shopping"]["Cart"][md5($username)]["Credits"] ?? 0;
    $credits = number_format($credits, 2);
    $discountCode = $y["Shopping"]["Cart"][md5($username)]["DiscountCode"] ?? 0;
-   $now = $this->system->timestamp;
-   $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
+   $now = $this->core->timestamp;
+   $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
    $subtotal = 0;
    $total = 0;
    foreach($cart as $key => $value) {
-    $product = $this->system->Data("Get", ["miny", $key]) ?? [];
+    $product = $this->core->Data("Get", ["miny", $key]) ?? [];
     $quantity = $product["Quantity"] ?? 0;
     if(!empty($product) && $quantity != 0) {
      $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
@@ -415,20 +415,20 @@
    $tax = $shop["Tax"] ?? 10.00;
    $tax = number_format($total * ($tax / 100), 2);
    $mayContinue = ($cartCount > 0 && $subtotal > 0) ? 1 : 0;
-   $continue = ($mayContinue == 1) ? $this->system->Element([
+   $continue = ($mayContinue == 1) ? $this->core->Element([
     "button", "Continue", [
      "class" => "BBB OpenFirSTEPTool v2 v2w",
      "data-fst" => base64_encode("v=".base64_encode("Pay:Checkout")."&UN=".$data["UN"])
     ]
    ]) : "";
-   $r = $this->system->Change([[
+   $r = $this->core->Change([[
     "[Cart.Continue]" => $continue,
     "[Cart.Summary.Discount]" => number_format($credits + $discountCode, 2),
     "[Cart.Summary.Subtotal]" => number_format($subtotal, 2),
     "[Cart.Summary.Tax]" => number_format($tax, 2),
     "[Cart.Summary.Total]" => number_format($tax + $total, 2)
-   ], $this->system->Page("94eb319f456356da1d6e102670686a29")]);
-   return $this->system->JSONResponse([
+   ], $this->core->Page("94eb319f456356da1d6e102670686a29")]);
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

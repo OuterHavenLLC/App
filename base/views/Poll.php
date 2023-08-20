@@ -2,7 +2,7 @@
  Class Common extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   /*--BEGIN ChatGRP-SUPPLIED REFERENCE CODE--
   // CLASS

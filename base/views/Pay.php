@@ -2,8 +2,8 @@
  Class Pay extends GW {
   function __construct() {
    parent::__construct();
-   $this->bt = $this->system->DocumentRoot."/base/pay/Braintree.php";
-   $this->you = $this->system->Member($this->system->Username());
+   $this->bt = $this->core->DocumentRoot."/base/pay/Braintree.php";
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Checkout(array $a) {
    $accessCode = "Denied";
@@ -17,10 +17,10 @@
    if(!empty($username)) {
     $accessCode = "Accepted";
     $username = base64_decode($username);
-    $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
-    $t = ($username == $you) ? $y : $this->system->Member($username);
+    $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
+    $t = ($username == $you) ? $y : $this->core->Member($username);
     $payments = $shop["Processing"] ?? [];
-    $payments = $this->system->FixMissing($payments, [
+    $payments = $this->core->FixMissing($payments, [
      "BraintreeMerchantIDLive",
      "BraintreePrivateKeyLive",
      "BraintreePublicKeyLive",
@@ -30,7 +30,7 @@
      "PayPalEmailLive"
     ]);
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
-    $paymentProcessors = $this->system->config["MiNY"]["PaymentProcessors"] ?? [];
+    $paymentProcessors = $this->core->config["MiNY"]["PaymentProcessors"] ?? [];
     if($paymentProcessor == "Braintree") {
      require_once($this->bt);
      $envrionment = ($shop["Live"] == 1) ? "production" : "sandbox";
@@ -68,11 +68,11 @@
      $credits = $y["Shopping"]["Cart"][md5($username)]["Credits"] ?? 0;
      $credits = number_format($credits, 2);
      $discountCode = $y["Shopping"]["Cart"][md5($username)]["DiscountCode"] ?? 0;
-     $now = $this->system->timestamp;
+     $now = $this->core->timestamp;
      $subtotal = 0;
      $total = 0;
      foreach($cart as $key => $value) {
-      $product = $this->system->Data("Get", ["miny", $key]) ?? [];
+      $product = $this->core->Data("Get", ["miny", $key]) ?? [];
       $quantity = $product["Quantity"] ?? 0;
       if(!empty($product) && $quantity != 0) {
        $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
@@ -104,29 +104,29 @@
      $tax = $shop["Tax"] ?? 10.00;
      $tax = number_format($total * ($tax / 100), 2);
      if($paymentProcessor == "Braintree") {
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[Checkout.FSTID]" => md5("Checkout_$merchantID"),
        "[Checkout.ID]" => md5($merchantID),
        "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"]."&payment_method_nonce=",
-       "[Checkout.Region]" => $this->system->region,
+       "[Checkout.Region]" => $this->core->region,
        "[Checkout.Title]" => $shop["Title"],
        "[Checkout.Token]" => $token,
        "[Checkout.Total]" => number_format($tax + $total, 2)
-      ], $this->system->Page("a32d886447733485978116cc52d4f7aa")]);
+      ], $this->core->Page("a32d886447733485978116cc52d4f7aa")]);
      } elseif($paymentProcessor == "PayPal") {
       $clientID = base64_decode($paypal["ClientID"]);
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[Checkout.ClientID]" => $clientID,
        "[Checkout.FSTID]" => md5("Checkout_$clientID"),
        "[Checkout.ID]" => md5($clientID),
        "[Checkout.Processor]" => "v=".base64_encode("Pay:SaveCheckout")."&ID=".md5($username)."&UN=".$data["UN"],
        "[Checkout.Title]" => $shop["Title"],
        "[Checkout.Total]" => str_replace(",", "", number_format($tax + $total, 2))
-      ], $this->system->Page("b2144e711b28ac34d30725b7d91ac33b")]);
+      ], $this->core->Page("b2144e711b28ac34d30725b7d91ac33b")]);
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -140,10 +140,10 @@
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = number_format(base64_decode($amount), 2);
-   $username = $this->system->ShopID;
-   $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
+   $username = $this->core->ShopID;
+   $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
    $payments = $shop["Processing"] ?? [];
-   $payments = $this->system->FixMissing($payments, [
+   $payments = $this->core->FixMissing($payments, [
     "BraintreeMerchantIDLive",
     "BraintreePrivateKeyLive",
     "BraintreePublicKeyLive",
@@ -171,17 +171,17 @@
     $token = $braintree->clientToken()->generate([
      "merchantAccountId" => $merchantID
     ]) ?? $token;
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Commission.Action]" => "pay your $$amount commission",
      "[Commission.FSTID]" => md5("Commission_$merchantID"),
      "[Commission.ID]" => md5($merchantID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".base64_encode($amount)."&ID=".md5($username)."&st=".base64_encode("Commission")."&payment_method_nonce=",
      "[Commission.Title]" => $shop["Title"],
-     "[Commission.Region]" => $this->system->region,
+     "[Commission.Region]" => $this->core->region,
      "[Commission.Token]" => $token,
      "[Commission.Total]" => number_format($amount, 2),
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
-    ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
+    ], $this->core->Page("d84203cf19a999c65a50ee01bbd984dc")]);
    } elseif($paymentProcessor == "PayPal") {
     $accessCode = "Accepted";
     $paypal = ($shop["Live"] == 1) ? [
@@ -190,7 +190,7 @@
      "ClientID" => $payments["PayPalClientID"]
     ];
     $clientID = base64_decode($paypal["ClientID"]);
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Commission.Action]" => "pay your $$amount commission",
      "[Commission.ClientID]" => $clientID,
      "[Commission.FSTID]" => md5("Commission_$clientID"),
@@ -199,9 +199,9 @@
      "[Commission.Title]" => $shop["Title"],
      "[Commission.Total]" => number_format($amount, 2),
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
-    ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
+    ], $this->core->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -215,10 +215,10 @@
    $data = $a["Data"] ?? [];
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = base64_decode($amount);
-   $username = $this->system->ShopID;
-   $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
+   $username = $this->core->ShopID;
+   $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
    $payments = $shop["Processing"] ?? [];
-   $payments = $this->system->FixMissing($payments, [
+   $payments = $this->core->FixMissing($payments, [
     "BraintreeMerchantIDLive",
     "BraintreePrivateKeyLive",
     "BraintreePublicKeyLive",
@@ -257,17 +257,17 @@
     $token = $braintree->clientToken()->generate([
      "merchantAccountId" => $merchantID
     ]) ?? $token;
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Commission.Action]" => "donate $$amount",
      "[Commission.FSTID]" => md5("Donation_$merchantID"),
      "[Commission.ID]" => md5($merchantID),
      "[Commission.Processor]" => "v=".base64_encode("Pay:SaveCommissionOrDonation")."&amount=".$data["amount"]."&ID=".md5($username)."&st=".base64_encode("Donation")."&payment_method_nonce=",
      "[Commission.Title]" => $shop["Title"],
-     "[Commission.Region]" => $this->system->region,
+     "[Commission.Region]" => $this->core->region,
      "[Commission.Token]" => $token,
      "[Commission.Total]" => number_format($amount, 2),
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
-    ], $this->system->Page("d84203cf19a999c65a50ee01bbd984dc")]);
+    ], $this->core->Page("d84203cf19a999c65a50ee01bbd984dc")]);
    } elseif($paymentProcessor == "PayPal") {
     $accessCode = "Accepted";
     $paypal = ($shop["Live"] == 1) ? [
@@ -276,7 +276,7 @@
      "ClientID" => $payments["PayPalClientID"]
     ];
     $clientID = base64_decode($paypal["ClientID"]);
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Commission.Action]" => "donate $$amount",
      "[Commission.ClientID]" => $clientID,
      "[Commission.FSTID]" => md5("Donation_$clientID"),
@@ -285,9 +285,9 @@
      "[Commission.Title]" => $shop["Title"],
      "[Commission.Total]" => number_format($amount, 2),
      "[Commission.Total.String]" => str_replace(",", "", number_format($amount, 2))
-    ], $this->system->Page("55cdc1a2ae60bf6bc766f59905358152")]);
+    ], $this->core->Page("55cdc1a2ae60bf6bc766f59905358152")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -299,7 +299,7 @@
   function Disbursement(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "Amount",
     "Month",
     "UN",
@@ -315,20 +315,20 @@
    if(!empty($data["Amount"]) && !empty($data["Month"]) && !empty($data["UN"]) && !empty($data["Year"])) {
     $amount = base64_decode($amount);
     $username = base64_decode($data["UN"]);
-    $t = $this->system->Member($username);
+    $t = $this->core->Member($username);
     $r = [
      "Body" => "You cannot pay ".$t["Personal"]["DisplayName"]." as there are no funds to disburse. Funds: $amount."
     ];
     if($amount == 0) {
-     $income = $this->system->Data("Get", ["id", md5($you)]) ?? [];
+     $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
      $income[$data["Year"]][$data["Month"]][$username]["Paid"] = 1;
-     #$this->system->Data("Save", ["id", md5($you), $income]);
+     #$this->core->Data("Save", ["id", md5($you), $income]);
     } else {
      $accessCode = "Accepted";
      $amount = number_format($amount, 2);
-     $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
      $payments = $shop["Processing"] ?? [];
-     $payments = $this->system->FixMissing($payments, [
+     $payments = $this->core->FixMissing($payments, [
       "BraintreeMerchantIDLive",
       "BraintreePrivateKeyLive",
       "BraintreePublicKeyLive",
@@ -371,32 +371,32 @@
       ];
       $clientID = base64_decode($paypal["ClientID"]);
      } if($paymentProcessor == "Braintree") {
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[Partner.Checkout]" => "v=".base64_encode("Pay:DisbursementComplete")."&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($amount)."&payment_method_nonce=",
-       "[Partner.LastMonth]" => $this->system->ConvertCalendarMonths($data["Month"]),
+       "[Partner.LastMonth]" => $this->core->ConvertCalendarMonths($data["Month"]),
        "[Partner.Pay.Amount]" => $amount,
        "[Partner.Pay.FSTID]" => md5("PaymentComplete$merchantID"),
        "[Partner.Pay.ID]" => md5($merchantID),
-       "[Partner.Pay.Region]" => $this->system->region,
+       "[Partner.Pay.Region]" => $this->core->region,
        "[Partner.Pay.Token]" => $token,
-       "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
+       "[Partner.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
        "[Partner.Username]" => $username
-      ], $this->system->Page("6ed9bbbc61563b846b512acf94550806")]);
+      ], $this->core->Page("6ed9bbbc61563b846b512acf94550806")]);
      } elseif($paymentProcessor == "PayPal") {
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[Partner.Checkout]" => "v=".base64_encode("Pay:DisbursementComplete")."&Month=".$data["Month"]."&UN=".$data["UN"]."&Year=".$data["Year"]."&amount=".base64_encode($amount),
        "[Partner.ClientID]" => $clientID,
-       "[Partner.LastMonth]" => $this->system->ConvertCalendarMonths($data["Month"]),
+       "[Partner.LastMonth]" => $this->core->ConvertCalendarMonths($data["Month"]),
        "[Partner.Pay.Amount]" => $amount,
        "[Partner.Pay.ID]" => md5("PaymentComplete$clientID"),
        "[Partner.Pay.Total]" => str_replace(",", "", $amount),
-       "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
+       "[Partner.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
        "[Partner.Username]" => $username
-      ], $this->system->Page("0c7719c7da9bbead3fea3bffe65294f4")]);
+      ], $this->core->Page("0c7719c7da9bbead3fea3bffe65294f4")]);
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -408,7 +408,7 @@
   function DisbursementComplete(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "Month",
     "UN",
     "Year",
@@ -429,14 +429,14 @@
     $amount = number_format($amount, 2);
     $orderID = $data["order_ID"] ?? "N/A";
     $username = base64_decode($username);
-    $t = $this->system->Member($username);
-    $shop = $this->system->Data("Get", [
+    $t = $this->core->Member($username);
+    $shop = $this->core->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
     ]) ?? [];
     $live = $shop["Live"] ?? 0;
     $payments = $shop["Processing"] ?? [];
-    $payments = $this->system->FixMissing($payments, [
+    $payments = $this->core->FixMissing($payments, [
      "BraintreeMerchantIDLive",
      "BraintreePrivateKeyLive",
      "BraintreePublicKeyLive",
@@ -474,20 +474,20 @@
       ]);
       $ck = ($order->success) ? 1 : 0;
       $order->message = $order->message ?? "N/A";
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[Checkout.Order.Message]" => $order->message,
        "[Checkout.Order.Products]" => 1,
        "[Checkout.Order.Success]" => $order->success
-      ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
+      ], $this->core->Page("229e494ec0f0f43824913a622a46dfca")]);
      }
     } elseif($paymentProcessor == "PayPal") {
      $ck = (!empty($orderID)) ? 1 : 0;
      $orderID = base64_decode($orderID);
     } if($ck == 1) {
      $id = "DISBURSEMENTS*$username";
-     $income = $this->system->Data("Get", ["id", md5($you)]) ?? [];
+     $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
      $profit = number_format(0, 2);
-     $this->system->Revenue([$username, [
+     $this->core->Revenue([$username, [
       "Cost" => $amount,
       "ID" => $id,
       "Partners" => $shop["Contributors"],
@@ -495,7 +495,7 @@
       "Quantity" => 1,
       "Title" => $id
      ]]);
-     $this->system->Revenue([$you, [
+     $this->core->Revenue([$you, [
       "Cost" => $amount,
       "ID" => $id,
       "Partners" => $shop["Contributors"],
@@ -504,15 +504,15 @@
       "Title" => $id
      ]]);
      $income[$data["Year"]][$data["Month"]]["Partners"][$username]["Paid"] = 1;
-     $this->system->Data("Save", ["id", md5($you), $income]);
-     $r = $this->system->Change([[
+     $this->core->Data("Save", ["id", md5($you), $income]);
+     $r = $this->core->Change([[
       "[Partner.Amount]" => $amount,
-      "[Partner.ProfilePicture]" => $this->system->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
+      "[Partner.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:12.5% 25%;width:50%"),
       "[Partner.Username]" => $username
-     ], $this->system->Page("70881ae11e9353107ded2bed93620ef4")]);
+     ], $this->core->Page("70881ae11e9353107ded2bed93620ef4")]);
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -535,24 +535,24 @@
    if(!empty($shopOwner) && is_array($a["Product"])) {
     $history = $y["Shopping"]["History"][$shopID] ?? [];
     $id = $a["Product"]["ID"] ?? "";
-    $product = $this->system->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
     $quantity = $product["Quantity"] ?? 0;
-    $shop = $this->system->Data("Get", ["shop", $shopID]) ?? [];
-    $t = ($shopOwner == $you) ? $y : $this->system->Member($shopOwner);
+    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    $t = ($shopOwner == $you) ? $y : $this->core->Member($shopOwner);
     if(!empty($product) && $quantity != 0) {
      $bundledProducts = $product["Bundled"] ?? [];
      $contributors = $shop["Contributors"] ?? [];
-     $now = $this->system->timestamp;
+     $now = $this->core->timestamp;
      $opt = "";
      $productExpires = $product["Expires"] ?? $now;
      if(strtotime($now) < $productExpires) {
       $category = $product["Category"];
-      $coverPhoto = $product["ICO"] ?? $this->system->PlainText([
+      $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
        "Data" => "[sIMG:MiNY]",
        "Display" => 1
       ]);
       $coverPhoto = base64_encode($coverPhoto);
-      $points = $this->system->config["PTS"]["Products"];
+      $points = $this->core->config["PTS"]["Products"];
       $quantity = $product["Quantity"] ?? 1;
       $subscriptionTerm = $product["SubscriptionTerm"] ?? "month";
       if($category == "ARCH") {
@@ -561,13 +561,13 @@
        # Downloadable Content
       } elseif($category == "DONATE") {
        # Donations
-       $opt = $this->system->Element(["p", "Thank You for donating!"]);
+       $opt = $this->core->Element(["p", "Thank You for donating!"]);
       } elseif($category == "PHYS") {
        # Physical Products
-       $opt = $this->system->Element(["button", "Contact the Seller", [
+       $opt = $this->core->Element(["button", "Contact the Seller", [
         "class" => "BB BBB v2 v2w"
        ]]);
-       $physicalOrders[md5($this->system->timestamp.rand(0, 9999))] = [
+       $physicalOrders[md5($this->core->timestamp.rand(0, 9999))] = [
         "Complete" => 0,
         "Instructions" => base64_encode($a["Product"]["Instructions"]),
         "ProductID" => $id,
@@ -575,7 +575,7 @@
         "UN" => $you
        ];
       } elseif($category == "SUB") {
-       $opt = $this->system->Element(["button", "Go to Subscription", [
+       $opt = $this->core->Element(["button", "Go to Subscription", [
         "class" => "BB BBB v2 v2w"
        ]]);
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
@@ -585,7 +585,7 @@
           $y["Subscriptions"][$sk] = [
            "A" => 1,
            "B" => $now,
-           "E" => $this->system->TimePlus($now, 1, $subscriptionTerm)
+           "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
           ];
          }
         }
@@ -593,19 +593,19 @@
         $y["Subscriptions"]["XFS"] = [
          "A" => 1,
          "B" => $now,
-         "E" => $this->system->TimePlus($now, 1, $subscriptionTerm)
+         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
         ];
        } elseif($id == "c7054e9c7955203b721d142dedc9e540") {
         $y["Subscriptions"]["Artist"] = [
          "A" => 1,
          "B" => $now,
-         "E" => $this->system->TimePlus($now, 1, $subscriptionTerm)
+         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
         ];
        } elseif($id == "cc84143175d6ae2051058ee0079bd6b8") {
         $y["Subscriptions"]["Blogger"] = [
          "A" => 1,
          "B" => $now,
-         "E" => $this->system->TimePlus($now, 1, $subscriptionTerm)
+         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
         ];
        }
       }
@@ -616,10 +616,10 @@
        "Timestamp" => $now
       ];
       $product["Quantity"] = ($quantity > 0) ? $quantity - $purchaseQuantity : $quantity;
-      $r .= $this->system->Change([[
-       "[Product.Added]" => $this->system->TimeAgo($now),
+      $r .= $this->core->Change([[
+       "[Product.Added]" => $this->core->TimeAgo($now),
        "[Product.ICO]" => $coverPhoto,
-       "[Product.Description]" => $this->system->PlainText([
+       "[Product.Description]" => $this->core->PlainText([
         "Data" => $product["Description"],
         "Display" => 1
        ]),
@@ -627,11 +627,11 @@
        "[Product.OrderID]" => $orderID,
        "[Product.Quantity]" => $purchaseQuantity,
        "[Product.Title]" => $product["Title"]
-      ], $this->system->Page("4c304af9fcf2153e354e147e4744eab6")]);
+      ], $this->core->Page("4c304af9fcf2153e354e147e4744eab6")]);
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
       if($bundle == 0) {
-       $this->system->Revenue([$shopOwner, [
+       $this->core->Revenue([$shopOwner, [
         "Cost" => $product["Cost"],
         "ID" => $id,
         "Partners" => $contributors,
@@ -640,7 +640,7 @@
         "Title" => $product["Title"]
        ]]);
       } if($product["Quantity"] > 0) {
-       $this->system->Data("Save", ["miny", $id, $product]);
+       $this->core->Data("Save", ["miny", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $bundled = explode("-", base64_decode($bundled));
@@ -679,7 +679,7 @@
      "Response" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -692,26 +692,26 @@
    $accessCode = "Accepted";
    $ck = 0;
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "UN",
     "order_ID",
     "payment_method_nonce"
    ]);
    $orderID = $data["order_ID"] ?? "";
-   $r = $this->system->Change([[
+   $r = $this->core->Change([[
     "[Checkout.Data]" => json_encode($data)
-   ], $this->system->Page("f9ee8c43d9a4710ca1cfc435037e9abd")]);
+   ], $this->core->Page("f9ee8c43d9a4710ca1cfc435037e9abd")]);
    $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($username)) {
     $username = (!empty($username)) ? base64_decode($username) : $you;
-    $t = ($username == $you) ? $y : $this->system->Member($username);
+    $t = ($username == $you) ? $y : $this->core->Member($username);
     $shopID = md5($username);
-    $shop = $this->system->Data("Get", ["shop", $shopID]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
     $live = $shop["Live"] ?? 0;
     $payments = $shop["Processing"] ?? [];
-    $payments = $this->system->FixMissing($payments, [
+    $payments = $this->core->FixMissing($payments, [
      "BraintreeMerchantIDLive",
      "BraintreePrivateKeyLive",
      "BraintreePublicKeyLive",
@@ -726,11 +726,11 @@
     $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
     $credits = number_format($credits, 2);
     $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
-    $now = $this->system->timestamp;
+    $now = $this->core->timestamp;
     $subtotal = 0;
     $total = 0;
     foreach($cart as $key => $value) {
-     $product = $this->system->Data("Get", ["miny", $key]) ?? [];
+     $product = $this->core->Data("Get", ["miny", $key]) ?? [];
      $quantity = $product["Quantity"] ?? 0;
      if(!empty($product) && $quantity != 0) {
       $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
@@ -791,21 +791,21 @@
       ]);
       $ck = ($order->success) ? 1 : 0;
       $order->message = $order->message ?? "N/A";
-      $r = $this->system->Change([[
+      $r = $this->core->Change([[
        "[Checkout.Order.Message]" => $order->message,
        "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
        "[Checkout.Order.Success]" => $order->success
-      ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
+      ], $this->core->Page("229e494ec0f0f43824913a622a46dfca")]);
      }
     } elseif($paymentProcessor == "PayPal") {
      $ck = (!empty($orderID)) ? 1 : 0;
      $orderID = base64_decode($orderID);
     } if($ck == 1) {
      $points = $y["Points"] ?? 0;
-     $physicalOrders = $this->system->Data("Get", ["po", $shopID]) ?? [];
+     $physicalOrders = $this->core->Data("Get", ["po", $shopID]) ?? [];
      $r = "";
      foreach($cart as $key => $value) {
-      $product = $this->system->Data("Get", ["miny", $key]) ?? [];
+      $product = $this->core->Data("Get", ["miny", $key]) ?? [];
       if(!empty($product)) {
        $bundle = $value["Bundled"] ?? [];
        $bundle = (!empty($bundle)) ? 1 : 0;
@@ -837,16 +837,16 @@
      $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
      $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
      $y["Shopping"]["Cart"][$shopID]["Products"] = [];
-     $this->system->Data("Save", ["mbr", md5($you), $y]);
-     $this->system->Data("Save", ["po", $shopID, $physicalOrders]);
-     $r = $this->system->Change([[
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
+     $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
+     $r = $this->core->Change([[
       "[Checkout.Order]" => $r,
       "[Checkout.Title]" => $shop["Title"],
       "[Checkout.Total]" => $total
-     ], $this->system->Page("83d6fedaa3fa042d53722ec0a757e910")]);
+     ], $this->core->Page("83d6fedaa3fa042d53722ec0a757e910")]);
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -859,7 +859,7 @@
    $accessCode = "Accepted";
    $ck = 0;
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "amount",
     "order_ID",
     "payment_method_nonce",
@@ -867,11 +867,11 @@
    ]);
    $amount = $data["amount"] ?? base64_encode(0);
    $amount = number_format(base64_decode($amount), 2);
-   $r = $this->system->Change([[
+   $r = $this->core->Change([[
     "[Checkout.Data]" => json_encode($data)
-   ], $this->system->Page("f9ee8c43d9a4710ca1cfc435037e9abd")]);
-   $username = $this->system->ShopID;
-   $shop = $this->system->Data("Get", ["shop", md5($username)]) ?? [];
+   ], $this->core->Page("f9ee8c43d9a4710ca1cfc435037e9abd")]);
+   $username = $this->core->ShopID;
+   $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
    $payments = $shop["Processing"] ?? [];
    $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
    $y = $this->you;
@@ -900,30 +900,30 @@
      ]);
      $ck = ($order->success) ? 1 : 0;
      $order->message = $order->message ?? "N/A";
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[Checkout.Order.Message]" => $order->message,
       "[Checkout.Order.Products]" => 1,
       "[Checkout.Order.Success]" => $order->success
-     ], $this->system->Page("229e494ec0f0f43824913a622a46dfca")]);
+     ], $this->core->Page("229e494ec0f0f43824913a622a46dfca")]);
     }
    } elseif($paymentProcessor == "PayPal") {
     $ck = (!empty($data["order_ID"])) ? 1 : 0;
    } if($ck == 1) {
     $_MiNYContributors = $shop["Contributors"] ?? [];
-    $points = $this->system->config["PTS"]["Donations"] ?? 100;
+    $points = $this->core->config["PTS"]["Donations"] ?? 100;
     $saleType = (!empty($data["st"])) ? base64_decode($data["st"]) : "";
-    $now = $this->system->timestamp;
+    $now = $this->core->timestamp;
     if($saleType == "Commission") {
-     $_LastMonth = $this->system->LastMonth()["LastMonth"];
+     $_LastMonth = $this->core->LastMonth()["LastMonth"];
      $_LastMonth = explode("-", $_LastMonth);
-     $income = $this->system->Data("Get", ["id", md5($you)]) ?? [];
+     $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
      $income[$_LastMonth[0]][$_LastMonth[1]]["PaidCommission"] = 1;
-     $shop = $this->system->Data("Get", ["shop", md5($you)]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
      $shop["Open"] = 1;
      $shopSaleID = "COMMISSION*".$shop["Title"];
-     $this->system->Data("Save", ["id", md5($username), $income]);
-     $this->system->Data("Save", ["shop", md5($you), $shop]);
-     $this->system->Revenue([$username, [
+     $this->core->Data("Save", ["id", md5($username), $income]);
+     $this->core->Data("Save", ["shop", md5($you), $shop]);
+     $this->core->Revenue([$username, [
       "Cost" => 0,
       "ID" => $shopSaleID,
       "Partners" => $_MiNYContributors,
@@ -937,9 +937,9 @@
       "E" => $this->TimePlus($now, 1, "month")
      ];
     } elseif($saleType == "Donation") {
-     $from = ($this->system->ID == $you) ? "Anonymous" : $you;
+     $from = ($this->core->ID == $you) ? "Anonymous" : $you;
      $shopSaleID = "DONATION*$from";
-     $this->system->Revenue([$username, [
+     $this->core->Revenue([$username, [
       "Cost" => 0,
       "ID" => $shopSaleID,
       "Partners" => $_MiNYContributors,
@@ -952,13 +952,13 @@
     $amount .= ($saleType == "Commission") ? " commission" : " donation";
     $message = ($saleType == "Commission") ? "You may now access your Artist dashboard." : "$points points have been added";
     $y["Points"] = $y["Points"] + $points;
-    $this->system->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->system->Change([[
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = $this->core->Change([[
      "[Commission.Message]" => $message,
      "[Commission.Type]" => $amount
-    ], $this->system->Page("f2bea3c1ebf2913437fcfdc0c1601ce0")]);
+    ], $this->core->Page("f2bea3c1ebf2913437fcfdc0c1601ce0")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

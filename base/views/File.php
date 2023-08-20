@@ -2,7 +2,7 @@
  Class File extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Download(array $a) {
    $data = $a["Data"] ?? [];
@@ -10,7 +10,7 @@
    if(empty($filePath)) {
     return "Not Found";
    } else {
-    $filePath = $this->system->efs.base64_decode($filePath);
+    $filePath = $this->core->efs.base64_decode($filePath);
     header("Content-type: application/x-file-to-save");
     header("Content-Disposition: attachment; filename=". basename($filePath));
     ob_end_clean();
@@ -21,7 +21,7 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "UN"]);
+   $data = $this->core->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
    $r = [
     "Body" => "The File Identifier is missing."
@@ -29,7 +29,7 @@
    $username = $data["UN"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
@@ -39,20 +39,20 @@
     $id = base64_decode($id);
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
-    $fileSystem = $this->system->Data("Get", ["fs", md5($username)]) ?? [];
-    $files = ($this->system->ID == $username) ? $this->system->Data("Get", [
+    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
+    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "x",
      "fs"
     ]) : $fileSystem["Files"];
     $file = $files[$id] ?? [];
-    $album = $this->system->Element(["p", "System Library`"]);
-    if($this->system->ID != $username) {
+    $album = $this->core->Element(["p", "System Library`"]);
+    if($this->core->ID != $username) {
      $album = $file["AID"] ?? md5("unsorted");
      $albums = [];
      foreach($fileSystem["Albums"] as $key => $album) {
       $albums[$key] = $album["Title"];
      }
-     $album = $this->system->RenderInputs([
+     $album = $this->core->RenderInputs([
       [
        "Attributes" => [],
        "OptionGroup" => $albums,
@@ -71,10 +71,10 @@
     }
     $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $file["Privacy"];
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[File.Album]" => $album,
      "[File.ID]" => $id,
-     "[File.Inputs]" => $this->system->RenderInputs([
+     "[File.Inputs]" => $this->core->RenderInputs([
       [
        "Attributes" => [
         "name" => "ID",
@@ -123,17 +123,17 @@
        "Type" => "TextBox",
        "Value" => $file["Description"]
       ]
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Filter" => "NSFW",
       "Name" => "nsfw",
       "Title" => "Content Status",
       "Value" => $nsfw
-     ]).$this->system->RenderVisibilityFilter([
+     ]).$this->core->RenderVisibilityFilter([
       "Value" => $privacy
      ]),
      "[File.Title]" => $file["Title"]
-    ], $this->system->Page("7c85540db53add027bddeb42221dd104")]);
-    $action = $this->system->Element(["button", "Update", [
+    ], $this->core->Page("7c85540db53add027bddeb42221dd104")]);
+    $action = $this->core->Element(["button", "Update", [
      "class" => "CardButton SendData",
      "data-form" => ".EditFile$id",
      "data-processor" => base64_encode("v=".base64_encode("File:Save"))
@@ -143,7 +143,7 @@
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -155,7 +155,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "AddTo",
     "Added",
     "CARD",
@@ -164,7 +164,7 @@
     "back",
     "lPG"
    ]);
-   $back = ($data["back"] == 1) ? $this->system->Element([
+   $back = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back to Files", [
      "class" => "GoToParent LI",
      "data-type" => $data["lPG"]
@@ -179,18 +179,18 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($username)) {
-    $t = ($username == $you) ? $y : $this->system->Member($username);
+    $t = ($username == $you) ? $y : $this->core->Member($username);
     $attachmentID = base64_encode($t["Login"]["Username"]."-".$id);
-    $bl = $this->system->CheckBlocked([$y, "Files", $id]);
+    $bl = $this->core->CheckBlocked([$y, "Files", $id]);
     $dm = base64_encode(json_encode([
      "t" => $username,
      "y" => $you
     ]));
-    $files = $this->system->Data("Get", [
+    $files = $this->core->Data("Get", [
      "fs",
      md5($t["Login"]["Username"])
     ]) ?? [];
-    $files = ($this->system->ID == $username) ? $this->system->Data("Get", [
+    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "x",
      "fs"
     ]) : $files["Files"];
@@ -200,7 +200,7 @@
     ];
     if(!empty($file) && $bl == 0) {
      $accessCode = "Accepted";
-     $actions = ($username != $you) ? $this->system->Element([
+     $actions = ($username != $you) ? $this->core->Element([
       "button", "Block", [
        "class" => "BLK Small v2",
        "data-cmd" => base64_encode("B"),
@@ -209,7 +209,7 @@
      ]) : "";
      $addTo = $data["AddTo"] ?? "";
      $addTo = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-     $addTo = (!empty($addTo[1])) ? $this->system->Element([
+     $addTo = (!empty($addTo[1])) ? $this->core->Element([
       "button", $addTo[0], [
        "class" => "AddTo v2",
        "data-a" => $attachmentID,
@@ -218,33 +218,33 @@
        "data-m" => $dm
       ]
      ]) : "";
-     $ck = ($this->system->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
-     $actions .= ($ck == 1 || $username == $you) ? $this->system->Element([
+     $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
+     $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
       "button", "Delete", [
        "class" => "OpenDialog Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteFile")."&AID=".$file["AID"]."&ID=$id&ParentView=".$this->system->PlainText([
+       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteFile")."&AID=".$file["AID"]."&ID=$id&ParentView=".$this->core->PlainText([
         "Data" => $data["lPG"],
         "Encode" => 1
        ])."&UN=".base64_encode($username))
       ]
      ]) : "";
-     $actions .= $this->system->Element([
+     $actions .= $this->core->Element([
       "button", "Download", [
        "class" => "Small v2",
-       "onclick" => "W('".$this->system->base."/?_API=Web&v=".base64_encode("File:Download")."&FilePath=".base64_encode($t["Login"]["Username"]."/".$file["Name"])."', '_top');"
+       "onclick" => "W('".$this->core->base."/?_API=Web&v=".base64_encode("File:Download")."&FilePath=".base64_encode($t["Login"]["Username"]."/".$file["Name"])."', '_top');"
       ]
      ]);
-     $actions .= ($ck == 1 || $username == $you) ? $this->system->Element([
+     $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($id)."&UN=".base64_encode($username))
       ]
      ]) : "";
-     $fileCheck = $this->system->CheckFileType([$file["EXT"], "Photo"]);
+     $fileCheck = $this->core->CheckFileType([$file["EXT"], "Photo"]);
      $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
      $setAsProfileImage = "";
      if($nsfw == 0 && $fileCheck == 1) {
-      $_Source = $this->system->GetSourceFromExtension([
+      $_Source = $this->core->GetSourceFromExtension([
        $t["Login"]["Username"],
        $file
       ]);
@@ -254,14 +254,14 @@
       $efsResponse = curl_getinfo($readEFS, CURLINFO_HTTP_CODE);
       curl_close($readEFS);
       if($efsResponse != 200) {
-       $_Source = $this->system->efs."D.jpg";
+       $_Source = $this->core->efs."D.jpg";
       }
       list($height, $width) = getimagesize($_Source);
       $_Size = ($height <= ($width / 1.5) || $height == $width) ? 1 : 0;
       $cp = ($height <= ($width / 1.5)) ? "Cover Photo" : "Profile Picture";
       $type = ($height <= ($width / 1.5)) ? "CoverPhoto" : "ProfilePicture";
       $type = base64_encode($type);
-      $setAsProfileImage = ($_Size == 1) ? $this->system->Element([
+      $setAsProfileImage = ($_Size == 1) ? $this->core->Element([
        "button", "Set as Your $cp", [
         "class" => "OpenDialog Disable v2",
         "data-view" => base64_encode("v=".base64_encode("File:SaveProfileImage")."&DLC=$attachmentID&FT=$type")
@@ -271,28 +271,28 @@
      $nsfw = ($nsfw == 1) ? "Adults Only" : "Kid-Friendly";
      $votes = ($username != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=$id&Type=4");
-     $r = $this->system->Change([[
+     $r = $this->core->Change([[
       "[File.Actions]" => $actions,
       "[File.AddTo]" => $addTo,
       "[File.Back]" => $back,
-      "[File.Conversation]" => $this->system->Change([[
+      "[File.Conversation]" => $this->core->Change([[
        "[Conversation.CRID]" => $id,
        "[Conversation.CRIDE]" => base64_encode($id),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->system->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[File.Description]" => $file["Description"],
       "[File.Extension]" => $file["EXT"],
       "[File.ID]" => $id,
       "[File.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("File;".$t["Login"]["Username"].";$id")),
-      "[File.Modified]" => $this->system->TimeAgo($file["Modified"]),
+      "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
       "[File.Name]" => $file["Name"],
       "[File.NSFW]" => $nsfw,
-      "[File.Preview]" => $this->system->GetAttachmentPreview([
+      "[File.Preview]" => $this->core->GetAttachmentPreview([
        "DLL" => $file,
        "T" => $username,
        "Y" => $you
-      ]).$this->system->Element(["div", NULL, [
+      ]).$this->core->Element(["div", NULL, [
        "class" => "NONAME",
        "style" => "height:0.5em"
       ]]),
@@ -300,9 +300,9 @@
       "[File.Share]" => base64_encode("v=".base64_encode("File:Share")."&ID=".base64_encode($id)."&UN=".base64_encode($t["Login"]["Username"])),
       "[File.Title]" => $file["Title"],
       "[File.Type]" => $file["Type"],
-      "[File.Uploaded]" => $this->system->TimeAgo($file["Timestamp"]),
+      "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
       "[File.Votes]" => $votes
-     ], $this->system->Page("c31701a05a48069702cd7590d31ebd63")]);
+     ], $this->core->Page("c31701a05a48069702cd7590d31ebd63")]);
     }
    }
    $r = ($data["CARD"] == 1) ? [
@@ -312,9 +312,9 @@
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
-    $r = $this->system->RenderView($r);
+    $r = $this->core->RenderView($r);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -326,8 +326,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "Description",
     "ID",
     "Title",
@@ -341,7 +341,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -349,12 +349,12 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $username = $data["UN"] ?? $you;
-    $fileSystem = $this->system->Data("Get", ["fs", md5($username)]) ?? [];
-    $files = ($this->system->ID == $username) ? $this->system->Data("Get", [
+    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
+    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "x",
      "fs"
     ]) : $fileSystem["Files"];
-    $now = $this->system->timestamp;
+    $now = $this->core->timestamp;
     $file = $files[$id] ?? [];
     $file["AID"] = $data["Album"] ?? md5("unsorted");
     $file["Created"] = $files[$id]["Created"] ?? $now;
@@ -365,19 +365,19 @@
     $file["Privacy"] = $data["Privacy"];
     $file["Title"] = $data["Title"];
     $files[$id] = $file;
-    if($this->system->ID == $username) {
-     $this->system->Data("Save", ["x", "fs", $files]);
+    if($this->core->ID == $username) {
+     $this->core->Data("Save", ["x", "fs", $files]);
     } else {
      $fileSystem["Files"] = $files;
-     $this->system->Data("Save", ["fs", md5($you), $fileSystem]);
+     $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
     }
-    $this->system->Statistic("ULu");
+    $this->core->Statistic("ULu");
     $r = [
      "Body" => "The file <em>".$file["Title"]."</em> was updated.<br/>",
      "Header" => "Done"
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -393,7 +393,7 @@
     "class" => "dBC v2 v2w"
    ]]);
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
+   $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $parentView = $data["ParentView"] ?? "";
    $r = "The File Identifier is missing.";
@@ -401,7 +401,7 @@
    $you = $y["Login"]["Username"];
    if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
     $r = "The PINs do not match.";
-   } elseif($this->system->ID == $you) {
+   } elseif($this->core->ID == $you) {
     $r = "You must be signed in to continue.";
    } elseif(!empty($id) && !empty($parentView)) {
     $_ID = explode("-", $id);
@@ -409,15 +409,15 @@
     $files = $_FileSystem["Files"] ?? [];
     $id = $_ID[1];
     $username = $_ID[0];
-    $fileSystem = $this->system->Data("Get", ["fs", md5($username)]) ?? [];
+    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $files = $fileSystem["Files"] ?? [];
-    $files = ($this->system->ID == $username) ? $this->system->Data("Get", [
+    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "x",
      "fs"
     ]) : $files;
     $file = $files[$id] ?? [];
     $newFiles = [];
-    $points = $this->system->config["PTS"]["DeleteFile"];
+    $points = $this->core->config["PTS"]["DeleteFile"];
     $r = "The File <strong>#$id</strong> could not be found.";
     if(!empty($file["AID"])) {
      $albumID = $file["AID"];
@@ -433,20 +433,20 @@
        $this->view(base64_encode("Conversation:SaveDelete"), [
         "Data" => ["ID" => $key]
        ]);
-       $this->system->Data("Purge", ["votes", $key]);
-       unlink($this->system->DocumentRoot."/efs/$username/thumbnail.$baseName.png");
-       unlink($this->system->DocumentRoot."/efs/$username/".$value["Name"]);
+       $this->core->Data("Purge", ["votes", $key]);
+       unlink($this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png");
+       unlink($this->core->DocumentRoot."/efs/$username/".$value["Name"]);
       }
-     } if($this->system->ID == $username) {
-      $this->system->Data("Save", ["x", "fs", $newFiles]);
+     } if($this->core->ID == $username) {
+      $this->core->Data("Save", ["x", "fs", $newFiles]);
      } else {
       $fileSystem["Albums"] = $albums;
       $fileSystem["Files"] = $newFiles;
       $y["Points"] = $y["Points"] + $points;
-      $this->system->Data("Save", ["fs", md5($you), $fileSystem]);
-      $this->system->Data("Save", ["mbr", md5($you), $y]);
+      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+      $this->core->Data("Save", ["mbr", md5($you), $y]);
      }
-     $acknowledge = $this->system->Element(["button", "Okay", [
+     $acknowledge = $this->core->Element(["button", "Okay", [
       "class" => "GoToParent dBC v2 v2w",
       "data-type" => $parentView
      ]]);
@@ -461,7 +461,7 @@
      $acknowledge
     ]
    ];
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -481,7 +481,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -492,8 +492,8 @@
     $cp = ($type == "CoverPhoto") ? "Cover Photo" : "Profile Picture";
     $dbi = explode("-", base64_decode($file));
     if(!empty($dbi[0]) && !empty($dbi[1])) {
-     $t = $this->system->Member($dbi[0]);
-     $fs = $this->system->Data("Get", [
+     $t = $this->core->Member($dbi[0]);
+     $fs = $this->core->Data("Get", [
       "fs",
       md5($t["Login"]["Username"])
      ]) ?? [];
@@ -504,9 +504,9 @@
      "Body" => "The Photo was set as your $cp.<br/>".json_encode($y["Personal"], true),
      "Header" => "Done"
     ];
-    #$this->system->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -518,7 +518,7 @@
   function Share(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID", "UN"]);
+   $data = $this->core->FixMissing($data, ["ID", "UN"]);
    $id = $data["ID"];
    $username = $data["UN"];
    $r = [
@@ -531,19 +531,19 @@
     $id = base64_decode($id);
     $username = base64_decode($username);
     $code = base64_encode("$username;$id");
-    $t = ($username == $y["Login"]["Username"]) ? $y : $this->system->Member($username);
-    $fileSystem = $this->system->Data("Get", ["fs", md5($username)]) ?? [];
+    $t = ($username == $y["Login"]["Username"]) ? $y : $this->core->Member($username);
+    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $file = $fileSystem["Files"][$id] ?? [];
-    $body = $this->system->PlainText([
-     "Data" => $this->system->Element([
+    $body = $this->core->PlainText([
+     "Data" => $this->core->Element([
       "p", "Check out the ".$file["Type"]." ".$t["Personal"]["DisplayName"]." uploaded!"
-     ]).$this->system->Element([
+     ]).$this->core->Element([
       "div", "[ATT:$code]", ["class" => "NONAME"]
      ]),
      "HTMLEncode" => 1
     ]);
     $body = base64_encode($body);
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$code&Type=ATT",
      "[Share.ContentID]" => $file["Type"],
      "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
@@ -552,12 +552,12 @@
      "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($you)),
      "[Share.Title]" => $file["Title"]
-    ], $this->system->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
+    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
     $r = [
      "Front" => $r
     ];
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -584,32 +584,32 @@
     ];
    } else {
     header("Content-Type: application/json");
-    $_FileSystem = $this->system->Data("Get", ["fs", md5($you)]) ?? [];
-    $_DLC = $this->system->config["XFS"]["FT"] ?? [];
+    $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
+    $_DLC = $this->core->config["XFS"]["FT"] ?? [];
     $username = base64_decode($username);
-    $_HC = ($this->system->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
+    $_HC = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
     $albumID = $data["AID"] ?? base64_encode(md5("unsorted"));
     $albumID = base64_decode($albumID);
     $albums = $_FileSystem["Albums"] ?? [];
     $files = $_FileSystem["Files"] ?? [];
     if($_HC == 1) {
-     $files = $this->system->Data("Get", ["x", "fs"]) ?? [];
+     $files = $this->core->Data("Get", ["x", "fs"]) ?? [];
     }
-    $now = $this->system->timestamp;
+    $now = $this->core->timestamp;
     $nsfw = $data["nsfw"] ?? base64_encode($y["Privacy"]["NSFW"]);
     $nsfw = base64_decode($nsfw);
     $privacy = $data["Privacy"] ?? base64_encode($y["Privacy"]["DLL"]);
     $privacy = base64_decode($privacy);
     $root = $_SERVER["DOCUMENT_ROOT"]."/efs/$username/";
     $uploads = $a["Files"] ?? [];
-    $xfsLimits = $this->system->config["XFS"]["limits"] ?? [];
+    $xfsLimits = $this->core->config["XFS"]["limits"] ?? [];
     $xfsLimit = str_replace(",", "", $xfsLimits["Total"]);
     $xfsUsage = 0;
     foreach($files as $key => $info) {
      $size = $info["Size"] ?? 0;
      $xfsUsage = $xfsUsage + $size;
     }
-    $xfsUsage = str_replace(",", "", $this->system->ByteNotation($xfsUsage));
+    $xfsUsage = str_replace(",", "", $this->core->ByteNotation($xfsUsage));
     $ck = ($_HC == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
     $ck = $y["Subscriptions"]["XFS"]["A"] ?? $ck;
     $allowed = array_merge($_DLC["A"], $_DLC["D"], $_DLC["P"], $_DLC["V"]);
@@ -622,24 +622,24 @@
      $id = md5("$you-$n-$now");
      $mime = $uploads["type"][$key];
      $name = "$id.$ext";
-     $size = $this->system->ByteNotation($uploads["size"][$key]);
+     $size = $this->core->ByteNotation($uploads["size"][$key]);
      $size2 = str_replace(",", "", $size);
      $tmp = $uploads["tmp_name"][$key];
      if(in_array($ext, $_DLC["A"])) {
       $ck3 = ($size2 < $xfsLimits["Audio"]) ? 1 : 0;
-      $type = $this->system->config["XFS"]["FT"]["_FT"][0];
+      $type = $this->core->config["XFS"]["FT"]["_FT"][0];
      } elseif(in_array($ext, $_DLC["P"])) {
       $ck3 = ($size2 < $xfsLimits["Images"]) ? 1 : 0;
-      $type = $this->system->config["XFS"]["FT"]["_FT"][2];
+      $type = $this->core->config["XFS"]["FT"]["_FT"][2];
      } elseif(in_array($ext, $_DLC["D"])) {
       $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
-      $type = $this->system->config["XFS"]["FT"]["_FT"][1];
+      $type = $this->core->config["XFS"]["FT"]["_FT"][1];
      } elseif(in_array($ext, $_DLC["V"])) {
       $ck3 = ($size2 < $xfsLimits["Videos"]) ? 1 : 0;
-      $type = $this->system->config["XFS"]["FT"]["_FT"][3];
+      $type = $this->core->config["XFS"]["FT"]["_FT"][3];
      } else {
       $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
-      $type = $this->system->config["XFS"]["FT"]["_FT"][1];
+      $type = $this->core->config["XFS"]["FT"]["_FT"][1];
      }
      $fileCheck = [
       "Checks" => [
@@ -706,26 +706,26 @@
        $files[$id] = $file;
        if($_HC == 1) {
         $files[$id]["UN"] = $you;
-        $this->system->Data("Save", ["x", "fs", $files]);
+        $this->core->Data("Save", ["x", "fs", $files]);
        } else {
         $_FileSystem = $_FileSystem ?? [];
         $_FileSystem["Albums"] = $albums;
         $_FileSystem["Files"] = $files;
-        if(in_array($ext, $this->system->config["XFS"]["FT"]["P"])) {
-         $thumbnail = $this->system->Thumbnail([
+        if(in_array($ext, $this->core->config["XFS"]["FT"]["P"])) {
+         $thumbnail = $this->core->Thumbnail([
           "File" => $name,
           "Username" => $you
          ])["AlbumCover"] ?? $name;
          $_FileSystem["Albums"][$albumID]["ICO"] = $thumbnail;
         }
         $_FileSystem["Albums"][$albumID]["Modified"] = $now;
-        $y["Points"] = $y["Points"] + $this->system->config["PTS"]["NewContent"];
-        $this->system->Data("Save", ["fs", md5($you), $_FileSystem]);
-        $this->system->Data("Save", ["mbr", md5($you), $y]);
+        $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
+        $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
+        $this->core->Data("Save", ["mbr", md5($you), $y]);
        }
        array_push($_Passed, [
-        "HTML" => $this->system->Element([
-         "div", $this->system->GetAttachmentPreview([
+        "HTML" => $this->core->Element([
+         "div", $this->core->GetAttachmentPreview([
           "DLL" => $file,
           "T" => $username,
           "Y" => $you
@@ -743,9 +743,9 @@
      "Failed" => $_Failed,
      "Passed" => $_Passed
     ];
-    $this->system->Statistic("UL");
+    $this->core->Statistic("UL");
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => $r
@@ -756,40 +756,40 @@
   function Upload(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "AID",
     "UN"
    ]);
    $albumID = $data["AID"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($albumID)) {
     $_HC = ($y["Rank"] == md5("High Command")) ? 1 : 0;
     $username = $data["UN"] ?? $you;
-    $fileSystem = $this->system->Data("Get", ["fs", md5($username)]) ?? [];
+    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $files = $fileSystem["Files"] ?? [];
-    $xfsLimit = $this->system->config["XFS"]["limits"]["Total"] ?? 0;
+    $xfsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
     $xfsLimit = $xfsLimit."MB";
     $xfsUsage = 0;
     foreach($files as $key => $value) {
      $xfsUsage = $xfsUsage + $value["Size"];
     }
-    $xfsUsage = $this->system->ByteNotation($xfsUsage)."MB";
-    $limit = $this->system->Change([["MB" => "", "," => ""], $xfsLimit]);
+    $xfsUsage = $this->core->ByteNotation($xfsUsage)."MB";
+    $limit = $this->core->Change([["MB" => "", "," => ""], $xfsLimit]);
     $r = [
      "Body" => "You have reached your upload limit. You have used $xfsUsage and exceeded the limit of $xfsLimit."
     ];
-    $used = $this->system->Change([["MB" => "", "," => ""], $xfsUsage]);
+    $used = $this->core->Change([["MB" => "", "," => ""], $xfsUsage]);
     $uploadsAllowed = $y["Subscriptions"]["XFS"]["A"] ?? 0;
     $uploadsAllowed = ($_HC == 1 || $used < $limit) ? 1 : $uploadsAllowed;
     if(!empty($username) && $uploadsAllowed == 1) {
-     $ck = ($_HC == 1 && $this->system->ID == $username) ? 1 : 0;
+     $ck = ($_HC == 1 && $this->core->ID == $username) ? 1 : 0;
      $ck2 = ($username == $you) ? 1 : 0;
-     $files = ($this->system->ID == $username) ? $this->system->Data("Get", [
+     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
       "x",
       "fs"
      ]) : $files;
@@ -808,28 +808,28 @@
        $title = "System Library";
       } elseif($ck2 == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"$albumID\"/>\r\n";
-       $options .= $this->system->RenderVisibilityFilter([
+       $options .= $this->core->RenderVisibilityFilter([
         "Filter" => "NSFW",
         "Name" => "nsfw",
         "Title" => "Content Status",
         "Value" => $y["Privacy"]["NSFW"]
-       ]).$this->system->RenderVisibilityFilter([
+       ]).$this->core->RenderVisibilityFilter([
         "Value" => $y["Privacy"]["Posts"]
        ]);
        $title = $fileSystem["Albums"][$albumID]["Title"] ?? "Unsorted";
       }
       return [
-       "Front" => $this->system->Change([[
+       "Front" => $this->core->Change([[
         "[Upload.Limit]" => $limit,
         "[Upload.Options]" => $options,
         "[Upload.Processor]" => base64_encode("v=".base64_encode("File:SaveUpload")),
         "[Upload.Title]" => $title
-       ], $this->system->Page("bf6bb3ddf61497a81485d5eded18e5f8")])
+       ], $this->core->Page("bf6bb3ddf61497a81485d5eded18e5f8")])
       ];
      }
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

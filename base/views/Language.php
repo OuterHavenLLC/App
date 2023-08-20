@@ -2,12 +2,12 @@
  Class Language extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, ["ID"]);
+   $data = $this->core->FixMissing($data, ["ID"]);
    $ls = base64_encode("Language:Save");
    $id = $data["ID"];
    $r = [
@@ -15,7 +15,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue."
     ];
@@ -23,28 +23,28 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $locals = "";
-    $lt = $this->system->Data("Get", ["local", $id]) ?? [];
-    $tpl = $this->system->Page("63dde5af1a1ec0968ccb006248b55f48");
-    $tpl2 = $this->system->Page("5f6ea04c169f32041a39e16d20f95a05");
+    $lt = $this->core->Data("Get", ["local", $id]) ?? [];
+    $tpl = $this->core->Page("63dde5af1a1ec0968ccb006248b55f48");
+    $tpl2 = $this->core->Page("5f6ea04c169f32041a39e16d20f95a05");
     if(empty($lt)) {
-     $k = md5($you."_Local_".$this->system->timestamp);
+     $k = md5($you."_Local_".$this->core->timestamp);
      $code = "&#91;Languages:$id-$k&#93;";
      $regions = "";
-     foreach($this->system->Languages() as $re => $la) {
+     foreach($this->core->Languages() as $re => $la) {
       $t = $lt[$k][$re] ?? "";
-      $t = (!empty($t)) ? $this->system->PlainText([
+      $t = (!empty($t)) ? $this->core->PlainText([
        "Data" => $t,
        "Decode" => 1,
        "HTMLDecode" => 1
       ]) : $t;
-      $regions .= $this->system->Change([[
+      $regions .= $this->core->Change([[
        "[Region.Language]" => $la,
        "[Region.LocalID]" => $k,
        "[Region.Code]" => $re,
        "[Region.Text]" => $t
       ], $tpl2]);
      }
-     $locals .= $this->system->Change([[
+     $locals .= $this->core->Change([[
       "[Local.Code]" => $code,
       "[Local.ID]" => $k,
       "[Local.Regions]" => $regions
@@ -53,21 +53,21 @@
      foreach($lt as $k => $v) {
       $code = "&#91;Languages:$id-$k&#93;";
       $regions = "";
-      foreach($this->system->Languages() as $re => $la) {
+      foreach($this->core->Languages() as $re => $la) {
        $t = $v[$re] ?? "";
-       $t = (!empty($t)) ? $this->system->PlainText([
+       $t = (!empty($t)) ? $this->core->PlainText([
         "Data" => $t,
         "Decode" => 1,
         "HTMLDecode" => 1
        ]) : $t;
-       $regions .= $this->system->Change([[
+       $regions .= $this->core->Change([[
         "[Region.Language]" => $la,
         "[Region.LocalID]" => $k,
         "[Region.Code]" => $re,
         "[Region.Text]" => $t
        ], $tpl2]);
       }
-      $locals .= $this->system->Change([[
+      $locals .= $this->core->Change([[
        "[Local.Code]" => $code,
        "[Local.ID]" => $k,
        "[Local.Regions]" => $regions
@@ -75,23 +75,23 @@
      }
     }
     $regions = "";
-    foreach($this->system->Languages() as $re => $la) {
-     $regions .= $this->system->Change([[
+    foreach($this->core->Languages() as $re => $la) {
+     $regions .= $this->core->Change([[
       "[Region.Language]" => $la,
       "[Region.LocalID]" => "LocalID",
       "[Region.Code]" => $re,
       "[Region.Text]" => ""
      ], $tpl2]);
     }
-    $tpl = $this->system->PlainText([
-     "Data" => $this->system->Change([[
+    $tpl = $this->core->PlainText([
+     "Data" => $this->core->Change([[
       "[Local.Code]" => "LocalCode",
       "[Local.ID]" => "LocalID",
       "[Local.Regions]" => $regions
      ], $tpl]),
      "HTMLEncode" => 1
     ]);
-    $r = $this->system->Change([[
+    $r = $this->core->Change([[
      "[Languages.CloneVariables]" => base64_encode(json_encode([
       "LocalCode" => htmlentities("[Languages:$id-LocalID]"),
       "LocalID" => "GenerateUniqueID"
@@ -100,9 +100,9 @@
      "[Languages.ID]" => $id,
      "[Languages.Locals]" => $locals,
      "[Languages.Processor]" => base64_encode("v=$ls"),
-    ], $this->system->Page("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
+    ], $this->core->Page("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -114,28 +114,28 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID"]);
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID"]);
    $r = [
     "Body" => "The Languages Package Identirifer is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
-    $lt = $this->system->Data("Get", ["local", $data["ID"]]);
+    $lt = $this->core->Data("Get", ["local", $data["ID"]]);
     $lt = $lt ?? [];
     foreach($d as $k => $v) {
      if(strpos($k, "Locals_") !== false) {
       $k = explode("_", $k);
-      foreach($this->system->Languages() as $re => $la) {
+      foreach($this->core->Languages() as $re => $la) {
        $ltd = $data[$k[1]."-$re"] ?? "";
-       $lt[$k[1]][$re] = $this->system->PlainText([
+       $lt[$k[1]][$re] = $this->core->PlainText([
         "Data" => $ltd,
         "Encode" => 1,
         "HTMLEncode" => 1
@@ -147,9 +147,9 @@
      "Body" => "The Localization was saved.",
      "Header" => "Done"
     ];
-    #$this->system->Data("Save", ["local", $data["ID"], $lt]);
+    #$this->core->Data("Save", ["local", $data["ID"], $lt]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

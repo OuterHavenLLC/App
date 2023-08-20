@@ -1,6 +1,6 @@
 <?php
  require_once(__DIR__."/Cypher.php");
- Class System {
+ Class Core {
   protected function __construct() {
    try {
     $this->cypher = New Cypher;

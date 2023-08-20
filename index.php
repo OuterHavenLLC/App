@@ -10,36 +10,36 @@
  $gw = New GW;
  $view = $data["v"] ?? "";
  $r = "";
- $gw->system->Setup("App");
+ $gw->core->Setup("App");
  if($api == "Design") {
   header("content-type: text/CSS");
-  $r = $gw->system->Page("d4efcd44be4b2ef2a395f0934a9e446a");
+  $r = $gw->core->Page("d4efcd44be4b2ef2a395f0934a9e446a");
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
   if($view == "Cypher") {
-   $r = $gw->system->Page("9899b8bb388bf8520c3b5cee4ef6778b");
+   $r = $gw->core->Page("9899b8bb388bf8520c3b5cee4ef6778b");
   } elseif($view == "Functions") {
-   $r = $gw->system->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
+   $r = $gw->core->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
   } elseif($view == "GUI") {
-   $r = $gw->system->Page("a62f482184a8b2eefa006a37890666d7");
+   $r = $gw->core->Page("a62f482184a8b2eefa006a37890666d7");
   }
-  $r = $gw->system->Change([[
+  $r = $gw->core->Change([[
    "[OH.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
    "[OH.Gateway]" => base64_encode("v=".base64_encode("WebUI:GatewayContainers")),
    "[OH.LockScreen]" => base64_encode("v=".base64_encode("WebUI:LockScreen")),
    "[OH.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
    "[OH.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
    "[OH.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
-   "[OH.region]" => $gw->system->region,
-   "[mbr]" => $gw->system->Username()
-  ], $gw->system->PlainText([
+   "[OH.region]" => $gw->core->region,
+   "[mbr]" => $gw->core->Username()
+  ], $gw->core->PlainText([
    "Data" => $r,
    "Display" => 1,
    "HTMLDecode" => 1
   ])]);
  } elseif($api == "Maintanance") {
   # MAINTANANCE STATUS
-  $r = $gw->system->config[$c[0]];
+  $r = $gw->core->config[$c[0]];
  } elseif($api == "Web") {
   if($view == base64_encode("File:SaveUpload")) {
    $r = $gw->view($view, [
@@ -52,10 +52,10 @@
    $r = $gw->view($view, ["Data" => $data]);
   }
  } else {
-  $_ViewTitle = $gw->system->config["App"]["Name"];
+  $_ViewTitle = $gw->core->config["App"]["Name"];
   $c = $data["_cmd"] ?? "";
   $c = (!empty($c)) ? explode("/", urldecode($c)) : [$c];
-  $c = $gw->system->FixMissing($c, [0, 1, 2, 3]);
+  $c = $gw->core->FixMissing($c, [0, 1, 2, 3]);
   if($c[0] == "Errors") {
    # ERRORS
    $r = $gw->view(base64_encode("WebUI:Error"), ["Data" => [
@@ -129,7 +129,7 @@
    # CHAT
    $r = $gw->view(base64_encode("WebUI:Containers"), []);
    if(!empty($sk)) {
-    $r = $gw->system->view(base64_encode("WebUI:Containers"), [
+    $r = $gw->core->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Type" => "Chat"]
     ]);
    }
@@ -180,15 +180,15 @@
     ]]);
    }
   } else {
-   $gw->system->Statistic("Visits");
+   $gw->core->Statistic("Visits");
    $r = $gw->view(base64_encode("WebUI:UIContainers"), []);
   }
-  $r = $gw->system->Change([[
-   "[Body]" => $gw->system->RenderView($r),
-   "[Description]" => $gw->system->config["App"]["Description"],
-   "[Keywords]" => $gw->system->config["App"]["Keywords"],
+  $r = $gw->core->Change([[
+   "[Body]" => $gw->core->RenderView($r),
+   "[Description]" => $gw->core->config["App"]["Description"],
+   "[Keywords]" => $gw->core->config["App"]["Keywords"],
    "[Title]" => $_ViewTitle
-  ], $gw->system->PlainText([
+  ], $gw->core->PlainText([
    "BBCodes" => 1,
    "Data" => file_get_contents("./index.txt"),
    "Display" => 1

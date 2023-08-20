@@ -2,10 +2,10 @@
  Class Vote extends GW {
   function __construct() {
    parent::__construct();
-   $this->NoID = $this->system->Element([
+   $this->NoID = $this->core->Element([
     "div", "Missing Vote ID", ["class" => "CenterText InnerMargin"]
    ]);
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Containers(array $a) {
    $accessCode = "Denied";
@@ -19,7 +19,7 @@
     $accessCode = "Accepted";
     $_VoteDown = 0;
     $_VoteUp = 0;
-    $_Votes = $this->system->Data("Get", ["votes", $id]) ?? [];
+    $_Votes = $this->core->Data("Get", ["votes", $id]) ?? [];
     $_Votes[$you] = $_Votes[$you] ?? "";
     foreach($_Votes as $member => $vote) {
      if($vote == "Down") {
@@ -35,26 +35,26 @@
     $class .= ($type == 4) ? " Medium" : $class;
     $retract = "v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type";
     $save = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
-    $down = ($_Votes[$you] == "Down") ? $this->system->Element([
+    $down = ($_Votes[$you] == "Down") ? $this->core->Element([
      "button", "Down", [
       "class" => "Selected UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
       "data-view" => $retract
      ]
-    ]) : $this->system->Element([
+    ]) : $this->core->Element([
      "button", "Down", [
       "class" => "UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
       "data-view" => $save."Up"
      ]
     ]);
-    $up = ($_Votes[$you] == "Up") ? $this->system->Element([
+    $up = ($_Votes[$you] == "Up") ? $this->core->Element([
      "button", "Up", [
       "class" => "Selected UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
       "data-view" => $retract
      ]
-    ]) : $this->system->Element([
+    ]) : $this->core->Element([
      "button", "Up", [
       "class" => "UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
@@ -62,21 +62,21 @@
      ]
     ]);
     $votes = $_VoteUp - $_VoteDown;
-    $r = $this->system->Element(["div", $up, [
+    $r = $this->core->Element(["div", $up, [
      "class" => "Desktop33"
-    ]]).$this->system->Element(["div", $this->system->Element([
-     "div", $this->system->ShortNumber($votes),
+    ]]).$this->core->Element(["div", $this->core->Element([
+     "div", $this->core->ShortNumber($votes),
      ["class" => "CenterText InnerMargin"]
     ]), [
      "class" => "Desktop33"
-    ]]).$this->system->Element(["div", $down, [
+    ]]).$this->core->Element(["div", $down, [
      "class" => "Desktop33"
     ]]);
-    $r = ($refresh == 0) ? $this->system->Element([
+    $r = ($refresh == 0) ? $this->core->Element([
      "div", $r, ["class" => $class]
     ]) : $r;
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -95,20 +95,20 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $newVotes = [];
-    $votes = $this->system->Data("Get", ["votes", $id]) ?? [];
+    $votes = $this->core->Data("Get", ["votes", $id]) ?? [];
     foreach($votes as $member => $vote) {
      if($member != $you) {
       $newVotes[$member] = $vote;
      }
     }
-    $this->system->Data("Save", ["votes", $id, $newVotes]);
+    $this->core->Data("Save", ["votes", $id, $newVotes]);
     $r = $this->view(base64_encode("Vote:Containers"), ["Data" => [
      "ID" => $id,
      "Refresh" => 1,
      "Type" => $type
     ]]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -127,16 +127,16 @@
    $you = $this->you["Login"]["Username"];
    if(!empty($id)) {
     $accessCode = "Accepted";
-    $votes = $this->system->Data("Get", ["votes", $id]) ?? [];
+    $votes = $this->core->Data("Get", ["votes", $id]) ?? [];
     $votes[$you] = $vote;
-    $this->system->Data("Save", ["votes", $id, $votes]);
+    $this->core->Data("Save", ["votes", $id, $votes]);
     $r = $this->view(base64_encode("Vote:Containers"), ["Data" => [
      "ID" => $id,
      "Refresh" => 1,
      "Type" => $type
     ]]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -156,7 +156,7 @@
     $accessCode = "Accepted";
     $_VoteDown = 0;
     $_VoteUp = 0;
-    $_Votes = $this->system->Data("Get", ["votes", $id]) ?? [];
+    $_Votes = $this->core->Data("Get", ["votes", $id]) ?? [];
     $_Votes[$you] = $_Votes[$you] ?? "";
     foreach($_Votes as $member => $vote) {
      if($vote == "Down") {
@@ -171,20 +171,20 @@
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? " Medium" : $class;
     $votes = $_VoteUp - $_VoteDown;
-    $r = $this->system->Element([
-     "div", $this->system->Element(["div", "&nbsp;", [
+    $r = $this->core->Element([
+     "div", $this->core->Element(["div", "&nbsp;", [
       "class" => "Desktop33"
-     ]]).$this->system->Element(["div", $this->system->Element([
-      "div", $this->system->ShortNumber($votes),
+     ]]).$this->core->Element(["div", $this->core->Element([
+      "div", $this->core->ShortNumber($votes),
       ["class" => "CenterText InnerMargin"]
      ]), [
       "class" => "Desktop33"
-     ]]).$this->system->Element(["div", "&nbsp;", [
+     ]]).$this->core->Element(["div", "&nbsp;", [
       "class" => "Desktop33"
      ]]), ["class" => $class]
     ]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",

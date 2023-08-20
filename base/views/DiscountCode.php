@@ -2,26 +2,26 @@
  Class DiscountCode extends GW {
   function __construct() {
    parent::__construct();
-   $this->you = $this->system->Member($this->system->Username());
+   $this->you = $this->core->Member($this->core->Username());
   }
   function Edit(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->FixMissing($data, [
     "ID",
     "new"
    ]);
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $id = $data["ID"] ?? md5($you."_DC_".$this->system->timestamp);
+   $id = $data["ID"] ?? md5($you."_DC_".$this->core->timestamp);
    $action = ($new == 1) ? "Post" : "Update";
-   $action = $this->system->Element(["button", $action, [
+   $action = $this->core->Element(["button", $action, [
     "class" => "CardButton SendData",
     "data-form" => ".Discount$id",
     "data-processor" => base64_encode("v=".base64_encode("DiscountCode:Save"))
    ]]);
-   $discount = $this->system->Data("Get", ["dc", md5($you)]) ?? [];
+   $discount = $this->core->Data("Get", ["dc", md5($you)]) ?? [];
    $discount = $discount[$id] ?? [];
    $code = $discount["Code"] ?? base64_encode("");
    $dollarAmount = $discount["DollarAmount"] ?? 1.00;
@@ -34,8 +34,8 @@
    } for($i = 1; $i < 100; $i++) {
     $quantities[$i] = $i;
    }
-   $r = $this->system->Change([[
-    "[Discount.Inputs]" => $this->system->RenderInputs([
+   $r = $this->core->Change([[
+    "[Discount.Inputs]" => $this->core->RenderInputs([
      [
       "Attributes" => [
        "name" => "ID",
@@ -115,12 +115,12 @@
       "Value" => $quantity
      ]
     ])
-   ], $this->system->Page("47e35864b11d8bdc255b0aec513337c0")]);
+   ], $this->core->Page("47e35864b11d8bdc255b0aec513337c0")]);
    $r = [
     "Action" => $action,
     "Front" => $r
    ];
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -132,8 +132,8 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, [
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
     "DC",
     "DollarAmount",
     "ID",
@@ -147,7 +147,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
@@ -160,7 +160,7 @@
     if(!empty($data["DC"])) {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
-     $discount = $this->system->Data("Get", ["dc", md5($you)]) ?? [];
+     $discount = $this->core->Data("Get", ["dc", md5($you)]) ?? [];
      $discount[$data["ID"]] = [
       "Code" => base64_encode($data["DC"]),
       "DollarAmount" => $data["DollarAmount"],
@@ -171,10 +171,10 @@
       "Body" => "The Code <em>".$data["DC"]."</em> was $actionTaken!",
       "Header" => "Done"
      ];
-     $this->system->Data("Save", ["dc", md5($you), $discount]);
+     $this->core->Data("Save", ["dc", md5($you), $discount]);
     }
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
@@ -187,22 +187,22 @@
   function SaveDelete(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->system->DecodeBridgeData($data);
-   $data = $this->system->FixMissing($data, ["ID"]);
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID"]);
    $r = [
     "Body" => "The Code Identifier is missing.",
     "Header" => "Error"
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->system->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
-    $discount = $this->system->Data("Get", ["dc", md5($you)]) ?? [];
+    $discount = $this->core->Data("Get", ["dc", md5($you)]) ?? [];
     $newDiscount = [];
     foreach($discount as $key => $value) {
      if($data["ID"] != $key) {
@@ -214,9 +214,9 @@
      "Body" => "The Code was removed.",
      "Header" => "Done"
     ];
-    $this->system->Data("Save", ["dc", md5($you), $discount2]);
+    $this->core->Data("Save", ["dc", md5($you), $discount2]);
    }
-   return $this->system->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
