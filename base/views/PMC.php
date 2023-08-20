@@ -21,7 +21,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => "Outer Haven P.M.C. Branch"
    ]);
   }
   function __destruct() {

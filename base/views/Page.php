@@ -380,6 +380,7 @@
    ]);
   }
   function Home(array $a) {
+   $_ViewTitle = $this->core->config["App"]["Name"];
    $accessCode = "Denied";
    $base = $this->core->efs;
    $data = $a["Data"] ?? [];
@@ -412,6 +413,7 @@
     $admin = 0;
     $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
     $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
+    $_ViewTitle = $Page["Title"] ?? $_ViewTitle;
     $contributors = $Page["Contributors"] ?? [];
     $ck = ($Page["UN"] == $you) ? 1 : 0;
     $subscribers = $Page["Subscribers"] ?? [];
@@ -538,7 +540,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => $_ViewTitle
    ]);
   }
   function Invite(array $a) {

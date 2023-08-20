@@ -22,7 +22,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => "Congress of ".$this->core->config["App"]["Name"]
    ]);
   }
   function __destruct() {

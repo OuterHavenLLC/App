@@ -3,3 +3,4 @@
 base/Cypher.php
 data/c.oh.*
 efs/*/
+efs/*/*

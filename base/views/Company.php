@@ -44,12 +44,12 @@
    $pub = $data["pub"] ?? 0;
    $sid = base64_encode($this->core->ShopID);
    $r = $this->core->Change([[
-    "[OHC.Earnings]" => base64_encode("v=".base64_encode("Company:Income")."&UN=".base64_encode($this->core->ShopID)),
-    "[OHC.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
-    "[OHC.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
-    "[OHC.Shop]" => base64_encode("OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$sid")),
-    "[OHC.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
-    "[OHC.VVA]" => base64_encode("OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC"))
+    "[App.Earnings]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
+    "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
+    "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
+    "[App.Shop]" => "OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$sid"),
+    "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
+    "[App.VVA]" => "OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
    ], $this->core->Page("0a24912129c7df643f36cb26038300d6")]);
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
@@ -361,7 +361,7 @@
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r
    ] : $r;
-   if($pub == 1) {
+   if($data["pub"] == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
@@ -373,7 +373,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => "Visual Vanguard Architecture"
    ]);
   }
   function __destruct() {

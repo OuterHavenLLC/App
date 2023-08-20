@@ -93,17 +93,20 @@
    $r = $gw->view(base64_encode("PMC:Home"), ["Data" => [
     "pub" => 1
    ]]);
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "VVA") {
    # VISUAL VANGUARD ARCHITECTURE
    $r = $gw->view(base64_encode("Company:VVA"), ["Data" => [
     "pub" => 1
    ]]);
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "archive") {
    # COMMUNITY ARCHIVE
    $r = $gw->view(base64_encode("Page:Home"), ["Data" => [
     "LLP" => $c[1],
     "pub" => 1
    ]]);
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "blogs") {
    # BLOGS
    $r = $gw->view(base64_encode("Search:Containers"), ["Data" => [
@@ -133,6 +136,12 @@
      "Data" => ["Type" => "Chat"]
     ]);
    }
+  } elseif($c[0] == "congress") {
+   # CONGRESS
+   $r = $gw->view(base64_encode("Congress:Home"), ["Data" => [
+    "pub" => 1
+   ]]);
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "donate") {
    # DONATE
    $r = $gw->view(base64_encode("Company:Donate"), ["Data" => [
