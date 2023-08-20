@@ -755,7 +755,8 @@
     $pc = base64_encode("Page:Card");
     $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "Extension"), $r);
     $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
-    $r = preg_replace_callback("/\[sIMG:(.*?)\]/i", array(&$this, "SystemImage"), $r);
+    $r = preg_replace_callback("/\[CoreMedia:(.*?)\]/i", array(&$this, "CoreMedia"), $r);
+    $r = preg_replace_callback("/\[sIMG:(.*?)\]/i", array(&$this, "CoreMedia"), $r);// TO BE DISOLVED
     $r = $this->Change([[
      "[X.contact]" => base64_encode("v=".base64_encode("Company:Feedback")),
      "[X.terms]" => base64_encode("v=$pc&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
@@ -1235,8 +1236,19 @@
    $r = (!empty($sk)) ? $this->Credentials("UN", $sk) : $this->ID;
    return $r;
   }
+  public static function CoreMedia($a = NULL) {
+   $x = New Core;
+   if(!empty($a)) {
+    $r = $x->efs.$x->ID."/".$x->config["Media"][$a[1]];
+    $x->__destruct();
+    return $r;
+   }
+  }
+  function __destruct() {
+   // DESTROYS THIS CLASS
+  }
   public static function Extension($a = NULL) {
-   $x = New System;
+   $x = New Core;
    if(!empty($a)) {
     $r = $x->Page($a[1]);
     $x->__destruct();
@@ -1244,7 +1256,7 @@
    }
   }
   public static function LanguagesTranslation($a = NULL) {
-   $x = New System;
+   $x = New Core;
    if(!empty($a[1])) {
     $l = explode("-", $a[1]);
     $lt = $x->Data("Get", ["local", $l[0]]) ?? [];
@@ -1260,17 +1272,6 @@
     $x->__destruct();
     return $r;
    }
-  }
-  public static function SystemImage($a = NULL) {
-   $x = New System;
-   if(!empty($a)) {
-    $r = $x->efs.$x->ID."/".$x->config["Media"][$a[1]];
-    $x->__destruct();
-    return $r;
-   }
-  }
-  function __destruct() {
-   // DESTROYS THIS CLASS
   }
  }
 ?>
