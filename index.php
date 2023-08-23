@@ -24,14 +24,11 @@
    $r = $gw->core->Page("a62f482184a8b2eefa006a37890666d7");
   }
   $r = $gw->core->Change([[
-   "[OH.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
-   "[OH.Gateway]" => base64_encode("v=".base64_encode("WebUI:GatewayContainers")),
-   "[OH.LockScreen]" => base64_encode("v=".base64_encode("WebUI:LockScreen")),
-   "[OH.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
-   "[OH.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
-   "[OH.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
-   "[OH.region]" => $gw->core->region,
-   "[mbr]" => $gw->core->Username()
+   "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
+   "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
+   "[App.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
+   "[App.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
+   "[App.region]" => $gw->core->region
   ], $gw->core->PlainText([
    "Data" => $r,
    "Display" => 1,

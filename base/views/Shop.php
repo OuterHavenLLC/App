@@ -137,7 +137,7 @@
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
        "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Shop.General]" => $this->core->RenderInputs([
@@ -821,18 +821,6 @@
   function MadeInNewYork(array $a) {
    $accessCode = "Accepted";
    $_Search = base64_encode("Search:Containers");
-   $_Artists = $this->view($_Search, ["Data" => [
-    "b2" => "Made in New York",
-    "lPG" => "MadeInNY",
-    "st" => "SHOP"
-   ]]);
-   $_Artists = $this->core->RenderView($_Artists);
-   $_Products = $this->view($_Search, ["Data" => [
-    "b2" => "Made in New York",
-    "lPG" => "MadeInNY",
-    "st" => "SHOP-Products"
-   ]]);
-   $_Products = $this->core->RenderView($_Products);
    $data = $a["Data"] ?? [];
    $bck = $data["back"] ?? "";
    $callsign = $this->core->Data("Get", [
@@ -843,9 +831,9 @@
    $pub = $data["pub"] ?? 0;
    $username = base64_encode($this->core->ShopID);
    $r = $this->core->Change([[
-    "[MadeInNY.Artists]" => $_Artists,
+    "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
     "[MadeInNY.Back]" => $bck,
-    "[MadeInNY.Products]" => $_Products,
+    "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP-Products"),
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&CS=$callsign&UN=$username&pub=$pub")
    ], $this->core->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {

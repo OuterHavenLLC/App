@@ -58,7 +58,7 @@
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
        "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=$id")
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[ForumPost.Header]" => $header,

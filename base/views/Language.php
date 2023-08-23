@@ -7,11 +7,9 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
-   $ls = base64_encode("Language:Save");
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Languages Package Identifier is missing."
+    "Body" => "The Languages Package Identifier is missing.<br/>ID: $id"
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -20,16 +18,16 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id)) {
+    $_Locals = $this->core->Page("63dde5af1a1ec0968ccb006248b55f48");
+    $_Regions = $this->core->Page("5f6ea04c169f32041a39e16d20f95a05");
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $locals = "";
     $lt = $this->core->Data("Get", ["local", $id]) ?? [];
-    $tpl = $this->core->Page("63dde5af1a1ec0968ccb006248b55f48");
-    $tpl2 = $this->core->Page("5f6ea04c169f32041a39e16d20f95a05");
+    $regions = "";
     if(empty($lt)) {
      $k = md5($you."_Local_".$this->core->timestamp);
      $code = "&#91;Languages:$id-$k&#93;";
-     $regions = "";
      foreach($this->core->Languages() as $re => $la) {
       $t = $lt[$k][$re] ?? "";
       $t = (!empty($t)) ? $this->core->PlainText([
@@ -42,17 +40,16 @@
        "[Region.LocalID]" => $k,
        "[Region.Code]" => $re,
        "[Region.Text]" => $t
-      ], $tpl2]);
+      ], $_Regions]);
      }
      $locals .= $this->core->Change([[
       "[Local.Code]" => $code,
       "[Local.ID]" => $k,
       "[Local.Regions]" => $regions
-     ], $tpl]);
+     ], $_Locals]);
     } else {
      foreach($lt as $k => $v) {
       $code = "&#91;Languages:$id-$k&#93;";
-      $regions = "";
       foreach($this->core->Languages() as $re => $la) {
        $t = $v[$re] ?? "";
        $t = (!empty($t)) ? $this->core->PlainText([
@@ -65,30 +62,28 @@
         "[Region.LocalID]" => $k,
         "[Region.Code]" => $re,
         "[Region.Text]" => $t
-       ], $tpl2]);
+       ], $_Regions]);
       }
       $locals .= $this->core->Change([[
        "[Local.Code]" => $code,
        "[Local.ID]" => $k,
        "[Local.Regions]" => $regions
-      ], $tpl]);
+      ], $_Locals]);
      }
-    }
-    $regions = "";
-    foreach($this->core->Languages() as $re => $la) {
+    } foreach($this->core->Languages() as $re => $la) {
      $regions .= $this->core->Change([[
       "[Region.Language]" => $la,
       "[Region.LocalID]" => "LocalID",
       "[Region.Code]" => $re,
       "[Region.Text]" => ""
-     ], $tpl2]);
+     ], $_Regions]);
     }
-    $tpl = $this->core->PlainText([
+    $_Locals = $this->core->PlainText([
      "Data" => $this->core->Change([[
       "[Local.Code]" => "LocalCode",
       "[Local.ID]" => "LocalID",
       "[Local.Regions]" => $regions
-     ], $tpl]),
+     ], $_Locals]),
      "HTMLEncode" => 1
     ]);
     $r = $this->core->Change([[
@@ -96,10 +91,10 @@
       "LocalCode" => htmlentities("[Languages:$id-LocalID]"),
       "LocalID" => "GenerateUniqueID"
      ])),
-     "[Languages.CloneTPL]" => $tpl,
+     "[Languages.CloneTPL]" => $_Locals,
      "[Languages.ID]" => $id,
      "[Languages.Locals]" => $locals,
-     "[Languages.Processor]" => base64_encode("v=$ls"),
+     "[Languages.Processor]" => base64_encode("v=".base64_encode("Language:Save")),
     ], $this->core->Page("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
    }
    return $this->core->JSONResponse([
