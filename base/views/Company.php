@@ -265,7 +265,6 @@
      md5("ContactList")
     ]) ?? [];
     $preSets["NextSend"] = $this->core->TimePlus($now, 1, "month");
-    $preSets["NextSend"] = strtotime($preSets["NextSend"]);
     foreach($contactList as $email => $info) {
      if($info["SendOccasionalEmails"] == 1) {
       $this->core->SendEmail([

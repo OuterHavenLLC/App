@@ -1024,7 +1024,7 @@
     $message = $this->Element([
      "html", $this->Element([
       "head", $this->Element([
-       "style", $this->Page("d4efcd44be4b2ef2a395f0934a9e446a")
+       "style", $this->Page("669ae04b308fc630f8e06317313d9efe")
       ])
      ]).$this->Element([
       "body", $this->Change([[
