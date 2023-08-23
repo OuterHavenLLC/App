@@ -823,18 +823,13 @@
    $_Search = base64_encode("Search:Containers");
    $data = $a["Data"] ?? [];
    $bck = $data["back"] ?? "";
-   $callsign = $this->core->Data("Get", [
-    "miny",
-    "355fd2f096bdb49883590b8eeef72b9c"
-   ]) ?? [];
-   $callsign = $this->core->CallSign($callsign["Title"]);
    $pub = $data["pub"] ?? 0;
    $username = base64_encode($this->core->ShopID);
    $r = $this->core->Change([[
     "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
     "[MadeInNY.Back]" => $bck,
     "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP-Products"),
-    "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&CS=$callsign&UN=$username&pub=$pub")
+    "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
    ], $this->core->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
