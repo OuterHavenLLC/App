@@ -619,21 +619,21 @@
        $pts = $this->core->config["PTS"]["Products"];
        $qty = $product["Quantity"] ?? 0;
        $qty2 = $product["QTY"] ?? 0;
-       if($cat == "ARCH") {
+       if($cat == "Architecture") {
         # Architecture
-       } elseif($cat == "DLC") {
+       } elseif($cat == "Download") {
         # Downloadable Content
-       } elseif($cat == "DONATE") {
+       } elseif($cat == "Donation") {
         # Donations
         $opt = $this->core->Element(["p", "Thank you for donating!"]);
-       } elseif($cat == "PHYS") {
+       } elseif($cat == "Product") {
         # Physical Products (require delivery info)
         $opt = $this->core->Element([
          "button", "Contact the Seller", ["class" => "BB BBB v2 v2w"]
         ]);
-       } elseif($cat == "SUB") {
+       } elseif($cat == "Subscription") {
         $opt = $this->core->Element(["button", "Go to Subscription", [
-         "class" => "BB BBB v2 v2w"
+         "class" => "BBB v2 v2w"
         ]]);
        }
        $r .= $this->core->Change([[

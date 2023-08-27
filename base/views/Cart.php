@@ -43,7 +43,7 @@
      for($i = 0; $i <= $productQuantity; $i++) {
       $quantities[$i] = $i;
      } if($ck == 1 || ($t["Login"]["Username"] == $this->core->ShopID && $quantity != 0)) {
-      $instructions = ($cat == "PHYS" && $hasInstructions == 1) ? $this->core->Element([
+      $instructions = (($cat == "Product" || $cat == "PHYS") && $hasInstructions == 1) ? $this->core->Element([
        "p", "Please add your shipping address.",
        ["class" => "CenterText"]
       ]) : "";
@@ -109,12 +109,12 @@
        "[AddToCart.Product.Price]" => number_format($price, 2),
        "[AddToCart.Product.Quantity]" => $quantity
       ], $this->core->Page("624bcc664e9bff0002e01583e7706d83")]);
-      if($cat == "PHYS" && $t["Login"]["Username"] == $you) {
+      if(($cat == "Product" || $cat == "PHYS") && $t["Login"]["Username"] == $you) {
        $r = $this->core->Element([
         "p", "Physical orders are disabled as you own this shop.",
         ["class" => "CenterText"]
        ]);
-      } elseif($cat == "SUB") {
+      } elseif($cat == "Subscription" || $cat == "SUB") {
        $sub = $this->core->Element([
         "h4", "Already Subscribed",
         ["class" => "UpperCase CenterText"]

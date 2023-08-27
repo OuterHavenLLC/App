@@ -73,7 +73,7 @@
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
-    } elseif($editor == "Donation") {
+    } elseif($editor == "Donation" || $editor == "DONATE") {
      $extension = $this->core->Element([
       "h1", $editor
      ]).$this->core->Element([
@@ -82,7 +82,7 @@
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
-    } elseif($editor == "Download") {
+    } elseif($editor == "Download" || $editor == "DLC") {
      $extension = $this->core->Element([
       "h1", $editor
      ]).$this->core->Element([
@@ -91,7 +91,7 @@
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
-    } elseif($editor == "Product") {
+    } elseif($editor == "Product" || $editor == "PHYS") {
      // DELIVERABLES / GENERAL EDITOR (TEMP)
 
      // BEGIN GENERAL EDITOR (TEMP)
@@ -107,15 +107,15 @@
       "Title"
      ]);
      $categories = ($y["Rank"] == md5("High Command")) ? [
-      "ARCH" => "Architecture",
-      "DLC" => "Downloadable",
-      "DONATE" => "Donation",
-      "PHYS" => "Physical Product",
-      "SUB" => "Subscription"
+      "Architecture" => "Architecture",
+      "Download" => "Downloadable",
+      "Donation" => "Donation",
+      "Product" => "Product",
+      "Subscription" => "Subscription"
      ] : [
-      "DLC" => "Downloadable",
-      "DONATE" => "Donation",
-      "PHYS" => "Physical Product"
+      "Download" => "Downloadable",
+      "Donation" => "Donation",
+      "Product" => "Product"
      ];
      $category = $product["Category"] ?? "";
      $cost = $product["Cost"] ?? 0.00;
@@ -471,7 +471,7 @@
       "class" => "GoToParent v2",
       "data-type" => "ProductEditors"
      ]]);
-    } elseif($editor == "Subscription") {
+    } elseif($editor == "Subscription" || $editor == "SUB") {
      $extension = $this->core->Element([
       "h1", $editor
      ]).$this->core->Element([
@@ -585,7 +585,7 @@
      $actions .= ($active == 1) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&ID=".$product["ID"])
+       "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Editor=".$product["Category"]."&ID=".$product["ID"])
       ]
      ]) : "";
      $bck = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
