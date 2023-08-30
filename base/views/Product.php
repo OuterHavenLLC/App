@@ -116,7 +116,7 @@
       "Download" => "Downloadable",
       "Donation" => "Donation",
       "Product" => "Product"
-     ];
+     ];//TEMP
      $category = $product["Category"] ?? "";
      $cost = $product["Cost"] ?? 0.00;
      $coverPhoto = $product["ICO-SRC"] ?? "";
@@ -144,226 +144,29 @@
      $changeData = [
       "[Product.Action]" => $action,
       "[Product.AdditionalContent]" => $additionalContent,
+      "[Product.Attachments]" => $attachments,
+      "[Product.Attachments.View]" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
+      "[Product.Body]" => $this->core->PlainText([
+       "Data" => $product["Body"]
+      ]),
+      "[Product.BundledProducts]" => $bundledProducts,
+      "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
+      "[Product.Category]" => $editor,
+      "[Product.CoverPhoto]" => $coverPhoto,
+      "[Product.CoverPhoto.View]" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
+      "[Product.Created]" => $created,
+      "[Product.Description]" => $product["Description"],
+      "[Product.DesignView]" => $_DesignViewEditor,
+      "[Product.Disclaimer]" => $product["Disclaimer"],
+      "[Product.Downloads]" => $dlc,
+      "[Product.Downloads.View]" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
       "[Product.Header]" => $header,
       "[Product.ID]" => $id,
-      "[Product.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Created",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $created
-      ],
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "new",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $new
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTF",
-        "data-a" => "#ATTL$id-ATTF",
-        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
-        "name" => "rATTF",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditProduct$id-ATTF"
-       ],
-       "Type" => "Text",
-       "Value" => $attachments
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTDLC",
-        "data-a" => "#ATTL$id-ATTDLC",
-        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
-        "name" => "rATTDLC",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditProduct$id-ATTDLC"
-       ],
-       "Type" => "Text",
-       "Value" => $dlc
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTI",
-        "data-a" => "#ATTL$id-ATTI",
-        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
-        "name" => "rATTI",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditProduct$id-ATTI"
-       ],
-       "Type" => "Text",
-       "Value" => $coverPhoto
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTP",
-        "data-a" => "#ATTL$id-ATTP",
-        "data-u" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
-        "name" => "rATTP",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditProduct$id-ATTP"
-       ],
-       "Type" => "Text",
-       "Value" => $bundledProducts
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $product["Title"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Description",
-        "placeholder" => "Description"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $product["Description"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Disclaimer",
-        "placeholder" => "Disclaimer"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Disclaimer"
-       ],
-       "Type" => "TextBox",
-       "Value" => $product["Disclaimer"]
-      ],
-      [
-       "Attributes" => [
-        "class" => $_DesignViewEditor." Body Xdecode req",
-        "id" => "EditProductBody$id",
-        "name" => "Body",
-        "placeholder" => "Body"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Body",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox",
-       "Value" => $this->core->PlainText([
-        "Data" => $product["Body"]
-       ])
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => $categories,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Category"
-       ],
-       "Name" => "Category",
-       "Title" => "Category",
-       "Type" => "Select",
-       "Value" => $category
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "No",
-        1 => "Yes"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Instructions"
-       ],
-       "Name" => "Instructions",
-       "Title" => "Instructions",
-       "Type" => "Select",
-       "Value" => $product["Instructions"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "Administrator",
-        1 => "Contributor"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Role"
-       ],
-       "Name" => "Role",
-       "Type" => "Select",
-       "Value" => $product["Role"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        "month" => "Month",
-        "year" => "Year"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Subscription Term"
-       ],
-       "Name" => "SubscriptionTerm",
-       "Title" => "Subscription Term",
-       "Type" => "Select",
-       "Value" => $subscriptionTerm
-      ]
-     ]),
+      "[Product.Instructions]" => $product["Instructions"],
+      "[Product.New]" => $new,
+      "[Product.Role]" => $product["Role"],
+      "[Product.SubscriptionTerm]" => $subscriptionTerm,
+      "[Product.Title]" => $product["Title"],
      "[Product.Expiration]" => $this->core->RenderInputs([
       [
        "Attributes" => [],
@@ -449,7 +252,8 @@
        "Value" => $quantity
       ]
       ]),
-      "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
+      "[Product.Save]" => "#",//TEMP
+      #"[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
       "[Product.Visibility]" => $this->core->RenderVisibilityFilter([
        "Filter" => "NSFW",
        "Name" => "nsfw",
