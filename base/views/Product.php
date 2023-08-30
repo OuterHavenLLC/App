@@ -61,51 +61,6 @@
      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
     ]);
     $bundledProducts = "";
-    $changeData = [];//TEMP
-    $dlc = "";
-    $editorLiveView = base64_encode("LiveView:EditorMossaic");
-    if($editor == "Architecture") {
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    } elseif($editor == "Donation" || $editor == "DONATE") {
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    } elseif($editor == "Download" || $editor == "DLC") {
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    } elseif($editor == "Product" || $editor == "PHYS") {
-     // DELIVERABLES / GENERAL EDITOR (TEMP)
-
-     // BEGIN GENERAL EDITOR (TEMP)
-     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
-     $product = $this->core->FixMissing($product, [
-      "Description",
-      "Disclaimer",
-      "Body",
-      "Category",
-      "Instructions",
-      "Role",
-      "Price",
-      "Title"
-     ]);
      $categories = ($y["Rank"] == md5("High Command")) ? [
       "Architecture" => "Architecture",
       "Download" => "Downloadable",
@@ -117,6 +72,50 @@
       "Donation" => "Donation",
       "Product" => "Product"
      ];//TEMP
+    $dlc = "";
+    $editorLiveView = base64_encode("LiveView:EditorMossaic");
+    if($editor == "Architecture") {
+     $changeData = [];
+     $extension = $this->core->Element([
+      "h1", $editor
+     ]).$this->core->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->core->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    } elseif($editor == "Donation" || $editor == "DONATE") {
+     $changeData = [];
+     $extension = $this->core->Element([
+      "h1", $editor
+     ]).$this->core->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->core->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    } elseif($editor == "Download" || $editor == "DLC") {
+     $changeData = [];
+     $extension = $this->core->Element([
+      "h1", $editor
+     ]).$this->core->Element([
+      "p", "A new creator experience is comming soon..."
+     ]).$this->core->Element(["button", "Back", [
+      "class" => "GoToParent v2",
+      "data-type" => "ProductEditors"
+     ]]);
+    } elseif($editor == "Product" || $editor == "PHYS") {
+     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+     $product = $this->core->FixMissing($product, [
+      "Description",
+      "Disclaimer",
+      "Body",
+      "Category",
+      "Instructions",
+      "Role",
+      "Price",
+      "Title"
+     ]);
      $category = $product["Category"] ?? "";
      $cost = $product["Cost"] ?? 0.00;
      $coverPhoto = $product["ICO-SRC"] ?? "";
@@ -151,7 +150,9 @@
       ]),
       "[Product.BundledProducts]" => $bundledProducts,
       "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
-      "[Product.Category]" => $editor,
+      "[Product.Category]" => "Product",
+      #"[Product.Category]" => $editor,
+      "[Product.Cost]" => $cost,
       "[Product.CoverPhoto]" => $coverPhoto,
       "[Product.CoverPhoto.View]" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
       "[Product.Created]" => $created,
@@ -160,113 +161,24 @@
       "[Product.Disclaimer]" => $product["Disclaimer"],
       "[Product.Downloads]" => $dlc,
       "[Product.Downloads.View]" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
+      "[Product.ExpirationQuantities]" => $expirationQuantities,
       "[Product.Header]" => $header,
       "[Product.ID]" => $id,
       "[Product.Instructions]" => $product["Instructions"],
       "[Product.New]" => $new,
+      "[Product.Profit]" => $profit,
       "[Product.Role]" => $product["Role"],
-      "[Product.SubscriptionTerm]" => $subscriptionTerm,
-      "[Product.Title]" => $product["Title"],
-     "[Product.Expiration]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => $expirationQuantities,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Quantity"
-       ],
-       "Name" => "ExpirationQuantity",
-       "Title" => "Quantity",
-       "Type" => "Select",
-       "Value" => 1
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        "month" => "Month",
-        "year" => "Year"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Time Frame"
-       ],
-       "Name" => "ExpirationTimeSpan",
-       "Title" => "Time Frame",
-       "Type" => "Select",
-       "Value" => "Year"
-      ]
-     ]),
-     "[Product.Inventory]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "CheckIfNumeric",
-        "data-symbols" => "Y",
-        "maxlen" => "7",
-        "name" => "Cost",
-        "placeholder" => "5.00",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Cost"
-       ],
-       "Type" => "Text",
-       "Value" => $cost
-      ],
-      [
-       "Attributes" => [
-        "class" => "CheckIfNumeric",
-        "data-symbols" => "Y",
-        "maxlen" => "7",
-        "name" => "Profit",
-        "placeholder" => "5.00",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Profit"
-       ],
-       "Type" => "Text",
-       "Value" => $profit
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => $quantities,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Quantity"
-       ],
-       "Name" => "Quantity",
-       "Title" => "Quantity",
-       "Type" => "Select",
-       "Value" => $quantity
-      ]
-      ]),
       "[Product.Save]" => "#",//TEMP
       #"[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
-      "[Product.Visibility]" => $this->core->RenderVisibilityFilter([
-       "Filter" => "NSFW",
-       "Name" => "nsfw",
-       "Title" => "Content Status",
-       "Value" => $nsfw
-      ]).$this->core->RenderVisibilityFilter([
-       "Value" => $privacy
-      ])
+      "[Product.SubscriptionTerm]" => $subscriptionTerm,
+      "[Product.Title]" => $product["Title"],
+      "[Product.Visibility.NSFW]" => $nsfw,
+      "[Product.Visibility.Privacy]" => $privacy
      ];
      $extension = "3e5dc31db9719800f28abbaa15ce1a37";
-     // END GENERAL EDITOR (TEMP)
     } elseif($editor == "Service") {
      // INVOICE CREATOR
+     $changeData = [];
      $extension = $this->core->Element([
       "h1", $editor
      ]).$this->core->Element([
@@ -276,6 +188,7 @@
       "data-type" => "ProductEditors"
      ]]);
     } elseif($editor == "Subscription" || $editor == "SUB") {
+     $changeData = [];
      $extension = $this->core->Element([
       "h1", $editor
      ]).$this->core->Element([

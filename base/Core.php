@@ -904,9 +904,11 @@
       $renderInput = $this->Element(["label", $renderInput]);
      }
      $r .= $renderInput;
+     //Response += RenderInput;
     }
    }
    return $r;
+   //$(Container).html(Response);
   }
   function RenderView(string $data) {
    $r = json_decode($data, true);
@@ -936,7 +938,7 @@
      md5("Public") => "Public"
     ];
    }
-   $r = $this->RenderInputs([
+   return $this->RenderInputs([
     [
      "Attributes" => [],
      "OptionGroup" => $options,
@@ -952,7 +954,6 @@
      "Value" => $value
     ]
    ]);
-   return $r;
   }
   function Revenue(array $a) {
    $data = $a[1] ?? [];
