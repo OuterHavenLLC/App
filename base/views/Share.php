@@ -9,7 +9,7 @@
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Share Sheet Identifier is missing."
+    "Body" => "The Share Card Identifier or Type are missing.<br/>$id<br/>".$data["Type"]
    ];
    $type = $data["Type"] ?? "";
    $y = $this->you;
@@ -24,11 +24,11 @@
     $username = $data["Username"] ?? "";
     $username = (!empty($username)) ? base64_decode($username) : "";
     if($type == "Album") {
-     $fileSystem = $this->core->Data("Get", ["fs", md5($un)]) ?? [];
+     $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
      $fileSystem = $fileSystem["Albums"][$id] ?? [];
      $t = ($username == $you) ? $y : $this->core->Member($username);
      $checkItOut = "Check out <em>".$fileSystem["Title"]."</em> by ".$t["Personal"]["DisplayName"]."!";
-     $embedCode = "[Album:".base64_encode("$un;$id")."]";
+     $embedCode = "[Album:".base64_encode("$username;$id")."]";
      $shareTitle = $fileSystem["Title"] ?? $shareTitle;
     } elseif($type == "Article") {
      $article = $this->core->Data("Get", ["pg", $id]) ?? [];

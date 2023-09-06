@@ -272,7 +272,7 @@
      $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
      $share = ($share == 1) ? $this->core->Element([
       "button", "Share", [
-       "class" => "OpenCard",
+       "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("File")."&Username=".base64_encode($t["Login"]["Username"]))
      ]]) : "";
      $votes = ($username != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
@@ -303,7 +303,7 @@
        "style" => "height:0.5em"
       ]]),
       "[File.SetAsProfileImage]" => $setAsProfileImage,
-      "[File.Share]" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&UN=".base64_encode($t["Login"]["Username"])),
+      "[File.Share]" => $share,
       "[File.Title]" => $file["Title"],
       "[File.Type]" => $file["Type"],
       "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),

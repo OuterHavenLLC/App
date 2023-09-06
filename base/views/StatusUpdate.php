@@ -201,7 +201,7 @@
     $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
     $share = ($share == 1) ? $this->core->Element([
      "div", $this->core->Element(["button", "Share", [
-      "class" => "InnerMarginOpenCard",
+      "class" => "InnerMargin OpenCard",
       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["SU"])."&Type=".base64_encode("StatusUpdate")."&Username=".base64_encode($update["From"]))
      ]]), ["class" => "Desktop33"]
     ]) : "";
