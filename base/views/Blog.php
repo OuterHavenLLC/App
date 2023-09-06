@@ -350,7 +350,7 @@
      ]) : "";
      $actions .= $this->core->Element(["button", "Share", [
       "class" => "OpenCard Small v2",
-      "data-view" => base64_encode("v=".base64_encode("Blog:Share")."&ID=".base64_encode($blog["ID"])."&UN=".base64_encode($blog["UN"]))
+      "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($blog["ID"])."&Type=".base64_encode("Blog")."&Username=".base64_encode($blog["UN"]))
      ]]);
      $contributors = base64_encode(json_encode($contributors, true));
      $coverPhoto = $this->core->PlainText([
@@ -803,55 +803,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $accesscode = "Denied";
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $un = $data["UN"];
-   $y = $this->you;
-   if(!empty($id) && !empty($un)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
-    $un = base64_decode($un);
-    $t = ($un == $y["Login"]["Username"]) ? $y : $this->core->Member($un);
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out <em>".$blog["Title"]."</em> by ".$t["DN"]."!"
-     ]).$this->core->Element([
-      "div", "[Blog:$id]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Blog",
-     "[Share.ContentID]" => "Blog",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $id,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $blog["Title"]
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function Subscribe(array $a) {

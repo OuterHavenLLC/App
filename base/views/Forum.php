@@ -354,7 +354,7 @@
      $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
       "button", "Share", [
        "class" => "OpenCard Small v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Forum:Share")."&ID=".base64_encode($id))
+       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&Username=".base64_encode($forum["UN"]))
       ]
      ]) : "";
      $coverPhoto = $this->core->PlainText([
@@ -890,58 +890,6 @@
      "Web" => $r
     ],
     "ResponseType" => "Dialog"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
-   $ec = "Denied";
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $y = $this->you;
-   if(!empty($id)) {
-    $id = base64_decode($id);
-    $r = [
-     "Body" => "The Forum cannot be shared."
-    ];
-    if($id != "cb3e432f76b38eaa66c7269d658bd7ea") {
-     $accessCode = "Accepted";
-     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-     $body = $this->core->PlainText([
-      "Data" => $this->core->Element([
-       "p", "Check out <em>".$forum["Title"]."</em>!"
-      ]).$this->core->Element([
-       "div", "[Forum:$id]",
-       ["class" => "NONAME"]
-      ]),
-      "HTMLEncode" => 1
-     ]);
-     $body = base64_encode($body);
-     $r = $this->core->Change([[
-      "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Forum",
-      "[Share.ContentID]" => "Forum",
-      "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-      "[Share.ID]" => $id,
-      "[Share.Link]" => "",
-      "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-      "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-      "[Share.Title]" => $forum["Title"]
-     ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-     $r = [
-      "Front" => $r
-     ];
-    }
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function __destruct() {

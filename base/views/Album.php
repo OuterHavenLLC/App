@@ -205,6 +205,13 @@
      ]]);
     }
     $actions = ($this->core->ID != $you) ? $actions : "";
+    $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
+    $actions .= ($share == 1) ? $this->core->Element([
+     "button", "Share", [
+      "class" => "OpenCard Small v2",
+      "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Album")."&Username=".base64_encode($tun))
+     ]
+    ]);
     $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
     $r = $this->core->Change([[
      "[Album.Actions]" => $actions,
@@ -215,7 +222,6 @@
      "[Album.Modified]" => $this->core->TimeAgo($alb["Modified"]),
      "[Album.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Album;".$t["Login"]["Username"].";$id")),
      "[Album.Owner]" => $t["Personal"]["DisplayName"],
-     "[Album.Share]" => base64_encode("v=".base64_encode("Album:Share")."&ID=$id&UN=$tun"),
      "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$tun"),
      "[Album.Title]" => $alb["Title"],
      "[Album.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
@@ -401,56 +407,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseDialog"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $id = $data["ID"];
-   $un = $data["UN"];
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(!empty($id) && !empty($un)) {
-    $accessCode = "Accepted";
-    $un = base64_decode($un);
-    $code = base64_encode("$un;$id");
-    $t = ($un == $you) ? $y : $this->core->Member($un);
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out ".$t["Personal"]["DisplayName"]."'s media album!"
-     ]).$this->core->Element([
-      "div", "[Album:$code]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $fileSystem = $this->core->Data("Get", ["fs", md5($un)]) ?? [];
-    $fileSystem = $fileSystem["Albums"][$id] ?? [];
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$code&Type=Album",
-     "[Share.ContentID]" => "Album",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $id,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $fileSystem["Title"]
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function __destruct() {

@@ -326,6 +326,13 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->core->Element(["em", $modified]);
      }
+     $share = ($product["UN"] == $you || $product["Privacy"] == md5("Public")) ? 1 : 0;
+     $share = ($share == 1) ? $this->core->Element([
+      "button", "Share", [
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Product")."&Username=".$data["UN"])
+      ]
+     ]) : "";
      $votes = ($t["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $r = $this->core->Change([[
       "[Product.Actions]" => $actions,
@@ -356,7 +363,7 @@
       "[Product.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Product;".$product["ID"])),
       "[Product.Modified]" => $modified,
       "[Product.Title]" => $product["Title"],
-      "[Product.Share]" => base64_encode("v=".base64_encode("Product:Share")."&ID=".base64_encode($product["ID"])."&UN=".$data["UN"]),
+      "[Product.Share]" => $share,
       "[Product.Votes]" => base64_encode("v=$votes&ID=".$product["ID"]."&Type=4")
      ], $this->core->Page("96a6768e7f03ab4c68c7532be93dee40")]);
      $r = ($data["CARD"] == 1) ? [
@@ -627,60 +634,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseDialog"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $username = $data["UN"];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(!empty($id) && !empty($username)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
-    $username = base64_decode($username);
-    $t = ($username == $you) ? $y : $this->core->Member($username);
-    $shop = $this->core->Data("Get", [
-     "shop",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
-    $shop = $shop["Title"];
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out <em>".$product["Title"]."</em> by $shop!"
-     ]).$this->core->Element([
-      "div", "[Product:$id]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Product",
-     "[Share.ContentID]" => "Product",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $id,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $product["Title"]." by $shop"
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function __destruct() {

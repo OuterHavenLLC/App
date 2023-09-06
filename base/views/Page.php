@@ -471,6 +471,14 @@
       $modified = " &bull; Modified ".$_Time." by ".$_Member;
       $modified = $this->core->Element(["em", $modified]);
      }
+     $share = ($Page["UN"] == $you || $Page["Privacy"] == md5("Public")) ? 1 : 0;
+     $share = ($share == 1) ? $this->core->Element([
+      "div", $this->core->Element([
+       "button", "Share", [
+        "class" => "OpenCard",
+        "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Article")."&Username=".base64_encode($Page["UN"]))
+      ]]), ["class" => "Desktop33"]
+     ]) : "";
      $subscribe = ($Page["UN"] != $you && $this->core->ID != $you) ? 1 : 0;
      $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
      $subscribe = ($subscribe == 1) ? $this->core->Change([[
@@ -507,7 +515,7 @@
       "[Article.Description]" => $Page["Description"],
       "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Page;$id")),
       "[Article.Modified]" => $modified,
-      "[Article.Share]" => base64_encode("v=".base64_encode("Page:Share")."&ID=".base64_encode($id)."&UN=".base64_encode($Page["UN"])),
+      "[Article.Share]" => $share,
       "[Article.Subscribe]" => $subscribe,
       "[Article.Title]" => $Page["Title"],
       "[Article.Votes]" => $votes,
@@ -1008,54 +1016,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $id = $data["ID"];
-   $r = $this->core->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Sheet Identifier is missing."
-   ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
-   $un = $data["UN"];
-   $y = $this->you;
-   if(!empty($id) && !empty($un)) {
-    $id = base64_decode($id);
-    $un = base64_decode($un);
-    $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
-    $t = ($un == $y["Login"]["Username"]) ? $y : $this->core->Member($un);
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out <em>".$Page["Title"]."</em> by ".$t["Personal"]["DisplayName"]."!"
-     ]).$this->core->Element([
-      "div", "[Article:$id]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Article",
-     "[Share.ContentID]" => "Article",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $id,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $Page["Title"]
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-   }
-   $r = [
-    "Front" => $r
-   ];
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function Subscribe(array $a) {

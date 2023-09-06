@@ -198,6 +198,13 @@
       "Type" => base64_encode("DLC")
      ]]);
     }
+    $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
+    $share = ($share == 1) ? $this->core->Element([
+     "div", $this->core->Element(["button", "Share", [
+      "class" => "InnerMarginOpenCard",
+      "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["SU"])."&Type=".base64_encode("StatusUpdate")."&Username=".base64_encode($update["From"]))
+     ]]), ["class" => "Desktop33"]
+    ]) : "";
     $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
     $votes = base64_encode("v=$votes&ID=".$update["ID"]."&Type=1");
     $r = $this->core->Change([[
@@ -221,7 +228,7 @@
      "[StatusUpdate.Modified]" => $modified,
      "[StatusUpdate.Options]" => $opt,
      "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-     "[StatusUpdate.Share]" => base64_encode("v=".base64_encode("StatusUpdate:Share")."&ID=".base64_encode($update["ID"])."&UN=".base64_encode($update["From"])),
+     "[StatusUpdate.Share]" => $share,
      "[StatusUpdate.Votes]" => $votes
     ], $this->core->Page("2e76fb1523c34ed0c8092cde66895eb1")]);
     $r = [
@@ -386,54 +393,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseDialog"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $id = $data["ID"];
-   $un = $data["UN"];
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(!empty($id) && !empty($un)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $un = base64_decode($un);
-    $t = ($un == $you) ? $y : $this->core->Member($un);
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out ".$t["Personal"]["DisplayName"]."'s status update!"
-     ]).$this->core->Element([
-      "div", "[StatusUpdate:$id]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=Album",
-     "[Share.ContentID]" => "Status Update",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $id,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $t["Personal"]["DisplayName"]."'s status update"
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function __destruct() {

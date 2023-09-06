@@ -762,6 +762,13 @@
         "data-view" => base64_encode("v=".base64_encode("Shop:Payroll"))
        ]
       ]) : "";
+      $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
+      $share = ($share == 1) ? $this->core->Element([
+       "button", "Share", [
+        "class" => "OpenCard Small v2",
+        "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&Username=".base64_encode($username))
+       ]
+      ]) : "";
       $subscribe = (md5($you) != $id && $this->core->ID != $you) ? 1 : 0;
       $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
       $subscribe = ($subscribe == 1) ? $this->core->Change([[
@@ -788,6 +795,7 @@
        "[Shop.ID]" => $id,
        "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
        "[Shop.Payroll]" => $payroll,
+       "[Shop.Share]" => $share,
        "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=MiNY$id&pubP=$pub&st=MiNY"),
        "[Shop.Subscribe]" => $subscribe,
        "[Shop.Title]" => $shop["Title"],
@@ -1285,51 +1293,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN"]);
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $username = $data["UN"];
-   $y = $this->you;
-   if(!empty($username)) {
-    $accessCode = "Accepted";
-    $username = base64_decode($username);
-    $t = ($username == $y["Login"]["Username"]) ? $y : $this->core->Member($username);
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out <em>".$shop["Title"]."</em> by ".$t["Personal"]["DisplayName"]."!"
-     ]).$this->core->Element([
-      "div", "[Shop:$username]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$username&Type=Shop",
-     "[Share.ContentID]" => "Shop",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $username,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $shop["Title"]
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function Subscribe(array $a) {

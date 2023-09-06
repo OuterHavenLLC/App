@@ -265,7 +265,6 @@
     }
    } if((!empty($blog) && !empty($post)) || $i > 0) {
     $accessCode = "Accepted";
-    $combinedID = base64_encode("$blog-$post");
     $post = $this->core->Data("Get", ["bp", $post]) ?? [];
     $t = ($post["UN"] == $you) ? $y : $this->core->Member($t);
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
@@ -306,6 +305,14 @@
       "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($post["UN"]))
      ]
     ]);
+    $share = ($post["UN"] == $you || $post["Privacy"] == md5("Public")) ? 1 : 0;
+    $share = ($share == 1) ? $this->core->Element([
+     "div", $this->core->Element([
+      "button", "Share", [
+       "class" => "OpenCard",
+       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["Post"])."&Type=".base64_encode("BlogPost")."&Username=".base64_encode($post["UN"]))
+     ]]), ["class" => "Desktop33"]
+    ]) : "";
     $votes = ($post["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
     $votes = base64_encode("v=$votes&ID=".$post["ID"]."&Type=2");
     $r = $this->core->Change([[
@@ -332,7 +339,7 @@
      "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("BlogPost;".$post["ID"])),
      "[Article.Modified]" => $modified,
      "[Article.Reactions]" => $votes,
-     "[Article.Share]" => base64_encode("v=".base64_encode("BlogPost:Share")."&ID=$combinedID&UN=".base64_encode($post["UN"])),
+     "[Article.Share]" => $share,
      "[Article.Subscribe]" => "",
      "[Article.Title]" => $post["Title"],
      "[Member.DisplayName]" => $t["Personal"]["DisplayName"],
@@ -553,55 +560,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseDialog"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $ec = "Denied";
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $un = $data["UN"];
-   $y = $this->you;
-   if(!empty($id) && !empty($un)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $post = $this->core->Data("Get", ["bp", $id]) ?? [];
-    $un = base64_decode($un);
-    $t = ($un == $y["Login"]["Username"]) ? $y : $this->core->Member($un);
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out <em>".$post["Title"]."</em> by ".$t["Personal"]["DisplayName"]."!"
-     ]).$this->core->Element([
-      "div", "[BlogPost:$id]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$id&Type=BlogPost",
-     "[Share.ContentID]" => "Blog Post",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $id,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $post["Title"]
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function __destruct() {

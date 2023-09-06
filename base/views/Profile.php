@@ -397,8 +397,8 @@
       "data-processor" => base64_encode("v=".base64_encode("Profile:MakeVIP")."&ID=".base64_encode($id))
      ]]) : "";
      $actions .= $this->core->Element(["button", "Message", [
-      "class" => "Small dB2C v2",
-      "onclick" => "FST('N/A', 'v=".base64_encode("Chat:Home")."&GroupChat=0&to=".base64_encode($id)."', '".md5("Chat$id")."');"
+      "class" => "CloseCard OpenFirSTEPTool Small v2",
+      "data-fst" => base64_encode("v=".base64_encode("Chat:Home")."&GroupChat=0&to=".base64_encode($id))
      ]]);
      $actions = ($id != $you) ? $actions : "";
      $addContact = "";
@@ -450,7 +450,7 @@
       ]]);
       $blogs = $this->core->RenderView($blogs);
      }
-     $ChangeRank = "";
+     $changeRank = "";
      $contacts = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
@@ -581,6 +581,13 @@
       ]]);
       $journal = $this->core->RenderView($journal);
      }
+     $share = ($id == $you || $t["Privacy"]["Profile"] == md5("Public")) ? 1 : 0;
+     $share = ($share == 1) ? $this->core->Element([
+      "button", "Share", [
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Profile")."&Username=".base64_encode($id))
+      ]
+     ]) : "";
      $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $r = $this->core->Change([[
       "[Member.Actions]" => $actions,
@@ -594,7 +601,7 @@
       "[Member.CoverPhoto]" => $this->core->CoverPhoto($t["Personal"]["CoverPhoto"]),
       "[Member.Contacts]" => $contacts,
       "[Member.Conversation]" => $this->core->Change([[
-       "[Conversation.CRID]" => $id,
+       "[Conversation.CRID]" => md5($id),
        "[Conversation.CRIDE]" => base64_encode(md5($id)),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
@@ -605,6 +612,7 @@
       "[Member.ID]" => md5($id),
       "[Member.Journal]" => $journal,
       "[Member.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:2em;width:calc(100% - 4em)"),
+      "[Member.Share]" => $share,
       "[Member.Stream]" => base64_encode("v=$search&UN=".base64_encode($id)."&st=MBR-SU"),
       "[Member.Votes]" => base64_encode("v=$votes&ID=".md5($id)."&Type=4")
      ], $this->core->Page("72f902ad0530ad7ed5431dac7c5f9576")]);
@@ -1659,51 +1667,6 @@
      "[2FA.Error.Message]" => $r,
      "[2FA.Error.ViewPairID]" => "2FAStep1"
     ], $this->core->Page("ef055d5546ab5fead63311a3113f3f5f")]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN"]);
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $un = $data["UN"];
-   $y = $this->you;
-   if(!empty($un)) {
-    $accessCode = "Accepted";
-    $un = base64_decode($un);
-    $t = ($un == $y["Login"]["Username"]) ? $y : $this->core->Member($un);
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out ".$t["Personal"]["DisplayName"]."'s profile!"
-     ]).$this->core->Element([
-      "div", "[Member:$un]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$un&Type=Member",
-     "[Share.ContentID]" => "Member",
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $un,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($y["Login"]["Username"])),
-     "[Share.Title]" => $t["Personal"]["DisplayName"]."'s Profile"
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

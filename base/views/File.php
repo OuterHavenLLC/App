@@ -269,6 +269,12 @@
       ]) : "";
      }
      $nsfw = ($nsfw == 1) ? "Adults Only" : "Kid-Friendly";
+     $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
+     $share = ($share == 1) ? $this->core->Element([
+      "button", "Share", [
+       "class" => "OpenCard",
+       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("File")."&Username=".base64_encode($t["Login"]["Username"]))
+     ]]) : "";
      $votes = ($username != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=$id&Type=4");
      $r = $this->core->Change([[
@@ -297,7 +303,7 @@
        "style" => "height:0.5em"
       ]]),
       "[File.SetAsProfileImage]" => $setAsProfileImage,
-      "[File.Share]" => base64_encode("v=".base64_encode("File:Share")."&ID=".base64_encode($id)."&UN=".base64_encode($t["Login"]["Username"])),
+      "[File.Share]" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&UN=".base64_encode($t["Login"]["Username"])),
       "[File.Title]" => $file["Title"],
       "[File.Type]" => $file["Type"],
       "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
@@ -505,57 +511,6 @@
      "Header" => "Done"
     ];
     #$this->core->Data("Save", ["mbr", md5($you), $y]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $id = $data["ID"];
-   $username = $data["UN"];
-   $r = [
-    "Body" => "The Share Sheet Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(!empty($id) && !empty($username)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $username = base64_decode($username);
-    $code = base64_encode("$username;$id");
-    $t = ($username == $y["Login"]["Username"]) ? $y : $this->core->Member($username);
-    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
-    $file = $fileSystem["Files"][$id] ?? [];
-    $body = $this->core->PlainText([
-     "Data" => $this->core->Element([
-      "p", "Check out the ".$file["Type"]." ".$t["Personal"]["DisplayName"]." uploaded!"
-     ]).$this->core->Element([
-      "div", "[ATT:$code]", ["class" => "NONAME"]
-     ]),
-     "HTMLEncode" => 1
-    ]);
-    $body = base64_encode($body);
-    $r = $this->core->Change([[
-     "[Share.Code]" => "v=".base64_encode("LiveView:GetCode")."&Code=$code&Type=ATT",
-     "[Share.ContentID]" => $file["Type"],
-     "[Share.GroupMessage]" => base64_encode("v=".base64_encode("Chat:ShareGroup")."&ID=$body"),
-     "[Share.ID]" => $id,
-     "[Share.Link]" => "",
-     "[Share.Message]" => base64_encode("v=".base64_encode("Chat:Share")."&ID=$body"),
-     "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&body=$body&new=1&UN=".base64_encode($you)),
-     "[Share.Title]" => $file["Title"]
-    ], $this->core->Page("de66bd3907c83f8c350a74d9bbfb96f6")]);
-    $r = [
-     "Front" => $r
-    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
