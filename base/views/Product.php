@@ -60,6 +60,10 @@
       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
     ]);
+    $back = ($new == 1) ? $this->core->Element(["button", "Back", [
+     "class" => "GoToParent v2 v2w",
+     "data-type" => "ProductEditors"
+    ]]) : "&nbsp;";
     $bundledProducts = "";
      $categories = ($y["Rank"] == md5("High Command")) ? [
       "Architecture" => "Architecture",
@@ -145,6 +149,7 @@
       "[Product.AdditionalContent]" => $additionalContent,
       "[Product.Attachments]" => $attachments,
       "[Product.Attachments.View]" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
+      "[Product.Back]" => $back,
       "[Product.Body]" => $this->core->PlainText([
        "Data" => $product["Body"]
       ]),
@@ -170,8 +175,7 @@
       "[Product.Quantity]" => $quantity,
       "[Product.Quantities]" => json_encode($quantities, true),
       "[Product.Role]" => $product["Role"],
-      "[Product.Save]" => "#",//TEMP
-      #"[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
+      "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
       "[Product.SubscriptionTerm]" => $subscriptionTerm,
       "[Product.Title]" => $product["Title"],
       "[Product.Visibility.NSFW]" => $nsfw,
