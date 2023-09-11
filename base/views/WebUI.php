@@ -308,6 +308,18 @@
     "ResponseType" => "View"
    ]);
   }
+  function WYSIWYG(array $a) {
+   $data = $a["Data"] ?? [];
+   $r = $this->core->Page("8980452420b45c1e6e526a7134d6d411");
+   return $this->core->JSONResponse([
+    "AccessCode" => "Accepted",
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function __destruct() {
    // DESTROYS THIS CLASS
   }

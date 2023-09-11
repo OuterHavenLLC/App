@@ -28,7 +28,8 @@
    "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
    "[App.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
    "[App.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
-   "[App.region]" => $gw->core->region
+   "[App.region]" => $gw->core->region,
+   "[App.WYSIWYG]" => base64_encode("v=".base64_encode("WebUI:WYSIWYG"))
   ], $gw->core->PlainText([
    "Data" => $r,
    "Display" => 1,
