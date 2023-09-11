@@ -1,4 +1,4 @@
-f<?php
+<?php
  Class Chat extends GW {
   function __construct() {
    parent::__construct();
