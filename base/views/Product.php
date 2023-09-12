@@ -8,6 +8,7 @@
   function Edit(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
    $edit = base64_encode("Product:Edit");
    $editor = $data["Editor"] ?? "";
    $id = $data["ID"] ?? md5("ShopProduct-".$this->core->timestamp);
@@ -120,7 +121,7 @@
       "Price",
       "Title"
      ]);
-     $category = $product["Category"] ?? "";
+     $category = $product["Category"] ?? "Product";
      $cost = $product["Cost"] ?? 0.00;
      $coverPhoto = $product["ICO-SRC"] ?? "";
      $created = $product["Created"] ?? $this->core->timestamp;
@@ -150,9 +151,9 @@
       "[Product.Attachments]" => $attachments,
       "[Product.Attachments.View]" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
       "[Product.Back]" => $back,
-      "[Product.Body]" => $this->core->PlainText([
+      "[Product.Body]" => base64_encode($this->core->PlainText([
        "Data" => $product["Body"]
-      ]),
+      ])),
       "[Product.BundledProducts]" => $bundledProducts,
       "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
       "[Product.Category]" => "Product",
@@ -161,9 +162,9 @@
       "[Product.CoverPhoto]" => $coverPhoto,
       "[Product.CoverPhoto.View]" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
       "[Product.Created]" => $created,
-      "[Product.Description]" => $product["Description"],
+      "[Product.Description]" => base64_encode($product["Description"]),
       "[Product.DesignView]" => $_DesignViewEditor,
-      "[Product.Disclaimer]" => $product["Disclaimer"],
+      "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
       "[Product.Downloads]" => $dlc,
       "[Product.Downloads.View]" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
       "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
@@ -177,7 +178,7 @@
       "[Product.Role]" => $product["Role"],
       "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
       "[Product.SubscriptionTerm]" => $subscriptionTerm,
-      "[Product.Title]" => $product["Title"],
+      "[Product.Title]" => base64_encode($product["Title"]),
       "[Product.Visibility.NSFW]" => $nsfw,
       "[Product.Visibility.Privacy]" => $privacy
      ];
@@ -208,6 +209,9 @@
      $changeData,
      $this->core->Page($extension)
     ]);
+    $r = ($card == 1) ? [
+     "Front" => $r
+    ] : $r;
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -308,7 +312,7 @@
      $actions .= ($active == 1) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Editor=".$product["Category"]."&ID=".$product["ID"])
+       "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1&Editor=".$product["Category"]."&ID=$id")
       ]
      ]) : "";
      $bck = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
