@@ -66,17 +66,6 @@
      "data-type" => "ProductEditors"
     ]]) : "&nbsp;";
     $bundledProducts = "";
-     $categories = ($y["Rank"] == md5("High Command")) ? [
-      "Architecture" => "Architecture",
-      "Download" => "Downloadable",
-      "Donation" => "Donation",
-      "Product" => "Product",
-      "Subscription" => "Subscription"
-     ] : [
-      "Download" => "Downloadable",
-      "Donation" => "Donation",
-      "Product" => "Product"
-     ];//TEMP
     $dlc = "";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
@@ -90,12 +79,14 @@
      "Price",
      "Title"
     ]);
+    // BEGIN TEMP
     $category = ($editor == "Architecture") ? $editor : "Product";
     $category = ($editor == "Donation" || $editor == "DONATE") ? "Donation" : $category;
     $category = ($editor == "Download" || $editor == "DLC") ? "Download" : $category;
-    $category = ($editor == "Product" || $editor == "PHYS") ? "Download" : $category;
+    $category = ($editor == "Product" || $editor == "PHYS") ? "Product" : $category;
     $category = ($editor == "Subscription" || $editor == "SUB") ? "Subscription" : $category;
-    $category = $product["Category"] ?? $category;
+    // END TEMP
+    #$category = $product["Category"] ?? $editor;
     $cost = $product["Cost"] ?? 0.00;
     $coverPhoto = $product["ICO-SRC"] ?? "";
     $created = $product["Created"] ?? $this->core->timestamp;
@@ -125,40 +116,41 @@
      $dlc = base64_encode(implode(";", $product["DLC"]));
     }
     $changeData = [
-      "[Product.Action]" => $action,
-      "[Product.AdditionalContent]" => $additionalContent,
-      "[Product.Attachments]" => $attachments,
-      "[Product.Attachments.View]" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
-      "[Product.Back]" => $back,
-      "[Product.Body]" => base64_encode($this->core->PlainText([
-       "Data" => $product["Body"]
-      ])),
-      "[Product.BundledProducts]" => $bundledProducts,
-      "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
-      "[Product.Category]" => $category,
-      "[Product.Cost]" => base64_encode($cost),
-      "[Product.CoverPhoto]" => $coverPhoto,
-      "[Product.CoverPhoto.View]" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
-      "[Product.Created]" => $created,
-      "[Product.Description]" => base64_encode($product["Description"]),
-      "[Product.DesignView]" => $_DesignViewEditor,
-      "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
-      "[Product.Downloads]" => $dlc,
-      "[Product.Downloads.View]" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
-      "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
-      "[Product.Header]" => $header,
-      "[Product.ID]" => $id,
-      "[Product.Instructions]" => $product["Instructions"],
-      "[Product.New]" => $new,
-      "[Product.Profit]" => base64_encode($profit),
-      "[Product.Quantity]" => $quantity,
-      "[Product.Quantities]" => json_encode($quantities, true),
-      "[Product.Role]" => $product["Role"],
-      "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
-      "[Product.SubscriptionTerm]" => $subscriptionTerm,
-      "[Product.Title]" => base64_encode($product["Title"]),
-      "[Product.Visibility.NSFW]" => $nsfw,
-      "[Product.Visibility.Privacy]" => $privacy
+     "[Product.Action]" => $action." ($editor, $category)",
+     #"[Product.Action]" => $action,
+     "[Product.AdditionalContent]" => $additionalContent,
+     "[Product.Attachments]" => $attachments,
+     "[Product.Attachments.View]" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
+     "[Product.Back]" => $back,
+     "[Product.Body]" => base64_encode($this->core->PlainText([
+      "Data" => $product["Body"]
+     ])),
+     "[Product.BundledProducts]" => $bundledProducts,
+     "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
+     "[Product.Category]" => $category,
+     "[Product.Cost]" => base64_encode($cost),
+     "[Product.CoverPhoto]" => $coverPhoto,
+     "[Product.CoverPhoto.View]" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
+     "[Product.Created]" => $created,
+     "[Product.Description]" => base64_encode($product["Description"]),
+     "[Product.DesignView]" => $_DesignViewEditor,
+     "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
+     "[Product.Downloads]" => $dlc,
+     "[Product.Downloads.View]" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
+     "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
+     "[Product.Header]" => $header,
+     "[Product.ID]" => $id,
+     "[Product.Instructions]" => $product["Instructions"],
+     "[Product.New]" => $new,
+     "[Product.Profit]" => base64_encode($profit),
+     "[Product.Quantity]" => $quantity,
+     "[Product.Quantities]" => json_encode($quantities, true),
+     "[Product.Role]" => $product["Role"],
+     "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
+     "[Product.SubscriptionTerm]" => $subscriptionTerm,
+     "[Product.Title]" => base64_encode($product["Title"]),
+     "[Product.Visibility.NSFW]" => $nsfw,
+     "[Product.Visibility.Privacy]" => $privacy
     ];
     $r = $this->core->Change([
      $changeData,
