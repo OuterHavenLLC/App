@@ -221,11 +221,11 @@
      "DeleteFile" => 100,
      "NewContent" => 1,
      "Products" => [
-      "ARCH" => 1000,
-      "DLC" => 200,
-      "DONATE" => 500,
-      "PHYS" => 50,
-      "SUB" => 400
+      "Architecture" => 1000,
+      "Donation" => 500,
+      "Download" => 200,
+      "Product" => 50,
+      "Subscription" => 400
      ]
     ],
     "SQL" => [

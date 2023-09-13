@@ -93,9 +93,9 @@
     $expirationQuantities = [];
     $extension = "3e5dc31db9719800f28abbaa15ce1a37";
     $extension = ($editor == "Architecture") ? $extension : $extension;
-    $extension = ($editor == "Donation") ? $extension : $extension;
-    $extension = ($editor == "Download") ? $extension : $extension;
-    $extension = ($editor == "Subscription") ? $extension : $extension;
+    $extension = ($editor == "Donation" || $editor == "DONATE") ? $extension : $extension;
+    $extension = ($editor == "Download" || $editor == "DLC") ? $extension : $extension;
+    $extension = ($editor == "Subscription" || $editor == "SUB") ? "dd2cb760e5291e265889c262fc30d9a2" : $extension;
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
@@ -314,6 +314,7 @@
       "[Product.Back]" => $bck,
       "[Product.Body]" => $this->core->PlainText([
        "Data" => $product["Body"],
+       "Decode" => 1,
        "Display" => 1,
        "HTMLDecode" => 1
       ]),
@@ -362,7 +363,6 @@
    $data = $this->core->FixMissing($data, [
     "ID",
     "Title",
-    "Type",
     "new"
    ]);
    $r = [
@@ -375,48 +375,42 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(empty($data["Type"])) {
-    $r = [
-     "Body" => "The Product Type is missing."
-    ];
    } elseif(!empty($data["ID"])) {
     $i = 0;
     $new = $data["new"] ?? 0;
     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
     $contributors = $shop["Contributors"] ?? [];
     $isContributor = (!empty($contributors[$you])) ? 1 : 0;
+    $products = $this->core->DatabaseSet("PROD") ?? [];
     $title = $data["Title"] ?? "New Product";
-    if($type != "Service") {
-     $products = $this->core->DatabaseSet("PROD") ?? [];
-     foreach($products as $key => $value) {
-      $product = str_replace("c.oh.miny.", "", $value);
-      $product = $this->core->Data("Get", ["miny", $product]) ?? [];
-      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
-      $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
-      $ck3 = ($product["UN"] == $you) ? 1 : 0;
-      if($ck == 0 && $ck2 == 0 && $ck3 == 0) {
-       $i++;
-      }
+    foreach($products as $key => $value) {
+     $product = str_replace("c.oh.miny.", "", $value);
+     $product = $this->core->Data("Get", ["miny", $product]) ?? [];
+     $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
+     $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
+     $ck3 = ($product["UN"] == $you) ? 1 : 0;
+     if($ck == 0 && $ck2 == 0 && $ck3 == 0) {
+      $i++;
      }
     } if($i > 0) {
-      $r = [
-       "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
+     $r = [
+      "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
      ];
     } else {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
-     $id = $data["ID"];
+     $id = $data["ID"] ?? "";
      $now = $this->core->timestamp;
      $product = $this->core->Data("Get", ["miny", $id]) ?? [];
      $attachments = [];
      $bundle = [];
-     $category = base64_decode($data["Category"]);
+     $category = $data["Category"] ?? "Product";
      $categories = [
-      "ARCH",
-      "DLC",
-      "DONATE",
-      "PHYS",
-      "SUB"
+      "Architecture",
+      "Donation",
+      "Download",
+      "Product",
+      "Subscription"
      ];
      $cost = $data["Cost"] ?? 5.00;
      $created = $product["Created"] ?? $now;
@@ -426,6 +420,7 @@
      $expirationQuantity = $data["ExpirationQuantity"] ?? 1;
      $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
      $illegal = $product["Illegal"] ?? 0;
+     $instructions = $data["Instructions"] ?? 0;
      $modified = $product["Modified"] ?? $now;
      $modifiedBy = $product["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
@@ -494,7 +489,10 @@
      }
      $product = [
       "Attachments" => $attachments,
-      "Body" => $data["Body"],
+      "Body" => $this->core->PlainText([
+       "Data" => $data["Body"],
+       "Encode" => 1
+      ]),
       "Bundled" => $bundle,
       "Category" => $category,
       "Cost" => number_format($cost, 2),
@@ -507,7 +505,7 @@
       "ICO-SRC" => base64_encode($coverPhotoSource),
       "ID" => $id,
       "Illegal" => $illegal,
-      "Instructions" => $data["Instructions"],
+      "Instructions" => $instructions,
       "Modified" => $modified,
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $data["nsfw"],
@@ -527,7 +525,7 @@
      $r = [
       "Body" => "The Product <em>$title</em> has been $actionTaken! We're debugging this view at the moment, so nothing will actually happen.",
       "Header" => "Done",
-      "Scrollable" => json_encode($product, true)
+      "Scrollable" => json_encode($product, true),
      ];
      if($new == 1) {
       $subscribers = $shop["Subscribers"] ?? [];
