@@ -412,7 +412,8 @@
       "Product",
       "Subscription"
      ];
-     $cost = $data["Cost"] ?? 5.00;
+     $cost = $data["Cost"] ?? 0.00;
+     $cost = ($category == "Donation") ? 0.00 : $cost;
      $created = $product["Created"] ?? $now;
      $coverPhoto = "";
      $coverPhotoSource = "";
@@ -421,7 +422,6 @@
      $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
      $illegal = $product["Illegal"] ?? 0;
      $instructions = $data["Instructions"] ?? 0;
-     $modified = $product["Modified"] ?? $now;
      $modifiedBy = $product["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $newProducts = $shop["Products"] ?? [];
@@ -506,7 +506,6 @@
       "ID" => $id,
       "Illegal" => $illegal,
       "Instructions" => $instructions,
-      "Modified" => $modified,
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $data["nsfw"],
       "Points" => $points,
@@ -518,32 +517,29 @@
       "Title" => $title,
       "UN" => $username
      ];
-     /* SAVING CORRUPTS THE PRODUCT DB
      $this->core->Data("Save", ["miny", $id, $product]);
      $this->core->Data("Save", ["shop", md5($you), $shop]);
-     */
      $r = [
-      "Body" => "The Product <em>$title</em> has been $actionTaken! We're debugging this view at the moment, so nothing will actually happen.",
-      "Header" => "Done",
-      "Scrollable" => json_encode($product, true),
+      "Body" => "The Product <em>$title</em> has been $actionTaken!",
+      "Header" => "Done"
      ];
      if($new == 1) {
       $subscribers = $shop["Subscribers"] ?? [];
       $y["Points"] = $y["Points"] + $points;
-      #$this->core->Data("Save", ["mbr", md5($you), $y]);
+      $this->core->Data("Save", ["mbr", md5($you), $y]);
       foreach($subscribers as $key => $value) {
-       /*$this->core->SendBulletin([
+       $this->core->SendBulletin([
         "Data" => [
          "ProductID" => $id,
          "ShopID" => base64_encode(md5($you))
         ],
         "To" => $value,
         "Type" => "NewProduct"
-       ]);*/
+       ]);
       }
-      #$this->core->Statistic("PROD");
+      $this->core->Statistic("PROD");
      } else {
-      #$this->core->Statistic("PRODu");
+      $this->core->Statistic("PRODu");
      }
     }
    }

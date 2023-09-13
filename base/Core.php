@@ -148,7 +148,13 @@
       "DLC" => "Downloadable Content",
       "DONATE" => "Donation",
       "PHYS" => "Physical Service",
-      "SUB" => "Subscription"
+      "SUB" => "Subscription",
+      # BEGIN NEW
+      "Architecture" => "Architecture",
+      "Download" => "Downloadable Content",
+      "Donation" => "Donation",
+      "Product" => "Physical Service",
+      "Subscription" => "Subscription"
      ],
      "SearchIDs" => [
       "ADM-LLP",
@@ -794,11 +800,11 @@
    }
    return $r;
   }
-  function ProductCategory($a) {
+  function ProductCategory(string $category) {
    $i = 0;
-   foreach($this->config["App"]["ProductCategories"] as $k => $v) {
-    if($i == 0 && $a == $k) {
-     $r = $v;
+   foreach($this->config["App"]["ProductCategories"] as $key => $value) {
+    if($category == $key && $i == 0) {
+     $r = $value;
     }
    }
    return $r;
