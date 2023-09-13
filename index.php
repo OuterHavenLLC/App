@@ -20,8 +20,30 @@
    $r = $gw->core->Page("9899b8bb388bf8520c3b5cee4ef6778b");
   } elseif($view == "Functions") {
    $r = $gw->core->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
+   // BEGIN TEMP
+   $r.="\r\nfunction Xdecode() {\r\n
+    setInterval(function() {\r\n
+     var D, M = {\r\n
+      \"\&\;\": \"&\",\r\n
+      \"\[percent\]\": \"%\",\r\n
+      \"\[plus\]\": \"+\"\r\n
+     };\r\n
+     $(\".Xdecode\").each(function() {\r\n
+      D = $.b64.d($(this).val());\r\n
+      D = D.replace(/\&\;|\[percent\]|\[plus\]/gi, function(d) {\r\n
+       return M[d];\r\n
+      });\r\n
+      $(this).html(D).text();\r\n
+      $(this).removeClass(\"Xdecode\");\r\n
+     });\r\n
+    }, 3000);\r\n
+   }";
+   // END TEMP
   } elseif($view == "GUI") {
    $r = $gw->core->Page("a62f482184a8b2eefa006a37890666d7");
+   // BEGIN TEMP
+   $r.="Xdecode();";
+   // END TEMP
   }
   $r = $gw->core->Change([[
    "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
@@ -163,6 +185,14 @@
     "UN" => base64_encode($c[1]),
     "pub" => 1
    ]]);
+  } elseif($c[0] == "invoice") {
+   # INVOICE
+   $r = $gw->view(base64_encode("WebUI:Containers"), []);
+   if(!empty($c[1])) {
+    $r = $gw->core->view(base64_encode("Product:ViewInvoice"), [
+     "Data" => ["ID" => $c[1]]
+    ]);
+   }
   } elseif($c[0] == "search") {
    # SEARCH
    $r = $gw->view(base64_encode("Search:ReSearch"), ["Data" => [

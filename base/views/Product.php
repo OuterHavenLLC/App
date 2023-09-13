@@ -23,7 +23,7 @@
      "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&new=1"),
      "[Product.Download]" => base64_encode("v=$edit&Editor=Download&new=1"),
      "[Product.Product]" => base64_encode("v=$edit&Editor=Product&new=1"),
-     "[Product.Service]" => base64_encode("v=$edit&Editor=Service&new=1"),
+     "[Product.Service]" => base64_encode("v=".base64_encode("Product:EditInvoice")."&new=1"),
      "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
     ], $this->core->Page($template)])
    ];
@@ -79,73 +79,52 @@
      ];//TEMP
     $dlc = "";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
-    if($editor == "Architecture") {
-     $changeData = [];
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    } elseif($editor == "Donation" || $editor == "DONATE") {
-     $changeData = [];
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    } elseif($editor == "Download" || $editor == "DLC") {
-     $changeData = [];
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    } elseif($editor == "Product" || $editor == "PHYS") {
-     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
-     $product = $this->core->FixMissing($product, [
-      "Description",
-      "Disclaimer",
-      "Body",
-      "Category",
-      "Instructions",
-      "Role",
-      "Price",
-      "Title"
-     ]);
-     $category = $product["Category"] ?? "Product";
-     $cost = $product["Cost"] ?? 0.00;
-     $coverPhoto = $product["ICO-SRC"] ?? "";
-     $created = $product["Created"] ?? $this->core->timestamp;
-     $expirationQuantities = [];
-     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
-     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
-     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
-     $profit = $product["Profit"] ?? 0.00;
-     $quantities = [];
-     $quantity = $product["Quantity"] ?? "-1";
-     $search = base64_encode("Search:Containers");
-     $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
-     for($i = 1; $i <= 100; $i++) {
-      $expirationQuantities[$i] = $i;
-     } for($i = -1; $i <= 100; $i++) {
-      $quantities[$i] = $i;
-     } if(!empty($product["Attachments"])) {
-      $attachments = base64_encode(implode(";", $product["Attachments"]));
-     } if(!empty($product["Bundled"])) {
-      $bundledProducts = base64_encode(implode(";", $product["Bundled"]));
-     } if(!empty($product["DLC"])) {
-      $dlc = base64_encode(implode(";", $product["DLC"]));
-     }
-     $changeData = [
+    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->FixMissing($product, [
+     "Description",
+     "Disclaimer",
+     "Body",
+     "Category",
+     "Instructions",
+     "Role",
+     "Price",
+     "Title"
+    ]);
+    $category = ($editor == "Architecture") ? $editor : "Product";
+    $category = ($editor == "Donation" || $editor == "DONATE") ? "Donation" : $category;
+    $category = ($editor == "Download" || $editor == "DLC") ? "Download" : $category;
+    $category = ($editor == "Product" || $editor == "PHYS") ? "Download" : $category;
+    $category = ($editor == "Subscription" || $editor == "SUB") ? "Subscription" : $category;
+    $category = $product["Category"] ?? $category;
+    $cost = $product["Cost"] ?? 0.00;
+    $coverPhoto = $product["ICO-SRC"] ?? "";
+    $created = $product["Created"] ?? $this->core->timestamp;
+    $expirationQuantities = [];
+    $extension = "3e5dc31db9719800f28abbaa15ce1a37";
+    $extension = ($editor == "Architecture") ? $extension : $extension;
+    $extension = ($editor == "Donation") ? $extension : $extension;
+    $extension = ($editor == "Download") ? $extension : $extension;
+    $extension = ($editor == "Subscription") ? $extension : $extension;
+    $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
+    $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
+    $profit = $product["Profit"] ?? 0.00;
+    $quantities = [];
+    $quantity = $product["Quantity"] ?? "-1";
+    $search = base64_encode("Search:Containers");
+    $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
+    for($i = 1; $i <= 100; $i++) {
+     $expirationQuantities[$i] = $i;
+    } for($i = -1; $i <= 100; $i++) {
+     $quantities[$i] = $i;
+    } if(!empty($product["Attachments"])) {
+     $attachments = base64_encode(implode(";", $product["Attachments"]));
+    } if(!empty($product["Bundled"])) {
+     $bundledProducts = base64_encode(implode(";", $product["Bundled"]));
+    } if(!empty($product["DLC"])) {
+     $dlc = base64_encode(implode(";", $product["DLC"]));
+    }
+    $changeData = [
       "[Product.Action]" => $action,
       "[Product.AdditionalContent]" => $additionalContent,
       "[Product.Attachments]" => $attachments,
@@ -156,9 +135,8 @@
       ])),
       "[Product.BundledProducts]" => $bundledProducts,
       "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
-      "[Product.Category]" => "Product",
-      #"[Product.Category]" => $editor,
-      "[Product.Cost]" => $cost,
+      "[Product.Category]" => $category,
+      "[Product.Cost]" => base64_encode($cost),
       "[Product.CoverPhoto]" => $coverPhoto,
       "[Product.CoverPhoto.View]" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
       "[Product.Created]" => $created,
@@ -172,7 +150,7 @@
       "[Product.ID]" => $id,
       "[Product.Instructions]" => $product["Instructions"],
       "[Product.New]" => $new,
-      "[Product.Profit]" => $profit,
+      "[Product.Profit]" => base64_encode($profit),
       "[Product.Quantity]" => $quantity,
       "[Product.Quantities]" => json_encode($quantities, true),
       "[Product.Role]" => $product["Role"],
@@ -181,30 +159,7 @@
       "[Product.Title]" => base64_encode($product["Title"]),
       "[Product.Visibility.NSFW]" => $nsfw,
       "[Product.Visibility.Privacy]" => $privacy
-     ];
-     $extension = "3e5dc31db9719800f28abbaa15ce1a37";
-    } elseif($editor == "Service") {
-     // INVOICE CREATOR
-     $changeData = [];
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    } elseif($editor == "Subscription" || $editor == "SUB") {
-     $changeData = [];
-     $extension = $this->core->Element([
-      "h1", $editor
-     ]).$this->core->Element([
-      "p", "A new creator experience is comming soon..."
-     ]).$this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2",
-      "data-type" => "ProductEditors"
-     ]]);
-    }
+    ];
     $r = $this->core->Change([
      $changeData,
      $this->core->Page($extension)
@@ -213,6 +168,24 @@
      "Front" => $r
     ] : $r;
    }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function EditInvoice(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "New invoice creation tool under construction.",
+    "Header" => "Coming Soon"
+   ];
+   // 1 editor to create invoices
+   // 1 editor to add charges/notes and submit (invoice) for payment
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -644,6 +617,47 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseDialog"
+   ]);
+  }
+  function SaveInvoice(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $r = [
+    "Body" => "New invoice processor under construction.",
+    "Header" => "Coming Soon"
+   ];
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
+   ]);
+  }
+  function ViewInvoice(array $a) {
+   $_ViewTitle = $this->core->config["App"]["Name"];
+   $accessCode = "Accepted";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   // Allows you to view invoice via the Card
+   // Allows client to view the invoice via DOMAIN/invoice/$id
+   #$_ViewTitle = "Invoice #$id";
+   $r = $this->core->Element([
+    "h1", "View Invoice"
+   ]).$this->core->Element([
+    "p", "We are working on this, the Invoice Identifier is $id."
+   ]);
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View",
+    "Title" => $_ViewTitle
    ]);
   }
   function __destruct() {
