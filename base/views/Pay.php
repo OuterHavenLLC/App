@@ -72,7 +72,7 @@
      $subtotal = 0;
      $total = 0;
      foreach($cart as $key => $value) {
-      $product = $this->core->Data("Get", ["miny", $key]) ?? [];
+      $product = $this->core->Data("Get", ["product", $key]) ?? [];
       $quantity = $product["Quantity"] ?? 0;
       if(!empty($product) && $quantity != 0) {
        $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
@@ -535,7 +535,7 @@
    if(!empty($shopOwner) && is_array($a["Product"])) {
     $history = $y["Shopping"]["History"][$shopID] ?? [];
     $id = $a["Product"]["ID"] ?? "";
-    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->Data("Get", ["product", $id]) ?? [];
     $quantity = $product["Quantity"] ?? 0;
     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
     $t = ($shopOwner == $you) ? $y : $this->core->Member($shopOwner);
@@ -640,7 +640,7 @@
         "Title" => $product["Title"]
        ]]);
       } if($product["Quantity"] > 0) {
-       $this->core->Data("Save", ["miny", $id, $product]);
+       $this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $bundled = explode("-", base64_decode($bundled));
@@ -730,7 +730,7 @@
     $subtotal = 0;
     $total = 0;
     foreach($cart as $key => $value) {
-     $product = $this->core->Data("Get", ["miny", $key]) ?? [];
+     $product = $this->core->Data("Get", ["product", $key]) ?? [];
      $quantity = $product["Quantity"] ?? 0;
      if(!empty($product) && $quantity != 0) {
       $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
@@ -805,7 +805,7 @@
      $physicalOrders = $this->core->Data("Get", ["po", $shopID]) ?? [];
      $r = "";
      foreach($cart as $key => $value) {
-      $product = $this->core->Data("Get", ["miny", $key]) ?? [];
+      $product = $this->core->Data("Get", ["product", $key]) ?? [];
       if(!empty($product)) {
        $bundle = $value["Bundled"] ?? [];
        $bundle = (!empty($bundle)) ? 1 : 0;
@@ -837,6 +837,7 @@
      $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
      $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
      $y["Shopping"]["Cart"][$shopID]["Products"] = [];
+     $y["Verified"] = 1;
      $this->core->Data("Save", ["mbr", md5($you), $y]);
      $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
      $r = $this->core->Change([[

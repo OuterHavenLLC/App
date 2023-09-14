@@ -338,7 +338,45 @@
       ], $this->core->Page("af26c6866abb335fb69327ed3963a182")]);
      }
      $tpl = "46ef1d0890a2a5639f67bfda1634ca82";
-    } elseif($st == "MiNY") {
+    } elseif($st == "PR") {
+     $h = "Press Releases";
+     $li .= "&b2=".urlencode("Press Releases")."&lPG=$lpg";
+     $lis = "Search Articles";
+     $pe = base64_encode("Page:Edit");
+     $lo = ($y["Rank"] == md5("High Command") && $notAnon == 1) ? $this->core->Element([
+      "button", "+", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$pe&new=1")
+      ]
+     ]) : "";
+    } elseif($st == "Products") {
+     $h = "Products";
+     $li .= "&lPG=$lpg&st=$st";
+     $lis = "Search Products";
+     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
+    } elseif($st == "S-Blogger") {
+     $be = base64_encode("Clog:Edit");
+     $h = "Your Blogs";
+     $li .= "&lPG=$st";
+     $lis = "Search Blogs";
+     if($y["Subscriptions"]["Blogger"]["A"] == 1 && $notAnon == 1) {
+      $lo = $this->core->Element(["button", "+", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$be&new=1")
+      ]]);
+     }
+    } elseif($st == "SHOP") {
+     $h = "Artists";
+     $li .= "&lPG=$lpg&st=$st";
+     $lis = "Search Shops";
+     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
+    } elseif($st == "SHOP-Invoices") {
+     $h = "Invoices";
+     $shop = $data["Shop"] ?? "";
+     $li .= "&Shop=$shop&st=$st";
+     $lis = "Search Invoices";
+     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
+    } elseif($st == "SHOP-Products") {
      $h = "Products";
      $username = $data["UN"] ?? base64_encode($you);
      $li .= "&UN=$username&b2=$b2&lPG=$lpg&pubP=".$data["pubP"]."&st=$st";
@@ -357,6 +395,9 @@
        $lo .= $this->core->Element(["button", "+", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&new=1")
+       ]]).$this->core->Element(["button", "Invoices", [
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=".md5($t["Login"]["Username"])."&st=SHOP-Invoices")
        ]]);
        $i++;
       }
@@ -369,41 +410,9 @@
       ]
      ]) : "";
      $tpl = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "PR") {
-     $h = "Press Releases";
-     $li .= "&b2=".urlencode("Press Releases")."&lPG=$lpg";
-     $lis = "Search Articles";
-     $pe = base64_encode("Page:Edit");
-     $lo = ($y["Rank"] == md5("High Command") && $notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$pe&new=1")
-      ]
-     ]) : "";
-    } elseif($st == "S-Blogger") {
-     $be = base64_encode("Clog:Edit");
-     $h = "Your Blogs";
-     $li .= "&lPG=$st";
-     $lis = "Search Blogs";
-     if($y["Subscriptions"]["Blogger"]["A"] == 1 && $notAnon == 1) {
-      $lo = $this->core->Element(["button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$be&new=1")
-      ]]);
-     }
-    } elseif($st == "SHOP") {
-     $h = "Artists";
-     $li .= "&lPG=$lpg&st=$st";
-     $lis = "Search Shops";
-     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "SHOP-Orders") {
      $lis = "Search Orders";
      $tpl = "e58b4fc5070b14c01c88c28050547285";
-    } elseif($st == "SHOP-Products") {
-     $h = "Products";
-     $li .= "&lPG=$lpg&st=$st";
-     $lis = "Search Products";
-     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "XFS") {
      $_AddTo = $data["AddTo"] ?? "";
      $_Added = $data["Added"] ?? "";
@@ -424,7 +433,7 @@
      "[UI.s]" => $lis,
      "[XS.UI]" => $li
     ], $this->core->Page($tpl)]);
-   } if(in_array($st, ["DC", "FAB", "MBR-MiNY"])) {
+   } if(in_array($st, ["DC", "FAB", "SHOP-Invoices"])) {
     $r = [
      "Front" => $r
     ];
@@ -802,7 +811,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $x = $y["Shopping"]["Cart"][$data["ID"]] ?? [];
     $x = $x["Products"] ?? [];
     foreach($x as $k => $v) {
-     $p = $this->core->Data("Get", ["miny", $k]) ?? [];
+     $p = $this->core->Data("Get", ["product", $k]) ?? [];
      $productIsActive = (strtotime($now) < $p["Expires"]) ? 1 : 0;
      $illegal = $p["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
@@ -1869,7 +1878,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
      }
     }
-   } elseif($st == "MiNY") {
+   } elseif($st == "SHOP-Products") {
     $ec = "Accepted";
     $home = base64_encode("Product:Home");
     $coverPhoto = $this->core->PlainText([
@@ -1886,8 +1895,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      md5($t["Login"]["Username"])
     ]) ?? [];
     $products = $shop["Products"] ?? [];
-    foreach($products as $key => $v) {
-     $p = $this->core->Data("Get", ["miny", $v]) ?? [];
+    foreach($products as $key => $value) {
+     $p = $this->core->Data("Get", ["product", $value]) ?? [];
      $bl = $this->core->CheckBlocked([$y, "Products", $p["ID"]]);
      $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
      $ck2 = (strtotime($this->core->timestamp) < $p["Expires"]) ? 1 : 0;
@@ -1912,6 +1921,58 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ])),
        "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$p["ID"]."&UN=$une"))
       ]);
+     }
+    }
+   } elseif($st == "Products") {
+    $ec = "Accepted";
+    $home = base64_encode("Product:Home");
+    $coverPhoto = $this->core->PlainText([
+     "Data" => "[sIMG:MiNY]",
+     "Display" => 1
+    ]);
+    $tpl = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $members = $this->core->DatabaseSet("MBR") ?? [];
+    foreach($members as $key => $value) {
+     $v = $this->core->Data("Get", [
+      "mbr",
+      str_replace("c.oh.mbr.", "", $value)
+     ]) ?? [];
+     if($notAnon == 1) {
+      $shop = $this->core->Data("Get", [
+       "shop",
+       md5($v["Login"]["Username"])
+      ]) ?? [];
+      $b2 = $b2 ?? "Products";
+      $products = $shop["Products"] ?? [];
+      foreach($products as $mbr => $p) {
+       $p = $this->core->Data("Get", ["product", $p]) ?? [];
+       $bl = $this->core->CheckBlocked([$y, "Products", $p["ID"]]);
+       $une = base64_encode($v["Login"]["Username"]);
+       $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+       $ck2 = (strtotime($this->core->timestamp) < $p["Expires"]) ? 1 : 0;
+       $ck3 = $v["Subscriptions"]["Artist"]["A"] ?? 0;
+       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
+       $ck = ($ck == 1 || $v["Login"]["Username"] == $this->core->ShopID) ? 1 : 0;
+       $illegal = $p["Illegal"] ?? 0;
+       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+       $illegal = ($v["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
+       if($bl == 0 && $ck == 1 && $illegal == 0) {
+        $coverPhoto = $p["ICO"] ?? $coverPhoto;
+        $coverPhoto = base64_encode($coverPhoto);
+        $pub = $data["pubP"] ?? 0;
+        array_push($msg, [
+         "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
+         "[X.LI.T]" => base64_encode($p["Title"]),
+         "[X.LI.D]" => base64_encode($this->core->PlainText([
+          "BBCodes" => 1,
+          "Data" => $p["Description"],
+          "Display" => 1,
+          "HTMLDecode" => 1
+         ])),
+         "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$p["ID"]."&UN=".base64_encode($v["Login"]["Username"])."&lPG=$lpg&pubP=$pub"))
+        ]);
+       }
+      }
      }
     }
    } elseif($st == "S-Blogger") {
@@ -2003,6 +2064,15 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       }
      }
     }
+   } elseif($st == "SHOP-Invoices") {
+    $ec = "Accepted";
+    $shop = $this->core->Data("Get", [
+     "shop",
+     $data["Shop"]
+    ]) ?? [];
+    $shopInvoices = $shop["Invoices"] ?? [];
+    $tpl = $this->core->Element(["p", "Invoice"]);
+    #$tpl = $this->core->Page("InvoiceListItem");
    } elseif($st == "SHOP-Orders") {
     $ec = "Accepted";
     $tpl = $this->core->Page("504e2a25db677d0b782d977f7b36ff30");
@@ -2026,58 +2096,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       "[X.LI.Order.Quantity]" => base64_encode($v["QTY"]),
       "[X.LI.Order.UN]" => base64_encode($v["Login"]["Username"])
      ]);
-    }
-   } elseif($st == "SHOP-Products") {
-    $ec = "Accepted";
-    $home = base64_encode("Product:Home");
-    $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:MiNY]",
-     "Display" => 1
-    ]);
-    $tpl = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
-    $members = $this->core->DatabaseSet("MBR") ?? [];
-    foreach($members as $key => $value) {
-     $v = $this->core->Data("Get", [
-      "mbr",
-      str_replace("c.oh.mbr.", "", $value)
-     ]) ?? [];
-     if($notAnon == 1) {
-      $shop = $this->core->Data("Get", [
-       "shop",
-       md5($v["Login"]["Username"])
-      ]) ?? [];
-      $b2 = $b2 ?? "Products";
-      $products = $shop["Products"] ?? [];
-      foreach($products as $mbr => $p) {
-       $p = $this->core->Data("Get", ["miny", $p]) ?? [];
-       $bl = $this->core->CheckBlocked([$y, "Products", $p["ID"]]);
-       $une = base64_encode($v["Login"]["Username"]);
-       $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-       $ck2 = (strtotime($this->core->timestamp) < $p["Expires"]) ? 1 : 0;
-       $ck3 = $v["Subscriptions"]["Artist"]["A"] ?? 0;
-       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-       $ck = ($ck == 1 || $v["Login"]["Username"] == $this->core->ShopID) ? 1 : 0;
-       $illegal = $p["Illegal"] ?? 0;
-       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       $illegal = ($v["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
-       if($bl == 0 && $ck == 1 && $illegal == 0) {
-        $coverPhoto = $p["ICO"] ?? $coverPhoto;
-        $coverPhoto = base64_encode($coverPhoto);
-        $pub = $data["pubP"] ?? 0;
-        array_push($msg, [
-         "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-         "[X.LI.T]" => base64_encode($p["Title"]),
-         "[X.LI.D]" => base64_encode($this->core->PlainText([
-          "BBCodes" => 1,
-          "Data" => $p["Description"],
-          "Display" => 1,
-          "HTMLDecode" => 1
-         ])),
-         "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$p["ID"]."&UN=".base64_encode($v["Login"]["Username"])."&lPG=$lpg&pubP=$pub"))
-        ]);
-       }
-      }
-     }
     }
    } elseif($st == "US-SU") {
     $ec = "Accepted";

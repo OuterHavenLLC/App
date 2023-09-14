@@ -68,7 +68,7 @@
     $bundledProducts = "";
     $dlc = "";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
-    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->Data("Get", ["product", $id]) ?? [];
     $product = $this->core->FixMissing($product, [
      "Description",
      "Disclaimer",
@@ -257,7 +257,7 @@
     $base = $this->core->base;
     $username = base64_decode($data["UN"]);
     $t = ($username == $you) ? $y : $this->core->Member($username);
-    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->Data("Get", ["product", $id]) ?? [];
     $shop = $this->core->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
@@ -410,7 +410,7 @@
     $title = $data["Title"] ?? "New Product";
     foreach($products as $key => $value) {
      $product = str_replace("c.oh.miny.", "", $value);
-     $product = $this->core->Data("Get", ["miny", $product]) ?? [];
+     $product = $this->core->Data("Get", ["product", $product]) ?? [];
      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
      $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
      $ck3 = ($product["UN"] == $you) ? 1 : 0;
@@ -426,7 +426,7 @@
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $id = $data["ID"] ?? "";
      $now = $this->core->timestamp;
-     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+     $product = $this->core->Data("Get", ["product", $id]) ?? [];
      $attachments = [];
      $bundle = [];
      $category = $data["Category"] ?? "Product";
@@ -541,7 +541,7 @@
       "Title" => $title,
       "UN" => $username
      ];
-     $this->core->Data("Save", ["miny", $id, $product]);
+     $this->core->Data("Save", ["product", $id, $product]);
      $this->core->Data("Save", ["shop", md5($you), $shop]);
      $r = [
       "Body" => "The Product <em>$title</em> has been $actionTaken!",
@@ -610,8 +610,8 @@
     $this->view(base64_encode("Conversation:SaveDelete"), [
      "Data" => ["ID" => $id]
     ]);
-    $this->core->Data("Purge", ["miny", $id]);
     $this->core->Data("Purge", ["local", $id]);
+    $this->core->Data("Purge", ["product", $id]);
     $this->core->Data("Purge", ["votes", $id]);
     $this->core->Data("Save", ["shop", md5($you), $shop]);
     $r = [

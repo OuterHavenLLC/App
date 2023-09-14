@@ -600,7 +600,7 @@
      $r = "";
      foreach(array_reverse($h) as $k => $v) {
       $opt = "";
-      $product = $this->core->Data("Get", ["miny", $v["ID"]]) ?? [];
+      $product = $this->core->Data("Get", ["product", $v["ID"]]) ?? [];
       $exp = $product["Expires"] ?? [
        "Created" => $product["Created"],
        "Quantity" => 1,
@@ -796,7 +796,7 @@
        "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
        "[Shop.Payroll]" => $payroll,
        "[Shop.Share]" => $share,
-       "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=MiNY$id&pubP=$pub&st=MiNY"),
+       "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
        "[Shop.Subscribe]" => $subscribe,
        "[Shop.Title]" => $shop["Title"],
        "[Shop.Welcome]" => $this->core->PlainText([
@@ -836,7 +836,7 @@
    $r = $this->core->Change([[
     "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
     "[MadeInNY.Back]" => $bck,
-    "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP-Products"),
+    "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
    ], $this->core->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {

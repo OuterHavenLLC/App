@@ -176,8 +176,10 @@
       "MBR-XFS",
       "MiNY",
       "PR",
+      "Products",
       "S-Blogger",
       "SHOP",
+      "SHOP-Invoices",
       "SHOP-Orders",
       "SHOP-Products",
       "XFS"
@@ -706,7 +708,8 @@
       "B" => $now,
       "E" => $now
      ]
-    ]
+    ],
+    "Verified" => 1
    ];
   }
   function Page(string $a) {
