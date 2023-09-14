@@ -170,6 +170,8 @@
    $r = [
     "Body" => "The Invoice Identifier is missing."
    ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue."
@@ -637,6 +639,8 @@
     "Body" => "New invoice processor under construction.",
     "Header" => "Coming Soon"
    ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -649,17 +653,36 @@
   }
   function ViewInvoice(array $a) {
    $_ViewTitle = $this->core->config["App"]["Name"];
-   $accessCode = "Accepted";
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   // Allows you to view invoice via the Card
-   // Allows client to view the invoice via DOMAIN/invoice/$id
-   #$_ViewTitle = "Invoice #$id";
-   $r = $this->core->Element([
-    "h1", "View Invoice"
-   ]).$this->core->Element([
-    "p", "We are working on this, the Invoice Identifier is $id."
-   ]);
+   $pub = $data["pub"] ?? 0;
+   $r = [
+    "Body" => "The Invoice Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id)) {
+    $_ViewTitle = "Invoice $id";
+    $accessCode = "Accepted";
+    // Allows you to view invoice via the Card
+    // Allows client to view the invoice via DOMAIN/invoice/$id
+    $r = $this->core->Element([
+     "h1", "Invoice $id"
+    ]).$this->core->Element([
+     "p", "We are working on this, the Invoice Identifier is $id."
+    ]);
+   }
+   if($pub == 1) {
+    if($this->core->ID == $you) {
+     $r = $this->view(base64_encode("WebUI:OptIn"), []);
+     $r = $this->core->RenderView($r);
+    }
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->core->RenderView($r);
+   }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

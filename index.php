@@ -189,9 +189,10 @@
    # INVOICE
    $r = $gw->view(base64_encode("WebUI:Containers"), []);
    if(!empty($c[1])) {
-    $r = $gw->core->view(base64_encode("Product:ViewInvoice"), [
-     "Data" => ["ID" => $c[1]]
-    ]);
+    $r = $gw->core->view(base64_encode("Product:ViewInvoice"), ["Data" => [
+     "ID" => $c[1],
+     "pub" => 1
+    ]]);
    }
   } elseif($c[0] == "search") {
    # SEARCH
