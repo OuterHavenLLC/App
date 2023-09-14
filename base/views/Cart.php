@@ -28,7 +28,7 @@
      ];
     } else {
      $accessCode = "Accepted";
-     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+     $product = $this->core->Data("Get", ["product", $id]) ?? [];
      $cat = $product["Category"] ?? "";
      $hasInstructions = $product["Instructions"] ?? "";
      $productQuantity = $product["Quantity"] ?? 0;
@@ -288,7 +288,7 @@
     ]) ?? [];
     $shop = $data["Shop"] ?? md5($t["Login"]["Username"]);
     $title = $shop["Title"] ?? "Made in New York";
-    $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+    $product = $this->core->Data("Get", ["product", $id]) ?? [];
     $productTitle = $product["Title"];
     $quantity = $data["Quantity"] ?? 1;
     $view = "v=".base64_encode("Cart:Home")."&UN=".base64_encode($t["Login"]["Username"]);
@@ -383,7 +383,7 @@
    $subtotal = 0;
    $total = 0;
    foreach($cart as $key => $value) {
-    $product = $this->core->Data("Get", ["miny", $key]) ?? [];
+    $product = $this->core->Data("Get", ["product", $key]) ?? [];
     $quantity = $product["Quantity"] ?? 0;
     if(!empty($product) && $quantity != 0) {
      $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
