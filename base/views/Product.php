@@ -176,7 +176,7 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($id)) {
+   } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
@@ -185,15 +185,17 @@
     $extension = ($new == 1) ? "NewInvoice" : "AddCharges";
     // BEGIN TEMP
     $r = ($new == 1) ? $this->core->Element([
-     "h1", "New Invoice"
+     "h1", "New Invoice", ["class" => "CenterText"]
     ]).$this->core->Element([
-     "p", "An Invoice creation tool is on its way..."
+     "p", "An Invoice creation tool is on its way...",
+     ["class" => "CenterText"]
     ]).$this->core->Element([
      "div", $back, ["class" => "Desktop75 InnerMargin"]
     ]) : $this->core->Element([
-     "h1", "Add Charges"
+     "h1", "Add Charges", ["class" => "CenterText"]
     ]).$this->core->Element([
-     "p", "Add charges/notes and submit (invoice) for payment invoice #$id."
+     "p", "Add charges/notes and submit (invoice) for payment invoice #$id.",
+     ["class" => "CenterText"]
     ]);
     // END TEMP
     /*--$r = $this->core->Change([
