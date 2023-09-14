@@ -144,16 +144,10 @@
      "Keywords" => "Outer Haven, social entertainment, artist tools, social media, social discovery, creative community, hidden, deep web, private network, empowering expression, connect to the world, videos, music, share, playlists, mixes, profiles, discovery, discover, join the world with privatized social networking, NSA-free",
      "Name" => "Outer Haven",
      "ProductCategories" => [
-      "ARCH" => "Architecture",
-      "DLC" => "Downloadable Content",
-      "DONATE" => "Donation",
-      "PHYS" => "Physical Service",
-      "SUB" => "Subscription",
-      # BEGIN NEW
       "Architecture" => "Architecture",
       "Download" => "Downloadable Content",
       "Donation" => "Donation",
-      "Product" => "Physical Service",
+      "Product" => "Physical Product",
       "Subscription" => "Subscription"
      ],
      "SearchIDs" => [

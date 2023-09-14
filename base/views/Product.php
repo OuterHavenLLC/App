@@ -73,29 +73,21 @@
      "Description",
      "Disclaimer",
      "Body",
-     "Category",
      "Instructions",
      "Role",
      "Price",
      "Title"
     ]);
-    // BEGIN TEMP
-    $category = ($editor == "Architecture") ? $editor : "Product";
-    $category = ($editor == "Donation" || $editor == "DONATE") ? "Donation" : $category;
-    $category = ($editor == "Download" || $editor == "DLC") ? "Download" : $category;
-    $category = ($editor == "Product" || $editor == "PHYS") ? "Product" : $category;
-    $category = ($editor == "Subscription" || $editor == "SUB") ? "Subscription" : $category;
-    // END TEMP
-    #$category = $product["Category"] ?? $editor;
+    $category = $product["Category"] ?? $editor;
     $cost = $product["Cost"] ?? 0.00;
     $coverPhoto = $product["ICO-SRC"] ?? "";
     $created = $product["Created"] ?? $this->core->timestamp;
     $expirationQuantities = [];
     $extension = "3e5dc31db9719800f28abbaa15ce1a37";
-    $extension = ($editor == "Architecture") ? $extension : $extension;
-    $extension = ($editor == "Donation" || $editor == "DONATE") ? $extension : $extension;
-    $extension = ($editor == "Download" || $editor == "DLC") ? $extension : $extension;
-    $extension = ($editor == "Subscription" || $editor == "SUB") ? "dd2cb760e5291e265889c262fc30d9a2" : $extension;
+    $extension = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $extension;
+    $extension = ($editor == "Donation") ? "6f4772a067646699073521d87b943433" : $extension;
+    $extension = ($editor == "Download") ? "5921c3ce04d9a878055ebc691b9f445a" : $extension;
+    $extension = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $extension;
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
@@ -116,14 +108,14 @@
      $dlc = base64_encode(implode(";", $product["DLC"]));
     }
     $changeData = [
-     "[Product.Action]" => $action." ($editor, $category)",
-     #"[Product.Action]" => $action,
+     "[Product.Action]" => $action,
      "[Product.AdditionalContent]" => $additionalContent,
      "[Product.Attachments]" => $attachments,
      "[Product.Attachments.View]" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
      "[Product.Back]" => $back,
      "[Product.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $product["Body"]
+      "Data" => $product["Body"],
+      "Decode" => 1
      ])),
      "[Product.BundledProducts]" => $bundledProducts,
      "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
@@ -172,12 +164,44 @@
   function EditInvoice(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
+   $id = $data["ID"] ?? "";
+   $new = $data["new"] ?? 0;
    $r = [
-    "Body" => "New invoice creation tool under construction.",
-    "Header" => "Coming Soon"
+    "Body" => "The Invoice Identifier is missing."
    ];
-   // 1 editor to create invoices
-   // 1 editor to add charges/notes and submit (invoice) for payment
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $back = ($new == 1) ? $this->core->Element(["button", "Back", [
+     "class" => "GoToParent v2 v2w",
+     "data-type" => "ProductEditors"
+    ]]) : "&nbsp;";
+    $extension = ($new == 1) ? "NewInvoice" : "AddCharges";
+    // BEGIN TEMP
+    $r = ($new == 1) ? $this->core->Element([
+     "h1", "New Invoice"
+    ]).$this->core->Element([
+     "p", "An Invoice creation tool is on its way..."
+    ]).$this->core->Element([
+     "div", $back, ["class" => "Desktop75 InnerMargin"]
+    ]) : $this->core->Element([
+     "h1", "Add Charges"
+    ]).$this->core->Element([
+     "p", "Add charges/notes and submit (invoice) for payment invoice #$id."
+    ]);
+    // END TEMP
+    /*--$r = $this->core->Change([
+     $changeData,
+     $this->core->Page($template)
+    ]);--*/
+    $r = ($card == 1) ? [
+     "Front" => $r
+    ] : $r;
+   }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -362,6 +386,7 @@
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "ID",
+    "SubscriptionTerm",
     "Title",
     "new"
    ]);
@@ -413,7 +438,6 @@
       "Subscription"
      ];
      $cost = $data["Cost"] ?? 0.00;
-     $cost = ($category == "Donation") ? 0.00 : $cost;
      $created = $product["Created"] ?? $now;
      $coverPhoto = "";
      $coverPhotoSource = "";
