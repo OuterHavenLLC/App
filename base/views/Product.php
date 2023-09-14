@@ -344,7 +344,7 @@
       ]),
       "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=".$product["ID"]."&T=".$t["Login"]["Username"]),
       "[Product.Brief.Category]" => $this->core->Element([
-       "p", $this->core->ProductCategory($product["Category"]),
+       "p", $product["Category"],
        ["class" => "CenterText"]
       ]),
       "[Product.Brief.Description]" => $product["Description"],

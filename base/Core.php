@@ -143,13 +143,6 @@
      "Illegal" => 777,
      "Keywords" => "Outer Haven, social entertainment, artist tools, social media, social discovery, creative community, hidden, deep web, private network, empowering expression, connect to the world, videos, music, share, playlists, mixes, profiles, discovery, discover, join the world with privatized social networking, NSA-free",
      "Name" => "Outer Haven",
-     "ProductCategories" => [
-      "Architecture" => "Architecture",
-      "Download" => "Downloadable Content",
-      "Donation" => "Donation",
-      "Product" => "Physical Product",
-      "Subscription" => "Subscription"
-     ],
      "SearchIDs" => [
       "ADM-LLP",
       "ADM-MassMail",
@@ -791,15 +784,6 @@
     $r = base64_encode(urlencode(urlencode($r)));
    } if($a["Processor"] == 1) {
     $r = base64_encode(urlencode($r));
-   }
-   return $r;
-  }
-  function ProductCategory(string $category) {
-   $i = 0;
-   foreach($this->config["App"]["ProductCategories"] as $key => $value) {
-    if($category == $key && $i == 0) {
-     $r = $value;
-    }
    }
    return $r;
   }
