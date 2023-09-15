@@ -362,16 +362,17 @@
       "Display" => 1
      ]);
      $coverPhoto = (!empty($forum["ICO"])) ? base64_encode($forum["ICO"]) : $coverPhoto;
-     $invite = ($active == 1 && $forum["ID"] == $_SonsOfLiberty) ? $this->core->Element([
+     $invite = ($active == 1 && $forum["ID"] != $_SonsOfLiberty) ? $this->core->Element([
       "button", "Invite", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($forum["ID"]))
       ]
      ]) : "";
-     $join = ($ck == 0 && $f["Type"] == "Public") ? $this->core->Change([[
+     $join = ($ck == 1 && $forum["Type"] == "Public") ? $this->core->Change([[//TEMP
+     #$join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Change([[
       "[Forum.Join.Command]" => $_JoinCommand,
       "[Forum.Join.ID]" => $id,
-      "[Forum.Join.Processor]" => base64_encode("v=".base64_encode("Forum:LeaveOrJoin")),
+      "[Forum.Join.Processor]" => base64_encode("v=".base64_encode("Forum:Join")),
       "[Forum.Join.Text]" => $_JoinCommand,
       "[Forum.Join.Username]" => $you,
       "[Forum.Title]" => $forum["Title"]
@@ -508,7 +509,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function LeaveOrJoin(array $a) {
+  function Join(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -526,11 +527,16 @@
     $ck = ($forum["UN"] == $you) ? 1 : 0;
     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
     $responseType = "ReplaceContent";
+    $processor = "v=".base64_encode("Forum:Join")."&ID=$id";
     if($ck == 0 && $command == "Join") {
      $manifest[$you] = "Member";
-     $r = $this->core->Element([
-      "p", "You've joined <em>".$forum["Title"]."</em>!"
-     ]);
+     $r = [
+      "Attributes" => [
+       "class" => "BBB UpdateButton v2 v2w",
+       "data-processor" => base64_encode("$processor&Command=Leave")
+      ],
+      "Text" => "Leave <em>".$forum["Title"]."</em>"
+     ];
     } elseif($ck == 0 && $command == "Leave") {
      $newManifest = [];
      foreach($manifest as $member => $role) {
@@ -539,9 +545,13 @@
       }
      }
      $manifest = $newManifest;
-     $r = $this->core->Element([
-      "p", "Sorry to see you go, we hope to see you again!"
-     ]);
+     $r = [
+      "Attributes" => [
+       "class" => "BBB UpdateButton v2 v2w",
+       "data-processor" => base64_encode("$processor&Command=Join")
+      ],
+      "Text" => "Join <em>".$forum["Title"]."</em>"
+     ];
     }
     #$this->core->Data("Save", ["pfmanifest", $id, $manifest]);
    }

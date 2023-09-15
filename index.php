@@ -17,9 +17,9 @@
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
   if($view == "Cypher") {
-   $r = $gw->core->Page("9899b8bb388bf8520c3b5cee4ef6778b");
-  } elseif($view == "Functions") {
    $r = $gw->core->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
+  } elseif($view == "Functions") {
+   $r = $gw->core->Page("9899b8bb388bf8520c3b5cee4ef6778b");
    // BEGIN TEMP
    $r.="\r\nfunction Xdecode() {\r\n
     setInterval(function() {\r\n
