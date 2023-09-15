@@ -368,11 +368,10 @@
        "data-view" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($forum["ID"]))
       ]
      ]) : "";
-     $join = ($ck == 1 && $forum["Type"] == "Public") ? $this->core->Change([[//TEMP
-     #$join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Change([[
+     $join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Change([[
       "[Forum.Join.Command]" => $_JoinCommand,
       "[Forum.Join.ID]" => $id,
-      "[Forum.Join.Processor]" => base64_encode("v=".base64_encode("Forum:Join")),
+      "[Forum.Join.Processor]" => base64_encode("v=".base64_encode("Forum:Join")."&Command=".$_JoinCommand."&ID=$id"),
       "[Forum.Join.Text]" => $_JoinCommand,
       "[Forum.Join.Username]" => $you,
       "[Forum.Title]" => $forum["Title"]
@@ -512,7 +511,6 @@
   function Join(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
    $command = $data["Command"] ?? "";
    $id = $data["ID"] ?? "";
    $r = [
@@ -522,38 +520,44 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($command) && !empty($id)) {
-    $accessCode = "Accepted";
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $ck = ($forum["UN"] == $you) ? 1 : 0;
     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
-    $responseType = "ReplaceContent";
-    $processor = "v=".base64_encode("Forum:Join")."&ID=$id";
-    if($ck == 0 && $command == "Join") {
-     $manifest[$you] = "Member";
-     $r = [
-      "Attributes" => [
-       "class" => "BBB UpdateButton v2 v2w",
-       "data-processor" => base64_encode("$processor&Command=Leave")
-      ],
-      "Text" => "Leave <em>".$forum["Title"]."</em>"
-     ];
-    } elseif($ck == 0 && $command == "Leave") {
-     $newManifest = [];
-     foreach($manifest as $member => $role) {
-      if($member != $you) {
-       $newManifest[$member] = $role;
+    $r = [
+     "Body" => "You cannot leave your own Forum."
+    ];
+    if($ck == 0) {
+     $accessCode = "Accepted";
+     $responseType = "View";
+     $processor = "v=".base64_encode("Forum:Join")."&ID=$id";
+     if($command == "Join") {
+      $manifest[$you] = "Member";
+      $r = [
+       "Attributes" => [
+        "class" => "BBB UpdateButton v2 v2w",
+        "data-processor" => base64_encode("$processor&Command=Leave")
+       ],
+       "Text" => "Leave <em>".$forum["Title"]."</em>"
+      ];
+     } elseif($command == "Leave") {
+      $accessCode = "Accepted";
+      $newManifest = [];
+      foreach($manifest as $member => $role) {
+       if($member != $you) {
+        $newManifest[$member] = $role;
+       }
       }
+      $manifest = $newManifest;
+      $r = [
+       "Attributes" => [
+        "class" => "BBB UpdateButton v2 v2w",
+        "data-processor" => base64_encode("$processor&Command=Join")
+       ],
+       "Text" => "Join <em>".$forum["Title"]."</em>"
+      ];
      }
-     $manifest = $newManifest;
-     $r = [
-      "Attributes" => [
-       "class" => "BBB UpdateButton v2 v2w",
-       "data-processor" => base64_encode("$processor&Command=Join")
-      ],
-      "Text" => "Join <em>".$forum["Title"]."</em>"
-     ];
+     $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
     }
-    #$this->core->Data("Save", ["pfmanifest", $id, $manifest]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
