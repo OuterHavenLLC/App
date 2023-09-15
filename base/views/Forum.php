@@ -368,14 +368,12 @@
        "data-view" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($forum["ID"]))
       ]
      ]) : "";
-     $join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Change([[
-      "[Forum.Join.Command]" => $_JoinCommand,
-      "[Forum.Join.ID]" => $id,
-      "[Forum.Join.Processor]" => base64_encode("v=".base64_encode("Forum:Join")."&Command=".$_JoinCommand."&ID=$id"),
-      "[Forum.Join.Text]" => $_JoinCommand,
-      "[Forum.Join.Username]" => $you,
-      "[Forum.Title]" => $forum["Title"]
-     ], $this->core->Page("4c3a04a91734ce56bef85d474294202d")]) : "";
+     $join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Element([
+      "button", $_JoinCommand." <em>".$forum["Title"]."</em>", [
+       "class" => "BBB UpdateButton v2 v2w",
+       "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=".$_JoinCommand."&ID=$id")
+      ]
+     ]) : "";
      $manifest = base64_encode(json_encode($manifest, true));
      $search = base64_encode("Search:Containers");
      $votes = ($active == 1 && $ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
