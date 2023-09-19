@@ -163,6 +163,7 @@
   }
   function EditInvoice(array $a) {
    $accessCode = "Denied";
+   $action = "";
    $data = $a["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
@@ -178,6 +179,10 @@
     ];
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
+    $action = ($new == 1) ? $this->core->Element(["button", "Create Pre-set", [
+     "class" => "CardButton",
+     "data-processor" => base64_encode("v=".base64_encode("Product:SaveInvoicePreset"))
+    ]]) : "&nbsp;";
     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
      "data-type" => "ProductEditors"
@@ -203,6 +208,7 @@
      $this->core->Page($template)
     ]);--*/
     $r = ($card == 1) ? [
+     "Action" => $action,
      "Front" => $r
     ] : $r;
    }
@@ -651,6 +657,25 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
+   ]);
+  }
+  function SaveInvoicePreset(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $r = [
+    "Body" => "New invoice Pre-set processor under construction.",
+    "Header" => "Coming Soon"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
    ]);
   }
   function ViewInvoice(array $a) {
