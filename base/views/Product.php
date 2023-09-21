@@ -163,13 +163,12 @@
   }
   function EditInvoice(array $a) {
    $accessCode = "Denied";
-   $action = "";
    $data = $a["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $r = [
-    "Body" => "The Invoice Identifier is missing."
+    "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -179,36 +178,44 @@
     ];
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
-    $action = ($new == 1) ? $this->core->Element(["button", "Create Pre-set", [
-     "class" => "CardButton",
-     "data-processor" => base64_encode("v=".base64_encode("Product:SaveInvoicePreset"))
-    ]]) : "&nbsp;";
-    $back = ($new == 1) ? $this->core->Element(["button", "Back", [
-     "class" => "GoToParent v2 v2w",
-     "data-type" => "ProductEditors"
-    ]]) : "&nbsp;";
-    $extension = ($new == 1) ? "NewInvoice" : "AddCharges";
-    // BEGIN TEMP
-    $r = ($new == 1) ? $this->core->Element([
-     "h1", "New Invoice", ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "p", "An Invoice creation tool is on its way...",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "div", $back, ["class" => "Desktop75 InnerMargin"]
-    ]) : $this->core->Element([
-     "h1", "Add Charges", ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "p", "Add charges/notes and submit (invoice) for payment invoice #$id.",
-     ["class" => "CenterText"]
-    ]);
-    // END TEMP
+    $isPreset = $data["Preset"] ?? 0;
+    if($isPreset == 1) {
+     $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
+     $changeData = [
+     ];
+     $template = "UpdatePreset";
+    } else {
+     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
+      "class" => "GoToParent v2 v2w",
+      "data-type" => "ProductEditors"
+     ]]) : "&nbsp;";
+     $changeData = [
+      "[Invoice.Back]" => $back,
+      "[Invoice.SavePreset]" => base64_encode("v=".base64_encode("Product:SaveInvoicePreset"))
+     ];
+     $template = ($new == 1) ? "NewInvoice" : "AddCharges";
+     // BEGIN TEMP
+     $r = ($new == 1) ? $this->core->Element([
+      "h1", "New Invoice", ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "p", "An Invoice creation tool is on its way...",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "div", $back, ["class" => "Desktop75 InnerMargin"]
+     ]) : $this->core->Element([
+      "h1", "Add Charges", ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "p", "Add charges/notes and submit (invoice) for payment invoice #$id.",
+      ["class" => "CenterText"]
+     ]);
+     // END TEMP
+    }
     /*--$r = $this->core->Change([
      $changeData,
      $this->core->Page($template)
     ]);--*/
     $r = ($card == 1) ? [
-     "Action" => $action,
      "Front" => $r
     ] : $r;
    }
@@ -643,12 +650,33 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
+   $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "New invoice processor under construction.",
-    "Header" => "Coming Soon"
+    "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($id) || $new == 1) {
+    $accessCode = "Accepted";
+    $isPreset = $data["Preset"] ?? 0;
+    if($isPreset == 1) {
+     # Update Preset
+     $r = [
+      "Body" => "New Pre-set processor under construction.",
+      "Header" => "Done"
+     ];
+    } else {
+     # Active Invoice
+     $r = [
+      "Body" => "New invoice processor under construction.",
+      "Header" => "Done"
+     ];
+    }
+   }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
