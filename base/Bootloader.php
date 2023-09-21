@@ -16,7 +16,10 @@
      "JSON" => "",
      "Web" => [
       "Body" => "The group <em>$group</em> could not be loaded.",
-      "Header" => "Not Found"
+      "Header" => "Not Found",
+      "Scrollable" => $this->core->Element([
+       "p", "Requested URI for reference: ".$_SERVER["REQUEST_URI"]
+      ])
      ]
     ],
     "ResponseType" => "View"

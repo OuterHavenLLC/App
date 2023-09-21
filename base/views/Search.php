@@ -370,6 +370,12 @@
      $li .= "&lPG=$lpg&st=$st";
      $lis = "Search Shops";
      $tpl = "e3de2c4c383d11d97d62a198f15ee885";
+    } elseif($st == "SHOP-InvoicePresets") {
+     $h = "Services";
+     $shop = $data["Shop"] ?? "";
+     $li .= "&Shop=$shop&st=$st";
+     $lis = "Search Services";
+     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "SHOP-Invoices") {
      $h = "Invoices";
      $shop = $data["Shop"] ?? "";
@@ -384,9 +390,10 @@
      $t = base64_decode($data["UN"]);
      $t = $this->core->Member($t);
      $isArtist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+     $shopID = md5($t["Login"]["Username"]);
      $shop = $this->core->Data("Get", [
       "shop",
-      md5($t["Login"]["Username"])
+      $shopID
      ]) ?? [];
      $contributors = $shop["Contributors"] ?? [];
      foreach($contributors as $member => $role) {
@@ -394,10 +401,13 @@
       if($ck == 1 && $i == 0) {
        $lo .= $this->core->Element(["button", "+", [
         "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&new=1")
+        "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$shopID&new=1")
        ]]).$this->core->Element(["button", "Invoices", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=".md5($t["Login"]["Username"])."&st=SHOP-Invoices")
+       ]]).$this->core->Element(["button", "Services", [
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=".md5($t["Login"]["Username"])."&st=SHOP-InvoicePresets")
        ]]);
        $i++;
       }
@@ -433,7 +443,7 @@
      "[UI.s]" => $lis,
      "[XS.UI]" => $li
     ], $this->core->Page($tpl)]);
-   } if(in_array($st, ["DC", "FAB", "SHOP-Invoices"])) {
+   } if(in_array($st, ["DC", "FAB", "SHOP-InvoicePresets", "SHOP-Invoices"])) {
     $r = [
      "Front" => $r
     ];
@@ -2064,6 +2074,15 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       }
      }
     }
+   } elseif($st == "SHOP-InvoicePresets") {
+    $ec = "Accepted";
+    $shop = $this->core->Data("Get", [
+     "shop",
+     $data["Shop"]
+    ]) ?? [];
+    $shopInvoicePresets = $shop["InvoicePresets"] ?? [];
+    $tpl = $this->core->Element(["p", "Pre-set"]);
+    #$tpl = $this->core->Page("InvoicePresetListItem");
    } elseif($st == "SHOP-Invoices") {
     $ec = "Accepted";
     $shop = $this->core->Data("Get", [

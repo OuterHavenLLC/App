@@ -179,6 +179,7 @@
       "Products",
       "S-Blogger",
       "SHOP",
+      "SHOP-InvoicePresets",
       "SHOP-Invoices",
       "SHOP-Orders",
       "SHOP-Products",
