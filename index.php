@@ -11,6 +11,8 @@
  $view = $data["v"] ?? "";
  $r = "";
  $gw->core->Setup("App");
+ $y = $gw->core->Member($gw->core->Username());
+ $you = $y["Login"]["Username"];
  if($api == "Design") {
   header("content-type: text/CSS");
   $r = $gw->core->Page("d4efcd44be4b2ef2a395f0934a9e446a");
@@ -151,11 +153,12 @@
   } elseif($c[0] == "chat") {
    # CHAT
    $r = $gw->view(base64_encode("WebUI:Containers"), []);
-   if(!empty($sk)) {
-    $r = $gw->core->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Type" => "Chat"]
-    ]);
+   if(!empty($gw->core->ID != $you)) {
+    $r = $gw->view(base64_encode("WebUI:Containers"), ["Data" => [
+     "Type" => "Chat"
+    ]]);
    }
+   $_ViewTitle = "Chat";
   } elseif($c[0] == "congress") {
    # CONGRESS
    $r = $gw->view(base64_encode("Congress:Home"), ["Data" => [
@@ -189,7 +192,7 @@
    # INVOICE
    $r = $gw->view(base64_encode("WebUI:Containers"), []);
    if(!empty($c[1])) {
-    $r = $gw->core->view(base64_encode("Product:ViewInvoice"), ["Data" => [
+    $r = $gw->core->view(base64_encode("Invoice:Home"), ["Data" => [
      "ID" => $c[1],
      "pub" => 1
     ]]);

@@ -4,6 +4,33 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Username());
   }
+  function Menu(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $integrated = $data["Integrated"] ?? 0;
+   $r = [
+    "Body" => "Unknown Error."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } else {
+    $accessCode = "Accepted";
+    $r = $this->core->Change([[
+    ], $this->core->Page("2e1855b9baa7286162fb571c5f80da0f")]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function Home(array $a) {
    $d = $a["Data"] ?? [];
    $d = $this->core->FixMissing($d, ["GroupChat", "to"]);
@@ -321,7 +348,7 @@
    }
    return [
     "Action" => $btn,
-    '"Front" => $r
+    "Front" => $r
    ];
   }
   function __destruct() {

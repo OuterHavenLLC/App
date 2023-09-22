@@ -2081,8 +2081,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $data["Shop"]
     ]) ?? [];
     $shopInvoicePresets = $shop["InvoicePresets"] ?? [];
-    $tpl = $this->core->Element(["p", "Pre-set"]);
-    #$tpl = $this->core->Page("InvoicePresetListItem");
+    $tpl = $this->core->Element(["p", "Service"]);
+    #$tpl = $this->core->Page("ServiceListItem");
    } elseif($st == "SHOP-Invoices") {
     $ec = "Accepted";
     $shop = $this->core->Data("Get", [

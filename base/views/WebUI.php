@@ -10,17 +10,14 @@
    $content = $this->view(base64_encode("WebUI:OptIn"), []);
    $content = $this->core->RenderView($content);
    $content = $data["Content"] ?? $content;
+   $r = $this->core->Change([[
+    "[App.Content]" => $content
+   ], $this->core->Page("606c44e9e7eac67c34c5ad8d1062b003")]);
    $type = $data["Type"] ?? "";
    if($type == "Chat") {
     $r = $this->core->Change([[
-     "[TopBar.Ground]" => base64_encode("N/A"),
-     "[TopBar.FST]" => base64_encode("v=".base64_encode("Search:Containers")."&Chat=1&st=ContactsChatList"),
-     "[TopBar.ID]" => base64_encode(md5("ChatContacts"))
+     "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))
     ], $this->core->Page("988e96fd9025b718f43ad357dc25247d")]);
-   } else {
-    $r = $this->core->Change([[
-     "[OH.MainContent]" => $content
-    ], $this->core->Page("606c44e9e7eac67c34c5ad8d1062b003")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -153,6 +150,7 @@
     $accessCode = "Accepted";
     $r = $this->core->Change([[
      "[Menu.Administration]" => $admin,
+     "[Menu.Chat]" => base64_encode("v=".base64_encode("Chat:Menu")."&Integrated=1"),
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
      "[Menu.Company.Defense]" => base64_encode("v=".base64_encode("PMC:Home")),
@@ -295,9 +293,9 @@
     $r = $this->core->RenderView($r);
    }
    $r = $this->core->Change([[
-    "[OH.MainContent]" => $r,
-    "[OH.TopBar.NetMap]" => base64_encode("v=".base64_encode("WebUI:Menu")),
-    "[OH.TopBar.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
+    "[App.Content]" => $r,
+    "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
+    "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
    ], $this->core->Page("dd5e4f7f995d5d69ab7f696af4786c49")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

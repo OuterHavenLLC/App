@@ -712,6 +712,8 @@
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $id = md5($t["Login"]["Username"]);
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $enableHireSection = $shop["EbnableHireSection"] ?? 0;
+    $partners = $shop["Contributors"] ?? [];
     $commission = $shop["Commission"] ?? 0;
     $subscribers = $shop["Subscribers"] ?? [];
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
@@ -756,6 +758,14 @@
         "data-view" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($id))
        ]
       ]) : "";
+      $hire = (md5($you) != $id) ? 1 : 0;
+      $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
+      $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
+      $hireText = (count($partners) == 1) ? "Me" : "Us";
+      $hire = ($hire == 1) ? $this->core->Change([[
+       "[Hire.Text]" => $hireText,
+       "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id")
+      ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
       $payroll = ($id == md5($you)) ? $this->core->Element([
        "button", "Payroll", [
         "class" => "OpenCard Small v2",
@@ -791,6 +801,7 @@
        ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
        "[Shop.Disclaimer]" => $disclaimer,
        "[Shop.Edit]" => $edit,
+       "[Shop.Hire]" => $hire,
        "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id&PFST=$pub"),
        "[Shop.ID]" => $id,
        "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
@@ -975,7 +986,7 @@
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "Unknown error."
+    "Body" => "The Shop Identifier is missing.."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1032,6 +1043,9 @@
     }
     $contributors = $shop["Contributors"] ?? [];
     $description = $data["Description"] ?? $shop["Description"];
+    $enableHireSection = $data["EnableHireSection"] ?? 0;
+    $invoicePresets = $shop["InvoicePresets"] ?? [];
+    $invoices = $shop["Invoices"] ?? [];
     $live = $data["Live"] ?? 0;
     $nsfw = $data["nsfw"] ?? 0;
     $open = $data["Open"] ?? 0;
@@ -1046,6 +1060,9 @@
      "CoverPhoto" => $coverPhoto,
      "CoverPhotoSource" => base64_encode($coverPhotoSource),
      "Description" => $description,
+     "EnableHireSection" => $enableHireSection,
+     "InvoicePresets" => $invoicePresets,
+     "Invoices" => $invoices,
      "Live" => $live,
      "Modified" => $this->core->timestamp,
      "NSFW" => $nsfw,
