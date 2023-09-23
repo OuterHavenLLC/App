@@ -123,11 +123,9 @@
     "[Admin.Server]" => "https://www.digitalocean.com/",
     "[Admin.WHM]" => "https://admin.outerhaven.nyc:2087/"
    ], $this->core->Page("5c1ce5c08e2add4d1487bcd2193315a7")]) : "";
-   $support = [md5("High Command"), md5("Support")];
-   $support = (in_array($y["Rank"], $support)) ? "<!--SUPPORT OPTIONS-->" : "";
    $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->core->Element([
     "button", "Shop", [
-     "class" => "CloseNetMap Small UpdateContent v2",
+     "class" => "CloseNetMap LI UpdateContent",
      "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&UN=".base64_encode($you))
     ]
    ]) : "";
@@ -168,13 +166,13 @@
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"],
      "[Menu.Member.Files]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=Files&st=XFS"),
      "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
+     "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:2em 25% 0em 25%;width:50%"),
      "[Menu.Member.Shop]" => $shop,
      "[Menu.Member.Library]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
      "[Menu.Member.NewArticle]" => base64_encode("v=".base64_encode("Page:Edit")."&new=1"),
      "[Menu.Member.Preferences]" => base64_encode("v=".base64_encode("Profile:Preferences")),
      "[Menu.Member.Profile]" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($you)),
      "[Menu.Member.Subscriptions]" => base64_encode("v=".base64_encode("Subscription:Index")),
-     "[Menu.Member.Switch]" => base64_encode("v=".base64_encode("Common:SwitchMember")),
      "[Menu.Member.UpdateStatus]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you)),
      "[Menu.Member.Username]" => $you,
      "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
@@ -184,7 +182,6 @@
      "[Menu.Search.Blogs]" => base64_encode("v=$search&lPG=Blogs&st=BLG"),
      "[Menu.Search.Members]" => base64_encode("v=$search&lPG=Members&st=MBR"),
      "[Menu.Search.PublicForums]" => base64_encode("v=$search&lPG=Forums&st=Forums"),
-     "[Menu.Support.Manage]" => $support,
      "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
     ], $this->core->Page("d14e3045df35f4d9784d45ac2c0fe73b")]);
    }

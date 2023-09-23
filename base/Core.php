@@ -397,11 +397,15 @@
    }
    return $r;
   }
-  function DecodeBridgeData(array $a) {
-   foreach($a as $k => $v)  {
-    $a[$k] = urldecode(base64_decode($v));
+  function DecodeBridgeData(array $data) {
+   foreach($data as $key => $value)  {
+    if(!is_array($value)) {
+     $data[$key] = urldecode(base64_decode($value));
+    } else {
+     $data[$key] = $this->DecodeBridgeData($value);
+    }
    }
-   return $a;
+   return $data;
   }
   function Decrypt($data) {
    return $this->cypher->Decrypt($data);
@@ -493,9 +497,8 @@
    return $r;
   }
   function GetCopyrightInformation() {
-   $ttl = $this->config["App"]["Name"];
    return $this->Element([
-    "p", "Copyright &copy; 2017-".date("Y")." <em>$ttl</em>.",
+    "p", "Copyright &copy; 2017-".date("Y")." <em>".$this->config["App"]["Name"]."</em>.",
     ["class" => "CenterText"]
    ]).$this->Element([
     "p", "All rights reserved.",
@@ -755,11 +758,12 @@
     $r = preg_replace_callback("/\[CoreMedia:(.*?)\]/i", array(&$this, "CoreMedia"), $r);
     $r = preg_replace_callback("/\[sIMG:(.*?)\]/i", array(&$this, "CoreMedia"), $r);// TO BE DISOLVED
     $r = $this->Change([[
+     "[App.Constitution]" => base64_encode("v=$pc&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
+     "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
+     "[App.CurrentYear]" => date("Y"),
+     "[App.Name]" => $this->config["App"]["Name"],
      "[X.contact]" => base64_encode("v=".base64_encode("Company:Feedback")),
-     "[X.terms]" => base64_encode("v=$pc&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
-     "[X.year]" => date("Y"),
      "[base]" => $this->base,
-     "[copyrightInfo]" => $this->GetCopyrightInformation(),
      "[efs]" => $this->efs,
      "[plus]" => "+",
      "[space]" => "&nbsp;",

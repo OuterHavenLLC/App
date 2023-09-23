@@ -536,31 +536,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function SwitchMember(array $a) {
-   $accessCode = "Accepted";
-   $r = [
-    "Body" => $this->core->Page("ff434d30a54ee6d6bbe5e67c261b2005"),
-    "Header" => "Switch Members",
-    "Options" => [
-     $this->core->Element(["button", "Cancel", [
-      "class" => "CloseDialog v2 v2w"
-     ]]),
-     $this->core->Element(["button", "Switch", [
-      "class" => "BBB SendData v2 v2w",
-      "data-form" => "#login",
-      "data-processor" => base64_encode("v=".base64_encode("Common:SaveSignIn"))
-     ]])
-    ]
-   ];
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function __destruct() {
    // DESTROYS THIS CLASS
   }

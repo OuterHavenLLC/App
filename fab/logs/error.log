@@ -516,3 +516,14 @@
 [2023-09-13  20:24:57] INFO main/main Icecast 2.4.4 server started
 [2023-09-13  20:24:57] INFO connection/get_ssl_certificate No SSL capability on any configured ports
 [2023-09-13  20:24:57] INFO yp/yp_update_thread YP update thread started
+[2023-09-23  03:41:20] INFO main/_server_proc Caught halt request, shutting down...
+[2023-09-23  03:41:20] INFO main/main Shutting down
+[2023-09-23  03:41:21] INFO fserve/fserve_shutdown file serving stopped
+[2023-09-23  03:41:21] INFO slave/_slave_thread shutting down current relays
+[2023-09-23  03:41:21] INFO slave/_slave_thread Slave thread shutdown complete
+[2023-09-23  03:41:21] INFO auth/auth_shutdown Auth shutdown
+[2023-09-23  03:41:21] INFO yp/yp_shutdown YP thread down
+[2023-09-23  03:41:21] INFO stats/stats_shutdown stats thread finished
+[2023-09-23  03:44:21] INFO main/main Icecast 2.4.4 server started
+[2023-09-23  03:44:21] INFO yp/yp_update_thread YP update thread started
+[2023-09-23  03:44:21] INFO connection/get_ssl_certificate No SSL capability on any configured ports
