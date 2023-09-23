@@ -267,6 +267,7 @@
    $r = [
     "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
+   $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -285,7 +286,7 @@
       "Body" => "New Pre-set processor under construction.",
       "Header" => "Done"
      ];
-    } else {
+    } elseif($isPreset == 0) {
      # Active Invoice
      $check = 1;
      $member = $data["ChargeTo"] ?? "";
@@ -307,6 +308,7 @@
        "Body" => "New invoice processor under construction.",
        "Header" => "Done"
       ];
+      $success = "CloseCard";
      }
     }
    }
@@ -317,7 +319,7 @@
      "Web" => $r
     ],
     "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    "Success" => $success
    ]);
   }
   function __destruct() {
