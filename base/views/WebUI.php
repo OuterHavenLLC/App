@@ -166,7 +166,7 @@
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"],
      "[Menu.Member.Files]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=Files&st=XFS"),
      "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
-     "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:2em 25% 0em 25%;width:50%"),
+     "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:2em 30% 0em 30%;width:40%"),
      "[Menu.Member.Shop]" => $shop,
      "[Menu.Member.Library]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
      "[Menu.Member.NewArticle]" => base64_encode("v=".base64_encode("Page:Edit")."&new=1"),

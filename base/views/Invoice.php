@@ -90,7 +90,7 @@
       ];
      } else {
       $invoiceCharges = $invoice["Charges"] ?? [];
-      for($i = 0; $i <= count($invoiceCharges); $i++) {
+      for($i = 0; $i < count($invoiceCharges); $i++) {
        $title = [
         "Attributes" => [
          "class" => "req",
@@ -125,7 +125,8 @@
        ];
        $value = [
         "Attributes" => [
-         "class" => "req",
+         "class" => "CheckIfNumeric req",
+         "data-symbols" => "Y",
          "name" => "ChargeValue[]",
          "placeholder" => "50.00",
          "type" => "number"
@@ -184,7 +185,7 @@
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Shop Identifier are missing."
+    "Body" => "The Shop Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -259,6 +260,36 @@
     "Title" => $_ViewTitle
    ]);
   }
+  function RefundCharge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $charge = $data["Charge"] ?? "";
+   $invoice = $data["Invoice"] ?? "";
+   $r = [
+    "Body" => "The Charge or Invoice Identifier are missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($charge) && !empty($invoice)) {
+    // CHECK IF YOU CREATED THE INVOICE OR ARE A SHOP CONTRIBUTOR
+    $accessCode = "Accepted";
+    $r = [
+     "Body" => "Refund for charge $charge on Invoice $invoice."
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -276,6 +307,7 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
+    $charges = [];
     $isPreset = $data["Preset"] ?? 0;
     $r = [
      "Body" => "The Service Title is missing."
@@ -283,11 +315,27 @@
     $title = $data["Title"] ?? "";
     if(!empty($title) && $isPreset == 1) {
      $accessCode = "Accepted";
-     $r = "Update Pre-set";
+     $description = $data["ChargeDescription"][0] ?? "Unknown";
+     $serviceTitle = $title ?? "New Service";
+     $title = $data["ChargeTitle"][0] ?? "Unknown";
+     $value = $data["ChargeValue"][0] ?? 0.00;
+     array_push($charges, [
+      "Description" => $description,
+      "Paid" => 0,
+      "Title" => $title,
+      "Value" => $value
+     ]);
+     $r = "Update Pre-set<br/>Data Model: ".json_encode([
+      "Charges" => $charges,
+      "Notes" => [],
+      "PaidInFull" => 0,
+      "Status" => "Open",
+      "Title" => $serviceTitle,
+      "UN" => $you
+     ], true);
      $responseType = "UpdateText";
     } elseif($isPreset == 0) {
-     # Active Invoice
-     $check = 1;
+     $check = 0;
      $member = $data["ChargeTo"] ?? "";
      $members = $this->core->DatabaseSet("MBR");
      $r = [
