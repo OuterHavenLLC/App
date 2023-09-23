@@ -267,6 +267,7 @@
    $r = [
     "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
+   $responseType = "Dialog";
    $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -282,10 +283,8 @@
     $title = $data["Title"] ?? "";
     if(!empty($title) && $isPreset == 1) {
      $accessCode = "Accepted";
-     $r = [
-      "Body" => "New Pre-set processor under construction.",
-      "Header" => "Done"
-     ];
+     $r = "Update Pre-set";
+     $responseType = "UpdateText";
     } elseif($isPreset == 0) {
      # Active Invoice
      $check = 1;
@@ -318,7 +317,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
+    "ResponseType" => $responseType,
     "Success" => $success
    ]);
   }
