@@ -404,10 +404,10 @@
         "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$shopID&new=1")
        ]]).$this->core->Element(["button", "Invoices", [
         "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=".md5($t["Login"]["Username"])."&st=SHOP-Invoices")
+        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$shopID&st=SHOP-Invoices")
        ]]).$this->core->Element(["button", "Services", [
         "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=".md5($t["Login"]["Username"])."&st=SHOP-InvoicePresets")
+        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$shopID&st=SHOP-InvoicePresets")
        ]]);
        $i++;
       }

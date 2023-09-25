@@ -841,13 +841,45 @@
    $accessCode = "Accepted";
    $_Search = base64_encode("Search:Containers");
    $data = $a["Data"] ?? [];
-   $bck = $data["back"] ?? "";
+   $back = $data["back"] ?? "";
+   $id = md5($this->core->ShopID);
    $pub = $data["pub"] ?? 0;
-   $username = base64_encode($this->core->ShopID);
+   $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+   $partners = $shop["Contributors"] ?? [];
+   $subscribers = $shop["Subscribers"] ?? [];
+   $username = base64_encode($id);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   $enableHireSection = $shop["EbnableHireSection"] ?? 0;
+   $hire = (md5($you) != $id) ? 1 : 0;
+   $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
+   $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
+   $hireText = (count($partners) == 1) ? "Me" : "Us";
+   $hire = ($hire == 1) ? $this->core->Change([[
+    "[Hire.Text]" => $hireText,
+    "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id")
+   ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
+   $payroll = ($id == md5($you)) ? $this->core->Element([
+    "button", "Payroll", [
+     "class" => "OpenCard Small v2",
+     "data-view" => base64_encode("v=".base64_encode("Shop:Payroll"))
+    ]
+   ]) : "";
+   $subscribe = (md5($you) != $id && $this->core->ID != $you) ? 1 : 0;
+   $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
+   $subscribe = ($subscribe == 1) ? $this->core->Change([[
+    "[Subscribe.ContentID]" => $id,
+    "[Subscribe.ID]" => md5($you),
+    "[Subscribe.Processor]" => base64_encode("v=".base64_encode("Shop:Subscribe")),
+    "[Subscribe.Text]" => $subscribeText,
+    "[Subscribe.Title]" => $shop["Title"]
+   ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
    $r = $this->core->Change([[
     "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
-    "[MadeInNY.Back]" => $bck,
+    "[MadeInNY.Back]" => $back,
+    "[MadeInNY.Hire]" => $hire,
     "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
+    "[MadeInNY.Subscribe]" => $subscribe,
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
    ], $this->core->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {

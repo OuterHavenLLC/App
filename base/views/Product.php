@@ -20,11 +20,11 @@
    $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
    $r = [
     "Front" => $this->core->Change([[
-     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&new=1"),
-     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&new=1"),
-     "[Product.Download]" => base64_encode("v=$edit&Editor=Download&new=1"),
-     "[Product.Product]" => base64_encode("v=$edit&Editor=Product&new=1"),
-     "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&new=1"),
+     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&Shop=$shop&new=1"),
+     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&Shop=$shop&new=1"),
+     "[Product.Download]" => base64_encode("v=$edit&Editor=Download&Shop=$shop&new=1"),
+     "[Product.Product]" => base64_encode("v=$edit&Editor=Product&Shop=$shop&new=1"),
+     "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&Shop=$shop&new=1"),
      "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
     ], $this->core->Page($template)])
    ];
@@ -140,6 +140,7 @@
      "[Product.Quantities]" => json_encode($quantities, true),
      "[Product.Role]" => $product["Role"],
      "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
+     "[Product.Shop]" => $shop,
      "[Product.SubscriptionTerm]" => $subscriptionTerm,
      "[Product.Title]" => base64_encode($product["Title"]),
      "[Product.Visibility.NSFW]" => $nsfw,
@@ -252,7 +253,7 @@
      $actions .= ($active == 1) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1&Editor=".$product["Category"]."&ID=$id")
+       "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1&Editor=".$product["Category"]."&ID=$id&Shop=".md5($t["Login"]["Username"]))
       ]
      ]) : "";
      $bck = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
@@ -342,8 +343,9 @@
     "new"
    ]);
    $r = [
-    "Body" => "The Product Identifier is missing."
+    "Body" => "The Product or Shop Identifiers are missing."
    ];
+   $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -351,170 +353,183 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($data["ID"])) {
-    $i = 0;
-    $new = $data["new"] ?? 0;
-    $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
-    $contributors = $shop["Contributors"] ?? [];
-    $isContributor = (!empty($contributors[$you])) ? 1 : 0;
-    $products = $this->core->DatabaseSet("PROD") ?? [];
-    $title = $data["Title"] ?? "New Product";
-    foreach($products as $key => $value) {
-     $product = str_replace("c.oh.miny.", "", $value);
-     $product = $this->core->Data("Get", ["product", $product]) ?? [];
-     $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
-     $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
-     $ck3 = ($product["UN"] == $you) ? 1 : 0;
-     if($ck == 0 && $ck2 == 0 && $ck3 == 0) {
-      $i++;
+   } elseif(!empty($data["ID"]) && !empty($shopID)) {
+    $check = 0;
+    $isAdmin  = ($shopID == md5($you)) ? 1 : 0;
+    $r = [
+     "Body" => "You are not authorized to manage Products.",
+     "Header" => "Forbidden"
+    ];
+    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    foreach($shop["Contributors"] as $member => $role) {
+     if($check == 0 && $member == $you) {
+      $check++;
      }
-    } if($i > 0) {
-     $r = [
-      "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
-     ];
-    } else {
-     $accessCode = "Accepted";
-     $actionTaken = ($new == 1) ? "posted" : "updated";
-     $id = $data["ID"] ?? "";
-     $now = $this->core->timestamp;
-     $product = $this->core->Data("Get", ["product", $id]) ?? [];
-     $attachments = [];
-     $bundle = [];
-     $category = $data["Category"] ?? "Product";
-     $categories = [
-      "Architecture",
-      "Donation",
-      "Download",
-      "Product",
-      "Subscription"
-     ];
-     $cost = $data["Cost"] ?? 0.00;
-     $created = $product["Created"] ?? $now;
-     $coverPhoto = "";
-     $coverPhotoSource = "";
-     $dlc = [];
-     $expirationQuantity = $data["ExpirationQuantity"] ?? 1;
-     $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
-     $illegal = $product["Illegal"] ?? 0;
-     $instructions = $data["Instructions"] ?? 0;
-     $modifiedBy = $product["ModifiedBy"] ?? [];
-     $modifiedBy[$now] = $you;
-     $newProducts = $shop["Products"] ?? [];
-     $points = $this->core->config["PTS"];
-     $profit = $data["Profit"] ?? 0.00;
-     $quantity = $data["Quantity"] ?? "-1";
-     $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
-     $username = $product["UN"] ?? $you;
-     if(!empty($data["rATT$id"])) {
-      $db = explode(";", base64_decode($data["rATT$id"]));
-      $dbc = count($db);
-      for($i = 0; $i < $dbc; $i++) {
-       if(!empty($db[$i])) {
-        $dbi = explode("-", base64_decode($db[$i]));
-        if(!empty($dbi[0]) && !empty($dbi[1])) {
-         array_push($attachments, base64_encode($dbi[0]."-".$dbi[1]));
-        }
-       }
+    } if($check == 1 && $isAdmin == 1) {
+     $i = 0;
+     $new = $data["new"] ?? 0;
+     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+     $contributors = $shop["Contributors"] ?? [];
+     $isContributor = (!empty($contributors[$you])) ? 1 : 0;
+     $products = $this->core->DatabaseSet("PROD") ?? [];
+     $title = $data["Title"] ?? "New Product";
+     foreach($products as $key => $value) {
+      $product = str_replace("c.oh.miny.", "", $value);
+      $product = $this->core->Data("Get", ["product", $product]) ?? [];
+      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
+      $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
+      $ck3 = ($product["UN"] == $you) ? 1 : 0;
+      if($ck == 0 && $ck2 == 0 && $ck3 == 0) {
+       $i++;
       }
-     } if(!empty($data["rATTDLC$id"])) {
-      $db = explode(";", base64_decode($data["rATTDLC$id"]));
-      $dbc = count($db);
-      for($i = 0; $i < $dbc; $i++) {
-       if(!empty($db[$i])) {
-        $dbi = explode("-", base64_decode($db[$i]));
-        if(!empty($dbi[0]) && !empty($dbi[1])) {
-         array_push($dlc, base64_encode($dbi[0]."-".$dbi[1]));
-        }
-       }
-      }
-     } if(!empty($data["rATTI$id"])) {
-      $db = explode(";", base64_decode($data["rATTI$id"]));
-      $dbc = count($db);
-      $i2 = 0;
-      for($i = 0; $i < $dbc; $i++) {
-       if(!empty($db[$i]) && $i2 == 0) {
-        $dbi = explode("-", base64_decode($db[$i]));
-        if(!empty($dbi[0]) && !empty($dbi[1])) {
-         $t = $this->core->Member($dbi[0]);
-         $efs = $this->core->Data("Get", [
-          "fs",
-          md5($t["Login"]["Username"])
-         ]) ?? [];
-         $coverPhoto = $dbi[0]."/".$efs["Files"][$dbi[1]]["Name"];
-         $coverPhotoSource = base64_encode($dbi[0]."-".$dbi[1]);
-         $i2++;
-        }
-       }
-      }
-     } if(!empty($data["rATTP$id"])) {
-      $db = explode(";", base64_decode($data["rATTP$id"]));
-      $dbc = count($db);
-      for($i = 0; $i < $dbc; $i++) {
-       if(!empty($db[$i])) {
-        array_push($bundle, $db[$i]);
-       }
-      }
-     } if(in_array($category, $categories)) {
-      $points = $points["Products"][$category];
+     } if($i > 0) {
+      $r = [
+       "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
+      ];
      } else {
-      $points = $points["Default"];
-     } if(!in_array($id, $newProducts)) {
-      array_push($newProducts, $id);
-      $shop["Products"] = array_unique($newProducts);
-     }
-     $product = [
-      "Attachments" => $attachments,
-      "Body" => $this->core->PlainText([
-       "Data" => $data["Body"],
-       "Encode" => 1
-      ]),
-      "Bundled" => $bundle,
-      "Category" => $category,
-      "Cost" => number_format($cost, 2),
-      "Created" => $created,
-      "Description" => htmlentities($data["Description"]),
-      "Disclaimer" => $data["Disclaimer"],
-      "Expires" => $this->core->TimePlus($now, $expirationQuantity, $expirationTimeSpan),
-      "DLC" => $dlc,
-      "ICO" => $coverPhoto,
-      "ICO-SRC" => base64_encode($coverPhotoSource),
-      "ID" => $id,
-      "Illegal" => $illegal,
-      "Instructions" => $instructions,
-      "ModifiedBy" => $modifiedBy,
-      "NSFW" => $data["nsfw"],
-      "Points" => $points,
-      "Privacy" => $data["Privacy"],
-      "Profit" => number_format($profit, 2),
-      "Quantity" => $quantity,
-      "Role" => $data["Role"],
-      "SubscriptionTerm" => $data["SubscriptionTerm"],
-      "Title" => $title,
-      "UN" => $username
-     ];
-     $this->core->Data("Save", ["product", $id, $product]);
-     $this->core->Data("Save", ["shop", md5($you), $shop]);
-     $r = [
-      "Body" => "The Product <em>$title</em> has been $actionTaken!",
-      "Header" => "Done"
-     ];
-     if($new == 1) {
-      $subscribers = $shop["Subscribers"] ?? [];
-      $y["Points"] = $y["Points"] + $points;
-      $this->core->Data("Save", ["mbr", md5($you), $y]);
-      foreach($subscribers as $key => $value) {
-       $this->core->SendBulletin([
-        "Data" => [
-         "ProductID" => $id,
-         "ShopID" => base64_encode(md5($you))
-        ],
-        "To" => $value,
-        "Type" => "NewProduct"
-       ]);
+      $accessCode = "Accepted";
+      $actionTaken = ($new == 1) ? "posted" : "updated";
+      $id = $data["ID"] ?? "";
+      $now = $this->core->timestamp;
+      $product = $this->core->Data("Get", ["product", $id]) ?? [];
+      $attachments = [];
+      $bundle = [];
+      $category = $data["Category"] ?? "Product";
+      $categories = [
+       "Architecture",
+       "Donation",
+       "Download",
+       "Product",
+       "Subscription"
+      ];
+      $cost = $data["Cost"] ?? 0.00;
+      $created = $product["Created"] ?? $now;
+      $coverPhoto = "";
+      $coverPhotoSource = "";
+      $dlc = [];
+      $expirationQuantity = $data["ExpirationQuantity"] ?? 1;
+      $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
+      $illegal = $product["Illegal"] ?? 0;
+      $instructions = $data["Instructions"] ?? 0;
+      $modifiedBy = $product["ModifiedBy"] ?? [];
+      $modifiedBy[$now] = $you;
+      $newProducts = $shop["Products"] ?? [];
+      $points = $this->core->config["PTS"];
+      $profit = $data["Profit"] ?? 0.00;
+      $quantity = $data["Quantity"] ?? "-1";
+      $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
+      $username = $product["UN"] ?? $you;
+      if(!empty($data["rATT$id"])) {
+       $db = explode(";", base64_decode($data["rATT$id"]));
+       $dbc = count($db);
+       for($i = 0; $i < $dbc; $i++) {
+        if(!empty($db[$i])) {
+         $dbi = explode("-", base64_decode($db[$i]));
+         if(!empty($dbi[0]) && !empty($dbi[1])) {
+          array_push($attachments, base64_encode($dbi[0]."-".$dbi[1]));
+         }
+        }
+       }
+      } if(!empty($data["rATTDLC$id"])) {
+       $db = explode(";", base64_decode($data["rATTDLC$id"]));
+       $dbc = count($db);
+       for($i = 0; $i < $dbc; $i++) {
+        if(!empty($db[$i])) {
+         $dbi = explode("-", base64_decode($db[$i]));
+         if(!empty($dbi[0]) && !empty($dbi[1])) {
+          array_push($dlc, base64_encode($dbi[0]."-".$dbi[1]));
+         }
+        }
+       }
+      } if(!empty($data["rATTI$id"])) {
+       $db = explode(";", base64_decode($data["rATTI$id"]));
+       $dbc = count($db);
+       $i2 = 0;
+       for($i = 0; $i < $dbc; $i++) {
+        if(!empty($db[$i]) && $i2 == 0) {
+         $dbi = explode("-", base64_decode($db[$i]));
+         if(!empty($dbi[0]) && !empty($dbi[1])) {
+          $t = $this->core->Member($dbi[0]);
+          $efs = $this->core->Data("Get", [
+           "fs",
+           md5($t["Login"]["Username"])
+          ]) ?? [];
+          $coverPhoto = $dbi[0]."/".$efs["Files"][$dbi[1]]["Name"];
+          $coverPhotoSource = base64_encode($dbi[0]."-".$dbi[1]);
+          $i2++;
+         }
+        }
+       }
+      } if(!empty($data["rATTP$id"])) {
+       $db = explode(";", base64_decode($data["rATTP$id"]));
+       $dbc = count($db);
+       for($i = 0; $i < $dbc; $i++) {
+        if(!empty($db[$i])) {
+         array_push($bundle, $db[$i]);
+        }
+       }
+      } if(in_array($category, $categories)) {
+       $points = $points["Products"][$category];
+      } else {
+       $points = $points["Default"];
+      } if(!in_array($id, $newProducts)) {
+       array_push($newProducts, $id);
+       $shop["Products"] = array_unique($newProducts);
       }
-      $this->core->Statistic("PROD");
-     } else {
-      $this->core->Statistic("PRODu");
+      $product = [
+       "Attachments" => $attachments,
+       "Body" => $this->core->PlainText([
+        "Data" => $data["Body"],
+        "Encode" => 1
+       ]),
+       "Bundled" => $bundle,
+       "Category" => $category,
+       "Cost" => number_format($cost, 2),
+       "Created" => $created,
+       "Description" => htmlentities($data["Description"]),
+       "Disclaimer" => $data["Disclaimer"],
+       "Expires" => $this->core->TimePlus($now, $expirationQuantity, $expirationTimeSpan),
+       "DLC" => $dlc,
+       "ICO" => $coverPhoto,
+       "ICO-SRC" => base64_encode($coverPhotoSource),
+       "ID" => $id,
+       "Illegal" => $illegal,
+       "Instructions" => $instructions,
+       "ModifiedBy" => $modifiedBy,
+       "NSFW" => $data["nsfw"],
+       "Points" => $points,
+       "Privacy" => $data["Privacy"],
+       "Profit" => number_format($profit, 2),
+       "Quantity" => $quantity,
+       "Role" => $data["Role"],
+       "SubscriptionTerm" => $data["SubscriptionTerm"],
+       "Title" => $title,
+       "UN" => $username
+      ];
+      $this->core->Data("Save", ["product", $id, $product]);
+      $this->core->Data("Save", ["shop", md5($you), $shop]);
+      $r = [
+       "Body" => "The Product <em>$title</em> has been $actionTaken!",
+       "Header" => "Done"
+      ];
+      if($new == 1) {
+       $subscribers = $shop["Subscribers"] ?? [];
+       $y["Points"] = $y["Points"] + $points;
+       $this->core->Data("Save", ["mbr", md5($you), $y]);
+       foreach($subscribers as $key => $value) {
+        $this->core->SendBulletin([
+         "Data" => [
+          "ProductID" => $id,
+          "ShopID" => base64_encode(md5($you))
+         ],
+         "To" => $value,
+         "Type" => "NewProduct"
+        ]);
+       }
+       $this->core->Statistic("PROD");
+      } else {
+       $this->core->Statistic("PRODu");
+      }
      }
     }
    }

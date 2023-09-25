@@ -4,6 +4,104 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Username());
   }
+  function Add(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $invoice = $data["Invoice"] ?? "";
+   $r = [
+    "Body" => "The Charge or Invoice Identifier are missing."
+   ];
+   $shopID = $data["Shop"] ?? "";
+   $type = $data["Type"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($invoice) && !empty($type)) {
+    $r = [
+     "Body" => "The Shop Identifier is missing."
+    ];
+    if(!empty($shopID)) {
+     $check = 0;
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+     $r = [
+      "Body" => "You are not authorized to add a $type.",
+      "Header" => "Forbidden"
+     ];
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     foreach($shop["Contributors"] as $member => $role) {
+      if($check == 0 && $member == $you) {
+       $check++;
+      }
+     } if($check == 1 && $isAdmin == 1) {
+      if($type == "Charge") {} elseif($type == "Note") {}
+      $accessCode = "Accepted";
+      $r = [
+       "Body" => "Add a new $type to Invoice $invoice."
+      ];
+     }
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
+   ]);
+  }
+  function DeletePreset(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $preset = $data["Preset"] ?? "";
+   $r = [
+    "Body" => "The Charge or Invoice Identifier are missing."
+   ];
+   $shopID = $data["Shop"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($preset)) {
+    $r = [
+     "Body" => "The Shop Identifier is missing."
+    ];
+    if(!empty($shopID)) {
+     $check = 0;
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+     $r = [
+      "Body" => "You are not authorized to delete Pre-sets.",
+      "Header" => "Forbidden"
+     ];
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     foreach($shop["Contributors"] as $member => $role) {
+      if($check == 0 && $member == $you) {
+       $check++;
+      }
+     } if($check == 1 && $isAdmin == 1) {
+      $accessCode = "Accepted";
+      $r = [
+       "Body" => "Delete Pre-Set $preset."
+      ];
+     }
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
+   ]);
+  }
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -13,6 +111,7 @@
    $r = [
     "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
+   $shop = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -20,156 +119,187 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
-    $accessCode = "Accepted";
-    $charges = [];
-    $isPreset = $data["Preset"] ?? 0;
-    if($isPreset == 1) {
-     $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
-     $changeData = [
-      "[Invoice.Charges]" => json_encode($charges, true)
-     ];
-     $template = "UpdatePreset";
-    } else {
-     $id = ($new == 1) ? md5("Invoice$you".uniqid()) : $id;
-     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
-     $invoice = $this->core->FixMissing($invoice, [
-      "ChargeTo",
-      "Email",
-      "Phone"
-     ]);
-     if($new == 1) {
-      $charges = [
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeTitle[]",
-         "placeholder" => "Deposit",
-         "type" => "text"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Title"
-        ],
-        "Type" => "Text",
-        "Value" => ""
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeDescription[]",
-         "placeholder" => "Why are you placing this charge?",
-         "type" => "text"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Description"
-        ],
-        "Type" => "TextBox",
-        "Value" => ""
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeValue[]",
-         "placeholder" => "50.00",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Amount"
-        ],
-        "Type" => "Text",
-        "Value" => base64_encode("50.00")
-       ]
+    $r = [
+     "Body" => "The Shop Identifier is missing."
+    ];
+    if(!empty($shop)) {
+     $accessCode = "Accepted";
+     $charges = [];
+     $isPreset = $data["Preset"] ?? 0;
+     if($isPreset == 1) {
+      $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
+      $changeData = [
+       "[Invoice.Charges]" => json_encode($charges, true),
+       "[Invoice.Shop]" => $shop
       ];
+      $template = "UpdatePreset";
      } else {
-      $invoiceCharges = $invoice["Charges"] ?? [];
-      for($i = 0; $i < count($invoiceCharges); $i++) {
-       $title = [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeTitle[]",
-         "placeholder" => "Deposit",
-         "type" => "text"
+      $id = ($new == 1) ? md5("Invoice$you".uniqid()) : $id;
+      $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+      $invoice = $this->core->FixMissing($invoice, [
+       "ChargeTo",
+       "Email",
+       "Phone"
+      ]);
+      if($new == 1) {
+       $charges = [
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeTitle[]",
+          "placeholder" => "Deposit",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => ""
         ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Title"
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeDescription[]",
+          "placeholder" => "Why are you placing this charge?",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => ""
         ],
-        "Type" => "Text",
-        "Value" => base64_encode($invoiceCharges["ChargeTitle"][$i])
+        [
+         "Attributes" => [
+          "name" => "ChargePaid[]",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => 0
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeValue[]",
+          "placeholder" => "50.00",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Amount"
+         ],
+         "Type" => "Text",
+         "Value" => base64_encode("50.00")
+        ]
        ];
-       $description = [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeDescription[]",
-         "placeholder" => "Why are you placing this charge?",
-         "type" => "text"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Description"
-        ],
-        "Type" => "TextBox",
-        "Value" => base64_encode($invoiceCharges["ChargeDescription"][$i])
-       ];
-       $value = [
-        "Attributes" => [
-         "class" => "CheckIfNumeric req",
-         "data-symbols" => "Y",
-         "name" => "ChargeValue[]",
-         "placeholder" => "50.00",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Amount"
-        ],
-        "Type" => "Text",
-        "Value" => base64_encode($invoiceCharges["ChargeValue"][$i])
-       ];
-       array_push($charges, $title);
-       array_push($charges, $description);
-       array_push($charges, $value);
+      } else {
+       $invoiceCharges = $invoice["Charges"] ?? [];
+       for($i = 0; $i < count($invoiceCharges); $i++) {
+        $title = [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeTitle[]",
+          "placeholder" => "Deposit",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => base64_encode($invoiceCharges["Title"][$i])
+        ];
+        $description = [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeDescription[]",
+          "placeholder" => "Why are you placing this charge?",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => base64_encode($invoiceCharges["Description"][$i])
+        ];
+        $paid = [
+         "Attributes" => [
+          "name" => "ChargePaid[]",
+          "type" => "hidden"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Amount"
+         ],
+         "Type" => "Text",
+         "Value" => base64_encode($invoiceCharges["Paid"][$i])
+        ];
+        $value = [
+         "Attributes" => [
+          "class" => "CheckIfNumeric req",
+          "data-symbols" => "Y",
+          "name" => "ChargeValue[]",
+          "placeholder" => "50.00",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Amount"
+         ],
+         "Type" => "Text",
+         "Value" => base64_encode($invoiceCharges["Value"][$i])
+        ];
+        array_push($charges, $title);
+        array_push($charges, $description);
+        array_push($charges, $paid);
+        array_push($charges, $value);
+       }
       }
+      $back = ($new == 1) ? $this->core->Element(["button", "Back", [
+       "class" => "GoToParent v2 v2w",
+       "data-type" => "ProductEditors"
+      ]]) : "&nbsp;";
+      $username = $invoice["UN"] ?? $you;
+      $changeData = [
+       "[Invoice.ChargeClone]" => base64_encode($this->core->Page("cfc6f5b795f1254de32ef292325292a6")),
+       "[Invoice.Back]" => $back,
+       "[Invoice.Charges]" => json_encode($charges, true),
+       "[Invoice.ChargeTo]" => base64_encode($invoice["ChargeTo"]),
+       "[Invoice.Email]" => base64_encode($invoice["Email"]),
+       "[Invoice.ID]" => $id,
+       "[Invoice.Phone]" => base64_encode($invoice["Phone"]),
+       "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+       "[Invoice.Shop]" => $shop,
+       "[Invoice.Username]" => $username
+      ];
+      $template = ($new == 1) ? "e372b28484951c22fe9920317c852436" : "AddCharges";
      }
-     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2 v2w",
-      "data-type" => "ProductEditors"
-     ]]) : "&nbsp;";
-     $username = $invoice["UN"] ?? $you;
-     $changeData = [
-      "[Invoice.Back]" => $back,
-      "[Invoice.Charges]" => json_encode($charges, true),
-      "[Invoice.ChargeTo]" => base64_encode($invoice["ChargeTo"]),
-      "[Invoice.Email]" => base64_encode($invoice["Email"]),
-      "[Invoice.ID]" => $id,
-      "[Invoice.New]" => $new,
-      "[Invoice.Phone]" => base64_encode($invoice["Phone"]),
-      "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
-      "[Invoice.Username]" => $username
-     ];
-     $template = ($new == 1) ? "e372b28484951c22fe9920317c852436" : "AddCharges";
+     $r = $this->core->Change([
+      $changeData,
+      $this->core->Page($template)
+     ]);
+     $r = ($card == 1) ? [
+      "Front" => $r
+     ] : $r;
     }
-    $r = $this->core->Change([
-     $changeData,
-     $this->core->Page($template)
-    ]);
-    $r = ($card == 1) ? [
-     "Front" => $r
-    ] : $r;
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -178,6 +308,53 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
+   ]);
+  }
+  function Forward(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $invoice = $data["Invoice"] ?? "";
+   $r = [
+    "Body" => "The Charge or Invoice Identifier are missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($invoice) && !empty($type)) {
+    $r = [
+     "Body" => "The Shop Identifier is missing."
+    ];
+    if(!empty($shopID)) {
+     $check = 0;
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+     $r = [
+      "Body" => "You are not authorized to forward this Invoice.",
+      "Header" => "Forbidden"
+     ];
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     foreach($shop["Contributors"] as $member => $role) {
+      if($check == 0 && $member == $you) {
+       $check++;
+      }
+     } if($check == 1 && $isAdmin == 1) {
+      $accessCode = "Accepted";
+      $r = [
+       "Body" => "Invoice forwarder under construction."
+      ];
+     }
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
    ]);
   }
   function Hire(array $a) {
@@ -268,6 +445,7 @@
    $r = [
     "Body" => "The Charge or Invoice Identifier are missing."
    ];
+   $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -275,11 +453,28 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($charge) && !empty($invoice)) {
-    // CHECK IF YOU CREATED THE INVOICE OR ARE A SHOP CONTRIBUTOR
-    $accessCode = "Accepted";
     $r = [
-     "Body" => "Refund for charge $charge on Invoice $invoice."
+     "Body" => "The Shop Identifier is missing."
     ];
+    if(!empty($shopID)) {
+     $check = 0;
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+     $r = [
+      "Body" => "You are not authorized to add a $type.",
+      "Header" => "Forbidden"
+     ];
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     foreach($shop["Contributors"] as $member => $role) {
+      if($check == 0 && $member == $you) {
+       $check++;
+      }
+     } if($check == 1 && $isAdmin == 1) {
+      $accessCode = "Accepted";
+      $r = [
+       "Body" => "Refund for charge $charge on Invoice $invoice."
+      ];
+     }
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -294,11 +489,17 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, [
+    "Email",
+    "Phone",
+    "Username"
+   ]);
    $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
    $responseType = "Dialog";
+   $shopID = $data["Shop"] ?? "";
    $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -307,55 +508,128 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
-    $charges = [];
-    $isPreset = $data["Preset"] ?? 0;
     $r = [
-     "Body" => "The Service Title is missing."
+     "Body" => "The Shop Identifier is missing."
     ];
-    $title = $data["Title"] ?? "";
-    if(!empty($title) && $isPreset == 1) {
-     $accessCode = "Accepted";
-     $description = $data["ChargeDescription"][0] ?? "Unknown";
-     $serviceTitle = $title ?? "New Service";
-     $title = $data["ChargeTitle"][0] ?? "Unknown";
-     $value = $data["ChargeValue"][0] ?? 0.00;
-     array_push($charges, [
-      "Description" => $description,
-      "Paid" => 0,
-      "Title" => $title,
-      "Value" => $value
-     ]);
-     $r = "Update Pre-set<br/>Data Model: ".json_encode([
-      "Charges" => $charges,
-      "Notes" => [],
-      "PaidInFull" => 0,
-      "Status" => "Open",
-      "Title" => $serviceTitle,
-      "UN" => $you
-     ], true);
-     $responseType = "UpdateText";
-    } elseif($isPreset == 0) {
+    if(!empty($shopID)) {
      $check = 0;
-     $member = $data["ChargeTo"] ?? "";
-     $members = $this->core->DatabaseSet("MBR");
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
      $r = [
-      "Body" => "We could not find the Member <strong>$member</strong>."
+      "Body" => "You are not authorized to manage Invoices.",
+      "Header" => "Forbidden"
      ];
-     foreach($members as $key => $value) {
-      $value = str_replace("c.oh.mbr.", "", $value);
-      if($check == 0) {
-       $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
-       if($member == $t["Login"]["Username"]) {
-        $check++;
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     foreach($shop["Contributors"] as $member => $role) {
+      if($check == 0 && $member == $you) {
+       $check++;
+      }
+     } if($check == 1 && $isAdmin == 1) {
+      $charges = [];
+      $isPreset = $data["Preset"] ?? 0;
+      $r = [
+       "Body" => "The Service Title is missing."
+      ];
+      $title = $data["Title"] ?? "";
+      if(!empty($title) && $isPreset == 1) {
+       $accessCode = "Accepted";
+       $description = $data["ChargeDescription"][0] ?? "Unknown";
+       $service = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
+       $serviceTitle = $title ?? "New Service";
+       $title = $data["ChargeTitle"][0] ?? "Unknown";
+       $value = $data["ChargeValue"][0] ?? 0.00;
+       $service = [
+        "Charges" => [
+         "Description" => $description,
+         "Paid" => 0,
+         "Title" => $title,
+         "Value" => $value
+        ],
+        "Notes" => [],
+        "PaidInFull" => 0,
+        "Shop" => $shopID,
+        "Status" => "Open",
+        "Title" => $serviceTitle,
+        "UN" => $you
+       ];
+       $services = $shop["InvoicePresets"] ?? [];
+       array_push($services, $id);
+       $services = array_unique($services);
+       $this->core->Data("Save", ["invoice-preset", $id, $service]);
+       $this->core->Data("Save", ["shop", $shopID, $shop]);
+       $r = "Update Pre-set";
+       $responseType = "UpdateText";
+      } elseif($isPreset == 0) {
+       $check = 0;
+       $member = $data["ChargeTo"] ?? "";
+       $members = $this->core->DatabaseSet("MBR");
+       $r = [
+        "Body" => "We could not find the Member <strong>$member</strong>."
+       ];
+       foreach($members as $key => $value) {
+        $value = str_replace("c.oh.mbr.", "", $value);
+        if($check == 0) {
+         $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
+         if($member == $t["Login"]["Username"]) {
+          $check++;
+         }
+        }
+       } if((!empty($member) && $check == 1) || $check == 0) {
+        $accessCode = "Accepted";
+        $chargeCount = count($data["ChargeTitle"]);
+        $charges = [];
+        for($i = 0; $i <= $chargeCount; $i++) {
+         $description = $data["ChargeDescription"][$i] ?? "Unknown";
+         $paid = $data["ChargePaid"][$i] ?? 0;
+         $title = $data["ChargeTitle"][$i] ?? "Unknown";
+         $value = $data["ChargeValue"][$i] ?? 0.00;
+         array_push($charges, [
+          "Description" => $description,
+          "Paid" => $paid,
+          "Title" => $title,
+          "Value" => $value
+         ]);
+        }
+        $invoice = [
+         "ChargeTo" => $member,
+         "Charges" => $charges,
+         "Email" => $data["Email"],
+         "Notes" => [],
+         "PaidInFull" => 0,
+         "Phone" => $data["Phone"],
+         "Shop" => $shopID,
+         "Status" => "Open",
+         "UN" => $you
+        ];
+        $invoices = $shop["Invoices"] ?? [];
+        array_push($invoices, $id);
+        $invoices = array_unique($invoices);
+        #$this->core->Data("Save", ["invoice", $id, $invoice]);
+        #$this->core->Data("Save", ["shop", $shopID, $shop]);
+        if(!empty($data["Email"])) {
+         $this->core->SendEmail([
+          "Message" => $this->core->Change([[
+           "[Email.Header]" => "{email_header}",
+           "[Email.Message]" => "Please see the Invoice linked in this email.",
+           "[Email.Name]" => $data["Email"],
+           "[Email.Link]" => $this->core->base."/invoice/$id"
+          ], $this->core->Page("dc901043662c5e71b5a707af782fdbc1")]),
+          "Title" => "Invoice $id",
+          "To" => $data["Email"]
+         ]);
+        } if(!empty($member)) {
+         # Forward via Bulletin
+        }
+        $r = [
+         "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
+         "Scrollable" => json_encode([
+          $invoice,
+          $invoices
+         ], true),
+         "Header" => "Done"
+        ];
+        #$success = "CloseCard";
        }
       }
-     } if((!empty($member) && $check == 1) || $check == 0) {
-      $accessCode = "Accepted";
-      $r = [
-       "Body" => "New invoice processor under construction.",
-       "Header" => "Done"
-      ];
-      $success = "CloseCard";
      }
     }
    }
