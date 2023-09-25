@@ -192,7 +192,7 @@
    # INVOICE
    $r = $gw->view(base64_encode("WebUI:Containers"), []);
    if(!empty($c[1])) {
-    $r = $gw->core->view(base64_encode("Invoice:Home"), ["Data" => [
+    $r = $gw->view(base64_encode("Invoice:Home"), ["Data" => [
      "ID" => $c[1],
      "pub" => 1
     ]]);

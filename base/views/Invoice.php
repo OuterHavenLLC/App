@@ -490,7 +490,6 @@
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
-    "Email",
     "Phone",
     "Username"
    ]);
@@ -574,60 +573,67 @@
          }
         }
        } if((!empty($member) && $check == 1) || $check == 0) {
-        $accessCode = "Accepted";
-        $chargeCount = count($data["ChargeTitle"]);
-        $charges = [];
-        for($i = 0; $i <= $chargeCount; $i++) {
-         $description = $data["ChargeDescription"][$i] ?? "Unknown";
-         $paid = $data["ChargePaid"][$i] ?? 0;
-         $title = $data["ChargeTitle"][$i] ?? "Unknown";
-         $value = $data["ChargeValue"][$i] ?? 0.00;
-         array_push($charges, [
-          "Description" => $description,
-          "Paid" => $paid,
-          "Title" => $title,
-          "Value" => $value
-         ]);
-        }
-        $invoice = [
-         "ChargeTo" => $member,
-         "Charges" => $charges,
-         "Email" => $data["Email"],
-         "Notes" => [],
-         "PaidInFull" => 0,
-         "Phone" => $data["Phone"],
-         "Shop" => $shopID,
-         "Status" => "Open",
-         "UN" => $you
-        ];
-        $invoices = $shop["Invoices"] ?? [];
-        array_push($invoices, $id);
-        $invoices = array_unique($invoices);
-        #$this->core->Data("Save", ["invoice", $id, $invoice]);
-        #$this->core->Data("Save", ["shop", $shopID, $shop]);
-        if(!empty($data["Email"])) {
-         $this->core->SendEmail([
-          "Message" => $this->core->Change([[
-           "[Email.Header]" => "{email_header}",
-           "[Email.Message]" => "Please see the Invoice linked in this email.",
-           "[Email.Name]" => $data["Email"],
-           "[Email.Link]" => $this->core->base."/invoice/$id"
-          ], $this->core->Page("dc901043662c5e71b5a707af782fdbc1")]),
-          "Title" => "Invoice $id",
-          "To" => $data["Email"]
-         ]);
-        } if(!empty($member)) {
-         # Forward via Bulletin
-        }
         $r = [
-         "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
-         "Scrollable" => json_encode([
-          $invoice,
-          $invoices
-         ], true),
-         "Header" => "Done"
+         "Body" => "An e-mail address is required in order for us ensure your Invoice is sent to the proper recipient."
         ];
-        #$success = "CloseCard";
+        if(!empty($data["Email"])) {
+         $accessCode = "Accepted";
+         $chargeCount = count($data["ChargeTitle"]);
+         $charges = [];
+         for($i = 0; $i < $chargeCount; $i++) {
+          $description = $data["ChargeDescription"][$i] ?? "Unknown";
+          $paid = $data["ChargePaid"][$i] ?? 0;
+          $title = $data["ChargeTitle"][$i] ?? "Unknown";
+          $value = $data["ChargeValue"][$i] ?? 0.00;
+          array_push($charges, [
+           "Description" => $description,
+           "Paid" => $paid,
+           "Title" => $title,
+           "Value" => $value
+          ]);
+         }
+         $invoice = [
+          "ChargeTo" => $member,
+          "Created" => $this->core->timestamp,
+          "Charges" => $charges,
+          "Email" => $data["Email"],
+          "Notes" => [],
+          "PaidInFull" => 0,
+          "Phone" => $data["Phone"],
+          "Shop" => $shopID,
+          "Status" => "Open",
+          "UN" => $you
+         ];
+         $invoices = $shop["Invoices"] ?? [];
+         array_push($invoices, $id);
+         $invoices = array_unique($invoices);
+         $name = $data["ChargeTo"] ?? $data["Email"];
+         #$this->core->Data("Save", ["invoice", $id, $invoice]);
+         #$this->core->Data("Save", ["shop", $shopID, $shop]);
+         if(!empty($data["Email"])) {
+          $this->core->SendEmail([
+           "Message" => $this->core->Change([[
+            "[Email.Header]" => "{email_header}",
+            "[Email.Message]" => "Please review the Invoice linked below.",
+            "[Email.Name]" => $name,
+            "[Email.Link]" => $this->core->base."/invoice/$id"
+           ], $this->core->Page("dc901043662c5e71b5a707af782fdbc1")]),
+           "Title" => "Invoice $id",
+           "To" => $data["Email"]
+          ]);
+         } if(!empty($member)) {
+          # Forward via Bulletin
+         }
+         $r = [
+          "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
+          "Scrollable" => json_encode([
+           $invoice,
+           $invoices
+          ], true),
+          "Header" => "Done"
+         ];
+         #$success = "CloseCard";
+        }
        }
       }
      }
