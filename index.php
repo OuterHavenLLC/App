@@ -197,6 +197,7 @@
      "pub" => 1
     ]]);
    }
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "search") {
    # SEARCH
    $r = $gw->view(base64_encode("Search:ReSearch"), ["Data" => [

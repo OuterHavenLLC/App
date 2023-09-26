@@ -375,13 +375,11 @@
      $shop = $data["Shop"] ?? "";
      $li .= "&Shop=$shop&st=$st";
      $lis = "Search Services";
-     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "SHOP-Invoices") {
      $h = "Invoices";
      $shop = $data["Shop"] ?? "";
      $li .= "&Shop=$shop&st=$st";
      $lis = "Search Invoices";
-     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "SHOP-Products") {
      $h = "Products";
      $username = $data["UN"] ?? base64_encode($you);
@@ -443,7 +441,12 @@
      "[UI.s]" => $lis,
      "[XS.UI]" => $li
     ], $this->core->Page($tpl)]);
-   } if(in_array($st, ["DC", "FAB", "SHOP-InvoicePresets", "SHOP-Invoices"])) {
+   } if(in_array($st, [
+     "DC",
+     "FAB",
+     "SHOP-InvoicePresets",
+     "SHOP-Invoices"
+    ])) {
     $r = [
      "Front" => $r
     ];
@@ -1177,21 +1180,24 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     ];
    } elseif($st == "DC") {
     $ec = "Accepted";
-    $tpl = $this->core->Page("3bfe162215ac1c6a69e6eb0e2baf3cdb");
+    $tpl = $this->core->Page("e9f34ca1985c166bf7aa73116a745e92");
     if($notAnon == 1) {
-     $dcd = base64_encode("Authentication:DeleteDiscountCode");
-     $dce = base64_encode("DiscountCode:Edit");
      $x = $this->core->Data("Get", [
       "dc",
       md5($y["Login"]["Username"])
      ]) ?? [];
-     foreach($x as $k => $v) {
+     foreach($x as $key => $value) {
+      $options = $this->core->Element(["button", "Delete", [
+       "class" => "A OpenDialog v2",
+       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteDiscountCode")."&ID=$key")
+      ]]).$this->core->Element(["button", "Edit", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("DiscountCode:Edit")."&ID=$key")
+      ]]);
       array_push($msg, [
-       "[X.LI.Discount.Code]" => $v["Code"],
-       "[X.LI.Discount.Delete]" => base64_encode("v=$dcd&ID=$k"),
-       "[X.LI.Discount.Edit]" => base64_encode(base64_encode("v=$dce&ID=$k")),
-       "[X.LI.Discount.Percentile]" => base64_encode($v["Percentile"]),
-       "[X.LI.Discount.Quantity]" => base64_encode($v["Quantity"])
+       "[ListItem.Description]" => base64_encode($value["Percentile"]."% Off: ".$value["Quantity"]),
+       "[ListItem.Options]" => base64_encode($options),
+       "[ListItem.Title]" => $value["Code"]
       ]);
      }
     }
@@ -2080,18 +2086,42 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "shop",
      $data["Shop"]
     ]) ?? [];
-    $shopInvoicePresets = $shop["InvoicePresets"] ?? [];
-    $tpl = $this->core->Element(["p", "Service"]);
-    #$tpl = $this->core->Page("ServiceListItem");
+    $invoicePresets = $shop["InvoicePresets"] ?? [];
+    $tpl = $this->core->Page("e9f34ca1985c166bf7aa73116a745e92");
+    foreach($invoicePresets as $key => $value) {
+     $preset = $this->core->Data("Get", [
+      "invoice-preset",
+      $value
+     ]) ?? [];
+     if(!empty($preset)) {
+      array_push($msg, [
+       "[ListItem.Description]" => base64_encode("A service currently on offer by ".$shop["Title"]),
+       "[ListItem.Options]" => base64_encode("&nbsp;"),
+       "[ListItem.Title]" => base64_encode($preset["Title"])
+      ]);
+     }
+    }
    } elseif($st == "SHOP-Invoices") {
     $ec = "Accepted";
     $shop = $this->core->Data("Get", [
      "shop",
      $data["Shop"]
     ]) ?? [];
-    $shopInvoices = $shop["Invoices"] ?? [];
-    $tpl = $this->core->Element(["p", "Invoice"]);
-    #$tpl = $this->core->Page("InvoiceListItem");
+    $invoices = $shop["Invoices"] ?? [];
+    $tpl = $this->core->Page("e9f34ca1985c166bf7aa73116a745e92");
+    foreach($invoices as $key => $value) {
+     $invoice = $this->core->Data("Get", [
+      "invoice",
+      $value
+     ]) ?? [];
+     if(!empty($invoice)) {
+      array_push($msg, [
+       "[ListItem.Description]" => base64_encode("An Invoice created by ".$invoice["UN"]),
+       "[ListItem.Options]" => base64_encode("&nbsp;"),
+       "[ListItem.Title]" => base64_encode("Invoice $value")
+      ]);
+     }
+    }
    } elseif($st == "SHOP-Orders") {
     $ec = "Accepted";
     $tpl = $this->core->Page("504e2a25db677d0b782d977f7b36ff30");
@@ -2099,21 +2129,20 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "po",
      md5($y["Login"]["Username"])
     ]) ?? [];
-    foreach($x as $k => $v) {
-     $c = base64_encode("Shop:CompleteOrder");
-     $c = ($v["Complete"] == 0) ? $this->core->Element(["button", "Mark as Complete", [
+    foreach($x as $key => $value) {
+     $ccomplete = ($value["Complete"] == 0) ? $this->core->Element(["button", "Mark as Complete", [
       "class" => "BB BBB CompleteOrder v2 v2w",
-      "data-u" => base64_encode("v=$c&ID=".base64_encode($k))
+      "data-u" => base64_encode("v=".base64_encode("Shop:CompleteOrder")."&ID=".base64_encode($key))
      ]]) : "";
-     $t = $this->core->Member($v["Login"]["Username"]);
+     $t = $this->core->Member($value["Login"]["Username"]);
      $t = $this->core->ProfilePicture($t, "margin:5%;width:90%");
      array_push($msg, [
-      "[X.LI.Order.Complete]" => base64_encode($c),
-      "[X.LI.Order.Instructions]" => $v["Instructions"],
-      "[X.LI.Order.ProductID]" => base64_encode($v["ProductID"]),
+      "[X.LI.Order.Complete]" => base64_encode($complete),
+      "[X.LI.Order.Instructions]" => $value["Instructions"],
+      "[X.LI.Order.ProductID]" => base64_encode($value["ProductID"]),
       "[X.LI.Order.ProfilePicture]" => base64_encode($t),
-      "[X.LI.Order.Quantity]" => base64_encode($v["QTY"]),
-      "[X.LI.Order.UN]" => base64_encode($v["Login"]["Username"])
+      "[X.LI.Order.Quantity]" => base64_encode($value["QTY"]),
+      "[X.LI.Order.UN]" => base64_encode($value["Login"]["Username"])
      ]);
     }
    } elseif($st == "US-SU") {

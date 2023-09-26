@@ -314,6 +314,7 @@
    $_ViewTitle = $this->core->config["App"]["Name"];
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
    $pub = $data["pub"] ?? 0;
    $r = [
@@ -323,16 +324,28 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $_ViewTitle = "Invoice $id";
-    $accessCode = "Accepted";
-    // Allows you to view invoice via the Card
-    // Allows client to view the invoice via DOMAIN/invoice/$id
-    $r = $this->core->Element([
-     "h1", "Invoice $id"
-    ]).$this->core->Element([
-     "p", "We are working on this, the Invoice Identifier is $id."
-    ]);
-   }
-   if($pub == 1) {
+    $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+    $r = [
+     "Body" => "We could not find any data for Invoice $id."
+    ];
+    if(!empty($invoice)) {
+     $_Shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
+     $_ViewTitle = "Invoice from ".$_Shop["Title"];
+     $accessCode = "Accepted";
+     // Allows you to view invoice via the Card
+     // Allows client to view the invoice via DOMAIN/invoice/$id
+     $r = $this->core->Element([
+      "h1", "Invoice", ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "p", "We are working on this, the Invoice Identifier is $id.",
+      ["class" => "CenterText"]
+     ]);
+    }
+   } if($card == 1) {
+    $r = [
+     "Front" => $r
+    ];
+   } elseif($pub == 1) {
     if($this->core->ID == $you) {
      $r = $this->view(base64_encode("WebUI:OptIn"), []);
      $r = $this->core->RenderView($r);
@@ -346,7 +359,7 @@
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
-    "Web" => $r
+     "Web" => $r
     ],
     "ResponseType" => "View",
     "Title" => $_ViewTitle
@@ -468,8 +481,9 @@
        $services = $shop["InvoicePresets"] ?? [];
        array_push($services, $id);
        $services = array_unique($services);
-       #$this->core->Data("Save", ["invoice-preset", $id, $service]);
-       #$this->core->Data("Save", ["shop", $shopID, $shop]);
+       $shop["InvoicePresets"] = $services;
+       $this->core->Data("Save", ["invoice-preset", $id, $service]);
+       $this->core->Data("Save", ["shop", $shopID, $shop]);
        $r = "Update Pre-set";
        $responseType = "UpdateText";
       } elseif($isPreset == 0) {
@@ -512,7 +526,7 @@
            "[Invoice.Charge.Title]" => $title,
            "[Invoice.Charge.Value]" => $this->core->Element([
             "p", "$".number_format($value, 2),
-            ["class" => "RightText"]
+            ["class" => "DesktopRightText"]
            ])
           ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
          }
@@ -532,6 +546,7 @@
          array_push($invoices, $id);
          $invoices = array_unique($invoices);
          $name = $data["ChargeTo"] ?? $data["Email"];
+         $shop["Invoices"] = $invoices;
          if(!empty($data["Email"])) {
           $this->core->SendEmail([
            "Message" => $this->core->Change([[
@@ -547,27 +562,23 @@
            "To" => $data["Email"]
           ]);
          } if(!empty($member)) {
-          /*$this->core->SendBulletin([
+          $this->core->SendBulletin([
            "Data" => [
             "Invoice" => $id,
             "Shop" => $shopID
            ],
            "To" => $member,
            "Type" => "Invoice"
-          ]);*/
+          ]);
          }
-         #$this->core->Statistic("NewInvoice");
-         #$this->core->Data("Save", ["invoice", $id, $invoice]);
-         #$this->core->Data("Save", ["shop", $shopID, $shop]);
+         $this->core->Statistic("NewInvoice");
+         $this->core->Data("Save", ["invoice", $id, $invoice]);
+         $this->core->Data("Save", ["shop", $shopID, $shop]);
          $r = [
           "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
-          "Scrollable" => json_encode([
-           $invoice,
-           $invoices
-          ], true),
           "Header" => "Done"
          ];
-         #$success = "CloseCard";
+         $success = "CloseCard";
         }
        }
       }
