@@ -46,6 +46,10 @@
     $message = "Invited you to contribute to their Blog.";
    } elseif($type == "InviteToForum") {
     $message = "Invited you to their Forum.";
+   } elseif($type == "Invoice") {
+    $message = "Sent you an invoice. Click or tap below, or gop to <em>".$this->core->base."/invoice/".$data["Invoice"]."</em> to view the invoice or make any necessary payments.";
+   } elseif($type == "InvoiceUpdate") {
+    $message = "Updated Invoice <em>".$data["Invoice"]."</em>.";
    } elseif($type == "NewBlogPost") {
     $message = "Posted to their blog.";
    } elseif($type == "NewProduct") {
@@ -76,8 +80,8 @@
      $page = $this->core->Data("Get", ["pg", $data["ArticleID"]]) ?? [];
      $r = $this->core->Element([
       "button", "Take me to <em>".$page["Title"]."</em>", [
-       "class" => "BBB Close MarkAsRead dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&ID=".$data["ArticleID"]),
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&ID=".$data["ArticleID"]),
        "data-MAR" => base64_encode($mar),
        "data-target" => ".Bulletin$id .Options"
       ]
@@ -122,24 +126,40 @@
      ]) ?? [];
      $r = $this->core->Element([
       "button", "Take me to <em>".$article["Title"]."</em>", [
-       "class" => "BBB Close dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("Page:Home")."&CARD=1&ID=".$article["ID"])
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Page:Home")."&CARD=1&ID=".$article["ID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToBlog") {
      $blog = $this->core->Data("Get", ["blg", $data["BlogID"]]) ?? [];
      $r = $this->core->Element([
       "button", "Take me to <em>".$blog["Title"]."</em>", [
-       "class" => "BBB Close dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=".$blog["ID"])
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=".$blog["ID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToForum") {
      $forum = $this->core->Data("Get", ["pf", $data["ForumID"]]) ?? [];
      $r = $this->core->Element([
       "button", "Take me to <em>".$forum["Title"]."</em>", [
-       "class" => "BBB Close dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".$forum["ID"])
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".$forum["ID"])
+      ]
+     ]);
+    } elseif($bulletin["Type"] == "InviteToShop") {
+     $shop = $this->core->Data("Get", ["shop", $data["ShopID"]]) ?? [];
+     $r = $this->core->Element([
+      "button", "Take me to <em>".$shop["Title"]."</em>", [
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".$data["ShopID"])
+      ]
+     ]);
+    } elseif($bulletin["Type"] == "Invoice") {
+     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+     $r = $this->core->Element([
+      "button", "View Invoice", [
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
       ]
      ]);
     } elseif($type == "NewBlogPost") {
@@ -194,19 +214,23 @@
       $value["ID"] = $key;
       $t = $this->core->Member($value["From"]);
       $pic = $this->core->ProfilePicture($t, "margin:5%;width:90%");
+      $message = $this->view(base64_encode("Profile:BulletinMessage"), [
+       "Data" => $value
+      ]);
+      $message = $this->core->RenderView($message);
+      $options = $this->view(base64_encode("Profile:BulletinOptions"), [
+       "Data" => [
+        "Bulletin" => base64_encode(json_encode($value))
+       ]
+      ]);
+      $options = $this->core->RenderView($options);
       array_push($r, [
        "Data" => $value["Data"],
        "Date" => $this->core->TimeAgo($value["Sent"]),
        "From" => $t["Personal"]["DisplayName"],
        "ID" => $key,
-       "Message" => $this->view(base64_encode("Profile:BulletinMessage"), [
-        "Data" => $value
-       ]),
-       "Options" => $this->view(base64_encode("Profile:BulletinOptions"), [
-        "Data" => [
-         "Bulletin" => base64_encode(json_encode($value))
-        ]
-       ]),
+       "Message" => $message,
+       "Options" => $options,
        "Picture" => $pic
       ]);
      }

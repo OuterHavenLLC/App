@@ -308,7 +308,7 @@
     foreach($value as $key2 => $value2) {
      $ks = "";
      foreach($value2 as $key3 => $value3) {
-      $stat = $this->core->config["STAT"][$key3] ?? $key3;
+      $stat = $this->core->config["Statistics"][$key3] ?? $key3;
       $ks .= $this->core->Change([[
        "[Statistics.Statistic]" => $this->core->Change([[
         $key3 => $stat

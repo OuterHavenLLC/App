@@ -229,11 +229,11 @@
      "Password" => "V2VCZVNlYXJjaGluQE9ILm55Y14yMDIy",
      "Username" => "research"
     ],
-    "STAT" => [
+    "Statistics" => [
      "FS" => "Feedback Submissions",
      "LI" => "Logins",
      "MBR" => "New Members",
-     "Visits" => "Visitors",
+     "NewInvoice" => "New Invoices",
      "PG" => "New Articles",
      "PGu" => "Article Updates",
      "PROD" => "New Products",
@@ -241,7 +241,8 @@
      "SU" => "Status Updates",
      "SUu" => "Edits to Status Updates",
      "UL" => "File Uploads",
-     "ULu" => "File Updates"
+     "ULu" => "File Updates",
+     "Visits" => "Visitors"
     ],
     "SUB" => [
       "Artist" => [

@@ -24,7 +24,7 @@
      "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&Shop=$shop&new=1"),
      "[Product.Download]" => base64_encode("v=$edit&Editor=Download&Shop=$shop&new=1"),
      "[Product.Product]" => base64_encode("v=$edit&Editor=Product&Shop=$shop&new=1"),
-     "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&Shop=$shop&new=1"),
+     "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&Shop=$shop"),
      "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
     ], $this->core->Page($template)])
    ];

@@ -107,9 +107,10 @@
    $data = $a["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
+   $isPreset = $data["Preset"] ?? 0;
    $new = $data["new"] ?? 0;
    $r = [
-    "Body" => "The Invoice or Pre-set Identifier are missing."
+    "Body" => "The Shop Identifier is missing."
    ];
    $shop = $data["Shop"] ?? "";
    $y = $this->you;
@@ -118,188 +119,102 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($id) || $new == 1) {
-    $r = [
-     "Body" => "The Shop Identifier is missing."
-    ];
-    if(!empty($shop)) {
-     $accessCode = "Accepted";
-     $charges = [];
-     $isPreset = $data["Preset"] ?? 0;
-     if($isPreset == 1) {
-      $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
-      $changeData = [
-       "[Invoice.Charges]" => json_encode($charges, true),
-       "[Invoice.Shop]" => $shop
-      ];
-      $template = "UpdatePreset";
-     } else {
-      $id = ($new == 1) ? md5("Invoice$you".uniqid()) : $id;
-      $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
-      $invoice = $this->core->FixMissing($invoice, [
-       "ChargeTo",
-       "Email",
-       "Phone"
-      ]);
-      if($new == 1) {
-       $charges = [
-        [
-         "Attributes" => [
-          "class" => "req",
-          "name" => "ChargeTitle[]",
-          "placeholder" => "Deposit",
-          "type" => "text"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Title"
-         ],
-         "Type" => "Text",
-         "Value" => ""
-        ],
-        [
-         "Attributes" => [
-          "class" => "req",
-          "name" => "ChargeDescription[]",
-          "placeholder" => "Why are you placing this charge?",
-          "type" => "text"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Description"
-         ],
-         "Type" => "TextBox",
-         "Value" => ""
-        ],
-        [
-         "Attributes" => [
-          "name" => "ChargePaid[]",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => 0
-        ],
-        [
-         "Attributes" => [
-          "class" => "req",
-          "name" => "ChargeValue[]",
-          "placeholder" => "50.00",
-          "type" => "number"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Amount"
-         ],
-         "Type" => "Text",
-         "Value" => base64_encode("50.00")
-        ]
-       ];
-      } else {
-       $invoiceCharges = $invoice["Charges"] ?? [];
-       for($i = 0; $i < count($invoiceCharges); $i++) {
-        $title = [
-         "Attributes" => [
-          "class" => "req",
-          "name" => "ChargeTitle[]",
-          "placeholder" => "Deposit",
-          "type" => "text"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Title"
-         ],
-         "Type" => "Text",
-         "Value" => base64_encode($invoiceCharges["Title"][$i])
-        ];
-        $description = [
-         "Attributes" => [
-          "class" => "req",
-          "name" => "ChargeDescription[]",
-          "placeholder" => "Why are you placing this charge?",
-          "type" => "text"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Description"
-         ],
-         "Type" => "TextBox",
-         "Value" => base64_encode($invoiceCharges["Description"][$i])
-        ];
-        $paid = [
-         "Attributes" => [
-          "name" => "ChargePaid[]",
-          "type" => "hidden"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Amount"
-         ],
-         "Type" => "Text",
-         "Value" => base64_encode($invoiceCharges["Paid"][$i])
-        ];
-        $value = [
-         "Attributes" => [
-          "class" => "CheckIfNumeric req",
-          "data-symbols" => "Y",
-          "name" => "ChargeValue[]",
-          "placeholder" => "50.00",
-          "type" => "number"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Amount"
-         ],
-         "Type" => "Text",
-         "Value" => base64_encode($invoiceCharges["Value"][$i])
-        ];
-        array_push($charges, $title);
-        array_push($charges, $description);
-        array_push($charges, $paid);
-        array_push($charges, $value);
-       }
-      }
-      $back = ($new == 1) ? $this->core->Element(["button", "Back", [
-       "class" => "GoToParent v2 v2w",
-       "data-type" => "ProductEditors"
-      ]]) : "&nbsp;";
-      $username = $invoice["UN"] ?? $you;
-      $changeData = [
-       "[Invoice.ChargeClone]" => base64_encode($this->core->Page("cfc6f5b795f1254de32ef292325292a6")),
-       "[Invoice.Back]" => $back,
-       "[Invoice.Charges]" => json_encode($charges, true),
-       "[Invoice.ChargeTo]" => base64_encode($invoice["ChargeTo"]),
-       "[Invoice.Email]" => base64_encode($invoice["Email"]),
-       "[Invoice.ID]" => $id,
-       "[Invoice.Phone]" => base64_encode($invoice["Phone"]),
-       "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
-       "[Invoice.Shop]" => $shop,
-       "[Invoice.Username]" => $username
-      ];
-      $template = ($new == 1) ? "e372b28484951c22fe9920317c852436" : "AddCharges";
-     }
-     $r = $this->core->Change([
-      $changeData,
-      $this->core->Page($template)
+   } elseif(!empty($shop)) {
+    $accessCode = "Accepted";
+    $charges = [];
+    if(!empty($id) && $isPreset == 1) {
+     $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
+     $changeData = [
+      "[Invoice.Charges]" => json_encode($charges, true),
+      "[Invoice.Shop]" => $shop
+     ];
+     $template = "UpdatePreset";
+    } elseif($isPreset == 0) {
+     $id = md5("Invoice$you".uniqid());
+     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+     $invoice = $this->core->FixMissing($invoice, [
+      "ChargeTo",
+      "Email",
+      "Phone"
      ]);
-     $r = ($card == 1) ? [
-      "Front" => $r
-     ] : $r;
+     $changeData = [
+      "[Invoice.ChargeClone]" => base64_encode($this->core->Page("cfc6f5b795f1254de32ef292325292a6")),
+      "[Invoice.Charges]" => json_encode([
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "ChargeTitle[]",
+         "placeholder" => "Deposit",
+         "type" => "text"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Title"
+        ],
+        "Type" => "Text",
+        "Value" => ""
+       ],
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "ChargeDescription[]",
+         "placeholder" => "Why are you placing this charge?",
+         "type" => "text"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Description"
+        ],
+        "Type" => "TextBox",
+        "Value" => ""
+       ],
+       [
+        "Attributes" => [
+         "name" => "ChargePaid[]",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => 0
+       ],
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "ChargeValue[]",
+         "placeholder" => "50.00",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Container" => 1,
+         "ContainerClass" => "Desktop50 MobileFull",
+         "Header" => 1,
+         "HeaderText" => "Amount"
+        ],
+        "Type" => "Text",
+        "Value" => base64_encode(50.00)
+       ]
+      ], true),
+      "[Invoice.ChargeTo]" => base64_encode($invoice["ChargeTo"]),
+      "[Invoice.Email]" => base64_encode($invoice["Email"]),
+      "[Invoice.ID]" => $id,
+      "[Invoice.Phone]" => base64_encode($invoice["Phone"]),
+      "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+      "[Invoice.Shop]" => $shop,
+      "[Invoice.Username]" => $you
+     ];
+     $template = "e372b28484951c22fe9920317c852436";
     }
+    $r = $this->core->Change([
+     $changeData,
+     $this->core->Page($template)
+    ]);
+    $r = ($card == 1) ? [
+     "Front" => $r
+    ] : $r;
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -553,8 +468,8 @@
        $services = $shop["InvoicePresets"] ?? [];
        array_push($services, $id);
        $services = array_unique($services);
-       $this->core->Data("Save", ["invoice-preset", $id, $service]);
-       $this->core->Data("Save", ["shop", $shopID, $shop]);
+       #$this->core->Data("Save", ["invoice-preset", $id, $service]);
+       #$this->core->Data("Save", ["shop", $shopID, $shop]);
        $r = "Update Pre-set";
        $responseType = "UpdateText";
       } elseif($isPreset == 0) {
@@ -579,6 +494,7 @@
         if(!empty($data["Email"])) {
          $accessCode = "Accepted";
          $chargeCount = count($data["ChargeTitle"]);
+         $chargeList = "";
          $charges = [];
          for($i = 0; $i < $chargeCount; $i++) {
           $description = $data["ChargeDescription"][$i] ?? "Unknown";
@@ -591,6 +507,14 @@
            "Title" => $title,
            "Value" => $value
           ]);
+          $chargeList .= $this->core->Change([[
+           "[Invoice.Charge.Description]" => $description,
+           "[Invoice.Charge.Title]" => $title,
+           "[Invoice.Charge.Value]" => $this->core->Element([
+            "p", "$".number_format($value, 2),
+            ["class" => "RightText"]
+           ])
+          ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
          }
          $invoice = [
           "ChargeTo" => $member,
@@ -608,22 +532,33 @@
          array_push($invoices, $id);
          $invoices = array_unique($invoices);
          $name = $data["ChargeTo"] ?? $data["Email"];
-         #$this->core->Data("Save", ["invoice", $id, $invoice]);
-         #$this->core->Data("Save", ["shop", $shopID, $shop]);
          if(!empty($data["Email"])) {
           $this->core->SendEmail([
            "Message" => $this->core->Change([[
             "[Email.Header]" => "{email_header}",
             "[Email.Message]" => "Please review the Invoice linked below.",
+            "[Email.Invoice]" => $chargeList,
             "[Email.Name]" => $name,
-            "[Email.Link]" => $this->core->base."/invoice/$id"
-           ], $this->core->Page("dc901043662c5e71b5a707af782fdbc1")]),
-           "Title" => "Invoice $id",
+            "[Email.Link]" => $this->core->base."/invoice/$id",
+            "[Email.Shop.Name]" => $shop["Title"],
+            "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+           ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+           "Title" => $shop["Title"].": Invoice $id",
            "To" => $data["Email"]
           ]);
          } if(!empty($member)) {
-          # Forward via Bulletin
+          /*$this->core->SendBulletin([
+           "Data" => [
+            "Invoice" => $id,
+            "Shop" => $shopID
+           ],
+           "To" => $member,
+           "Type" => "Invoice"
+          ]);*/
          }
+         #$this->core->Statistic("NewInvoice");
+         #$this->core->Data("Save", ["invoice", $id, $invoice]);
+         #$this->core->Data("Save", ["shop", $shopID, $shop]);
          $r = [
           "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
           "Scrollable" => json_encode([
