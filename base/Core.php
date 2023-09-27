@@ -1021,9 +1021,7 @@
        "style", $this->Page("669ae04b308fc630f8e06317313d9efe")
       ])
      ]).$this->Element([
-      "body", $this->Change([[
-       "[Email.Message]" => $a["Message"]
-      ], $this->Page("9e8029cbe254a2095c925f085278da2f")])
+      "body", $a["Message"]
      ])
     ]);
     mail($a["To"], $a["Title"], $message, $headers);

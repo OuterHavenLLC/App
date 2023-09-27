@@ -48,6 +48,8 @@
     $message = "Invited you to their Forum.";
    } elseif($type == "Invoice") {
     $message = "Sent you an invoice. Click or tap below, or gop to <em>".$this->core->base."/invoice/".$data["Invoice"]."</em> to view the invoice or make any necessary payments.";
+   } elseif($type == "InvoiceForward") {
+    $message = "Forwarded Invoice <em>".$data["Invoice"]."</em> to you.";
    } elseif($type == "InvoiceUpdate") {
     $message = "Updated Invoice <em>".$data["Invoice"]."</em>.";
    } elseif($type == "NewBlogPost") {
@@ -158,6 +160,22 @@
      $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
      $r = $this->core->Element([
       "button", "View Invoice", [
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
+      ]
+     ]);
+    } elseif($bulletin["Type"] == "InvoiceForward") {
+     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+     $r = $this->core->Element([
+      "button", "View Forwarded Invoice", [
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
+      ]
+     ]);
+    } elseif($bulletin["Type"] == "InvoiceUpdate") {
+     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+     $r = $this->core->Element([
+      "button", "View Updated Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
       ]

@@ -2115,9 +2115,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $value
      ]) ?? [];
      if(!empty($invoice)) {
+      $options = $this->core->Element(["button", "View", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=$value")
+      ]]);
       array_push($msg, [
        "[ListItem.Description]" => base64_encode("An Invoice created by ".$invoice["UN"]),
-       "[ListItem.Options]" => base64_encode("&nbsp;"),
+       "[ListItem.Options]" => base64_encode($options),
        "[ListItem.Title]" => base64_encode("Invoice $value")
       ]);
      }

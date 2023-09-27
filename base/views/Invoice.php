@@ -9,7 +9,7 @@
    $data = $a["Data"] ?? [];
    $invoice = $data["Invoice"] ?? "";
    $r = [
-    "Body" => "The Charge or Invoice Identifier are missing."
+    "Body" => "The Invoice Identifier is missing."
    ];
    $shopID = $data["Shop"] ?? "";
    $type = $data["Type"] ?? "";
@@ -36,10 +36,27 @@
        $check++;
       }
      } if($check == 1 && $isAdmin == 1) {
-      if($type == "Charge") {} elseif($type == "Note") {}
-      $accessCode = "Accepted";
       $r = [
-       "Body" => "Add a new $type to Invoice $invoice."
+       "Body" => "The content type is missing."
+      ];
+      if($type == "Charge") {
+       $accessCode = "Accepted";
+       $r = $this->core->Element([
+        "h1", "Add $type"
+       ]);
+      } elseif($type == "Note") {
+       $accessCode = "Accepted";
+       $viewNotes = $data["ViewNotes"] ?? 0;
+       if($viewNotes == 1) {
+        # Fetch Notes list from here.
+       } else {
+        $r = $this->core->Element([
+         "h1", "Add $type"
+        ]);
+       }
+      }
+      $r = [
+       "Front" => $r
       ];
      }
     }
@@ -59,7 +76,7 @@
    $data = $a["Data"] ?? [];
    $preset = $data["Preset"] ?? "";
    $r = [
-    "Body" => "The Charge or Invoice Identifier are missing."
+    "Body" => "The Invoice Identifier are missing."
    ];
    $shopID = $data["Shop"] ?? "";
    $y = $this->you;
@@ -228,38 +245,37 @@
   function Forward(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $invoice = $data["Invoice"] ?? "";
+   $id = $data["Invoice"] ?? "";
    $r = [
-    "Body" => "The Charge or Invoice Identifier are missing."
+    "Body" => "The Invoice Identifier is missing."
    ];
+   $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($invoice) && !empty($type)) {
+   } elseif(!empty($id)) {
     $r = [
      "Body" => "The Shop Identifier is missing."
     ];
     if(!empty($shopID)) {
-     $check = 0;
-     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+     $accessCode = "Accepted";
+     $action = $this->core->Element(["button", "Forward", [
+      "class" => "CardButton SendData",
+      "data-form" => ".ForwardInvoice$id",
+      "data-processor" => base64_encode("v=".base64_encode("Invoice:Save"))
+     ]]);
+     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+     $r = $this->core->Change([[
+      "[Invoice.ID]" => $id,
+      "[Invoice.Shop]" => $invoice["Shop"]
+     ], $this->core->Page("bef71930eb3342a550ba9e8a971cebe2")]);
      $r = [
-      "Body" => "You are not authorized to forward this Invoice.",
-      "Header" => "Forbidden"
+      "Action" => $action,
+      "Front" => $r
      ];
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-     foreach($shop["Contributors"] as $member => $role) {
-      if($check == 0 && $member == $you) {
-       $check++;
-      }
-     } if($check == 1 && $isAdmin == 1) {
-      $accessCode = "Accepted";
-      $r = [
-       "Body" => "Invoice forwarder under construction."
-      ];
-     }
     }
    }
    return $this->core->JSONResponse([
@@ -332,14 +348,113 @@
      $_Shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
      $_ViewTitle = "Invoice from ".$_Shop["Title"];
      $accessCode = "Accepted";
-     // Allows you to view invoice via the Card
-     // Allows client to view the invoice via DOMAIN/invoice/$id
-     $r = $this->core->Element([
-      "h1", "Invoice", ["class" => "CenterText"]
-     ]).$this->core->Element([
-      "p", "We are working on this, the Invoice Identifier is $id.",
-      ["class" => "CenterText"]
-     ]);
+     $dependency = $data["Dependency"] ?? "";
+     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+     if($dependency == "Charges") {
+      $check = 0;
+      $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
+      $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
+      foreach($shop["Contributors"] as $member => $role) {
+       if($check == 0 && $member == $you) {
+        $check++;
+       }
+      }
+      $check = ($check == 1 || $isAdmin == 1) ? 1 : 0;
+      $charges = $invoice["Charges"] ?? [];
+      $r = "";
+      foreach($charges as $key => $charge) {
+       $description = $charge["Description"] ?? "Unknown";
+       $paid = $charge["Paid"] ?? 0;
+       $refunded = $charge["Refunded"] ?? 0;
+       $title = $charge["Title"] ?? "Unknown";
+       $value = $charge["Value"] ?? 0.00;
+       if($invoice["UN"] != $you) {//TEMP
+       #if($invoice["UN"] == $you) {
+        $value = $this->core->Element([
+         "p", "$".number_format($value, 2),
+         ["class" => "DesktopRightText"]
+        ]);
+       } else {
+        $value = ($paid == 1) ? $this->core->Element([
+         "p", "$".number_format($value, 2),
+         ["class" => "DesktopRightText"]
+        ]) : $this->core->Element([
+         "button", "$".number_format($value, 2),
+         [
+          "class" => "DesktopRight OpenFirSTEPTool v2",
+          "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice")
+         ]
+        ]);
+       }
+       $description.= ($check == 1 && $refunded == 0) ? $this->core->Element([
+        "button", "Refund", [
+         "class" => "v2",
+         "data-view" => base64_encode("#")
+        ]
+       ]) : "";
+       $r .= $this->core->Change([[
+        "[Invoice.Charge.Description]" => $description,
+        "[Invoice.Charge.Title]" => $title,
+        "[Invoice.Charge.Value]" => $value
+       ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+      }
+     } elseif($dependency == "Options") {
+      $check = 0;
+      $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
+      $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
+      foreach($shop["Contributors"] as $member => $role) {
+       if($check == 0 && $member == $you) {
+        $check++;
+       }
+      }
+      $r = ($check == 1 && $isAdmin == 1) ? $this->core->Element([
+       "button", "Add Charge", [
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Charge")
+       ]
+      ]).$this->core->Element([
+       "button", "Notes", [
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Note")
+       ]
+      ]) : "";
+      $r .= $this->core->Element(["button", "Forward", [
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Invoice:Forward")."&Invoice=$id&Shop=".$invoice["Shop"])
+      ]]);
+     } elseif($dependency == "Status") {
+      $status = $invoice["Status"] ?? "Closed";
+      $action = "No action needed.";
+      $action = ($status == "Closed") ? "This Invoice has been paid in full. $action" : $action;
+      $action = ($status == "Open") ? "This invoice is active and subject to change. You may make partial payments where necessary." : $action;
+      $action = ($status == "ReadyForPayment") ? "Make any necessary payments or contact the merchant for further assistance." : $action;
+      $status = ($status == "Open") ? "Open" : $status;
+      $status = ($status == "ReadyForPayment") ? "Ready for Payment" : $status;
+      $r = $this->core->Element([
+       "h4", "Invoice ID: $id", ["class" => "CenterText"]
+      ]).$this->core->Element([
+       "p", "<em>$status</em>", ["class" => "CenterText"]
+      ]).$this->core->Element([
+       "p", $action, ["class" => "CenterText"]
+      ]);
+     } elseif($dependency == "Total") {
+      # Displays: Subtotal, (- Total Paid), Taxes, and Remaining Balance
+      $balance = 0;
+      $paid = 0;
+      $taxes = 0;
+      $subtotal = 0;
+      // LOGIC
+      #$total = number_format($balance, 2);
+     } else {
+      $home = "v=".base64_encode("Invoice:Home")."&ID=$id&Shop=".$invoice["Shop"];
+      $r = $this->core->Change([[
+       "[Invoice.Charges]" => base64_encode("$home&Dependency=Charges"),
+       "[Invoice.ID]" => $id,
+       "[Invoice.Options]" => base64_encode("$home&Dependency=Options"),
+       "[Invoice.Status]" => base64_encode("$home&Dependency=Status"),
+       "[Invoice.Total]" => base64_encode("$home&Dependency=Total")
+      ], $this->core->Page("4a78b78f1ebff90e04a33b52fb5c5e97")]);
+     }
     }
    } if($card == 1) {
     $r = [
@@ -451,13 +566,86 @@
        $check++;
       }
      } if($check == 1 && $isAdmin == 1) {
+      $chargeList = "";
       $charges = [];
+      $isCharge = $data["Charge"] ?? 0;
+      $isNote = $data["Note"] ?? 0;
+      $isForwarding = $data["Forward"] ?? 0;
       $isPreset = $data["Preset"] ?? 0;
       $r = [
        "Body" => "The Service Title is missing."
       ];
       $title = $data["Title"] ?? "";
-      if(!empty($title) && $isPreset == 1) {
+      if($isCharge == 1) {
+       $accessCode = "Accepted";
+       $r = [
+        "Body" => "Soon you may add charges to the Invoice.",
+        "Header" => "Charge Added"
+       ];
+      } elseif($isForwarding == 1) {
+       $email = $data["Email"] ?? "";
+       $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+       $member = $data["Username"] ?? "";
+       $name = $member ?? $email;
+       $r = [
+        "Body" => "An e-mail address or username are required."
+       ];
+       if(!empty($email) || !empty($member)) {
+        $accessCode = "Accepted";
+        $bulletin = "";
+        $charges = $invoice["Charges"] ?? [];
+        foreach($charges as $key => $charge) {
+         $description = $charge["Description"] ?? "Unknown";
+         $paid = $charge["Paid"] ?? 0;
+         $title = $charge["Title"] ?? "Unknown";
+         $value = $charge["Value"] ?? 0.00;
+         $chargeList .= $this->core->Change([[
+          "[Invoice.Charge.Description]" => $description,
+          "[Invoice.Charge.Title]" => $title,
+          "[Invoice.Charge.Value]" => $this->core->Element([
+           "p", "$".number_format($value, 2),
+           ["class" => "DesktopRightText"]
+          ])
+         ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+        }
+        if(!empty($email)) {
+         $this->core->SendEmail([
+          "Message" => $this->core->Change([[
+           "[Email.Header]" => "{email_header}",
+           "[Email.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
+           "[Email.Invoice]" => $chargeList,
+           "[Email.Name]" => $name,
+           "[Email.Link]" => $this->core->base."/invoice/$id",
+           "[Email.Shop.Name]" => $shop["Title"],
+           "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+          ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+          "Title" => $shop["Title"].": Invoice $id",
+          "To" => $data["Email"]
+         ]);
+        } if(!empty($member)) {
+         $this->core->SendBulletin([
+          "Data" => [
+           "Invoice" => $id,
+           "Shop" => $shopID
+          ],
+          "To" => $member,
+          "Type" => "InvoiceForward"
+         ]);
+         $bulletin = " If <em>$member</em> exists, they should receive this Invoice shortly.";
+        }
+        $r = [
+         "Body" => "The Invoice has been forwarded to $name.$bulletin",
+         "Header" => "Forwarded"
+        ];
+       }
+       $success = "CloseCard";
+      } elseif($isNote == 1) {
+       $accessCode = "Accepted";
+       $r = [
+        "Body" => "Soon you may add notes to the Invoice.",
+        "Header" => "Note Added"
+       ];
+      } elseif(!empty($title) && $isPreset == 1) {
        $accessCode = "Accepted";
        $description = $data["ChargeDescription"][0] ?? "Unknown";
        $service = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
@@ -508,7 +696,6 @@
         if(!empty($data["Email"])) {
          $accessCode = "Accepted";
          $chargeCount = count($data["ChargeTitle"]);
-         $chargeList = "";
          $charges = [];
          for($i = 0; $i < $chargeCount; $i++) {
           $description = $data["ChargeDescription"][$i] ?? "Unknown";

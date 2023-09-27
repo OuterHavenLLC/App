@@ -897,6 +897,43 @@
     "ResponseType" => "View"
    ]);
   }
+  function Pay(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $shopID = $data["Shop"] ?? "";
+   $type = $data["Type"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($shopID)) {
+    $r = [
+     "Body" => "The Payment Type is missing."
+    ];
+    if(!empty($type)) {
+     $accessCode = "Accepted";
+     $r = $this->core->Element([
+      "h1", "Pay"
+     ]).$this->core->Element([
+      "p", "A new, consolidated payment workflow will be built here to accomodate all payment types."
+     ]);
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
+   ]);
+  }
   function Payroll(array $a) {
    $accessCode = "Denied";
    $_Day = $this->core->Page("ca72b0ed3686a52f7db1ae3b2f2a7c84");
