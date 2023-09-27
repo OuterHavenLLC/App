@@ -365,13 +365,12 @@
       foreach($charges as $key => $charge) {
        $description = $charge["Description"] ?? "Unknown";
        $paid = $charge["Paid"] ?? 0;
-       $refunded = $charge["Refunded"] ?? 0;
        $title = $charge["Title"] ?? "Unknown";
        $value = $charge["Value"] ?? 0.00;
        if($invoice["UN"] != $you) {//TEMP
        #if($invoice["UN"] == $you) {
         $value = $this->core->Element([
-         "p", "$".number_format($value, 2),
+         "p", "$$value",
          ["class" => "DesktopRightText"]
         ]);
        } else {
@@ -379,17 +378,19 @@
          "p", "$".number_format($value, 2),
          ["class" => "DesktopRightText"]
         ]) : $this->core->Element([
-         "button", "$".number_format($value, 2),
+         "button", "$$value",
          [
           "class" => "DesktopRight OpenFirSTEPTool v2",
           "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice")
          ]
         ]);
        }
-       $description.= ($check == 1 && $refunded == 0) ? $this->core->Element([
+       $description .= ($check == 1 && $paid == 0) ? $this->core->Element([
+        "div", NULL, ["class" => "NONAME"]
+       ]).$this->core->Element([
         "button", "Refund", [
-         "class" => "v2",
-         "data-view" => base64_encode("#")
+         "class" => "OpenDialog v2",
+         "data-view" => base64_encode("v=".base64_encode("Invoice:Refund")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"])
         ]
        ]) : "";
        $r .= $this->core->Change([[
@@ -480,11 +481,11 @@
     "Title" => $_ViewTitle
    ]);
   }
-  function RefundCharge(array $a) {
+  function Refund(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $charge = $data["Charge"] ?? "";
-   $invoice = $data["Invoice"] ?? "";
+   $id = $data["Invoice"] ?? "";
    $r = [
     "Body" => "The Charge or Invoice Identifier are missing."
    ];
@@ -495,7 +496,7 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($charge) && !empty($invoice)) {
+   } elseif((!empty($charge) || $charge == 0) && !empty($id)) {
     $r = [
      "Body" => "The Shop Identifier is missing."
     ];
@@ -503,7 +504,7 @@
      $check = 0;
      $isAdmin = ($shopID == md5($you)) ? 1 : 0;
      $r = [
-      "Body" => "You are not authorized to add a $type.",
+      "Body" => "You are not authorized to refund charges.",
       "Header" => "Forbidden"
      ];
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
@@ -512,10 +513,74 @@
        $check++;
       }
      } if($check == 1 && $isAdmin == 1) {
-      $accessCode = "Accepted";
+      $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+      $check = $invoice["Charges"][$charge]["Paid"];
       $r = [
-       "Body" => "Refund for charge $charge on Invoice $invoice."
+       "Body" => "A refund was already issued for <em>".$invoice["Charges"][$charge]["Title"]."</em>."
       ];
+      if($check == 0) {
+       $accessCode = "Accepted";
+       $chargeList = "";
+       $charges = $invoice["Charges"] ?? [];
+       $name = $invoice["ChargeTo"] ?? $invoice["Email"];
+       $newCharge = $charges[$charge] ?? [];
+       $newCharge["Paid"] = 1;
+       $charges[$charge] = $newCharge;
+       array_push($charges, [
+        "Description" => "Authorized refund for <em>".$newCharge["Title"]."</em>.",
+        "Paid" => 1,
+        "Title" => "Refund",
+        "Value" => number_format((0 - $newCharge["Value"]), 2)
+       ]);
+       $invoice["Charges"] = $charges;
+       $total = 0;
+       foreach($charges as $key => $charge) {
+        $description = $charge["Description"] ?? "Unknown";
+        $paid = $charge["Paid"] ?? 0;
+        $title = $charge["Title"] ?? "Unknown";
+        $value = $charge["Value"] ?? 0.00;
+        $total = $total + $value;
+        $chargeList .= $this->core->Change([[
+         "[Invoice.Charge.Description]" => $description,
+         "[Invoice.Charge.Title]" => $title,
+         "[Invoice.Charge.Value]" => $this->core->Element([
+          "p", "$$value",
+          ["class" => "DesktopRightText"]
+         ])
+        ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+       }
+       $this->core->SendEmail([
+        "Message" => $this->core->Change([[
+         "[Email.Header]" => "{email_header}",
+         "[Email.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.",
+         "[Email.Invoice]" => $chargeList,
+         "[Email.Name]" => $name,
+         "[Email.Link]" => $this->core->base."/invoice/$id",
+         "[Email.Shop.Name]" => $shop["Title"],
+         "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+        ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+        "Title" => $shop["Title"].": Invoice $id",
+        "To" => $invoice["Email"]
+       ]);
+       if(!empty($invoice["ChargeTo"])) {
+        $this->core->SendBulletin([
+         "Data" => [
+          "Invoice" => $id,
+          "Shop" => $invoice["Shop"]
+         ],
+         "To" => $name,
+         "Type" => "InvoiceUpdate"
+        ]);
+       } if($total == 0) {
+        $invoice["PaidInFull"] = 1;
+        $invoice["Status"] = "Closed";
+       }
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
+       $r = [
+        "Body" => "Refund for <em>".$newCharge["Title"]."</em> issued. We will send a confirmation to <em>".$invoice["Email"]."</em>.",
+        "Header" => "Done"
+       ];
+      }
      }
     }
    }
@@ -603,12 +668,11 @@
           "[Invoice.Charge.Description]" => $description,
           "[Invoice.Charge.Title]" => $title,
           "[Invoice.Charge.Value]" => $this->core->Element([
-           "p", "$".number_format($value, 2),
+           "p", "$$value",
            ["class" => "DesktopRightText"]
           ])
          ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
-        }
-        if(!empty($email)) {
+        } if(!empty($email)) {
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
            "[Email.Header]" => "{email_header}",
