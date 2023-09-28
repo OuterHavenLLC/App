@@ -746,20 +746,22 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $t = $this->core->Member($value["From"]);
      if(!empty($t["Personal"])) {
       $display = ($t["Personal"]["DisplayName"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
+      $message = $this->view($message, [
+       "Data" => $value
+      ]);
+      $options = $this->view($options, [
+       "Data" => [
+        "Bulletin" => base64_encode(json_encode($value, true))
+       ]
+      ]);
       $pic = $this->core->ProfilePicture($t, "margin:5%;width:90%");
       $value["ID"] = $key;
       array_push($msg, [
        "[Bulletin.Date]" => base64_encode($this->core->TimeAgo($value["Sent"])),
        "[Bulletin.From]" => base64_encode($display),
        "[Bulletin.ID]" => base64_encode($key),
-       "[Bulletin.Message]" => base64_encode($this->view($message, [
-        "Data" => $value
-       ])),
-       "[Bulletin.Options]" => base64_encode($this->view($options, [
-        "Data" => [
-         "Bulletin" => base64_encode(json_encode($value, true))
-        ]
-       ])),
+       "[Bulletin.Message]" => base64_encode($this->core->RenderView($message)),
+       "[Bulletin.Options]" => base64_encode($this->core->RenderView($options)),
        "[Bulletin.Picture]" => base64_encode($pic)
       ]);
      }

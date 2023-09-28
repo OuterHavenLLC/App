@@ -415,8 +415,7 @@
        $paid = $charge["Paid"] ?? 0;
        $title = $charge["Title"] ?? "Unknown";
        $value = $charge["Value"] ?? 0.00;
-       if($invoice["UN"] != $you) {//TEMP
-       #if($invoice["UN"] == $you) {
+       if($invoice["UN"] == $you) {
         $value = $this->core->Element([
          "p", "$$value",
          ["class" => "DesktopRightText"]
@@ -489,6 +488,7 @@
      } elseif($dependency == "Total") {
       $balance = 0;
       $charges = $invoice["Charges"] ?? [];
+      $isEmailed = $data["Emailed"] ?? 0;
       $paid = 0;
       $tax = 0;
       $subtotal = 0;
@@ -500,22 +500,24 @@
         $paid = $paid + $value;
        }
       }
-      $subtotal = $balance + $paid;
+      $subtotal = $balance;
+      $total = $balance + $paid;
       if($balance > 0) {
        $tax = $shop["Tax"] ?? 10.00;
-       $tax = number_format($subtotal * ($tax / 100), 2);
+       $tax = number_format($total * ($tax / 100), 2);
       }
-      $balance = number_format($subtotal + $tax, 2);
-      $balanceGUI = ($subtotal > 0) ? $this->core->Element([
+      $balance = number_format(($total + $tax), 2);
+      $balance = ($invoice["UN"] != $you && $total > 0) ? $this->core->Element([
        "button", "$$balance", [
         "class" => "BBB OpenFirSTEPTool v2",
         "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice&PayInFull=1")
        ]
       ]) : "<strong>$$balance</strong>";
+      $balance = ($isEmailed == 1) ? "<strong>$$balance</strong>" : $balance;
       $r = $this->core->Change([[
-       "[Invoice.Balance]" => $balanceGUI,
+       "[Invoice.Balance]" => $balance,
        "[Invoice.Paid]" => number_format($paid, 2),
-       "[Invoice.Subtotal]" => number_format($balance, 2),
+       "[Invoice.Subtotal]" => number_format($subtotal, 2),
        "[Invoice.Taxes]" => $tax
       ], $this->core->Page("6faa1179113386dad098302e12049b8b")]);
      } else {
@@ -594,7 +596,8 @@
        $accessCode = "Accepted";
        $chargeList = "";
        $charges = $invoice["Charges"] ?? [];
-       $name = $invoice["ChargeTo"] ?? $invoice["Email"];
+       $member = $invoice["ChargeTo"] ?? "";
+       $name = $member ?? $invoice["Email"];
        $newCharge = $charges[$charge] ?? [];
        $newCharge["Paid"] = 1;
        $charges[$charge] = $newCharge;
@@ -624,6 +627,7 @@
        $total = $this->view(base64_encode("Invoice:Home"), [
         "Data" => [
          "Dependency" => "Total",
+         "Emailed" => 1,
          "ID" => $id,
          "Shop" => $shopID
         ]
@@ -642,13 +646,13 @@
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
        ]);
-       if(!empty($invoice["ChargeTo"])) {
+       if(!empty($member)) {
         $this->core->SendBulletin([
          "Data" => [
           "Invoice" => $id,
           "Shop" => $invoice["Shop"]
          ],
-         "To" => $name,
+         "To" => $member,
          "Type" => "InvoiceUpdate"
         ]);
        } if($total == 0) {
@@ -723,11 +727,15 @@
       $title = $data["Title"] ?? "";
       if($isCharge == 1) {
        $accessCode = "Accepted";
+       $bulletin = "";
        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+       $member = $invoice["ChargeTo"] ?? "";
+       $name = $member ?? $invoice["Email"];
        $chargeData = $data["ChargeTitle"] ?? 0;
        $charges = $invoice["Charges"] ?? [];
        $readyForPayment = $data["ReadyForPayment"] ?? 0;
        $status = $invoice["Status"] ?? "Closed";
+       $total = 0;
        if($readyForPayment == 1) {
         $invoice["Status"] = "Closed";
        } for($i = 0; $i < count($chargeData); $i++) {
@@ -741,13 +749,61 @@
          "Title" => $title,
          "Value" => $value
         ]);
+       } foreach($charges as $key => $charge) {
+        $description = $charge["Description"] ?? "Unknown";
+        $paid = $charge["Paid"] ?? 0;
+        $title = $charge["Title"] ?? "Unknown";
+        $value = $charge["Value"] ?? 0.00;
+        $total = $total + $value;
+        $chargeList .= $this->core->Change([[
+         "[Invoice.Charge.Description]" => $description,
+         "[Invoice.Charge.Title]" => $title,
+         "[Invoice.Charge.Value]" => $this->core->Element([
+          "p", "$$value",
+          ["class" => "DesktopRightText"]
+         ])
+        ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+       }
+       $total = $this->view(base64_encode("Invoice:Home"), [
+        "Data" => [
+         "Dependency" => "Total",
+         "Emailed" => 1,
+         "ID" => $id,
+         "Shop" => $shopID
+        ]
+       ]);
+       $total = $this->core->RenderView($total);
+       $this->core->SendEmail([
+        "Message" => $this->core->Change([[
+         "[Email.Header]" => "{email_header}",
+         "[Email.Message]" => "Your Invoice is ready for payment.",
+         "[Email.Invoice]" => $chargeList.$total,
+         "[Email.Name]" => $name,
+         "[Email.Link]" => $this->core->base."/invoice/$id",
+         "[Email.Shop.Name]" => $shop["Title"],
+         "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+        ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+        "Title" => $shop["Title"].": Invoice $id",
+        "To" => $invoice["Email"]
+       ]);
+       if(!empty($member)) {
+        $this->core->SendBulletin([
+         "Data" => [
+          "Invoice" => $id,
+          "Shop" => $invoice["Shop"]
+         ],
+         "To" => $member,
+         "Type" => "InvoiceUpdate"
+        ]);
+        $bulletin = " <em>$member</em> will receive a Bulletin shortly.";
        }
        $invoice["Charges"] = $charges;
        $this->core->Data("Save", ["invoice", $id, $invoice]);
        $r = $this->core->Element([
         "h4", "Success!", ["class" => "CenterText UpperCase"]
        ]).$this->core->Element([
-        "p", "Your Invoice has been updated.", ["class" => "CenterText"]
+        "p", "Your Invoice has been updated.$bulletin",
+        ["class" => "CenterText"]
        ]);
        $responseType = "ReplaceContent";
       } elseif($isForwarding == 1) {
@@ -779,6 +835,7 @@
          $total = $this->view(base64_encode("Invoice:Home"), [
           "Data" => [
            "Dependency" => "Total",
+           "Emailed" => 1,
            "ID" => $id,
            "Shop" => $shopID
           ]

@@ -7,18 +7,10 @@
   function BulletinCenter(array $a) {
    $accessCode = "Accepted";
    $search = base64_encode("Search:Containers");
-   $bulletins = $this->view($search, ["Data" => [
-    "st" => "Bulletins"
-   ]]);
-   $contacts = $this->view($search, ["Data" => [
-    "Chat" => 0,
-    "st" => "ContactsChatList"
-   ]]);
-   $list = base64_encode("Profile:BulletinsList");
    $r = $this->core->Change([[
-    "[BulletinCenter.Bulletins]" => $this->core->RenderView($bulletins),
-    "[BulletinCenter.ContactRequests]" => base64_encode("v=$list&type=".base64_encode("ContactsRequests")),
-    "[BulletinCenter.Contacts]" => $this->core->RenderView($contacts)
+    "[BulletinCenter.Bulletins]" => base64_encode("v=$search&st=Bulletins"),
+    "[BulletinCenter.ContactRequests]" => base64_encode("v=".base64_encode("Profile:BulletinsList")."&type=".base64_encode("ContactsRequests")),
+    "[BulletinCenter.Contacts]" => base64_encode("v=$search&Chat=0&st=ContactsChatList")
    ], $this->core->Page("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -47,11 +39,11 @@
    } elseif($type == "InviteToForum") {
     $message = "Invited you to their Forum.";
    } elseif($type == "Invoice") {
-    $message = "Sent you an invoice. Click or tap below, or gop to <em>".$this->core->base."/invoice/".$data["Invoice"]."</em> to view the invoice or make any necessary payments.";
+    $message = "Sent you an invoice. Click or tap below to view the invoice or make any necessary payments.";
    } elseif($type == "InvoiceForward") {
-    $message = "Forwarded Invoice <em>".$data["Invoice"]."</em> to you.";
+    $message = "Forwarded an Invoice to you.";
    } elseif($type == "InvoiceUpdate") {
-    $message = "Updated Invoice <em>".$data["Invoice"]."</em>.";
+    $message = "Updated your Invoice.";
    } elseif($type == "NewBlogPost") {
     $message = "Posted to their blog.";
    } elseif($type == "NewProduct") {
@@ -72,7 +64,7 @@
    $bulletin = $data["Bulletin"] ?? "";
    $bulletin = (!empty($bulletin)) ? base64_decode($bulletin) : [];
    $bulletin = json_decode($bulletin, true);
-   $id = $bulletin["ID"];
+   $id = $bulletin["ID"] ?? "";
    $r = "&nbsp;";
    $y = $this->you;
    if($bulletin["Read"] == 0) {
@@ -94,6 +86,7 @@
       "Them" => $bulletin["Data"]["From"],
       "You" => $y["Login"]["Username"]
      ]);
+     $contactStatus = $this->core->RenderView($contactStatus);
      $true = $this->core->PlainText([
       "Data" => 1,
       "Encode" => 1
@@ -236,20 +229,18 @@
        $message = $this->view(base64_encode("Profile:BulletinMessage"), [
         "Data" => $value
        ]);
-       $message = $this->core->RenderView($message);
        $options = $this->view(base64_encode("Profile:BulletinOptions"), [
         "Data" => [
          "Bulletin" => base64_encode(json_encode($value))
         ]
        ]);
-       $options = $this->core->RenderView($options);
        array_push($r, [
         "Data" => $value["Data"],
         "Date" => $this->core->TimeAgo($value["Sent"]),
         "From" => $t["Personal"]["DisplayName"],
         "ID" => $key,
-        "Message" => $message,
-        "Options" => $options,
+        "Message" => $this->core->RenderView($message),
+        "Options" => $this->core->RenderView($options),
         "Picture" => $pic
        ]);
       }
