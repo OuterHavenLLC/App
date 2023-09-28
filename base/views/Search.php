@@ -2120,7 +2120,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=$value")
       ]]);
       array_push($msg, [
-       "[ListItem.Description]" => base64_encode("An Invoice created by ".$invoice["UN"]),
+       "[ListItem.Description]" => base64_encode("An Invoice created by ".$invoice["UN"]." &bull; Status: ".$invoice["Status"]."."),
        "[ListItem.Options]" => base64_encode($options),
        "[ListItem.Title]" => base64_encode("Invoice $value")
       ]);

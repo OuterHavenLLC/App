@@ -487,7 +487,6 @@
        "p", $action, ["class" => "CenterText"]
       ]);
      } elseif($dependency == "Total") {
-      # Displays: Subtotal, (- Total Paid), Taxes, and Remaining Balance
       $balance = 0;
       $charges = $invoice["Charges"] ?? [];
       $paid = 0;
@@ -506,8 +505,15 @@
        $tax = $shop["Tax"] ?? 10.00;
        $tax = number_format($subtotal * ($tax / 100), 2);
       }
+      $balance = number_format($subtotal + $tax, 2);
+      $balanceGUI = ($subtotal > 0) ? $this->core->Element([
+       "button", "$$balance", [
+        "class" => "BBB OpenFirSTEPTool v2",
+        "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice&PayInFull=1")
+       ]
+      ]) : "<strong>$$balance</strong>";
       $r = $this->core->Change([[
-       "[Invoice.Balance]" => number_format($subtotal + $tax, 2),
+       "[Invoice.Balance]" => $balanceGUI,
        "[Invoice.Paid]" => number_format($paid, 2),
        "[Invoice.Subtotal]" => number_format($balance, 2),
        "[Invoice.Taxes]" => $tax
@@ -717,12 +723,33 @@
       $title = $data["Title"] ?? "";
       if($isCharge == 1) {
        $accessCode = "Accepted";
+       $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+       $chargeData = $data["ChargeTitle"] ?? 0;
+       $charges = $invoice["Charges"] ?? [];
+       $readyForPayment = $data["ReadyForPayment"] ?? 0;
+       $status = $invoice["Status"] ?? "Closed";
+       if($readyForPayment == 1) {
+        $invoice["Status"] = "Closed";
+       } for($i = 0; $i < count($chargeData); $i++) {
+        $description = $data["ChargeDescription"][$i] ?? "Unknown";
+        $paid = $data["ChargePaid"][$i] ?? 0;
+        $title = $data["ChargeTitle"][$i] ?? "Unknown";
+        $value = $data["ChargeValue"][$i] ?? 0.00;
+        array_push($charges, [
+         "Description" => $description,
+         "Paid" => $paid,
+         "Title" => $title,
+         "Value" => $value
+        ]);
+       }
+       $invoice["Charges"] = $charges;
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
        $r = $this->core->Element([
         "h4", "Success!", ["class" => "CenterText UpperCase"]
        ]).$this->core->Element([
-        "p", "Your charges have been updated.", ["class" => "CenterText"]
+        "p", "Your Invoice has been updated.", ["class" => "CenterText"]
        ]);
-       $success = "UpdateContent";
+       $responseType = "ReplaceContent";
       } elseif($isForwarding == 1) {
        $email = $data["Email"] ?? "";
        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
@@ -863,9 +890,9 @@
         ];
         if(!empty($data["Email"])) {
          $accessCode = "Accepted";
-         $chargeCount = count($data["ChargeTitle"]);
+         $chargeData = $data["ChargeTitle"] ?? 0;
          $charges = [];
-         for($i = 0; $i < $chargeCount; $i++) {
+         for($i = 0; $i < count($chargeData); $i++) {
           $description = $data["ChargeDescription"][$i] ?? "Unknown";
           $paid = $data["ChargePaid"][$i] ?? 0;
           $title = $data["ChargeTitle"][$i] ?? "Unknown";
