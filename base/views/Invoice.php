@@ -7,7 +7,8 @@
   function Add(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $invoice = $data["Invoice"] ?? "";
+   $card = $data["Card"] ?? 0;
+   $id = $data["Invoice"] ?? "";
    $r = [
     "Body" => "The Invoice Identifier is missing."
    ];
@@ -19,7 +20,7 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($invoice) && !empty($type)) {
+   } elseif(!empty($id) && !empty($type)) {
     $r = [
      "Body" => "The Shop Identifier is missing."
     ];
@@ -41,23 +42,45 @@
       ];
       if($type == "Charge") {
        $accessCode = "Accepted";
-       $r = $this->core->Element([
-        "h1", "Add $type"
-       ]);
+       $viewCharges = $data["ViewCharges"] ?? 0;
+       if($viewCharges == 1) {
+       } else {
+        $r = $this->core->Element([
+         "h1", "Charges"
+        ]);
+       }
       } elseif($type == "Note") {
        $accessCode = "Accepted";
        $viewNotes = $data["ViewNotes"] ?? 0;
        if($viewNotes == 1) {
-        # Fetch Notes list from here.
+        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+        $noteList = "";
+        $notes = $invoice["Notes"] ?? [];
+        $notes = array_reverse($notes);
+        $r = $this->core->Element(["h4", "No Notes", [
+         "class" => "CenterText UpperCase"
+        ]]);
+        foreach($notes as $key => $note) {
+         $noteList .= $this->core->Element([
+          "h4", $note["Created"]
+         ]).$this->core->Element([
+          "p", $note["Note"]
+         ]);
+        } if(!empty($noteList)) {
+         $r = $noteList;
+        }
        } else {
-        $r = $this->core->Element([
-         "h1", "Add $type"
-        ]);
+        $r = $this->core->Change([[
+         "[Invoice.ID]" => $id,
+         "[Invoice.Notes]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Note&ViewNotes=1"),
+         "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+         "[Invoice.Shop]" => $shopID
+        ], $this->core->Page("82e29a8d9c5737b07a4db0a1de45c7db")]);
        }
       }
-      $r = [
+      $r = ($card == 1) ? [
        "Front" => $r
-      ];
+      ] : $r;
      }
     }
    }
@@ -125,7 +148,6 @@
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
    $isPreset = $data["Preset"] ?? 0;
-   $new = $data["new"] ?? 0;
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -416,7 +438,7 @@
       ]).$this->core->Element([
        "button", "Notes", [
         "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Note")
+        "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Note")
        ]
       ]) : "";
       $r .= $this->core->Element(["button", "Forward", [
@@ -441,11 +463,29 @@
      } elseif($dependency == "Total") {
       # Displays: Subtotal, (- Total Paid), Taxes, and Remaining Balance
       $balance = 0;
+      $charges = $invoice["Charges"] ?? [];
       $paid = 0;
-      $taxes = 0;
+      $tax = 0;
       $subtotal = 0;
-      // LOGIC
-      #$total = number_format($balance, 2);
+      foreach($charges as $key => $charge) {
+       $value = $charge["Value"] ?? 0.00;
+       if($value > 0) {
+        $balance = $balance + $value;
+       } elseif($value < 0) {
+        $paid = $paid + $value;
+       }
+      }
+      $subtotal = $balance + $paid;
+      if($balance > 0) {
+       $tax = $shop["Tax"] ?? 10.00;
+       $tax = number_format($subtotal * ($tax / 100), 2);
+      }
+      $r = $this->core->Change([[
+       "[Invoice.Balance]" => number_format($subtotal + $tax, 2),
+       "[Invoice.Paid]" => number_format($paid, 2),
+       "[Invoice.Subtotal]" => number_format($balance, 2),
+       "[Invoice.Taxes]" => $tax
+      ], $this->core->Page("6faa1179113386dad098302e12049b8b")]);
      } else {
       $home = "v=".base64_encode("Invoice:Home")."&ID=$id&Shop=".$invoice["Shop"];
       $r = $this->core->Change([[
@@ -549,11 +589,19 @@
          ])
         ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
        }
+       $total = $this->view(base64_encode("Invoice:Home"), [
+        "Data" => [
+         "Dependency" => "Total",
+         "ID" => $id,
+         "Shop" => $shopID
+        ]
+       ]);
+       $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
          "[Email.Header]" => "{email_header}",
          "[Email.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.",
-         "[Email.Invoice]" => $chargeList,
+         "[Email.Invoice]" => $chargeList.$total,
          "[Email.Name]" => $name,
          "[Email.Link]" => $this->core->base."/invoice/$id",
          "[Email.Shop.Name]" => $shop["Title"],
@@ -614,7 +662,7 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($id) || $new == 1) {
+   } elseif(!empty($id)) {
     $r = [
      "Body" => "The Shop Identifier is missing."
     ];
@@ -651,7 +699,7 @@
        $email = $data["Email"] ?? "";
        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
        $member = $data["Username"] ?? "";
-       $name = $member ?? $email;
+       $name = $data["Username"] ?? $email;
        $r = [
         "Body" => "An e-mail address or username are required."
        ];
@@ -673,11 +721,19 @@
           ])
          ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
         } if(!empty($email)) {
+         $total = $this->view(base64_encode("Invoice:Home"), [
+          "Data" => [
+           "Dependency" => "Total",
+           "ID" => $id,
+           "Shop" => $shopID
+          ]
+         ]);
+         $total = $this->core->RenderView($total);
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
            "[Email.Header]" => "{email_header}",
            "[Email.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
-           "[Email.Invoice]" => $chargeList,
+           "[Email.Invoice]" => $chargeList.$total,
            "[Email.Name]" => $name,
            "[Email.Link]" => $this->core->base."/invoice/$id",
            "[Email.Shop.Name]" => $shop["Title"],
@@ -687,15 +743,27 @@
           "To" => $data["Email"]
          ]);
         } if(!empty($member)) {
-         $this->core->SendBulletin([
-          "Data" => [
-           "Invoice" => $id,
-           "Shop" => $shopID
-          ],
-          "To" => $member,
-          "Type" => "InvoiceForward"
-         ]);
-         $bulletin = " If <em>$member</em> exists, they should receive this Invoice shortly.";
+         $check = 0;
+         $members = $this->core->DatabaseSet("MBR");
+         foreach($members as $key => $value) {
+          $value = str_replace("c.oh.mbr.", "", $value);
+          if($check == 0) {
+           $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
+           if($member == $t["Login"]["Username"]) {
+            $check++;
+           }
+          }
+         } if($check == 1) {
+          $this->core->SendBulletin([
+           "Data" => [
+            "Invoice" => $id,
+            "Shop" => $shopID
+           ],
+           "To" => $member,
+           "Type" => "InvoiceForward"
+          ]);
+         }
+         $bulletin = "<em>$member</em> will receive a Bulletin shortly.";
         }
         $r = [
          "Body" => "The Invoice has been forwarded to $name.$bulletin",
@@ -705,9 +773,18 @@
        $success = "CloseCard";
       } elseif($isNote == 1) {
        $accessCode = "Accepted";
+       $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+       $notes = $invoice["Notes"] ?? [];
+       array_push($notes, [
+        "Created" => $this->core->timestamp,
+        "Note" => $data["InvoiceNote"]
+       ]);
+       $invoice["Notes"] = $notes;
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
        $r = [
-        "Body" => "Soon you may add notes to the Invoice.",
-        "Header" => "Note Added"
+        "Body" => "Your note has been added to the Invoice.",
+        "Header" => "Done",
+        "Scrollable" => json_encode($invoice, true)
        ];
       } elseif(!empty($title) && $isPreset == 1) {
        $accessCode = "Accepted";
