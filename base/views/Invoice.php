@@ -427,7 +427,7 @@
         ]) : $this->core->Element([
          "button", "$$value",
          [
-          "class" => "DesktopRight OpenFirSTEPTool v2",
+          "class" => "CloseCard DesktopRight OpenFirSTEPTool v2",
           "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice")
          ]
         ]);
@@ -509,7 +509,7 @@
       $balance = number_format(($total + $tax), 2);
       $balance = ($invoice["UN"] != $you && $total > 0) ? $this->core->Element([
        "button", "$$balance", [
-        "class" => "BBB OpenFirSTEPTool v2",
+        "class" => "BBB CloseCard OpenFirSTEPTool v2",
         "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice&PayInFull=1")
        ]
       ]) : "<strong>$$balance</strong>";
