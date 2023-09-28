@@ -226,34 +226,36 @@
      "bulletins",
      md5($you)
     ]) ?? [];
-    foreach($bulletins as $key => $value) {
-     if($value["Seen"] == 0) {
-      $bulletins[$key]["Seen"] = 1;
-      $value["ID"] = $key;
-      $t = $this->core->Member($value["From"]);
-      $pic = $this->core->ProfilePicture($t, "margin:5%;width:90%");
-      $message = $this->view(base64_encode("Profile:BulletinMessage"), [
-       "Data" => $value
-      ]);
-      $message = $this->core->RenderView($message);
-      $options = $this->view(base64_encode("Profile:BulletinOptions"), [
-       "Data" => [
-        "Bulletin" => base64_encode(json_encode($value))
-       ]
-      ]);
-      $options = $this->core->RenderView($options);
-      array_push($r, [
-       "Data" => $value["Data"],
-       "Date" => $this->core->TimeAgo($value["Sent"]),
-       "From" => $t["Personal"]["DisplayName"],
-       "ID" => $key,
-       "Message" => $message,
-       "Options" => $options,
-       "Picture" => $pic
-      ]);
+    if(!empty($bulletins)) {
+     foreach($bulletins as $key => $value) {
+      if($value["Seen"] == 0) {
+       $bulletins[$key]["Seen"] = 1;
+       $value["ID"] = $key;
+       $t = $this->core->Member($value["From"]);
+       $pic = $this->core->ProfilePicture($t, "margin:5%;width:90%");
+       $message = $this->view(base64_encode("Profile:BulletinMessage"), [
+        "Data" => $value
+       ]);
+       $message = $this->core->RenderView($message);
+       $options = $this->view(base64_encode("Profile:BulletinOptions"), [
+        "Data" => [
+         "Bulletin" => base64_encode(json_encode($value))
+        ]
+       ]);
+       $options = $this->core->RenderView($options);
+       array_push($r, [
+        "Data" => $value["Data"],
+        "Date" => $this->core->TimeAgo($value["Sent"]),
+        "From" => $t["Personal"]["DisplayName"],
+        "ID" => $key,
+        "Message" => $message,
+        "Options" => $options,
+        "Picture" => $pic
+       ]);
+      }
      }
+     $this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
     }
-    $this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
    }
    return $this->core->JSONResponse([
     $accessCode,

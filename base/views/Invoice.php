@@ -44,10 +44,36 @@
        $accessCode = "Accepted";
        $viewCharges = $data["ViewCharges"] ?? 0;
        if($viewCharges == 1) {
+        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+        $chargeList = "";
+        $charges = $invoice["Charges"] ?? [];
+        $r = $this->core->Element(["h4", "No Charges", [
+         "class" => "CenterText UpperCase"
+        ]]);
+        foreach($charges as $key => $charge) {
+         $description = $charge["Description"] ?? "Unknown";
+         $paid = $charge["Paid"] ?? 0;
+         $title = $charge["Title"] ?? "Unknown";
+         $value = $charge["Value"] ?? 0.00;
+         $chargeList .= $this->core->Change([[
+          "[Invoice.Charge.Description]" => $description,
+          "[Invoice.Charge.Title]" => $title,
+          "[Invoice.Charge.Value]" => $this->core->Element([
+           "p", "$$value",
+           ["class" => "DesktopRightText"]
+          ])
+         ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+        } if(!empty($chargeList)) {
+         $r = $chargeList;
+        }
        } else {
-        $r = $this->core->Element([
-         "h1", "Charges"
-        ]);
+        $r = $this->core->Change([[
+         "[Invoice.ChargeClone]" => base64_encode($this->core->Page("cfc6f5b795f1254de32ef292325292a6")),
+         "[Invoice.Charges]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Charge&ViewCharges=1"),
+         "[Invoice.ID]" => $id,
+         "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+         "[Invoice.Shop]" => $shopID
+        ], $this->core->Page("60fe8170fa7a51cdd75097855c74a95c")]);
        }
       } elseif($type == "Note") {
        $accessCode = "Accepted";
@@ -430,10 +456,10 @@
         $check++;
        }
       }
-      $r = ($check == 1 && $isAdmin == 1) ? $this->core->Element([
-       "button", "Add Charge", [
+      $r = ($check == 1 && $isAdmin == 1 && $invoice["Status"] == "Open") ? $this->core->Element([
+       "button", "Charges", [
         "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Charge")
+        "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Charge")
        ]
       ]).$this->core->Element([
        "button", "Notes", [
@@ -691,10 +717,12 @@
       $title = $data["Title"] ?? "";
       if($isCharge == 1) {
        $accessCode = "Accepted";
-       $r = [
-        "Body" => "Soon you may add charges to the Invoice.",
-        "Header" => "Charge Added"
-       ];
+       $r = $this->core->Element([
+        "h4", "Success!", ["class" => "CenterText UpperCase"]
+       ]).$this->core->Element([
+        "p", "Your charges have been updated.", ["class" => "CenterText"]
+       ]);
+       $success = "UpdateContent";
       } elseif($isForwarding == 1) {
        $email = $data["Email"] ?? "";
        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
@@ -783,8 +811,7 @@
        $this->core->Data("Save", ["invoice", $id, $invoice]);
        $r = [
         "Body" => "Your note has been added to the Invoice.",
-        "Header" => "Done",
-        "Scrollable" => json_encode($invoice, true)
+        "Header" => "Done"
        ];
       } elseif(!empty($title) && $isPreset == 1) {
        $accessCode = "Accepted";
