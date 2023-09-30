@@ -182,6 +182,13 @@
     "CallSign" => $c[1],
     "ID" => $c[1]
    ]]);
+  } elseif($c[0] == "hire") {
+   # HIRE
+   $r = $gw->view(base64_encode("Invoice:Home"), ["Data" => [
+    "ID" => md5($gw->core->ShopID),
+    "pub" => 1
+   ]]);
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "income") {
    # INCOME DISCLOSURES
    $r = $gw->view(base64_encode("Common:Income"), ["Data" => [

@@ -764,7 +764,7 @@
       $hireText = (count($partners) == 1) ? "Me" : "Us";
       $hire = ($hire == 1) ? $this->core->Change([[
        "[Hire.Text]" => $hireText,
-       "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id")
+       "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$id")
       ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
       $payroll = ($id == md5($you)) ? $this->core->Element([
        "button", "Payroll", [
@@ -857,7 +857,7 @@
    $hireText = (count($partners) == 1) ? "Me" : "Us";
    $hire = ($hire == 1) ? $this->core->Change([[
     "[Hire.Text]" => $hireText,
-    "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id")
+    "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$id")
    ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
    $payroll = ($id == md5($you)) ? $this->core->Element([
     "button", "Payroll", [

@@ -123,7 +123,8 @@
   function DeletePreset(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $preset = $data["Preset"] ?? "";
+   $data = $this->core->DecodeBridgeData($data);
+   $id = $data["Preset"] ?? "";
    $r = [
     "Body" => "The Invoice Identifier are missing."
    ];
@@ -134,7 +135,7 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($preset)) {
+   } elseif(!empty($id)) {
     $r = [
      "Body" => "The Shop Identifier is missing."
     ];
@@ -152,8 +153,23 @@
       }
      } if($check == 1 && $isAdmin == 1) {
       $accessCode = "Accepted";
+      $newPresets = [];
+      $presets = $shop["InvoicePresets"] ?? [];
+      foreach($presets as $key => $value) {
+       if($value != $id) {
+        $newPresets[$key] = $value;
+       }
+      }
+      $preset = $this->core->Data("Get", [
+       "invoice-preset",
+       $id
+      ]) ?? [];
+      $shop["InvoicePresets"] = $newPresets;
+      $this->core->Data("Purge", ["invoice-preset", $id]);
+      $this->core->Data("Save", ["shop", $shopID, $shop]);
       $r = [
-       "Body" => "Delete Pre-Set $preset."
+       "Body" => "The service <em>".$preset["Title"]."</em> was deleted.",
+       "Header" => "Done"
       ];
      }
     }
@@ -165,7 +181,7 @@
      "Web" => $r
     ],
     "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    "Success" => "CloseDialog"
    ]);
   }
   function Edit(array $a) {
@@ -337,12 +353,17 @@
    ]);
   }
   function Hire(array $a) {
+   $_ViewTitle = $this->core->config["App"]["Name"];
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
+   $pub = $data["pub"] ?? 0;
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $responseType = "View";
+   $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -351,19 +372,49 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    // BEGIN TPL
-    $r = $this->core->Element([
-     "h1", "Hire"
-    ]).$this->core->Element([
-     "p", "A new experience is coming soon..."
-    ]);
-    // END TPL
-    $r = $this->core->Change([[
-    ], $r]);
-    #], $this->core->Page("Hire")]);
-    $r = [
+    $action = "";
+    $createJob = $data["CreateJob"] ?? 0;
+    $saveJob = $data["SaveJob"] ?? 0;
+    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    if($createJob == 1) {
+     # The Hire form
+     $card = 1;
+     $r = $this->core->Element([
+      "h1", "Hire ".$shop["Title"]
+     ]).$this->core->Element([
+      "p", "A new experience is coming soon..."
+     ]);
+    if($saveJob == 1) {
+     # Create a new Invoice based on the form data and invoice pre-set.
+     $responseType = "Dialog";
+     $success = "CloseCard";
+    } else {
+     $_ViewTitle = "Hire ".$shop["Title"];
+     // BEGIN TPL
+     $r = $this->core->Element([
+      "h1", "Hire"
+     ]).$this->core->Element([
+      "p", "A new experience is coming soon..."
+     ]);
+     // END TPL
+     $r = $this->core->Change([[
+     ], $r]);
+     #], $this->core->Page("Hire")]);
+    }
+    $r = if($card == 1) ? [
+     "Action" => $action,
      "Front" => $r
-    ];
+    ] : $r;
+    if($pub == 1) {
+     if($this->core->ID == $you) {
+      $r = $this->view(base64_encode("WebUI:OptIn"), []);
+      $r = $this->core->RenderView($r);
+     }
+     $r = $this->view(base64_encode("WebUI:Containers"), [
+      "Data" => ["Content" => $r]
+     ]);
+     $r = $this->core->RenderView($r);
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -371,7 +422,9 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => $responseType,
+    "Success" => $success,
+    "Title" => $_ViewTitle
    ]);
   }
   function Home(array $a) {

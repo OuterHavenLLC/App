@@ -2095,10 +2095,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       "invoice-preset",
       $value
      ]) ?? [];
+     $options = $this->core->Element(["button", "Delete", [
+      "class" => "A OpenDialog v2",
+      "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteService")."&ID=$value&Shop=".$data["Shop"])
+     ]]);
      if(!empty($preset)) {
       array_push($msg, [
        "[ListItem.Description]" => base64_encode("A service currently on offer by ".$shop["Title"]),
-       "[ListItem.Options]" => base64_encode("&nbsp;"),
+       "[ListItem.Options]" => base64_encode($options),
        "[ListItem.Title]" => base64_encode($preset["Title"])
       ]);
      }

@@ -802,7 +802,6 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
-   $all = $data["all"] ?? 0;
    $pd = base64_encode("Product:SaveDelete");
    $r = [
     "Body" => "The Product Identifier is missing."
@@ -819,7 +818,7 @@
     $dialogID = "Delete".$data["ID"];
     $product = $this->core->Data("Get", ["miny", $data["ID"]]) ?? [];
     $r = [
-     "Body" => "You are about to permanently delete ".$product["Title"].".",
+     "Body" => "You are about to permanently delete <em>".$product["Title"]."</em>.",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
@@ -912,6 +911,81 @@
       ]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:SaveDelete")),
       "[Delete.Title]" => "this post"
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function DeleteService(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->FixMissing($data, ["ID"]);
+   $pd = base64_encode("Product:SaveDelete");
+   $r = [
+    "Body" => "The Product Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($data["ID"])) {
+    $accessCode = "Accepted";
+    $dialogID = "Delete".$data["ID"];
+    $preset = $this->core->Data("Get", [
+     "invoice-preset",
+     $data["ID"]
+    ]) ?? [];
+    $r = [
+     "Body" => "You are about to permanently delete <em>".$preset["Title"]."</em>.",
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->core->Change([[
+      "[Delete.Inputs]" => $this->core->RenderInputs([
+       [
+        "Attributes" => [
+         "name" => "Preset",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $data["ID"]
+       ],
+       [
+        "Attributes" => [
+         "name" => "Shop",
+         "type" => "hidden"
+        ],
+        "Options" => [],
+        "Type" => "Text",
+        "Value" => $data["Shop"]
+       ],
+       [
+        "Attributes" => [
+         "class" => "req",
+         "name" => "PIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Invoice:DeletePreset")),
+      "[Delete.Title]" => $preset["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
