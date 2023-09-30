@@ -2121,8 +2121,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $value
      ]) ?? [];
      if(!empty($invoice)) {
-      $options = 
-      $r .= $this->core->Element(["button", "Forward", [
+      $options = $this->core->Element(["button", "Forward", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Invoice:Forward")."&Invoice=$value&Shop=".$data["Shop"])
       ]]).$this->core->Element(["button", "View", [
