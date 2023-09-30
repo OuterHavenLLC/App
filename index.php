@@ -184,7 +184,7 @@
    ]]);
   } elseif($c[0] == "hire") {
    # HIRE
-   $r = $gw->view(base64_encode("Invoice:Home"), ["Data" => [
+   $r = $gw->view(base64_encode("Invoice:Hire"), ["Data" => [
     "ID" => md5($gw->core->ShopID),
     "pub" => 1
    ]]);

@@ -46,6 +46,8 @@
     $message = "Updated your Invoice.";
    } elseif($type == "NewBlogPost") {
     $message = "Posted to their blog.";
+   } elseif($type == "NewJob") {
+    $message = "Requested a Service.";
    } elseif($type == "NewProduct") {
     $message = "Added a product to their shop.";
    }
@@ -149,7 +151,7 @@
        "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".$data["ShopID"])
       ]
      ]);
-    } elseif($bulletin["Type"] == "Invoice") {
+    } elseif($bulletin["Type"] == "Invoice" || $bulletin["Type"] == "NewJob") {
      $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
      $r = $this->core->Element([
       "button", "View Invoice", [
@@ -1692,6 +1694,16 @@
      "Title" => "$username's Shop",
      "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
     ]]);
+    if(!empty($data["Email"])) {
+     $this->core->SendEmail([
+      "Message" => $this->core->Change([[
+       "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+       "[Email.Name]" => $name
+      ], $this->core->Page("35fb42097f5a625e9bd0a38554226743")]),
+      "Title" => "Welcome to ".$this->core->config["App"]["Name"]."!",
+      "To" => $data["Email"]
+     ]);
+    }
     $this->core->Statistic("MBR");
     $r = $this->core->Change([[
      "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),

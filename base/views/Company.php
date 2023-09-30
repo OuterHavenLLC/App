@@ -348,14 +348,28 @@
     "lPG",
     "pub"
    ]);
-   $bck = ($data["back"] == 1) ? $this->core->Element([
+   $back = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back to <em>".$data["b2"]."</em>", [
      "class" => "GoToParent LI head",
      "data-type" => $data["lPG"]
     ]
    ]) : "";
+   $shopID = md5($this->core->ShopID);
+   $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+   $enableHireSection = $shop["EnableHireSection"] ?? 0;
+   $services = $shop["InvoicePresets"] ?? [];
+   $hire = (md5($you) != $id) ? 1 : 0;
+   $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
+   $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
+   $partners = $shop["Contributors"] ?? [];
+   $hireText = (count($partners) == 1) ? "Me" : "Us";
+   $hire = ($hire == 1) ? $this->core->Change([[
+    "[Hire.Text]" => $hireText,
+    "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$shopID")
+   ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
    $r = $this->core->Change([[
-    "[VVA.Back]" => $bck
+    "[VVA.Back]" => $back,
+    "[VVA.Hire]" => $hire
    ], $this->core->Page("a7977ac51e7f8420f437c70d801fc72b")]);
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r

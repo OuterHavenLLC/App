@@ -357,8 +357,9 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $card = $data["Card"] ?? 0;
-   $id = $data["ID"] ?? "";
+   $id = $data["ID"] ?? md5($this->core->ShopID);
    $pub = $data["pub"] ?? 0;
+   $shopID = $id;
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -376,32 +377,125 @@
     $createJob = $data["CreateJob"] ?? 0;
     $saveJob = $data["SaveJob"] ?? 0;
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
-    if($createJob == 1) {
-     # The Hire form
-     $card = 1;
-     $r = $this->core->Element([
-      "h1", "Hire ".$shop["Title"]
-     ]).$this->core->Element([
-      "p", "A new experience is coming soon..."
-     ]);
-    if($saveJob == 1) {
-     # Create a new Invoice based on the form data and invoice pre-set.
-     $responseType = "Dialog";
-     $success = "CloseCard";
-    } else {
-     $_ViewTitle = "Hire ".$shop["Title"];
-     // BEGIN TPL
-     $r = $this->core->Element([
-      "h1", "Hire"
-     ]).$this->core->Element([
-      "p", "A new experience is coming soon..."
-     ]);
-     // END TPL
-     $r = $this->core->Change([[
-     ], $r]);
-     #], $this->core->Page("Hire")]);
+    $enableHireSection = $shop["EnableHireSection"] ?? 0;
+    $partners = $shop["Contributors"] ?? [];
+    $services = $shop["InvoicePresets"] ?? 0;
+    $hire = (md5($you) != $id) ? 1 : 0;
+    $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
+    $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
+    $r = ($hire == 1) ? $r : $this->core->Element([
+     "h1", "Sorry!", ["class" => "CenterText UpperCase"]
+    ]).$this->core->Element([
+     "p", $shop["Title"]." is not currently accepting job offers.",
+     ["class" => "CenterText"]
+    ]);
+    if($hire == 1) {
+     if(!empty($saveJob)) {
+      $data = $this->core->DecodeBridgeData($data);
+      $saveJob = $data["SaveJob"] ?? 0;
+      if($saveJob == 1) {
+       $preset = $this->core->Data("Get", [
+        "invoice-preset",
+        $data["Service"]
+       ]) ?? [];
+       $responseType = "Dialog";
+       $chargeTo = $data["ChargeTo"] ?? "";
+       $charges = [];
+       array_push($charges, $preset["Charges"]);
+       $id = md5("Invoice$you".uniqid());
+       $invoice = [
+        "ChargeTo" => $chargeTo,
+        "Charges" => $charges,
+        "Email" => $data["Email"],
+        "Notes" => [],
+        "PaidInFull" => $preset["PaidInFull"],
+        "Phone" => $data["Phone"],
+        "Shop" => $preset["Shop"],
+        "Status" => $preset["Status"],
+        "UN" => $preset["UN"]
+       ];
+       $invoices = $shop["Invoices"] ?? [];
+       array_push($invoices, $id);
+       $invoices = array_unique($invoices);
+       $name = $chargeTo ?? $data["Email"];
+       $success = "CloseCard";
+       if(!empty($data["Email"])) {
+        $this->core->SendEmail([
+         "Message" => $this->core->Change([[
+          "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+          "[Email.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
+          "[Email.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
+          "[Email.Name]" => $name,
+          "[Email.Link]" => $this->core->base."/invoice/$id",
+          "[Email.Shop.Name]" => $shop["Title"],
+          "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+         ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+         "Title" => $shop["Title"].": Invoice $id",
+         "To" => $data["Email"]
+        ]);
+       } if(!empty($chargeTo)) {
+        $this->core->SendBulletin([
+         "Data" => [
+          "Invoice" => $id,
+          "Shop" => $shopID
+         ],
+         "To" => $chargeTo,
+         "Type" => "NewJob"
+        ]);
+       } foreach($partners as $key => $value) {
+        $this->core->SendBulletin([
+         "Data" => [
+          "Invoice" => $id,
+          "Shop" => $shopID
+         ],
+         "To" => $key,
+         "Type" => "NewJob"
+        ]);
+       }
+       $shop["Invoices"] = $invoices;
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
+       $this->core->Data("Save", ["shop", $shopID, $shop]);
+       $r = [
+        "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at ".$this->core->base."/invoice/$id",
+        "Header" => "Done"
+       ];
+      }
+     } elseif($createJob == 1) {
+      $action = (count($partners) == 1) ? "Me" : "Us";
+      $action = $this->core->Element(["button", "Hire $action", [
+       "class" => "CardButton SendData",
+       "data-form" => ".Hire$id",
+       "data-processor" => base64_encode("v=".base64_encode("Invoice:Hire"))
+      ]]);
+      $card = 1;
+      $chargeTo = ($this->core->ID != $you) ? $you : "";
+      $hireText = (count($partners) == 1) ? "Me" : "Us";
+      $presets = [];
+      foreach($services as $key => $value) {
+       $service = $this->core->Data("Get", [
+        "invoice-preset",
+        $value
+       ]) ?? [];
+       $presets[$value] = $service["Title"];
+      }
+      $r = $this->core->Change([[
+       "[Hire.ChargeTo]" => $chargeTo,
+       "[Hire.Email]" => base64_encode($y["Personal"]["Email"]),
+       "[Hire.Shop]" => $id,
+       "[Hire.Text]" => $hireText,
+       "[Hire.Services]" => json_encode($presets, true)
+      ], $this->core->Page("dab6e25feafcbb2741022bf6083c2975")]);
+     } else {
+      $_ViewTitle = "Hire ".$shop["Title"];
+      $hireText = (count($partners) == 1) ? "Me" : "Us";
+      $r = $this->core->Change([[
+       "[Shop.Name]" => $shop["Title"],
+       "[Shop.Hire]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id&CreateJob=1"),
+       "[Shop.Hire.Text]" => $hireText
+      ], $this->core->Page("045f6c5cf3728bd31b0d9663498a940c")]);
+     }
     }
-    $r = if($card == 1) ? [
+    $r = ($card == 1) ? [
      "Action" => $action,
      "Front" => $r
     ] : $r;
@@ -513,12 +607,13 @@
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Charge")
        ]
-      ]).$this->core->Element([
+      ]) : "";
+      $r .= $this->core->Element([
        "button", "Notes", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Note")
        ]
-      ]) : "";
+      ]);
       $r .= $this->core->Element(["button", "Forward", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Forward")."&Invoice=$id&Shop=".$invoice["Shop"])
@@ -688,7 +783,7 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Email.Header]" => "{email_header}",
+         "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
          "[Email.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.",
          "[Email.Invoice]" => $chargeList.$total,
          "[Email.Name]" => $name,
@@ -790,7 +885,7 @@
        $status = $invoice["Status"] ?? "Closed";
        $total = 0;
        if($readyForPayment == 1) {
-        $invoice["Status"] = "Closed";
+        $invoice["Status"] = "ReadyForPayment";
        } for($i = 0; $i < count($chargeData); $i++) {
         $description = $data["ChargeDescription"][$i] ?? "Unknown";
         $paid = $data["ChargePaid"][$i] ?? 0;
@@ -828,7 +923,7 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Email.Header]" => "{email_header}",
+         "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
          "[Email.Message]" => "Your Invoice is ready for payment.",
          "[Email.Invoice]" => $chargeList.$total,
          "[Email.Name]" => $name,
@@ -896,7 +991,7 @@
          $total = $this->core->RenderView($total);
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
-           "[Email.Header]" => "{email_header}",
+           "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
            "[Email.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
            "[Email.Invoice]" => $chargeList.$total,
            "[Email.Name]" => $name,
@@ -1042,7 +1137,7 @@
          if(!empty($data["Email"])) {
           $this->core->SendEmail([
            "Message" => $this->core->Change([[
-            "[Email.Header]" => "{email_header}",
+            "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
             "[Email.Message]" => "Please review the Invoice linked below.",
             "[Email.Invoice]" => $chargeList,
             "[Email.Name]" => $name,

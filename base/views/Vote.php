@@ -33,7 +33,7 @@
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? " Medium" : $class;
-    $retract = "v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type";
+    $retract = base64_encode("v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type");
     $save = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
     $down = ($_Votes[$you] == "Down") ? $this->core->Element([
      "button", "Down", [
@@ -45,7 +45,7 @@
      "button", "Down", [
       "class" => "UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
-      "data-view" => $save."Up"
+      "data-view" => base64_encode($save."Down")
      ]
     ]);
     $up = ($_Votes[$you] == "Up") ? $this->core->Element([
@@ -58,7 +58,7 @@
      "button", "Up", [
       "class" => "UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
-      "data-view" => $save."Up"
+      "data-view" => base64_encode($save."Up")
      ]
     ]);
     $votes = $_VoteUp - $_VoteDown;
@@ -107,6 +107,7 @@
      "Refresh" => 1,
      "Type" => $type
     ]]);
+    $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -135,6 +136,7 @@
      "Refresh" => 1,
      "Type" => $type
     ]]);
+    $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -142,7 +144,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "UpdateContent"
    ]);
   }
   function ViewCount(array $a) {

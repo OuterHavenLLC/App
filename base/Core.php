@@ -763,7 +763,7 @@
      "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
      "[App.CurrentYear]" => date("Y"),
      "[App.Name]" => $this->config["App"]["Name"],
-     "[X.contact]" => base64_encode("v=".base64_encode("Company:Feedback")),
+     "[App.Username]" => $this->config["App"]["Name"],
      "[base]" => $this->base,
      "[efs]" => $this->efs,
      "[plus]" => "+",

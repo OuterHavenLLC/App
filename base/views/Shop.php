@@ -712,7 +712,7 @@
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $id = md5($t["Login"]["Username"]);
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
-    $enableHireSection = $shop["EbnableHireSection"] ?? 0;
+    $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $partners = $shop["Contributors"] ?? [];
     $commission = $shop["Commission"] ?? 0;
     $subscribers = $shop["Subscribers"] ?? [];
@@ -737,10 +737,11 @@
       "Y" => $you
      ]);
      $ck2 = ($t["Login"]["Username"] == $this->core->ShopID) ? 1 : $ck2;
-     $contributors = $shop["Contributors"] ?? [];
+     $partners = $shop["Contributors"] ?? [];
+     $services = $shop["InvoicePresets"] ?? [];
      if($ck == 1 || ($bl == 0 && $ck2 == 1)) {
       $active = 0;
-      foreach($contributors as $member => $role) {
+      foreach($partners as $member => $role) {
        if($active == 0 && $member == $you) {
         $active++;
        }
@@ -759,7 +760,7 @@
        ]
       ]) : "";
       $hire = (md5($you) != $id) ? 1 : 0;
-      $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
+      $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
       $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
       $hireText = (count($partners) == 1) ? "Me" : "Us";
       $hire = ($hire == 1) ? $this->core->Change([[
@@ -850,9 +851,10 @@
    $username = base64_encode($id);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $enableHireSection = $shop["EbnableHireSection"] ?? 0;
+   $enableHireSection = $shop["EnableHireSection"] ?? 0;
+   $services = $shop["InvoicePresets"] ?? [];
    $hire = (md5($you) != $id) ? 1 : 0;
-   $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
+   $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
    $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
    $hireText = (count($partners) == 1) ? "Me" : "Us";
    $hire = ($hire == 1) ? $this->core->Change([[
@@ -922,6 +924,9 @@
      ]).$this->core->Element([
       "p", "A new, consolidated payment workflow will be built here to accomodate all payment types."
      ]);
+     if($type == "Invoice") {
+      $r.=$this->core->Element(["p", "Invoice"]);//TEMP
+     }
     }
    }
    return $this->core->JSONResponse([
