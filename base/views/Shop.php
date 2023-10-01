@@ -918,14 +918,215 @@
      "Body" => "The Payment Type is missing."
     ];
     if(!empty($type)) {
+     $_Braintree = $this->core->DocumentRoot."/base/pay/Braintree.php";
      $accessCode = "Accepted";
-     $r = $this->core->Element([
-      "h1", "Pay"
-     ]).$this->core->Element([
-      "p", "A new, consolidated payment workflow will be built here to accomodate all payment types."
+     $changeData = [];
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     $step = $data["Step"] ?? 0;
+     $live = $shop["Live"] ?? 0;
+     $payments = $shop["Processing"] ?? [];
+     $payments = $this->core->FixMissing($payments, [
+      "BraintreeMerchantIDLive",
+      "BraintreePrivateKeyLive",
+      "BraintreePublicKeyLive",
+      "BraintreeTokenLive",
+      "PayPalClientID",
+      "PayPalClientIDLive",
+      "PayPalEmailLive"
      ]);
-     if($type == "Invoice") {
-      $r.=$this->core->Element(["p", "Invoice"]);//TEMP
+     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
+     $paymentProcessors = $this->core->config["MiNY"]["PaymentProcessors"] ?? [];
+     if($paymentProcessor == "Braintree") {
+      require_once($_Braintree);
+      $envrionment = ($live == 1) ? "production" : "sandbox";
+      $braintree = ($live == 1) ? [
+       "MerchantID" => $payments["BraintreeMerchantIDLive"],
+       "Token" => $payments["BraintreeTokenLive"],
+       "PrivateKey" => $payments["BraintreePrivateKeyLive"],
+       "PublicKey" => $payments["BraintreePublicKeyLive"]
+      ] : [
+       "MerchantID" => $payments["BraintreeMerchantID"],
+       "Token" => $payments["BraintreeToken"],
+       "PrivateKey" => $payments["BraintreePrivateKey"],
+       "PublicKey" => $payments["BraintreePublicKey"]
+      ];
+      $token = base64_decode($braintree["Token"]);
+      $merchantID = base64_decode($braintree["MerchantID"]);
+      $braintree = new Braintree\Gateway([
+       "environment" => $envrionment,
+       "merchantId" => $merchantID,
+       "privateKey" => base64_decode($braintree["PrivateKey"]),
+       "publicKey" => base64_decode($braintree["PublicKey"])
+      ]);
+      $token = $braintree->clientToken()->generate([
+       "merchantAccountId" => $merchantID
+      ]) ?? $token;
+     } elseif($paymentProcessor == "PayPal") {
+      $paypal = ($live == 1) ? [
+       "ClientID" => $payments["PayPalClientIDLive"]
+      ] : [
+       "ClientID" => $payments["PayPalClientID"]
+      ];
+      $token = "";
+     } if(in_array($paymentProcessor, $paymentProcessors)) {
+      $check = 0;
+      $subtotal = 0;
+      $tax = 0;
+      $total = 0;
+      if($type == "Checkout") {
+       if($step == 2) {
+        # FINISH PAYMENT PROCESS
+       } else {
+        # FIRST STEP
+       }
+      } elseif($type == "Commission") {
+       if($step == 2) {
+        # FINISH PAYMENT PROCESS
+       } else {
+        # FIRST STEP
+       }
+      } elseif($type == "Donation") {
+       if($step == 2) {
+        # FINISH PAYMENT PROCESS
+       } else {
+        # FIRST STEP
+       }
+      } elseif($type == "Invoice") {
+       $charge = $data["Charge"] ?? "";
+       $balance = 0;
+       $payInFull = $data["PayInFull"] ?? 0;
+       if($step == 2) {
+        $charge = $data["Charge"] ?? "";
+        $orderID = $data["OrderID"] ?? "";
+        $paymentNonce = $data["payment_method_nonce"] ?? "";
+        $payInFull = $data["PayInFull"] ?? 0;
+        $invoice = $this->core->Data("Get", [
+         "invoice",
+         $data["Invoice"]
+        ]) ?? [];
+        $charges = $invoice["Charges"] ?? [];
+        $processor = "v=".base64_encode("Shop:Pay")."&Invoice=".$data["Invoice"]."&Shop=$shopID&Step=2";
+        $processor .= ($paymentProcessor == "Braintree") ? "&payment_method_nonce=" : "";
+        $unpaid = 0;
+        foreach($charges as $key => $info) {
+         $value = $info["Value"] ?? 0.00;
+         $unpaid = $unpaid + $value;
+         if($charge == $key || $payInFull == 1) {
+          if($info["Paid"] == 0) {
+           $balance = $balance + $value;
+          }
+         }
+        }
+        $subtotal = $balance;
+        if($balance > 0) {
+         $tax = $shop["Tax"] ?? 10.00;
+         $tax = number_format($subtotal * ($tax / 100), 2);
+        }
+        $total = number_format(($subtotal + $tax), 2);
+        $changeData = [
+         "[Checkout.Data]" => json_encode($data, true)
+        ];
+        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+        if(!empty($orderID) || !empty($paymentNonce)) {
+         if($paymentProcessor == "Braintree") {
+          $name = $invoice["ChargeTo"] ?? $invoice["Email"];
+          $order = $braintree->transaction()->sale([
+           "amount" => str_replace(",", "", $total),
+            "customer" => [
+            "firstName" => $name
+           ],
+           "options" => [
+            "submitForSettlement" => true
+           ],
+           "paymentMethodNonce" => $paymentNonce
+          ]);
+          $check = ($order->success) ? 1 : 0;
+          $order->message = $order->message ?? "N/A";
+          $changeData = [
+           "[Checkout.Order.Message]" => $order->message,
+           "[Checkout.Order.Products]" => 1,
+           "[Checkout.Order.Success]" => $order->success
+          ];
+          $extension = "229e494ec0f0f43824913a622a46dfca";
+         } elseif($paymentProcessor == "PayPal") {
+          $check = (!empty($orderID)) ? 1 : 0;
+          $orderID = base64_decode($orderID);
+         } if($check == 1) {
+          if(!empty($charge)) {
+           $invoice["Charges"][$charge]["Paid"] = 1;
+           if($invoice["Charges"][$charge]["Value"] == $unpaid) {
+            $invoice["Status"] = "Closed";
+           }
+          } elseif($payInFull == 1) {
+           $invoice["PaidInFull"] = 1;
+           $invoice["Status"] = "Closed";
+           $charges = $invoice["Charges"] ?? [];
+           foreach($charges as $key => $charge) {
+            $invoice["Charges"][$key]["Paid"] = 1;
+           }
+          }
+          $points = $subtotal + ($subtotal * 10000);
+          $y["Points"] = $points;
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Data("Save", [
+           "invoice",
+           $data["Invoice"],
+           $invoice
+          ]);
+          $changeData = [
+           "[Checkout.Order]" => $this->core->ELement([
+            "p", "Payment made for Invoice ".$data["Invoice"]."."
+           ]),
+           "[Checkout.Title]" => $shop["Title"],
+           "[Checkout.Total]" => number_format($balance, 2)
+          ];
+          $extension = "83d6fedaa3fa042d53722ec0a757e910";
+         }
+        }
+       } else {
+        $invoice = $this->core->Data("Get", [
+         "invoice",
+         $data["Invoice"]
+        ]) ?? [];
+        $charges = $invoice["Charges"] ?? [];
+        $processor = "v=".base64_encode("Shop:Pay")."&Charge=$charge&Invoice=".$data["Invoice"]."&PayInFull=$payInFull&Shop=$shopID&Step=2&Type=$type";
+        $processor .= ($paymentProcessor == "Braintree") ? "&payment_method_nonce=" : "";
+        foreach($charges as $key => $info) {
+         if($charge == $key || $payInFull == 1) {
+          $value = $info["Value"] ?? 0.00;
+          if($info["Paid"] == 0) {
+           $balance = $balance + $value;
+          }
+         }
+        }
+        $subtotal = $balance;
+        if($balance > 0) {
+         $tax = $shop["Tax"] ?? 10.00;
+         $tax = number_format($subtotal * ($tax / 100), 2);
+        }
+        $balance = number_format(($subtotal + $tax), 2);
+        $changeData = [
+         "[Payment.PayPal.ClientID]" => base64_decode($paypal["ClientID"]),
+         "[Payment.PayPal.Total]" => str_replace(",", "", number_format($tax + $total, 2)),
+         "[Payment.Processor]" => base64_encode($processor),
+         "[Payment.Region]" => $this->core->region,
+         "[Payment.Shop]" => $shopID,
+         "[Payment.Title]" => $shop["Title"],
+         "[Payment.Token]" => $token,
+         "[Payment.Total]" => $balance,
+         "[Payment.Type]" => "Invoice payment"
+        ];
+        if($paymentProcessor == "Braintree") {
+         $extension = "a1a7a61b89ce8e2715efc0157aa92383";
+        } elseif($paymentProcessor == "PayPal") {
+         $extension = "7c0f626e2bbb9bd8c04291565f84414a";
+        }
+       }
+      }
+      $r = $this->core->Change([
+       $changeData,
+       $this->core->Page($extension)
+      ]);
      }
     }
    }

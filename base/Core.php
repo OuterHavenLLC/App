@@ -205,7 +205,7 @@
      "VVA" => "b3f36e7638e6961eda52b62016aa1b50.png",
      "VVA-CP" => ""
     ],
-    "MiNY" => [
+    "MiNY" => [// TEMP
      "PaymentProcessors" => [
       "Braintree",
       "PayPal"
@@ -243,6 +243,12 @@
      "UL" => "File Uploads",
      "ULu" => "File Updates",
      "Visits" => "Visitors"
+    ],
+    "Shop" => [
+     "PaymentProcessors" => [
+      "Braintree",
+      "PayPal"
+     ]
     ],
     "SUB" => [
       "Artist" => [

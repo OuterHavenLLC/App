@@ -536,6 +536,7 @@
    if(!empty($id)) {
     $_ViewTitle = "Invoice $id";
     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
     $r = [
      "Body" => "We could not find any data for Invoice $id."
     ];
@@ -548,7 +549,6 @@
      if($dependency == "Charges") {
       $check = 0;
       $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
-      $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
       foreach($shop["Contributors"] as $member => $role) {
        if($check == 0 && $member == $you) {
         $check++;
@@ -596,7 +596,6 @@
      } elseif($dependency == "Options") {
       $check = 0;
       $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
-      $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
       foreach($shop["Contributors"] as $member => $role) {
        if($check == 0 && $member == $you) {
         $check++;
@@ -608,12 +607,12 @@
         "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Charge")
        ]
       ]) : "";
-      $r .= $this->core->Element([
+      $r .= ($check == 1 && $isAdmin == 1) ? $this->core->Element([
        "button", "Notes", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Note")
        ]
-      ]);
+      ]) : "";
       $r .= $this->core->Element(["button", "Forward", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Forward")."&Invoice=$id&Shop=".$invoice["Shop"])
@@ -637,25 +636,21 @@
       $balance = 0;
       $charges = $invoice["Charges"] ?? [];
       $isEmailed = $data["Emailed"] ?? 0;
-      $paid = 0;
       $tax = 0;
       $subtotal = 0;
       foreach($charges as $key => $charge) {
        $value = $charge["Value"] ?? 0.00;
-       if($value > 0) {
+       if($charge["Paid"] == 0) {
         $balance = $balance + $value;
-       } elseif($value < 0) {
-        $paid = $paid + $value;
        }
       }
       $subtotal = $balance;
-      $total = $balance + $paid;
       if($balance > 0) {
        $tax = $shop["Tax"] ?? 10.00;
-       $tax = number_format($total * ($tax / 100), 2);
+       $tax = number_format($subtotal * ($tax / 100), 2);
       }
-      $balance = number_format(($total + $tax), 2);
-      $balance = ($invoice["UN"] != $you && $total > 0) ? $this->core->Element([
+      $balance = number_format(($subtotal + $tax), 2);
+      $balance = ($invoice["Status"] == "ReadyForPayment" && $invoice["UN"] != $you && $balance > 0) ? $this->core->Element([
        "button", "$$balance", [
         "class" => "BBB CloseCard OpenFirSTEPTool v2",
         "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice&PayInFull=1")
@@ -664,7 +659,6 @@
       $balance = ($isEmailed == 1) ? "<strong>$$balance</strong>" : $balance;
       $r = $this->core->Change([[
        "[Invoice.Balance]" => $balance,
-       "[Invoice.Paid]" => number_format($paid, 2),
        "[Invoice.Subtotal]" => number_format($subtotal, 2),
        "[Invoice.Taxes]" => $tax
       ], $this->core->Page("6faa1179113386dad098302e12049b8b")]);
