@@ -1142,6 +1142,12 @@
        } else {
         # FIRST STEP
        }
+      } elseif($type == "Disbursement") {
+       if($step == 2) {
+        # FINISH PAYMENT PROCESS
+       } else {
+        # FIRST STEP
+       }
       } elseif($type == "Donation") {
        if($step == 2) {
         # FINISH PAYMENT PROCESS
