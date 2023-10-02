@@ -359,19 +359,15 @@
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? md5($this->core->ShopID);
    $pub = $data["pub"] ?? 0;
-   $shopID = $id;
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $responseType = "View";
+   $responseType = "Dialog";
+   $shopID = $id;
    $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must sign in to continue."
-    ];
-   } elseif(!empty($id)) {
+   if(!empty($id)) {
     $accessCode = "Accepted";
     $action = "";
     $createJob = $data["CreateJob"] ?? 0;
@@ -398,7 +394,6 @@
         "invoice-preset",
         $data["Service"]
        ]) ?? [];
-       $responseType = "Dialog";
        $chargeTo = $data["ChargeTo"] ?? "";
        $charges = [];
        array_push($charges, $preset["Charges"]);
@@ -494,16 +489,13 @@
        "[Shop.Hire.Text]" => $hireText
       ], $this->core->Page("045f6c5cf3728bd31b0d9663498a940c")]);
      }
+     $responseType = "View";
     }
     $r = ($card == 1) ? [
      "Action" => $action,
      "Front" => $r
     ] : $r;
     if($pub == 1) {
-     if($this->core->ID == $you) {
-      $r = $this->view(base64_encode("WebUI:OptIn"), []);
-      $r = $this->core->RenderView($r);
-     }
      $r = $this->view(base64_encode("WebUI:Containers"), [
       "Data" => ["Content" => $r]
      ]);

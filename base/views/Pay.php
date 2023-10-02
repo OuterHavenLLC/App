@@ -631,16 +631,16 @@
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
       if($bundle == 0) {
-       $this->core->Revenue([$shopOwner, [
+       /*$this->core->Revenue([$shopOwner, [
         "Cost" => $product["Cost"],
         "ID" => $id,
         "Partners" => $contributors,
         "Profit" => $product["Profit"],
         "Quantity" => $purchaseQuantity,
         "Title" => $product["Title"]
-       ]]);
+       ]]);*/
       } if($product["Quantity"] > 0) {
-       $this->core->Data("Save", ["product", $id, $product]);
+       #$this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $bundled = explode("-", base64_decode($bundled));

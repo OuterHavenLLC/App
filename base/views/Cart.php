@@ -418,7 +418,7 @@
    $continue = ($mayContinue == 1) ? $this->core->Element([
     "button", "Continue", [
      "class" => "BBB OpenFirSTEPTool v2 v2w",
-     "data-fst" => base64_encode("v=".base64_encode("Pay:Checkout")."&UN=".$data["UN"])
+     "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($username)."&Type=Checkout")
     ]
    ]) : "";
    $r = $this->core->Change([[
