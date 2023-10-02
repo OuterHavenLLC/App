@@ -30,7 +30,7 @@
      "PayPalEmailLive"
     ]);
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
-    $paymentProcessors = $this->core->config["MiNY"]["PaymentProcessors"] ?? [];
+    $paymentProcessors = $this->core->config["Shop"]["PaymentProcessors"] ?? [];
     if($paymentProcessor == "Braintree") {
      require_once($this->bt);
      $envrionment = ($shop["Live"] == 1) ? "production" : "sandbox";

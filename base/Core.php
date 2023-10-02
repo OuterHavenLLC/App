@@ -205,12 +205,6 @@
      "VVA" => "b3f36e7638e6961eda52b62016aa1b50.png",
      "VVA-CP" => ""
     ],
-    "MiNY" => [// TEMP
-     "PaymentProcessors" => [
-      "Braintree",
-      "PayPal"
-     ]
-    ],
     "PTS" => [
      "Default" => 10,
      "Donations" => 100,

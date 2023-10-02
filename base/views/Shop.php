@@ -935,7 +935,7 @@
       "PayPalEmailLive"
      ]);
      $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
-     $paymentProcessors = $this->core->config["MiNY"]["PaymentProcessors"] ?? [];
+     $paymentProcessors = $this->core->config["Shop"]["PaymentProcessors"] ?? [];
      if($paymentProcessor == "Braintree") {
       require_once($_Braintree);
       $envrionment = ($live == 1) ? "production" : "sandbox";
@@ -973,6 +973,9 @@
       $subtotal = 0;
       $tax = 0;
       $total = 0;
+      $r = [
+       "Body" => "The Payment Processor is missing or unsupportes is missing."
+      ];
       if($type == "Checkout") {
        if($step == 2) {
         # FINISH PAYMENT PROCESS
