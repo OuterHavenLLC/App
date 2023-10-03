@@ -7,7 +7,7 @@
   function Donate(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $donate = "v=".base64_encode("Pay:Donation")."&amount=";
+   $donate = "v=".base64_encode("Shop:Pay")."&Shop=".md5($this->core->ShopID)."&Type=Donation&Amount=";
    $pub = $data["pub"] ?? 0;
    $r = $this->core->Change([[
     "[Donate.5]" => base64_encode($donate.base64_encode(5)),

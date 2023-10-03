@@ -108,6 +108,7 @@
     ]]);
     $coverPhoto = $shop["CoverPhotoSource"] ?? "";
     $designViewEditor = "UIE$id";
+    $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $percentages = [];
@@ -247,6 +248,7 @@
        "Value" => $tax
       ]
      ]),
+     "[Shop.EnableHireSection]" => $enableHireSection,
      "[Shop.ID]" => $id,
      "[Shop.Payments.Braintree.Live]" => $this->core->RenderInputs([
       [
@@ -971,8 +973,9 @@
      } if(in_array($paymentProcessor, $paymentProcessors)) {
       $check = 0;
       $message = "";
-      $processor = "";
       $orderID = $data["OrderID"] ?? "";
+      $paymentNonce = $data["payment_method_nonce"] ?? "";
+      $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type";
       $subtotal = 0;
       $tax = 0;
       $total = 0;
@@ -980,53 +983,56 @@
        "Body" => "The Payment Processor is missing or unsupportes is missing."
       ];
       if($type == "Checkout") {
-       if($step == 2) {
-        $shopOwner = $this->core->Data("Get", ["mbr", $shopID]) ?? [];
-        $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
-        $cartCount = count($cart);
-        $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
-        $credits = number_format($credits, 2);
-        $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
-        $now = $this->core->timestamp;
-        $subtotal = 0;
-        $total = 0;
-        foreach($cart as $key => $value) {
-         $product = $this->core->Data("Get", ["product", $key]) ?? [];
-         $quantity = $product["Quantity"] ?? 0;
-         if(!empty($product) && $quantity != 0) {
-          $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
-          if($productIsActive == 1) {
-           $price = str_replace(",", "", $product["Cost"]);
-           $price = $price + str_replace(",", "", $product["Profit"]);
-           $subtotal = $subtotal + $price;
-          }
-         }
-        } if($discountCode != 0) {
-         $discountCode = $discountCode ?? [];
-         $dollarAmount = $discountCode["DollarAmount"] ?? 0.00;
-         $dollarAmount = number_format($dollarAmount, 2);
-         $percentile = $discountCode["Percentile"] ?? 0;
-         $percentile = $subtotal * ($percentile / 100);
-         $discountCodeAmount = ($dollarAmount > $percentile) ? "Dollars" : "Percentile";
-         $discountCode = [
-          "Amount" => $discountCodeAmount,
-          "Dollars" => $dollarAmount,
-          "Percentile" => $percentile
-         ];
-         if($discountCode["Amount"] == "Dollars") {
-          $discountCode = $discountCode["Dollars"];
-         } else {
-          $discountCode = number_format($discountCode["Percentile"], 2);
+       $changeData = [
+        "[Checkout.Data]" => json_encode($data, true)
+       ];
+       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $shopOwner = $this->core->Data("Get", ["mbr", $shopID]) ?? [];
+       $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
+       $cartCount = count($cart);
+       $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
+       $credits = number_format($credits, 2);
+       $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
+       $now = $this->core->timestamp;
+       foreach($cart as $key => $value) {
+        $product = $this->core->Data("Get", ["product", $key]) ?? [];
+        $quantity = $product["Quantity"] ?? 0;
+        if(!empty($product) && $quantity != 0) {
+         $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+         if($productIsActive == 1) {
+          $price = str_replace(",", "", $product["Cost"]);
+          $price = $price + str_replace(",", "", $product["Profit"]);
+          $subtotal = $subtotal + $price;
          }
         }
-        $subtotal = $subtotal - $credits - $discountCode;
-        $tax = $shop["Tax"] ?? 10.00;
-        $tax = number_format($subtotal * ($tax / 100), 2);
-        $step2total = number_format(($subtotal + $tax), 2);
+       } if($discountCode != 0) {
+        $discountCode = $discountCode ?? [];
+        $dollarAmount = $discountCode["DollarAmount"] ?? 0.00;
+        $dollarAmount = number_format($dollarAmount, 2);
+        $percentile = $discountCode["Percentile"] ?? 0;
+        $percentile = $subtotal * ($percentile / 100);
+        $discountCodeAmount = ($dollarAmount > $percentile) ? "Dollars" : "Percentile";
+        $discountCode = [
+         "Amount" => $discountCodeAmount,
+         "Dollars" => $dollarAmount,
+         "Percentile" => $percentile
+        ];
+        if($discountCode["Amount"] == "Dollars") {
+         $discountCode = $discountCode["Dollars"];
+        } else {
+         $discountCode = number_format($discountCode["Percentile"], 2);
+        }
+       }
+       $subtotal = $subtotal - $credits - $discountCode;
+       $tax = $shop["Tax"] ?? 10.00;
+       $tax = number_format($subtotal * ($tax / 100), 2);
+       $total = number_format(($subtotal + $tax), 2);
+       $strippedTotal = str_replace(",", "", $total);
+       if($step == 2) {
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
           $order = $braintree->transaction()->sale([
-           "amount" => str_replace(",", "", $step2total),
+           "amount" => $strippedTotal,
            "customer" => [
             "firstName" => $y["Personal"]["FirstName"]
            ],
@@ -1047,7 +1053,9 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
-          $message = "";
+          $message = $this->core->Element([
+           "p", "Thank you for your purchase!"
+          ]);
           $points = $y["Points"] ?? 0;
           $physicalOrders = $this->core->Data("Get", [
            "po",
@@ -1087,109 +1095,125 @@
           $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
           $y["Shopping"]["Cart"][$shopID]["Products"] = [];
           $y["Verified"] = 1;
-          #$this->core->Data("Save", ["mbr", md5($you), $y]);
-          #$this->core->Data("Save", ["po", $shopID, $physicalOrders]);
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
          }
         }
        } else {
-        $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
-        $cartCount = count($cart);
-        $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
-        $credits = number_format($credits, 2);
-        $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
-        $now = $this->core->timestamp;
-        $subtotal = 0;
-        $total = 0;
-        foreach($cart as $key => $value) {
-         $product = $this->core->Data("Get", ["product", $key]) ?? [];
-         $quantity = $product["Quantity"] ?? 0;
-         if(!empty($product) && $quantity != 0) {
-          $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
-          if($productIsActive == 1) {
-           $price = str_replace(",", "", $product["Cost"]);
-           $price = $price + str_replace(",", "", $product["Profit"]);
-           $subtotal = $subtotal + $price;
-          }
-         }
-        } if($discountCode != 0) {
-         $discountCode = $discountCode ?? [];
-         $dollarAmount = $discountCode["DollarAmount"] ?? 0.00;
-         $dollarAmount = number_format($dollarAmount, 2);
-         $percentile = $discountCode["Percentile"] ?? 0;
-         $percentile = $subtotal * ($percentile / 100);
-         $discountCodeAmount = ($dollarAmount > $percentile) ? "Dollars" : "Percentile";
-         $discountCode = [
-          "Amount" => $discountCodeAmount,
-          "Dollars" => $dollarAmount,
-          "Percentile" => $percentile
-         ];
-         if($discountCode["Amount"] == "Dollars") {
-          $discountCode = $discountCode["Dollars"];
-         } else {
-          $discountCode = number_format($discountCode["Percentile"], 2);
-         }
-        }
-        $subtotal = $subtotal - $credits - $discountCode;
-        $tax = $shop["Tax"] ?? 10.00;
-        $tax = number_format($subtotal * ($tax / 100), 2);
-        $message = "You are about to complete your purchase with <em>".$shop["Title"]."</em>. Please verify that the total listed below is accurate";
-        $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type";
-        $total = number_format($tax + $subtotal, 2);
+        $message = $this->core->Element([
+         "p", "You are about to complete your purchase with <em>".$shop["Title"]."</em>. Please verify that the total listed below is accurate."
+        ]);
        }
       } elseif($type == "Commission") {
+       $changeData = [
+        "[Checkout.Data]" => json_encode($data, true)
+       ];
+       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
        if($step == 2) {
         # FINISH PAYMENT PROCESS
        } else {
         # FIRST STEP
        }
       } elseif($type == "Disbursement") {
+       $changeData = [
+        "[Checkout.Data]" => json_encode($data, true)
+       ];
+       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
        if($step == 2) {
         # FINISH PAYMENT PROCESS
        } else {
         # FIRST STEP
        }
       } elseif($type == "Donation") {
+       $changeData = [
+        "[Checkout.Data]" => json_encode($data, true)
+       ];
+       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $subtotal = $data["Amount"] ?? base64_encode(0);
+       $subtotal = base64_decode($subtotal);
+       $tax = $shop["Tax"] ?? 10.00;
+       $tax = number_format($subtotal * ($tax / 100), 2);
+       $total = number_format(($subtotal + $tax), 2);
+       $strippedTotal = str_replace(",", "", $total);
        if($step == 2) {
-        # FINISH PAYMENT PROCESS
-       } else {
-        # FIRST STEP
-       }
-      } elseif($type == "Invoice") {
-       $charge = $data["Charge"] ?? "";
-       $payInFull = $data["PayInFull"] ?? 0;
-       if($step == 2) {
-        $charge = $data["Charge"] ?? "";
-        $paymentNonce = $data["payment_method_nonce"] ?? "";
-        $payInFull = $data["PayInFull"] ?? 0;
-        $invoice = $this->core->Data("Get", [
-         "invoice",
-         $data["Invoice"]
-        ]) ?? [];
-        $charges = $invoice["Charges"] ?? [];
-        $unpaid = 0;
-        foreach($charges as $key => $info) {
-         $value = $info["Value"] ?? 0.00;
-         $unpaid = $unpaid + $value;
-         if($charge == $key || $payInFull == 1) {
-          if($info["Paid"] == 0) {
-           $subtotal = $subtotal + $value;
-          }
+        if(!empty($orderID) || !empty($paymentNonce)) {
+         if($paymentProcessor == "Braintree") {
+          $order = $braintree->transaction()->sale([
+           "amount" => $strippedTotal,
+           "customer" => [
+            "firstName" => $y["Personal"]["FirstName"]
+           ],
+           "options" => [
+            "submitForSettlement" => true
+           ],
+           "paymentMethodNonce" => $paymentNonce
+          ]);
+          $check = ($order->success) ? 1 : 0;
+          $order->message = $order->message ?? "N/A";
+          $changeData = [
+           "[Checkout.Order.Message]" => $order->message,
+           "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
+           "[Checkout.Order.Success]" => $order->success
+          ];
+          $extension = "229e494ec0f0f43824913a622a46dfca";
+         } elseif($paymentProcessor == "PayPal") {
+          $check = (!empty($orderID)) ? 1 : 0;
+          $orderID = base64_decode($orderID);
+         } if($check == 1) {
+          $points = $strippedTotal * 1000;
+          $y["Points"] = $y["Points"] + $points;
+          #$this->core->Data("Save", ["mbr", md5($you), $y]);
+          $message = $this->core->Element([
+           "p", "We appreciate your donation of $$total to <em>".$shop["Title"]."</em>! This will help fund our continuing effort to preserve free speech on the internet. We are also giving you $points towards Credits which you may use for future purchases if you are currently signed in."
+          ]);
          }
         }
-        if($subtotal > 0) {
-         $tax = $shop["Tax"] ?? 10.00;
-         $tax = number_format($subtotal * ($tax / 100), 2);
+       } else {
+        $message = $this->core->Element([
+         "p", "Thank you very much for considering a donation of $$total (includes tax) to <em>".$shop["Title"]."</em>."
+        ]);
+        $subtotal = str_replace(",", "", $subtotal);
+        $processor .= "&Amount=".$data["Amount"];
+       }
+      } elseif($type == "Invoice") {
+       $changeData = [
+        "[Checkout.Data]" => json_encode($data, true)
+       ];
+       $charge = $data["Charge"] ?? "";
+       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $invoiceID = $data["Invoice"] ?? "";
+       $invoice = $this->core->Data("Get", [
+        "invoice",
+        $invoiceID
+       ]) ?? [];
+       $charges = $invoice["Charges"] ?? [];
+       $unpaid = 0;
+       foreach($charges as $key => $info) {
+        $value = $info["Value"] ?? 0.00;
+        $unpaid = $unpaid + $value;
+        if($charge == $key || $payInFull == 1) {
+         if($info["Paid"] == 0) {
+          $subtotal = $subtotal + $value;
+         }
         }
+       }
+       $payInFull = $data["PayInFull"] ?? 0;
+       if($subtotal > 0) {
+        $tax = $shop["Tax"] ?? 10.00;
+        $tax = number_format($subtotal * ($tax / 100), 2);
+       }
+       $total = number_format(($subtotal + $tax), 2);
+       $strippedTotal = str_replace(",", "", $total);
+       if($step == 2) {
         $changeData = [
          "[Checkout.Data]" => json_encode($data, true)
         ];
         $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
-        $step2total = number_format(($subtotal + $tax), 2);
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
           $name = $invoice["ChargeTo"] ?? $invoice["Email"];
           $order = $braintree->transaction()->sale([
-           "amount" => str_replace(",", "", $step2total),
+           "amount" => $strippedTotal,
             "customer" => [
             "firstName" => $name
            ],
@@ -1228,35 +1252,19 @@
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", [
            "invoice",
-           $data["Invoice"],
+           $invoiceID,
            $invoice
           ]);
-          $message = $this->core->ELement([
-           "p", "Payment made for Invoice ".$data["Invoice"]."."
+          $message = $this->core->Element([
+           "p", "Thank you for your payment towards Invoice $invoiceID!"
           ]);
          }
         }
        } else {
-        $invoice = $this->core->Data("Get", [
-         "invoice",
-         $data["Invoice"]
-        ]) ?? [];
-        $charges = $invoice["Charges"] ?? [];
-        $processor = "v=".base64_encode("Shop:Pay")."&Charge=$charge&Invoice=".$data["Invoice"]."&PayInFull=$payInFull&Shop=$shopID&Step=2&Type=$type";
-        foreach($charges as $key => $info) {
-         if($charge == $key || $payInFull == 1) {
-          $value = $info["Value"] ?? 0.00;
-          if($info["Paid"] == 0) {
-           $subtotal = $subtotal + $value;
-          }
-         }
-        }
-        if($subtotal > 0) {
-         $tax = $shop["Tax"] ?? 10.00;
-         $tax = number_format($subtotal * ($tax / 100), 2);
-        }
-        $message = "Invoice payment";
-        $total = number_format($subtotal + $tax, 2);
+        $message = $this->core->Element([
+         "p", "You are about to make a $$total payment towards Invoice $invoiceID."
+        ]);
+        $processor .= "&Charge=$charge&Invoice=$invoiceID";
        }
       } if($step == 2) {
        $changeData = [
@@ -1525,16 +1533,16 @@
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
       if($bundle == 0) {
-       /*$this->core->Revenue([$shopOwner, [
+       $this->core->Revenue([$shopOwner, [
         "Cost" => $product["Cost"],
         "ID" => $id,
         "Partners" => $contributors,
         "Profit" => $product["Profit"],
         "Quantity" => $purchaseQuantity,
         "Title" => $product["Title"]
-       ]]);*/
+       ]]);
       } if($product["Quantity"] > 0) {
-       #$this->core->Data("Save", ["product", $id, $product]);
+       $this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $bundled = explode("-", base64_decode($bundled));

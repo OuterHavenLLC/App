@@ -385,7 +385,7 @@
      "p", $shop["Title"]." is not currently accepting job offers.",
      ["class" => "CenterText"]
     ]);
-    if($hire == 1) {
+    if($hire == 1 && $shop["Open"] == 1) {
      if(!empty($saveJob)) {
       $data = $this->core->DecodeBridgeData($data);
       $saveJob = $data["SaveJob"] ?? 0;
