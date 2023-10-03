@@ -1109,18 +1109,93 @@
         "[Checkout.Data]" => json_encode($data, true)
        ];
        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $subtotal = $data["Amount"] ?? base64_encode(0);
+       $subtotal = base64_decode($subtotal);
+       $tax = $shop["Tax"] ?? 10.00;
+       $tax = number_format($subtotal * ($tax / 100), 2);
+       $total = number_format(($subtotal + $tax), 2);
+       $strippedTotal = str_replace(",", "", $total);
        if($step == 2) {
-        # FINISH PAYMENT PROCESS
+        if(!empty($orderID) || !empty($paymentNonce)) {
+         if($paymentProcessor == "Braintree") {
+          $order = $braintree->transaction()->sale([
+           "amount" => $strippedTotal,
+           "customer" => [
+            "firstName" => $y["Personal"]["FirstName"]
+           ],
+           "options" => [
+            "submitForSettlement" => true
+           ],
+           "paymentMethodNonce" => $paymentNonce
+          ]);
+          $check = ($order->success) ? 1 : 0;
+          $order->message = $order->message ?? "N/A";
+          $changeData = [
+           "[Checkout.Order.Message]" => $order->message,
+           "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
+           "[Checkout.Order.Success]" => $order->success
+          ];
+          $extension = "229e494ec0f0f43824913a622a46dfca";
+         } elseif($paymentProcessor == "PayPal") {
+          $check = (!empty($orderID)) ? 1 : 0;
+          $orderID = base64_decode($orderID);
+         } if($check == 1) {
+          $points = $strippedTotal * 1000;
+          $yourShop = $this->core->Data("Get", [
+           "shop",
+           md5($you)
+          ]) ?? [];
+          $yourShop["Open"] = 1;
+          $y["Points"] = $y["Points"] + $points;
+          $y["Verified"] = 1;
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Data("Save", ["shop", md5($you), $yourShop]);
+          $message = $this->core->Element([
+           "p", "We appreciate your commission payment of $$total to <em>".$shop["Title"]."</em>, as well as your continued business with us! As a token of gratitude, we are also giving you $points which you may redeem for Credits at any shop within our network."
+          ]);
+         }
+        }
        } else {
-        # FIRST STEP
+        $message = $this->core->Element([
+         "p", "Thank you very much for your commission payment of $$total (includes tax) to <em>".$shop["Title"]."</em>. We hope to continue providing great ways to maximize your business with us."
+        ]);
+        $subtotal = str_replace(",", "", $subtotal);
+        $processor .= "&Amount=".$data["Amount"];
        }
       } elseif($type == "Disbursement") {
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $strippedTotal = str_replace(",", "", $total);
        if($step == 2) {
-        # FINISH PAYMENT PROCESS
+        if(!empty($orderID) || !empty($paymentNonce)) {
+         if($paymentProcessor == "Braintree") {
+          $order = $braintree->transaction()->sale([
+           "amount" => $strippedTotal,
+           "customer" => [
+            "firstName" => $y["Personal"]["FirstName"]
+           ],
+           "options" => [
+            "submitForSettlement" => true
+           ],
+           "paymentMethodNonce" => $paymentNonce
+          ]);
+          $check = ($order->success) ? 1 : 0;
+          $order->message = $order->message ?? "N/A";
+          $changeData = [
+           "[Checkout.Order.Message]" => $order->message,
+           "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
+           "[Checkout.Order.Success]" => $order->success
+          ];
+          $extension = "229e494ec0f0f43824913a622a46dfca";
+         } elseif($paymentProcessor == "PayPal") {
+          $check = (!empty($orderID)) ? 1 : 0;
+          $orderID = base64_decode($orderID);
+         } if($check == 1) {
+          $y["Points"] = $y["Points"] + ($total * 1000);
+         }
+        }
        } else {
         # FIRST STEP
        }
@@ -1162,7 +1237,8 @@
          } if($check == 1) {
           $points = $strippedTotal * 1000;
           $y["Points"] = $y["Points"] + $points;
-          #$this->core->Data("Save", ["mbr", md5($you), $y]);
+          $y["Verified"] = 1;
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
           $message = $this->core->Element([
            "p", "We appreciate your donation of $$total to <em>".$shop["Title"]."</em>! This will help fund our continuing effort to preserve free speech on the internet. We are also giving you $points towards Credits which you may use for future purchases if you are currently signed in."
           ]);

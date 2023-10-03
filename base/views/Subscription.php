@@ -85,12 +85,11 @@
        }
       } if($commission > 0 && $paidCommission == 0) {
        $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
-       $commission = number_format($commission, 2);
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop["Open"] = 0;
-       $this->core->Data("Save", ["shop", md5($you), $shop]);
+       #$this->core->Data("Save", ["shop", md5($you), $shop]);
        $r = $this->core->Change([[
-        "[Commission.Pay]" => base64_encode("v=".base64_encode("Pay:Commission")."&amount=".base64_encode($commission)),
+        "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
         "[Commission.Total]" => $commission
        ], $this->core->Page("f844c17ae6ce15c373c2bd2a691d0a9a")]);
       } else {
