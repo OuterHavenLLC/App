@@ -379,7 +379,7 @@
     $hire = (md5($you) != $id) ? 1 : 0;
     $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
     $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
-    $r = ($hire == 1) ? $r : $this->core->Element([
+    $r = ($hire == 1 && $shop["Open"] == 1) ? $r : $this->core->Element([
      "h1", "Sorry!", ["class" => "CenterText UpperCase"]
     ]).$this->core->Element([
      "p", $shop["Title"]." is not currently accepting job offers.",

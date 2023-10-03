@@ -857,7 +857,7 @@
    $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
    $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
    $hireText = (count($partners) == 1) ? "Me" : "Us";
-   $hire = ($hire == 1) ? $this->core->Change([[
+   $hire = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
     "[Hire.Text]" => $hireText,
     "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$id")
    ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
