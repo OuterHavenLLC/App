@@ -244,7 +244,7 @@
       "PayPal"
      ]
     ],
-    "SUB" => [
+    "Subscriptions" => [
       "Artist" => [
        "Description" => "Create and manage a Shop, accept donations, and more, for a 5% commission.",
        "Title" => "Artist",
@@ -977,7 +977,8 @@
       "Quantity" => $quantity,
       "Title" => $title
      ]]);
-     $this->Data("Save", ["id", md5($shopOwner), $newRevenue]);
+     return $newRevenue;
+     #$this->Data("Save", ["id", md5($shopOwner), $newRevenue]);
     }
    }
   }

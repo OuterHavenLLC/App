@@ -904,6 +904,7 @@
   function Pay(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $now = $this->core->timestamp;
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -924,6 +925,7 @@
      $accessCode = "Accepted";
      $changeData = [];
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     $shopOwner = $this->core->Data("Get", ["mbr", $shopID]) ?? [];
      $step = $data["Step"] ?? 0;
      $live = $shop["Live"] ?? 0;
      $payments = $shop["Processing"] ?? [];
@@ -987,13 +989,11 @@
         "[Checkout.Data]" => json_encode($data, true)
        ];
        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
-       $shopOwner = $this->core->Data("Get", ["mbr", $shopID]) ?? [];
        $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
        $cartCount = count($cart);
        $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
        $credits = number_format($credits, 2);
        $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
-       $now = $this->core->timestamp;
        foreach($cart as $key => $value) {
         $product = $this->core->Data("Get", ["product", $key]) ?? [];
         $quantity = $product["Quantity"] ?? 0;
@@ -1140,18 +1140,35 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
+          $_LastMonth = $this->core->LastMonth()["LastMonth"];
+          $_LastMonth = explode("-", $_LastMonth);
+          $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
+          $income[$_LastMonth[0]][$_LastMonth[1]]["PaidCommission"] = 1;
           $points = $strippedTotal * 1000;
+          $y["Points"] = $y["Points"] + $points;
+          $y["Subscriptions"]["Artist"] = [
+            "A" => 1,
+            "B" => $now,
+            "E" => $this->TimePlus($now, 1, "month")
+          ];
+          $y["Verified"] = 1;
           $yourShop = $this->core->Data("Get", [
            "shop",
            md5($you)
           ]) ?? [];
           $yourShop["Open"] = 1;
-          $y["Points"] = $y["Points"] + $points;
-          $y["Verified"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["shop", md5($you), $yourShop]);
+          $revenue = $this->core->Revenue([$shopOwner["Login"]["Username"], [
+           "Cost" => 0,
+           "ID" => "COMMISSION*".$shop["Title"],
+           "Partners" => $shop["Contributors"],
+           "Profit" => $total,
+           "Quantity" => 1,
+           "Title" => "COMMISSION*".$shop["Title"]
+          ]]);
           $message = $this->core->Element([
-           "p", "We appreciate your commission payment of $$total to <em>".$shop["Title"]."</em>, as well as your continued business with us! As a token of gratitude, we are also giving you $points which you may redeem for Credits at any shop within our network."
+           "p", "We appreciate your commission payment of $$total to <em>".$shop["Title"]."</em>, as well as your continued business with us! As a token of gratitude, we are also giving you $points which you may redeem for Credits at any shop within our network.<br/>"
           ]);
          }
         }

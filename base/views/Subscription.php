@@ -12,7 +12,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    foreach($y["Subscriptions"] as $key => $value) {
-    $subscription = $this->core->config["SUB"][$key] ?? [];
+    $subscription = $this->core->config["Subscriptions"][$key] ?? [];
     if(!empty($subscription)) {
      $subscription = $this->core->Element([
       "button", $this->core->Element([
@@ -53,7 +53,7 @@
    $s = $data["sub"] ?? base64_encode("");
    $s = base64_decode($s);
    $search = base64_encode("Search:Containers");
-   $sub = $this->core->config["SUB"][$s] ?? [];
+   $sub = $this->core->config["Subscriptions"][$s] ?? [];
    $r = [
     "Body" => "The Subscription Identifier is missing."
    ];
@@ -87,7 +87,7 @@
        $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop["Open"] = 0;
-       #$this->core->Data("Save", ["shop", md5($you), $shop]);
+       $this->core->Data("Save", ["shop", md5($you), $shop]);
        $r = $this->core->Change([[
         "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
         "[Commission.Total]" => $commission
