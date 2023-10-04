@@ -1159,7 +1159,7 @@
           $yourShop["Open"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["shop", md5($you), $yourShop]);
-          $revenue = $this->core->Revenue([$shopOwner["Login"]["Username"], [
+          $this->core->Revenue([$shopOwner["Login"]["Username"], [
            "Cost" => 0,
            "ID" => "COMMISSION*".$shop["Title"],
            "Partners" => $shop["Contributors"],
@@ -1184,6 +1184,10 @@
         "[Checkout.Data]" => json_encode($data, true)
        ];
        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $partner = base64_decode($data["PayTo"]);
+       $subtotal = $data["Amount"] ?? base64_encode(0);
+       $subtotal = base64_decode($subtotal);
+       $total = number_format($subtotal, 2);
        $strippedTotal = str_replace(",", "", $total);
        if($step == 2) {
         if(!empty($orderID) || !empty($paymentNonce)) {
@@ -1210,11 +1214,43 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
-          $y["Points"] = $y["Points"] + ($total * 1000);
+          $disbursementID = "DISBURSEMENTS*$partner";
+          $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
+          $partnerShop = $this->core->Data("Get", [
+           "shop",
+           md5($partner)
+          ]) ?? [];
+          $this->core->Revenue([$partner, [
+           "Cost" => 0,
+           "ID" => $disbursementID,
+           "Partners" => $partnerShop["Contributors"],
+           "Profit" => $total,
+           "Quantity" => 1,
+           "Title" => $disbursementID
+          ]]);
+          $this->core->Revenue([$you, [
+           "Cost" => $total,
+           "ID" => $disbursementID,
+           "Partners" => $shop["Contributors"],
+           "Profit" => 0,
+           "Quantity" => 1,
+           "Title" => $disbursementID
+          ]]);
+          $income[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
+          $this->core->Data("Save", ["id", md5($you), $income]);
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
+          $message = $this->core->Element([
+           "p", "We appreciate you for recognizing $partner's work with your $$total payment."
+          ]);
          }
         }
        } else {
-        # FIRST STEP
+        $message = $this->core->Element([
+         "p", "You are about to pay $partner $$total for their previous work."
+        ]);
+        $subtotal = str_replace(",", "", $subtotal);
+        $processor .= "&Amount=".$data["Amount"]."&Month=".$data["Month"]."&PayTo=".$data["PayTo"]."&Year=".$data["Year"];
        }
       } elseif($type == "Donation") {
        $changeData = [
@@ -1455,19 +1491,18 @@
        $commission = number_format($subtotal * (5.00 / 100), 2);
        $tax = $shop["Tax"] ?? 10.00;
        $tax = number_format($subtotal * ($tax / 100), 2);
-       $total = number_format($subtotal - $commission - $tax, 2);
-       $intTotal = str_replace(",", "", $total);
-       $revenueOverheadCosts = $intTotal * (5.00 / 100);
-       $revenueSplit = ($intTotal - $revenueOverheadCosts) / $partnersCount;
+       $total = number_format(($subtotal - $commission - $tax), 2);
+       $revenue = str_replace(",", "", $total);
+       $revenueOverheadCosts = $revenue * (50.00 / 100);
+       $revenueSplit = ($revenue - $revenueOverheadCosts) / $partnersCount;
        foreach($partners as $partner => $info) {
         $paid = $info["Paid"] ?? 0;
         $pck = ($paid == 0 && $partner != $you) ? 1 : 0;
         $pck = ($pck == 1 && $month != date("m")) ? 1 : 0;
         $pay = ($pck == 1) ? $this->core->Element([
          "button", "$".number_format($revenueSplit, 2), [
-          "class" => "BB BBB v2",
-          "data-lm" => base64_encode($month),
-          "onclick" => "dB2C();FST('N/A', 'v=".base64_encode("Pay:Disbursement")."&Amount=".base64_encode($revenueSplit)."&&Month=$month&UN=".base64_encode($partner)."&Year=$year', '".md5("Pay".md5($partner))."');"
+          "class" => "BBB CloseCard OpenFirSTEPTool v2",
+          "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($revenueSplit)."&Month=$month&PayTo=".base64_encode($partner)."&Shop=".md5($you)."&Type=Disbursement&Year=$year")
          ]
         ]) : $this->core->Element(["p", "No Action Needed"]);
         $partnerTable .= $this->core->Change([[
@@ -1550,14 +1585,14 @@
       $points = $this->core->config["PTS"]["Products"];
       $quantity = $product["Quantity"] ?? 1;
       $subscriptionTerm = $product["SubscriptionTerm"] ?? "month";
-      if($category == "ARCH") {
+      if($category == "Architecture") {
        # Architecture
-      } elseif($category == "DLC") {
-       # Downloadable Content
-      } elseif($category == "DONATE") {
+      } elseif($category == "Donation") {
        # Donations
+      } elseif($category == "Download") {
+       # Downloadable Content
        $opt = $this->core->Element(["p", "Thank You for donating!"]);
-      } elseif($category == "PHYS") {
+      } elseif($category == "Product") {
        # Physical Products
        $opt = $this->core->Element(["button", "Contact the Seller", [
         "class" => "BB v2 v2w"
@@ -1569,10 +1604,7 @@
         "Quantity" => $purchaseQuantity,
         "UN" => $you
        ];
-      } elseif($category == "SUB") {
-       $opt = $this->core->Element(["button", "Go to Subscription", [
-        "class" => "BB v2 v2w"
-       ]]);
+      } elseif($category == "Subscription") {
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
         # V.I.P. Subscription
         foreach($y["Subscriptions"] as $sk => $sv) {
@@ -1743,6 +1775,9 @@
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     $invoices = $shop["Invoices"] ?? [];
     $live = $data["Live"] ?? 0;
+    $now = $this->core->timestamp;
+    $modifiedBy = $shop["ModifiedBy"] ?? [];
+    $modifiedBy[$now] = $you;
     $nsfw = $data["nsfw"] ?? 0;
     $open = $data["Open"] ?? 0;
     $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
@@ -1760,7 +1795,8 @@
      "InvoicePresets" => $invoicePresets,
      "Invoices" => $invoices,
      "Live" => $live,
-     "Modified" => $this->core->timestamp,
+     "Modified" => $now,
+     "ModifiedBy" => $modifiedBy,
      "NSFW" => $nsfw,
      "Open" => $open,
      "PaymentProcessor" => $paymentProcessor,

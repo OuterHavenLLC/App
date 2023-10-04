@@ -977,8 +977,7 @@
       "Quantity" => $quantity,
       "Title" => $title
      ]]);
-     return $newRevenue;
-     #$this->Data("Save", ["id", md5($shopOwner), $newRevenue]);
+     $this->Data("Save", ["id", md5($shopOwner), $newRevenue]);
     }
    }
   }
