@@ -548,10 +548,23 @@
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($type)) {
     $accessCode = "Accepted";
+    $check = 0;
     $processor = "";
     $r = "";
     $subscribers = [];
-    if($type == "Shop") {
+    if($type == "Article") {
+     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
+     $check = ($article["UN"] != $you) ? 1 : 0;
+     $processor = base64_encode("v=".base64_encode("Page:Subscribe"));
+     $subscribers = $article["Subscribers"] ?? [];
+     $title = $article["Title"];
+    } elseif($type == "Blog") {
+     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+     $check = ($blog["UN"] != $you) ? 1 : 0;
+     $processor = base64_encode("v=".base64_encode("Blog:Subscribe"));
+     $subscribers = $shop["Subscribers"] ?? [];
+     $title = $blog["Title"];
+    } elseif($type == "Shop") {
      $check = (md5($you) != $id) ? 1 : 0;
      $processor = base64_encode("v=".base64_encode("Shop:Subscribe"));
      $shop = $this->core->Data("Get", ["shop", $id]) ?? [];

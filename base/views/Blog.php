@@ -296,7 +296,6 @@
     $admin = 0;
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $contributors = $blog["Contributorsa"] ?? [];
-    $subscribers = $blog["Subscribers"] ?? [];
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     foreach($contributors as $member => $role) {
      if($active == 0 && $member == $you) {
@@ -361,15 +360,6 @@
      $search = base64_encode("Search:Containers");
      $votes = ($blog["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=$id&Type=4");
-     $subscribe = ($blog["UN"] != $you && $this->core->ID != $you) ? 1 : 0;
-     $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
-     $subscribe = ($subscribe == 1) ? $this->core->Change([[
-      "[Subscribe.ContentID]" => $id,
-      "[Subscribe.ID]" => md5($you),
-      "[Subscribe.Processor]" => base64_encode("v=".base64_encode("Blog:Subscribe")),
-      "[Subscribe.Text]" => $subscribeText,
-      "[Subscribe.Title]" => $blog["Title"]
-     ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
      $tpl = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
      $r = $this->core->Change([[
       "[Blog.About]" => "About ".$owner["Personal"]["DisplayName"],
@@ -386,7 +376,7 @@
       ]),
       "[Blog.ID]" => $id,
       "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),
-      "[Blog.Subscribe]" => $subscribe,
+      "[Blog.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Blog"),
       "[Blog.Title]" => $blog["Title"],
       "[Blog.Votes]" => $votes
      ], $this->core->Page($tpl)]);

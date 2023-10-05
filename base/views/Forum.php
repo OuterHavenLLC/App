@@ -374,7 +374,6 @@
        "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=".$_JoinCommand."&ID=$id")
       ]
      ]) : "";
-     $manifest = base64_encode(json_encode($manifest, true));
      $search = base64_encode("Search:Containers");
      $votes = ($active == 1 && $ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $r = $this->core->Change([[
@@ -383,7 +382,7 @@
       "[Forum.Administrators]" => base64_encode("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin"),
       "[Forum.Back]" => $bck,
       "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
-      "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=$manifest"),
+      "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
       "[Forum.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
       "[Forum.Description]" => $this->core->PlainText([
        "Data" => $forum["Description"],

@@ -433,13 +433,11 @@
     }
     $li = base64_encode($li);
     $r = $this->core->Change([[
-     "[Search.Type]" => $st,
-     "[UI.LIT]" => $lit,
-     "[UI.LIU]" => $li,
-     "[UI.header]" => $h,
-     "[UI.options]" => $lo,
-     "[UI.s]" => $lis,
-     "[XS.UI]" => $li
+     "[Search.Header]" => $h,
+     "[Search.List]" => $li,
+     "[Search.Options]" => $lo,
+     "[Search.ParentPage]" => $lpg,
+     "[Search.Text]" => $lis
     ], $this->core->Page($tpl)]);
    } if(in_array($st, [
      "DC",
@@ -770,44 +768,44 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $home = base64_encode("Page:Home");
     $tpl = $this->core->Page("e7829132e382ee4ab843f23685a123cf");
-    $Pages = $this->core->DatabaseSet("PG") ?? [];
-    foreach($Pages as $key => $value) {
+    $articles = $this->core->DatabaseSet("PG") ?? [];
+    foreach($articles as $key => $value) {
      $value = str_replace("c.oh.pg.", "", $value);
-     $Page = $this->core->Data("Get", ["pg", $value]) ?? [];
-     if(!empty($Page["UN"])) {
-      $nsfw = $Page["NSFW"] ?? 0;
-      $t = ($Page["UN"] == $you) ? $y : $this->core->Member($Page["UN"]);
-      $bl = $this->core->CheckBlocked([$y, "Pages", $Page["ID"]]);
-      $cat = $Page["Category"] ?? "";
+     $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+     if(!empty($article["UN"])) {
+      $nsfw = $article["NSFW"] ?? 0;
+      $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
+      $bl = $this->core->CheckBlocked([$y, "Pages", $article["ID"]]);
+      $cat = $article["Category"] ?? "";
       $cms = $this->core->Data("Get", [
        "cms",
        md5($t["Login"]["Username"])
       ]) ?? [];
-      $ck = ($Page["Category"] == $st) ? 1 : 0;
+      $ck = ($article["Category"] == $st) ? 1 : 0;
       $ck2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck3 = (($st == "CA" && $Page["Category"] == "CA") || ($st == "PR" && $Page["Category"] == "PR")) ? 1 : 0;
+      $ck3 = (($st == "CA" && $article["Category"] == "CA") || ($st == "PR" && $article["Category"] == "PR")) ? 1 : 0;
       $ck4 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
-       "Privacy" => $Page["Privacy"],
+       "Privacy" => $article["Privacy"],
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) ? 1 : 0;
-      $illegal = $Page["Illegal"] ?? 0;
+      $illegal = $article["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
-      $coverPhoto = $Page["ICO"] ?? $coverPhoto;
+      $coverPhoto = $article["ICO"] ?? $coverPhoto;
       $coverPhoto = base64_encode($coverPhoto);
        array_push($msg, [
         "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-        "[X.LI.T]" => base64_encode($Page["Title"]),
+        "[X.LI.T]" => base64_encode($article["Title"]),
         "[X.LI.D]" => base64_encode($this->core->PlainText([
          "BBCodes" => 1,
-         "Data" => $Page["Description"],
+         "Data" => $article["Description"],
          "Display" => 1,
          "HTMLDecode" => 1
         ])),
-        "[X.LI.DT]" => base64_encode("$lpg;".base64_encode("v=$home&b2=$b2&back=1&lPG=$lpg&ID=".$Page["ID"]))
+        "[X.LI.DT]" => base64_encode("$lpg;".base64_encode("v=$home&b2=$b2&back=1&lPG=$lpg&ID=".$article["ID"]))
        ]);
       }
      }

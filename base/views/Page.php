@@ -479,15 +479,6 @@
         "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Article")."&Username=".base64_encode($Page["UN"]))
       ]]), ["class" => "Desktop33"]
      ]) : "";
-     $subscribe = ($Page["UN"] != $you && $this->core->ID != $you) ? 1 : 0;
-     $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
-     $subscribe = ($subscribe == 1) ? $this->core->Change([[
-      "[Subscribe.ContentID]" => $id,
-      "[Subscribe.ID]" => md5($you),
-      "[Subscribe.Processor]" => base64_encode("v=".base64_encode("Page:Subscribe")),
-      "[Subscribe.Text]" => $subscribeText,
-      "[Subscribe.Title]" => $Page["Title"]
-     ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
      $votes = ($Page["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=$id&Type=2");
      $r = $this->core->Change([[
@@ -501,9 +492,7 @@
        "Display" => 1,
        "HTMLDecode" => 1
       ]),
-      "[Article.Contributors]" => $this->view(base64_encode("Common:MemberGrid"), ["Data" => [
-       "List" => $contributors
-      ]]),
+      "[Article.Contributors]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
       "[Article.Conversation]" => $this->core->Change([[
        "[Conversation.CRID]" => $id,
        "[Conversation.CRIDE]" => base64_encode($id),
@@ -516,7 +505,7 @@
       "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Page;$id")),
       "[Article.Modified]" => $modified,
       "[Article.Share]" => $share,
-      "[Article.Subscribe]" => $subscribe,
+      "[Article.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Article"),
       "[Article.Title]" => $Page["Title"],
       "[Article.Votes]" => $votes,
       "[Member.DisplayName]" => $t["Personal"]["DisplayName"],
