@@ -38,6 +38,7 @@
    ]);
   }
   function Home(array $a) {
+   $_ViewTitle = "About ".$this->core->config["App"]["Name"];
    $accessCode = "Accepted";
    $b2 = urlencode($this->core->config["App"]["Name"]);
    $data = $a["Data"] ?? [];
@@ -45,6 +46,7 @@
    $sid = base64_encode($this->core->ShopID);
    $r = $this->core->Change([[
     "[App.Earnings]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
+    "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
     "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
     "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
     "[App.Shop]" => "OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$sid"),
@@ -354,22 +356,9 @@
      "data-type" => $data["lPG"]
     ]
    ]) : "";
-   $shopID = md5($this->core->ShopID);
-   $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-   $enableHireSection = $shop["EnableHireSection"] ?? 0;
-   $services = $shop["InvoicePresets"] ?? [];
-   $hire = (md5($you) != $id) ? 1 : 0;
-   $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
-   $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
-   $partners = $shop["Contributors"] ?? [];
-   $hireText = (count($partners) == 1) ? "Me" : "Us";
-   $hire = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
-    "[Hire.Text]" => $hireText,
-    "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$shopID")
-   ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
    $r = $this->core->Change([[
     "[VVA.Back]" => $back,
-    "[VVA.Hire]" => $hire
+    "[VVA.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID))
    ], $this->core->Page("a7977ac51e7f8420f437c70d801fc72b")]);
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r

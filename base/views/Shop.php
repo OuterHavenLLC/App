@@ -61,11 +61,11 @@
     $id = base64_decode($data["ID"]);
     $po = $this->core->Data("Get", ["po", md5($you)]) ?? [];
     $po[$id]["Complete"] = 1;
+    $this->core->Data("Save", ["po", md5($you), $po]);
     $r = [
      "Body" => "The order has been marked as complete!",
      "Header" => "Done"
     ];
-    $this->core->Data("Save", ["po", md5($you), $po]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -573,6 +573,39 @@
     "ResponseType" => "View"
    ]);
   }
+  function HireSection(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["Shop"] ?? "";
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id)) {
+    $accessCode = "Accepted";
+    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $enableHireSection = $shop["EnableHireSection"] ?? 0;
+    $services = $shop["InvoicePresets"] ?? [];
+    $hire = (md5($you) != $id) ? 1 : 0;
+    $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
+    $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
+    $partners = $shop["Contributors"] ?? [];
+    $hireText = (count($partners) == 1) ? "Me" : "Us";
+    $r = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
+     "[Hire.Text]" => $hireText,
+     "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$shopID")
+    ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function History(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -717,7 +750,6 @@
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $partners = $shop["Contributors"] ?? [];
     $commission = $shop["Commission"] ?? 0;
-    $subscribers = $shop["Subscribers"] ?? [];
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
     $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
     $ck3 = ($ck2 == 0 && $commission > 0) ? 1 : 0;
@@ -761,14 +793,6 @@
         "data-view" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($id))
        ]
       ]) : "";
-      $hire = (md5($you) != $id) ? 1 : 0;
-      $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
-      $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
-      $hireText = (count($partners) == 1) ? "Me" : "Us";
-      $hire = ($hire == 1) ? $this->core->Change([[
-       "[Hire.Text]" => $hireText,
-       "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$id")
-      ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
       $payroll = ($id == md5($you)) ? $this->core->Element([
        "button", "Payroll", [
         "class" => "OpenCard Small v2",
@@ -782,15 +806,6 @@
         "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&Username=".base64_encode($username))
        ]
       ]) : "";
-      $subscribe = (md5($you) != $id && $this->core->ID != $you) ? 1 : 0;
-      $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
-      $subscribe = ($subscribe == 1) ? $this->core->Change([[
-       "[Subscribe.ContentID]" => $id,
-       "[Subscribe.ID]" => md5($you),
-       "[Subscribe.Processor]" => base64_encode("v=".base64_encode("Shop:Subscribe")),
-       "[Subscribe.Text]" => $subscribeText,
-       "[Subscribe.Title]" => $shop["Title"]
-      ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
       $votes = ($id != md5($you)) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $r = $this->core->Change([[
        "[Shop.Back]" => $bck,
@@ -804,14 +819,14 @@
        ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
        "[Shop.Disclaimer]" => $disclaimer,
        "[Shop.Edit]" => $edit,
-       "[Shop.Hire]" => $hire,
+       "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
        "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id&PFST=$pub"),
        "[Shop.ID]" => $id,
        "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
        "[Shop.Payroll]" => $payroll,
        "[Shop.Share]" => $share,
        "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
-       "[Shop.Subscribe]" => $subscribe,
+       "[Shop.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Shop"),
        "[Shop.Title]" => $shop["Title"],
        "[Shop.Welcome]" => $this->core->PlainText([
         "Data" => $shop["Welcome"],
@@ -849,41 +864,21 @@
    $pub = $data["pub"] ?? 0;
    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
    $partners = $shop["Contributors"] ?? [];
-   $subscribers = $shop["Subscribers"] ?? [];
    $username = base64_encode($id);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $enableHireSection = $shop["EnableHireSection"] ?? 0;
-   $services = $shop["InvoicePresets"] ?? [];
-   $hire = (md5($you) != $id) ? 1 : 0;
-   $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
-   $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
-   $hireText = (count($partners) == 1) ? "Me" : "Us";
-   $hire = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
-    "[Hire.Text]" => $hireText,
-    "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$id")
-   ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
    $payroll = ($id == md5($you)) ? $this->core->Element([
     "button", "Payroll", [
      "class" => "OpenCard Small v2",
      "data-view" => base64_encode("v=".base64_encode("Shop:Payroll"))
     ]
    ]) : "";
-   $subscribe = (md5($you) != $id && $this->core->ID != $you) ? 1 : 0;
-   $subscribeText = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
-   $subscribe = ($subscribe == 1) ? $this->core->Change([[
-    "[Subscribe.ContentID]" => $id,
-    "[Subscribe.ID]" => md5($you),
-    "[Subscribe.Processor]" => base64_encode("v=".base64_encode("Shop:Subscribe")),
-    "[Subscribe.Text]" => $subscribeText,
-    "[Subscribe.Title]" => $shop["Title"]
-   ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]) : "";
    $r = $this->core->Change([[
     "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
     "[MadeInNY.Back]" => $back,
-    "[MadeInNY.Hire]" => $hire,
+    "[MadeInNY.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
     "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
-    "[MadeInNY.Subscribe]" => $subscribe,
+    "[MadeInNY.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Shop"),
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
    ], $this->core->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {

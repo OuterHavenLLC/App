@@ -122,6 +122,12 @@
     "pub" => 1
    ]]);
    $_ViewTitle = json_decode($r, true)["Title"];
+  } elseif($c[0] == "about") {
+   # HIRE
+   $r = $gw->view(base64_encode("Company:Home"), ["Data" => [
+    "pub" => 1
+   ]]);
+   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "archive") {
    # COMMUNITY ARCHIVE
    $r = $gw->view(base64_encode("Page:Home"), ["Data" => [

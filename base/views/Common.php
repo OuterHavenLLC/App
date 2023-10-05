@@ -536,6 +536,47 @@
     "ResponseType" => "View"
    ]);
   }
+  function SubscribeSection(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Content Identifier or Type are missing."
+   ];
+   $type = $data["Type"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id) && !empty($type)) {
+    $accessCode = "Accepted";
+    $processor = "";
+    $r = "";
+    $subscribers = [];
+    if($type == "Shop") {
+     $check = (md5($you) != $id) ? 1 : 0;
+     $processor = base64_encode("v=".base64_encode("Shop:Subscribe"));
+     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+     $subscribers = $shop["Subscribers"] ?? [];
+     $title = $shop["Title"];
+    } if($check == 1 && $this->core->ID != $you) {
+     $text = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
+     $r = $this->core->Change([[
+      "[Subscribe.ContentID]" => $id,
+      "[Subscribe.ID]" => $id,
+      "[Subscribe.Processor]" => $processor,
+      "[Subscribe.Text]" => $text,
+      "[Subscribe.Title]" => $title
+     ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]);
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function __destruct() {
    // DESTROYS THIS CLASS
   }
