@@ -17,10 +17,9 @@
    $lpg = $data["lPG"] ?? $st;
    $pub = $data["pub"] ?? 0;
    $query = $data["query"] ?? "";
-   $sl = $this->lists;
    $sta = $this->core->config["App"]["SearchIDs"];
    $ck = (!empty($st) && in_array($st, $sta)) ? 1 : 0;
-   $li = "query=$query&st=$st&v=$sl";
+   $li = "v=".$this->lists."&query=$query&st=$st";
    $lit = md5($st.$this->core->timestamp.rand(0, 1776));
    $lo = "";
    $r = [
@@ -2296,28 +2295,29 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $goHome = ($pub == 1) ? $this->core->Element(["button", "Go Home", [
-    "class" => "BB BBB v2",
+    "class" => "BBB v2",
     "onclick" => "W('".$this->core->base."', '_top');"
    ]]) : "";
-   $q = $data["query"] ?? [];
-   $q = (!empty($q)) ? base64_decode(htmlentities($q)) : "";
-   $sq = base64_encode("%$q%");
-   $sl = $this->lists;
+   $query = $data["query"] ?? base64_encode("");
+   $query = base64_decode(htmlentities($query));
+   $search = $this->lists;
+   $secureQuery = base64_encode("%$query%");
    $r = $this->core->Change([[
     "[ReSearch.GoHome]" => $goHome
    ], $this->core->Page("df4f7bc99b9355c34b571946e76b8481")]);
-   if(!empty($q)) {
+   if(!empty($query)) {
     $r = $this->core->Change([[
-     "[ReSearch.Query]" => $q,
-     "[ReSearch.RS-Blogs]" => base64_encode("v=$sl&pub=1&query=$sq&st=BLG"),
-     "[ReSearch.RS-Members]" => base64_encode("v=$sl&query=$sq&st=MBR"),
-     "[ReSearch.RS-StatusUpdates]" => base64_encode("v=$sl&query=$sq&st=US-SU")
+     "[ReSearch.Query]" => $query,
+     "[ReSearch.RS-Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&st=BLG"),
+     "[ReSearch.RS-Members]" => base64_encode("v=$search&query=$secureQuery&st=MBR"),
+     "[ReSearch.RS-StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&st=US-SU")
     ], $this->core->Page("bae5cdfa85bf2c690cbff302ba193b0b")]);
+   } if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->core->RenderView($r);
    }
-   $r = ($pub == 1) ? $this->core->Change([[
-    "[OH.MainContent]" => $r,
-    "[OH.TopBar.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&q=")
-   ], $this->core->Page("937560239a386533aecf5017371f4d34")]) : $r;
    return $r;
   }
   function __destruct() {

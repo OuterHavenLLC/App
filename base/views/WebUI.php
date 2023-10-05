@@ -18,6 +18,11 @@
     $r = $this->core->Change([[
      "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))
     ], $this->core->Page("988e96fd9025b718f43ad357dc25247d")]);
+   } elseif($type == "ReSearch") {
+    $r = $this->core->Change([[
+     "[App.Content]" => $content,
+     "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
+    ], $this->core->Page("937560239a386533aecf5017371f4d34")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
