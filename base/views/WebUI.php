@@ -62,6 +62,7 @@
    } else {
     $accessCode = "Accepted";
     $r = [
+     "Header" => "Resume Session",
      "NoClose" => 1,
      "Scrollable" => $this->core->Change([[
       "[Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:5%;width:90%"),

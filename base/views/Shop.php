@@ -109,6 +109,7 @@
     $coverPhoto = $shop["CoverPhotoSource"] ?? "";
     $designViewEditor = "UIE$id";
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
+    $header = "Edit ".$shop["Title"];
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $percentages = [];
@@ -141,359 +142,36 @@
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
-     "[Shop.General]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-CoverPhoto",
-        "data-a" => "#ATTL$id-CoverPhoto",
-        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
-        "name" => "CoverPhoto",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditShop$id-CoverPhoto"
-       ],
-       "Type" => "Text",
-       "Value" => $coverPhoto
-      ],
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $shop["Title"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Description",
-        "placeholder" => "Description"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $shop["Description"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "$designViewEditor Welcome Xdecode req",
-        "id" => "EditWelcomeMessage$id",
-        "name" => "Welcome",
-        "placeholder" => "Welcome"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Welcome Message",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox",
-       "Value" => $this->core->PlainText([
-        "Data" => $shop["Welcome"]
-       ])
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        "Braintree" => "Braintree",
-        "PayPal" => "PayPal"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Payment Processor"
-       ],
-       "Name" => "PaymentProcessor",
-       "Title" => "Payment Processor",
-       "Type" => "Select",
-       "Value" => $paymentProcessor
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => $percentages,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Tax"
-       ],
-       "Name" => "Tax",
-       "Title" => "Tax",
-       "Type" => "Select",
-       "Value" => $tax
-      ]
-     ]),
+     "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
+     "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
+     "[Shop.Braintree.Live.PublicKey]" => $processing["BraintreePublicKeyLive"],
+     "[Shop.Braintree.Live.Token]" => $processing["BraintreeTokenLive"],
+     "[Shop.Braintree.Sandbox.MerchantID]" => $processing["BraintreeMerchantID"],
+     "[Shop.Braintree.Sandbox.PrivateKey]" => $processing["BraintreePrivateKey"],
+     "[Shop.Braintree.Sandbox.PublicKey]" => $processing["BraintreePublicKey"],
+     "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
+     "[Shop.CoverPhoto]" => $coverPhoto,
+     "[Shop.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+     "[Shop.Description]" => base64_encode($shop["Description"]),
+     "[Shop.DesignView]" => $designViewEditor,
      "[Shop.EnableHireSection]" => $enableHireSection,
      "[Shop.ID]" => $id,
-     "[Shop.Payments.Braintree.Live]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreeMerchantIDLive",
-        "placeholder" => "Merchant ID",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Merchant ID"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreeMerchantIDLive"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreePrivateKeyLive",
-        "placeholder" => "Private Key",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Private Key"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreePrivateKeyLive"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreePublicKeyLive",
-        "placeholder" => "Public Key",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Public Key"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreePublicKeyLive"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreeTokenLive",
-        "placeholder" => "Token",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Token"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreeTokenLive"])
-      ]
-     ]),
-     "[Shop.Payments.Braintree.Sandbox]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreeMerchantID",
-        "placeholder" => "Merchant ID",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Merchant ID"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreeMerchantID"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreePrivateKey",
-        "placeholder" => "Private Key",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Private Key"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreePrivateKey"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreePublicKey",
-        "placeholder" => "Public Key",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Public Key"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreePublicKey"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_BraintreeToken",
-        "placeholder" => "Token",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Token"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["BraintreeToken"])
-      ]
-     ]),
-     "[Shop.Payments.PayPal.Live]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_PayPalClientIDLive",
-        "placeholder" => "Client ID",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Client ID"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["PayPalClientIDLive"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_PayPalEmailLive",
-        "placeholder" => "Email",
-        "type" => "email"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Email"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["PayPalEmailLive"])
-      ]
-     ]),
-     "[Shop.Payments.PayPal.Sandbox]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_PayPalClientID",
-        "placeholder" => "Client ID",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Client ID"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["PayPalClientID"])
-      ],
-      [
-       "Attributes" => [
-        "class" => "Xdecode",
-        "name" => "Processing_PayPalEmail",
-        "placeholder" => "Email",
-        "type" => "email"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Email"
-       ],
-       "Type" => "Text",
-       "Value" => base64_decode($processing["PayPalEmail"])
-      ]
-     ]),
-     "[Shop.Title]" => $shop["Title"],
-     "[Shop.Visibility]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "No",
-        1 => "Yes"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Live"
-       ],
-       "Name" => "Live",
-       "Title" => "Live",
-       "Type" => "Select",
-       "Value" => $shop["Live"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "No",
-        1 => "Yes"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Open"
-       ],
-       "Name" => "Open",
-       "Title" => "Open",
-       "Type" => "Select",
-       "Value" => $shop["Open"]
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ])
+     "[Shop.Header]" => $header,
+     "[Shop.PaymentProcessor]" => $paymentProcessor,
+     "[Shop.PayPal.Live.ClientID]" => $processing["PayPalClientIDLive"],
+     "[Shop.PayPal.Live.Email]" => $processing["PayPalEmailLive"],
+     "[Shop.PayPal.Sandbox.ClientID]" => $processing["PayPalClientID"],
+     "[Shop.PayPal.Sandbox.Email]" => $processing["PayPalEmail"],
+     "[Shop.Tax]" => $tax,
+     "[Shop.Tax.Percentages]" => json_encode($percentages, true),
+     "[Shop.Title]" => base64_encode($shop["Title"]),
+     "[Shop.Visibility.Live]" => $shop["Live"],
+     "[Shop.Visibility.NSFW]" => $nsfw,
+     "[Shop.Visibility.Open]" => $shop["Open"],
+     "[Shop.Visibility.Privacy]" => $privacy,
+     "[Shop.Welcome]" => base64_encode($this->core->PlainText([
+      "Data" => $shop["Welcome"]
+     ]))
     ], $this->core->Page("201c1fca2d1214dddcbabdc438747c9f")]);
     $r = [
      "Action" => $action,
