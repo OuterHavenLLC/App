@@ -414,7 +414,6 @@
     $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
     $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
     $_ViewTitle = $Page["Title"] ?? $_ViewTitle;
-    $contributors = $Page["Contributors"] ?? [];
     $ck = ($Page["UN"] == $you) ? 1 : 0;
     $subscribers = $Page["Subscribers"] ?? [];
     if(in_array($Page["Category"], ["CA", "JE"]) && $bl == 0) {
@@ -428,21 +427,21 @@
      }
      $actions = ($ck == 0) ? $this->core->Element([
       "button", "Block <em>".$Page["Title"]."</em>", [
-       "class" => "BLK v2",
+       "class" => "BLK Small v2",
        "data-cmd" => base64_encode("B"),
        "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($Page["Title"])."&content=".base64_encode($id)."&list=".base64_encode("Pages")."&BC=")
       ]
      ]) : "";
      $actions .= ($admin == 1 || $active == 1 || $ck == 1) ? $this->core->Element([
       "button", "Edit", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($id))
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($id))
       ]
      ]) : "";
      $actions .= ($admin == 1) ? $this->core->Element([
-      "button", "Manage Contributors", [
-       "class" => "dB2O v2",
-       "data-type" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($id)."&Type=".base64_encode("Article")."&st=Contributors")
+      "button", "Contributors", [
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($id)."&Type=".base64_encode("Article")."&st=Contributors")
       ]
      ]) : "";
      $actions = ($this->core->ID != $you) ? $actions : "";
@@ -472,13 +471,10 @@
       $modified = $this->core->Element(["em", $modified]);
      }
      $share = ($Page["UN"] == $you || $Page["Privacy"] == md5("Public")) ? 1 : 0;
-     $share = ($share == 1) ? $this->core->Element([
-      "div", $this->core->Element([
-       "button", "Share", [
-        "class" => "OpenCard",
-        "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Article")."&Username=".base64_encode($Page["UN"]))
-      ]]), ["class" => "Desktop33"]
-     ]) : "";
+     $share = ($share == 1) ? $this->core->Element(["button", "Share", [
+      "class" => "OpenCard Small v2",
+      "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Article")."&Username=".base64_encode($Page["UN"]))
+     ]]) : "";
      $votes = ($Page["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $votes = base64_encode("v=$votes&ID=$id&Type=2");
      $r = $this->core->Change([[
