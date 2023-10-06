@@ -1502,12 +1502,11 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["PW", "UN"]);
    $i = 0;
-   $password = $data["PW"];
+   $password = $data["Password"] ?? "";
    $r = "An internal error has ocurred.";
    $responseType = "Dialog";
-   $username = $data["UN"];
+   $username = $data["Username"] ?? "";
    if(empty($password) || empty($username)) {
     if(empty($password)) {
      $field = "Password";
@@ -1723,40 +1722,7 @@
      ]])
     ],
     "Header" => "Sign In",
-    "Scrollable" => $this->core->Change([[
-     "[SignIn.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "UN",
-        "placeholder" => "Username",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Username"
-       ],
-       "Type" => "Text"
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PW",
-        "placeholder" => "Password",
-        "type" => "password"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Password"
-       ],
-       "Type" => "Text"
-      ]
-     ])
-    ], $this->core->Page("ff434d30a54ee6d6bbe5e67c261b2005")])
+    "Scrollable" => $this->core->Page("ff434d30a54ee6d6bbe5e67c261b2005")
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
