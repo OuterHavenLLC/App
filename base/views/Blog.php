@@ -295,7 +295,7 @@
     $active = 0;
     $admin = 0;
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
-    $contributors = $blog["Contributorsa"] ?? [];
+    $contributors = $blog["Contributors"] ?? [];
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     foreach($contributors as $member => $role) {
      if($active == 0 && $member == $you) {
@@ -351,7 +351,6 @@
       "class" => "OpenCard Small v2",
       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($blog["ID"])."&Type=".base64_encode("Blog")."&Username=".base64_encode($blog["UN"]))
      ]]);
-     $contributors = base64_encode(json_encode($contributors, true));
      $coverPhoto = $this->core->PlainText([
       "Data" => "[sIMG:CP]",
       "Display" => 1
@@ -367,7 +366,7 @@
       "[Blog.Back]" => $bck,
       "[Blog.CoverPhoto]" => $coverPhoto,
       "[Blog.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors"),
-      "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=$contributors"),
+      "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
       "[Blog.Description]" => $this->core->PlainText([
        "BBCodes" => 1,
        "Data" => $blog["Description"],
@@ -532,6 +531,7 @@
      $author = $blog["UN"] ?? $you;
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $contributors = $blog["Contributors"] ?? [];
+     $contributors[$author] = "Admin";
      $created = $blog["Created"] ?? $now;
      $illegal = $blog["Illegal"] ?? 0;
      $modifiedBy = $blog["ModifiedBy"] ?? [];
@@ -555,7 +555,7 @@
        }
       }
      } if(!in_array($id, $y["Blogs"]) && $new == 1) {
-      if($username == $you) {
+      if($author == $you) {
        array_push($y["Blogs"], $id);
        $y["Blogs"] = array_unique($y["Blogs"]);
        $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
@@ -574,7 +574,7 @@
       "TPL" => $data["TPL-BLG"],
       "Description" => htmlentities($data["Description"]),
       "NSFW" => $data["nsfw"],
-      "Privacy" => $data["pri"],
+      "Privacy" => $data["Privacy"],
       "Posts" => $posts,
       "UN" => $author
      ]]);

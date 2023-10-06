@@ -414,8 +414,8 @@
     $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
     $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
     $_ViewTitle = $Page["Title"] ?? $_ViewTitle;
+    $contributors = $Page["Contributors"] ?? [];
     $ck = ($Page["UN"] == $you) ? 1 : 0;
-    $subscribers = $Page["Subscribers"] ?? [];
     if(in_array($Page["Category"], ["CA", "JE"]) && $bl == 0) {
      foreach($contributors as $member => $role) {
       if($active == 0 && $member == $you) {
@@ -680,6 +680,7 @@
      $newCategory = ($category == "EXT") ? "Extention" : "Article";
      $newCategory = ($category == "JE") ? "Journal Entry" : $newCategory;
      $contributors = $Page["Contributors"] ?? [];
+     $contributors[$author] = "Admin";
      $created = $Page["Created"] ?? $now;
      $i = 0;
      $illegal = $Page["Illegal"] ?? 0;
