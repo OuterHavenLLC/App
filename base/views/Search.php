@@ -41,7 +41,6 @@
        "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
       ]
      ]) : "";
-     $tpl = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "ADM-MassMail") {
      $h = "Mass Mail";
      $lis = "Search Pre-Sets";
@@ -487,10 +486,8 @@
     $ec = "Accepted";
     $tpl = $this->core->Page("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
-     $delete = base64_encode("Authentication:DeletePage");
-     $edit = base64_encode("Page:Edit");
-     $Pages = $this->core->DatabaseSet("PG") ?? [];
-     /*$Pages = $this->core->SQL("SELECT CAST(AES_DECRYPT(Body, :key) AS CHAR(8000)) AS Body,
+     $extensions = $this->core->DatabaseSet("PG") ?? [];
+     /*$extensions = $this->core->SQL("SELECT CAST(AES_DECRYPT(Body, :key) AS CHAR(8000)) AS Body,
      CAST(AES_DECRYPT(Description, :key) AS CHAR(8000)) AS Description,
      CAST(AES_DECRYPT(ID, :key) AS CHAR(8000)) AS ID,
      CAST(AES_DECRYPT(Title, :key) AS CHAR(8000)) AS Title
@@ -503,26 +500,26 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ":search" => $query
      ]);
      die($query.var_dump($Pages->fetchAll(PDO::FETCH_ASSOC)));
-     while($Page = $Pages->fetchAll(PDO::FETCH_ASSOC)) {*/
-     foreach($Pages as $k => $v) {
+     while($extension = $extensions->fetchAll(PDO::FETCH_ASSOC)) {*/
+     foreach($extensions as $kalue => $value) {
       #$na.=" ".$query.json_encode($Page, true);//TEMP
-      $v = str_replace("c.oh.pg.", "", $v);
-      #$Page = $this->core->Data("Get", ["pg", $Page["ID"]]) ?? [];
-      $Page = $this->core->Data("Get", ["pg", $v]) ?? [];
-      if($Page["Category"] == "EXT" || $Page["High Command"] == 1) {
-       $id = $Page["ID"] ?? $v;
+      $value = str_replace("c.oh.pg.", "", $value);
+      #$Page = $this->core->Data("Get", ["pg", $extension["ID"]]) ?? [];
+      $extension = $this->core->Data("Get", ["pg", $value]) ?? [];
+      if($extension["Category"] == "EXT" || $extension["High Command"] == 1) {
+       $id = $extension["ID"] ?? $value;
        array_push($msg, [
-        "[X.LI.T]" => base64_encode($Page["Title"]),
-        "[X.LI.D]" => base64_encode($this->core->PlainText([
+        "[Extension.Category]" => base64_encode($extension["Category"]),
+        "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$id")),
+        "[Extension.Description]" => base64_encode($this->core->PlainText([
          "BBCodes" => 1,
-         "Data" => $Page["Description"],
+         "Data" => $extension["Description"],
          "Display" => 1,
          "HTMLDecode" => 1
         ])),
-        "[X.LI.Delete]" => base64_encode(base64_encode("v=$delete&ID=$id")),
-        "[X.LI.K]" => base64_encode($id),
-        "[X.LI.C]" => base64_encode($Page["Category"]),
-        "[X.LI.DT]" => base64_encode(base64_encode("v=$edit&ID=".base64_encode($id)))
+        "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($id))),
+        "[Extension.ID]" => base64_encode($id),
+        "[Extension.Title]" => base64_encode($extension["Title"])
        ]);
       }
      }

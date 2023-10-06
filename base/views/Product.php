@@ -172,7 +172,6 @@
     "CARD",
     "CallSign",
     "ID",
-    "UN",
     "b2",
     "back",
     "lPG",
@@ -189,7 +188,7 @@
    $r = [
     "Body" => "The requested Product could not be found."
    ];
-   $username = $data["UN"];
+   $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($pub == 1) {
@@ -204,10 +203,10 @@
       $id = $value;
      }
     }
-   } if((!empty($id) || $i > 0) && !empty($data["UN"])) {
+   } if((!empty($id) || $i > 0) && !empty($username)) {
     $accessCode = "Accepted";
     $base = $this->core->base;
-    $username = base64_decode($data["UN"]);
+    $username = base64_decode($username);
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $product = $this->core->Data("Get", ["product", $id]) ?? [];
     $shop = $this->core->Data("Get", [
