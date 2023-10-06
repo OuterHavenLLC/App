@@ -578,21 +578,9 @@
        "[Ranks.Authentication]" => "v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".MemberRank".md5($id))."&ID=".md5($id)."&Processor=".base64_encode("v=".base64_encode("Profile:ChangeRank"))."&Text=".base64_encode("Do you authorize the Change of $display's rank?"),
        "[Ranks.DisplayName]" => $display,
        "[Ranks.ID]" => md5($id),
+       "[Ranks.Options]" => json_encode($ranks, true),
        "[Ranks.Username]" => $id,
-       "[Ranks.Option]" => $this->core->RenderInputs([
-        [
-         "Attributes" => [],
-         "OptionGroup" => $ranks,
-         "Options" => [
-          "Header" => 1,
-          "HeaderText" => "Rank"
-         ],
-         "Name" => "Rank",
-         "Title" => "Rank",
-         "Type" => "Select",
-         "Value" => $y["Rank"]
-        ]
-       ])
+       "[Ranks.YourRank]" => $y["Rank"]
       ], $this->core->Page("914dd9428c38eecf503e3a5dda861559")]);
      }
      $gender = $t["Personal"]["Gender"] ?? "Male";
