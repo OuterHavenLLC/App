@@ -8,7 +8,7 @@
    $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN", "SU", "body", "new"]);
+   $data = $this->core->FixMissing($data, ["UN", "SU", "new"]);
    $id = $data["SU"];
    $new = $data["new"] ?? 0;
    $now = $this->core->timestamp;
@@ -62,86 +62,18 @@
      ]),
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
-     "[Update.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "From",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $you
-      ],
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "To",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $to
-      ],
-      [
-       "Attributes" => [
-        "name" => "new",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $new
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTF",
-        "data-a" => "#ATTL$id-ATTF",
-        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
-        "name" => "rATTF",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditUpdate$id-ATTF"
-       ],
-       "Type" => "Text",
-       "Value" => $att
-      ],
-      [
-       "Attributes" => [
-        "class" => "$designViewEditor Body Xdecode req",
-        "id" => "EditPageBody$id",
-        "name" => "Body",
-        "placeholder" => "Body"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Body",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox",
-       "Value" => $this->core->PlainText([
-        "Data" => $body
-       ])
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ]),
-     "[UIV.IN]" => "UIE$id"
+     "[Update.Body]" => base64_encode($this->core->PlainText([
+      "Data" => $body,
+     ])),
+     "[Update.DesignView]" => $designViewEditor,
+     "[Update.Downloads]" => $att,
+     "[Update.Downloads.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
+     "[Update.From]" => $you,
+     "[Update.ID]" => $id,
+     "[Update.New]" => $new,
+     "[Update.To]" => $to,
+     "[Update.Visibility.NSFW]" => $nsfw,
+     "[Update.Visibility.Privacy]" => $privacy
     ], $this->core->Page("7cc50dca7d9bbd7b7d0e3dd7e2450112")]);
     $r = [
      "Action" => $action,
