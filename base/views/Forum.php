@@ -424,7 +424,13 @@
     "Body" => "The Forum Identifier is missing."
    ];
    $y = $this->you;
-   if(!empty($id)) {
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $content = [];
     $contentOptions = $y["Forums"] ?? [];
@@ -831,7 +837,13 @@
     "Body" => "The Forum Identifier is missing."
    ];
    $y = $this->you;
-   if(!empty($id) && !empty($mbr)) {
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id) && !empty($mbr)) {
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
@@ -850,17 +862,20 @@
      $r = [
       "Body" => "The Forum does not exist."
      ];
-    } elseif($mbr == $forum["UN"]) {
+    } elseif($forum["UN"] == $mbr) {
      $r = [
       "Body" => "$mbr owns <em>".$forum["Title"]."</em>."
      ];
-    } elseif($mbr == $y["Login"]["Username"]) {
+    } elseif($mbr == $you) {
      $r = [
       "Body" => "You are already a member of this forum."
      ];
     } else {
      $active = 0;
-     $manifest = $this->core->Data("Get", ["pfmanifest", $forum["ID"]]) ?? [];
+     $manifest = $this->core->Data("Get", [
+      "pfmanifest",
+      $forum["ID"]
+     ]) ?? [];
      foreach($manifest as $member => $role) {
       if($mbr == $member) {
        $active++;

@@ -410,7 +410,13 @@
     "Header" => "Not Found"
    ];
    $y = $this->you;
-   if(!empty($id)) {
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $action = $this->core->Element(["button", "Send Invite", [
@@ -725,7 +731,13 @@
     "Body" => "The Blog Identifier is missing."
    ];
    $y = $this->you;
-   if(!empty($id) && !empty($mbr)) {
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id) && !empty($mbr)) {
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
@@ -744,11 +756,11 @@
      $r = [
       "Body" => "The Blog does not exist."
      ];
-    } elseif($mbr == $blog["UN"]) {
+    } elseif($blog["UN"] == $mbr) {
      $r = [
       "Body" => "$mbr owns <em>".$blog["Title"]."</em>."
      ];
-    } elseif($mbr == $y["Login"]["Username"]) {
+    } elseif($mbr == $you) {
      $r = [
       "Body" => "You are already a contributor."
      ];
