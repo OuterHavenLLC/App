@@ -860,9 +860,9 @@
      "[Preferences.Privacy.NSFW]" => $y["Privacy"]["NSFW"],
      "[Preferences.Privacy.OnlineStatus]" => $y["Privacy"]["OnlineStatus"],
      "[Preferences.Privacy.Posts]" => $y["Privacy"]["Posts"],
-     "[Preferences.Privacy.Products]" => $y["Privacy"]["Posts"],
-     "[Preferences.Privacy.Profile]" => $y["Privacy"]["Posts"],
-     "[Preferences.Privacy.Registered]" => $y["Privacy"]["Posts"],
+     "[Preferences.Privacy.Products]" => $y["Privacy"]["Products"],
+     "[Preferences.Privacy.Profile]" => $y["Privacy"]["Profile"],
+     "[Preferences.Privacy.Registered]" => $y["Privacy"]["Registered"],
      "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
      "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
      "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"]
@@ -885,11 +885,6 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "Personal_DisplayName",
-    "PIN",
-    "email"
-   ]);
    $email = $data["Personal_Email"] ?? "";
    $emailIsTaken = 0;
    $header = "Error";
@@ -959,7 +954,7 @@
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $newMember["Rank"] = $y["Rank"];
-    #$this->core->Data("Save", ["mbr", md5($you), $newMember]);
+    $this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!";
    }
    return $this->core->JSONResponse([
@@ -968,8 +963,7 @@
      "JSON" => "",
      "Web" => [
       "Body" => $r,
-      "Header" => $header,
-      "Scrollable" => $newMember
+      "Header" => $header
      ]
     ],
     "ResponseType" => "Dialog",

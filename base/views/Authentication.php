@@ -110,7 +110,7 @@
       "[Authorize.PIN]" => $this->core->RenderInputs([
        [
         "Attributes" => [
-         "class" => "req",
+         "class" => "CheckIfNumeric req",
          "data-id" => $id,
          "name" => "AuthorizationPIN",
          "pattern" => "\d*",

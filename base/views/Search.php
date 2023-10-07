@@ -1751,24 +1751,22 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $tpl = $this->core->Page("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
-     $delete = base64_encode("Authentication:DeletePage");
-     $Pages = $y["Pages"] ?? [];
-     $edit = base64_encode("Page:Edit");
-     foreach($Pages as $key => $value) {
-      $Page = $this->core->Data("Get", ["pg", $value]) ?? [];
-      if($Page["Category"] != "EXT") {
+     $extensions = $y["Pages"] ?? [];
+     foreach($extensions as $key => $value) {
+      $extension = $this->core->Data("Get", ["pg", $value]) ?? [];
+      if($extension["Category"] != "EXT") {
        array_push($msg, [
-        "[X.LI.T]" => base64_encode($Page["Title"]),
-        "[X.LI.D]" => base64_encode($this->core->PlainText([
+        "[Extension.Category]" => base64_encode($extension["Category"]),
+        "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$value")),
+        "[Extension.Description]" => base64_encode($this->core->PlainText([
          "BBCodes" => 1,
-         "Data" => $Page["Description"],
+         "Data" => $extension["Description"],
          "Display" => 1,
          "HTMLDecode" => 1
         ])),
-        "[X.LI.Delete]" => base64_encode("v=$delete&ID=$value"),
-        "[X.LI.K]" => base64_encode($value),
-        "[X.LI.C]" => base64_encode($Page["Category"]),
-        "[X.LI.DT]" => base64_encode(base64_encode("v=$edit&ID=$value&lPG=$lpg&b2=$b2"))
+        "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($value))),
+        "[Extension.ID]" => base64_encode($value),
+        "[Extension.Title]" => base64_encode($extension["Title"])
        ]);
       }
      }

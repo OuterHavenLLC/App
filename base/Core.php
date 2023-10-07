@@ -641,7 +641,6 @@
     "Pages" => $pages,
     "Personal" => [
      "Age" => $age,
-     "Bio" => "",
      "Birthday" => [
       "Month" => $birthMonth,
       "Year" => $birthYear
