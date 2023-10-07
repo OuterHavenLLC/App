@@ -124,7 +124,6 @@
         "Data" => "[sIMG:CP]",
         "Display" => 1
        ]),
-       "[VIP.FAB]" => base64_encode("v=$search&st=FAB"),
        "[VIP.Forum]" => base64_encode("v=$forum&CARD=1&ID=$id")
       ], $this->core->Page("89d36f051962ca4bbfbcb1dc2bd41f60")]);
      } elseif($s == "XFS") {

@@ -161,17 +161,6 @@
        "data-view" => base64_encode("v=$dce&new=1")
       ]
      ]) : "";
-    } elseif($st == "FAB") {
-     $fd = base64_encode("Authentication:DeleteFAB");
-     $fe = base64_encode("FAB:Edit");
-     $h = "Free America Broadcasting";
-     $lis = "Search Stations";
-     $lo = ($notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$fe&new=1")
-      ]
-     ]) : "";
     } elseif($st == "Feedback") {
      $h = "Feedback";
      $li .= "&lPG=$lpg";
@@ -439,7 +428,6 @@
     ], $this->core->Page($tpl)]);
    } if(in_array($st, [
      "DC",
-     "FAB",
      "SHOP-InvoicePresets",
      "SHOP-Invoices"
     ])) {
@@ -1429,53 +1417,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[ForumPost.Votes]" => base64_encode($votes)
        ]);
       }
-     }
-    }
-   } elseif($st == "FAB") {
-    $ec = "Accepted";
-    $fd = base64_encode("Authentication:DeleteFAB");
-    $fe = base64_encode("FAB:Edit");
-    $ico = $this->core->PlainText([
-     "Data" => "[sIMG:FAB]", "Display" => 1
-    ]);
-    $tpl = $this->core->Page("488e0e8946181efa5e2666ed0b997adc");
-    $x = $this->core->Data("Get", [
-     "x",
-     md5("FreeAmericaBroadcasting")
-    ]) ?? [];
-    foreach($x as $k => $v) {
-     $bl = $this->core->CheckBlocked([
-      $k, "Broadcasters", $y["Login"]["Username"]
-     ]);
-     $ck = ($v["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["MinAge"]) ? 1 : 0;
-     if($bl == 0 && $ck == 1) {
-      $ck = ($v["Role"] == 1 || $v["UN"] == $you) ? 1 : 0;
-      $ico = (!empty($v["ICO"])) ? "$base/efs/".$v["ICO"] : $ico;
-      $opt = ($ck == 1) ? $this->core->Element([
-       "div", $this->core->Element(["button", "Delete", [
-        "class" => "A BB OpenDialog v2 v2w",
-        "data-view" => base64_encode("v=$fd&ID=$k")
-       ]]), ["class" => "Desktop50"]
-      ]).$this->core->Element([
-       "div", $this->core->Element(["button", "Edit", [
-        "class" => "BB OpenCard v2 v2w",
-        "data-view" => base64_encode("v=$fe&ID=".base64_encode($k))
-       ]]), ["class" => "esktop0"]
-      ]) : "";
-      array_push($msg, [
-       "[X.LI.Description]" => base64_encode($this->core->PlainText([
-        "BBCodes" => 1,
-        "Data" => $v["Description"],
-        "Display" => 1,
-        "HTMLDecode" => 1
-       ])),
-       "[X.LI.ICO]" => base64_encode($ico),
-       "[X.LI.Listen]" => base64_encode($v["Listen"]),
-       "[X.LI.NONAME]" => base64_encode(""),
-       "[X.LI.Options]" => base64_encode($opt),
-       "[X.LI.Title]" => base64_encode($v["Title"]),
-       "[X.LI.URL]" => base64_encode($v["URL"])
-      ]);
      }
     }
    } elseif($st == "Knowledge") {

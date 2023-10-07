@@ -129,17 +129,6 @@
    $r = [
     "App" => [
      "Description" => "The Wild-West of the Internet.",
-     "FAB" => [md5("FreeAmericaRadio") => [
-      "Description" => "Bringing you the latest developments at Outer Haven, as well as a variety of other topics.",
-      "ICO" => "",
-      "ICO-SRC" => "",
-      "Listen" => $this->base,
-      "NSFW" => 0,
-      "Role" => 0,
-      "Title" => "Free America Radio",
-      "UN" => $this->ShopID,
-      "URL" => $this->base.":8000/listen.pls?sid=1"
-     ]],
      "Illegal" => 777,
      "Keywords" => "Outer Haven, social entertainment, artist tools, social media, social discovery, creative community, hidden, deep web, private network, empowering expression, connect to the world, videos, music, share, playlists, mixes, profiles, discovery, discover, join the world with privatized social networking, NSA-free",
      "Name" => "Outer Haven",
@@ -158,7 +147,6 @@
       "ContactsRequests",
       "Contributors",
       "DC",
-      "FAB",
       "Feedback",
       "Forums",
       "Forums-Admin",
