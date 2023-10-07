@@ -28,91 +28,12 @@
      }
      $r = $this->core->Change([[
       "[Feedback.ID]" => $id,
-      "[Feedback.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $id
-       ],
-       [
-        "Attributes" => [
-         "name" => "ParaphrasedQuestion",
-         "placeholder" => "Paraphrased Question",
-         "type" => "text"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $paraphrasedQuestion
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "Message",
-         "placeholder" => "Say something..."
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "NONAME"
-        ],
-        "Type" => "TextBox",
-        "Value" => ""
-       ],
-       [
-        "Attributes" => [],
-        "OptionGroup" => [
-         0 => "No",
-         1 => "Yes"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Paraphrase"
-        ],
-        "Name" => "UseParaphrasedQuestion",
-        "Type" => "Select",
-        "Value" => $feedback["UseParaphrasedQuestion"]
-       ],
-       [
-        "Attributes" => [],
-        "OptionGroup" => [
-         1 => "High",
-         2 => "Normal",
-         3 => "Low"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Priority"
-        ],
-        "Name" => "Priority",
-        "Type" => "Select",
-        "Value" => $feedback["Priority"]
-       ],
-       [
-        "Attributes" => [],
-        "OptionGroup" => [
-         0 => "No",
-         1 => "Yes"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Resolved"
-        ],
-        "Name" => "Resolved",
-        "Type" => "Select",
-        "Value" => $feedback["Resolved"]
-       ]
-      ]),
+      "[Feedback.ParaphrasedQuestion]" => base64_encode($paraphrasedQuestion),
+      "[Feedback.Priority]" => $feedback["Priority"],
+      "[Feedback.Resolved]" => $feedback["Resolved"],
       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
-      "[Feedback.Title]" => $title
+      "[Feedback.Title]" => $title,
+      "[Feedback.UseParaphrasedQuestion]" => $feedback["UseParaphrasedQuestion"]
      ], $this->core->Page("56718d75fb9ac2092c667697083ec73f")]);
     }
     $r = [
@@ -145,63 +66,8 @@
      }
      $r = $this->core->Change([[
       "[Feedback.ID]" => $id,
-      "[Feedback.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $id
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "Message",
-         "placeholder" => "Say something..."
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "NONAME"
-        ],
-        "Type" => "TextBox",
-        "Value" => ""
-       ],
-       [
-        "Attributes" => [],
-        "OptionGroup" => [
-         1 => "High",
-         2 => "Normal",
-         3 => "Low"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Priority"
-        ],
-        "Name" => "Priority",
-        "Type" => "Select",
-        "Value" => $feedback["Priority"]
-       ],
-       [
-        "Attributes" => [],
-        "OptionGroup" => [
-         0 => "No",
-         1 => "Yes"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Resolved"
-        ],
-        "Name" => "Resolved",
-        "Type" => "Select",
-        "Value" => $feedback["Resolved"]
-       ]
-      ]),
+      "[Feedback.Priority]" => $feedback["Priority"],
+      "[Feedback.Resolved]" => $feedback["Resolved"],
       "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title
@@ -232,138 +98,9 @@
      "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
     ]]),
     "Front" => $this->core->Change([[
+     "[Feedback.Email]" => base64_encode($y["Personal"]["Email"]),
      "[Feedback.ID]" => $id,
-     "[Feedback.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Email",
-        "placeholder" => "johnny.test@outerhaven.nyc",
-        "type" => "email"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "E-Mail"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Personal"]["Email"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Name",
-        "placeholder" => "John Doe",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Name"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Personal"]["FirstName"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Phone",
-        "pattern" => "\d*",
-        "placeholder" => "7777777777",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Phone Number"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Subject",
-        "placeholder" => "Subject",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Subject"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Message",
-        "placeholder" => "Say Something..."
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Body"
-       ],
-       "Type" => "TextBox",
-       "Value" => ""
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "No",
-        1 => "Yes"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Allow Indexing?"
-       ],
-       "Name" => "Index",
-       "Type" => "Select",
-       "Value" => 0
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        1 => "High",
-        2 => "Normal",
-        3 => "Low"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Priority"
-       ],
-       "Name" => "Priority",
-       "Type" => "Select",
-       "Value" => 2
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "No",
-        1 => "Yes"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Send Occasional Emails?"
-       ],
-       "Name" => "SendOccasionalEmails",
-       "Type" => "Select",
-       "Value" => 0
-      ]
-     ])
+     "[Feedback.Name]" => base64_encode($y["Personal"]["FirstName"])
     ], $this->core->Page("2b5ca0270981e891ce01dba62ef32fe4")])
    ];
    return $this->core->JSONResponse([

@@ -35,86 +35,14 @@
     $quantities[$i] = $i;
    }
    $r = $this->core->Change([[
-    "[Discount.Inputs]" => $this->core->RenderInputs([
-     [
-      "Attributes" => [
-       "name" => "ID",
-       "type" => "hidden"
-      ],
-      "Options" => [],
-      "Type" => "Text",
-      "Value" => $id
-     ],
-     [
-      "Attributes" => [
-       "name" => "new",
-       "type" => "hidden"
-      ],
-      "Options" => [],
-      "Type" => "Text",
-      "Value" => $new
-     ],
-     [
-      "Attributes" => [
-       "class" => "req",
-       "name" => "DC",
-       "placeholder" => "Diacount Code",
-       "type" => "text"
-      ],
-      "Options" => [
-       "Container" => 1,
-       "ContainerClass" => "NONAME",
-       "Header" => 1,
-       "HeaderText" => "Discount Code"
-      ],
-      "Type" => "Text",
-      "Value" => base64_decode($code)
-     ],
-     [
-      "Attributes" => [
-       "class" => "req",
-       "name" => "DollarAmount",
-       "placeholder" => "Dollar Amount",
-       "type" => "text"
-      ],
-      "Options" => [
-       "Container" => 1,
-       "ContainerClass" => "NONAME",
-       "Header" => 1,
-       "HeaderText" => "Dollar Amount"
-      ],
-      "Type" => "Text",
-      "Value" => $dollarAmount
-     ],
-     [
-      "Attributes" => [],
-      "OptionGroup" => $percentages,
-      "Options" => [
-       "Container" => 1,
-       "ContainerClass" => "Desktop50 MobileFull",
-       "Header" => 1,
-       "HeaderText" => "Percent Off"
-      ],
-      "Name" => "Percentile",
-      "Title" => "Percent Off",
-      "Type" => "Select",
-      "Value" => $percentile
-     ],
-     [
-      "Attributes" => [],
-      "OptionGroup" => $quantities,
-      "Options" => [
-       "Container" => 1,
-       "ContainerClass" => "Desktop50 MobileFull",
-       "Header" => 1,
-       "HeaderText" => "Quantity"
-      ],
-      "Name" => "DiscountCodeQTY",
-      "Title" => "Quantity",
-      "Type" => "Select",
-      "Value" => $quantity
-     ]
-    ])
+    "[Discount.Code]" => $code,
+    "[Discount.DollarAmount]" => $dollarAmount,
+    "[Discount.ID]" => $id,
+    "[Discount.New]" => $new,
+    "[Discount.Percentages]" => json_encode($percentages, true),
+    "[Discount.Percentile]" => $percentile,
+    "[Discount.Quantities]" => json_encode($quantities, true),
+    "[Discount.Quantity]" => $quantity
    ], $this->core->Page("47e35864b11d8bdc255b0aec513337c0")]);
    $r = [
     "Action" => $action,
@@ -138,10 +66,9 @@
     "DollarAmount",
     "ID",
     "Percentile",
-    "Quantity",
-    "new"
+    "Quantity"
    ]);
-   $new = $data["new"] ?? 0;
+   $new = $data["New"] ?? 0;
    $r = [
     "Body" => "The Code Identifier is missing."
    ];
