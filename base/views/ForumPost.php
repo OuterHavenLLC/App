@@ -28,7 +28,7 @@
      "data-form" => ".ForumPost$id",
      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
     ]]);
-    $att = "";
+    $attachments = "";
     $id = ($new == 1) ? md5($you."_Post_".$this->core->timestamp) : $id;
     $dv = base64_encode("Common:DesignView");
     $em = base64_encode("LiveView:EditorMossaic");
@@ -38,7 +38,7 @@
     $body = $post["Body"] ?? "";
     $header = ($new == 1) ? "New Post" : "Edit Post";
     if(!empty($post["Attachments"])) {
-     $att = base64_encode(implode(";", $post["Attachments"]));
+     $attachments = base64_encode(implode(";", $post["Attachments"]));
     }
     $at2 = base64_encode("All done! Feel free to close this card.");
     $atinput = ".ForumPost$id-ATTF";
@@ -61,95 +61,19 @@
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
+     "[ForumPost.Attachments]" => $attachments,
+     "[ForumPost.Attachments.LiveView]" => base64_encode("v=$em&AddTo=$atinput&ID="),
+     "[ForumPost.Body]" => base64_encode($this->core->PlainText([
+      "Data" => $post["Body"]
+     ])),
+     "[ForumPost.DesignView]" => $designViewEditor,
      "[ForumPost.Header]" => $header,
+     "[ForumPost.ForumID]" => $forumID,
      "[ForumPost.ID]" => $id,
-     "[ForumPost.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "FID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $forumID
-      ],
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "new",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $new
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTF",
-        "data-a" => "#ATTL$id-ATTF",
-        "data-u" => base64_encode("v=$em&AddTo=$atinput&ID="),
-        "name" => "rATTF",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditForumPost$id-ATTF"
-       ],
-       "Type" => "Text",
-       "Value" => $att
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $post["Title"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "$designViewEditor Body Xdecode req",
-        "id" => "EditForumPostBody$id",
-        "name" => "Body",
-        "placeholder" => "Body"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Body",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox",
-       "Value" => $this->core->PlainText([
-        "Data" => $post["Body"],
-        "Decode" => 1
-       ])
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ])
+     "[ForumPost.New]" => $new,
+     "[ForumPost.Title]" => base64_encode($title),
+     "[ForumPost.Visibility.NSFW]" => $nsfw,
+     "[ForumPost.Visibility.Privacy]" => $privacy
     ], $this->core->Page("cabbfc915c2edd4d4cba2835fe68b1cc")]);
     $r = [
      "Action" => $action,
@@ -317,7 +241,7 @@
    } elseif((!empty($fid) && !empty($id)) || $new == 1) {
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
-    $att = [];
+    $attachments = [];
     $forum = $this->core->Data("Get", ["pf", $fid]) ?? [];
     $i = 0;
     $now = $this->core->timestamp;
@@ -333,7 +257,7 @@
       if(!empty($dlc)) {
        $f = explode("-", base64_decode($dlc));
        if(!empty($f[0]) && !empty($f[1])) {
-        array_push($att, base64_encode($f[0]."-".$f[1]));
+        array_push($attachments, base64_encode($f[0]."-".$f[1]));
        }
       }
      }
@@ -350,12 +274,8 @@
     $illegal = $post["Illegal"] ?? 0;
     $modifiedBy = $post["ModifiedBy"] ?? [];
     $modifiedBy[$now] = $you;
-    $r = [
-     "Body" => "Your post has been $actionTaken.",
-     "Header" => "Done"
-    ];
-    $this->core->Data("Save", ["post", $id, [
-     "Attachments" => $att,
+    $post = [
+     "Attachments" => $attachments,
      "Body" => $this->core->PlainText([
       "Data" => $data["Body"],
       "HTMLEncode" => 1
@@ -367,10 +287,15 @@
      "Illegal" => $illegal,
      "Modified" => $now,
      "ModifiedBy" => $modifiedBy,
-     "NSFW" => $data["nsfw"],
-     "Privacy" => $data["pri"],
+     "NSFW" => $data["NSFW"],
+     "Privacy" => $data["Privacy"],
      "Title" => $data["Title"]
-    ]]);
+    ];
+    $this->core->Data("Save", ["post", $id, $post]);
+    $r = [
+     "Body" => "Your post has been $actionTaken.",
+     "Header" => "Done"
+    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

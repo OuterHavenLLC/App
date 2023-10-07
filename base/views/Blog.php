@@ -403,8 +403,8 @@
    $accessCode = "Denied";
    $action = "";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Member"]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? base64_encode("");
    $r = [
     "Body" => "The Blog Identifier is missing.",
     "Header" => "Not Found"
@@ -420,20 +420,20 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $action = $this->core->Element(["button", "Send Invite", [
-     "class" => "CardButton SendData dB2C",
+     "class" => "CardButton SendData",
      "data-form" => ".Invite$id",
      "data-processor" => base64_encode("v=".base64_encode("Blog:SendInvite"))
     ]]);
     $content = [];
     $contentOptions = $y["Blogs"] ?? [];
     foreach($contentOptions as $key => $value) {
-     $blog = $this->Data("Get", ["blg", $value]) ?? [];
-     $content[$blog["ID"]] = $blog["Title"];
+     $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
+     $content[$value] = $blog["Title"];
     }
     $r = $this->core->Change([[
-     "[Invite.Content]" => $content,
+     "[Invite.Content]" => json_encode($content, true),
      "[Invite.ID]" => $id,
-     "[Invite.Member]" => $data["Member"]
+     "[Invite.Member]" => $member
     ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
     $r = [
      "Action" => $action,

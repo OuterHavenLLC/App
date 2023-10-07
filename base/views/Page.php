@@ -409,31 +409,31 @@
   function Invite(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Member"]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? base64_encode("");
    $r = [
     "Body" => "The Article Identifier is missing."
    ];
    $y = $this->you;
    if(!empty($id)) {
     $accessCode = "Accepted";
-    $content = [];
-    $contentOptions = $y["Pages"] ?? [];
     $id = base64_decode($id);
-    foreach($contentOptions as $key => $value) {
-     $article = $this->Data("Get", ["pg", $value]) ?? [];
-     $content[$article["ID"]] = $article["Title"];
-    }
-    $r = $this->core->Change([[
-     "[Invite.Content]" => $content,
-     "[Invite.ID]" => $id,
-     "[Invite.Member]" => $data["Member"]
-    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
     $action = $this->core->Element(["button", "Send Invite", [
      "class" => "CardButton SendData dB2C",
      "data-form" => ".Invite$id",
      "data-processor" => base64_encode("v=".base64_encode("Page:SendInvite"))
     ]]);
+    $content = [];
+    $contentOptions = $y["Pages"] ?? [];
+    foreach($contentOptions as $key => $value) {
+     $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+     $content[$value] = $article["Title"];
+    }
+    $r = $this->core->Change([[
+     "[Invite.Content]" => json_encode($content, true),
+     "[Invite.ID]" => $id,
+     "[Invite.Member]" => $member
+    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
     $r = [
      "Action" => $action,
      "Front" => $r

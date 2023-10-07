@@ -418,8 +418,8 @@
   function Invite(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Member"]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? base64_encode("");
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -432,23 +432,23 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $content = [];
-    $contentOptions = $y["Forums"] ?? [];
     $id = base64_decode($id);
-    foreach($contentOptions as $key => $value) {
-     $forum = $this->Data("Get", ["pf", $value]) ?? [];
-     $content[$forum["ID"]] = $forum["Title"];
-    }
-    $r = $this->core->Change([[
-     "[Invite.Content]" => $content,
-     "[Invite.ID]" => $id,
-     "[Invite.Member]" => $data["Member"]
-    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
     $action = $this->core->Element(["button", "Send Invite", [
      "class" => "CardButton CloseCard SendData",
      "data-form" => ".Invite$id",
      "data-processor" => base64_encode("v=".base64_encode("Forum:SendInvite"))
     ]]);
+    $content = [];
+    $contentOptions = $y["Forums"] ?? [];
+    foreach($contentOptions as $key => $value) {
+     $forum = $this->core->Data("Get", ["pf", $value]) ?? [];
+     $content[$value] = $forum["Title"];
+    }
+    $r = $this->core->Change([[
+     "[Invite.Content]" => json_encode($content, true),
+     "[Invite.ID]" => $id,
+     "[Invite.Member]" => $member
+    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
     $r = [
      "Action" => $action,
      "Front" => $r
