@@ -127,130 +127,24 @@
       [
        "[Extras.ContentType]" => "Forum",
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => "N/A",
+       "[Extras.DesignView.Origin]" => "NA",
        "[Extras.DesignView.Destination]" => "UIV$id",
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
+     "[Forum.About]" => base64_encode($about),
+     "[Forum.Created]" => $created,
+     "[Forum.CoverPhoto]" => $coverPhoto,
+     "[Forum.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+     "[Forum.Description]" => base64_encode($description),
      "[Forum.Header]" => $header,
      "[Forum.ID]" => $id,
-     "[Forum.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Created",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $created
-      ],
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "new",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $new
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTI",
-        "data-a" => "#ATTL$id-ATTI",
-        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
-        "name" => "rATTI",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Forum$id-ATTI"
-       ],
-       "Type" => "Text",
-       "Value" => $coverPhoto
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $title
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "About",
-        "placeholder" => "Tell us about your Forum..."
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "About"
-       ],
-       "Type" => "TextBox",
-       "Value" => $about
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Description",
-        "placeholder" => "Describe yout Forum..."
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $description
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        md5("Private") => "Private",
-        md5("Publid") => "Publid"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Forum Type"
-       ],
-       "Name" => "PageCategory",
-       "Title" => "Forum Type",
-       "Type" => "Select",
-       "Value" => $type
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ])
+     "[Forum.New]" => $new,
+     "[Forum.Title]" => base64_encode($title),
+     "[Forum.Type]" => $type
     ], $this->core->Page("8304362aea73bddb2c12eb3f7eb226dc")]);
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
@@ -571,12 +465,10 @@
     "Crweated",
     "Description",
     "ID",
-    "PFType",
-    "nsfw",
-    "pri"
+    "Type"
    ]);
    $id = $data["ID"];
-   $new = $data["new"] ?? 0;
+   $new = $data["New"] ?? 0;
    $now = $this->core->timestamp;
    $r = [
     "Body" => "The Forum Identifier is missing."
@@ -624,9 +516,12 @@
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $created = $forum["Created"] ?? $this->core->timestamp;
     $illegal = $forum["Illegal"] ?? 0;
+    $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
     $posts = $forum["Posts"] ?? [];
+    $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
     $title = $data["Title"] ?? "My Forum";
-    $this->core->Data("Save", ["pf", $id, [
+    $type = $data["Type"] ?? md5("Private");
+    $forum = [
      "About" => $data["About"],
      "Created" => $created,
      "Description" => $this->core->PlainText([
@@ -638,13 +533,14 @@
      "ID" => $id,
      "Illegal" => $illegal,
      "Modified" => $now,
-     "NSFW" => $data["nsfw"],
+     "NSFW" => $nsfw,
      "Posts" => $posts,
-     "Privacy" => $data["pri"],
+     "Privacy" => $privacy,
      "Title" => $title,
      "UN" => $y["Login"]["Username"],
-     "Type" => $data["PFType"]
-    ]]);
+     "Type" => $type
+    ];
+    #$this->core->Data("Save", ["pf", $id, $forum]);
     $actionTaken = ($new == 1) ? "published" : "updated";
     $r = [
      "Body" => "The Forum <em>$title</em> was $actionTaken.",

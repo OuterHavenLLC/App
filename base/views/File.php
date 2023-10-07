@@ -45,14 +45,19 @@
      "fs"
     ]) : $fileSystem["Files"];
     $file = $files[$id] ?? [];
-    $album = $this->core->Element(["p", "System Library`"]);
+    $album = $this->core->Element(["p", "System Library"]);
+    $albums = [];
     if($this->core->ID != $username) {
      $album = $file["AID"] ?? md5("unsorted");
      $albums = [];
      foreach($fileSystem["Albums"] as $key => $album) {
       $albums[$key] = $album["Title"];
      }
-     $album = $this->core->RenderInputs([
+    }
+    $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $privacy = $file["Privacy"];
+    $r = $this->core->Change([[
+     "[File.Album]" => $this->core->RenderInputs([
       [
        "Attributes" => [],
        "OptionGroup" => $albums,
@@ -67,12 +72,7 @@
        "Type" => "Select",
        "Value" => $album
       ]
-     ]);
-    }
-    $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $file["Privacy"];
-    $r = $this->core->Change([[
-     "[File.Album]" => $album,
+     ]),
      "[File.ID]" => $id,
      "[File.Inputs]" => $this->core->RenderInputs([
       [
