@@ -465,14 +465,6 @@
       ]]);
       $articles = $this->core->RenderView($articles);
      }
-     $bio = "You have not added an Autobiography";
-     $bio = ($ck == 0) ? "$display has not added an Autobiography." : $bio;
-     $bio = (!empty($t["Bio"])) ? $this->core->PlainText([
-      "BBCodes" => 1,
-      "Data" => $t["Bio"],
-      "Display" => 1,
-      "HTMLDecode" => 1
-     ]) : $bio;
      $blogs = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
@@ -621,7 +613,6 @@
       "[Member.Articles]" => $articles,
       "[Member.Blogs]" => $blogs,
       "[Member.Back]" => $back,
-      "[Member.Bio]" => $bio,
       "[Member.ChangeRank]" => $changeRank,
       "[Member.CoverPhoto]" => $this->core->CoverPhoto($t["Personal"]["CoverPhoto"]),
       "[Member.Contacts]" => $contacts,
@@ -812,9 +803,10 @@
     ];
    } elseif($ck == 1 && $ck2 == 1) {
     $accessCode = "Accepted";
+    $id = md5($you);
     $action = $this->core->Element(["button", "Save", [
-     "class" => "CardButton dBO",
-     "data-type" => "v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".Preferences".md5($you))."&ID=".md5($you)."&Processor=".base64_encode("v=".base64_encode("Profile:Save"))."&Text=".base64_encode("Are you sure you want to update your preferences?")
+     "class" => "CardButton OpenDialog",
+     "data-view" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".Preferences$id")."&ID=$id&Processor=".base64_encode("v=".base64_encode("Profile:Save"))."&Text=".base64_encode("Are you sure you want to update your preferences?"))
     ]]);
     $birthMonths = [];
     $birthYears = [];
@@ -827,408 +819,53 @@
      $birthYears[$i] = $i;
     }
     $r = $this->core->Change([[
-     "[Preferences.AuthPIN]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "AuthPIN".md5($you),
-        "name" => "PIN",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Preferences.Donations.Patreon]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Donations_Patreon",
-        "placeholder" => "JohnDoe",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Patreon"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Donations"]["Patreon"]
-      ]
-     ]),
-     "[Preferences.Donations.PayPal]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Donations_PayPal",
-        "placeholder" => "JohnDoe",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "PayPal"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Donations"]["PayPal"]
-      ]
-     ]),
-     "[Preferences.Donations.SubscribeStar]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Donations_SubscribeStar",
-        "placeholder" => "JohnDoe",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "SubscribeStar"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Donations"]["SubscribeStar"]
-      ]
-     ]),
-     "[Preferences.General]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "name",
-        "placeholder" => "John",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "First Name"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Personal"]["FirstName"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Personal_DisplayName",
-        "placeholder" => "John Doe",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Display Name"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Personal"]["DisplayName"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        "Female" => "Female",
-        "Male" => "Male"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Gender"
-       ],
-       "Name" => "Personal_Gender",
-       "Type" => "Select",
-       "Value" => $y["Personal"]["Gender"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Personal_Email",
-        "placeholder" => "johnny.test@outerhaven.nyc",
-        "type" => "email"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "E-Mail"
-       ],
-       "Type" => "Text",
-       "Value" => $y["Personal"]["Email"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "Offline",
-        1 => "Online"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Online Status"
-       ],
-       "Name" => "OnlineStatus",
-       "Type" => "Select",
-       "Value" => $y["Activity"]["OnlineStatus"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "Bio Xdecode",
-        "id" => "EditBio",
-        "name" => "Personal_Bio",
-        "placeholder" => "A short Autobiography..."
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Biography",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox"
-      ],
-      [
-       "Attributes" => [
-        "name" => "Personal_Description",
-        "placeholder" => "Describe yourself..."
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $y["Personal"]["Description"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        md5("Engaged") => "Engaged",
-        md5("In a Relationship") => "In a Relationship",
-        md5("It's Complicated") => "It's Complicated",
-        md5("Married") => "Married",
-        md5("Single") => "Single",
-        md5("Swinger") => "Swinger",
-        md5("Widowed") => "Widowed"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Relationship Status"
-       ],
-       "Name" => "Personal_RelationshipStatus",
-       "Type" => "Select",
-       "Value" => $y["Personal"]["RelationshipStatus"]
-      ],
-      [
-       "Attributes" => [
-        "name" => "Personal_RelationshipWith",
-        "placeholder" => "Who with? (if anyone)",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Who with? (if anyone)"
-       ],
-       "Type" => "Text",
-       "Value" => $relationshipWith
-      ]
-     ]),
-     "[Preferences.General.Birthday]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => $birthMonths,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Month"
-       ],
-       "Name" => "BirthMonth",
-       "Type" => "Select",
-       "Value" => $y["Personal"]["Birthday"]["Month"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => $birthYears,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Year"
-       ],
-       "Name" => "BirthYear",
-       "Type" => "Select",
-       "Value" => $y["Personal"]["Birthday"]["Year"]
-      ]
-     ]),
-     "[Preferences.ID]" => md5($you),
+     "[Preferences.Birthday.Month]" => $y["Personal"]["Birthday"]["Month"],
+     "[Preferences.Birthday.Months]" => json_encode($birthMonths, true),
+     "[Preferences.Birthday.Year]" => $y["Personal"]["Birthday"]["Year"],
+     "[Preferences.Birthday.Years]" => json_encode($birthYears, true),
+     "[Preferences.Donations.Patreon]" => base64_encode($y["Donations"]["Patreon"]),
+     "[Preferences.Donations.PayPal]" => base64_encode($y["Donations"]["PayPal"]),
+     "[Preferences.Donations.SubscribeStar]" => base64_encode($y["Donations"]["SubscribeStar"]),
+     "[Preferences.General.Name]" => base64_encode($y["Personal"]["FirstName"]),
+     "[Preferences.General.Description]" => base64_encode($y["Personal"]["Description"]),
+     "[Preferences.General.DisplayName]" => base64_encode($y["Personal"]["DisplayName"]),
+     "[Preferences.General.Email]" => base64_encode($y["Personal"]["Email"]),
+     "[Preferences.General.Gender]" => $y["Personal"]["Gender"],
+     "[Preferences.General.OnlineStatus]" => $y["Activity"]["OnlineStatus"],
+     "[Preferences.General.RelationshipStatus]" => $y["Personal"]["RelationshipStatus"],
+     "[Preferences.General.RelationshipWith]" => base64_encode($relationshipWith),
+     "[Preferences.ID]" => $id,
      "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode(md5($y["Login"]["Username"]))),
-     "[Preferences.Links.NewPassword]" => "v=".base64_encode("Profile:NewPassword"),
-     "[Preferences.Links.NewPIN]" => "v=".base64_encode("Profile:NewPIN"),
-     "[Preferences.Personal]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Personal_MinimalDesign"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Minimal Design",
-        "Selected" => $choseMinimalDesign
-       ],
-       "Text" => "Choose whether or not to render design and social media elements such as votes",
-       "Type" => "Check",
-       "Value" => 1
-      ]
-     ]),
-     "[Preferences.Privacy]" => $this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Albums",
-      "Title" => "Albums",
-      "Value" => $y["Privacy"]["Albums"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Archive",
-      "Title" => "Archive",
-      "Value" => $y["Privacy"]["Archive"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Albums",
-      "Title" => "Albums",
-      "Value" => $y["Privacy"]["Albums"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Articles",
-      "Title" => "Articles",
-      "Value" => $y["Privacy"]["Articles"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Comments",
-      "Title" => "Comments",
-      "Value" => $y["Privacy"]["Comments"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_ContactInfoEmails",
-      "Title" => "Contact Emails",
-      "Value" => $y["Privacy"]["ContactInfoEmails"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_ContactInfo",
-      "Title" => "Contact Information",
-      "Value" => $y["Privacy"]["ContactInfo"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_ContactRequests",
-      "Title" => "Contact Requests",
-      "Value" => $y["Privacy"]["ContactRequests"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Contacts",
-      "Title" => "Contacts",
-      "Value" => $y["Privacy"]["Contacts"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Contributions",
-      "Title" => "Contributions",
-      "Value" => $y["Privacy"]["Contributions"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_DLL",
-      "Title" => "Downloads",
-      "Value" => $y["Privacy"]["DLL"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_ContactInfoDonate",
-      "Title" => "Donations",
-      "Value" => $y["Privacy"]["ContactInfoDonate"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_ForumsType",
-      "Title" => "Forum Type",
-      "Value" => $y["Privacy"]["ForumsType"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Gender",
-      "Title" => "Gender",
-      "Value" => $y["Privacy"]["Gender"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Journal",
-      "Title" => "Journal",
-      "Value" => $y["Privacy"]["Journal"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_LastActivity",
-      "Title" => "Last Activity",
-      "Value" => $y["Privacy"]["LastActivity"]
-     ]).$this->core->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "No",
-        1 => "Yes"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Look Me Up"
-       ],
-       "Name" => "Privacy_LookMeUp",
-       "Title" => "Allow others to search for you?",
-       "Type" => "Select",
-       "Value" => $y["Privacy"]["LookMeUp"]
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_MSG",
-      "Title" => "Messages",
-      "Value" => $y["Privacy"]["MSG"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "Privacy_NSFW",
-      "Title" => "NSFW",
-      "Value" => $y["Privacy"]["NSFW"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_OnlineStatus",
-      "Title" => "Online Status",
-      "Value" => $y["Privacy"]["OnlineStatus"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Posts",
-      "Title" => "Posts",
-      "Value" => $y["Privacy"]["Posts"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Products",
-      "Title" => "Products",
-      "Value" => $y["Privacy"]["Products"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Profile",
-      "Title" => "Profile",
-      "Value" => $y["Privacy"]["Profile"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Registered",
-      "Title" => "Registered",
-      "Value" => $y["Privacy"]["Registered"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_RelationshipStatus",
-      "Title" => "Relationship Status",
-      "Value" => $y["Privacy"]["RelationshipStatus"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_RelationshipWith",
-      "Title" => "Relationship With",
-      "Value" => $y["Privacy"]["RelationshipWith"]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "Privacy",
-      "Name" => "Privacy_Shop",
-      "Title" => "Shop",
-      "Value" => $y["Privacy"]["Shop"]
-     ])
+     "[Preferences.Links.NewPassword]" => base64_encode("v=".base64_encode("Profile:NewPassword")),
+     "[Preferences.Links.NewPIN]" => base64_encode("v=".base64_encode("Profile:NewPIN")),
+     "[Preferences.Personal.MinimalDesign]" => $choseMinimalDesign,
+
+     "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
+     "[Preferences.Privacy.Archive]" => $y["Privacy"]["Archive"],
+     "[Preferences.Privacy.Articles]" => $y["Privacy"]["Articles"],
+     "[Preferences.Privacy.Comments]" => $y["Privacy"]["Comments"],
+     "[Preferences.Privacy.ContactInfo]" => $y["Privacy"]["ContactInfo"],
+     "[Preferences.Privacy.ContactInfoDonate]" => $y["Privacy"]["ContactInfoDonate"],
+     "[Preferences.Privacy.ContactInfoEmails]" => $y["Privacy"]["ContactInfoEmails"],
+     "[Preferences.Privacy.ContactRequests]" => $y["Privacy"]["ContactRequests"],
+     "[Preferences.Privacy.Contacts]" => $y["Privacy"]["Contacts"],
+     "[Preferences.Privacy.Contributions]" => $y["Privacy"]["Contributions"],
+     "[Preferences.Privacy.DLL]" => $y["Privacy"]["DLL"],
+     "[Preferences.Privacy.ForumsType]" => $y["Privacy"]["ForumsType"],
+     "[Preferences.Privacy.Gender]" => $y["Privacy"]["Gender"],
+     "[Preferences.Privacy.Journal]" => $y["Privacy"]["Journal"],
+     "[Preferences.Privacy.LastActivity]" => $y["Privacy"]["LastActivity"],
+     "[Preferences.Privacy.LookMeUp]" => $y["Privacy"]["LookMeUp"],
+     "[Preferences.Privacy.MSG]" => $y["Privacy"]["MSG"],
+     "[Preferences.Privacy.NSFW]" => $y["Privacy"]["NSFW"],
+     "[Preferences.Privacy.OnlineStatus]" => $y["Privacy"]["OnlineStatus"],
+     "[Preferences.Privacy.Posts]" => $y["Privacy"]["Posts"],
+     "[Preferences.Privacy.Products]" => $y["Privacy"]["Posts"],
+     "[Preferences.Privacy.Profile]" => $y["Privacy"]["Posts"],
+     "[Preferences.Privacy.Registered]" => $y["Privacy"]["Posts"],
+     "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
+     "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
+     "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"]
     ], $this->core->Page("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
    $r = [
@@ -1322,7 +959,7 @@
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $newMember["Rank"] = $y["Rank"];
-    $this->core->Data("Save", ["mbr", md5($you), $newMember]);
+    #$this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!";
    }
    return $this->core->JSONResponse([
@@ -1331,11 +968,12 @@
      "JSON" => "",
      "Web" => [
       "Body" => $r,
-      "Header" => $header
+      "Header" => $header,
+      "Scrollable" => $newMember
      ]
     ],
     "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
+    "Success" => "CloseCard"
    ]);
   }
   function SaveDeactivate(array $a) {
@@ -1745,213 +1383,13 @@
    $r = [
     "Front" => $this->core->Change([[
      "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
+     "[SignUp.BirthMonths]" => json_encode($birthMonths, true),
+     "[SignUp.BirthYears]" => json_encode($birthYears, true),
      "[SignUp.MinimumAge]" => $this->core->config["minAge"],
-     "[SignUp.Basic]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ReturnView",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => base64_encode(json_encode([
-        "Group" => "Profile",
-        "View" => "SaveSignUp"
-       ], true))
-      ],
-      [
-       "Attributes" => [
-        "name" => "ViewPairID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => "SignUp"
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => $birthMonths,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Birth Month"
-       ],
-       "Name" => "BirthMonth",
-       "Title" => "Category",
-       "Type" => "Select",
-       "Value" => 10
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => $birthYears,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Birth Year"
-       ],
-       "Name" => "BirthYear",
-       "Title" => "Category",
-       "Type" => "Select",
-       "Value" => 1995
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        "Female" => "Female",
-        "Male" => "Male"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Gender"
-       ],
-       "Name" => "Gender",
-       "Title" => "Gender",
-       "Type" => "Select",
-       "Value" => "Male"
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Email",
-        "placeholder" => "johnny.test@outerhaven.nyc",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Email"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "No",
-        1 => "Yes"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Receive Occasional Emails?"
-       ],
-       "Name" => "SOE",
-       "Title" => "Receive Emails?",
-       "Type" => "Select",
-       "Value" => 1
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Name",
-        "placeholder" => "John",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Name"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Username",
-        "placeholder" => "JohnnyTest",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Username"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ]
-     ]),
-     "[SignUp.Password]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Password",
-        "placeholder" => "Password",
-        "type" => "password"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Password"
-       ],
-       "Title" => "Password",
-       "Type" => "Text",
-       "Value" => ""
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Password2",
-        "placeholder" => "Confirm Password",
-        "type" => "password"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Confirm Password"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ]
-     ]),
-     "[SignUp.PIN]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "req",
-        "maxlen" => 8,
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "PIN"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "maxlen" => 8,
-        "name" => "PIN2",
-        "pattern" => "\d*",
-        "placeholder" => "Confirm PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Confirm PIN"
-       ],
-       "Type" => "Text",
-       "Value" => ""
-      ]
-     ])
+     "[SignUp.ReturnView]" => base64_encode(json_encode([
+      "Group" => "Profile",
+      "View" => "SaveSignUp"
+     ], true))
     ], $this->core->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ];
    return $this->core->JSONResponse([

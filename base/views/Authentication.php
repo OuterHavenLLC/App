@@ -103,28 +103,31 @@
     ];
    } elseif(!empty($form) && !empty($id) && !empty($processor)) {
     $accessCode = "Accepted";
-    $r = $this->core->Change([[
-     "[Authorize.PIN]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "req",
-        "data-id" => $id,
-        "name" => "AuthorizationPIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ]
-     ]),
-     "[Authorize.Form]" => base64_decode($form),
-     "[Authorize.Text]" => base64_decode($text),
-     "[Authorize.Processor]" => $processor
-    ], $this->core->Page("7f6ec4e23b8b7c616bb7d79b2d1d3157")]);
+    $r = [
+     "Header" => base64_decode($text),
+     "Header" => "Authorize",
+     "Scrollable" => $this->core->Change([[
+      "[Authorize.PIN]" => $this->core->RenderInputs([
+       [
+        "Attributes" => [
+         "class" => "req",
+         "data-id" => $id,
+         "name" => "AuthorizationPIN",
+         "pattern" => "\d*",
+         "placeholder" => "PIN",
+         "type" => "number"
+        ],
+        "Options" => [
+         "Header" => 1,
+         "HeaderText" => "Enter Your PIN"
+        ],
+        "Type" => "Text"
+       ]
+      ]),
+      "[Authorize.Form]" => base64_decode($form),
+      "[Authorize.Processor]" => $processor
+     ], $this->core->Page("7f6ec4e23b8b7c616bb7d79b2d1d3157")])
+    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
