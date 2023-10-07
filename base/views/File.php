@@ -45,15 +45,13 @@
      "fs"
     ]) : $fileSystem["Files"];
     $file = $files[$id] ?? [];
-    $album = md5("unsorted");
     $albums = [];
     if($this->core->ID != $username) {
-     $album = $file["AID"] ?? md5("unsorted");
-     $albums = [];
      foreach($fileSystem["Albums"] as $key => $album) {
       $albums[$key] = $album["Title"];
      }
     }
+    $album = $file["AID"] ?? md5("unsorted");
     $description = $file["Description"] ?? "";
     $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $file["Privacy"] ?? $y["Privacy"]["DLL"];
