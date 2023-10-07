@@ -106,9 +106,8 @@
    ]) : "";
    if($this->core->ID == $you) {
     $accessCode = "Accepted";
-    $r = $this->core->Change([[
+    $changeData = [
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-     "[Menu.Company.Defense]" => base64_encode("v=".base64_encode("PMC:Home")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
      "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
@@ -118,15 +117,15 @@
      "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
      "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
      "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn"))
-    ], $this->core->Page("73859ffa637c369b9fa88399a27b5598")]);
+    ];
+    $extension = "73859ffa637c369b9fa88399a27b5598";
    } else {
     $accessCode = "Accepted";
-    $r = $this->core->Change([[
+    $changeData = [
      "[Menu.Administration]" => $admin,
      "[Menu.Chat]" => base64_encode("v=".base64_encode("Chat:Menu")."&Integrated=1"),
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
-     "[Menu.Company.Defense]" => base64_encode("v=".base64_encode("PMC:Home")),
      "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
@@ -158,8 +157,13 @@
      "[Menu.Search.Members]" => base64_encode("v=$search&lPG=Members&st=MBR"),
      "[Menu.Search.PublicForums]" => base64_encode("v=$search&lPG=Forums&st=Forums"),
      "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
-    ], $this->core->Page("d14e3045df35f4d9784d45ac2c0fe73b")]);
+    ];
+    $extension = "d14e3045df35f4d9784d45ac2c0fe73b";
    }
+   $r = $this->core->Change([
+    $changeData,
+    $this->core->Page($extension)
+   ]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

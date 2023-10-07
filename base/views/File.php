@@ -54,84 +54,19 @@
       $albums[$key] = $album["Title"];
      }
     }
+    $description = $file["Description"] ?? "";
     $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $file["Privacy"];
+    $privacy = $file["Privacy"] ?? $y["Privacy"]["DLL"];
+    $title = $file["Title"] ?? "Untitles";
     $r = $this->core->Change([[
-     "[File.Album]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => $albums,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Album"
-       ],
-       "Name" => "Album",
-       "Title" => "Album",
-       "Type" => "Select",
-       "Value" => $album
-      ]
-     ]),
+     "[File.Album]" => $album,
+     "[File.Albums]" => json_encode($albums, true),
+     "[File.Description]" => base64_encode($description),
      "[File.ID]" => $id,
-     "[File.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "UN",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $username
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $file["Title"]
-      ],
-      [
-       "Attributes" => [
-        "name" => "Description",
-        "placeholder" => "Description"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $file["Description"]
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ]),
-     "[File.Title]" => $file["Title"]
+     "[File.NSFW]" => $nsfw,
+     "[File.Privacy]" => $privacy,
+     "[File.Title]" => base64_encode($title),
+     "[File.Username]" => $username
     ], $this->core->Page("7c85540db53add027bddeb42221dd104")]);
     $action = $this->core->Element(["button", "Update", [
      "class" => "CardButton SendData",
@@ -336,12 +271,11 @@
    $data = $this->core->FixMissing($data, [
     "Description",
     "ID",
-    "Title",
-    "UN",
-    "nsfw",
-    "Privacy"
+    "Title"
    ]);
    $id = $data["ID"];
+   $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+   $privacy = $data["NSFW"] ?? $y["Privacy"]["DLL"];
    $r = [
     "Body" => "The File Identifier is missing."
    ];
@@ -354,7 +288,7 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $username = $data["UN"] ?? $you;
+    $username = $data["Username"] ?? $you;
     $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "x",
@@ -367,20 +301,21 @@
     $file["Description"] = $data["Description"];
     $file["Illegal"] = $files[$id]["Illegal"] ?? 0;
     $file["Modified"] = $now;
-    $file["NSFW"] = $data["nsfw"];
-    $file["Privacy"] = $data["Privacy"];
+    $file["NSFW"] = $nsfw;
+    $file["Privacy"] = $privacy;
     $file["Title"] = $data["Title"];
     $files[$id] = $file;
     if($this->core->ID == $username) {
-     $this->core->Data("Save", ["x", "fs", $files]);
+     #$this->core->Data("Save", ["x", "fs", $files]);
     } else {
      $fileSystem["Files"] = $files;
-     $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+     #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
     }
-    $this->core->Statistic("ULu");
+    #$this->core->Statistic("ULu");
     $r = [
      "Body" => "The file <em>".$file["Title"]."</em> was updated.<br/>",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($file, true)
     ];
    }
    return $this->core->JSONResponse([

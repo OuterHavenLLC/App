@@ -1881,10 +1881,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $value
       ]);
       array_push($msg, [
-       "[X.LI.DT]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&ID=".$value["ID"]."&UN=".$t["Login"]["Username"]."&back=1&lPG=$lpg")),
-       "[X.LI.Style]" => base64_encode("$source"),
-       "[X.LI.Title]" => base64_encode($value["Title"]),
-       "[X.LI.Type]" => base64_encode("Desktop33")
+       "[File.CoverPhoto]" => base64_encode("$source"),
+       "[File.Title]" => base64_encode($value["Title"]),
+       "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&ID=".$value["ID"]."&UN=".$t["Login"]["Username"]."&back=1&lPG=$lpg"))
       ]);
      }
     }
@@ -2255,12 +2254,10 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $username,
       $v
      ]);
-     $view = "v=".base64_encode("File:Home")."&AddTo=".$data["AddTo"]."&Added=".$data["Added"]."&ID=".$v["ID"]."&UN=$username&back=1&b2=Files&lPG=$st";
      $dlc = [
-      "[X.LI.DT]" => base64_encode("$st;".base64_encode($view)),
-      "[X.LI.Style]" => base64_encode("$source"),
-      "[X.LI.Title]" => base64_encode($v["Title"]),
-      "[X.LI.Type]" => base64_encode("Desktop33")
+      "[File.CoverPhoto]" => base64_encode($source),
+      "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&AddTo=".$data["AddTo"]."&Added=".$data["Added"]."&ID=".$v["ID"]."&UN=$username&back=1&b2=Files&lPG=$st")),
+      "[File.Title]" => base64_encode($v["Title"])
      ];
      if($bl == 0 && $illegal == 0) {
       if(!isset($data["ftype"]) && $bl == 0) {

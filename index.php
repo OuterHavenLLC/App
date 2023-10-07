@@ -88,12 +88,6 @@
     "pub" => 1
    ]]);
    $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "PMC" || $c[0] == "defense") {
-   # OUTER HAVEN P.M.C.
-   $r = $gw->view(base64_encode("PMC:Home"), ["Data" => [
-    "pub" => 1
-   ]]);
-   $_ViewTitle = json_decode($r, true)["Title"];
   } elseif($c[0] == "VVA") {
    # VISUAL VANGUARD ARCHITECTURE
    $r = $gw->view(base64_encode("Company:VVA"), ["Data" => [

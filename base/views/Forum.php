@@ -540,7 +540,7 @@
      "UN" => $y["Login"]["Username"],
      "Type" => $type
     ];
-    #$this->core->Data("Save", ["pf", $id, $forum]);
+    $this->core->Data("Save", ["pf", $id, $forum]);
     $actionTaken = ($new == 1) ? "published" : "updated";
     $r = [
      "Body" => "The Forum <em>$title</em> was $actionTaken.",
@@ -629,14 +629,14 @@
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $forums = $y["Forums"] ?? [];
     $newForums = [];
-    foreach($forum["Posts"] as $key => $value) {
+    /*foreach($forum["Posts"] as $key => $value) {
      if(!empty($this->core->Data("Get", ["conversation", $value]))) {
-      #$this->view(base64_encode("Conversation:SaveDelete"), [
-      # "Data" => ["ID" => $value]
-      #]);
+      $this->view(base64_encode("Conversation:SaveDelete"), [
+       "Data" => ["ID" => $value]
+      ]);
      }
      $this->core->Data("Purge", ["local", $value]);
-     #$this->core->Data("Purge", ["post", $value]);
+     $this->core->Data("Purge", ["post", $value]);
      $this->core->Data("Purge", ["votes", $value]);
     } if(!empty($this->core->Data("Get", ["conversation", $id]))) {
      $this->view(base64_encode("Conversation:SaveDelete"), [
@@ -646,7 +646,7 @@
     $this->core->Data("Purge", ["local", $id]);
     $this->core->Data("Purge", ["pfmanifest", $id]);
     $this->core->Data("Purge", ["pf", $id]);
-    $this->core->Data("Purge", ["react", $id]);
+    $this->core->Data("Purge", ["react", $id]);*/
     foreach($forums as $key => $value) {
      if($id != $value) {
       $newForums[$key] = $value;
