@@ -440,57 +440,9 @@
      $content[$forum["ID"]] = $forum["Title"];
     }
     $r = $this->core->Change([[
+     "[Invite.Content]" => $content,
      "[Invite.ID]" => $id,
-     "[Invite.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "Member",
-        "placeholder" => $this->core->ID,
-        "type" => "text"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $data["Member"]
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => $content,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Invite To"
-       ],
-       "Name" => "ListForums",
-       "Type" => "Select",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "Administrator",
-        1 => "Contributor"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Role"
-       ],
-       "Name" => "Role",
-       "Type" => "Select",
-       "Value" => 1
-      ]
-     ])
+     "[Invite.Member]" => $data["Member"]
     ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
     $action = $this->core->Element(["button", "Send Invite", [
      "class" => "CardButton CloseCard SendData",
