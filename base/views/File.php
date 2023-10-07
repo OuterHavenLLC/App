@@ -45,7 +45,7 @@
      "fs"
     ]) : $fileSystem["Files"];
     $file = $files[$id] ?? [];
-    $album = $this->core->Element(["p", "System Library"]);
+    $album = md5("unsorted");
     $albums = [];
     if($this->core->ID != $username) {
      $album = $file["AID"] ?? md5("unsorted");
@@ -306,16 +306,15 @@
     $file["Title"] = $data["Title"];
     $files[$id] = $file;
     if($this->core->ID == $username) {
-     #$this->core->Data("Save", ["x", "fs", $files]);
+     $this->core->Data("Save", ["x", "fs", $files]);
     } else {
      $fileSystem["Files"] = $files;
-     #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+     $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
     }
-    #$this->core->Statistic("ULu");
+    $this->core->Statistic("ULu");
     $r = [
      "Body" => "The file <em>".$file["Title"]."</em> was updated.<br/>",
-     "Header" => "Done",
-     "Scrollable" => json_encode($file, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
