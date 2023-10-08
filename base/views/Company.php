@@ -72,8 +72,7 @@
    $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["AID", "new"]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $r = [
     "Body" => "The Pre-Set Identifier is missing."
@@ -105,80 +104,13 @@
     $description = $preSet["Description"] ?? "";
     $title = $preSet["Title"] ?? "New Mail";
     $r = $this->core->Change([[
+     "[Email.Body]" => base64_encode($this->core->PlainText([
+      "Data" => $body,
+      "Decode" => 1
+     ])),
+     "[Email.Description]" => base64_encode($description),
      "[Email.ID]" => $id,
-     "[Email.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $title
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Description",
-        "placeholder" => "Description"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $description
-      ],
-      [
-       "Attributes" => [
-        "class" => "Body Xdecode req",
-        "id" => "EditMailBody$id",
-        "name" => "Body",
-        "placeholder" => "Body"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Body",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox",
-       "Value" => $this->core->PlainText([
-        "Data" => $body,
-        "Decode" => 1
-       ])
-      ]
-     ]),
-     "[Email.Save]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "Save"
-       ],
-       "Options" => [],
-       "Text" => "Save this template as a pre-set for future use.",
-       "Type" => "Check",
-       "Value" => 1
-      ]
-     ]),
+     "[Email.SecureTitle]" => base64_encode($title),
      "[Email.Title]" => $title
     ], $this->core->Page("81ccdda23bf18e557bc0ba3071c1c2d4")]);
     $r = [
