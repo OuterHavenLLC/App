@@ -57,105 +57,27 @@
       [
        "[Extras.ContentType]" => $commentType,
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => "N/A",
-       "[Extras.DesignView.Destination]" => "N/A",
+       "[Extras.DesignView.Origin]" => "NA",
+       "[Extras.DesignView.Destination]" => "NA",
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
+     "[Conversation.Attachments]" => $attachments,
+     "[Conversation.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
+     "[Conversation.Body]" => base64_encode($this->core->PlainText([
+      "Data" => $body
+     ])),
+     "[Conversation.CRID]" => $crid,
+     "[Conversation.CommentID]" => $cid,
      "[Conversation.Header]" => $header,
      "[Conversation.ID]" => $id,
-     "[Conversation.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTDLC",
-        "data-a" => "#ATTL$id-ATTDLC",
-        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
-        "name" => "rATTDLC",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditComment$id-ATTF"
-       ],
-       "Type" => "Text",
-       "Value" => $attachments
-      ],
-      [
-       "Attributes" => [
-        "name" => "CommentID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $cid
-      ],
-      [
-       "Attributes" => [
-        "name" => "CRID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $crid
-      ],
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "Level",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $level
-      ],
-      [
-       "Attributes" => [
-        "name" => "new",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $new
-      ],
-      [
-       "Attributes" => [
-        "class" => "Body Xdecode req",
-        "id" => "EditPageBody$id",
-        "name" => "Body",
-        "placeholder" => "Say something..."
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Body",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox",
-       "Value" => $this->core->PlainText([
-        "Data" => $body,
-        "Decode" => 1
-       ])
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ])
+     "[Conversation.Level]" => $level,
+     "[Conversation.New]" => $new,
+     "[Conversation.Visibility.NSFW]" => $nsfw,
+     "[Conversation.Visibility.Privacy]" => $privacy
     ], $this->core->Page("0426a7fc6b31e5034b6c2cec489ea638")]);
     $r = [
      "Action" => $action,
@@ -414,14 +336,13 @@
     "CommentID",
     "CRID",
     "ID",
-    "Level",
-    "new"
+    "Level"
    ]);
    $cid = $data["CommentID"];
    $crid = $data["CRID"];
    $id = $data["ID"];
    $level = $data["Level"] ?? 1;
-   $new = $data["new"] ?? 0;
+   $new = $data["New"] ?? 0;
    $commentType = ($level == 1) ? "comment" : "reply";
    $r = [
     "Body" => "The Conversation or $commentType Identifier is missing."
@@ -438,7 +359,7 @@
     $home = base64_encode("Conversation:Home");
     $illegal = $con[$id]["Illegal"] ?? 0;
     $nsfw = $con[$id]["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $nsfw = $data["nsfw"] ?? $nsfw;
+    $nsfw = $data["NSFW"] ?? $nsfw;
     $privacy = $con[$id]["Privacy"] ?? $y["Privacy"]["Comments"];
     $privacy = $data["Privacy"] ?? $privacy;
     if(!empty($data["rATTDLC"])) {
