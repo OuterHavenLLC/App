@@ -9,7 +9,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $mbr = $data["Member"] ?? "";
+   $member = $data["Member"] ?? "";
    $r = [
     "Body" => "The Article Identifier is missing."
    ];
@@ -25,53 +25,8 @@
     $id = base64_decode($id);
     $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
     $r = $this->core->Change([[
-     "[Roles.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $Page["ID"]
-      ],
-      [
-       "Attributes" => [
-        "name" => "Member",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => base64_decode($mbr)
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "Administrator",
-        1 => "Contributor"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Chose a Role"
-       ],
-       "Name" => "Role",
-       "Type" => "Select"
-      ]
-     ]),
+     "[Roles.ID]" => $Page["ID"],
+     "[Roles.Member]" => base64_decode($member),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Page:ChangeMemberRole")),
      "[Roles.Title]" => $Page["Title"]
     ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
@@ -105,27 +60,11 @@
    } elseif(!empty($form) && !empty($id) && !empty($processor)) {
     $accessCode = "Accepted";
     $r = [
-     "Header" => base64_decode($text),
+     "Body" => base64_decode($text),
      "Header" => "Authorize",
      "Scrollable" => $this->core->Change([[
-      "[Authorize.PIN]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "class" => "CheckIfNumeric req",
-         "data-id" => $id,
-         "name" => "AuthorizationPIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
       "[Authorize.Form]" => base64_decode($form),
+      "[Authorize.ID]" => $id,
       "[Authorize.Processor]" => $processor
      ], $this->core->Page("7f6ec4e23b8b7c616bb7d79b2d1d3157")])
     ];
@@ -143,7 +82,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $mbr = $data["Member"] ?? "";
+   $member = $data["Member"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
    ];
@@ -159,53 +98,8 @@
     $id = base64_decode($id);
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $r = $this->core->Change([[
-     "[Roles.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $blog["ID"]
-      ],
-      [
-       "Attributes" => [
-        "name" => "Member",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => base64_decode($mbr)
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "Administrator",
-        1 => "Contributor"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Chose a Role"
-       ],
-       "Name" => "Role",
-       "Type" => "Select"
-      ]
-     ]),
+     "[Roles.ID]" => $blog["ID"],
+     "[Roles.Member]" => base64_decode($member),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Blog:ChangeMemberRole")),
      "[Roles.Title]" => $blog["Title"]
     ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
@@ -243,31 +137,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $album["ID"]
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $album["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Album:SaveDelete")),
       "[Delete.Title]" => $album["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -307,31 +178,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $blog["ID"]
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $blog["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Blog:SaveDelete")),
       "[Delete.Title]" => $blog["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -370,31 +218,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => base64_decode($id)
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => base64_decode($id),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:SaveDelete")),
       "[Delete.Title]" => $post["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -431,100 +256,10 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $data["ID"]
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $data["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("DiscountCode:SaveDelete")),
       "[Delete.Title]" => "this Discount Code"
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function DeleteFAB(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "UN"]);
-   $r = [
-    "Body" => "The Broadcaster Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must sign in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($data["ID"])) {
-    $accessCode = "Accepted";
-    $id = base64_decode($data["ID"]);
-    $fab = $this->core->Data("Get", [
-     "x",
-     md5("FreeAmericaBroadcasting")
-    ]) ?? [];
-    $fab = $fab[$id]["Title"] ?? "Broadcaster";
-    $dialogID = "Delete$id";
-    $r = [
-     "Body" => "You are about to permanently delete $fab.",
-     "Header" => "Delete",
-     "ID" => $dialogID,
-     "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $data["ID"]
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("FAB:SaveDelete")),
-      "[Delete.Title]" => $fab
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
@@ -568,31 +303,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => "$username-$id"
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($you),
+      "[Delete.ID]" => base64_encode("$username-$id"),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("File:SaveDelete")."&ParentView=".$data["ParentView"]),
       "[Delete.Title]" => $file["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -637,31 +349,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $id
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Forum:SaveDelete")),
       "[Delete.Title]" => $title
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -701,31 +390,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => base64_encode("$fid-$id")
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => base64_encode("$fid-$id"),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("ForumPost:SaveDelete")),
       "[Delete.Title]" => $post["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -763,33 +429,10 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $page["ID"]
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
-      "[Delete.Title]" => $page["Title"],
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete"))
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $page["ID"],
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete")),
+      "[Delete.Title]" => $page["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
@@ -826,31 +469,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $product["ID"]
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $product["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:SaveDelete")),
       "[Delete.Title]" => $product["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -888,31 +508,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "ID",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $id
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:SaveDelete")),
       "[Delete.Title]" => "this post"
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -954,40 +551,8 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.Inputs]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "name" => "Preset",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $data["ID"]
-       ],
-       [
-        "Attributes" => [
-         "name" => "Shop",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $data["Shop"]
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "PIN",
-         "pattern" => "\d*",
-         "placeholder" => "PIN",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Header" => 1,
-         "HeaderText" => "Enter Your PIN"
-        ],
-        "Type" => "Text"
-       ]
-      ]),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => base64_encode($data["Shop"]."-".$data["ID"]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Invoice:DeletePreset")),
       "[Delete.Title]" => $preset["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
@@ -1006,7 +571,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $mbr = $data["Member"] ?? "";
+   $member = $data["Member"] ?? "";
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -1022,53 +587,8 @@
     $id = base64_decode($id);
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $r = $this->core->Change([[
-     "[Roles.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $forum["ID"]
-      ],
-      [
-       "Attributes" => [
-        "name" => "Member",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => base64_decode($mbr)
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "PIN",
-        "pattern" => "\d*",
-        "placeholder" => "PIN",
-        "type" => "number"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Enter Your PIN"
-       ],
-       "Type" => "Text"
-      ],
-      [
-       "Attributes" => [],
-       "OptionGroup" => [
-        0 => "Administrator",
-        1 => "Contributor"
-       ],
-       "Options" => [
-        "Header" => 1,
-        "HeaderText" => "Chose a Role"
-       ],
-       "Name" => "Role",
-       "Type" => "Select"
-      ]
-     ]),
+     "[Roles.ID]" => $forum["ID"],
+     "[Roles.Member]" => base64_decode($member),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Forum:ChangeMemberRole")),
      "[Roles.Title]" => $forum["Title"]
     ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);

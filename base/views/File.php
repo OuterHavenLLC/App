@@ -328,7 +328,7 @@
   function SaveDelete(array $a) {
    $accessCode = "Denied";
    $acknowledge = $this->Element(["button", "Okay", [
-    "class" => "dBC v2 v2w"
+    "class" => "CloseDialog v2 v2w"
    ]]);
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -342,7 +342,7 @@
    } elseif($this->core->ID == $you) {
     $r = "You must be signed in to continue.";
    } elseif(!empty($id) && !empty($parentView)) {
-    $_ID = explode("-", $id);
+    $_ID = explode("-", base64_decode($id));
     $accessCode = "Accepted";
     $files = $_FileSystem["Files"] ?? [];
     $id = $_ID[1];

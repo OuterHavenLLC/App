@@ -125,53 +125,56 @@
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["Preset"] ?? "";
+   $pin = $data["PIN"] ?? "";
    $r = [
-    "Body" => "The Invoice Identifier are missing."
+    "Body" => "The Shop-Service Identifier are missing."
    ];
-   $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
+   if(md5($pin) != $y["Login"]["PIN"]) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id)) {
+    $check = 0;
+    $combinedID = explode("-", base64_decode($id));
+    $id = $combinedID[1];
+    $shopID = $combinedID[0];
+    $isAdmin = ($shopID == md5($you)) ? 1 : 0;
     $r = [
-     "Body" => "The Shop Identifier is missing."
+     "Body" => "You are not authorized to delete Pre-sets.",
+     "Header" => "Forbidden"
     ];
-    if(!empty($shopID)) {
-     $check = 0;
-     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
-     $r = [
-      "Body" => "You are not authorized to delete Pre-sets.",
-      "Header" => "Forbidden"
-     ];
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-     foreach($shop["Contributors"] as $member => $role) {
-      if($check == 0 && $member == $you) {
-       $check++;
-      }
-     } if($check == 1 && $isAdmin == 1) {
-      $accessCode = "Accepted";
-      $newPresets = [];
-      $presets = $shop["InvoicePresets"] ?? [];
-      foreach($presets as $key => $value) {
-       if($value != $id) {
-        $newPresets[$key] = $value;
-       }
-      }
-      $preset = $this->core->Data("Get", [
-       "invoice-preset",
-       $id
-      ]) ?? [];
-      $shop["InvoicePresets"] = $newPresets;
-      $this->core->Data("Purge", ["invoice-preset", $id]);
-      $this->core->Data("Save", ["shop", $shopID, $shop]);
-      $r = [
-       "Body" => "The service <em>".$preset["Title"]."</em> was deleted.",
-       "Header" => "Done"
-      ];
+    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    foreach($shop["Contributors"] as $member => $role) {
+     if($check == 0 && $member == $you) {
+      $check++;
      }
+    } if($check == 1 && $isAdmin == 1) {
+     $accessCode = "Accepted";
+     $newPresets = [];
+     $presets = $shop["InvoicePresets"] ?? [];
+     foreach($presets as $key => $value) {
+      if($value != $id) {
+       $newPresets[$key] = $value;
+      }
+     }
+     $preset = $this->core->Data("Get", [
+      "invoice-preset",
+      $id
+     ]) ?? [];
+     $shop["InvoicePresets"] = $newPresets;
+     #$this->core->Data("Purge", ["invoice-preset", $id]);
+     #$this->core->Data("Save", ["shop", $shopID, $shop]);
+     $r = [
+      "Body" => "The service <em>".$preset["Title"]."</em> was deleted.",
+      "Header" => "Done",
+      "Scrollable" => json_encode($newPresets, true)
+     ];
     }
    }
    return $this->core->JSONResponse([
