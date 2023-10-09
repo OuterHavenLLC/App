@@ -29,7 +29,7 @@
     } else {
      $accessCode = "Accepted";
      $product = $this->core->Data("Get", ["product", $id]) ?? [];
-     $cat = $product["Category"] ?? "";
+     $category = $product["Category"] ?? "";
      $hasInstructions = $product["Instructions"] ?? "";
      $productQuantity = $product["Quantity"] ?? 0;
      $id = $product["ID"] ?? "";
@@ -43,7 +43,7 @@
      for($i = 0; $i <= $productQuantity; $i++) {
       $quantities[$i] = $i;
      } if($ck == 1 || ($t["Login"]["Username"] == $this->core->ShopID && $quantity != 0)) {
-      $instructions = (($cat == "Product" || $cat == "PHYS") && $hasInstructions == 1) ? $this->core->Element([
+      $instructions = ($category == "Product" && $hasInstructions == 1) ? $this->core->Element([
        "p", "Please add your shipping address.",
        ["class" => "CenterText"]
       ]) : "";
@@ -58,7 +58,18 @@
        ["class" => "CenterText"]
       ]) : "";
       $price = $product["Cost"] + $product["Profit"];
-      $quantity = ($quantity == "-1") ? [
+      $quantity = ($category == "Product" && $quantity > 0) ? [
+       "Attributes" => [],
+       "OptionGroup" => $quantities,
+       "Options" => [
+        "Container" => 1,
+        "ContainerClass" => "Desktop50 MobileFull"
+       ],
+       "Name" => "Quantity",
+       "Title" => "Quantity",
+       "Type" => "Select",
+       "Value" => $quantity
+      ] : [
        "Attributes" => [
         "name" => "Quantity",
         "type" => "hidden"
@@ -66,36 +77,26 @@
        "Options" => [],
        "Type" => "Text",
        "Value" => 1
-      ] : [
-       [
-        "Attributes" => [],
-        "OptionGroup" => $quantities,
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull"
-        ],
-        "Name" => "Quantity",
-        "Title" => "Quantity",
-        "Type" => "Select",
-        "Value" => $quantity
-       ]
       ];
+      $quantity = json_encode([
+       $quantity
+      ], true);
       $r = $this->core->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
        "[AddToCart.Product.ID]" => $id,
        "[AddToCart.Product.Instructions]" => $instructions,
        "[AddToCart.Product.LowStock]" => $lowStock,
        "[AddToCart.Product.Price]" => number_format($price, 2),
-       "[AddToCart.Product.Quantity]" => json_encode($quantity, true)
-       "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"])
+       "[AddToCart.Product.Quantity]" => $quantity,
+       "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
        "[AddToCart.Shop.Owner]" => base64_encode($t["Login"]["Username"])
       ], $this->core->Page("624bcc664e9bff0002e01583e7706d83")]);
-      if(($cat == "Product" || $cat == "PHYS") && $t["Login"]["Username"] == $you) {
+      if(($category == "Product") && $t["Login"]["Username"] == $you) {
        $r = $this->core->Element([
         "p", "Physical orders are disabled as you own this shop.",
         ["class" => "CenterText"]
        ]);
-      } elseif($cat == "Subscription" || $cat == "SUB") {
+      } elseif($category == "Subscription") {
        $sub = $this->core->Element([
         "h4", "Already Subscribed",
         ["class" => "UpperCase CenterText"]
