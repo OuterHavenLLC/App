@@ -303,7 +303,7 @@
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
-      "[Delete.AuthorizationID]" => md5($you),
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => base64_encode("$username-$id"),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("File:SaveDelete")."&ParentView=".$data["ParentView"]),
       "[Delete.Title]" => $file["Title"]
@@ -527,11 +527,11 @@
   function DeleteService(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
-   $pd = base64_encode("Product:SaveDelete");
+   $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Product Identifier is missing."
+    "Body" => "The Service or Shop Identifier are missing."
    ];
+   $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -539,12 +539,12 @@
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($data["ID"])) {
+   } elseif(!empty($id) && !empty($shopID)) {
     $accessCode = "Accepted";
-    $dialogID = "Delete".$data["ID"];
+    $dialogID = "Delete$id";
     $preset = $this->core->Data("Get", [
      "invoice-preset",
-     $data["ID"]
+     $id
     ]) ?? [];
     $r = [
      "Body" => "You are about to permanently delete <em>".$preset["Title"]."</em>.",
@@ -552,7 +552,7 @@
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
-      "[Delete.ID]" => base64_encode($data["Shop"]."-".$data["ID"]),
+      "[Delete.ID]" => base64_encode("$shopID-$id"),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Invoice:DeletePreset")),
       "[Delete.Title]" => $preset["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])

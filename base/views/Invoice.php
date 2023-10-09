@@ -124,7 +124,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $id = $data["Preset"] ?? "";
+   $id = $data["ID"] ?? "";
    $pin = $data["PIN"] ?? "";
    $r = [
     "Body" => "The Shop-Service Identifier are missing."
@@ -133,7 +133,7 @@
    $you = $y["Login"]["Username"];
    if(md5($pin) != $y["Login"]["PIN"]) {
     $r = [
-     "Body" => "The PINs do not match."
+     "Body" => "The PINs do not match. ($pin)"
     ];
    } elseif($this->core->ID == $you) {
     $r = [
