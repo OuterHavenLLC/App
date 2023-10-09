@@ -58,7 +58,15 @@
        ["class" => "CenterText"]
       ]) : "";
       $price = $product["Cost"] + $product["Profit"];
-      $quantity = ($quantity != "-1") ? $this->core->RenderInputs([
+      $quantity = ($quantity == "-1") ? [
+       "Attributes" => [
+        "name" => "Quantity",
+        "type" => "hidden"
+       ],
+       "Options" => [],
+       "Type" => "Text",
+       "Value" => 1
+      ] : [
        [
         "Attributes" => [],
         "OptionGroup" => $quantities,
@@ -71,43 +79,16 @@
         "Type" => "Select",
         "Value" => $quantity
        ]
-      ]) : "";
+      ];
       $r = $this->core->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
-       "[AddToCart.Inputs]" => $this->core->RenderInputs([
-        [
-         "Attributes" => [
-          "name" => "Product",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => $id
-        ],
-        [
-         "Attributes" => [
-          "name" => "Shop",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => md5($t["Login"]["Username"])
-        ],
-        [
-         "Attributes" => [
-          "name" => "UN",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => base64_encode($t["Login"]["Username"])
-        ]
-       ]),
        "[AddToCart.Product.ID]" => $id,
        "[AddToCart.Product.Instructions]" => $instructions,
        "[AddToCart.Product.LowStock]" => $lowStock,
        "[AddToCart.Product.Price]" => number_format($price, 2),
-       "[AddToCart.Product.Quantity]" => $quantity
+       "[AddToCart.Product.Quantity]" => json_encode($quantity, true)
+       "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"])
+       "[AddToCart.Shop.Owner]" => base64_encode($t["Login"]["Username"])
       ], $this->core->Page("624bcc664e9bff0002e01583e7706d83")]);
       if(($cat == "Product" || $cat == "PHYS") && $t["Login"]["Username"] == $you) {
        $r = $this->core->Element([
@@ -267,17 +248,16 @@
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "Instructions",
-    "Product",
     "Shop",
-    "UN"
+    "Username"
    ]);
-   $id = $data["Product"];
+   $id = $data["Product"] ?? "";
    $r = [
     "Body" => "The Member or Product Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["UN"]) && !empty($id)) {
+   if(!empty($data["Username"]) && !empty($id)) {
     $accessCode = "Accepted";
     $un = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($un);

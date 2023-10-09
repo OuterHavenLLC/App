@@ -42,75 +42,22 @@
      "[Album.AdditionalContent]" => $this->core->Change([
       [
        "[Extras.ContentType]" => "Album",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => "N/A",
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.DesignView.Origin]" => "NA",
        "[Extras.DesignView.Destination]" => "UIV$id",
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=N/A&UN=$you"),
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=$you"),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
+     "[Album.Description]" => base64_encode($description),
      "[Album.Header]" => $header,
      "[Album.ID]" => $id,
-     "[Album.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "new",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $new
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $title
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Description",
-        "placeholder" => "Description"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $description
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ])
+     "[Album.New]" => $new,
+     "[Album.Title]" => base64_encode($title),
+     "[Album.Visibility.NSFW]" => $nsfw,
+     "[Album.Visibility.Privacy]" => $privacy
     ], $this->core->Page("760cd577207eb0d2121509d7212038d4")]);
     $button = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
@@ -287,13 +234,10 @@
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "ID",
-    "Title",
-    "new",
-    "nsfw",
-    "pri"
+    "Title"
    ]);
-   $id = $data["ID"];
-   $new = $data["new"] ?? 0;
+   $id = $data["ID"] ?? "";
+   $new = $data["New"] ?? 0;
    $now = $this->core->timestamp;
    $r = [
     "Body" => "The Album Identifier is missing.",
@@ -314,8 +258,8 @@
     $created = $albums[$id]["Created"] ?? $now;
     $coverPhoto = $albums[$id]["ICO"] ?? "";
     $illegal = $albums[$id]["Illegal"] ?? 0;
-    $nsfw = $data["nsfw"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $data["pri"] ?? $y["Privacy"]["Albums"];
+    $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $privacy = $data["Privacy"] ?? $y["Privacy"]["Albums"];
     $albums[$id] = [
      "Created" => $created,
      "Description" => $data["Description"],
