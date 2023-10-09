@@ -2,6 +2,7 @@
  Class Authentication extends GW {
   function __construct() {
    parent::__construct();
+   $this->authID = md5($this->core->timestamp.uniqid());
    $this->you = $this->core->Member($this->core->Username());
   }
   function ArticleChangeMemberRole(array $a) {

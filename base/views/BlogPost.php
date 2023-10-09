@@ -24,22 +24,16 @@
     ];
    } elseif((!empty($blog) && !empty($post)) || $new == 1) {
     $accessCode = "Accepted";
+    $id = ($new == 1) ? md5($you."_BP_".uniqid()) : $post;
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditBlogPost$id",
      "data-processor" => base64_encode("v=".base64_encode("BlogPost:Save"))
     ]]);
-    $attf = "";
+    $attachments = "";
     $blog = $this->core->Data("Get", ["blg", $blog]) ?? [];
-    $id = ($new == 1) ? md5($you."_BP_".$this->core->timestamp) : $post;
     $post = $this->core->Data("Get", ["bp", $id]) ?? [];
-    $post = $this->core->FixMissing($post, [
-     "Body",
-     "Description",
-     "Title",
-     "TPL"
-    ]);
     $atinput = ".EditBlogPost$id-ATTI";
     $at = base64_encode("Set as the Blog Post's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
@@ -48,9 +42,11 @@
     $at3 = base64_encode("Attach to the Blog Post.:$at3input");
     $at3input = "$at3input .rATT";
     if(!empty($post["Attachments"])) {
-     $attf = base64_encode(implode(";", $post["Attachments"]));
+     $attachments = base64_encode(implode(";", $post["Attachments"]));
     }
+    $body = $post["Body"] ?? "";
     $coverPhoto = $post["ICO-SRC"] ?? "";
+    $description = $post["Description"] ?? "";
     $designViewEditor = "ViewBlogPost$id";
     $header = ($new == 1) ? "New Post to ".$blog["Title"] : "Edit ".$post["Title"];
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
@@ -66,6 +62,7 @@
       $templates[$value] = $t["Title"];
      }
     }
+    $title = $post["Title"] ?? "";
     $r = $this->core->Change([[
      "[Blog.ID]" => $blog["ID"],
      "[BlogPost.AdditionalContent]" => $this->core->Change([
@@ -80,140 +77,24 @@
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
+     "[BlogPost.Attachments]" => $attachments,
+     "[BlogPost.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
+     "[BlogPost.Body]" => base64_encode($this->core->PlainText([
+      "Data" => $body,
+      "Decode" => 1
+     ])),
+     "[BlogPost.CoverPhoto]" => $coverPhoto,
+     "[BlogPost.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+     "[BlogPost.Description]" => base64_encode($description),
      "[BlogPost.DesignView]" => $header,
      "[BlogPost.Header]" => $header,
      "[BlogPost.ID]" => $id,
-     "[BlogPost.Inputs]" => $this->core->RenderInputs([
-      [
-       "Attributes" => [
-        "name" => "BLG",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $blog["ID"]
-      ],
-      [
-       "Attributes" => [
-        "name" => "ID",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $id
-      ],
-      [
-       "Attributes" => [
-        "name" => "new",
-        "type" => "hidden"
-       ],
-       "Options" => [],
-       "Type" => "Text",
-       "Value" => $new
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTF",
-        "data-a" => "#ATTL$id-ATTF",
-        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
-        "name" => "rATTF",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditBlogPost$id-ATTF"
-       ],
-       "Type" => "Text",
-       "Value" => $attf
-      ],
-      [
-       "Attributes" => [
-        "class" => "rATT rATT$id-ATTI",
-        "data-a" => "#ATTL$id-ATTI",
-        "data-u" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
-        "name" => "rATTI",
-        "type" => "hidden"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "EditBlogPost$id-ATTI"
-       ],
-       "Type" => "Text",
-       "Value" => $coverPhoto
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Title",
-        "placeholder" => "Title",
-        "type" => "text"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Title"
-       ],
-       "Type" => "Text",
-       "Value" => $post["Title"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "req",
-        "name" => "Description",
-        "placeholder" => "Description"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Description"
-       ],
-       "Type" => "TextBox",
-       "Value" => $post["Description"]
-      ],
-      [
-       "Attributes" => [
-        "class" => "[BlogPost.DesignView] Body req",
-        "id" => "EditPageBody$id",
-        "name" => "Body",
-        "placeholder" => "Body"
-       ],
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "NONAME",
-        "Header" => 1,
-        "HeaderText" => "Body",
-        "WYSIWYG" => 1
-       ],
-       "Type" => "TextBox",
-       "Value" => $this->core->PlainText([
-        "Data" => $post["Body"],
-        "Decode" => 1
-       ])
-      ]
-     ]).$this->core->RenderVisibilityFilter([
-      "Filter" => "NSFW",
-      "Name" => "nsfw",
-      "Title" => "Content Status",
-      "Value" => $nsfw
-     ]).$this->core->RenderVisibilityFilter([
-      "Value" => $privacy
-     ]).$this->core->RenderInputs([
-      [
-       "Attributes" => [],
-       "OptionGroup" => $templates,
-       "Options" => [
-        "Container" => 1,
-        "ContainerClass" => "Desktop50 MobileFull",
-        "Header" => 1,
-        "HeaderText" => "Template"
-       ],
-       "Name" => "TPL-BLG",
-       "Type" => "Select",
-       "Value" => $template
-      ]
-     ])
+     "[BlogPost.New]" => $new,
+     "[BlogPost.Title]" => base64_encode($title),
+     "[BlogPost.Template]" => $template,
+     "[BlogPost.Templates]" => json_encode($templates, true),
+     "[BlogPost.Visibility.NSFW]" => $nsfw,
+     "[BlogPost.Visibility.Privacy]" => $privacy
     ], $this->core->Page("15961ed0a116fbd6cfdb793f45614e44")]);
     $r = [
      "Action" => $action,
@@ -365,9 +246,9 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["BLG", "ID", "Title", "new"]);
-   $new = $data["new"] ?? 0;
-   $id = $data["ID"];
+   $blog = $data["BLG"] ?? "";
+   $id = $data["ID"] ?? "";
+   $new = $data["New"] ?? 0;
    $title = $data["Title"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
@@ -379,11 +260,11 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($id) && !empty($title)) {
+   } elseif(!empty($blog) && !empty($id) && !empty($title)) {
     $i = 0;
     $coverPhoto = "";
     $coverPhotoSource = "";
-    $blog = $this->core->Data("Get", ["blg", $data["BLG"]]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $blog]) ?? [];
     $now = $this->core->timestamp;
     $posts = $blog["Posts"] ?? [];
     $subscribers = $blog["Subscribers"] ?? [];
@@ -403,15 +284,15 @@
      $actionTaken = ($new == 1) ? "posted to <em>".$blog["Title"]."</em>" : "updated";
      $post = $this->core->Data("Get", ["bp", $id]) ?? [];
      $author = $post["UN"] ?? $you;
-     $att = $post["Attachments"] ?? [];
+     $attachments = $post["Attachments"] ?? [];
      $contributors = $post["Contributors"] ?? [];
      $contributors[$you] = $blog["Contributors"][$you] ?? "Contributor";
      $created = $post["Created"] ?? $now;
      $illegal = $post["Illegal"] ?? 0;
      $modifiedBy = $post["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
-     $nsfw = $data["nsfw"] ?? $y["Privacy"]["NSFW"];
-     $privacy = $data["pri"] ?? $y["Privacy"]["Articles"];
+     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+     $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
      if(!empty($data["rATTI"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
       foreach($dlc as $dlc) {
@@ -435,15 +316,13 @@
        if(!empty($dlc)) {
         $f = explode("-", base64_decode($dlc));
         if(!empty($f[0]) && !empty($f[1])) {
-         array_push($att, base64_encode($f[0]."-".$f[1]));
+         array_push($attachments, base64_encode($f[0]."-".$f[1]));
         }
        }
       }
      }
-     $att = array_unique($att);
-     $privacy = $data["pri"] ?? $y["Privacy"]["Posts"];
      $post = [
-      "Attachments" => $att,
+      "Attachments" => array_unique($attachments),
       "Body" => $this->core->PlainText([
        "Data" => $data["Body"],
        "Encode" => 1,
@@ -461,7 +340,7 @@
       "NSFW" => $nsfw,
       "Privacy" => $privacy,
       "Title" => $title,
-      "TPL" => $data["TPL-CA"],
+      "TPL" => $data["TPL-BLG"],
       "UN" => $author
      ];
      if(!in_array($id, $blog["Posts"])) {
@@ -470,13 +349,12 @@
      }
      $y["Activity"]["LastActive"] = $now;
      $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-     /*$this->core->Data("Save", ["blg", $data["BLG"], $blog]);
+     $this->core->Data("Save", ["blg", $data["BLG"], $blog]);
      $this->core->Data("Save", ["bp", $id, $post]);
-     $this->core->Data("Save", ["mbr", md5($you), $y]);*/
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
      $r = [
       "Body" => "The Post <em>$title</em> was $actionTaken!",
-      "Header" => "Done",
-      "Scrollable" => json_encode($post, true)
+      "Header" => "Done"
      ];
      if($new == 1) {
       $this->core->Statistic("BGP");
