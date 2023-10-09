@@ -133,7 +133,7 @@
    $you = $y["Login"]["Username"];
    if(md5($pin) != $y["Login"]["PIN"]) {
     $r = [
-     "Body" => "The PINs do not match. ($pin)"
+     "Body" => "The PINs do not match."
     ];
    } elseif($this->core->ID == $you) {
     $r = [
@@ -168,12 +168,11 @@
       $id
      ]) ?? [];
      $shop["InvoicePresets"] = $newPresets;
-     #$this->core->Data("Purge", ["invoice-preset", $id]);
-     #$this->core->Data("Save", ["shop", $shopID, $shop]);
+     $this->core->Data("Purge", ["invoice-preset", $id]);
+     $this->core->Data("Save", ["shop", $shopID, $shop]);
      $r = [
       "Body" => "The service <em>".$preset["Title"]."</em> was deleted.",
-      "Header" => "Done",
-      "Scrollable" => json_encode($newPresets, true)
+      "Header" => "Done"
      ];
     }
    }
