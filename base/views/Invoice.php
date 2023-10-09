@@ -438,6 +438,20 @@
          "Type" => "NewJob"
         ]);
        } foreach($partners as $key => $value) {
+        $partner = $this->core->Member($key);
+        $this->core->SendEmail([
+         "Message" => $this->core->Change([[
+          "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+          "[Email.Message]" => "<em>".$shop["Title"]."</em> has been hired by a potential client! Please verify payment of the deposit before proceeding with the service.",
+          "[Email.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
+          "[Email.Name]" => $partner["Personal"]["FirstName"],
+          "[Email.Link]" => $this->core->base."/invoice/$id",
+          "[Email.Shop.Name]" => $shop["Title"],
+          "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+         ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+         "Title" => $shop["Title"].": Invoice $id",
+         "To" => $data["Email"]
+        ]);
         $this->core->SendBulletin([
          "Data" => [
           "Invoice" => $id,
