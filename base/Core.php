@@ -898,43 +898,6 @@
    ]);
    return $r;
   }
-  function RenderVisibilityFilter(array $a) {
-   $filter = $a["Filter"] ?? "Privacy";
-   $name = $a["Name"] ?? "Privacy";
-   $r = "";
-   $title = $a["Title"] ?? "Content Visibility";
-   $value = $a["Value"] ?? "";
-   if($filter == "NSFW") {
-    $options = [
-     0 => "Kid-Friendly",
-     1 => "Adults Only"
-    ];
-   } elseif($filter == "Privacy") {
-    $options = [
-     md5("Acquaintances") => "Acquaintances",
-     md5("Close Contacts") => "Close Contacts",
-     md5("Contacts") => "Contacts",
-     md5("Private") => "Private",
-     md5("Public") => "Public"
-    ];
-   }
-   return $this->RenderInputs([
-    [
-     "Attributes" => [],
-     "OptionGroup" => $options,
-     "Options" => [
-      "Container" => 1,
-      "ContainerClass" => "Desktop50 MobileFull",
-      "Header" => 1,
-      "HeaderText" => $title
-     ],
-     "Name" => $name,
-     "Title" => $title,
-     "Type" => "Select",
-     "Value" => $value
-    ]
-   ]);
-  }
   function Revenue(array $a) {
    $data = $a[1] ?? [];
    $shopOwner = $a[0] ?? "";

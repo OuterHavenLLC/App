@@ -483,7 +483,7 @@
      $files = $this->core->Data("Get", ["x", "fs"]) ?? [];
     }
     $now = $this->core->timestamp;
-    $nsfw = $data["nsfw"] ?? base64_encode($y["Privacy"]["NSFW"]);
+    $nsfw = $data["NSFW"] ?? base64_encode($y["Privacy"]["NSFW"]);
     $nsfw = base64_decode($nsfw);
     $privacy = $data["Privacy"] ?? base64_encode($y["Privacy"]["DLL"]);
     $privacy = base64_decode($privacy);
@@ -690,19 +690,13 @@
       $options = "<input name=\"UN\" type=\"hidden\" value=\"$username\"/>\r\n";
       if($ck == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"".md5("unsorted")."\"/>\r\n";
+       $options .= "<input name=\"NSFW\" type=\"hidden\" value=\"0\"/>\r\n";
        $options .= "<input name=\"Privacy\" type=\"hidden\" value=\"".md5("public")."\"/>\r\n";
-       $options .= "<input name=\"nsfw\" type=\"hidden\" value=\"0\"/>\r\n";
        $title = "System Library";
       } elseif($ck2 == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"$albumID\"/>\r\n";
-       $options .= $this->core->RenderVisibilityFilter([
-        "Filter" => "NSFW",
-        "Name" => "nsfw",
-        "Title" => "Content Status",
-        "Value" => $y["Privacy"]["NSFW"]
-       ]).$this->core->RenderVisibilityFilter([
-        "Value" => $y["Privacy"]["Posts"]
-       ]);
+       $options .= "<input name=\"NSFW\" type=\"hidden\" value=\"".$y["Privacy"]["NSFW"]."\"/>\r\n";
+       $options .= "<input name=\"Privacy\" type=\"hidden\" value=\"".$y["Privacy"]["Posts"]."\"/>\r\n";
        $title = $fileSystem["Albums"][$albumID]["Title"] ?? "Unsorted";
       }
       return [
