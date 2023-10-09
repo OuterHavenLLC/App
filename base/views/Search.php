@@ -74,13 +74,11 @@
      $li .= "&b2=".urlencode("the Archive")."&lPG=$lpg";
      $lis = "Search Articles";
     } elseif($st == "CART") {
-     $t = $data["UN"] ?? $you;
+     $t = $data["Username"] ?? $you;
      $t = ($t == $you) ? $y : $this->core->Member($t);
-     $shop = $this->core->Data("Get", [
-      "shop",
-      md5($t["Login"]["Username"])
-     ]) ?? [];
-     $li .= "&ID=".md5($t["Login"]["Username"]);
+     $shopID = md5($t["Login"]["Username"]);
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     $li .= "&ID=$shopID";
      $lis = "Search ".$shop["Title"];
      $tpl = "e58b4fc5070b14c01c88c28050547285";
     } elseif($st == "Contacts") {
@@ -805,32 +803,32 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $now = $this->core->timestamp;
     $remove = base64_encode("Cart:Remove");
     $tpl = $this->core->Page("dea3da71b28244bf7cf84e276d5d1cba");
-    $x = $y["Shopping"]["Cart"][$data["ID"]] ?? [];
-    $x = $x["Products"] ?? [];
-    foreach($x as $k => $v) {
-     $p = $this->core->Data("Get", ["product", $k]) ?? [];
-     $productIsActive = (strtotime($now) < $p["Expires"]) ? 1 : 0;
-     $illegal = $p["Illegal"] ?? 0;
+    $products = $y["Shopping"]["Cart"][$data["ID"]] ?? [];
+    $products = $products["Products"] ?? [];
+    foreach($products as $key => $value) {
+     $product = $this->core->Data("Get", ["product", $key]) ?? [];
+     $isActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
+     $illegal = $product["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     $quantity = $p["Quantity"] ?? 0;
-     if(!empty($p) && $productIsActive == 1 && $quantity != 0 && $illegal == 0) {
-      $coverPhoto = $p["ICO"] ?? $coverPhoto;
+     $quantity = $product["Quantity"] ?? 0;
+     if(!empty($product) && $isActive == 1 && $quantity != 0 && $illegal == 0) {
+      $coverPhoto = $product["ICO"] ?? $coverPhoto;
       $coverPhoto = base64_encode($coverPhoto);
-      $newCartList[$k] = $v;
+      $newCartList[$key] = $value;
       $remove = $this->view($remove, ["Data" => [
-       "ProductID" => base64_encode($k),
+       "ProductID" => base64_encode($key),
        "ShopID" => base64_encode($data["ID"])
       ]]);
       $remove = $this->core->RenderView($remove);
       array_push($msg, [
        "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-       "[X.LI.T]" => base64_encode($p["Title"]),
-       "[X.LI.D]" => base64_encode($p["Description"].$you),
+       "[X.LI.T]" => base64_encode($product["Title"]),
+       "[X.LI.D]" => base64_encode($product["Description"]),
        "[X.LI.Remove]" => base64_encode($remove)
       ]);
      }
     }
-    $y["Shopping"]["Cart"][$data["ID"]]["Products"] ?? $newCartList;
+    $y["Shopping"]["Cart"][$data["ID"]]["Products"] = $newCartList;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
    } elseif($st == "Contacts") {
     $ec = "Accepted";

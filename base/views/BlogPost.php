@@ -25,11 +25,11 @@
    } elseif((!empty($blog) && !empty($post)) || $new == 1) {
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
-    /*$action = $this->core->Element(["button", $action, [
+    $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditBlogPost$id",
      "data-processor" => base64_encode("v=".base64_encode("BlogPost:Save"))
-    ]]);*/
+    ]]);
     $attf = "";
     $blog = $this->core->Data("Get", ["blg", $blog]) ?? [];
     $id = ($new == 1) ? md5($you."_BP_".$this->core->timestamp) : $post;
@@ -51,8 +51,7 @@
      $attf = base64_encode(implode(";", $post["Attachments"]));
     }
     $coverPhoto = $post["ICO-SRC"] ?? "";
-    $dv = base64_encode("Common:DesignView");
-    $dvi = "UIE$id";
+    $designViewEditor = "ViewBlogPost$id";
     $header = ($new == 1) ? "New Post to ".$blog["Title"] : "Edit ".$post["Title"];
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Profile"];
@@ -73,7 +72,7 @@
       [
        "[Extras.ContentType]" => "Blog Post",
        "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => $dvi,
+       "[Extras.DesignView.Origin]" => $designViewEditor,
        "[Extras.DesignView.Destination]" => "UIV$id",
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=$you"),
@@ -81,6 +80,7 @@
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
+     "[BlogPost.DesignView]" => $header,
      "[BlogPost.Header]" => $header,
      "[BlogPost.ID]" => $id,
      "[BlogPost.Inputs]" => $this->core->RenderInputs([
@@ -174,7 +174,7 @@
       ],
       [
        "Attributes" => [
-        "class" => "$dvi Body Xdecode req",
+        "class" => "[BlogPost.DesignView] Body req",
         "id" => "EditPageBody$id",
         "name" => "Body",
         "placeholder" => "Body"
@@ -470,12 +470,13 @@
      }
      $y["Activity"]["LastActive"] = $now;
      $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-     $this->core->Data("Save", ["blg", $data["BLG"], $blog]);
+     /*$this->core->Data("Save", ["blg", $data["BLG"], $blog]);
      $this->core->Data("Save", ["bp", $id, $post]);
-     $this->core->Data("Save", ["mbr", md5($you), $y]);
+     $this->core->Data("Save", ["mbr", md5($you), $y]);*/
      $r = [
       "Body" => "The Post <em>$title</em> was $actionTaken!",
-      "Header" => "Done"
+      "Header" => "Done",
+      "Scrollable" => json_encode($post, true)
      ];
      if($new == 1) {
       $this->core->Statistic("BGP");

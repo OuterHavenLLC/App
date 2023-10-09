@@ -675,7 +675,7 @@
          if($productIsActive == 1) {
           $price = str_replace(",", "", $product["Cost"]);
           $price = $price + str_replace(",", "", $product["Profit"]);
-          $subtotal = $subtotal + $price;
+          $subtotal = $subtotal + ($price * $value["QTY"]);
          }
         }
        } if($discountCode != 0) {

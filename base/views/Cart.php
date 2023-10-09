@@ -89,7 +89,7 @@
        "[AddToCart.Product.Price]" => number_format($price, 2),
        "[AddToCart.Product.Quantity]" => $quantity,
        "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
-       "[AddToCart.Shop.Owner]" => base64_encode($t["Login"]["Username"])
+       "[AddToCart.Shop.Owner]" => $t["Login"]["Username"]
       ], $this->core->Page("624bcc664e9bff0002e01583e7706d83")]);
       if(($category == "Product") && $t["Login"]["Username"] == $you) {
        $r = $this->core->Element([
@@ -147,7 +147,8 @@
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
     $shop = $this->core->FixMissing($shop, ["Title"]);
     $creditExchange = $this->Element([
-     "p", "Credit Exchange requires a minimum of 1,000 points to be converted."
+     "p", "Credit Exchange requires a minimum of 1,000 points to be converted.",
+     ["class" => "CenterText"]
     ]);
     if($y["Points"] >= $i) {
      $creditExchange = md5(uniqid().rand(0, 9999));
@@ -201,7 +202,7 @@
     $r = $this->core->Change([[
      "[Cart.CreditExchange]" => $creditExchange,
      "[Cart.DiscountCodes]" => $discountCodes,
-     "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&UN=".$t["Login"]["Username"]."&st=CART"),
+     "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&Username=".$t["Login"]["Username"]."&st=CART"),
      "[Cart.Shop.ID]" => $id,
      "[Cart.Shop.Title]" => $shop["Title"],
      "[Cart.Summary]" => base64_encode("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])
@@ -247,53 +248,46 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "Instructions",
-    "Shop",
-    "Username"
-   ]);
    $id = $data["Product"] ?? "";
    $r = [
     "Body" => "The Member or Product Identifier is missing."
    ];
+   $username = $data["Username"] ?? "";
+   $shopID = $data["Shop"] ?? md5($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["Username"]) && !empty($id)) {
+   if(!empty($id) && !empty($username)) {
     $accessCode = "Accepted";
-    $un = $data["UN"] ?? base64_encode($you);
-    $t = base64_decode($un);
-    $t = ($t == $you) ? $y : $this->core->Member($t);
-    $shop = $this->core->Data("Get", [
-     "shop",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
-    $shop = $data["Shop"] ?? md5($t["Login"]["Username"]);
+    $instructions = $data["Instructions"] ?? "";
+    $username = $username ?? $you;
+    $t = ($username == $you) ? $y : $this->core->Member($t);
+    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
     $title = $shop["Title"] ?? "Made in New York";
     $product = $this->core->Data("Get", ["product", $id]) ?? [];
     $productTitle = $product["Title"];
     $quantity = $data["Quantity"] ?? 1;
     $view = "v=".base64_encode("Cart:Home")."&UN=".base64_encode($t["Login"]["Username"]);
-    $cart = $y["Shopping"]["Cart"][$shop] ?? [];
+    $cart = $y["Shopping"]["Cart"][$shopID] ?? [];
     $cart["UN"] = $t["Login"]["Username"];
     $cart["Credits"] = $cart["Credits"] ?? 0;
     $cart["DiscountCode"] = $cart["DiscountCode"] ?? 0;
     $cart["Products"] = $cart["Products"] ?? [];
     $cart["Products"][$id] = $cart["Products"][$id] ?? [];
-    $cart["Products"][$id]["Instructions"] = $data["Instructions"];
+    $cart["Products"][$id]["Instructions"] = $instructions;
     $cart["Products"][$id]["QTY"] = $cart["Products"][$id]["QTY"] ?? 0;
     $cart["Products"][$id]["QTY"] = $cart["Products"][$id]["QTY"] + $quantity;
+    $y["Shopping"]["Cart"][$shopID] = $cart;
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [
      "Body" => "<em>$productTitle</em> was added to your cart for <em>$title</em>!",
      "Header" => "Added to Cart",
      "Options" => [
       $this->core->Element(["button", "View My Cart", [
-       "class" => "CloseAllCards dBC v2 v2w",
-       "onclick" => "FST('N/A', '$view', '".md5("Cart")."');"
+       "class" => "CloseAllCards CloseDialog OpenFirSTEPTool v2 v2w",
+       "data-fst" => base64_encode($view)
       ]])
      ]
     ];
-    $y["Shopping"]["Cart"][$shop] = $cart;
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -371,7 +365,7 @@
      if($productIsActive == 1) {
       $price = str_replace(",", "", $product["Cost"]);
       $price = $price + str_replace(",", "", $product["Profit"]);
-      $subtotal = $subtotal + $price;
+      $subtotal = $subtotal + ($price * $value["QTY"]);
      }
     }
    } if($discountCode != 0) {
