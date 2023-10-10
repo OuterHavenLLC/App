@@ -370,6 +370,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
+    $_ViewTitle = "Hire";
     $accessCode = "Accepted";
     $action = "";
     $createJob = $data["CreateJob"] ?? 0;
@@ -499,10 +500,21 @@
      } else {
       $_ViewTitle = "Hire ".$shop["Title"];
       $hireText = (count($partners) == 1) ? "Me" : "Us";
+      $terms = $shop["HireTerms"] ?? "";
+      if(!empty($terms)) {
+       $terms = $this->core->PlainText([
+        "Data" => $terms,
+        "Display" => 1,
+        "HTMLDecode" => 1
+       ]);
+      } else {
+       $terms = $this->core->Page("285adc3ef002c11dfe1af302f8812c3a");
+      }
       $r = $this->core->Change([[
        "[Shop.Name]" => $shop["Title"],
        "[Shop.Hire]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id&CreateJob=1"),
-       "[Shop.Hire.Text]" => $hireText
+       "[Shop.Hire.Terms]" => $terms,
+       "[Shop.Hire.Text]" => $hireText,
       ], $this->core->Page("045f6c5cf3728bd31b0d9663498a940c")]);
      }
      $responseType = "View";

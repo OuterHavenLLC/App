@@ -110,6 +110,7 @@
     $designViewEditor = "UIE$id";
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $header = "Edit ".$shop["Title"];
+    $hireTerms = $shop["HireTerms"] ?? $this->core->Page("285adc3ef002c11dfe1af302f8812c3a");
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $percentages = [];
@@ -155,6 +156,9 @@
      "[Shop.Description]" => base64_encode($shop["Description"]),
      "[Shop.DesignView]" => $designViewEditor,
      "[Shop.EnableHireSection]" => $enableHireSection,
+     "[Shop.HireTerms]" => base64_encode($this->core->PlainText([
+      "Data" => $hireTerms
+     ])),
      "[Shop.ID]" => $id,
      "[Shop.Header]" => $header,
      "[Shop.PaymentProcessor]" => $paymentProcessor,

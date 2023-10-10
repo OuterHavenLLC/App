@@ -1303,6 +1303,7 @@
      "CoverPhoto" => "",
      "CoverPhotoSource" => "",
      "Description" => "",
+     "HireTerms" => "",
      "Live" => 0,
      "Modified" => $now,
      "Open" => 1,
