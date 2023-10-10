@@ -1449,6 +1449,7 @@
     $contributors = $shop["Contributors"] ?? [];
     $description = $data["Description"] ?? $shop["Description"];
     $enableHireSection = $data["EnableHireSection"] ?? 0;
+    $hireTerms = $data["HireTerms"] ?? "";
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     $invoices = $shop["Invoices"] ?? [];
     $live = $data["Live"] ?? 0;
@@ -1469,6 +1470,10 @@
      "CoverPhotoSource" => base64_encode($coverPhotoSource),
      "Description" => $description,
      "EnableHireSection" => $enableHireSection,
+     "HireTerms" => $this->core->PlainText([
+      "Data" => $hireTerms,
+      "HTMLEncode" => 1
+     ]),
      "InvoicePresets" => $invoicePresets,
      "Invoices" => $invoices,
      "Live" => $live,
