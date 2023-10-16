@@ -1601,7 +1601,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $illegal = $value["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $ck = ($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) ? 1 : 0;
-      if($ck == 1 || $username != $you) {
+      if($ck == 1 || $username == $you) {
        $coverPhoto = $value["ICO"] ?? "";
        $coverPhoto = $this->core->GetSourceFromExtension([
         $t["Login"]["Username"],
