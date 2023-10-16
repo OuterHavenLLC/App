@@ -616,12 +616,6 @@
           "DLL" => $file,
           "T" => $username,
           "Y" => $you
-         ]).$this->core->Element([
-          "p", json_encode([
-           "File" => $file,
-           "Username" => $username,
-           "You" => $you
-          ], true)
          ]), [
           "class" => "InnerMargin Medium"
          ]
