@@ -142,57 +142,28 @@
    if($this->core->ID != $username) {
     $accessCode = "Accepted";
     $t = ($username == $you) ? $y : $this->core->Member($username);
-    $i = 1000;
     $id = md5($t["Login"]["Username"]);
+    $points = 1000;
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
     $shop = $this->core->FixMissing($shop, ["Title"]);
     $creditExchange = $this->Element([
      "p", "Credit Exchange requires a minimum of 1,000 points to be converted.",
      ["class" => "CenterText"]
     ]);
-    if($y["Points"] >= $i) {
-     $creditExchange = md5(uniqid().rand(0, 9999));
-     $creditExchangeProcessor = base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P=");
+    if($points <= $y["Points"]) {
      $creditExchange = $this->core->Change([[
-      "[CreditExchange.Data]" => $creditExchangeProcessor,
-      "[CreditExchange.ID]" => $creditExchange,
-      "[CreditExchange.Points]" => $i,
-      "[CreditExchange.Quantity]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "class" => "RI$creditExchange",
-         "data-u" => $creditExchangeProcessor,
-         "max" => $y["Points"],
-         "min" => $i,
-         "name" => "CE",
-         "type" => "range"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "NONAME"
-        ],
-        "Type" => "Text",
-        "Value" => $i
-       ]
-      ])
+      "[CreditExchange.ID]" => md5(uniqid().rand(0, 9999)),
+      "[CreditExchange.Points]" => $points,
+      "[CreditExchange.Processor]" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P="),
+      "[CreditExchange.YourPoints]" => $y["Points"]
      ], $this->core->Page("b9c61e4806cf07c0068f1721678bef1e")]);
     }
     $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? 0;
     $discountCodes = ($discountCodes == 0) ? $this->core->Change([
      [
-      "[DiscountCodes.Input]" => $this->core->RenderInputs([
-       [
-        "Attributes" => [
-         "class" => "DiscountCodes",
-         "data-id" => $id,
-         "data-u" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
-         "type" => "text"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => $i
-       ]
-      ]),
+      "[DiscountCodes.ID]" => $id,
+      "[DiscountCodes.Points]" => $points,
+      "[DiscountCodes.Processor]" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
       "[DiscountCodes.Shop.Title]" => $shop["Title"]
      ], $this->core->Page("0511fae6fcc6f9c583dfe7669b0217cc")
     ]) : $this->core->Element([

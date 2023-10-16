@@ -89,17 +89,17 @@
     "Body" => "The Album Identifier is missing.",
     "Header" => "Not Found"
    ];
-   $xfsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
-   $xfsLimit = str_replace(",", "", $xfsLimit)."MB";
-   $xfsUsage = 0;
+   $fsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
+   $fsLimit = str_replace(",", "", $fsLimit)."MB";
+   $fsUsage = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $fileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
-   foreach($fileSystem["Files"] as $k => $v) {
-    $xfsUsage = $xfsUsage + $v["Size"];
+   foreach($fileSystem["Files"] as $key => $value) {
+    $fsUsage = $fsUsage + $value["Size"];
    }
-   $xfsUsage = number_format(round($xfsUsage / 1000));
-   $xfsUsage = str_replace(",", "", $xfsUsage);
+   $fsUsage = number_format(round($fsUsage / 1000));
+   $fsUsage = str_replace(",", "", $fsUsage);
    if(!empty($id) || $new == 1) {
     $t = ($data["UN"] == $you) ? $y : $this->core->Member($data["UN"]);
     $fileSystem = $this->core->Data("Get", [
@@ -116,7 +116,7 @@
     $blu = base64_encode("Common:SaveBlacklist");
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
     $ck2 = $y["subscr"]["XFS"]["A"] ?? 0;
-    $ck2 = ($ck2 == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
+    $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
     $coverPhoto = $alb["ICO"] ?? $this->core->PlainText([
      "Data" => "[sIMG:CP]",
      "Display" => 1
@@ -197,10 +197,10 @@
     "lPG",
     "lPP"
    ]);
-   $y = $this->you;
+   $back = $data["back"] ?? 0;
    $id = $data["AID"] ?? "";
    $b2 = $data["b2"] ?? "Albums";
-   $bck = $data["back"] ?? 0;
+   $y = $this->you;
    $un = $data["UN"] ?? $y["Login"]["Username"];
    $r = [
     "Body" => "The requested Album could not be found.",
@@ -208,7 +208,7 @@
    ];
    if(!empty($id)) {
     $accessCode = "Accepted";
-    $back = ($bck == 1) ? $this->core->Element(["button", "Back to $b2", [
+    $back = ($back == 1) ? $this->core->Element(["button", "Back to $b2", [
      "class" => "GoToParent LI head",
      "data-type" => $data["lPG"]
     ]]) : "";

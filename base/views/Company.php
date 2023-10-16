@@ -43,13 +43,14 @@
    $b2 = urlencode($this->core->config["App"]["Name"]);
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
-   $sid = base64_encode($this->core->ShopID);
+   $shopID = base64_encode($this->core->ShopID);
    $r = $this->core->Change([[
-    "[App.Earnings]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
+    "[App.Earnings]" => base64_encode("v=".base64_encode("Common:Income")."&UN=$shopID"),
+    "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
     "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
     "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
     "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
-    "[App.Shop]" => "OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$sid"),
+    "[App.Shop]" => "OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
     "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
     "[App.VVA]" => "OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
    ], $this->core->Page("0a24912129c7df643f36cb26038300d6")]);

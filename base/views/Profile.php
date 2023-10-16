@@ -301,7 +301,7 @@
     $r = $this->core->Element([
      "h3", "Success", ["class" => "CenterText UpperCase"]
     ]).$this->core->Element([
-     "p", $member["Personal"]["DisplayName"]."'s Rank within <em>Outer Haven</em> was Changed to $rank.",
+     "p", $member["Personal"]["DisplayName"]."'s Rank within <em>".$this->core->config["App"]["Name"]."</em> was Changed to $rank.",
      ["class" => "CenterText"]
     ]);
    }
@@ -553,27 +553,29 @@
        }
       }
       $addContact = ($you != $this->core->ID) ? $addContact : "";
-     } if($id != $you && $y["Rank"] == md5("High Command") || $y["Rank"] == md5("Partner")) {
-      if($y["Rank"] == md5("High Command")) {
-       $ranks = [
-        "High Command" => "High Command",
-        "Member" => "Member",
-        "Support" => "Support"
-       ];
-      } elseif($y["Rank"] == md5("Support")) {
-       $ranks = [
-        "Member" => "Member",
-        "Support" => "Support"
-       ];
+     } if($id != $you && $y["Rank"] == md5("High Command") || $y["Rank"] == md5("Support")) {
+      if($id != $this->core->ID && $id != $this->core->ShopID) {
+       if($y["Rank"] == md5("High Command")) {
+        $ranks = [
+         "High Command" => "High Command",
+         "Member" => "Member",
+         "Support" => "Support"
+        ];
+       } elseif($y["Rank"] == md5("Support")) {
+        $ranks = [
+         "Member" => "Member",
+         "Support" => "Support"
+        ];
+       }
+       $changeRank = $this->core->Change([[
+        "[Ranks.Authentication]" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".MemberRank".md5($id))."&ID=".md5($id)."&Processor=".base64_encode("v=".base64_encode("Profile:ChangeRank"))."&Text=".base64_encode("Do you authorize the Change of $display's rank?")),
+        "[Ranks.DisplayName]" => $display,
+        "[Ranks.ID]" => md5($id),
+        "[Ranks.Options]" => json_encode($ranks, true),
+        "[Ranks.Username]" => $id,
+        "[Ranks.YourRank]" => $y["Rank"]
+       ], $this->core->Page("914dd9428c38eecf503e3a5dda861559")]);
       }
-      $changeRank = $this->core->Change([[
-       "[Ranks.Authentication]" => "v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".MemberRank".md5($id))."&ID=".md5($id)."&Processor=".base64_encode("v=".base64_encode("Profile:ChangeRank"))."&Text=".base64_encode("Do you authorize the Change of $display's rank?"),
-       "[Ranks.DisplayName]" => $display,
-       "[Ranks.ID]" => md5($id),
-       "[Ranks.Options]" => json_encode($ranks, true),
-       "[Ranks.Username]" => $id,
-       "[Ranks.YourRank]" => $y["Rank"]
-      ], $this->core->Page("914dd9428c38eecf503e3a5dda861559")]);
      }
      $gender = $t["Personal"]["Gender"] ?? "Male";
      $gender = $this->core->Gender($gender);

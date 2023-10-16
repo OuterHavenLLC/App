@@ -141,6 +141,7 @@
       "Bulletins",
       "CA",
       "CART",
+      "Chat",
       "Contacts",
       "ContactsChatList",
       "ContactsProfileList",

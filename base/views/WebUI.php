@@ -176,7 +176,6 @@
   function OptIn(array $a) {
    $accessCode = "Accepted";
    $r = $this->core->Change([[
-    "[Gateway.About]" => base64_encode("v=".base64_encode("Page:Card")."&ID=".base64_encode("a7b00d61b747827ec4ae74c358da6a01")),
     "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
     "[Gateway.CoverPhoto]" => $this->core->PlainText([
      "BBCodes" => 1,
@@ -184,7 +183,8 @@
     ]),
     "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".md5($this->core->ShopID)),
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-    "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
+    "[Gateway.SignUp]" => "#"//TEMP
+    #"[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
    ], $this->core->Page("db69f503c7c6c1470bd9620b79ab00d7")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

@@ -124,13 +124,17 @@
      "Them" => $username,
      "You" => $you
     ]);
+    $contactStatus = $this->core->RenderView($contactStatus);
     $decline = $data["decline"] ?? 0;
     $r = $this->core->Element([
      "h3", "Success", ["class" => "CenterText UpperCase"]
     ]);
     $responseType = "ReplaceContent";
-    $theirContacts = $this->core->Data("Get", [ "cms", md5($username)]) ?? [];
-    $yourContacts = $this->core->Data("Get", [ "cms", md5($you)]) ?? [];
+    $theirContacts = $this->core->Data("Get", [
+     "cms",
+     md5($username)
+    ]) ?? [];
+    $yourContacts = $this->core->Data("Get", ["cms", md5($you)]) ?? [];
     $cancel = (in_array($you, $theirContacts["Requests"])) ? 1 : 0;
     $cancel = ($cancel == 1 || $contactStatus["YouRequested"] > 0) ? 1 : 0;
     if($accept == 1 || $decline == 1) {

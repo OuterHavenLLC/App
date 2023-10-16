@@ -616,6 +616,12 @@
           "DLL" => $file,
           "T" => $username,
           "Y" => $you
+         ]).$this->core->Element([
+          "p", json_encode([
+           "File" => $file,
+           "Username" => $username,
+           "You" => $you
+          ], true)
          ]), [
           "class" => "InnerMargin Medium"
          ]
@@ -699,7 +705,7 @@
        $options .= "<input name=\"Privacy\" type=\"hidden\" value=\"".$y["Privacy"]["Posts"]."\"/>\r\n";
        $title = $fileSystem["Albums"][$albumID]["Title"] ?? "Unsorted";
       }
-      return [
+      $r = [
        "Front" => $this->core->Change([[
         "[Upload.Limit]" => $limit,
         "[Upload.Options]" => $options,

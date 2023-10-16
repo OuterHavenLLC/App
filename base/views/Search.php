@@ -81,6 +81,13 @@
      $li .= "&ID=$shopID";
      $lis = "Search ".$shop["Title"];
      $tpl = "e58b4fc5070b14c01c88c28050547285";
+    } elseif($st == "Chat") {
+     $group = $data["Group"] ?? 0;
+     $oneOnOne = $data["1on1"] ?? 0;
+     $h = "1:1 Chat";
+     $h = ($group == 1) ? "Group Chat" : $h;
+     $li .= "&1on1=$oneOnOne&Group=$group";
+     $lis = "Search $h";
     } elseif($st == "Contacts") {
      $h = "Contact Manager";
      $lis = "Search Contacts";
@@ -303,18 +310,20 @@
      $ck = ($ck == 1 && $notAnon == 1) ? 1 : 0;
      $ck2 = ($un == $this->core->ID && $y["Rank"] == md5("High Command")) ? 1 : 0;
      $de = $alb["Description"] ?? "";
-     $display = ($t["Personal"]["DisplayName"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
+     $display = ($ck2 == 1) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $h = $alb["Title"] ?? "Unsorted";
+     $h = ($ck2 == 1) ? "System Media Library" : $h;
      $li .= "&AID=$aid&UN=".$data["UN"]."&lPG=$lpg";
      $lis = "Search $h";
-     $uf = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
+     $unlimitedFiles = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
+     $unlimitedFiles = ($ck2 == 1) ? "No Upload Limit" : $unlimitedFiles;
      $ck = ($ck == 1 || $usage < $limit) ? 1 : 0;
      if(($ck == 1 && $un == $you) || $ck2 == 1) {
       $lo = $this->core->Change([[
        "[Album.Description]" => $de,
        "[Album.Owner]" => $display,
        "[Album.Uploader]" => base64_encode("v=".base64_encode("File:Upload")."&AID=$aid&UN=".$t["Login"]["Username"]),
-       "[Album.XFSstats]" => $uf
+       "[Album.FStats]" => $unlimitedFiles
       ], $this->core->Page("b9e1459dc1c687cebdaa9aade72c50a9")]);
      } else {
       $lo = $this->core->Change([[
@@ -830,6 +839,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
     $y["Shopping"]["Cart"][$data["ID"]]["Products"] = $newCartList;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
+   } elseif($st == "Chat") {
+    $ec = "Accepted";
+    $group = $data["Group"] ?? 0;
+    $oneOnOne = $data["1on1"] ?? 0;
+    $tpl = $this->core->Page("ChatListItem");
+    if($notAnon == 1) {
+     if($group == 1) {
+     } elseif($oneOnOne == 1) {
+     }
+    }
    } elseif($st == "Contacts") {
     $ec = "Accepted";
     $tpl = $this->core->Page("ccba635d8c7eca7b0b6af5b22d60eb55");
@@ -1552,43 +1571,47 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $tpl = $this->core->Page("b6728e167b401a5314ba47dd6e4a55fd");
     if($notAnon == 1) {
-     $data["UN"] = base64_decode($data["UN"]);
-     $t = ($data["UN"] != $y["Login"]["Username"]) ? $this->core->Member($data["UN"]) : $y;
+     $username = base64_decode($data["UN"]);
+     $t = ($username != $you) ? $this->core->Member($username) : $y;
      $fs = $this->core->Data("Get", [
       "fs",
       md5($t["Login"]["Username"])
      ]) ?? [];
-     $x = $fs["Albums"] ?? [];
-     foreach($x as $k => $v) {
-      $abl = base64_encode($t["Login"]["Username"]."-$k");
-      $fr = $this->core->Data("Get", [
+     $albums = $fs["Albums"] ?? [];
+     foreach($albums as $key => $value) {
+      $cms = $this->core->Data("Get", [
        "cms",
        md5($t["Login"]["Username"])
       ]) ?? [];
       $tP = $t["Privacy"];
-      $nsfw = $v["NSFW"] ?? $t["Privacy"]["NSFW"];
-      $pri = $v["Privacy"] ?? $t["Privacy"]["Albums"];
-      $bl = $this->core->CheckBlocked([$y, "Albums", $abl]);
+      $nsfw = $value["NSFW"] ?? $t["Privacy"]["NSFW"];
+      $privacy = $value["Privacy"] ?? $t["Privacy"]["Albums"];
+      $bl = $this->core->CheckBlocked([
+       $y,
+       "Albums",
+       base64_encode($t["Login"]["Username"]."-$key")
+      ]);
       $ck = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $ck2 = $this->core->CheckPrivacy([
-       "Contacts" => $fr["Contacts"],
-       "Privacy" => $pri,
+       "Contacts" => $cms["Contacts"],
+       "Privacy" => $privacy,
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
-      $illegal = $v["Illegal"] ?? 0;
+      $illegal = $value["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && ($ck == 1 && $ck2 == 1) && $illegal == 0) {
-       $coverPhoto = $v["ICO"] ?? "";
+      $ck = ($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) ? 1 : 0;
+      if($ck == 1 || $username != $you) {
+       $coverPhoto = $value["ICO"] ?? "";
        $coverPhoto = $this->core->GetSourceFromExtension([
         $t["Login"]["Username"],
         $coverPhoto
        ]);
        array_push($msg, [
-        "[Album.CRID]" => base64_encode($k),
+        "[Album.CRID]" => base64_encode($key),
         "[Album.CoverPhoto]" => base64_encode($coverPhoto),
-        "[Album.Lobby]" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$k&UN=".$data["UN"])),
-        "[Album.Title]" => base64_encode($v["Title"])
+        "[Album.Lobby]" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$key&UN=$username")),
+        "[Album.Title]" => base64_encode($value["Title"])
        ]);
       }
      }
@@ -2073,20 +2096,22 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      md5($y["Login"]["Username"])
     ]) ?? [];
     foreach($x as $key => $value) {
-     $ccomplete = ($value["Complete"] == 0) ? $this->core->Element(["button", "Mark as Complete", [
-      "class" => "BB BBB CompleteOrder v2 v2w",
-      "data-u" => base64_encode("v=".base64_encode("Shop:CompleteOrder")."&ID=".base64_encode($key))
-     ]]) : "";
-     $t = $this->core->Member($value["Login"]["Username"]);
+     $t = $this->core->Member($value["UN"]);
      $t = $this->core->ProfilePicture($t, "margin:5%;width:90%");
-     array_push($msg, [
-      "[X.LI.Order.Complete]" => base64_encode($complete),
-      "[X.LI.Order.Instructions]" => $value["Instructions"],
-      "[X.LI.Order.ProductID]" => base64_encode($value["ProductID"]),
-      "[X.LI.Order.ProfilePicture]" => base64_encode($t),
-      "[X.LI.Order.Quantity]" => base64_encode($value["QTY"]),
-      "[X.LI.Order.UN]" => base64_encode($value["Login"]["Username"])
-     ]);
+     if(!empty($t["Login"])) {
+      $ccomplete = ($value["Complete"] == 0) ? $this->core->Element(["button", "Mark as Complete", [
+       "class" => "BB BBB CompleteOrder v2 v2w",
+       "data-u" => base64_encode("v=".base64_encode("Shop:CompleteOrder")."&ID=".base64_encode($key))
+      ]]) : "";
+      array_push($msg, [
+       "[X.LI.Order.Complete]" => base64_encode($complete),
+       "[X.LI.Order.Instructions]" => $value["Instructions"],
+       "[X.LI.Order.ProductID]" => base64_encode($value["ProductID"]),
+       "[X.LI.Order.ProfilePicture]" => base64_encode($t),
+       "[X.LI.Order.Quantity]" => base64_encode($value["QTY"]),
+       "[X.LI.Order.UN]" => base64_encode($value["UN"])
+      ]);
+     }
     }
    } elseif($st == "US-SU") {
     $ec = "Accepted";

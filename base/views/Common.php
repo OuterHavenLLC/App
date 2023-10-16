@@ -318,8 +318,7 @@
      "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
      "[IncomeDisclosure.Table]" => $yearTable
     ], $this->core->Page("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
-   }
-   if($pub == 1) {
+   } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
