@@ -2021,7 +2021,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        if($t["Login"]["Username"] == $y["Login"]["Username"] || ($bl == 0 && $ck == 1) && $illegal == 0) {
         $bl = $this->core->CheckBlocked([$y, "Shops", md5($t["Login"]["Username"])]);
-        $coverPhoto = $g["ICO"] ?? $coverPhoto;
+        $coverPhoto = $g["CoverPhoto"] ?? $coverPhoto;
         $coverPhoto = base64_encode($coverPhoto);
         $tun = base64_encode($t["Login"]["Username"]);
         array_push($msg, [

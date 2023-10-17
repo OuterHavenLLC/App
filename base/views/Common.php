@@ -132,9 +132,10 @@
        "DLL" => $x,
        "T" => $id[1],
        "Y" => $y["Login"]["Username"]
-      ]).$this->core->Element([
-       "div", NULL, ["class" => "NONAME", "style" => "height:0.5em"]
-      ]);
+      ]).$this->core->Element(["div", NULL, [
+       "class" => "NONAME",
+       "style" => "height:0.5em"
+      ]]);
       $body = $this->core->Element(["h3", $x["Title"], [
        "class" => "UpperCase"
       ]]);

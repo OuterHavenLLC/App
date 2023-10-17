@@ -466,12 +466,14 @@
       "type" => $a["DLL"]["MIME"]
      ]]);
      $r = "<audio class=\"PreviewAudio\" controls>$r</audio>\r\n";
-     // F.A.B. Source: $this->Element(["source", NULL, ["src" => "[base]:8000/listen.pls?sid=1", "type" => "audio/aac"]])
+     /* F.A.B. Source: 
+     $this->Element(["source", NULL, ["src" => "[base]:8000/listen", "type" => "audio/aac"]]);
+     */
     } elseif($type == "Document") {
      $source = $this->efs."D.jpg";
      $r = $this->Element(["h3", $a["DLL"]["Title"], [
       "class" => "CenterText CoverPhotoCard PreviewDocument",
-      "style" => "background:url('$source')"
+      "style" => "background:url('$source') no-repeat center center;background-size:cover"
      ]]);
     } elseif($type == "Photo") {
      // MAKE NoPreview.jpg TO REPLACE D.jpg IN THIS CASE
@@ -740,13 +742,14 @@
    } if($a["HTMLDecode"] == 1) {
     $r = html_entity_decode($r);
    } if($a["Display"] == 1) {
-    $pc = base64_encode("Page:Card");
+    $extensionCard = base64_encode("Page:Card");
     $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "Extension"), $r);
     $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
     $r = preg_replace_callback("/\[CoreMedia:(.*?)\]/i", array(&$this, "CoreMedia"), $r);
     $r = preg_replace_callback("/\[sIMG:(.*?)\]/i", array(&$this, "CoreMedia"), $r);// TO BE DISOLVED
     $r = $this->Change([[
-     "[App.Constitution]" => base64_encode("v=$pc&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
+     "[App.BillOfRights]" => base64_encode("v=$extensionCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
+     "[App.Constitution]" => base64_encode("v=$extensionCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
      "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
      "[App.CurrentYear]" => date("Y"),
      "[App.Name]" => $this->config["App"]["Name"],

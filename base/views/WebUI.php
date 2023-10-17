@@ -183,8 +183,7 @@
     ]),
     "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".md5($this->core->ShopID)),
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-    "[Gateway.SignUp]" => "#"//TEMP
-    #"[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
+    "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
    ], $this->core->Page("db69f503c7c6c1470bd9620b79ab00d7")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

@@ -1256,9 +1256,9 @@
       "UN" => $username,
       "Updated" => $now
      ];
-     $this->core->Data("Save", ["x", md5("ContactList"), $x]);
+     #$this->core->Data("Save", ["x", md5("ContactList"), $x]);
     }
-    $this->core->Data("Save", ["cms", md5($username), [
+    /*$this->core->Data("Save", ["cms", md5($username), [
      "Contacts" => [],
      "Requests" => []
     ]]);
@@ -1326,11 +1326,22 @@
       "To" => $data["Email"]
      ]);
     }
-    $this->core->Statistic("MBR");
+    $this->core->Statistic("MBR");*/
     $r = $this->core->Change([[
      "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
      "[Success.Username]" => $username
-    ], $this->core->Page("872fd40c7c349bf7220293f3eb64ab45")]);
+    ], $this->core->Page("872fd40c7c349bf7220293f3eb64ab45")]).json_encode($this->core->NewMember([
+      "Age" => $age,
+      "BirthMonth" => $birthMonth,
+      "BirthYear" => $birthYear,
+      "DisplayName" => $username,
+      "Email" => $data["Email"],
+      "FirstName" => $firstName,
+      "Gender" => $data["Gender"],
+      "Password" => $password,
+      "PIN" => md5($data["PIN"]),
+      "Username" => $username
+     ]), true);
    } if($accessCode != "Accepted") {
     $r = $this->core->Change([[
      "[2FA.Error.Message]" => $r,

@@ -276,7 +276,7 @@
     $hireText = (count($partners) == 1) ? "Me" : "Us";
     $r = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
      "[Hire.Text]" => $hireText,
-     "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&CreateJob=1&ID=$id")
+     "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
     ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
    }
    return $this->core->JSONResponse([
