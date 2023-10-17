@@ -112,8 +112,8 @@
     $search = base64_encode("Search:Containers");
     $r = $this->core->Change([[
      "[Chat.1:1]" => base64_encode("v=$search&1on1=1&st=Chat"),
-     "[Chat.ID]" => md5($you),
-     "[Chat.Groups]" => base64_encode("v=$search&Group=1&st=Chat")
+     "[Chat.Groups]" => base64_encode("v=$search&Group=1&st=Chat"),
+     "[Chat.ID]" => md5($you)
     ], $this->core->Page("2e1855b9baa7286162fb571c5f80da0f")]);
    }
    return $this->core->JSONResponse([

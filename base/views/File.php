@@ -50,6 +50,8 @@
      foreach($fileSystem["Albums"] as $key => $album) {
       $albums[$key] = $album["Title"];
      }
+    } else {
+     $albums[md5("unsorted")] = "System Media Library";
     }
     $album = $file["AID"] ?? md5("unsorted");
     $description = $file["Description"] ?? "";
@@ -364,16 +366,20 @@
       if($id != $value["ID"]) {
        $newFiles[$key] = $value;
       } else {
-       $baseName = explode(".", $value["Name"])[0];
-       if($albums[$albumID]["ICO"] == $value["Name"] && $username == $you) {
-        $albums[$albumID]["ICO"] = "";
+       $_Name = $value["Name"] ?? "";
+       $coverPhoto = $albums[$albumID]["ICO"] ?? "";
+       $baseName = explode(".", $_Name)[0];
+       if($this->core->ID != $username) {
+        if($_Name == $coverPhoto && $username == $you) {
+         $albums[$albumID]["ICO"] = "";
+        }
        }
        $this->view(base64_encode("Conversation:SaveDelete"), [
         "Data" => ["ID" => $key]
        ]);
        $this->core->Data("Purge", ["votes", $key]);
        unlink($this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png");
-       unlink($this->core->DocumentRoot."/efs/$username/".$value["Name"]);
+       unlink($this->core->DocumentRoot."/efs/$username/$_Name");
       }
      } if($this->core->ID == $username) {
       $this->core->Data("Save", ["x", "fs", $newFiles]);
@@ -692,7 +698,7 @@
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"".md5("unsorted")."\"/>\r\n";
        $options .= "<input name=\"NSFW\" type=\"hidden\" value=\"0\"/>\r\n";
        $options .= "<input name=\"Privacy\" type=\"hidden\" value=\"".md5("public")."\"/>\r\n";
-       $title = "System Library";
+       $title = "System Media Library";
       } elseif($ck2 == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"$albumID\"/>\r\n";
        $options .= "<input name=\"NSFW\" type=\"hidden\" value=\"".$y["Privacy"]["NSFW"]."\"/>\r\n";
