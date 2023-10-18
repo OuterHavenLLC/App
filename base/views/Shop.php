@@ -110,6 +110,7 @@
     $designViewEditor = "UIE$id";
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $header = "Edit ".$shop["Title"];
+    $hireLimit = $shop["HireLimit"] ?? 5;
     $hireTerms = $shop["HireTerms"] ?? $this->core->Page("285adc3ef002c11dfe1af302f8812c3a");
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
@@ -159,6 +160,15 @@
      "[Shop.HireTerms]" => base64_encode($this->core->PlainText([
       "Data" => $hireTerms
      ])),
+     "[Shop.HireLimit]" => $hireLimit,
+     "[Shop.HireLimits]" => json_encode([
+      5 => 5,
+      10 => 10,
+      15 => 15,
+      20 => 20,
+      25 => 25,
+      30 => 30
+     ], true),
      "[Shop.ID]" => $id,
      "[Shop.Header]" => $header,
      "[Shop.PaymentProcessor]" => $paymentProcessor,
@@ -272,12 +282,21 @@
     $hire = (md5($you) != $id) ? 1 : 0;
     $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
     $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
+    $limit = $shop["HireLimit"] ?? 5;
+    $openInvoices = 0;
     $partners = $shop["Contributors"] ?? [];
     $hireText = (count($partners) == 1) ? "Me" : "Us";
-    $r = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
-     "[Hire.Text]" => $hireText,
-     "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
-    ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
+    foreach($shop["Invoices"] as $key => $invoice) {
+     $invoice = $this->core->Data("Get", ["invoice", $invoice]) ?? [];
+     if($invoice["Status"] == "Open") {
+      $openInvoices++;
+     }
+    } if($openInvoices < $limit) {
+     $r = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
+      "[Hire.Text]" => $hireText,
+      "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
+     ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1449,6 +1468,7 @@
     $contributors = $shop["Contributors"] ?? [];
     $description = $data["Description"] ?? $shop["Description"];
     $enableHireSection = $data["EnableHireSection"] ?? 0;
+    $hireLimit = $data["HireLimit"] ?? 5;
     $hireTerms = $data["HireTerms"] ?? "";
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     $invoices = $shop["Invoices"] ?? [];
@@ -1470,6 +1490,7 @@
      "CoverPhotoSource" => base64_encode($coverPhotoSource),
      "Description" => $description,
      "EnableHireSection" => $enableHireSection,
+     "HireLimit" => $hireLimit,
      "HireTerms" => $this->core->PlainText([
       "Data" => $hireTerms,
       "HTMLEncode" => 1

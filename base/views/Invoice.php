@@ -382,13 +382,20 @@
     $hire = (md5($you) != $id) ? 1 : 0;
     $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
     $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
+    $limit = $shop["HireLimit"] ?? 5;
+    $openInvoices = 0;
     $r = ($hire == 1 && $shop["Open"] == 1) ? $r : $this->core->Element([
      "h1", "Sorry!", ["class" => "CenterText UpperCase"]
     ]).$this->core->Element([
      "p", $shop["Title"]." is not currently accepting job offers.",
      ["class" => "CenterText"]
     ]);
-    if($hire == 1 && $shop["Open"] == 1) {
+    foreach($shop["Invoices"] as $key => $invoice) {
+     $invoice = $this->core->Data("Get", ["invoice", $invoice]) ?? [];
+     if($invoice["Status"] == "Open") {
+      $openInvoices++;
+     }
+    } if($hire == 1 && $openInvoices < $limit && $shop["Open"] == 1) {
      if(!empty($saveJob)) {
       $data = $this->core->DecodeBridgeData($data);
       $saveJob = $data["SaveJob"] ?? 0;
