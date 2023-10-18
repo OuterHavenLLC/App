@@ -193,7 +193,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
-   if(!empty($id) && $bl == 0) {
+   if(!empty($id)) {
     $id = base64_decode($id);
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $active = 0;
@@ -214,15 +214,17 @@
      "Header" => "Private Forum"
     ];
     if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
-     $accessCode = "Accepted";
      $_JoinCommand = ($active == 0) ? "Join" : "Leave";
      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $actions = ($bl == 0 && $ck == 0) ? $this->core->Element(["button", "Block", [
-      "class" => "Block CloseCard GoToParent Small v2 v2w",
-      "data-cmd" => base64_encode("B"),
-      "data-type" => ".OHCC;$lpg",
-      "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($f["Title"])."&content=".base64_encode($f["ID"])."&list=".base64_encode("Forums")."&BC=")
-     ]]) : "";
+     $accessCode = "Accepted";
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+     $actions = ($bl == 0 && $ck == 0) ? $this->core->Element([
+      "button", $blockCommand, [
+       "class" => "CloseCard GoToParent Small UpdateButton v2 v2w",
+       "data-type" => ".OHCC;$lpg",
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($forum["ID"])."&List=".base64_encode("Forums"))
+      ]
+     ]) : "";
      $actions .= ($active == 1 || $ck == 1) ? $this->core->Element([
       "button", "Chat", [
        "class" => "OpenCard Small v2 v2w",

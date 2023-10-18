@@ -481,6 +481,7 @@
         $active++;
        }
       }
+      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
       $ck = ($active == 1 || $id == md5($you)) ? 1 : 0;
       $coverPhoto = $shop["CoverPhoto"] ?? $this->core->PlainText([
        "Data" => "[sIMG:MiNY]",
@@ -493,7 +494,12 @@
         "class" => "OpenCard Small v2",
         "data-view" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($id))
        ]
-      ]) : "";
+      ]) : $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Shops"))
+       ]
+      ]);
       $payroll = ($id == md5($you)) ? $this->core->Element([
        "button", "Payroll", [
         "class" => "OpenCard Small v2",

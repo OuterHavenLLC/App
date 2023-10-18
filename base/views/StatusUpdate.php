@@ -104,6 +104,7 @@
     $con = base64_encode("Conversation:Home");
     $update = $this->core->Data("Get", ["su", $data["SU"]]) ?? [];
     $bl = $this->core->CheckBlocked([$y, "Status Updates", $update["ID"]]);
+    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $ft = $update["From"];
     $ft = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$ft to ".$update["To"] : $ft;
     $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
@@ -116,10 +117,9 @@
      $modified = $this->core->Element(["em", $modified]);
     }
     $opt = ($update["From"] != $you) ? $this->core->Element([
-     "button", "Block this Update", [
-      "class" => "BLK LI",
-      "data-cmd" => base64_encode("B"),
-      "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($update["ID"])."&list=".base64_encode("Status Updates")."&BC=")
+     "button", $blockCommand, [
+      "class" => "Small UpdateButton v2",
+      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($update["ID"])."&List=".base64_encode("Status Updates"))
      ]
     ]) : "";
     $opt = ($this->core->ID != $you) ? $opt : "";

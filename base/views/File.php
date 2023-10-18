@@ -133,13 +133,13 @@
     $r = [
      "Body" => "The File <em>$id</em> could not be found."
     ];
-    if(!empty($file) && $bl == 0) {
+    if(!empty($file)) {
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $accessCode = "Accepted";
      $actions = ($username != $you) ? $this->core->Element([
-      "button", "Block", [
-       "class" => "BLK Small v2",
-       "data-cmd" => base64_encode("B"),
-       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this File")."&content=".base64_encode($id)."&list=".base64_encode("Files")."&BC=")
+      "button", $blockCommand, [
+       "class" => "Small UpdateButton v2",
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Files"))
       ]
      ]) : "";
      $addTo = $data["AddTo"] ?? "";

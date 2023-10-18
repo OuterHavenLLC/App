@@ -131,28 +131,26 @@
     if($ck == 1 || $ck2 == 1) {
      $accessCode = "Accepted";
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $id]);
-     $blc = ($bl == 0) ? "B" : "U";
-     $blt = ($bl == 0) ? "Block" : "Unblock";
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $con = base64_encode("Conversation:Home");
      $actions = ($post["From"] != $you) ? $this->core->Element([
-      "button", "$blt this Post", [
-       "class" => "BLK InnerMargin",
-       "data-cmd" => base64_encode($blc),
-       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($post["ID"])."&list=".base64_encode("Forum Posts")."&BC=")
+      "button", $blockCommand, [
+       "class" => "InnerMargin UpdateButton v2",
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($post["ID"])."&List=".base64_encode("Forum Posts"))
       ]
      ]) : "";
      $actions = ($this->core->ID != $you) ? $actions : "";
      if($ck == 1) {
       $actions .= $this->core->Element([
        "button", "Delete", [
-        "class" => "InnerMargin dBO",
-        "data-type" => "v=".base64_encode("Authentication:DeleteForumPost")."&FID=$fid&ID=$id"
+        "class" => "InnerMargin OpenDialog v2",
+        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteForumPost")."&FID=$fid&ID=$id")
        ]
       ]);
       $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element([
        "button", "Edit", [
-        "class" => "InnerMargin dB2O",
-        "data-type" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$fid&ID=$id")
+        "class" => "InnerMargin OpenDialog v2",
+        "data-view" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$fid&ID=$id")
        ]
       ]) : "";
       $actions .= ($forum["Type"] == "Public") ? $this->core->Element([

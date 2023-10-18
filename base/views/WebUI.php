@@ -133,7 +133,7 @@
      "[Menu.LockScreen]" => base64_encode("v=".base64_encode("WebUI:LockScreen")),
      "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
      "[Menu.Member.Articles]" => base64_encode("v=$search&st=MBR-LLP"),
-     "[Menu.Member.Blacklist]" => base64_encode("v=".base64_encode("Common:Blacklist")),
+     "[Menu.Member.Blacklist]" => base64_encode("v=".base64_encode("Profile:Blacklists")),
      "[Menu.Member.Blogs]" => base64_encode("v=$search&st=MBR-BLG"),
      "[Menu.Member.BulletinCenter]" => base64_encode("v=".base64_encode("Profile:BulletinCenter")),
      "[Menu.Member.Contacts]" => base64_encode("v=$search&st=Contacts"),

@@ -625,6 +625,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $bl = base64_decode($data["BL"]);
      $x = $y["Blocked"][$bl] ?? [];
      foreach($x as $k => $v) {
+      $p = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($v)."&List=".base64_encode($bl));
       if($bl == "Albums") {
        $alb = explode("-", base64_decode($v));
        $t = ($alb[0] != $y["Login"]["Username"]) ? $this->core->Member($alb[0]) : $y;
@@ -635,7 +636,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $alb = $fs["Albums"][$alb[1]];
        $de = $alb["Description"];
        $h = "<em>".$alb["Title"]."</em>";
-       $p = "v=$blu&BU=".base64_encode($h)."&content=".base64_encode($v)."&list=".base64_encode($bl)."&BC=";
        $vi = $this->core->Element(["button", "View $h", [
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
@@ -644,7 +644,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $bg = $this->core->Data("Get", ["blg", $v]) ?? [];
        $de = $bg["Description"];
        $h = "<em>".$bg["Title"]."</em>";
-       $p = "v=$blu&BU=".base64_encode($h)."&content=".base64_encode($v)."&list=".base64_encode($bl)."&BC=";
        $vi = $this->core->Element(["button", "View $h", [
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
@@ -653,16 +652,75 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $bp = $this->core->Data("Get", ["bp", $v]) ?? [];
        $de = $bp["Description"];
        $h = "<em>".$bp["Title"]."</em>";
-       $p = "v=$blu&BU=".base64_encode($h)."&content=".base64_encode($v)."&list=".base64_encode($bl)."&BC=";
        $vi = $this->core->Element(["button", "View $h", [
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
+      } elseif($bl == "Files") {
+       $de = "{comment}";
+       $h = "<em>{poster}</em>";
+       $vi = $this->core->Element(["button", "View $h's Comment", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
+      } elseif($bl == "Files") {
+       $de = "{file_description}";
+       $h = "<em>{file_name}</em>";
+       $vi = $this->core->Element(["button", "View $h", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
+      } elseif($bl == "Forums") {
+       $forum = $this->core->Data("Get", ["pf", $v]) ?? [];
+       $de = $forum["Description"];
+       $h = "<em>".$forum["Title"]."</em>";
+       $vi = $this->core->Element(["button", "View $h", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
+      } elseif($bl == "Forum Posts") {
+       $post = $this->core->Data("Get", ["post", $v]) ?? [];
+       $de = $post["Description"];
+       $h = "<em>".$post["Title"]."</em>";
+       $vi = $this->core->Element(["button", "View $h", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
+      } elseif($bl == "Links") {
+       $de = "{link_description}";
+       $h = "<em>{link_name}</em>";
+       $vi = $this->core->Element(["button", "View $h's Profile", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
       } elseif($bl == "Pages") {
-       $Page = $this->core->Data("Get", ["pg", $v]) ?? [];
-       $de = $Page["Description"];
-       $h = "<em>".$Page["Title"]."</em>";
-       $p = "v=$blu&BU=".base64_encode($h)."&content=".base64_encode($v)."&list=".base64_encode($bl)."&BC=";
+       $member = $this->core->Data("Get", ["mbr", $v]) ?? [];
+       $de = $member["Description"];
+       $h = "<em>".$member["Personal"]["DisplayName"]."</em>";
+       $vi = $this->core->Element(["button", "View $h's Profile", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
+      } elseif($bl == "Pages") {
+       $page = $this->core->Data("Get", ["pg", $v]) ?? [];
+       $de = $page["Description"];
+       $h = "<em>".$page["Title"]."</em>";
+       $vi = $this->core->Element(["button", "View $h", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
+      } elseif($bl == "Products") {
+       $product = $this->core->Data("Get", ["product", $v]) ?? [];
+       $de = $product["Description"];
+       $h = "<em>".$product["Title"]."</em>";
+       $vi = $this->core->Element(["button", "View $h", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
+      } elseif($bl == "Shops") {
+       $shop = $this->core->Data("Get", ["shop", $v]) ?? [];
+       $de = $shop["Description"];
+       $h = "<em>".$shop["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
@@ -671,8 +729,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $su = $this->core->Data("Get", ["su", $v]) ?? [];
        $de = $this->core->Excerpt(base64_decode($su["Body"]), 180);
        $h = $su["From"];
-       $p = "v=$blu&BU=".base64_encode("this Post")."&content=".base64_encode($v)."&list=".base64_encode($bl)."&BC=";
-       $u = "this Post";
        $vi = $this->core->Element(["button", "View $u", [
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")

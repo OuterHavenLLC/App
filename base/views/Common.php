@@ -4,42 +4,6 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Username());
   }
-  function Blacklist(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $y = $this->you;
-   $r = $this->core->Change([[
-    "[Blacklist.Categories]" => "[base]/base/JD.php?_API=OH&v=".base64_encode("Common:BlacklistCategories")
-   ], $this->core->Page("03d53918c3da9fbc174f94710182a8f2")]);
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function BlacklistCategories(array $a) {
-   $accessCode = "Accepted";
-   $r = "";
-   $y = $this->you;
-   $y = $y["Blocked"] ?? [];
-   foreach($y as $key => $value) {
-    $r .= $this->core->Element(["button", $key, [
-     "class" => "LI",
-     "data-fst" => base64_encode("v=".base64_encode("Search:Containers")."&st=BL&BL=".base64_encode($key)."', '".md5("Blacklist$key"))
-    ]]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function DesignView(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];

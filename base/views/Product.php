@@ -243,12 +243,18 @@
        ]))
       ]]);
      }
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $actions .= ($t["Login"]["Username"] == $you) ? $this->core->Element([
       "button", "Delete", [
        "class" => "CloseCard OpenDialog Small v2",
        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteProduct")."&ID=".$product["ID"])
       ]
-     ]) : "";
+     ]) : $this->core->Element([
+      "button", $blockCommand, [
+       "class" => "Small UpdateButton v2",
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Products"))
+      ]
+     ]);
      $actions .= ($active == 1) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",

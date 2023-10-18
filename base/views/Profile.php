@@ -65,6 +65,42 @@
     "ResponseType" => "View"
    ]);
   }
+  function BlacklistCategories(array $a) {
+   $accessCode = "Accepted";
+   $r = "";
+   $y = $this->you;
+   $y = $y["Blocked"] ?? [];
+   foreach($y as $key => $value) {
+    $r .= $this->core->Element(["button", $key, [
+     "class" => "LI OpenFirSTEPTool v2 v2w",
+     "data-fst" => base64_encode("v=".base64_encode("Search:Containers")."&st=BL&BL=".base64_encode($key))
+    ]]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function Blacklists(array $a) {
+   $accessCode = "Accepted";
+   $data = $a["Data"] ?? [];
+   $y = $this->you;
+   $r = $this->core->Change([[
+    "[Blacklist.Categories]" => base64_encode("v=".base64_encode("Profile:BlacklistCategories"))
+   ], $this->core->Page("03d53918c3da9fbc174f94710182a8f2")]);
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function BulletinCenter(array $a) {
    $accessCode = "Accepted";
    $search = base64_encode("Search:Containers");
@@ -503,9 +539,9 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $_theirContacts = $this->core->Data("Get", ["cms", md5($id)]) ?? [];
-    $_theyBlockedYou = $this->core->CheckBlocked([$t, "Members", $you]);
-    $_youBlockedThem = $this->core->CheckBlocked([$y, "Members", $id]);
+    $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]) ?? [];
+    $_TheyBlockedYou = $this->core->CheckBlocked([$t, "Members", $you]);
+    $_YouBlockedThem = $this->core->CheckBlocked([$y, "Members", $id]);
     $b2 = ($id == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
     $lpg = "Profile".md5($id);
     $privacy = $t["Privacy"] ?? [];
@@ -518,31 +554,31 @@
      "Header" => "Not Found"
     ];
     $search = base64_encode("Search:Containers");
-    $theirContacts = $_theirContacts["Contacts"] ?? [];
-    $theirRequests = $_theirContacts["Requests"] ?? [];
+    $theirContacts = $_TheirContacts["Contacts"] ?? [];
+    $theirRequests = $_TheirContacts["Requests"] ?? [];
     $visible = $this->core->CheckPrivacy([
      "Contacts" => $theirContacts,
      "Privacy" => $privacy["Profile"],
      "UN" => $id,
      "Y" => $you
     ]);
-    if($_theyBlockedYou == 0 && ($ck == 1 || $ck2 == 1 || $visible == 1)) {
+    if($_TheyBlockedYou == 0 && ($ck == 1 || $ck2 == 1 || $visible == 1)) {
      $accessCode = "Accepted";
      $_Artist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-     $_Block = ($_youBlockedThem == 0) ? "B" : "U";
-     $_BlockText = ($_youBlockedThem == 0) ? "Block" : "Unblock";
      $_ViewTitle = $t["Personal"]["DisplayName"]." @ ".$_ViewTitle;
      $_VIP = $t["Subscriptions"]["VIP"]["A"];
-     $actions = $this->core->Element(["button", $_BlockText, [
-      "class" => "BLK Small v2",
-      "data-cmd" => base64_encode($_Block),
-      "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($display)."&content=".base64_encode($id)."&list=".base64_encode("Members")."&BC=")
-     ]]);
+     $blockCommand = ($_YouBlockedThem == 0) ? "Block" : "Unblock";
+     $actions = $this->core->Element([
+      "button", $blockCommand, [
+       "class" => "Small UpdateButton v2",
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Members"))
+      ]
+     ]);
      $actions .= ($_Artist == 1) ? $this->core->Element(["button", "Donate", [
       "class" => "OpenCardSmall v2",
       "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id))
      ]]) : "";
-     $actions .= ($_VIP == 0 && $id != $you && $y["Rank"] == md5("High Command")) ? $this->core->Element(["button", "Make VIP", [
+     $actions .= ($_VIP == 0 && $y["Rank"] == md5("High Command")) ? $this->core->Element(["button", "Make VIP", [
       "class" => "SendData Small v2",
       "data-form" => ".Profile$id",
       "data-processor" => base64_encode("v=".base64_encode("Profile:MakeVIP")."&ID=".base64_encode($id))

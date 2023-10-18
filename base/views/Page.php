@@ -293,11 +293,11 @@
        }
       }
      }
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $actions = ($ck == 0) ? $this->core->Element([
-      "button", "Block <em>".$article["Title"]."</em>", [
-       "class" => "BLK Small v2",
-       "data-cmd" => base64_encode("B"),
-       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($article["Title"])."&content=".base64_encode($id)."&list=".base64_encode("Pages")."&BC=")
+      "button", $blockCommand, [
+       "class" => "Small UpdateButton v2",
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Pages"))
       ]
      ]) : "";
      $actions .= ($admin == 1 || $active == 1 || $ck == 1) ? $this->core->Element([
