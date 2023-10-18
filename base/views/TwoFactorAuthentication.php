@@ -102,7 +102,6 @@
     "PIN",
     "PIN2",
     "ReturnView",
-    "SOE",
     "Username",
     "ViewPairID"
    ]);
@@ -117,18 +116,21 @@
     "PIN",
     "PIN2",
     "ReturnView",
-    "SOE",
     "Username"
    ];
    $ck = ($data["Password"] == $data["Password2"]) ? 1 : 0;
    $ck = ($ck == 1 && $data["PIN"] == $data["PIN2"]) ? 1 : 0;
    $i = 0;
    $inputs = [];
+   $missingInputs = "";
    $r = [
     "Body" => "Something went wrong..."
    ];
+   $sendOccasionalEmails = $data["SOE"] ?? 0;
    foreach($required as $key) {
-    if(!empty($data[$key])) {
+    if(empty($data[$key])) {
+     $missingInputs.= ", $key";
+    } else {
      $i++;
      $inputs[$key] = $data[$key] ?? "";
     }
@@ -140,21 +142,27 @@
     $r = [
      "Body" => "A Password is required."
     ];
-   } elseif($data["Password"] != $data["Password2"]) {
+   } elseif(empty($data["Username"])) {
     $r = [
-     "Body" => "Your passwords must match."
+     "Body" => "A Username is required."
     ];
    } elseif(!is_numeric($data["PIN"]) != !is_numeric($data["PIN2"])) {
     $r = [
      "Body" => "Your PINs must be numeric."
     ];
+   } elseif($data["Password"] != $data["Password2"]) {
+    $r = [
+     "Body" => "Your passwords must match."
+    ];
    } elseif($data["PIN"] != $data["PIN2"]) {
     $r = [
      "Body" => "Your PINs must match."
     ];
-   } elseif(empty($data["Username"])) {
+   } elseif($i != count($required)) {
+    $missing = count($required) - $i;
+    $missingInputs = substr($missingInputs, 2);
     $r = [
-     "Body" => "A Username is required."
+     "Body" => "There are $missing required fields missing. ($missingInputs)"
     ];
    } elseif($ck == 1 && $i == count($required)) {
     $ck = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
@@ -226,7 +234,7 @@
         "Password2" => $data["Password2"],
         "PIN" => $data["PIN"],
         "PIN2" => $data["PIN2"],
-        "SOE" => $data["SOE"],
+        "SOE" => $sendOccasionalEmails,
         "Username" => $data["Username"],
         "Gender" => $data["Personal_Gender"]
        ]]);

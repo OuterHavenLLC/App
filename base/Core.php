@@ -563,16 +563,10 @@
     "Donations_Patreon",
     "Donations_PayPal",
     "Donations_SubscribeStar",
-    "Email",
-    "Gender",
-    "Password",
     "Patreon",
     "PayPal",
-    "PIN",
     "ProfilePicture",
-    "Rank",
-    "SubscribeStar",
-    "Username"
+    "SubscribeStar"
    ]);
    $age = $a["Age"] ?? $this->config["minRegAge"];
    $birthMonth = $a["BirthMonth"] ?? 10;
@@ -581,7 +575,7 @@
    $cart = $a["Cart"] ?? [];
    $displayName = $a["DisplayName"] ?? $this->ID;
    $forums = $a["Forums"] ?? [];
-   $email = $a["Email"] ?? "jappleseed@apple.com";
+   $email = $a["Email"] ?? "johnny.test@apple.com";
    $firstName = $a["FirstName"] ?? "John";
    $gender = $a["Gender"] ?? "Male";
    $history = $a["History"] ?? [];
@@ -703,7 +697,7 @@
       "E" => $now
      ]
     ],
-    "Verified" => 1
+    "Verified" => 0
    ];
   }
   function Page(string $a) {
