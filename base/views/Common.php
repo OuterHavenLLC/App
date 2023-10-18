@@ -378,39 +378,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function SaveBlacklist(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["BC", "BU", "content", "list"]);
-   $b2 = [];
-   $bc = base64_decode($data["BC"]);
-   $bl = "Blocked";
-   $bu = base64_decode($data["BU"]);
-   $c = base64_decode($data["content"]);
-   $l = base64_decode($data["list"]);
-   $y = $this->you;
-   $y[$bl][$l] = $y[$bl][$l] ?? [];
-   foreach($y[$bl][$l] as $k => $v) {
-    if($v != $c) {
-     array_push($b2, $v);
-    }
-   } if($bc == "B") {
-    array_push($b2, $c);
-    $r = "Unblock $bu";
-   } elseif($bc == "U") {
-    $r = "Block $bu";
-   }
-   $y[$bl][$l] = array_unique($b2);
-   $this->core->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function SaveIllegal(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -450,21 +417,21 @@
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $x["Albums"][$id[2]] = $dlc;
-        $this->core->Data("Save", ["fs", md5($id[1]), $x]);
+        #$this->core->Data("Save", ["fs", md5($id[1]), $x]);
        }
       } elseif($id[0] == "Blog") {
        $x = $this->core->Data("Get", ["blg", $id[1]]) ?? [];
        if(!empty($x)) {
         $x["Illegal"] = $x["Illegal"] ?? 0;
         $x["Illegal"] = $x["Illegal"] + $weight;
-        $this->core->Data("Save", ["blg", $id[1], $x]);
+        #$this->core->Data("Save", ["blg", $id[1], $x]);
        }
       } elseif($id[0] == "BlogPost") {
        $x = $this->core->Data("Get", ["bp", $id[1]]) ?? [];
        if(!empty($x)) {
         $x["Illegal"] = $x["Illegal"] ?? 0;
         $x["Illegal"] = $x["Illegal"] + $weight;
-        $this->core->Data("Save", ["bp", $id[1], $x]);
+        #$this->core->Data("Save", ["bp", $id[1], $x]);
        }
       } elseif($id[0] == "Comment" && !empty($id[2])) {
        $x = $this->core->Data("Get", ["conversation", $id[1]]) ?? [];
@@ -473,7 +440,7 @@
         $comment["Illegal"] = $comment["Illegal"] ?? 0;
         $comment["Illegal"] = $comment["Illegal"] + $weight;
         $x[$id[2]] = $comment;
-        $this->core->Data("Save", ["conversation", $id[1], $x]);
+        #$this->core->Data("Save", ["conversation", $id[1], $x]);
        }
       } elseif($id[0] == "File" && !empty($id[2])) {
        $x = $this->core->Data("Get", ["fs", md5($id[1])]) ?? [];
@@ -482,42 +449,42 @@
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $x["Files"][$id[2]] = $dlc;
-        $this->core->Data("Save", ["fs", md5($id[1]), $x]);
+        #$this->core->Data("Save", ["fs", md5($id[1]), $x]);
        }
       } elseif($id[0] == "Forum") {
        $x = $this->core->Data("Get", ["pf", $id[1]]) ?? [];
        if(!empty($x)) {
         $x["Illegal"] = $x["Illegal"] ?? 0;
         $x["Illegal"] = $x["Illegal"] + $weight;
-        $this->core->Data("Save", ["pf", $id[1], $x]);
+        #$this->core->Data("Save", ["pf", $id[1], $x]);
        }
       } elseif($id[0] == "ForumPost") {
        $x = $this->core->Data("Get", ["post", $id[1]]) ?? [];
        if(!empty($x)) {
         $x["Illegal"] = $x["Illegal"] ?? 0;
         $x["Illegal"] = $x["Illegal"] + $weight;
-        $this->core->Data("Save", ["post", $id[1], $x]);
+        #$this->core->Data("Save", ["post", $id[1], $x]);
        }
       } elseif($id[0] == "Page") {
        $x = $this->core->Data("Get", ["pg", $id[1]]) ?? [];
        if(!empty($x)) {
         $x["Illegal"] = $x["Illegal"] ?? 0;
         $x["Illegal"] = $x["Illegal"] + $weight;
-        $this->core->Data("Save", ["pg", $id[1], $x]);
+        #$this->core->Data("Save", ["pg", $id[1], $x]);
        }
       } elseif($id[0] == "Product") {
        $x = $this->core->Data("Get", ["miny", $id[1]]) ?? [];
        if(!empty($x)) {
         $x["Illegal"] = $x["Illegal"] ?? 0;
         $x["Illegal"] = $x["Illegal"] + $weight;
-        $this->core->Data("Save", ["miny", $id[1], $x]);
+        #$this->core->Data("Save", ["miny", $id[1], $x]);
        }
       } elseif($id[0] == "StatusUpdate") {
        $x = $this->core->Data("Get", ["su", $id[1]]) ?? [];
        if(!empty($x)) {
         $x["Illegal"] = $x["Illegal"] ?? 0;
         $x["Illegal"] = $x["Illegal"] + $weight;
-        $this->core->Data("Save", ["su", $id[1], $x]);
+        #$this->core->Data("Save", ["su", $id[1], $x]);
        }
       }
      }

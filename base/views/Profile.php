@@ -4,6 +4,67 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Username());
   }
+  function Blacklist(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $missing = 0;
+   $r = [
+    "Body" => "Some required data is missing."
+   ];
+   $requiredData = [
+    "Command",
+    "Content",
+    "List"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   foreach($requiredData as $required) {
+    if(empty($data[$required])) {
+     $missing++;
+    }
+   } if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to subscribe.",
+     "Header" => "Forbidden"
+    ];
+   } elseif($missing == 0) {
+    $accessCode = "Accepted";
+    $command = base64_decode($data["Command"]);
+    $content = base64_decode($data["Content"]);
+    $list = base64_decode($data["List"]);
+    $blacklist = $y["Blocked"][$list] ?? [];
+    $newBlacklist = [];
+    $r = "Error";
+    $responseType = "UpdateText";
+    foreach($blacklist as $key => $value) {
+     if($content != $value) {
+      array_push($newBlacklist, $value);
+     }
+    } if($command == "Block") {
+     array_push($newBlacklist, $content);
+     $r = "Unblock";
+    } elseif($command == "Unblock") {
+     $r = "Block";
+    }
+    $y["Blocked"][$list] = array_unique($newBlacklist);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = [
+     "Attributes" => [
+      "class" => "Small UpdateButton v2",
+      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($r)."&Content=".$data["Content"]."&List=".$data["List"])
+     ],
+     "Text" => $r
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function BulletinCenter(array $a) {
    $accessCode = "Accepted";
    $search = base64_encode("Search:Containers");
@@ -313,6 +374,59 @@
     ],
     "ResponseType" => $responseType,
     "Success" => "CloseDialog"
+   ]);
+  }
+  function Deactivate(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(1 == 1) {
+    $accessCode = "Accepted";
+    // DEACTIVATE PROFILE
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function Delete(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   // DELETE PROFILE
+   /* DELETE CONVERSATION
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(1 == 1) {
+    $accessCode = "Accepted";
+    if(!empty($this->core->Data("Get", ["conversation", md5("MBR_$you")]))) {
+     $this->view(base64_encode("Conversation:SaveDelete"), [
+      "Data" => ["ID" => md5("MBR_$you")]
+     ]);
+    }
+   }
+   */
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function Donate(array $a) {
@@ -970,59 +1084,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function SaveDeactivate(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(1 == 1) {
-    $accessCode = "Accepted";
-    // DEACTIVATE PROFILE
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   // DELETE PROFILE
-   /* DELETE CONVERSATION
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(1 == 1) {
-    $accessCode = "Accepted";
-    if(!empty($this->core->Data("Get", ["conversation", md5("MBR_$you")]))) {
-     $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => md5("MBR_$you")]
-     ]);
-    }
-   }
-   */
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function SavePassword(array $a) {

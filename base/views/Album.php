@@ -107,13 +107,10 @@
      md5($t["Login"]["Username"])
     ]) ?? [];
     $tun = base64_encode($t["Login"]["Username"]);
-    $abl = base64_encode($t["Login"]["Username"]."-$id");
     $alb = $fileSystem["Albums"][$id] ?? [];
-    $bl = $this->core->CheckBlocked([$y, "Albums", $abl]);
-    $blc = ($bl == 0) ? "B" : "U";
-    $blt = ($bl == 0) ? "Block" : "Unblock";
-    $blt .= " <em>".$alb["Title"]."</em>";
-    $blu = base64_encode("Common:SaveBlacklist");
+    $blockID = base64_encode($t["Login"]["Username"]."-$id");
+    $bl = $this->core->CheckBlocked([$y, "Albums", $blockID]);
+    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
     $ck2 = $y["subscr"]["XFS"]["A"] ?? 0;
     $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
@@ -126,27 +123,20 @@
      $coverPhoto
     ]);
     $actions = ($ck == 0) ? $this->core->Element([
-     "button", $blt, [
-      "class" => "Block Small v2",
-      "data-cmd" => base64_encode($blc),
-      "data-u" => base64_encode("v=$blu&BU=".base64_encode("<em>".$alb["Title"]."</em>")."&content=".base64_encode($abl)."&list=".base64_encode("Albums")."&BC=")
+     "button", $blockCommand, [
+      "class" => "Small UpdateButton v2",
+      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($blockID)."&List=".base64_encode("Albums"))
      ]
     ]) : "";
     if($ck == 1) {
      $accessCode = "Accepted";
-     $actions .= ($ck2 == 1) ? $this->core->Element([
-      "button", "Add Files", [
-       "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=".$t["Login"]["Username"])
-      ]
-     ]) : "";
      $actions .= ($id != md5("unsorted")) ? $this->core->Element([
-      "button", "Delete Album", [
+      "button", "Delete", [
        "class" => "CloseCard OpenDialog Small v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteAlbum")."&AID=$id&UN=$tun")
       ]
      ]) : "";
-     $actions .= $this->core->Element(["button", "Edit Album", [
+     $actions .= $this->core->Element(["button", "Edit", [
       "class" => "OpenCard Small v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$id&UN=$tun")
      ]]);
@@ -157,6 +147,12 @@
      "button", "Share", [
       "class" => "OpenCard Small v2",
       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Album")."&Username=$tun")
+     ]
+    ]) : "";
+    $actions .= ($ck == 1 && $ck2 == 1) ? $this->core->Element([
+     "button", "Upload", [
+      "class" => "OpenCard Small v2",
+      "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=".$t["Login"]["Username"])
      ]
     ]) : "";
     $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");

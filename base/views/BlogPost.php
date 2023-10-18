@@ -7,7 +7,11 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["Blog", "Post", "new"]);
+   $data = $this->core->FixMissing($data, [
+    "Blog",
+    "Post",
+    "new"
+   ]);
    $blog = $data["Blog"];
    $button = "";
    $new = $data["new"] ?? 0;
@@ -120,13 +124,13 @@
     "pub"
    ]);
    $backTo = $data["b2"] ?? "Blog";
-   $blog = $data["Blog"];
-   $bck = $this->core->Element(["button", "Back to <em>$backTo</em>", [
+   $back = $this->core->Element(["button", "Back to <em>$backTo</em>", [
     "class" => "GoToParent LI head",
     "data-type" => "Blog$blog"
    ]]);
+   $blog = $data["Blog"];
    $i = 0;
-   $post = $data["Post"];
+   $postID = $data["Post"];
    $pub = $data["pub"] ?? 0;
    $r = [
     "Body" => "The requested Blog Post could not be found.",
@@ -139,14 +143,14 @@
     $blogPosts = $this->core->DatabaseSet("BlogPosts");
     foreach($blogPosts as $key => $value) {
      $blogPost = $this->core->Data("Get", ["bp", $value]) ?? [];
-     if(($blogPost["ID"] == $post || $callSignsMatch == 1) && $i == 0) {
+     if(($blogPost["ID"] == $postID || $callSignsMatch == 1) && $i == 0) {
       $i++;
-      $post = $value;
+      $postID = $value;
      }
     }
-   } if((!empty($blog) && !empty($post)) || $i > 0) {
+   } if((!empty($blog) && !empty($postID)) || $i > 0) {
     $accessCode = "Accepted";
-    $post = $this->core->Data("Get", ["bp", $post]) ?? [];
+    $post = $this->core->Data("Get", ["bp", $postID]) ?? [];
     $t = ($post["UN"] == $you) ? $y : $this->core->Member($t);
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
     $tpl = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
@@ -180,7 +184,15 @@
      $modified = " &bull; Modified ".$_Time." by ".$_Member;
      $modified = $this->core->Element(["em", $modified]);
     }
-    $profile = $this->core->Element([
+    $bl = $this->core->CheckBlocked([$y, "Blog Posts", $postID]);
+    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+    $actions = ($post["UN"] == $you) ? $this->core->Element([
+     "button", $blockCommand $postID, [
+      "class" => "Small UpdateButton v2",
+      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($postID)."&List=".base64_encode("Blog Posts"))
+     ]
+    ]) : "";
+    $actions = $this->core->Element([
      "button", "See more...", [
       "class" => "OpenCard v2",
       "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($post["UN"]))
@@ -197,9 +209,9 @@
     $votes = ($post["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
     $votes = base64_encode("v=$votes&ID=".$post["ID"]."&Type=2");
     $r = $this->core->Change([[
-     "[Article.Actions]" => $profile,
+     "[Article.Actions]" => $actions,
      "[Article.Attachments]" => $attachments,
-     "[Article.Back]" => $bck,
+     "[Article.Back]" => $back,
      "[Article.Body]" => $this->core->PlainText([
       "BBCodes" => 1,
       "Data" => $post["Body"],
@@ -209,8 +221,8 @@
      ]),
      "[Article.Contributors]" => $contributors,
      "[Article.Conversation]" => $this->core->Change([[
-      "[Conversation.CRID]" => $post["ID"],
-      "[Conversation.CRIDE]" => base64_encode($post["ID"]),
+      "[Conversation.CRID]" => $postID,
+      "[Conversation.CRIDE]" => base64_encode($postID),
       "[Conversation.Level]" => base64_encode(1),
       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),

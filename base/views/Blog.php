@@ -232,11 +232,12 @@
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
      $actions = "";
      $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
+     $bl = $this->core->CheckBlocked([$y, "Blogs", $id]);
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $actions .= ($blog["UN"] != $you) ? $this->core->Element([
-      "button", "Block <em>".$blog["Title"]."</em>", [
+      "button", $blockCommand, [
        "class" => "Small UpdateButton v2",
-       "data-cmd" => base64_encode("B"),
-       "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode($blog["Title"])."&content=".base64_encode($id)."&list=".base64_encode("Blogs")."&BC=")
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Blogs"))
       ]
      ]) : "";
      $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([
