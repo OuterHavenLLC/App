@@ -137,6 +137,7 @@
      "[Menu.Member.Blogs]" => base64_encode("v=$search&st=MBR-BLG"),
      "[Menu.Member.BulletinCenter]" => base64_encode("v=".base64_encode("Profile:BulletinCenter")),
      "[Menu.Member.Contacts]" => base64_encode("v=$search&st=Contacts"),
+     "[Menu.Member.CoverPhoto]" => $this->core->CoverPhoto($y["Personal"]["CoverPhoto"]),
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"],
      "[Menu.Member.Files]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=Files&st=XFS"),
      "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),

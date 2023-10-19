@@ -709,6 +709,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
+      } elseif($bl == "Polls") {
+       $poll = $this->core->Data("Get", ["poll", $v]) ?? [];
+       $de = $poll["Description"];
+       $h = "<em>".$poll["Title"]."</em>";
+       $vi = $this->core->Element(["button", "View $h", [
+        "class" => "BB v2 v2w",
+        "data-type" => base64_encode("#")
+       ]]);
       } elseif($bl == "Products") {
        $product = $this->core->Data("Get", ["product", $v]) ?? [];
        $de = $product["Description"];
