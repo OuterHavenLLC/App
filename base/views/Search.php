@@ -1608,8 +1608,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "UN" => $t["Login"]["Username"],
        "Y" => $y["Login"]["Username"]
       ]);
-      #$lookMeUp = $t["Privacy"]["LookMeUp"] ?? 1;
-      $lookMeUp = 1;
+      $lookMeUp = $t["Privacy"]["LookMeUp"] ?? 0;
       if($bl == 0 && $bl2 == 0 && $ck == 1 && $lookMeUp == 1) {
        $de = "You have not added a Description.";
        $de = ($t["Login"]["Username"] != $y["Login"]["Username"]) ? "$display has not added a Description." : $de;

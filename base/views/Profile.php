@@ -528,6 +528,7 @@
     "class" => "GoToParent LI head",
     "data-type" => $data["lPG"]
    ]]) : "";
+   $chat = $data["Chat"] ?? 0;
    $pub = $data["pub"] ?? 0;
    $t = $this->core->Member(base64_decode($data["UN"]));
    $id = $t["Login"]["Username"];
@@ -574,6 +575,10 @@
        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Members"))
       ]
      ]);
+     $actions .= ($chat == 0) ? $this->core->Element(["button", "Chat", [
+      "class" => "CloseCard OpenFirSTEPTool Small v2",
+      "data-fst" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&ID=".base64_encode($id))
+     ]]) : "";
      $actions .= ($_Artist == 1) ? $this->core->Element(["button", "Donate", [
       "class" => "OpenCardSmall v2",
       "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id))
@@ -583,10 +588,6 @@
       "data-form" => ".Profile$id",
       "data-processor" => base64_encode("v=".base64_encode("Profile:MakeVIP")."&ID=".base64_encode($id))
      ]]) : "";
-     $actions .= $this->core->Element(["button", "Message", [
-      "class" => "CloseCard OpenFirSTEPTool Small v2",
-      "data-fst" => base64_encode("v=".base64_encode("Chat:Home")."&GroupChat=0&to=".base64_encode($id))
-     ]]);
      $actions = ($id != $you) ? $actions : "";
      $addContact = "";
      $albums = $this->core->Change([[
