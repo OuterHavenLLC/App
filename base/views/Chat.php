@@ -4,6 +4,9 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Username());
   }
+  function Edit(array $a) {
+   // CREATE AND EDIT GROUP CHATS
+  }
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -92,11 +95,14 @@
     $id = base64_decode($id);
     if($group == 1) {
      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $chat = $chat["Messages"] ?? [];
      $to = "";
     } elseif($oneOnOne == 1) {
      $t = $this->core->Member($id);
      $theirChat = $this->core->Data("Get", ["chat", md5($id)]) ?? [];
+     $theirChat = $theirChat["Messages"] ?? [];
      $yourChat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+     $yourChat = $yourChat["Messages"] ?? [];
      $chat = array_merge($theirChat, $yourChat);
      $to = $t["Login"]["Username"];
     } if($group == 1 || $oneOnOne == 1) {
@@ -217,13 +223,18 @@
      $attachments = array_unique($attachments);
     } if($group == 1) {
      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $chat["Description"] = $chat["Description"] ?? "";
+     $chat["Title"] = $chat["Title"] ?? "Group Chat";
+     $messages = $chat["Messages"] ?? [];
      $to = "";
     } elseif($oneOnOne == 1) {
      $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+     $chat["UN"] = $chat["UN"] ?? $you;
+     $messages = $chat["Messages"] ?? [];
      $t = $this->core->Data("Get", ["mbr", $id]) ?? [];
      $to = $t["Login"]["Username"];
     }
-    $chat[$now] = [
+    $messages[$now] = [
      "Attachments" => $attachments,
      "From" => $you,
      "Message" => $message,
@@ -231,6 +242,7 @@
      "Timestamp" => $now,
      "To" => $to
     ];
+    $chat["Messages"] = array_unique($messages);
     if($group == 1) {
      $this->core->Data("Save", ["chat", $id, $chat]);
     } elseif($oneOnOne == 1) {
