@@ -5,9 +5,42 @@
    $this->you = $this->core->Member($this->core->Username());
   }
   function Edit(array $a) {
-   // CREATE AND EDIT GROUP CHATS
-   // ACCESSIBLE ONLY IF CREATING A NEW GROUP CHAT --OR--
-   // FROM CONTENT EDITORS (ARTICLES, BLOGS, FORUMS, SHOPS)
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $chatID = $data["ID"] ?? "";
+   $new = $data["New"] ?? 0;
+   $r = [
+    "Body" => "The Chat Identifier is missing."
+   ];
+   if(!empty($id)) {
+    $accessCode = "Accepted";
+    $action = ($new == 1) ? "Create" : "Update";
+    $id = base64_decode($id);
+    // CREATE AND EDIT GROUP CHATS
+    // ACCESSIBLE ONLY IF CREATING A NEW GROUP CHAT --OR--
+    // FROM CONTENT EDITORS (ARTICLES, BLOGS, FORUMS, SHOPS)
+    $r = $this->core->Element([
+     "h1", "Chat Editor"
+    ]).$this->core->Element([
+     "p", "CCreate or edit a Group Chat."
+    ]);
+    $r = [
+     "Action" => $this->core->Element(["button", $action, [
+      "class" => "CardButton",
+      "data-form" => ".ChatEditor$id",
+      "data-processor" => base64_encode("#")
+     ]]),
+     "Body" => $r
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Home(array $a) {
    $accessCode = "Denied";
