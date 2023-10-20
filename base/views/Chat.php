@@ -6,6 +6,8 @@
   }
   function Edit(array $a) {
    // CREATE AND EDIT GROUP CHATS
+   // ACCESSIBLE ONLY IF CREATING A NEW GROUP CHAT --OR--
+   // FROM CONTENT EDITORS (ARTICLES, BLOGS, FORUMS, SHOPS)
   }
   function Home(array $a) {
    $accessCode = "Denied";
@@ -34,10 +36,23 @@
     if($information == 1) {
      $accessCode = "Accepted";
      $r = $this->core->Element([
-      "h1", "Chat Information"
+      "h1", "Something went wrong..."
      ]).$this->core->Element([
-      "p", "Soon you will see chat information and a full history of attachments in a grid. If you created the Group Chat, you will also be able to edit it. If the chat is a Group Chat and visible to the public, you will also be able to share it."
+      "p", "Chat Information is only viewable for Group Chats."
      ]);
+     if($group == 1) {
+      $r = $this->core->Element([
+       "h1", "Chat Information"
+      ]).$this->core->Element([
+       "p", "Soon you will see chat information and a full history of attachments in a grid. If you created the Group Chat, you will also be able to edit it. If the chat is a Group Chat and visible to the public, you will also be able to share it."
+      ]);
+     } elseif($oneOnOne == 1) {
+      $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
+       "Chat" => 1,
+       "UN" => $chatID
+      ]]);
+      $r = $this->core->RenderView($r);
+     }
     } else {
      if($group == 1) {
       $active = "Active";
@@ -67,7 +82,7 @@
        "[Chat.DisplayName]" => $displayName,
        "[Chat.Group]" => $group,
        "[Chat.ID]" => $id,
-       "[Chat.Information]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=$id&Information=1"),
+       "[Chat.Information]" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=$oneOnOne&Group=$group&ID=$chatID&Information=1"),
        "[Chat.List]" => base64_encode("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
        "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
        "[Chat.SecureID]" => $id,
@@ -183,8 +198,8 @@
     $accessCode = "Accepted";
     $search = base64_encode("Search:Containers");
     $r = $this->core->Change([[
-     "[Chat.1:1]" => base64_encode("v=$search&1on1=1&st=Chat"),
-     "[Chat.Groups]" => base64_encode("v=$search&Group=1&st=Chat"),
+     "[Chat.1on1]" => base64_encode("v=$search&1on1=1&Integrated=$integrated&st=Chat"),
+     "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=GroupChat"),
      "[Chat.ID]" => md5($you)
     ], $this->core->Page("2e1855b9baa7286162fb571c5f80da0f")]);
    }

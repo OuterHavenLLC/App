@@ -151,6 +151,7 @@
       "Forums",
       "Forums-Admin",
       "Forums-Posts",
+      "GroupChat",
       "Knowledge",
       "Mainstream",
       "MBR",
