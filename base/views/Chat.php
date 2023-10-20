@@ -47,7 +47,7 @@
      $to = $t["Personal"]["DisplayName"];
     } if($group == 1 || $oneOnOne == 1) {
      $accessCode = "Accepted";
-     $atinput = ".Message$id-ATTF";
+     $atinput = ".ChatAttachments$id-ATTF";
      $at = base64_encode("Share with $displayName in Chat:.ChatAttachments$atinput");
      $atinput = "$atinput .rATT";
      $at2 = base64_encode("Added to Chat Message!");
