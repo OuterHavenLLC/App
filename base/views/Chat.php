@@ -32,34 +32,35 @@
     ];
     if($group == 1) {
      $active = "Active";
-     $displayName = $this->core->Data("Get", ["pf", $id]) ?? [];
-     $displayName = $displayName["Title"] ?? "Group Chat";
-     $info = "v=".base64_encode("Chat:Information")."&ID=$id";
+     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $information = "v=".base64_encode("Chat:Information")."&ID=$id";
      $profilePcuture = "";
      $t = $this->core->Member($this->core->ID);
-     $to = $displayName;
+     $to = $chat["Title"] ?? "Group Chat";
     } elseif($oneOnOne == 1) {
      $t = $this->core->Member($id);
-     $id = md5($id);
+     $id = md5($chatID);
      $active = $t["Activity"]["OnlineStatus"];
      $active = ($active == 1) ? "Online" : "Offline";
      $displayName = $t["Personal"]["DisplayName"];
-     $info = "v=".base64_encode("Profile:Home")."&CARD=1&Chat=1&UN=".base64_encode($t["Login"]["Username"]);
+     $information = "v=".base64_encode("Profile:Home")."&CARD=1&Chat=1&UN=".base64_encode($t["Login"]["Username"]);
      $to = $t["Personal"]["DisplayName"];
     } if($group == 1 || $oneOnOne == 1) {
      $accessCode = "Accepted";
-     $at1 = base64_encode("Share with $displayName in Chat:.ChatAttachments$id-ATTF");
+     $atinput = ".Message$id-ATTF";
+     $at = base64_encode("Share with $displayName in Chat:.ChatAttachments$atinput");
+     $atinput = "$atinput .rATT";
      $at2 = base64_encode("Added to Chat Message!");
      $r = $this->core->Change([[
       "[Chat.1on1]" => $oneOnOne,
       "[Chat.ActivityStatus]" => $active,
-      "[Chat.Attachments]" => base64_encode("v=".base64_encode("Search:Containers")."&AddTo=$at1&Added=$at2&UN=$you&st=XFS"),
-      "[Chat.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
+      "[Chat.Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&AddTo=$at&Added=$at2&CARD=1&UN=".base64_encode($you)."&st=XFS"),
+      "[Chat.Files.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
       "[Chat.DisplayName]" => $displayName,
       "[Chat.Group]" => $group,
       "[Chat.ID]" => $id,
+      "[Chat.Information]" => base64_encode($information),
       "[Chat.List]" => base64_encode("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
-      "[Chat.Profile]" => base64_encode($info),
       "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
       "[Chat.SecureID]" => $id,
       "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
@@ -79,6 +80,9 @@
     ],
     "ResponseType" => "View"
    ]);
+  }
+  function Join(array $a) {
+   // JOIN OR LEAVE THE ACTIVE CHAT (IF NOT YOURS)
   }
   function List(array $a) {
    $accessCode = "Denied";
@@ -187,7 +191,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $attachmentData = $data["rATTF"] ?? "";
+   $attachmentData = $data["Attachments"] ?? "";
    $group = $data["Group"] ?? 0;
    $id = $data["ID"] ?? "";
    $message = $data["Message"] ?? "";
@@ -234,10 +238,12 @@
      $t = $this->core->Data("Get", ["mbr", $id]) ?? [];
      $to = $t["Login"]["Username"];
     }
+    $paid = $data["PaidChat"] ?? 0;
     $messages[$now] = [
      "Attachments" => $attachments,
      "From" => $you,
      "Message" => $message,
+     "Paid" => $paid,
      "Read" => 0,
      "Timestamp" => $now,
      "To" => $to
@@ -247,6 +253,11 @@
      $this->core->Data("Save", ["chat", $id, $chat]);
     } elseif($oneOnOne == 1) {
      $this->core->Data("Save", ["chat", md5($you), $chat]);
+     $this->core->SendBulletin([
+      "Data" => [],
+      "To" => $to,
+      "Type" => "NewMessage"
+     ]);
     }
     $r = [
      "Body" => "Your message has been sent.",
@@ -263,7 +274,8 @@
    ]);
   }
   function Share(array $a) {
-   $btn = "";
+   $accessCode = "Denied";
+   $action = "";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["GroupChat", "ID", "UN"]);
    $id = $data["ID"];
@@ -273,8 +285,10 @@
    ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    $y = $this->you;
    if(!empty($id)) {
+    $accessCode = "Accepted";
     $id = base64_decode($this->core->PlainText([
-     "Data" => $id, "HTMLDencode" => 1
+     "Data" => $id,
+     "HTMLDencode" => 1
     ]));
     $sid = md5($this->core->timestamp);
     $r = $this->core->Change([[
@@ -282,47 +296,14 @@
      "[Share.ID]" => $sid,
      "[Share.Message]" => $id
     ], $this->core->Page("16b534e5d1b3838a98abfb3bcf3f7b99")]);
-    $btn = $this->core->Element(["button", "Send", [
-     "class" => "BB Xedit v2",
-     "data-type" => ".ShareMessage$sid",
-     "data-u" => base64_encode("v=".base64_encode("Chat:SaveShare")),
-     "id" => "fSub"
+    $action = $this->core->Element(["button", "Send", [
+     "class" => "BB v2",
+     "data-form" => ".ShareMessage$sid",
+     "data-processor" => base64_encode("v=".base64_encode("Chat:SaveShare"))
     ]]);
    }
    return [
-    "Action" => $btn,
-    "Front" => $r
-   ];
-  }
-  function ShareGroup(array $a) {
-   $btn = "";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["GroupChat", "ID", "UN"]);
-   $id = $data["ID"];
-   $r = $this->core->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Data is missing."
-   ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
-   $y = $this->you;
-   if(!empty($id)) {
-    $id = base64_decode($this->core->PlainText([
-     "Data" => $id, "HTMLDencode" => 1
-    ]));
-    $sid = md5($this->core->timestamp);
-    $r = $this->core->Change([[
-     "[Share.AvailabilityView]" => base64_encode("v=".base64_encode("Common:AvailabilityCheck")."&at=".base64_encode("SendMessageGroup")."&av="),
-     "[Share.ID]" => $sid,
-     "[Share.Message]" => $id
-    ], $this->core->Page("16b534e5d1b3838a98abfb3bcf3f7b99")]);
-    $btn = $this->core->Element(["button", "Send", [
-     "class" => "BB Xedit v2",
-     "data-type" => ".ShareMessage$sid",
-     "data-u" => base64_encode("v=".base64_encode("Chat:SaveShareGroup")),
-     "id" => "fSub"
-    ]]);
-   }
-   return [
-    "Action" => $btn,
+    "Action" => $action,
     "Front" => $r
    ];
   }

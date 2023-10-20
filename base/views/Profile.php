@@ -145,6 +145,8 @@
     $message = "Posted to their blog.";
    } elseif($type == "NewJob") {
     $message = "Requested a Service.";
+   } elseif($type == "NewMessage") {
+    $message = "Sent you a message.";
    } elseif($type == "NewProduct") {
     $message = "Added a product to their shop.";
    }
@@ -276,10 +278,19 @@
      $post = $this->core->Data("Get", ["bp", $data["PostID"]]) ?? [];
      $r = $this->core->Element([
       "button", "Take me to <em>".$post["Title"]."</em>", [
-       "class" => "BBB Close MarkAsRead dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&Blog=".$data["BlogID"]."&Post=".$data["PostID"]),
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
        "data-MAR" => base64_encode($mar),
-       "data-target" => ".Bulletin$id .Options"
+       "data-target" => ".Bulletin$id .Options",
+       "data-view" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&Blog=".$data["BlogID"]."&Post=".$data["PostID"])
+      ]
+     ]);
+    } elseif($type == "NewMessage") {
+     $r = $this->core->Element([
+      "button", "Chat with <em>".$data["To"]."</em>", [
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
+       "data-MAR" => base64_encode($mar),
+       "data-target" => ".Bulletin$id .Options",
+       "data-type" => base64_encode("v=".base64_encode("Product:Home")."&1on1=1&ID=".base64_encode($data["To"]))
       ]
      ]);
     } elseif($type == "NewProduct") {
@@ -289,10 +300,10 @@
      ]) ?? [];
      $r = $this->core->Element([
       "button", "Take me to <em>".$product["Title"]."</em>", [
-       "class" => "BBB Close MarkAsRead dB2O v2 v2w",
-       "data-type" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=".$product["ID"]."&UN=".$data["ShopID"]),
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
        "data-MAR" => base64_encode($mar),
-       "data-target" => ".Bulletin$id .Options"
+       "data-target" => ".Bulletin$id .Options",
+       "data-view" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=".$product["ID"]."&UN=".$data["ShopID"])
       ]
      ]);
     }
@@ -576,8 +587,8 @@
       ]
      ]);
      $actions .= ($chat == 0) ? $this->core->Element(["button", "Chat", [
-      "class" => "CloseCard OpenFirSTEPTool Small v2",
-      "data-fst" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&ID=".base64_encode($id))
+      "class" => "OpenCard Small v2",
+      "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($id))
      ]]) : "";
      $actions .= ($_Artist == 1) ? $this->core->Element(["button", "Donate", [
       "class" => "OpenCardSmall v2",

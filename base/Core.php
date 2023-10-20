@@ -143,7 +143,6 @@
       "CART",
       "Chat",
       "Contacts",
-      "ContactsChatList",
       "ContactsProfileList",
       "ContactsRequests",
       "Contributors",

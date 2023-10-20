@@ -906,11 +906,50 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "Chat") {
     $ec = "Accepted";
     $group = $data["Group"] ?? 0;
+    $integrated = $data["Integrated"] ?? 0;
     $oneOnOne = $data["1on1"] ?? 0;
-    $tpl = $this->core->Page("ChatListItem");
+    $tpl = $this->core->Page("343f78d13872e3b4e2ac0ba587ff2910");
     if($notAnon == 1) {
+     $tpl = "343f78d13872e3b4e2ac0ba587ff2910";
+     $tpl = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $tpl;
      if($group == 1) {
+      $groups = $y["GroupChats"] ?? [];
+      foreach($groups as $key => $group) {
+       $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
+       $displayName = $chat["Title"] ?? "Group Chat";
+       $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group);
+       $view .= ($integrated == 1) ? "&Card=1" : "";
+       array_push($msg, [
+        "[Chat.DisplayName]" => base64_encode($displayName),
+        "[Chat.Online]" => base64_encode(""),
+        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t)),
+        "[Chat.View]" => base64_encode(base64_encode($view))
+       ]);
+      }
      } elseif($oneOnOne == 1) {
+      $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+      $contacts = [];
+      foreach($chat as $key => $message) {
+       array_push($contacts, $message["To"]);
+      }
+      $contacts = array_unique($contacts);
+      foreach($contacts as $key => $member) {
+       $t = $this->core->Member($member);
+       $view = "v=".base64_encode("Chat:Home")."&1on1=1&Username=".base64_encode($member);
+       $view .= ($integrated == 1) ? "&Card=1" : "";
+       $online = $t["Activity"]["OnlineStatus"] ?? 0;
+       $online = ($online == 1) ? $this->core->Element([
+        "span",
+        NULL,
+        ["class" => "online"]
+       ]) : "";
+       array_push($msg, [
+        "[Chat.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
+        "[Chat.Online]" => base64_encode($online),
+        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t)),
+        "[Chat.View]" => base64_encode(base64_encode($view))
+       ]);
+      }
      }
     }
    } elseif($st == "Contacts") {
@@ -935,39 +974,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "[Contact.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%")),
        "[Contact.Username]" => base64_encode($key),
        "[Options]" => base64_encode($options)
-      ]);
-     }
-    }
-   } elseif($st == "ContactsChatList") {
-    $ec = "Accepted";
-    $tpl = $this->core->Page("343f78d13872e3b4e2ac0ba587ff2910");
-    if($notAnon == 1) {
-     $chat = base64_encode("Chat:Home");
-     $chatHome = $data["Chat"] ?? 0;
-     $cms = $this->core->Data("Get", [
-      "cms",
-      md5($y["Login"]["Username"])
-     ]) ?? [];
-     $cms = $cms["Contacts"] ?? [];
-     foreach($cms as $k => $v) {
-      $t = $this->core->Member($k);
-      $c = "v=$chat&GroupChat=0&to=".base64_encode($k);
-      $fst = ($chatHome == 1) ? "N/A" : $c;
-      $nps = ($chatHome == 1) ? $c : "N/A";
-      /*$o = ($t["Personal"]["OnlineStatus"] == 1) ? $this->core->Element([
-       "span",
-       NULL,
-       ["class" => "online"]
-      ]) : "";*/
-      $pp = $this->core->ProfilePicture($t);
-      array_push($msg, [
-       "[X.LI.Click.FST]" => base64_encode($fst),
-       "[X.LI.Click.Ground]" => base64_encode($nps),
-       "[X.LI.Click.MD5]" => base64_encode(md5("Chat_$k")),
-       "[X.LI.Member.DN]" => base64_encode($t["Personal"]["DisplayName"]),
-       "[X.LI.Member.ProfilePicture]" => base64_encode($pp),
-       "[X.LI.Online]" => base64_encode("")
-       #"[X.LI.Online]" => base64_encode($o)
       ]);
      }
     }
