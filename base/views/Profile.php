@@ -106,8 +106,7 @@
    $search = base64_encode("Search:Containers");
    $r = $this->core->Change([[
     "[BulletinCenter.Bulletins]" => base64_encode("v=$search&st=Bulletins"),
-    "[BulletinCenter.ContactRequests]" => base64_encode("v=".base64_encode("Profile:BulletinsList")."&type=".base64_encode("ContactsRequests")),
-    "[BulletinCenter.Contacts]" => base64_encode("v=$search&Chat=0&st=ContactsChatList")
+    "[BulletinCenter.ContactRequests]" => base64_encode("v=$search&Chat=0&st=ContactsRequests")
    ], $this->core->Page("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -274,7 +273,7 @@
        "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
       ]
      ]);
-    } elseif($type == "NewBlogPost") {
+    } elseif($bulletin["Type"] == "NewBlogPost") {
      $post = $this->core->Data("Get", ["bp", $data["PostID"]]) ?? [];
      $r = $this->core->Element([
       "button", "Take me to <em>".$post["Title"]."</em>", [
@@ -284,16 +283,14 @@
        "data-view" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&Blog=".$data["BlogID"]."&Post=".$data["PostID"])
       ]
      ]);
-    } elseif($type == "NewMessage") {
+    } elseif($bulletin["Type"] == "NewMessage") {
      $r = $this->core->Element([
-      "button", "Chat with <em>".$data["To"]."</em>", [
-       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
-       "data-MAR" => base64_encode($mar),
-       "data-target" => ".Bulletin$id .Options",
-       "data-type" => base64_encode("v=".base64_encode("Product:Home")."&1on1=1&ID=".base64_encode($data["To"]))
+      "button", "Chat with <em>".$data["From"]."</em>", [
+       "class" => "BBB Close OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&Username=".base64_encode($data["From"]))
       ]
      ]);
-    } elseif($type == "NewProduct") {
+    } elseif($bulletin["Type"] == "NewProduct") {
      $product = $this->core->Data("Get", [
       "miny",
       $data["ProductID"]
@@ -362,26 +359,6 @@
     $accessCode,
     base64_encode(json_encode($r, true)),
     base64_encode($tpl)
-   ]);
-  }
-  function BulletinsList(array $a) {
-   $data = $a["Data"] ?? [];
-   $search = base64_encode("Search:Containers");
-   $type = $data["type"] ?? base64_encode("");
-   $type = base64_decode($type);
-   if($type == "ContactsRequests") {
-    $r = $this->view($search, ["Data" => [
-     "st" => "ContactsRequests"
-    ]]);
-    $r = $this->core->RenderView($r);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function ChangeRank(array $a) {

@@ -14,6 +14,7 @@
    $chatID = $data["ID"] ?? "";
    $chatID = $data["Username"] ?? $chatID;
    $group = $data["Group"] ?? 0;
+   $information = $data["Information"] ?? 0;
    $oneOnOne = $data["1on1"] ?? 0;
    $r = [
     "Body" => "The Chat Identifier is missing."
@@ -30,46 +31,54 @@
     $r = [
      "Body" => "The Chat Type is missing."
     ];
-    if($group == 1) {
-     $active = "Active";
-     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-     $information = "v=".base64_encode("Chat:Information")."&ID=$id";
-     $profilePcuture = "";
-     $t = $this->core->Member($this->core->ID);
-     $to = $chat["Title"] ?? "Group Chat";
-    } elseif($oneOnOne == 1) {
-     $t = $this->core->Member($id);
-     $id = md5($chatID);
-     $active = $t["Activity"]["OnlineStatus"];
-     $active = ($active == 1) ? "Online" : "Offline";
-     $displayName = $t["Personal"]["DisplayName"];
-     $information = "v=".base64_encode("Profile:Home")."&CARD=1&Chat=1&UN=".base64_encode($t["Login"]["Username"]);
-     $to = $t["Personal"]["DisplayName"];
-    } if($group == 1 || $oneOnOne == 1) {
+    if($information == 1) {
      $accessCode = "Accepted";
-     $atinput = ".ChatAttachments$id-ATTF";
-     $at = base64_encode("Share with $displayName in Chat:.ChatAttachments$atinput");
-     $atinput = "$atinput .rATT";
-     $at2 = base64_encode("Added to Chat Message!");
-     $r = $this->core->Change([[
-      "[Chat.1on1]" => $oneOnOne,
-      "[Chat.ActivityStatus]" => $active,
-      "[Chat.Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&AddTo=$at&Added=$at2&CARD=1&UN=".base64_encode($you)."&st=XFS"),
-      "[Chat.Files.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
-      "[Chat.DisplayName]" => $displayName,
-      "[Chat.Group]" => $group,
-      "[Chat.ID]" => $id,
-      "[Chat.Information]" => base64_encode($information),
-      "[Chat.List]" => base64_encode("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
-      "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
-      "[Chat.SecureID]" => $id,
-      "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
-      "[Chat.To]" => $to,
-      "[Chat.Type]" => $group
-     ], $this->core->Page("a4c140822e556243e3edab7cae46466d")]);
-     $r = ($card == 1) ? [
-      "Front" => $r
-     ] : $r;
+     $r = $this->core->Element([
+      "h1", "Chat Information"
+     ]).$this->core->Element([
+      "p", "Soon you will see chat information and a full history of attachments in a grid. If you created the Group Chat, you will also be able to edit it. If the chat is a Group Chat and visible to the public, you will also be able to share it."
+     ]);
+    } else {
+     if($group == 1) {
+      $active = "Active";
+      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+      $profilePcuture = "";
+      $t = $this->core->Member($this->core->ID);
+      $to = $chat["Title"] ?? "Group Chat";
+     } elseif($oneOnOne == 1) {
+      $t = $this->core->Member($id);
+      $id = md5($id);
+      $active = $t["Activity"]["OnlineStatus"];
+      $active = ($active == 1) ? "Online" : "Offline";
+      $displayName = $t["Personal"]["DisplayName"];
+      $to = $t["Personal"]["DisplayName"];
+     } if($group == 1 || $oneOnOne == 1) {
+      $accessCode = "Accepted";
+      $atinput = ".ChatAttachments$id-Attachments";
+      $at = base64_encode("Share with $displayName in Chat:$atinput");
+      $atinput = "$atinput .rATT";
+      $at2 = base64_encode("Added to Chat Message!");
+      $r = $this->core->Change([[
+       "[Chat.1on1]" => $oneOnOne,
+       "[Chat.ActivityStatus]" => $active,
+       "[Chat.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$atinput&ID="),
+       "[Chat.Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&AddTo=$at&Added=$at2&CARD=1&UN=".base64_encode($you)."&st=XFS"),
+       "[Chat.Files.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
+       "[Chat.DisplayName]" => $displayName,
+       "[Chat.Group]" => $group,
+       "[Chat.ID]" => $id,
+       "[Chat.Information]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=$id&Information=1"),
+       "[Chat.List]" => base64_encode("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
+       "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
+       "[Chat.SecureID]" => $id,
+       "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
+       "[Chat.To]" => $to,
+       "[Chat.Type]" => $group
+      ], $this->core->Page("a4c140822e556243e3edab7cae46466d")]);
+      $r = ($card == 1) ? [
+       "Front" => $r
+      ] : $r;
+     }
     }
    }
    return $this->core->JSONResponse([
@@ -126,12 +135,13 @@
          "ID" => base64_encode(implode(";", $value["Attachments"])),
          "Type" => base64_encode("DLC")
         ]]);
+        $attachments = $this->core->RenderView($attachments);
        }
        $message = (!empty($value["Message"])) ? $this->core->Element([
-        "p", base64_decode($vvalue["Message"])
+        "p", $value["Message"]
        ]) : "";
        $chat[$key] = [
-        "[Message.Attachments]" => $this->core->RenderView($attachments),
+        "[Message.Attachments]" => $attachments,
         "[Message.Class]" => $class,
         "[Message.MSG]" => $message,
         "[Message.Sent]" => $this->core->TimeAgo($value["Timestamp"])
@@ -195,9 +205,9 @@
    $group = $data["Group"] ?? 0;
    $id = $data["ID"] ?? "";
    $message = $data["Message"] ?? "";
-   $check = (!empty($attachments) && empty($message)) ? 1 : 0;
-   $check2 = (empty($attachments) && !empty($message)) ? 1 : 0;
-   $check3 = (!empty($attachments) && !empty($message)) ? 1 : 0;
+   $check = (!empty($attachmentData) && empty($message)) ? 1 : 0;
+   $check2 = (empty($attachmentData) && !empty($message)) ? 1 : 0;
+   $check3 = (!empty($attachmentData) && !empty($message)) ? 1 : 0;
    $oneOnOne = $data["1on1"] ?? 0;
    $r = [
     "Body" => "A message or attachment are required."
@@ -215,7 +225,7 @@
     $chat = [];
     $now = $this->core->timestamp;
     if(!empty($attachmentData)) {
-     $dlc = array_reverse(explode(";", base64_decode($data["rATTF"])));
+     $dlc = array_reverse(explode(";", base64_decode($attachmentData)));
      foreach($dlc as $dlc) {
       if(!empty($dlc)) {
        $f = explode("-", base64_decode($dlc));
@@ -248,13 +258,15 @@
      "Timestamp" => $now,
      "To" => $to
     ];
-    $chat["Messages"] = array_unique($messages);
+    $chat["Messages"] = $messages;
     if($group == 1) {
      $this->core->Data("Save", ["chat", $id, $chat]);
     } elseif($oneOnOne == 1) {
      $this->core->Data("Save", ["chat", md5($you), $chat]);
      $this->core->SendBulletin([
-      "Data" => [],
+      "Data" => [
+       "From" => $you
+      ],
       "To" => $to,
       "Type" => "NewMessage"
      ]);
