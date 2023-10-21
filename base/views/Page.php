@@ -306,7 +306,7 @@
      $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
       "button", "Chat", [
        "class" => "OpenCard Small v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($id)."&Integrated=1")
+       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
       ]
      ]) : "";
      $actions .= ($admin == 1 || $active == 1 || $ck == 1) ? $this->core->Element([

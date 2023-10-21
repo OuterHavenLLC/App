@@ -4,6 +4,34 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Username());
   }
+  function Attachments(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? base64_encode("");
+   $r = [
+    "Body" => "The Chat Identifier or Username are missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id)) {
+    $accessCode = "Accepted";
+    $r = $this->core->Element([
+     "h3", "Attachments",
+     ["class" => "CenterText UpperCase"]
+    ]).$this->core->Element([
+     "p", "No attachments, yet...",
+     ["class" => "CenterText"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -94,11 +122,30 @@
       "p", "Chat Information is only viewable for Group Chats."
      ]);
      if($group == 1) {
-      $r = $this->core->Element([
-       "h1", "Chat Information"
-      ]).$this->core->Element([
-       "p", "Soon you will see chat information and a full history of attachments in a grid. If you created the Group Chat, you will also be able to edit it. If the chat is a Group Chat and visible to the public, you will also be able to share it."
-      ]);
+      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+      $modified = $chat["Modified"] ?? "";
+      if(empty($modified)) {
+       $modified = "";
+      } else {
+       $_Time = $this->core->TimeAgo($modified);
+       $modified = " &bull; Modified ".$_Time;
+       $modified = $this->core->Element(["em", $modified]);
+      }
+      $options = ($chat["UN"] == $you) ? $this->core->Element([
+       "button", "Edit", [
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($chat["UN"]))
+       ]
+      ]) : "";
+      $r = $this->core->Change([[
+       "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
+       "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
+       "[Chat.Description]" => $chat["Description"],
+       "[Chat.ID]" => $id,
+       "[Chat.Modified]" => $modified,
+       "[Chat.Options]" => $options,
+       "[Chat.Title]" => $chat["Title"],
+      ], $this->core->Page("5252215b917d920d5d2204dd5e3c8168")]);
      } elseif($oneOnOne == 1) {
       $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
        "Chat" => 1,
@@ -116,9 +163,9 @@
       $accessCode = (!empty($chat)) ? "Accepted" : "Denied";
       $active = "Active";
       $check = (!empty($chat)) ? 1 : 0;
-      $profilePcuture = "";
+      $displayName = $chat["Title"] ?? "Group Chat";
       $t = $this->core->Member($this->core->ID);
-      $to = $chat["Title"] ?? "Group Chat";
+      $to = $displayName;
      } elseif($oneOnOne == 1) {
       $t = $this->core->Member($id);
       $id = md5($id);
@@ -133,7 +180,7 @@
       $atinput = "$atinput .rATT";
       $at2 = base64_encode("Added to Chat Message!");
       $extension = "a4c140822e556243e3edab7cae46466d";
-      $extension = ($group == 1) ? "GroupCHatHome" : $extension
+      $extension = ($group == 1) ? "5db540d33418852f764419a929277e13" : $extension;
       $r = $this->core->Change([[
        "[Chat.1on1]" => $oneOnOne,
        "[Chat.ActivityStatus]" => $active,
@@ -380,11 +427,11 @@
      $to = "";
     } elseif($oneOnOne == 1) {
      $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
-     $chat["UN"] = $chat["UN"] ?? $you;
      $messages = $chat["Messages"] ?? [];
      $t = $this->core->Data("Get", ["mbr", $id]) ?? [];
      $to = $t["Login"]["Username"];
     }
+    $chat["UN"] = $chat["UN"] ?? $you;
     $paid = $data["PaidChat"] ?? 0;
     $messages[$now] = [
      "Attachments" => $attachments,

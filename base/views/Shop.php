@@ -502,7 +502,7 @@
       $chat = (!empty($chat) && $ck == 1) ? $this->core->Element([
        "button", "Partner Chat", [
         "class" => "OpenCard Small v2",
-        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode(md5("Shop$id"))."&Integrated=1")
+        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$id"))."&Integrated=1")
        ]
       ]) : "";
       $edit = ($ck == 1) ? $this->core->Element([

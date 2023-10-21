@@ -910,6 +910,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       foreach($groups as $key => $group) {
        $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
        $displayName = $chat["Title"] ?? "Group Chat";
+       $t = $this->core->Member($this->core->ID);
        $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group);
        $view .= ($integrated == 1) ? "&Card=1" : "";
        array_push($msg, [

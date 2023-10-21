@@ -246,7 +246,7 @@
      $actions .= (!empty($chat)) ? $this->core->Element([
       "button", "Chat", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($id)."&Integrated=1")
+       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
       ]
      ]) : "";
      $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([
