@@ -160,6 +160,7 @@
      "Title"
     ]);
     $attachments = "";
+    $author = $article["UN"] ?? $you;
     $designViewEditor = "ArticleEditor$id".md5($time);
     $header = ($new == 1) ? "New Article" : "Edit ".$article["Title"];
     $products = "";
@@ -217,6 +218,7 @@
      ])),
      "[Article.Categories]" => json_encode($categories, true),
      "[Article.Category]" => $category,
+     "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($author)),
      "[Article.CoverPhoto.LiveView]" => base64_encode("v=$es&AddTo=$atinput&ID="),
      "[Article.CoverPhoto]" => $article["ICO-SRC"],
      "[Article.Description]" => base64_encode($article["Description"]),
@@ -281,6 +283,7 @@
     $admin = 0;
     $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
     $_ViewTitle = $article["Title"] ?? $_ViewTitle;
     $contributors = $article["Contributors"] ?? [];
     $ck = ($article["UN"] == $you) ? 1 : 0;
@@ -298,6 +301,12 @@
       "button", $blockCommand, [
        "class" => "Small UpdateButton v2",
        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Pages"))
+      ]
+     ]) : "";
+     $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
+      "button", "Chat", [
+       "class" => "OpenCard Small v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($id)."&Integrated=1")
       ]
      ]) : "";
      $actions .= ($admin == 1 || $active == 1 || $ck == 1) ? $this->core->Element([

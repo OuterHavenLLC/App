@@ -116,6 +116,7 @@
      "data-processor" => base64_encode("v=".base64_encode("Blog:Save"))
     ]]);
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+    $author = $blog["UN"] ?? $you;
     $atinput = ".BGE_$id-ATTI";
     $at = base64_encode("Set as the Blog Post's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
@@ -152,6 +153,7 @@
      "[Blog.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Blog.CoverPhoto]" => $coverPhotoSource,
      "[Blog.Description]" => base64_encode($description),
+     "[Blog.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($author)),
      "[Blog.Header]" => $header,
      "[Blog.ID]" => $id,
      "[Blog.New]" => $new,
@@ -227,17 +229,24 @@
       }
      }
     } if(!empty($blog)) {
-     $accessCode = "Accepted";
      $_IsArtist = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
+     $accessCode = "Accepted";
      $actions = "";
      $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
      $bl = $this->core->CheckBlocked([$y, "Blogs", $id]);
      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
      $actions .= ($blog["UN"] != $you) ? $this->core->Element([
       "button", $blockCommand, [
        "class" => "Small UpdateButton v2",
        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Blogs"))
+      ]
+     ]) : "";
+     $actions .= (!empty($chat)) ? $this->core->Element([
+      "button", "Chat", [
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($id)."&Integrated=1")
       ]
      ]) : "";
      $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([

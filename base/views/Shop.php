@@ -90,6 +90,8 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $owner = $shop["Contributors"] ?? [];
+    $owner = array_key_first($owner);
     $shop = $this->core->FixMissing($shop, [
      "Description",
      "Live",
@@ -152,6 +154,7 @@
      "[Shop.Braintree.Sandbox.PrivateKey]" => $processing["BraintreePrivateKey"],
      "[Shop.Braintree.Sandbox.PublicKey]" => $processing["BraintreePublicKey"],
      "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
+     "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode(md5("Shop$id"))."&Username=".base64_encode($owner)),
      "[Shop.CoverPhoto]" => $coverPhoto,
      "[Shop.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Shop.Description]" => base64_encode($shop["Description"]),
@@ -419,7 +422,7 @@
     "lPG",
     "pub"
    ]);
-   $bck = ($data["back"] == 1) ? $this->core->Element([
+   $back = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back", [
      "class" => "GoToParent LI head",
      "data-type" => $data["lPG"]
@@ -427,7 +430,7 @@
    ]) : "";
    $i = 0;
    $pub = $data["pub"] ?? 0;
-   $r = $this->MadeInNewYork(["back" => $bck]);
+   $r = $this->MadeInNewYork(["back" => $back]);
    $username = $data["UN"] ?? base64_encode("");
    $username = base64_decode($username);
    $y = $this->you;
@@ -447,6 +450,7 @@
    } if(!empty($username) || $i > 0) {
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $id = md5($t["Login"]["Username"]);
+    $chat = $this->core->Data("Get", ["chat", md5("Shop$id")]) ?? [];
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $partners = $shop["Contributors"] ?? [];
@@ -489,17 +493,24 @@
       ]);
       $coverPhoto = base64_encode($coverPhoto);
       $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
+      $block = ($ck == 0) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Shops"))
+       ]
+      ]) : "";
+      $chat = (!empty($chat) && $ck == 1) ? $this->core->Element([
+       "button", "Partner Chat", [
+        "class" => "OpenCard Small v2",
+        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode(md5("Shop$id"))."&Integrated=1")
+       ]
+      ]) : "";
       $edit = ($ck == 1) ? $this->core->Element([
        "button", "Edit", [
         "class" => "OpenCard Small v2",
         "data-view" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($id))
        ]
-      ]) : $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Shops"))
-       ]
-      ]);
+      ]) : "";
       $payroll = ($id == md5($you)) ? $this->core->Element([
        "button", "Payroll", [
         "class" => "OpenCard Small v2",
@@ -515,8 +526,8 @@
       ]) : "";
       $votes = ($id != md5($you)) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $r = $this->core->Change([[
-       "[Shop.Back]" => $bck,
-       "[Shop.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
+       "[Shop.Back]" => $back,
+       "[Shop.Block]" => $block,
        "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&PFST=$pub"),
        "[Shop.Conversation]" => $this->core->Change([[
         "[Conversation.CRID]" => $id,
@@ -524,12 +535,14 @@
         "[Conversation.Level]" => base64_encode(1),
         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
        ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+       "[Shop.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
        "[Shop.Disclaimer]" => $disclaimer,
        "[Shop.Edit]" => $edit,
        "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
        "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id&PFST=$pub"),
        "[Shop.ID]" => $id,
        "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
+       "[Shop.PartnerChat]" => $chat,
        "[Shop.Payroll]" => $payroll,
        "[Shop.Share]" => $share,
        "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),

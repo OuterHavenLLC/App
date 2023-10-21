@@ -7,22 +7,28 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $chatID = $data["ID"] ?? "";
-   $new = $data["New"] ?? 0;
+   $generateID = $data["GenerateID"] ?? "";
+   $id = $data["ID"] ?? "";
+   $username = $data["Username"] ?? "";
    $r = [
-    "Body" => "The Chat Identifier is missing."
+    "Body" => "The Chat Identifier or Username are missing."
    ];
-   if(!empty($id)) {
+   if((!empty($id) || $generateID == 1) && !empty($username)) {
     $accessCode = "Accepted";
-    $action = ($new == 1) ? "Create" : "Update";
     $id = base64_decode($id);
-    // CREATE AND EDIT GROUP CHATS
-    // ACCESSIBLE ONLY IF CREATING A NEW GROUP CHAT --OR--
-    // FROM CONTENT EDITORS (ARTICLES, BLOGS, FORUMS, SHOPS)
+    $id = ($generateID == 1) ? md5("$you-Chat-".uniqid()) : $id;
+    $username = base64_decode($username);
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $new = (empty($chat)) ? 1 : 0;
+    $action = ($new == 1) ? "Create" : "Update";
     $r = $this->core->Element([
      "h1", "Chat Editor"
     ]).$this->core->Element([
-     "p", "CCreate or edit a Group Chat."
+     "p", "Create or edit a Group Chat."
+    ]).$this->core->Element([
+     "p", "ID: $id"
+    ]).$this->core->Element([
+     "p", "Username: $username"
     ]);
     $r = [
      "Action" => $this->core->Element(["button", $action, [
@@ -30,7 +36,7 @@
       "data-form" => ".ChatEditor$id",
       "data-processor" => base64_encode("#")
      ]]),
-     "Body" => $r
+     "Front" => $r
     ];
    }
    return $this->core->JSONResponse([
@@ -87,9 +93,15 @@
       $r = $this->core->RenderView($r);
      }
     } else {
+     $check = 1;
+     $r = [
+      "Body" => "The Group Chat has not been created."
+     ];
      if($group == 1) {
-      $active = "Active";
       $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+      $accessCode = (!empty($chat)) ? "Accepted" : "Denied";
+      $active = "Active";
+      $check = (!empty($chat)) ? 1 : 0;
       $profilePcuture = "";
       $t = $this->core->Member($this->core->ID);
       $to = $chat["Title"] ?? "Group Chat";
@@ -100,7 +112,7 @@
       $active = ($active == 1) ? "Online" : "Offline";
       $displayName = $t["Personal"]["DisplayName"];
       $to = $t["Personal"]["DisplayName"];
-     } if($group == 1 || $oneOnOne == 1) {
+     } if(($check == 1 && $group == 1) || $oneOnOne == 1) {
       $accessCode = "Accepted";
       $atinput = ".ChatAttachments$id-Attachments";
       $at = base64_encode("Share with $displayName in Chat:$atinput");

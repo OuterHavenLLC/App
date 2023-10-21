@@ -73,6 +73,7 @@
      $h = "Community Archive";
      $li .= "&b2=".urlencode("the Archive")."&lPG=$lpg";
      $lis = "Search Articles";
+     $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "CART") {
      $t = $data["Username"] ?? $you;
      $t = ($t == $you) ? $y : $this->core->Member($t);
@@ -1781,22 +1782,22 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $extension = $this->core->Page("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
-     $extensions = $y["Pages"] ?? [];
-     foreach($extensions as $key => $value) {
-      $extension = $this->core->Data("Get", ["pg", $value]) ?? [];
-      if($extension["Category"] != "EXT") {
+     $articles = $y["Pages"] ?? [];
+     foreach($articles as $key => $value) {
+      $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+      if($article["Category"] != "EXT") {
        array_push($msg, [
-        "[Extension.Category]" => base64_encode($extension["Category"]),
+        "[Extension.Category]" => base64_encode($article["Category"]),
         "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$value")),
         "[Extension.Description]" => base64_encode($this->core->PlainText([
          "BBCodes" => 1,
-         "Data" => $extension["Description"],
+         "Data" => $article["Description"],
          "Display" => 1,
          "HTMLDecode" => 1
         ])),
         "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($value))),
         "[Extension.ID]" => base64_encode($value),
-        "[Extension.Title]" => base64_encode($extension["Title"])
+        "[Extension.Title]" => base64_encode($article["Title"])
        ]);
       }
      }

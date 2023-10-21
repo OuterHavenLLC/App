@@ -106,6 +106,7 @@
     $id = ($new == 1) ? md5($y["Login"]["Username"]."_FORUM_".$now) : $id;
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $about = $forum["About"] ?? "";
+    $author = $forum["UN"] ?? $you;
     $atinput = ".Forum$id-ATTI";
     $at = base64_encode("Set as the Forum's Cover Photo:$atinput");
     $atinput = "$atinput .rATT";
@@ -136,9 +137,10 @@
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Forum.About]" => base64_encode($about),
-     "[Forum.Created]" => $created,
+     "[Forum.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($author)),
      "[Forum.CoverPhoto]" => $coverPhoto,
      "[Forum.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+     "[Forum.Created]" => $created,
      "[Forum.Description]" => base64_encode($description),
      "[Forum.Header]" => $header,
      "[Forum.ID]" => $id,
@@ -195,6 +197,7 @@
    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
    if(!empty($id)) {
     $id = base64_decode($id);
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $active = 0;
     $admin = 0;
@@ -225,10 +228,10 @@
        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($forum["ID"])."&List=".base64_encode("Forums"))
       ]
      ]) : "";
-     $actions .= ($active == 1 || $ck == 1) ? $this->core->Element([
+     $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
       "button", "Chat", [
        "class" => "OpenCard Small v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&GroupChat=1&to=".base64_encode($id))
+       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($id)."&Integrated=1")
       ]
      ]) : "";
      $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->core->Element([
@@ -539,7 +542,7 @@
      "Posts" => $posts,
      "Privacy" => $privacy,
      "Title" => $title,
-     "UN" => $y["Login"]["Username"],
+     "UN" => $you,
      "Type" => $type
     ];
     $this->core->Data("Save", ["pf", $id, $forum]);
