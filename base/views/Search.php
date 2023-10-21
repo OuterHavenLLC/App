@@ -124,12 +124,6 @@
       $id = base64_decode($id);
       $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
       $h = "Blog Contributors";
-      $lo = ($blog["UN"] == $you && $notAnon == 1) ? $this->core->Element([
-       "button", "+", [
-        "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=$id")
-       ]
-      ]) : "";
      } elseif($type == "Forum") {
       $id = base64_decode($id);
       $forum = $this->core->Data("Get", ["pf", $id]) ?? [];

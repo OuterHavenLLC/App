@@ -8,50 +8,47 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $generateID = $data["GenerateID"] ?? "";
-   $id = $data["ID"] ?? "";
-   $username = $data["Username"] ?? "";
+   $id = $data["ID"] ?? base64_encode("");
+   $username = $data["Username"] ?? base64_encode("");
    $r = [
     "Body" => "The Chat Identifier or Username are missing."
    ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    if((!empty($id) || $generateID == 1) && !empty($username)) {
     $accessCode = "Accepted";
     $description = $data["Description"] ?? base64_encode("");
     $description = base64_decode($description);
+    $editorID = md5("ChatEditor-$id".$this->core->timestamp);
     $id = base64_decode($id);
     $id = ($generateID == 1) ? md5("$you-Chat-".uniqid()) : $id;
     $title = $data["Title"] ?? base64_encode("");
     $title = base64_decode($title);
     $username = base64_decode($username);
     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-    $new = (empty($chat)) ? 1 : 0;
-    $action = ($new == 1) ? "Create" : "Update";
     $description = $chat["Description"] ?? $description;
+    $new = (empty($chat)) ? 1 : 0;
+    $nsfw = $chat["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $privacy = $chat["Privacy"] ?? $y["Privacy"]["MSG"];
     $title = $chat["Title"] ?? $title;
-    $r = $this->core->Element([
-     "h1", "Chat Editor"
-    ]).$this->core->Element([
-     "p", "Create or edit a Group Chat."
-    ]).$this->core->Element([
-     "p", "Description: $description"
-    ]).$this->core->Element([
-     "p", "ID: $id"
-    ]).$this->core->Element([
-     "p", "Title: $title"
-    ]).$this->core->Element([
-     "p", "Username: $username"
-    ]);
-    /*$this->core->Change([[
+    $action = ($new == 1) ? "Create" : "Update";
+    $header = ($new == 1) ? "New Group Chat" : "Edit $title";
+    $r = $this->core->Change([[
+     "[Chat.Author]" => $username,
      "[Chat.Description]" => base64_encode($description),
+     "[Chat.EditorID]" => $editorID,
+     "[Chat.Header]" => $header,
      "[Chat.ID]" => $id,
+     "[Chat.New]" => $new,
      "[Chat.Title]" => base64_encode($title),
-     "[Chat.Username]" => $username
-    ], $r]);
-    #], $this->core->Page("XXXX")]);*/
+     "[Chat.Visibility.NSFW]" => $nsfw,
+     "[Chat.Visibility.Privacy]" => $privacy
+    ], $this->core->Page("eb169be369e5497344f98d826aea4e7d")]);
     $r = [
      "Action" => $this->core->Element(["button", $action, [
-      "class" => "CardButton",
-      "data-form" => ".ChatEditor$id",
-      "data-processor" => base64_encode("#")
+      "class" => "CardButton SendData",
+      "data-form" => ".Chat$editorID",
+      "data-processor" => base64_encode("v=".base64_encode("Chat:Save"))
      ]]),
      "Front" => $r
     ];
@@ -135,6 +132,8 @@
       $at = base64_encode("Share with $displayName in Chat:$atinput");
       $atinput = "$atinput .rATT";
       $at2 = base64_encode("Added to Chat Message!");
+      $extension = "a4c140822e556243e3edab7cae46466d";
+      $extension = ($group == 1) ? "GroupCHatHome" : $extension
       $r = $this->core->Change([[
        "[Chat.1on1]" => $oneOnOne,
        "[Chat.ActivityStatus]" => $active,
@@ -151,7 +150,7 @@
        "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
        "[Chat.To]" => $to,
        "[Chat.Type]" => $group
-      ], $this->core->Page("a4c140822e556243e3edab7cae46466d")]);
+      ], $this->core->Page($extension)]);
       $r = ($card == 1) ? [
        "Front" => $r
       ] : $r;
@@ -262,6 +261,7 @@
     $r = $this->core->Change([[
      "[Chat.1on1]" => base64_encode("v=$search&1on1=1&Integrated=$integrated&st=Chat"),
      "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=GroupChat"),
+     "[Chat.New]" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you)),
      "[Chat.ID]" => md5($you)
     ], $this->core->Page("2e1855b9baa7286162fb571c5f80da0f")]);
    }
@@ -281,6 +281,7 @@
    $attachmentData = $data["Attachments"] ?? "";
    $group = $data["Group"] ?? 0;
    $id = $data["ID"] ?? "";
+   $isEditingGroupChat = $data["GroupChatEditor"] ?? 0;
    $message = $data["Message"] ?? "";
    $check = (!empty($attachmentData) && empty($message)) ? 1 : 0;
    $check2 = (empty($attachmentData) && !empty($message)) ? 1 : 0;
@@ -289,6 +290,7 @@
    $r = [
     "Body" => "A message or attachment are required."
    ];
+   $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -296,6 +298,64 @@
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
+   } elseif($isEditingGroupChat == 1) {
+    $description = $data["Description"] ?? "";
+    $title = $data["Title"] ?? "";
+    $username = $data["Username"] ?? "";
+    if(empty($description)) {
+     $r = [
+      "Body" => "The Description is missing."
+     ];
+    } elseif(empty($title)) {
+     $r = [
+      "Body" => "The Title is missing."
+     ];
+    } elseif(empty($username)) {
+     $r = [
+      "Body" => "The Author is missing."
+     ];
+    } else {
+     $accessCode = "Accepted";
+     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $now = $this->core->timestamp;
+     $contributors = $chat["Contributors"] ?? [];
+     $created = $chat["Created"] ?? $now;
+     $description = $chat["Description"] ?? $description;
+     $groupChats = $y["GroupChats"] ?? [];
+     $messages = $chat["Messages"] ?? [];
+     $modifiedBy = $chat["ModifiedBy"] ?? [];
+     $modifiedBy[$now] = $you;
+     $new = $data["New"] ?? 0;
+     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+     $nsfw = $chat["NSFW"] ?? $nsfw;
+     $privacy = $data["Privacy"] ?? $y["Privacy"]["MSG"];
+     $privacy = $chat["Privacy"] ?? $privacy;
+     $success = "CloseCard";
+     $title = $chat["Title"] ?? $title;
+     $username = $chat["UN"] ?? $username;
+     $chat = [
+      "Contributors" => $contributors,
+      "Created" => $created,
+      "Description" => $description,
+      "Messages" => $messages,
+      "ModifiedBy" => $modifiedBy,
+      "NSFW" => $nsfw,
+      "Privacy" => $privacy,
+      "Title" => $title,
+      "UN" => $username
+     ];
+     if(!in_array($id, $groupChats) && $new == 1) {
+      array_push($groupChats, $id);
+      array_unique($groupChats);
+      $y["GroupChats"] = $groupChats;
+     }
+     $this->core->Data("Save", ["chat", $id, $chat]);
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
+     $r = [
+      "Body" => "The Group Chat for <em>$title</em> has been saved.",
+      "Header" => "Done"
+     ];
+    }
    } elseif(!empty($id) && ($check == 1 || $check2 == 1 || $check3 == 1)) {
     $accessCode = "Accepted";
     $attachments = [];
@@ -359,7 +419,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog"
+    "ResponseType" => "Dialog",
+    "Success" => $success
    ]);
   }
   function Share(array $a) {
