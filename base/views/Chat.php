@@ -123,7 +123,7 @@
      ]);
      if($group == 1) {
       $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-      $modified = $chat["Modified"] ?? "";
+      $modified = $chat["Modified"] ?? [];
       if(empty($modified)) {
        $modified = "";
       } else {
@@ -367,24 +367,21 @@
      $now = $this->core->timestamp;
      $contributors = $chat["Contributors"] ?? [];
      $created = $chat["Created"] ?? $now;
-     $description = $chat["Description"] ?? $description;
      $groupChats = $y["GroupChats"] ?? [];
      $messages = $chat["Messages"] ?? [];
      $modifiedBy = $chat["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $new = $data["New"] ?? 0;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
-     $nsfw = $chat["NSFW"] ?? $nsfw;
      $privacy = $data["Privacy"] ?? $y["Privacy"]["MSG"];
-     $privacy = $chat["Privacy"] ?? $privacy;
      $success = "CloseCard";
-     $title = $chat["Title"] ?? $title;
      $username = $chat["UN"] ?? $username;
      $chat = [
       "Contributors" => $contributors,
       "Created" => $created,
       "Description" => $description,
       "Messages" => $messages,
+      "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $nsfw,
       "Privacy" => $privacy,
@@ -432,7 +429,7 @@
      $to = $t["Login"]["Username"];
     }
     $chat["UN"] = $chat["UN"] ?? $you;
-    $paid = $data["PaidChat"] ?? 0;
+    $paid = $data["Paid"] ?? 0;
     $messages[$now] = [
      "Attachments" => $attachments,
      "From" => $you,
