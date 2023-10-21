@@ -15,21 +15,38 @@
    ];
    if((!empty($id) || $generateID == 1) && !empty($username)) {
     $accessCode = "Accepted";
+    $description = $data["Description"] ?? base64_encode("");
+    $description = base64_decode($description);
     $id = base64_decode($id);
     $id = ($generateID == 1) ? md5("$you-Chat-".uniqid()) : $id;
+    $title = $data["Title"] ?? base64_encode("");
+    $title = base64_decode($title);
     $username = base64_decode($username);
     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
     $new = (empty($chat)) ? 1 : 0;
     $action = ($new == 1) ? "Create" : "Update";
+    $description = $chat["Description"] ?? $description;
+    $title = $chat["Title"] ?? $title;
     $r = $this->core->Element([
      "h1", "Chat Editor"
     ]).$this->core->Element([
      "p", "Create or edit a Group Chat."
     ]).$this->core->Element([
+     "p", "Description: $description"
+    ]).$this->core->Element([
      "p", "ID: $id"
+    ]).$this->core->Element([
+     "p", "Title: $title"
     ]).$this->core->Element([
      "p", "Username: $username"
     ]);
+    /*$this->core->Change([[
+     "[Chat.Description]" => base64_encode($description),
+     "[Chat.ID]" => $id,
+     "[Chat.Title]" => base64_encode($title),
+     "[Chat.Username]" => $username
+    ], $r]);
+    #], $this->core->Page("XXXX")]);*/
     $r = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton",

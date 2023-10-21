@@ -154,7 +154,7 @@
      "[Shop.Braintree.Sandbox.PrivateKey]" => $processing["BraintreePrivateKey"],
      "[Shop.Braintree.Sandbox.PublicKey]" => $processing["BraintreePublicKey"],
      "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
-     "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode(md5("Shop$id"))."&Username=".base64_encode($owner)),
+     "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
      "[Shop.CoverPhoto]" => $coverPhoto,
      "[Shop.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Shop.Description]" => base64_encode($shop["Description"]),

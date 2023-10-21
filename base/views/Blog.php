@@ -153,7 +153,7 @@
      "[Blog.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Blog.CoverPhoto]" => $coverPhotoSource,
      "[Blog.Description]" => base64_encode($description),
-     "[Blog.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($author)),
+     "[Blog.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
      "[Blog.Header]" => $header,
      "[Blog.ID]" => $id,
      "[Blog.New]" => $new,

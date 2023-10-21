@@ -218,7 +218,7 @@
      ])),
      "[Article.Categories]" => json_encode($categories, true),
      "[Article.Category]" => $category,
-     "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($author)),
+     "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
      "[Article.CoverPhoto.LiveView]" => base64_encode("v=$es&AddTo=$atinput&ID="),
      "[Article.CoverPhoto]" => $article["ICO-SRC"],
      "[Article.Description]" => base64_encode($article["Description"]),

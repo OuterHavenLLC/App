@@ -137,7 +137,7 @@
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Forum.About]" => base64_encode($about),
-     "[Forum.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($author)),
+     "[Forum.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
      "[Forum.CoverPhoto]" => $coverPhoto,
      "[Forum.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Forum.Created]" => $created,
