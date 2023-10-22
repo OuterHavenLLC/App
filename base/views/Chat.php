@@ -15,13 +15,41 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $accessCode = "Accepted";
-    $r = $this->core->Element([
-     "h3", "Attachments",
-     ["class" => "CenterText UpperCase"]
-    ]).$this->core->Element([
-     "p", "No attachments, yet...",
-     ["class" => "CenterText"]
-    ]);
+    $id = base64_decode($id);
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $grid = "";
+    $messages = $chat["Messages"] ?? [];
+    foreach($messages as $key => $message) {
+     $attachments = $message["Attachments"] ?? [];
+     foreach($attachments as $dlc) {
+      if(!empty($dlc)) {
+       $f = explode("-", base64_decode($dlc));
+       if(!empty($f[0]) && !empty($f[1])) {
+        $efs = $this->core->Data("Get", ["fs", md5($f[0])])["Files"] ?? [];
+        $grid .= $this->core->Element([
+         "button", $this->core->GetAttachmentPreview([
+          "DLL" => $efs[$f[1]],
+          "T" => $f[0],
+          "Y" => $you
+         ]), [
+          "class" => "K4i OpenCard",
+          "data-view" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
+         ]
+        ]);
+       }
+      }
+     }
+    } if(!empty($grid)) {
+     $r = $this->core->Element(["div", $grid, ["class" => "Grid3"]]);
+    } else {
+     $r = $this->core->Element([
+      "h3", "Attachments",
+      ["class" => "CenterText UpperCase"]
+     ]).$this->core->Element([
+      "p", "No attachments, yet...",
+      ["class" => "CenterText"]
+     ]);
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

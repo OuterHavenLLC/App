@@ -52,7 +52,7 @@
      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
      $t = ($chat["UN"] == $you) ? $y : $this->core->Member($chat["UN"]);
      $checkItOut = "Check out <em>".$chat["Title"]."</em> by ".$t["Personal"]["DisplayName"]."!";
-     $embedCode = "[BlogPost:$id]";
+     $embedCode = "[Chat:$id]";
      $shareTitle = $chat["Title"] ?? $shareTitle;
     } elseif($type == "File") {
      $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
