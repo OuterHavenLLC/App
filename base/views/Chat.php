@@ -215,6 +215,7 @@
        $modified = " &bull; Modified ".$_Time;
        $modified = $this->core->Element(["em", $modified]);
       }
+      $share = ($chat["UN"] == $you || $active == 1) ? 1 : 0;
       $options = ($chat["UN"] == $you) ? $this->core->Element([
        "button", "Edit", [
         "class" => "OpenCard v2",
@@ -226,6 +227,12 @@
         "data-processor" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($id))
        ]
       ]);
+      $options .= ($share == 1) ? $this->core->Element([
+       "button", "Share", [
+        "class" => "OpenCard v2",
+        "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Chat")."&Username=".base64_encode($chat["UN"]))
+       ]
+      ]) : "";
       $r = $this->core->Change([[
        "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
        "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
@@ -551,40 +558,6 @@
     "ResponseType" => "Dialog",
     "Success" => $success
    ]);
-  }
-  function Share(array $a) {
-   $accessCode = "Denied";
-   $action = "";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["GroupChat", "ID", "UN"]);
-   $id = $data["ID"];
-   $r = $this->core->Change([[
-    "[Error.Header]" => "Error",
-    "[Error.Message]" => "The Share Data is missing."
-   ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
-   $y = $this->you;
-   if(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($this->core->PlainText([
-     "Data" => $id,
-     "HTMLDencode" => 1
-    ]));
-    $sid = md5($this->core->timestamp);
-    $r = $this->core->Change([[
-     "[Share.AvailabilityView]" => base64_encode("v=".base64_encode("Common:AvailabilityCheck")."&at=".base64_encode("SendMessage")."&av="),
-     "[Share.ID]" => $sid,
-     "[Share.Message]" => $id
-    ], $this->core->Page("16b534e5d1b3838a98abfb3bcf3f7b99")]);
-    $action = $this->core->Element(["button", "Send", [
-     "class" => "BB v2",
-     "data-form" => ".ShareMessage$sid",
-     "data-processor" => base64_encode("v=".base64_encode("Chat:SaveShare"))
-    ]]);
-   }
-   return [
-    "Action" => $action,
-    "Front" => $r
-   ];
   }
   function __destruct() {
    // DESTROYS THIS CLASS
