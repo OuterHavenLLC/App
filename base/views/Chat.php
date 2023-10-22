@@ -32,6 +32,81 @@
     "ResponseType" => "View"
    ]);
   }
+  function Bookmark(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $command = $data["Command"] ?? "";
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Chat Identifier or Join Command missing."
+   ];
+   $responseType = "Dialog";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($command) && !empty($id)) {
+    $command = base64_decode($command);
+    $id = base64_decode($id);
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $r = [
+     "Body" => "You cannot remove the Bookmark for your own Group Chat."
+    ];
+    if($chat["UN"] != $you) {
+     $accessCode = "Accepted";
+     $contributors = $chat["Contributors"] ?? [];
+     $groupChats = $y["GroupChats"] ?? [];
+     $processor = "v=".base64_encode("Chat:Bookmark")."&ID=".base64_encode($id);
+     $responseType = "View";
+     if($command == "Add Bookmark") {
+      if(!in_array($id, $groupChats)) {
+       array_push($groupChats, $id);
+       array_unique($groupChats);
+       $y["GroupChats"] = $groupChats;
+      }
+      $contributors[$you] = "Member";
+      $chat["Contributors"] = $contributors;
+      $r = [
+       "Attributes" => [
+        "class" => "UpdateButton v2",
+        "data-processor" => base64_encode("$processor&Command=".base64_encode("Remove Bookmark"))
+       ],
+       "Text" => "Remove Bookmark"
+      ];
+     } elseif($command == "Remove Bookmark") {
+      $accessCode = "Accepted";
+      $newContributors = [];
+      $newGroupChats = [];
+      foreach($contributors as $member => $role) {
+       if($member != $you) {
+        $newContributors[$member] = $role;
+       }
+      } foreach($groupChats as $key => $value) {
+       if($id != $value) {
+        $newGroupChats[$key] = $value;
+       }
+      }
+      $chat["Contributors"] = $newContributors;
+      $y["GroupChats"] = $newGroupChats;
+      $r = [
+       "Attributes" => [
+        "class" => "UpdateButton v2",
+        "data-processor" => base64_encode("$processor&Command=".base64_encode("Add Bookmark"))
+       ],
+       "Text" => "Add Bookmark"
+      ];
+     }
+     $this->core->Data("Save", ["chat", $id, $chat]);
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => $responseType
+   ]);
+  }
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -122,7 +197,16 @@
       "p", "Chat Information is only viewable for Group Chats."
      ]);
      if($group == 1) {
+      $active = 0;
       $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+      $contributors = $chat["Contributors"] ?? [];
+      foreach($contributors as $member => $role) {
+       if($member == $you) {
+        $active++;
+       }
+      }
+      $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
+      $bookmarkCommand .= "Bookmark";
       $modified = $chat["Modified"] ?? [];
       if(empty($modified)) {
        $modified = "";
@@ -136,7 +220,12 @@
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($chat["UN"]))
        ]
-      ]) : "";
+      ]) : $this->core->Element([
+       "button", $bookmarkCommand, [
+        "class" => "UpdateButton v2",
+        "data-processor" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($id))
+       ]
+      ]);
       $r = $this->core->Change([[
        "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
        "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
@@ -212,9 +301,6 @@
     ],
     "ResponseType" => "View"
    ]);
-  }
-  function Join(array $a) {
-   // JOIN OR LEAVE THE ACTIVE CHAT (IF NOT YOURS)
   }
   function List(array $a) {
    $accessCode = "Denied";
@@ -371,7 +457,6 @@
      $messages = $chat["Messages"] ?? [];
      $modifiedBy = $chat["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
-     $new = $data["New"] ?? 0;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $privacy = $data["Privacy"] ?? $y["Privacy"]["MSG"];
      $success = "CloseCard";
@@ -388,7 +473,7 @@
       "Title" => $title,
       "UN" => $username
      ];
-     if(!in_array($id, $groupChats) && $new == 1) {
+     if(!in_array($id, $groupChats)) {
       array_push($groupChats, $id);
       array_unique($groupChats);
       $y["GroupChats"] = $groupChats;

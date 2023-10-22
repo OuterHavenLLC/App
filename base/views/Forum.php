@@ -217,7 +217,6 @@
      "Header" => "Private Forum"
     ];
     if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
-     $_JoinCommand = ($active == 0) ? "Join" : "Leave";
      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
      $accessCode = "Accepted";
      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
@@ -267,10 +266,11 @@
        "data-view" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($forum["ID"]))
       ]
      ]) : "";
+     $joinCommand = ($active == 0) ? "Join" : "Leave";
      $join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Element([
-      "button", $_JoinCommand." <em>".$forum["Title"]."</em>", [
+      "button", $joinCommand, [
        "class" => "BBB UpdateButton v2 v2w",
-       "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=".$_JoinCommand."&ID=$id")
+       "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=".$joinCommand."&ID=$id")
       ]
      ]) : "";
      $search = base64_encode("Search:Containers");
@@ -368,22 +368,21 @@
    $command = $data["Command"] ?? "";
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Forum Identifier is missing."
+    "Body" => "The Forum Identifier or Join Command are missing."
    ];
    $responseType = "Dialog";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($command) && !empty($id)) {
-    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-    $ck = ($forum["UN"] == $you) ? 1 : 0;
-    $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
     $r = [
      "Body" => "You cannot leave your own Forum."
     ];
-    if($ck == 0) {
+    if($forum["UN"] != $you) {
      $accessCode = "Accepted";
-     $responseType = "View";
+     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
      $processor = "v=".base64_encode("Forum:Join")."&ID=$id";
+     $responseType = "View";
      if($command == "Join") {
       $manifest[$you] = "Member";
       $r = [
@@ -391,7 +390,7 @@
         "class" => "BBB UpdateButton v2 v2w",
         "data-processor" => base64_encode("$processor&Command=Leave")
        ],
-       "Text" => "Leave <em>".$forum["Title"]."</em>"
+       "Text" => "Leave"
       ];
      } elseif($command == "Leave") {
       $accessCode = "Accepted";
@@ -407,7 +406,7 @@
         "class" => "BBB UpdateButton v2 v2w",
         "data-processor" => base64_encode("$processor&Command=Join")
        ],
-       "Text" => "Join <em>".$forum["Title"]."</em>"
+       "Text" => "Join"
       ];
      }
      $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
@@ -648,6 +647,7 @@
       "Data" => ["ID" => $id]
      ]);
     }
+    $this->core->Data("Purge", ["chat", $id]);
     $this->core->Data("Purge", ["local", $id]);
     $this->core->Data("Purge", ["pfmanifest", $id]);
     $this->core->Data("Purge", ["pf", $id]);

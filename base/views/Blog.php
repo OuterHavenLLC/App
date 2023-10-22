@@ -583,6 +583,7 @@
      "Data" => ["ID" => $id]
     ]);
     $this->core->Data("Purge", ["blg", $id]);
+    $this->core->Data("Purge", ["chat", $id]);
     $this->core->Data("Purge", ["local", $id]);
     $this->core->Data("Purge", ["react", $id]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);

@@ -723,6 +723,7 @@
      }
     }
     $y["Pages"] = $newArticles;
+    $this->core->Data("Purge", ["chat", $id]);
     $this->core->Data("Purge", ["local", $id]);
     $this->core->Data("Purge", ["pg", $id]);
     $this->core->Data("Purge", ["votes", $id]);
