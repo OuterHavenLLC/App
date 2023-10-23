@@ -420,6 +420,7 @@
     $li = base64_encode($li);
     $r = $this->core->Change([[
      "[Search.Header]" => $h,
+     "[Search.ID]" => md5($this->core->timestamp.rand(1000, 99999)),
      "[Search.List]" => $li,
      "[Search.Options]" => $lo,
      "[Search.ParentPage]" => $lpg,
@@ -2315,7 +2316,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $goHome = ($pub == 1) ? $this->core->Element(["button", "Go Home", [
-    "class" => "BBB v2",
+    "class" => "BBB v2 v2w",
     "onclick" => "W('".$this->core->base."', '_top');"
    ]]) : "";
    $query = $data["query"] ?? base64_encode("");
@@ -2328,9 +2329,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    if(!empty($query)) {
     $r = $this->core->Change([[
      "[ReSearch.Query]" => $query,
-     "[ReSearch.RS-Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&st=BLG"),
-     "[ReSearch.RS-Members]" => base64_encode("v=$search&query=$secureQuery&st=MBR"),
-     "[ReSearch.RS-StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&st=US-SU")
+     "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
+     "[ReSearch.Artists]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=SHOP"),
+     "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
+     "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
+     "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
+     "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=US-SU")
     ], $this->core->Page("bae5cdfa85bf2c690cbff302ba193b0b")]);
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
