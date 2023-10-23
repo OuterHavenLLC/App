@@ -322,13 +322,18 @@
       ]
      ]) : "";
      $actions = ($this->core->ID != $you) ? $actions : "";
-     $attachments = (!empty($article["Attachments"])) ? $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-      "ID" => base64_encode(implode(";", $article["Attachments"])),
-      "Type" => base64_encode("DLC")
-     ]]) : "";
+     $attachments = "";
+     if(!empty($article["Attachments"])) {
+      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+       "ID" => base64_encode(implode(";", $article["Attachments"])),
+       "Type" => base64_encode("DLC")
+      ]]);
+      $attachments = $this->core->RenderView($attachments);
+     }
      $t = ($article["UN"] == $you) ? $y : $this->core->Member($t);
      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
      $contributors = $article["Contributors"] ?? [];
+     $contributors[$article["UN"]] = "Admin";
      $coverPhoto = (!empty($article["ICO"])) ? "<img src=\"$base".$article["ICO"]."\" style=\"width:100%\"/>" : "";
      $description = ($ck == 1) ? "You have not added a Description." : "";
      $description = ($ck == 0) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
