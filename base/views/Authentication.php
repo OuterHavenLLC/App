@@ -234,6 +234,46 @@
     "ResponseType" => "View"
    ]);
   }
+  function DeleteChat(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Chat Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $id = base64_decode($id);
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $dialogID = "Delete$id";
+    $r = [
+     "Body" => "You are about to permanently delete ".$chat["Title"].".",
+     "Header" => "Delete",
+     "ID" => $dialogID,
+     "Scrollable" => $this->core->Change([[
+      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
+      "[Delete.ID]" => $id,
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Chat:SaveDelete")),
+      "[Delete.Title]" => $chat["Title"]
+     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function DeleteDiscountCode(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];

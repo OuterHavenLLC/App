@@ -201,6 +201,7 @@
    $chatID = $data["Username"] ?? $chatID;
    $group = $data["Group"] ?? 0;
    $information = $data["Information"] ?? 0;
+   $integrated = $data["Integrated"] ?? 0;
    $oneOnOne = $data["1on1"] ?? 0;
    $paidMessage = $data["PaidMessage"] ?? 0;
    $paidMessages = $data["PaidMessages"] ?? 0;
@@ -265,11 +266,10 @@
         "data-processor" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($id))
        ]
       ]) : "";
-      $options .= ($delete == 1) ? $this->core->Element([
+      $options .= ($delete == 1 && $integrated == 1) ? $this->core->Element([
        "button", "Delete", [
-        "class" => "v2",
-        #"class" => "OpenDialog v2",
-        "data-view" => base64_encode("#")
+        "class" => "CloseCard OpenDialog v2",
+        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteChat")."&ID=".base64_encode($id))
        ]
       ]) : "";
       $options .= ($privacy == 1 && $share == 1) ? $this->core->Element([
@@ -399,7 +399,7 @@
        "[Chat.DisplayName]" => $displayName,
        "[Chat.Group]" => $group,
        "[Chat.ID]" => $id,
-       "[Chat.Information]" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=$oneOnOne&Group=$group&ID=$chatID&Information=1"),
+       "[Chat.Information]" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=$oneOnOne&Group=$group&ID=$chatID&Information=1&Integrated=$integrated"),
        "[Chat.List]" => base64_encode("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
        "[Chat.PaidMessage]" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($chat["UN"])."&Type=PaidMessage&ViewPairID=".base64_encode("PaidMessage$id")),
        "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=$id&PaidMessages=1"),
@@ -733,7 +733,53 @@
    ]);
   }
   function SaveDelete(array $a) {
-   // DELETE THE CHAT
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
+   $id = $data["ID"];
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $chats = $y["GroupChats"] ?? [];
+    $newChats = [];
+    foreach($chats as $key => $value) {
+     if($id != $value) {
+      array_push($newChats, $value);
+     }
+    }
+    $y["GroupChats"] = $newChats;
+    $this->core->Data("Purge", ["chat", $id]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = [
+     "Front" => "The Chat <em>".$chat["Title"]."</em> was deleted.",
+     "Header" => "Done",
+     "Scrollable" => json_encode($y["GroupChats"], true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

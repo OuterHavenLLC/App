@@ -924,7 +924,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        if(!empty($contributors) || $isGroupChat == 1) {
         $displayName = $chat["Title"] ?? "Group Chat";
         $t = $this->core->Member($this->core->ID);
-        $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group);
+        $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group)."&Integrated=$integrated";
         $view .= ($integrated == 1) ? "&Card=1" : "";
         array_push($msg, [
          "[Chat.DisplayName]" => base64_encode($displayName),
@@ -1758,7 +1758,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
        $displayName = $chat["Title"] ?? "Group Chat";
        $t = $this->core->Member($this->core->ID);
-       $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group);
+       $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group)."&Integrated=$integrated";
        $view .= ($integrated == 1) ? "&Card=1" : "";
        array_push($msg, [
         "[Chat.DisplayName]" => base64_encode($displayName),
