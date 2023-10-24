@@ -154,10 +154,14 @@
     $t = ($post["UN"] == $you) ? $y : $this->core->Member($t);
     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
     $tpl = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
-    $attachments = (!empty($post["Attachments"])) ? $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-     "ID" => base64_encode(implode(";", $post["Attachments"])),
-     "Type" => base64_encode("DLC")
-    ]]) : "";
+    $attachments = "";
+    if(!empty($post["Attachments"])) {
+     $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+      "ID" => base64_encode(implode(";", $post["Attachments"])),
+      "Type" => base64_encode("DLC")
+     ]]);
+     $attachments = $this->core->RenderView($attachments);
+    }
     $contributors = $post["Contributors"] ?? [];
     $contributors = base64_encode(json_encode($contributors, true));
     $coverPhoto = $this->core->PlainText([

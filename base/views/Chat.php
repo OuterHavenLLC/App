@@ -202,6 +202,7 @@
    $group = $data["Group"] ?? 0;
    $information = $data["Information"] ?? 0;
    $oneOnOne = $data["1on1"] ?? 0;
+   $paidMessages = $data["PaidMessages"] ?? 0;
    $r = [
     "Body" => "The Chat Identifier is missing."
    ];
@@ -277,6 +278,9 @@
       ]]);
       $r = $this->core->RenderView($r);
      }
+    } elseif($paidMessages == 1) {
+     // SideScroll Paid Messages
+     // Use array_reverse() to put newest on top
     } else {
      $check = 1;
      $r = [
@@ -316,6 +320,8 @@
        "[Chat.ID]" => $id,
        "[Chat.Information]" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=$oneOnOne&Group=$group&ID=$chatID&Information=1"),
        "[Chat.List]" => base64_encode("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
+       "[Chat.PaidMessage]" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($chat["UN"])."&Type=PaidMessage&ViewPairID=".base64_encode("PaidMessage$id")),
+       "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=$id&PaidMessages=1"),
        "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
        "[Chat.SecureID]" => $id,
        "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
@@ -372,8 +378,6 @@
        $check2 = ($value["From"] == $you && $to == $value["To"]) ? 1 : 0;
       } if($group == 1 || $check == 1 || $check2 == 1) {
        $attachments = "";
-       $class = ($value["From"] != $you) ? "MSGt" : "MSGy";
-       $liveView = base64_encode("LiveView:InlineMossaic");
        if(!empty($value["Attachments"])) {
         $attachments = $this->view($liveView, ["Data" => [
          "ID" => base64_encode(implode(";", $value["Attachments"])),
@@ -381,9 +385,15 @@
         ]]);
         $attachments = $this->core->RenderView($attachments);
        }
-       $message = (!empty($value["Message"])) ? $this->core->Element([
-        "p", $value["Message"]
+       $liveView = base64_encode("LiveView:InlineMossaic");
+       $message = $value["Message"] ?? "";
+       $message = ($value["From"] != $you) ? "<strong>@".$value["From"]."</strong><br/>$message" : $message;
+       $message = (!empty($message)) ? $this->core->Element([
+        "p", $message
        ]) : "";
+       $paid = $value["Paid"] ?? 0;
+       $class = ($value["From"] != $you) ? "MSGt" : "MSGy";
+       $class = ($paid == 1) ? "MSGPaid" : $class;
        $chat[$key] = [
         "[Message.Attachments]" => $attachments,
         "[Message.Class]" => $class,
@@ -550,11 +560,13 @@
     }
     $chat["UN"] = $chat["UN"] ?? $you;
     $paid = $data["Paid"] ?? 0;
+    $paidAmount = $data["PaidAmount"] ?? "$0.00";
     $messages[$now] = [
      "Attachments" => $attachments,
      "From" => $you,
      "Message" => $message,
      "Paid" => $paid,
+     "PaidAmount" => $paidAmount,
      "Read" => 0,
      "Timestamp" => $now,
      "To" => $to

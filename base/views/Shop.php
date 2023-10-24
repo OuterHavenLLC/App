@@ -623,8 +623,12 @@
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $responseType = "Dialog";
    $shopID = $data["Shop"] ?? "";
+   $success = "CloseCard";
    $type = $data["Type"] ?? "";
+   $viewPairID = $data["ViewPairID"] ?? base64_encode("");
+   $viewPairID = base64_decode($viewPairID);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -1007,6 +1011,14 @@
           $y["Points"] = $y["Points"] + $points;
           $y["Verified"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Revenue([$shopOwner["Login"]["Username"], [
+           "Cost" => 0,
+           "ID" => "DONATION*".$shop["Title"],
+           "Partners" => $shop["Contributors"],
+           "Profit" => $total,
+           "Quantity" => 1,
+           "Title" => "DONATION*".$shop["Title"]
+          ]]);
           $message = $this->core->Element([
            "p", "We appreciate your donation of $$total to <em>".$shop["Title"]."</em>! This will help fund our continuing effort to preserve free speech on the internet. We are also giving you $points towards Credits which you may use for future purchases if you are currently signed in."
           ]);
@@ -1099,6 +1111,14 @@
            $invoiceID,
            $invoice
           ]);
+          $this->core->Revenue([$shopOwner["Login"]["Username"], [
+           "Cost" => 0,
+           "ID" => "INVOICE*$invoiceID",
+           "Partners" => $shop["Contributors"],
+           "Profit" => $total,
+           "Quantity" => 1,
+           "Title" => "INVOICE*".$invoiceID
+          ]]);
           $message = $this->core->Element([
            "p", "Thank you for your payment towards Invoice $invoiceID!"
           ]);
@@ -1110,13 +1130,84 @@
         ]);
         $processor .= "&Charge=$charge&Invoice=$invoiceID";
        }
+      } elseif($type == "PaidMessage") {
+       $success = "";
+       if($step == 2) {
+        $subtotal = $data["Amount"] ?? base64_encode(5.00);
+        $subtotal = base64_decode($subtotal);
+        $tax = $shop["Tax"] ?? 10.00;
+        $tax = number_format($subtotal * ($tax / 100), 2);
+        $total = number_format(($subtotal + $tax), 2);
+        $strippedTotal = str_replace(",", "", $total);
+        if(!empty($orderID) || !empty($paymentNonce)) {
+         if($paymentProcessor == "Braintree") {
+          $order = $braintree->transaction()->sale([
+           "amount" => $strippedTotal,
+           "customer" => [
+            "firstName" => $y["Personal"]["FirstName"]
+           ],
+           "options" => [
+            "submitForSettlement" => true
+           ],
+           "paymentMethodNonce" => $paymentNonce
+          ]);
+          $check = ($order->success) ? 1 : 0;
+          $order->message = $order->message ?? "N/A";
+          $changeData = [
+           "[Checkout.Order.Message]" => $order->message,
+           "[Checkout.Order.Products]" => 1,
+           "[Checkout.Order.Success]" => $order->success
+          ];
+          $extension = "229e494ec0f0f43824913a622a46dfca";
+         } elseif($paymentProcessor == "PayPal") {
+          $check = (!empty($orderID)) ? 1 : 0;
+          $orderID = base64_decode($orderID);
+         } if($check == 1) {
+          $points = $strippedTotal * 1000;
+          $y["Points"] = $y["Points"] + $points;
+          $y["Verified"] = 1;
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Revenue([$shopOwner["Login"]["Username"], [
+           "Cost" => 0,
+           "ID" => "CHAT*".$shop["Title"],
+           "Partners" => $shop["Contributors"],
+           "Profit" => $total,
+           "Quantity" => 1,
+           "Title" => "CHAT*".$shop["Title"]
+          ]]);
+          $message = $this->core->Element([
+           "p", "Please click or tap <em>Back to hat</em> until you're back home, your Message will be pinned to the top of the Group Chat once you send it."
+          ]);
+         }
+        }
+       } else {
+        $data = $this->core->DecodeBridgeData($data);
+        $subtotal = $data["Amount"] ?? 5.00;
+        $tax = $shop["Tax"] ?? 10.00;
+        $tax = number_format($subtotal * ($tax / 100), 2);
+        $total = number_format(($subtotal + $tax), 2);
+        $strippedTotal = str_replace(",", "", $total);
+        $message = $this->core->Element([
+         "p", "You are about to pay $$total (includes taxes) for your Paid Message"
+        ]);
+        $processor .= "&Amount=".base64_encode($data["Amount"])."&Form=".base64_encode($data["Form"])."&ViewPairID=".base64_encode($data["ViewPairID"]);
+        $responseType = "GoToView";
+        $viewPairID = $data["ViewPairID"] ?? "";
+       }
       } if($step == 2) {
+       $form = $data["Form"] ?? base64_encode("");
+       $form = base64_decode($form);
+       $viewPairID = $data["ViewPairID"] ?? base64_encode("");
+       $viewPairID = base64_decode($viewPairID);
        $changeData = [
+        "[Payment.Form]" => $form,
         "[Payment.Message]" => $message,
         "[Payment.Shop]" => $shop["Title"],
-        "[Payment.Total]" => number_format($tax + $subtotal, 2)
+        "[Payment.Total]" => number_format($tax + $subtotal, 2),
+        "[Payment.ViewPairID]" => $viewPairID
        ];
        $extension = "83d6fedaa3fa042d53722ec0a757e910";
+       $extension = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $extension;
       } else {
        $changeData = [
         "[Payment.Message]" => $message,
@@ -1127,12 +1218,15 @@
         "[Payment.Title]" => $shop["Title"],
         "[Payment.Token]" => $token,
         "[Payment.Total]" => $total,
-        "[Payment.Total.Stripped]" => str_replace(",", "", $total)
+        "[Payment.Total.Stripped]" => str_replace(",", "", $total),
+        "[Payment.ViewPairID]" => $viewPairID
        ];
        if($paymentProcessor == "Braintree") {
         $extension = "a1a7a61b89ce8e2715efc0157aa92383";
+        $extension = ($type == "PaidMessage") ? "PaidMessage" : $extension;
        } elseif($paymentProcessor == "PayPal") {
         $extension = "7c0f626e2bbb9bd8c04291565f84414a";
+        $extension = ($type == "PaidMessage") ? "2befd0118795807cec2b764febaeb06c" : $extension;
        }
       }
       $r = $this->core->Change([
@@ -1148,8 +1242,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    "ResponseType" => $responseType,
+    "Success" => $success
    ]);
   }
   function Payroll(array $a) {
