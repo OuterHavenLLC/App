@@ -202,6 +202,7 @@
    $group = $data["Group"] ?? 0;
    $information = $data["Information"] ?? 0;
    $oneOnOne = $data["1on1"] ?? 0;
+   $paidMessage = $data["PaidMessage"] ?? 0;
    $paidMessages = $data["PaidMessages"] ?? 0;
    $r = [
     "Body" => "The Chat Identifier is missing."
@@ -234,29 +235,44 @@
         $active++;
        }
       }
+      $bl = $this->core->CheckBlocked([$y, "Group Chats", $id]);
+      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
       $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
       $bookmarkCommand .= "Bookmark";
-      $modified = $chat["Modified"] ?? [];
-      if(empty($modified)) {
-       $modified = "";
-      } else {
+      $delete = ($chat["UN"] == $you && $id != "6cb00ab5e20c385b2c8d56e58ab03f97") ? 1 : 0;
+      $modified = $chat["Modified"] ?? "";
+      if(!empty($modified)) {
        $_Time = $this->core->TimeAgo($modified);
        $modified = " &bull; Modified ".$_Time;
        $modified = $this->core->Element(["em", $modified]);
       }
-      $share = ($chat["UN"] == $you || $active == 1) ? 1 : 0;
-      $options = ($chat["UN"] == $you) ? $this->core->Element([
+      $privacy = ($chat["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"]) && $chat["Privacy"] != md5("Private")) ? 1 : 0;
+      $share = (($chat["UN"] == $you || $active == 1) && $id != "6cb00ab5e20c385b2c8d56e58ab03f97") ? 1 : 0;
+      $options = ($chat["UN"] != $you) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Group Chats"))
+       ]
+      ]) : $this->core->Element([
        "button", "Edit", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($chat["UN"]))
        ]
-      ]) : $this->core->Element([
+      ]);
+      $options .= ($privacy == 1 && $share == 1) ? $this->core->Element([
        "button", $bookmarkCommand, [
         "class" => "UpdateButton v2",
         "data-processor" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($id))
        ]
-      ]);
-      $options .= ($share == 1) ? $this->core->Element([
+      ]) : "";
+      $options .= ($delete == 1) ? $this->core->Element([
+       "button", "Delete", [
+        "class" => "v2",
+        #"class" => "OpenDialog v2",
+        "data-view" => base64_encode("#")
+       ]
+      ]) : "";
+      $options .= ($privacy == 1 && $share == 1) ? $this->core->Element([
        "button", "Share", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Chat")."&Username=".base64_encode($chat["UN"]))
@@ -269,6 +285,7 @@
        "[Chat.ID]" => $id,
        "[Chat.Modified]" => $modified,
        "[Chat.Options]" => $options,
+       "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
        "[Chat.Title]" => $chat["Title"],
       ], $this->core->Page("5252215b917d920d5d2204dd5e3c8168")]);
      } elseif($oneOnOne == 1) {
@@ -278,9 +295,72 @@
       ]]);
       $r = $this->core->RenderView($r);
      }
+    } elseif($paidMessage == 1) {
+     $accessCode = "Accepted";
+     $messageID = $data["MessageID"] ?? "";
+     $r = $this->core->Element([
+      "h1", "Something went wrong..."
+     ]).$this->core->Element([
+      "p", "The Paid Message Identifier is missing."
+     ]);
+     if(!empty($messageID)) {
+      $attachments = "";
+      $chat = $this->core->Data("Get", ["chat", $chatID]) ?? [];
+      $messageID = base64_decode($messageID);
+      $messages = $chat["Messages"] ?? [];
+      $message = $messages[$messageID] ?? [];
+      if(!empty($message["Attachments"])) {
+       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+        "ID" => base64_encode(implode(";", $message["Attachments"])),
+        "Type" => base64_encode("DLC")
+       ]]);
+       $attachments = $this->core->RenderView($attachments);
+      }
+      $t = ($message["From"] == $you) ? $y : $this->core->Member($message["From"]);
+      $paid = $message["Paid"] ?? 0;
+      $profilePicture = $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:calc(100% - 1em)");
+      $text = $message["Message"] ?? "";
+      $text = "<strong>@".$message["From"]." Paid ".$message["PaidAmount"]."</stong><br/>$text";
+      $text = (!empty($text)) ? $this->core->Element([
+       "p", $text
+      ]) : "";
+      $text = $this->core->Element(["div", $profilePicture, [
+       "class" => "Desktop10"
+      ]]).$this->core->Element(["div", $text, [
+       "class" => "Desktop90"
+      ]]);
+      $r = $this->core->Change([[
+       "[Message.Attachments]" => $attachments,
+       "[Message.Class]" => "MSGPaid",
+       "[Message.MSG]" => $this->core->PlainText([
+        "Data" => $text,
+        "Display" => 1
+       ]),
+       "[Message.Sent]" => $this->core->TimeAgo($message["Timestamp"])
+      ], $this->core->Page("1f4b13bf6e6471a7f5f9743afffeecf9")]);
+     }
+     $r = [
+      "Front" => $r
+     ];
     } elseif($paidMessages == 1) {
-     // SideScroll Paid Messages
-     // Use array_reverse() to put newest on top
+     $accessCode = "Accepted";
+     $chat = $this->core->Data("Get", ["chat", $chatID]) ?? [];
+     $extension = $this->core->Page("PaidMessage");
+     $messages = $chat["Messages"] ?? [];
+     $r = "";
+     foreach($messages as $key => $value) {
+      $amount = $value["PaidAmount"] ?? "";
+      if($value["Paid"] == 1) {
+       $r .= $this->core->Element([
+        "div", $this->core->Element([
+         "p", "<strong>@".$value["From"]."</strong> paid $amount"
+        ]), [
+         "class" => "OpenCard PaidMessage",
+         "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&ID=$chatID&MessageID=".base64_encode($key)."&PaidMessage=1")
+        ]
+       ]);
+      }
+     }
     } else {
      $check = 1;
      $r = [
@@ -295,6 +375,7 @@
       $t = $this->core->Member($this->core->ID);
       $to = $displayName;
      } elseif($oneOnOne == 1) {
+      $chat["UN"] = $you;
       $t = $this->core->Member($id);
       $id = md5($id);
       $active = $t["Activity"]["OnlineStatus"];
@@ -379,25 +460,39 @@
       } if($group == 1 || $check == 1 || $check2 == 1) {
        $attachments = "";
        if(!empty($value["Attachments"])) {
-        $attachments = $this->view($liveView, ["Data" => [
+        $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
          "ID" => base64_encode(implode(";", $value["Attachments"])),
          "Type" => base64_encode("DLC")
         ]]);
         $attachments = $this->core->RenderView($attachments);
        }
-       $liveView = base64_encode("LiveView:InlineMossaic");
-       $message = $value["Message"] ?? "";
-       $message = ($value["From"] != $you) ? "<strong>@".$value["From"]."</strong><br/>$message" : $message;
        $message = (!empty($message)) ? $this->core->Element([
-        "p", $message
+        "p", $value["Message"]
        ]) : "";
+       if($group == 1 && $value["From"] != $you) {
+        $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
+        $profilePicture = $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:calc(100% - 1em)");
+        $message = $value["Message"] ?? "";
+        $message = ($value["Paid"] == 1) ? "<strong>@".$value["From"]." Paid ".$value["PaidAmount"]."</stong><br/>$message" : "<strong>@".$value["From"]."</stong><br/>$message";
+        $message = (!empty($message)) ? $this->core->Element([
+         "p", $message
+        ]) : "";
+        $message = $this->core->Element(["div", $profilePicture, [
+         "class" => "Desktop10"
+        ]]).$this->core->Element(["div", $message, [
+         "class" => "Desktop90"
+        ]]);
+       }
        $paid = $value["Paid"] ?? 0;
        $class = ($value["From"] != $you) ? "MSGt" : "MSGy";
        $class = ($paid == 1) ? "MSGPaid" : $class;
        $chat[$key] = [
         "[Message.Attachments]" => $attachments,
         "[Message.Class]" => $class,
-        "[Message.MSG]" => $message,
+        "[Message.MSG]" => $this->core->PlainText([
+         "Data" => $message,
+         "Display" => 1
+        ]),
         "[Message.Sent]" => $this->core->TimeAgo($value["Timestamp"])
        ];
       }
@@ -437,11 +532,48 @@
     $accessCode = "Accepted";
     $search = base64_encode("Search:Containers");
     $r = $this->core->Change([[
-     "[Chat.1on1]" => base64_encode("v=$search&1on1=1&Integrated=$integrated&st=Chat"),
-     "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=GroupChat"),
+     "[Chat.1on1]" => base64_encode("v=$search&1on1=1&Integrated=$integrated&st=MBR-Chat"),
+     "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=MBR-GroupChat"),
      "[Chat.New]" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you)),
      "[Chat.ID]" => md5($you)
     ], $this->core->Page("2e1855b9baa7286162fb571c5f80da0f")]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function PublicHome(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $callSign = $data["CallSign"] ?? "";
+   $callSign = $this->core->CallSign($callSign);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "We could not find the Group Chat you were looking for."
+   ];
+   if(!empty($callSign) || !empty($id)) {
+    $accessCode = "Accepted";
+    $chats = $this->core->DatabaseSet("Chat") ?? [];
+    foreach($chats as $key => $value) {
+     $value = str_replace("c.oh.chat.", "", $value);
+     $chat = $this->core->Data("Get", ["chat", $value]) ?? [];
+     $chatCallSign = $this->core->CallSign($chat["Title"]);
+     if($callSign == $chatCallSign || $id == $value) {
+      $r = $this->view(base64_encode("Chat:Home"), ["Data" => [
+       "Group" => 1,
+       "ID" => base64_encode($value)
+      ]]);
+      $r = $this->core->RenderView($r);
+     }
+    }
+   } if($y["Login"]["Username"] == $this->core->ID && $data["pub"] == 1) {
+    $r = $this->view(base64_encode("WebUI:OptIn"), []);
+    $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -510,6 +642,7 @@
       "Contributors" => $contributors,
       "Created" => $created,
       "Description" => $description,
+      "Group" => 1,
       "Messages" => $messages,
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
@@ -548,6 +681,7 @@
      $attachments = array_unique($attachments);
     } if($group == 1) {
      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $chat["UN"] = $chat["UN"] ?? $you;
      $chat["Description"] = $chat["Description"] ?? "";
      $chat["Title"] = $chat["Title"] ?? "Group Chat";
      $messages = $chat["Messages"] ?? [];
@@ -558,7 +692,6 @@
      $t = $this->core->Data("Get", ["mbr", $id]) ?? [];
      $to = $t["Login"]["Username"];
     }
-    $chat["UN"] = $chat["UN"] ?? $you;
     $paid = $data["Paid"] ?? 0;
     $paidAmount = $data["PaidAmount"] ?? "$0.00";
     $messages[$now] = [
@@ -598,6 +731,9 @@
     "ResponseType" => "Dialog",
     "Success" => $success
    ]);
+  }
+  function SaveDelete(array $a) {
+   // DELETE THE CHAT
   }
   function __destruct() {
    // DESTROYS THIS CLASS

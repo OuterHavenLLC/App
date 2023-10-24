@@ -424,10 +424,6 @@
   function PublicHome(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "CallSign",
-    "ID"
-   ]);
    $callSign = $data["CallSign"] ?? "";
    $callSign = $this->core->CallSign($callSign);
    $id = $data["ID"] ?? "";
@@ -445,6 +441,7 @@
       $r = $this->view(base64_encode("Forum:Home"), ["Data" => [
        "ID" => $forum["ID"]
       ]]);
+      $r = $this->core->RenderView($r);
      }
     }
    } if($y["Login"]["Username"] == $this->core->ID && $data["pub"] == 1) {

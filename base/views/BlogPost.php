@@ -190,8 +190,8 @@
     }
     $bl = $this->core->CheckBlocked([$y, "Blog Posts", $postID]);
     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-    $actions = ($post["UN"] == $you) ? $this->core->Element([
-     "button", $blockCommand $postID, [
+    $actions = ($post["UN"] != $you) ? $this->core->Element([
+     "button", $blockCommand, [
       "class" => "Small UpdateButton v2",
       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($postID)."&List=".base64_encode("Blog Posts"))
      ]

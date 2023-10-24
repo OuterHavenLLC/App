@@ -151,13 +151,14 @@
       "Forums",
       "Forums-Admin",
       "Forums-Posts",
-      "GroupChat",
       "Knowledge",
       "Mainstream",
       "MBR",
       "MBR-ALB",
       "MBR-BLG",
       "MBR-CA",
+      "MBR-Chat",
+      "MBR-GroupChat",
       "MBR-Forums",
       "MBR-JE",
       "MBR-LLP",
@@ -363,6 +364,8 @@
       $a = "c.oh.blg.";
      } elseif($a == "BlogPosts") {
       $a = "c.oh.bp.";
+     } elseif($a == "Chat") {
+      $a = "c.oh.chat.";
      } elseif($a == "Files") {
       $a = "c.oh.fs.";
      } elseif($a == "KB") {

@@ -135,6 +135,11 @@
     $r = $gw->view(base64_encode("WebUI:Containers"), ["Data" => [
      "Type" => "Chat"
     ]]);
+    if(!empty($c[1])) {
+     $r = $gw->view(base64_encode("Chat:PublicHome"), ["Data" => [
+      "ID" => base64_encode($c[1])
+     ]]);
+    }
    }
    $_ViewTitle = "Chat";
   } elseif($c[0] == "congress") {

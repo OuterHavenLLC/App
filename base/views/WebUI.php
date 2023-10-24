@@ -123,7 +123,6 @@
     $accessCode = "Accepted";
     $changeData = [
      "[Menu.Administration]" => $admin,
-     "[Menu.Chat]" => base64_encode("v=".base64_encode("Chat:Menu")."&Integrated=1"),
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
      "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
@@ -136,6 +135,7 @@
      "[Menu.Member.Blacklist]" => base64_encode("v=".base64_encode("Profile:Blacklists")),
      "[Menu.Member.Blogs]" => base64_encode("v=$search&st=MBR-BLG"),
      "[Menu.Member.BulletinCenter]" => base64_encode("v=".base64_encode("Profile:BulletinCenter")),
+     "[Menu.Member.Chat]" => base64_encode("v=".base64_encode("Chat:Menu")."&Integrated=1"),
      "[Menu.Member.Contacts]" => base64_encode("v=$search&st=Contacts"),
      "[Menu.Member.CoverPhoto]" => $this->core->CoverPhoto($y["Personal"]["CoverPhoto"]),
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"],
@@ -155,6 +155,7 @@
      "[Menu.Search.Archive]" => base64_encode("v=$search&lPG=Archive&st=CA"),
      "[Menu.Search.Artists]" => base64_encode("v=$search&lPG=Shops&st=SHOP"),
      "[Menu.Search.Blogs]" => base64_encode("v=$search&lPG=Blogs&st=BLG"),
+     "[Menu.Search.Chat]" => base64_encode("v=$search&Integrated=1&lPG=Chat&st=Chat"),
      "[Menu.Search.Members]" => base64_encode("v=$search&lPG=Members&st=MBR"),
      "[Menu.Search.PublicForums]" => base64_encode("v=$search&lPG=Forums&st=Forums"),
      "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))

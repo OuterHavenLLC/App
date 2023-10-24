@@ -82,13 +82,10 @@
      $li .= "&ID=$shopID";
      $lis = "Search ".$shop["Title"];
      $extension = "e58b4fc5070b14c01c88c28050547285";
-    } elseif($st == "Chat" || $st == "GroupChat") {
-     $group = $data["Group"] ?? 0;
+    } elseif($st == "Chat") {
      $integrated = $data["Integrated"] ?? 0;
-     $oneOnOne = $data["1on1"] ?? 0;
-     $h = "1:1 Chat";
-     $h = ($group == 1) ? "Group Chat" : $h;
-     $li .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
+     $h = "Group Chats";
+     $li .= "&Integrated=$integrated";
      $lis = "Search $h";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "Contacts") {
@@ -227,6 +224,15 @@
      $h = ($ck == 1) ? "Your Contributions" : $t["Personal"]["DisplayName"]."'s Contributions";
      $li .= "&b2=$b2&lPG=$lpg&UN=".$data["UN"];
      $lis = "Search the Archive";
+    } elseif($st == "MBR-Chat" || $st == "MBR-GroupChat") {
+     $group = $data["Group"] ?? 0;
+     $integrated = $data["Integrated"] ?? 0;
+     $oneOnOne = $data["1on1"] ?? 0;
+     $h = "1:1 Chat";
+     $h = ($group == 1) ? "Group Chat" : $h;
+     $li .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
+     $lis = "Search $h";
+     $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "MBR-Forums") {
      $fd = base64_encode("Authentication:DeleteForum");
      $fe = base64_encode("Forum:Edit");
@@ -896,55 +902,37 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
     $y["Shopping"]["Cart"][$data["ID"]]["Products"] = $newCartList;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-   } elseif($st == "Chat" || $st == "GroupChat") {
+   } elseif($st == "Chat") {
     $ec = "Accepted";
-    $group = $data["Group"] ?? 0;
     $integrated = $data["Integrated"] ?? 0;
-    $oneOnOne = $data["1on1"] ?? 0;
     $extension = $this->core->Page("343f78d13872e3b4e2ac0ba587ff2910");
     if($notAnon == 1) {
      $extension = "343f78d13872e3b4e2ac0ba587ff2910";
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
      $extension = $this->core->Page($extension);
-     if($group == 1) {
-      $groups = $y["GroupChats"] ?? [];
-      foreach($groups as $key => $group) {
-       $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
-       $displayName = $chat["Title"] ?? "Group Chat";
-       $t = $this->core->Member($this->core->ID);
-       $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group);
-       $view .= ($integrated == 1) ? "&Card=1" : "";
-       array_push($msg, [
-        "[Chat.DisplayName]" => base64_encode($displayName),
-        "[Chat.Online]" => base64_encode(""),
-        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-        "[Chat.View]" => base64_encode(base64_encode($view))
-       ]);
-      }
-     } elseif($oneOnOne == 1) {
-      $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
-      $contacts = [];
-      $messages = $chat["Messages"] ?? [];
-      foreach($messages as $key => $message) {
-       array_push($contacts, $message["To"]);
-      }
-      $contacts = array_unique($contacts);
-      foreach($contacts as $key => $member) {
-       $t = $this->core->Member($member);
-       $view = "v=".base64_encode("Chat:Home")."&1on1=1&Username=".base64_encode($member);
-       $view .= ($integrated == 1) ? "&Card=1" : "";
-       $online = $t["Activity"]["OnlineStatus"] ?? 0;
-       $online = ($online == 1) ? $this->core->Element([
-        "span",
-        NULL,
-        ["class" => "online"]
-       ]) : "";
-       array_push($msg, [
-        "[Chat.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
-        "[Chat.Online]" => base64_encode($online),
-        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-        "[Chat.View]" => base64_encode(base64_encode($view))
-       ]);
+     $groups = $this->core->DatabaseSet("Chat") ?? [];
+     foreach($groups as $key => $group) {
+      $group = str_replace("c.oh.chat.", "", $group);
+      $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
+      $nsfw = $chat["NSFW"] ?? 0;
+      $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $privacy = $chat["Privacy"] ?? 0;
+      $privacy = ($privacy != md5("Private")) ? 1 : 0;
+      if($chat["UN"] == $you || ($nsfw == 1 && $privacy == 1)) {
+       $contributors = $chat["Contributors"] ?? [];
+       $isGroupChat = $chat["Group"] ?? 0;
+       if(!empty($contributors) || $isGroupChat == 1) {
+        $displayName = $chat["Title"] ?? "Group Chat";
+        $t = $this->core->Member($this->core->ID);
+        $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group);
+        $view .= ($integrated == 1) ? "&Card=1" : "";
+        array_push($msg, [
+         "[Chat.DisplayName]" => base64_encode($displayName),
+         "[Chat.Online]" => base64_encode(""),
+         "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
+         "[Chat.View]" => base64_encode(base64_encode($view))
+        ]);
+       }
       }
      }
     }
@@ -1317,7 +1305,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
      $ck = $forum["Open"] ?? 0;
-     $ck2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $forum["NSFW"] == 0) ? 1 : 0;
+     $ck2 = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
      $ck3 = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $forum["Privacy"],
@@ -1752,6 +1740,58 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ])),
        "[Article.ViewPage]" => base64_encode("$lpg;".base64_encode("v=$home&b2=$b2&back=1&lPG=$lpg&ID=".$Page["ID"]))
       ]);
+     }
+    }
+   } elseif($st == "MBR-Chat" || $st == "MBR-GroupChat") {
+    $ec = "Accepted";
+    $group = $data["Group"] ?? 0;
+    $integrated = $data["Integrated"] ?? 0;
+    $oneOnOne = $data["1on1"] ?? 0;
+    $extension = $this->core->Page("343f78d13872e3b4e2ac0ba587ff2910");
+    if($notAnon == 1) {
+     $extension = "343f78d13872e3b4e2ac0ba587ff2910";
+     $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
+     $extension = $this->core->Page($extension);
+     if($group == 1) {
+      $groups = $y["GroupChats"] ?? [];
+      foreach($groups as $key => $group) {
+       $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
+       $displayName = $chat["Title"] ?? "Group Chat";
+       $t = $this->core->Member($this->core->ID);
+       $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group);
+       $view .= ($integrated == 1) ? "&Card=1" : "";
+       array_push($msg, [
+        "[Chat.DisplayName]" => base64_encode($displayName),
+        "[Chat.Online]" => base64_encode(""),
+        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
+        "[Chat.View]" => base64_encode(base64_encode($view))
+       ]);
+      }
+     } elseif($oneOnOne == 1) {
+      $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+      $contacts = [];
+      $messages = $chat["Messages"] ?? [];
+      foreach($messages as $key => $message) {
+       array_push($contacts, $message["To"]);
+      }
+      $contacts = array_unique($contacts);
+      foreach($contacts as $key => $member) {
+       $t = $this->core->Member($member);
+       $view = "v=".base64_encode("Chat:Home")."&1on1=1&Username=".base64_encode($member);
+       $view .= ($integrated == 1) ? "&Card=1" : "";
+       $online = $t["Activity"]["OnlineStatus"] ?? 0;
+       $online = ($online == 1) ? $this->core->Element([
+        "span",
+        NULL,
+        ["class" => "online"]
+       ]) : "";
+       array_push($msg, [
+        "[Chat.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
+        "[Chat.Online]" => base64_encode($online),
+        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
+        "[Chat.View]" => base64_encode(base64_encode($view))
+       ]);
+      }
      }
     }
    } elseif($st == "MBR-Forums") {

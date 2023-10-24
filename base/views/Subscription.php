@@ -117,14 +117,13 @@
        "[Blogger.Title]" => $sub["Title"]
       ], $this->core->Page("566f9967f00f97350e54b0ee14faef36")]);
      } elseif($s == "VIP") {
-      $forum = base64_encode("Forum:Home");
-      $id = base64_encode("cb3e432f76b38eaa66c7269d658bd7ea");
       $r = $this->core->Change([[
        "[VIP.CoverPhoto]" => $this->core->PlainText([
         "Data" => "[sIMG:CP]",
         "Display" => 1
        ]),
-       "[VIP.Forum]" => base64_encode("v=$forum&CARD=1&ID=$id")
+       "[VIP.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=6cb00ab5e20c385b2c8d56e58ab03f97"),
+       "[VIP.Forum]" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=cb3e432f76b38eaa66c7269d658bd7ea")
       ], $this->core->Page("89d36f051962ca4bbfbcb1dc2bd41f60")]);
      } elseif($s == "XFS") {
       $r = $this->core->Change([[
