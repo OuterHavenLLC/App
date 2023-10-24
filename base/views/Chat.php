@@ -259,7 +259,7 @@
         "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($chat["UN"]))
        ]
       ]);
-      $options .= ($privacy == 1 && $share == 1) ? $this->core->Element([
+      $options .= ($chat["UN"] != $you && $privacy == 1 && $share == 1) ? $this->core->Element([
        "button", $bookmarkCommand, [
         "class" => "UpdateButton v2",
         "data-processor" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($id))
