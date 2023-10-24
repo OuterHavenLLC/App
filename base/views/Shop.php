@@ -1223,7 +1223,7 @@
        ];
        if($paymentProcessor == "Braintree") {
         $extension = "a1a7a61b89ce8e2715efc0157aa92383";
-        $extension = ($type == "PaidMessage") ? "PaidMessage" : $extension;
+        $extension = ($type == "PaidMessage") ? "cef54994324e1b9ba4f902791ecc3ee5" : $extension;
        } elseif($paymentProcessor == "PayPal") {
         $extension = "7c0f626e2bbb9bd8c04291565f84414a";
         $extension = ($type == "PaidMessage") ? "2befd0118795807cec2b764febaeb06c" : $extension;
