@@ -320,7 +320,7 @@
       $paid = $message["Paid"] ?? 0;
       $profilePicture = $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:calc(100% - 1em)");
       $text = $message["Message"] ?? "";
-      $text = "<strong>@".$message["From"]." Paid ".$message["PaidAmount"]."</stong><br/>$text";
+      $text = "<strong>@".$message["From"]." Paid ".$message["PaidAmount"]."</strong><br/>$text";
       $text = (!empty($text)) ? $this->core->Element([
        "p", $text
       ]) : "";
@@ -473,7 +473,7 @@
         $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
         $profilePicture = $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:calc(100% - 1em)");
         $message = $value["Message"] ?? "";
-        $message = ($value["Paid"] == 1) ? "<strong>@".$value["From"]." Paid ".$value["PaidAmount"]."</stong><br/>$message" : "<strong>@".$value["From"]."</stong><br/>$message";
+        $message = ($value["Paid"] == 1) ? "<strong>@".$value["From"]." Paid ".$value["PaidAmount"]."</strong><br/>$message" : "<strong>@".$value["From"]."</strong><br/>$message";
         $message = (!empty($message)) ? $this->core->Element([
          "p", $message
         ]) : "";
