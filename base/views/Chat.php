@@ -466,10 +466,8 @@
         ]]);
         $attachments = $this->core->RenderView($attachments);
        }
-       $message = (!empty($message)) ? $this->core->Element([
-        "p", $value["Message"]
-       ]) : "";
-       if($group == 1 && $value["From"] != $you) {
+       $message = $value["Message"] ?? "";;
+       if($value["From"] != $you) {
         $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
         $profilePicture = $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:calc(100% - 1em)");
         $message = $value["Message"] ?? "";
@@ -482,6 +480,10 @@
         ]]).$this->core->Element(["div", $message, [
          "class" => "Desktop90"
         ]]);
+       } else {
+        $message = (!empty($message)) ? $this->core->Element([
+         "p", $message
+        ]) : "";
        }
        $paid = $value["Paid"] ?? 0;
        $class = ($value["From"] != $you) ? "MSGt" : "MSGy";

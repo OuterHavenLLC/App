@@ -2,6 +2,10 @@
 App Documentation and Change Log are in the works...
 
 # Change Log
+## 1.1.1: Supplemental
+### Release Notes
+This release resolves an issue that prevented Chat messages from rendering properly, and enables recursive client-side loading of searchable lists under the new Search() function.
+
 ## 1.1: Chat
 ### Release Notes
 This release includes fundamental changes, stability and security improvements, and many bug fixes. It is recommended that any distributed copies of the platform be updated to this release.
