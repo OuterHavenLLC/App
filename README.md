@@ -1,5 +1,5 @@
 # Outer Haven Web App
-App Documentation and Change Log are in the works...
+App Documentation is in the works...
 
 # Change Log
 ## 1.1.1: Supplemental
