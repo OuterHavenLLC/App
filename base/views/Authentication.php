@@ -334,7 +334,7 @@
     $files = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
     $files = $files["Files"] ?? [];
     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-     "x",
+     "app",
      "fs"
     ]) : $files;
     $file = $files[$id] ?? [];

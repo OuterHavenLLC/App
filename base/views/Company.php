@@ -99,7 +99,7 @@
      "data-form" => ".NewMail$id",
      "data-processor" => base64_encode("v=".base64_encode("Company:SendMassMail"))
     ]]);
-    $preSets = $this->core->Data("Get", ["x", md5("MassMail")]) ?? [];
+    $preSets = $this->core->Data("Get", ["app", md5("MassMail")]) ?? [];
     $preSet = $preSets[$id] ?? [];
     $body = $preSet["Body"] ?? base64_encode("");
     $description = $preSet["Description"] ?? "";
@@ -172,7 +172,7 @@
    $id = $data["ID"];
    $now = $this->core->timestamp;
    $new = $data["new"] ?? 0;
-   $preSets = $this->core->Data("Get", ["x", md5("MassMail")]) ?? [];
+   $preSets = $this->core->Data("Get", ["app", md5("MassMail")]) ?? [];
    $nextSend = $preSets["NextSend"] ?? strtotime($now);
    $r = [
     "Body" => "The Pre-Set Identifier is missing."
@@ -196,7 +196,7 @@
    } else {
     $accessCode = "Accepted";
     $contactList = $this->core->Data("Get", [
-     "x",
+     "app",
      md5("ContactList")
     ]) ?? [];
     $preSets["NextSend"] = $this->core->TimePlus($now, 1, "month");
@@ -215,7 +215,7 @@
       "Title" => $data["Title"]
      ];
     }
-    $this->core->Data("Save", ["x", md5("MassMail"), $preSets]);
+    $this->core->Data("Save", ["app", md5("MassMail"), $preSets]);
     $r = [
      "Body" => "Your email has been sent to every Member who elected to receive occasional emails.",
      "Header" => "Done"
@@ -234,7 +234,7 @@
   function Statistics(array $a) {
    $accessCode = "Accepted";
    $st = "";
-   $statistics = $this->core->Data("Get", ["x", "stats"]) ?? [];
+   $statistics = $this->core->Data("Get", ["app", "stats"]) ?? [];
    $tpl = $this->core->Page("676193c49001e041751a458c0392191f");
    $tpl2 = $this->core->Page("a936651004efc98932b63c2d684715f8");
    $tpl3 = $this->core->Page("d019a2b62accac6e883e04b358953f3f");

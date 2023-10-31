@@ -315,7 +315,7 @@
     "minAge" => 18,
     "minRegAge" => 13
    ];
-   $this->Data("Save", ["x", md5("config"), $r]);
+   $this->Data("Save", ["app", md5("config"), $r]);
    return $r;
   }
   function ConfigureBaseURL($a = NULL) {
@@ -1006,13 +1006,13 @@
   }
   function Statistic($a) {
    $m = date("m");
-   $x = $this->Data("Get", ["x", "stats"]) ?? [];
+   $x = $this->Data("Get", ["app", md5("stats")]) ?? [];
    $y = date("Y");
    $x[$y] = $x[$y] ?? [];
    $x[$y][$m] = $x[$y][$m] ?? [];
    $x[$y][$m][$a] = $x[$y][$m][$a] ?? 0;
    $x[$y][$m][$a]++;
-   $this->Data("Save", ["x", "stats", $x]);
+   $this->Data("Save", ["app", md5("stats"), $x]);
   }
   function TimeAgo($datetime, $full = false) {
    $now = new DateTime;

@@ -521,7 +521,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "ADM-MassMail") {
     $ec = "Accepted";
-    $preSets = $this->core->Data("Get", ["x", md5("MassMail")]) ?? [];
+    $preSets = $this->core->Data("Get", ["app", md5("MassMail")]) ?? [];
     $extension = $this->core->Page("3536f06229e7b9d9684f8ca1bb08a968");
     if($notAnon == 1) {
      foreach($preSets as $key => $preSet) {
@@ -1502,7 +1502,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $edit = base64_encode("StatusUpdate:Edit");
     $attlv = base64_encode("LiveView:InlineMossaic");
     $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
-    $x = $this->core->Data("Get", ["x", "mainstream"]) ?? [];
+    $x = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
     foreach($x as $k => $v) {
      $bl = $this->core->CheckBlocked([$y, "Status Opdates", $v]);
      $su = $this->core->Data("Get", ["su", $v]) ?? [];
@@ -1935,7 +1935,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      md5($t["Login"]["Username"])
     ]) ?? [];
     if($t["Login"]["Username"] == $this->core->ID) {
-     $files = $this->core->Data("Get", ["x", "fs"]) ?? [];
+     $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
     } else {
      $files = $fileSystem["Files"] ?? [];
     } foreach($files as $key => $value) {
@@ -2314,7 +2314,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Page("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $username = base64_decode($data["UN"]);
     if($this->core->ID == $username) {
-     $files = $this->core->Data("Get", ["x", "fs"]) ?? [];
+     $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
     } else {
      $files = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
      $files = $files["Files"] ?? [];

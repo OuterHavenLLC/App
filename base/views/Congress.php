@@ -8,6 +8,7 @@
    $data = $a["Data"] ?? [];
    $chamber = $data["Chanber"] ?? "";
    $chambers = $data["Chanbers"] ?? 0;
+   $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
    $pub = $data["pub"] ?? 0;
    // DEMOCRATIZED CONTENT MODERATION
    // HOUSE = 2X POPULATION OF SENATE, EX: 200:100 OR 800:400 RATIOS
@@ -27,12 +28,12 @@
     }
    } else {
     $r = $this->core->Change([[
+     "[Congress.Chambers.House]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=House&Chambers=1"),
+     "[Congress.Chambers.Senate]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=Senate&Chambers=1"),
      "[Congress.CoverPhoto]" => $this->core->PlainText([
       "Data" => "[Media:Congress]",
       "Display" => 1
-     ]),
-     "[Congress.Chambers.House]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=House&Chambers=1"),
-     "[Congress.Chambers.Senate]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=Senate&Chambers=1")
+     ])
     ], $this->core->Page("Congress")]);
    }
    if($pub == 1) {

@@ -209,9 +209,9 @@
       }
      }
     } if($new == 1) {
-     $mainstream = $this->core->Data("Get", ["x", "mainstream"]) ?? [];
+     $mainstream = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
      array_push($mainstream, $id);
-     $this->core->Data("Save", ["x", "mainstream", $mainstream]);
+     $this->core->Data("Save", ["app", "mainstream", $mainstream]);
      $update = [
       "From" => $you,
       "To" => $to,
@@ -287,7 +287,7 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $mainstream = $this->core->Data("Get", ["x", "mainstream"]) ?? [];
+    $mainstream = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
     $newMainstream = [];
     $newStream = [];
     $stream = $this->core->Data("Get", ["stream", md5($you)]) ?? [];
@@ -311,7 +311,7 @@
     $this->core->Data("Purge", ["votes", $id]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["stream", md5($you), $stream]);
-    $this->core->Data("Save", ["x", "mainstream", $mainstream]);
+    $this->core->Data("Save", ["app", "mainstream", $mainstream]);
     $r = [
      "Body" => "The Post was deleted.",
      "Header" => "Done"

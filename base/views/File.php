@@ -41,7 +41,7 @@
     $username = base64_decode($username);
     $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-     "x",
+     "app",
      "fs"
     ]) : $fileSystem["Files"];
     $file = $files[$id] ?? [];
@@ -126,7 +126,7 @@
      md5($t["Login"]["Username"])
     ]) ?? [];
     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-     "x",
+     "app",
      "fs"
     ]) : $files["Files"];
     $file = $files[$id] ?? [];
@@ -291,7 +291,7 @@
     $username = $data["Username"] ?? $you;
     $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-     "x",
+     "app",
      "fs"
     ]) : $fileSystem["Files"];
     $now = $this->core->timestamp;
@@ -306,7 +306,7 @@
     $file["Title"] = $data["Title"];
     $files[$id] = $file;
     if($this->core->ID == $username) {
-     $this->core->Data("Save", ["x", "fs", $files]);
+     $this->core->Data("Save", ["app", "fs", $files]);
     } else {
      $fileSystem["Files"] = $files;
      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
@@ -352,7 +352,7 @@
     $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $files = $fileSystem["Files"] ?? [];
     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-     "x",
+     "app",
      "fs"
     ]) : $files;
     $file = $files[$id] ?? [];
@@ -382,7 +382,7 @@
        unlink($this->core->DocumentRoot."/efs/$username/$_Name");
       }
      } if($this->core->ID == $username) {
-      $this->core->Data("Save", ["x", "fs", $newFiles]);
+      $this->core->Data("Save", ["app", "fs", $newFiles]);
      } else {
       $fileSystem["Albums"] = $albums;
       $fileSystem["Files"] = $newFiles;
@@ -486,7 +486,7 @@
     $albums = $_FileSystem["Albums"] ?? [];
     $files = $_FileSystem["Files"] ?? [];
     if($_HC == 1) {
-     $files = $this->core->Data("Get", ["x", "fs"]) ?? [];
+     $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
     }
     $now = $this->core->timestamp;
     $nsfw = $data["NSFW"] ?? base64_encode($y["Privacy"]["NSFW"]);
@@ -599,7 +599,7 @@
        $files[$id] = $file;
        if($_HC == 1) {
         $files[$id]["UN"] = $you;
-        $this->core->Data("Save", ["x", "fs", $files]);
+        $this->core->Data("Save", ["app", "fs", $files]);
        } else {
         $_FileSystem = $_FileSystem ?? [];
         $_FileSystem["Albums"] = $albums;
@@ -683,7 +683,7 @@
      $ck = ($_HC == 1 && $this->core->ID == $username) ? 1 : 0;
      $ck2 = ($username == $you) ? 1 : 0;
      $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-      "x",
+      "app",
       "fs"
      ]) : $files;
      $r = [

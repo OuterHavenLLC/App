@@ -136,7 +136,7 @@
     $now = $this->core->timestamp;
     if($data["SOE"] == 1) {
      $contacts  = $this->core->Data("Get", [
-      "x",
+      "app",
       md5("ContactList")
      ]) ?? [];
      $contacts[$data["Email"]] = [
@@ -147,7 +147,7 @@
       "UN" => $you,
       "Updated" => $now
      ];
-     $this->core->Data("Save", ["x", md5("ContactList"), $contacts]);
+     $this->core->Data("Save", ["app", md5("ContactList"), $contacts]);
     }
     $feedback = [
      "AllowIndexing" => $data["Index"],
