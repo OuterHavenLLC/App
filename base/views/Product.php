@@ -269,7 +269,7 @@
      ]) : $bck;
      $bundle = "";
      $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
-      "Data" => "[sIMG:MiNY]",
+      "Data" => "[Media:MiNY]",
       "Display" => 1
      ]);
      $coverPhoto = base64_encode($coverPhoto);

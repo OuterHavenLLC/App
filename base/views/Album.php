@@ -115,7 +115,7 @@
     $ck2 = $y["subscr"]["XFS"]["A"] ?? 0;
     $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
     $coverPhoto = $alb["ICO"] ?? $this->core->PlainText([
-     "Data" => "[sIMG:CP]",
+     "Data" => "[Media:CP]",
      "Display" => 1
     ]);
     $coverPhoto = $this->core->GetSourceFromExtension([

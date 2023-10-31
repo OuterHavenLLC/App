@@ -165,7 +165,7 @@
     $contributors = $post["Contributors"] ?? [];
     $contributors = base64_encode(json_encode($contributors, true));
     $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:CP]",
+     "Data" => "[Media:CP]",
      "Display" => 1
     ]);
     $coverPhoto = (!empty($post["ICO"])) ? $this->core->CoverPhoto(base64_encode($post["ICO"])) : $coverPhoto;

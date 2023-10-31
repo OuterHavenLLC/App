@@ -179,6 +179,7 @@
       "CA",
       "CART",
       "Chat",
+      "Congress",
       "Contacts",
       "ContactsProfileList",
       "ContactsRequests",
@@ -217,6 +218,7 @@
     "Media" => [
      "CHECK" => "875be5c73e0671200587f26139501a8c.png",
      "CODE" => "78569ee93f82cf2cd9415e7c4ca5e65b.png",
+     "Congress" => "",
      "CP" => "1c48161334e41522f112494baf2c8a60.jpg",
      "DOC" => "0dc477cf7c6d1210b9312c1f579f8a1d.png",
      "FAB" => "8806a28fa51a9cf0ecbec012f1e4fd66.png",
@@ -348,7 +350,7 @@
   function CoverPhoto(string $a) {
    $efs = $this->efs;
    $r = $this->PlainText([
-    "Data" => "[sIMG:CP]",
+    "Data" => "[Media:CP]",
     "Display" => 1
    ]);
    if(!empty($a)) {
@@ -769,7 +771,6 @@
     $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "Extension"), $r);
     $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
     $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
-    $r = preg_replace_callback("/\[sIMG:(.*?)\]/i", array(&$this, "Media"), $r);// TO BE DISOLVED
     $r = $this->Change([[
      "[App.Base]" => $this->base,
      "[App.BillOfRights]" => base64_encode("v=$extensionCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
@@ -815,7 +816,7 @@
    $base = $this->efs;
    $pp = $a["Personal"] ?? [];
    $pp = $a["Personal"]["ProfilePicture"] ?? "";
-   $r = "[sIMG:LOGO]";
+   $r = "[Media:LOGO]";
    if(!empty($pp) && @fopen($base.base64_decode($pp), "r")) {
     $r = $base.base64_decode($pp);
    }

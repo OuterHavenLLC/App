@@ -256,7 +256,7 @@
       ]
      ]) : "";
      $coverPhoto = $this->core->PlainText([
-      "Data" => "[sIMG:CP]",
+      "Data" => "[Media:CP]",
       "Display" => 1
      ]);
      $coverPhoto = (!empty($forum["ICO"])) ? base64_encode($forum["ICO"]) : $coverPhoto;

@@ -181,7 +181,7 @@
     "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
     "[Gateway.CoverPhoto]" => $this->core->PlainText([
      "BBCodes" => 1,
-     "Data" => "[sIMG:CP]"
+     "Data" => "[Media:CP]"
     ]),
     "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".md5($this->core->ShopID)),
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),

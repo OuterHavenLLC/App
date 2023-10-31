@@ -97,7 +97,7 @@
         "[Artist.Charts]" => "",
         "[Artist.Contributors]" => base64_encode("v=$search&ID=".base64_encode(md5($you))."&Type=".base64_encode("Shop")."&st=Contributors"),
         "[Artist.CoverPhoto]" => $this->core->PlainText([
-         "Data" => "[sIMG:CP]",
+         "Data" => "[Media:CP]",
          "Display" => 1
         ]),
         "[Artist.Hire]" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1"),
@@ -110,7 +110,7 @@
      } elseif($s == "Blogger") {
       $r = $this->core->Change([[
        "[Blogger.CoverPhoto]" => $this->core->PlainText([
-        "Data" => "[sIMG:CP]",
+        "Data" => "[Media:CP]",
         "Display" => 1
        ]),
        "[Blogger.List]" => base64_encode("v=$search&st=S-Blogger"),
@@ -119,7 +119,7 @@
      } elseif($s == "VIP") {
       $r = $this->core->Change([[
        "[VIP.CoverPhoto]" => $this->core->PlainText([
-        "Data" => "[sIMG:CP]",
+        "Data" => "[Media:CP]",
         "Display" => 1
        ]),
        "[VIP.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=6cb00ab5e20c385b2c8d56e58ab03f97"),
@@ -128,7 +128,7 @@
      } elseif($s == "XFS") {
       $r = $this->core->Change([[
        "[XFS.CoverPhoto]" => $this->core->PlainText([
-        "Data" => "[sIMG:CP]",
+        "Data" => "[Media:CP]",
         "Display" => 1
        ])
       ], $this->core->Page("dad7bf9214d25c12fa8a4543bbdb9d23")]);

@@ -284,7 +284,7 @@
       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($blog["ID"])."&Type=".base64_encode("Blog")."&Username=".base64_encode($blog["UN"]))
      ]]);
      $coverPhoto = $this->core->PlainText([
-      "Data" => "[sIMG:CP]",
+      "Data" => "[Media:CP]",
       "Display" => 1
      ]);
      $coverPhoto = (!empty($blog["ICO"])) ? $this->core->CoverPhoto(base64_encode($blog["ICO"])) : $coverPhoto;

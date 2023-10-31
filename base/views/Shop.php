@@ -351,7 +351,7 @@
        $h2[$k] = $v;
        $i++;
        $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
-        "Data" => "[sIMG:MiNY]",
+        "Data" => "[Media:MiNY]",
         "Display" => 1
        ]);
        $id = $product["ID"];
@@ -488,7 +488,7 @@
       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
       $ck = ($active == 1 || $id == md5($you)) ? 1 : 0;
       $coverPhoto = $shop["CoverPhoto"] ?? $this->core->PlainText([
-       "Data" => "[sIMG:MiNY]",
+       "Data" => "[Media:MiNY]",
        "Display" => 1
       ]);
       $coverPhoto = base64_encode($coverPhoto);
@@ -1387,7 +1387,7 @@
      if(strtotime($now) < $productExpires) {
       $category = $product["Category"];
       $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
-       "Data" => "[sIMG:MiNY]",
+       "Data" => "[Media:MiNY]",
        "Display" => 1
       ]);
       $coverPhoto = base64_encode($coverPhoto);

@@ -545,7 +545,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     if($notAnon == 1) {
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
      $coverPhoto = $this->core->PlainText([
-      "Data" => "[sIMG:CP]",
+      "Data" => "[Media:CP]",
       "Display" => 1
      ]);
      $title = $blog["Title"];
@@ -754,7 +754,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "BLG") {
     $blogs = $this->core->DatabaseSet("BLG") ?? [];
     $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:CP]",
+     "Data" => "[Media:CP]",
      "Display" => 1
     ]);
     $ec = "Accepted";
@@ -867,7 +867,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "CART") {
     $ec = "Accepted";
     $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:MiNY]",
+     "Data" => "[Media:MiNY]",
      "Display" => 1
     ]);
     $data = $this->core->FixMissing($data, ["ID"]);
@@ -1671,7 +1671,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "MBR-BLG") {
     $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:CP]",
+     "Data" => "[Media:CP]",
      "Display" => 1
     ]);
     $ec = "Accepted";
@@ -1958,7 +1958,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $home = base64_encode("Product:Home");
     $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:MiNY]",
+     "Data" => "[Media:MiNY]",
      "Display" => 1
     ]);
     $un = $data["UN"] ?? base64_encode($you);
@@ -2003,7 +2003,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $home = base64_encode("Product:Home");
     $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:MiNY]",
+     "Data" => "[Media:MiNY]",
      "Display" => 1
     ]);
     $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
@@ -2054,7 +2054,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "S-Blogger") {
     $blogs = $y["Blogs"] ?? [];
     $coverPhoto = $this->core->PlainText([
-     "Data" => "[sIMG:CP]",
+     "Data" => "[Media:CP]",
      "Display" => 1
     ]);
     $ec = "Accepted";
@@ -2088,7 +2088,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     if($notAnon == 1) {
      $b2 = $b2 ?? "Artists";
      $coverPhoto = $this->core->PlainText([
-      "Data" => "[sIMG:MiNY]",
+      "Data" => "[Media:MiNY]",
       "Display" => 1
      ]);
      $card = base64_encode("Shop:Home");

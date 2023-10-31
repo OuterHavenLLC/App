@@ -74,7 +74,7 @@
     $contact = $contacts[$username];
     $t = $this->core->Member($username);
     $profilePicture = $t["Personal"]["ProfilePicture"] ?? "";
-    $profilePicture = (!empty($profilePicture)) ? $this->core->efs.base64_decode($profilePicture) : "[sIMG:LOGO]";
+    $profilePicture = (!empty($profilePicture)) ? $this->core->efs.base64_decode($profilePicture) : "[Media:LOGO]";
     $profilePicture = $this->PlainText([
      "Data" => $profilePicture,
      "Display" => 1

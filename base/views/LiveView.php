@@ -120,7 +120,7 @@
   function EditorProducts(array $a) {
    $accessCode = "Accepted";
    $coverPhoto = $this->core->PlainText([
-    "Data" => "[sIMG:MiNY]",
+    "Data" => "[Media:MiNY]",
     "Display" => 1
    ]);
    $data = $a["Data"] ?? [];
@@ -221,7 +221,7 @@
      ]);
     } elseif($type == "Product") {
      $coverPhoto = $this->core->PlainText([
-      "Data" => "[sIMG:MiNY]",
+      "Data" => "[Media:MiNY]",
       "Display" => 1
      ]);
      for($i = 0; $i < $count; $i++) {

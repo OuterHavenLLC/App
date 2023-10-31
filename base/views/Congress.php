@@ -6,10 +6,35 @@
   }
   function Home(array $a) {
    $data = $a["Data"] ?? [];
+   $chamber = $data["Chanber"] ?? "";
+   $chambers = $data["Chanbers"] ?? 0;
    $pub = $data["pub"] ?? 0;
    // DEMOCRATIZED CONTENT MODERATION
    // HOUSE = 2X POPULATION OF SENATE, EX: 200:100 OR 800:400 RATIOS
-   $r = $this->core->Page("Congress");
+   if($chambers == 1) {
+    if($chamber == "House") {
+     $r = $this->core->Element([
+      "h1", $chamber
+     ]).$this->core->Element([
+      "p", "Welcome to the Chamber of the $chamber of Congress."
+     ]);
+    } elseif($chamber == "Senate") {
+     $r = $this->core->Element([
+      "h1", $chamber
+     ]).$this->core->Element([
+      "p", "Welcome to the Chamber of the $chamber of Congress."
+     ]);
+    }
+   } else {
+    $r = $this->core->Change([[
+     "[Congress.CoverPhoto]" => $this->core->PlainText([
+      "Data" => "[Media:Congress]",
+      "Display" => 1
+     ]),
+     "[Congress.Chambers.House]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=House&Chambers=1"),
+     "[Congress.Chambers.Senate]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=Senate&Chambers=1")
+    ], $this->core->Page("Congress")]);
+   }
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
