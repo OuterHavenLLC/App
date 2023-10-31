@@ -430,6 +430,8 @@
    $r = [
     "Body" => "We could not find the Forum you were looking for."
    ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($callSign) || !empty($id)) {
     $accessCode = "Accepted";
     $forums = $this->core->DatabaseSet("PF") ?? [];
@@ -444,8 +446,11 @@
       $r = $this->core->RenderView($r);
      }
     }
-   } if($y["Login"]["Username"] == $this->core->ID && $data["pub"] == 1) {
+   } if($this->core->ID  == $you) {
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
     $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([

@@ -507,10 +507,9 @@
    $data = $this->core->FixMissing($data, [
     "CARD",
     "UN",
-    "b2",
     "lPG"
    ]);
-   $b2 = $data["b2"];
+   $b2 = $data["b2"] ?? "";
    $back = $data["back"] ?? 0;
    $back = ($back == 1) ? $this->core->Element(["button", "Back to $b2", [
     "class" => "GoToParent LI head",
