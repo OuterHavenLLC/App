@@ -1,8 +1,8 @@
 <?php
- Class TwoFactorAuthentication extends GW {
+ Class TwoFactorAuthentication extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Email(array $a) {
    $accessCode = "Denied";

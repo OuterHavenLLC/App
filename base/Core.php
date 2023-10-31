@@ -8,19 +8,67 @@
     $this->ID = "App";
     $this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
     $this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+    $this->SecureityKey = $this->Authenticate("Get");
     $this->ShopID = "Mike";
     $this->base = $this->ConfigureBaseURL();
     $this->config = $this->Configuration();
     $this->efs = $this->ConfigureBaseURL("efs");
+    $this->language = $header["Language"] ?? "en_US";
     $this->timestamp = date("Y-m-d h:i:sA");
-    $this->region = $_COOKIE["region"] ?? "en_US";
-    $this->sk = $_COOKIE["SK"] ?? "";
-    $this->you = $this->Member($this->Username());
+    $this->you = $this->Member($this->Authenticate("Get"));
    } catch(PDOException $e) {
     return $this->Element([
      "p", "Failed to initialize GW... ".$e->getMessage()
     ]);
    }
+  }
+  function Authenticate(string $action, $data = []) {
+   $action = $action ?? "";
+   $data = $data ?? [];
+   $r = "";
+   if(!empty($action) && (empty($data) || is_array($data))) {
+    if($action == "Get") {
+     $headers = apache_request_headers();
+     $r = $this->ID;
+     $token = $headers["Token"] ?? base64_encode("");
+     $token = base64_decode($token);
+     if(!empty($token)) {
+      $token = explode("|", $this->Decrypt($token));
+      $login = $token[1] ?? "";
+      $login = json_decode($login, true);
+      $secret = $token[2] ?? "";
+      $secret = json_decode($secret, true);
+      $password = $login["Password"] ?? base64_encode($this->ID);
+      $password = base64_decode($password);
+      $secret = $secret["Secret"] ?? base64_encode("");
+      $secret = base64_decode($secret);
+      $username = $login["Username"] ?? base64_encode($this->ID);
+      $username = base64_decode($username);
+      if(md5($this->cypher->key) == $secret) {
+       $you = $this->Data("Get", ["mbr", md5($username)]) ?? [];
+       $you = $you["Login"] ?? [];
+       if(!empty($you["Username"]) && $password == $you["Password"]) {
+        $r = $username;
+       }
+      }
+     }
+    } elseif($action == "Save") {
+     $password = $data["Password"] ?? "";
+     $username = $data["Username"] ?? "";
+     if(!empty($password) && !empty($username)) {
+      $r = json_encode([
+       "Time" => base64_encode(strtotime($this->timestamp))
+      ], true)."|".json_encode([
+       "Password" => base64_encode($password),
+       "Username" => base64_encode($username)
+      ], true)."|".json_encode([
+       "Secret" => base64_encode(md5($this->cypher->key))
+      ], true);
+      $r = $this->Encrypt($r);
+     }
+    }
+   }
+   return $r;
   }
   function ByteNotation(int $a, $b = "MB") {
    $units = [
@@ -58,17 +106,6 @@
     $x = $a[0]["Blocked"][$a[1]] ?? [];
     foreach($x as $k => $v) {
      if($v == $a[2]) {
-      $r++;
-     }
-    }
-   }
-   return $r;
-  }
-  function CheckBraintreeKeys(array $a) {
-   $r = 0;
-   foreach($a as $k => $v) {
-    if(strpos($k, "Braintree") !== false && !empty($v)) {
-     if(!empty(base64_decode($v))) {
       $r++;
      }
     }
@@ -271,7 +308,7 @@
       "Total" => 500
      ]
     ],
-    "Xmaintanance" => 0,
+    "Maintenance" => 0,
     "minAge" => 18,
     "minRegAge" => 13
    ];
@@ -317,16 +354,6 @@
     $r = $efs.base64_decode($a);
    }
    return $r;
-  }
-  function Credentials($a, $b) {
-   $s = (!empty($b)) ? explode(":", $this->Decrypt($b)) : "";
-   $sk = $_COOKIE["SK"] ?? "";
-   if($a == "UN") {
-    $s = (!empty($sk)) ? $s[0] : $this->ID;
-   } elseif($a == "PW") {
-    $s = (!empty($sk)) ? $s[1] : "P@ssw0rd!";
-   }
-   return $s;
   }
   function Data(string $action, array $data) {
    if(!empty($data)) {
@@ -469,9 +496,7 @@
       "type" => $a["DLL"]["MIME"]
      ]]);
      $r = "<audio class=\"PreviewAudio\" controls>$r</audio>\r\n";
-     /* F.A.B. Source: 
-     $this->Element(["source", NULL, ["src" => "[base]:8000/listen", "type" => "audio/aac"]]);
-     */
+     # F.A.B. Source: $this->Element(["source", NULL, ["src" => "[App.Base]:8000/listen", "type" => "audio/aac"]]);
     } elseif($type == "Document") {
      $source = $this->efs."D.jpg";
      $r = $this->Element(["h3", $a["DLL"]["Title"], [
@@ -553,12 +578,12 @@
   }
   function Member(string $username) {
    if($username == $this->ID) {
-    $r = $this->NewMember(["Username" => $this->ID]);
+    $response = $this->NewMember(["Username" => $this->ID]);
    } else {
-    $r = $this->Data("Get", ["mbr", md5($username)]) ?? [];
+    $response = $this->Data("Get", ["mbr", md5($username)]) ?? [];
    }
-   $r["Activity"]["LastActive"] = $this->timestamp;
-   return $r;
+   $response["Activity"]["LastActive"] = $this->timestamp;
+   return $response;
   }
   function NewMember(array $a) {
    $a = $this->FixMissing($a, [
@@ -742,9 +767,10 @@
     $extensionCard = base64_encode("Page:Card");
     $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "Extension"), $r);
     $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
-    $r = preg_replace_callback("/\[CoreMedia:(.*?)\]/i", array(&$this, "CoreMedia"), $r);
-    $r = preg_replace_callback("/\[sIMG:(.*?)\]/i", array(&$this, "CoreMedia"), $r);// TO BE DISOLVED
+    $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
+    $r = preg_replace_callback("/\[sIMG:(.*?)\]/i", array(&$this, "Media"), $r);// TO BE DISOLVED
     $r = $this->Change([[
+     "[App.Base]" => $this->base,
      "[App.BillOfRights]" => base64_encode("v=$extensionCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
      "[App.Constitution]" => base64_encode("v=$extensionCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
      "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
@@ -1092,22 +1118,6 @@
    }
    return $r;
   }
-  function Username() {
-   $sk = $_COOKIE["SK"] ?? "";
-   $r = (!empty($sk)) ? $this->Credentials("UN", $sk) : $this->ID;
-   return $r;
-  }
-  public static function CoreMedia($a = NULL) {
-   $x = New Core;
-   if(!empty($a)) {
-    $r = $x->efs.$x->ID."/".$x->config["Media"][$a[1]];
-    $x->__destruct();
-    return $r;
-   }
-  }
-  function __destruct() {
-   // DESTROYS THIS CLASS
-  }
   public static function Extension($a = NULL) {
    $x = New Core;
    if(!empty($a)) {
@@ -1122,7 +1132,7 @@
     $l = explode("-", $a[1]);
     $lt = $x->Data("Get", ["local", $l[0]]) ?? [];
     $r = $lt[$l[1]]["en_US"] ?? "";
-    $r = $lt[$l[1]][$x->region] ?? $r;
+    $r = $lt[$l[1]][$x->language] ?? $r;
     $r = (!empty($r)) ? $x-PlainText([
      "BBCodes" => 1,
      "Data" => $r,
@@ -1133,6 +1143,17 @@
     $x->__destruct();
     return $r;
    }
+  }
+  public static function Media($a = NULL) {
+   $x = New Core;
+   if(!empty($a)) {
+    $r = $x->efs.$x->ID."/".$x->config["Media"][$a[1]];
+    $x->__destruct();
+    return $r;
+   }
+  }
+  function __destruct() {
+   // DESTROYS THIS CLASS
   }
  }
 ?>

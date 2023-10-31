@@ -1,8 +1,8 @@
 <?php
- Class Common extends GW {
+ Class Common extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function DesignView(array $a) {
    $accessCode = "Accepted";

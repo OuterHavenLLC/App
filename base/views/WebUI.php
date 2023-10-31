@@ -1,8 +1,8 @@
 <?php
- Class WebUI extends GW {
+ Class WebUI extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Containers(array $a) {
    $accessCode = "Accepted";
@@ -223,13 +223,12 @@
   }
   function UIContainers(array $a) {
    $accessCode = "Accepted";
-   $main = base64_encode("Search:Containers");
+   $content = base64_encode("v=".base64_encode("WebUI:OptIn"));
+   $headers = apache_request_headers();
+   $language = $headers["Language"] ?? $this->core->language;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = $this->view(base64_encode("WebUI:OptIn"), []);
-    $r = $this->core->RenderView($r);
-   } else {
+   if($this->core->ID != $you) {
     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
     foreach($y["Subscriptions"] as $subscription => $data) {
      if(strtotime($data["B"]) > $data["E"]) {
@@ -262,15 +261,13 @@
       ]);
      }
     }
+    $y["Personal"]["Language"] = $language;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["shop", md5($you), $shop]);
-    $r = $this->view($main, ["Data" => [
-     "st" => "Mainstream"
-    ]]);
-    $r = $this->core->RenderView($r);
+    $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
    }
    $r = $this->core->Change([[
-    "[App.Content]" => $r,
+    "[App.Content]" => $content,
     "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
     "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
    ], $this->core->Page("dd5e4f7f995d5d69ab7f696af4786c49")]);

@@ -1,8 +1,8 @@
 <?php
- Class Profile extends GW {
+ Class Profile extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Blacklist(array $a) {
    $accessCode = "Denied";
@@ -1250,7 +1250,10 @@
       $accessCode = "Accepted";
       $responseType = "SignIn";
       $this->core->Statistic("LI");
-      $r = $this->core->Encrypt($member["Login"]["Username"].":".$member["Login"]["Password"]);
+      $r = $this->core->Authenticate("Save", [
+       "Password" => $member["Login"]["Password"],
+       "Username" => $member["Login"]["Username"]
+      ]);
      } elseif($password != $member["Login"]["Password"]) {
       $r = "The Passwords do not match.";
      } elseif($username != $member["Login"]["Username"]) {

@@ -1,8 +1,8 @@
 <?php
- Class Chat extends GW {
+ Class Chat extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Attachments(array $a) {
    $accessCode = "Denied";

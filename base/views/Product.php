@@ -1,9 +1,9 @@
 <?php
- Class Product extends GW {
+ Class Product extends OH {
   function __construct() {
    parent::__construct();
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Edit(array $a) {
    $accessCode = "Accepted";

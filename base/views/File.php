@@ -1,8 +1,8 @@
 <?php
- Class File extends GW {
+ Class File extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Download(array $a) {
    $data = $a["Data"] ?? [];

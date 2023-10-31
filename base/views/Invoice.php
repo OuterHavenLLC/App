@@ -1,8 +1,8 @@
 <?php
- Class Invoice extends GW {
+ Class Invoice extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Add(array $a) {
    $accessCode = "Denied";

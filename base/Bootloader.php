@@ -1,7 +1,12 @@
 <?php
+ header("Access-Control-Allow-Origin: *");
+ header("Access-Control-Allow-Credentials: true");
+ header("Access-Control-Allow-Headers: Language, Token");
+ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+ header("Access-Control-Max-Age: 86400");
  ini_set("display_errors", "on");
  require_once(__DIR__."/Core.php");
- Class GW extends Core {
+ Class OH extends Core {
   function __construct() {
    $this->core = New Core;
   }

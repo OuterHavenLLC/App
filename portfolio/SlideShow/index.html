@@ -31,13 +31,13 @@
    </div>
    <div class="Desktop75 MobileFull">
    	<div class="K4i">
-     <p>This slide show is driven by data stored in your browser. You may delete one or more slides, or empty the local data model. if the data model is empty, placeholder data will be re-populated and stored as a persistent local data model. You may also add background images using the inputs below. To permanently delete all data saved from this demonstration, please close this page and clear your browser's cache and website data.</p>
+     <p>This slide show is driven by data stored in your browser, and makes use of the client-side LocalData() object. if the data model is empty, placeholder data will be re-populated and stored as a persistent local data model. You may also add background images using the inputs below. To permanently delete all data saved from this demonstration, please close this page and clear your browser's cache and website data, or click the <em>Purge Data</em> button below to restore the default data model.</p>
      <h2>Slides</h2>
      <div class="InnerMargin">
       <div class="Desktop33 Mobile50">
        <h4 class="UpperCase">Name</h4>
       </div>
-      <div class="Desktop33 Mobile50">
+      <div class="Desktop66 Mobile50">
        <h4 class="UpperCase">Link</h4>
       </div>
       <div class="NONAME"></div>
@@ -67,34 +67,6 @@
    </div>
   </div>
   <script>
-  	function Data(action = "Get", identifier = "", data = {}) {
-  	 if(action === "Get") {
-   	  if(window.localStorage.getItem(identifier)) {
-   	   if(identifier !== "" && typeof(identifier) !== "undefined") {
-   	   	data = window.localStorage.getItem(identifier) || "";
-   	    data = JSON.parse(data);
-  	   }
-  	  } else {
- 	     data = {};
-  	  }
-  	  return data;
-  	 } else if(action === "Purge") {
-  	  if(identifier !== "" && typeof(identifier) !== "undefined") {
-  	   if(data !== "" && typeof(data) !== "undefined") {
-        console.log("ID: " + data + "\r\nList: " + identifier);
-  	   }
-  	  }
-  	 } else if(action === "PurgeLocalData") {
-  	  window.localStorage.clear();
-  	 } else if(action === "Save") {
-  	  if(data !== {} && identifier !== "" && typeof(identifier) !== "undefined") {
-  	   data = JSON.stringify(data);
-  	   window.localStorage.setItem(identifier, data);
-  	  }
-  	 }
-   	 RefreshCoverPhoto(Data("Get", "Slides"));
-  	 RefreshList(Data("Get", "Slides"));
-  	}
   	function RefreshCoverPhoto(data = {}) {
   	 var Image,
   	       NewSlides = {},
@@ -119,46 +91,37 @@
   	   ListItem = "<div class='Desktop33 Mobile50'>\r\n";
   	   ListItem += "<p>" + key + "</p>\r\n";
   	   ListItem += "</div>\r\n";
-  	   ListItem += "<div class='Desktop33 Mobile50'>\r\n";
+  	   ListItem += "<div class='Desktop66 Mobile50'>\r\n";
   	   ListItem += "<p>" + value + "</p>\r\n";
-  	   ListItem += "</div>\r\n";
-  	   ListItem += "<div class='Desktop33 Mobile50 MobileRight'>\r\n";
-  	   ListItem += "<button class='PurgeListItem Right v1' data-id='" + key + "' data-list='Slides'>Delete</button>\r\n";
   	   ListItem += "</div>\r\n";
   	   ListItem += "<div class='NONAME'></div>\r\n";
   	   $(".Slides").append(ListItem);
   	  });
   	 }
   	}
-  	var Local = window.localStorgae,
-  	      Slides = "";
+  	var Slides = "";
   	$(document).on("click", ".NewLocalData", function() {
   	 var Key = $(document).find(".Key").val() || "",
   	       Value = $(document).find(".Value").val() || "";
   	 if(Key && Value) {
-  	  Slides = Data("Get", "Slides") || {};
+  	  Slides = LocalData("Get", "Slides") || {};
   	  $(Slides).attr(Key, Value);
   	  $(document).find(".Key").val("");
   	  $(document).find(".Value").val("");
-  	  Data("Save", "Slides", Slides);
+  	  LocalData("Save", "Slides", Slides);
   	 }
   	});
-  	$(document).on("click", ".PurgeLocalData", function() {
-  	 Data("PurgeLocalData");
-  	 Slides = {};
-  	 $(Slides).attr("Outer Haven LLC", "https://outerhaven.nyc/apple-touch-icon.png");
-  	 Data("Save", "Slides", Slides);
-  	});
-  	$(document).on("click", ".PurgeListItem", function() {
-  	 var ID = $(this).attr("data-id") || "",
-  	       List = $(this).attr("data-list") || "";
-  	 Data("Purge", List, ID);
-  	});
+    $(document).on("click", ".PurgeLocalData", function() {
+     LocalData("Purge");
+     Slides = {};
+     $(Slides).attr("Outer Haven LLC", "https://outerhaven.nyc/apple-touch-icon.png");
+     LocalData("Save", "Slides", Slides);
+    });
     $(document).ready(function() {
      if(Slides === "" || typeof(Slides) === "undefined") {
       Slides = {};
       $(Slides).attr("Outer Haven LLC", "https://outerhaven.nyc/apple-touch-icon.png");
-      Data("Save", "Slides", Slides);
+      LocalData("Save", "Slides", Slides);
      }
      RefreshCoverPhoto(Data("Get", "Slides"));
      RefreshList(Data("Get", "Slides"));

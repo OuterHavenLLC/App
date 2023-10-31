@@ -1,11 +1,11 @@
 <?php
- Class LiveView extends GW {
+ Class LiveView extends OH {
   function __construct() {
    parent::__construct();
    $this->NoResults = $this->core->Element(["h3", "No Attachments", [
     "class" => "CenterText InnerMargin UpperCase"
    ]]);
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function GetCode(array $a) {
    $accessCode = "Denied";

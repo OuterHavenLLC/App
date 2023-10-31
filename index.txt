@@ -2,15 +2,15 @@
 <html>
  <head>
   <meta charset="UTF-8">
-  <title>[Title]</title>
+  <title>[App.Title]</title>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-  <meta name="author" content="Mike"/>
-  <meta name="description" content="[Description]"/>
-  <meta name="keywords" content="[Keywords]"/>
-  <meta property="og:description" content="[Description]"/>
+  <meta name="author" content="[App.Owner]"/>
+  <meta name="description" content="[App.Description]"/>
+  <meta name="keywords" content="[App.Keywords]"/>
+  <meta property="og:description" content="[App.Description]"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:title" content="[Title]"/>
-  <meta property="og:url" content="[base]/"/>
+  <meta property="og:title" content="[App.Title]"/>
+  <meta property="og:url" content="[App.Base]/"/>
   <link href="/?_API=Design" media="all" rel="stylesheet" type="text/css"/>
   <link href="favicon.png" rel="shortcut icon" size="196x196" type="image/png"/>
   <script src="/base/jq.js" type="text/javascript"></script>
@@ -22,7 +22,14 @@
  </head>
  <body>
   <div class="Boot NOSELECT"></div>
-  [Body]
-  <div class="RegSel h">[LLP:96021f84defa49827569f2aa1070755b]</div>
+  <div class="AppContainer">
+   <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
+  </div>
+  <div class="RegSel h">
+   [LLP:96021f84defa49827569f2aa1070755b]
+  </div>
+  <script>
+   UpdateContent(".AppContainer", "[App.Content]");
+  </script>
  </body>
 </html>

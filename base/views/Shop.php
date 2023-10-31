@@ -1,9 +1,9 @@
 <?php
- Class Shop extends GW {
+ Class Shop extends OH {
   function __construct() {
    parent::__construct();
    $this->root = $_SERVER["DOCUMENT_ROOT"]."/base/pay/Braintree.php";
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Banish(array $a) {
    $accessCode = "Denied";

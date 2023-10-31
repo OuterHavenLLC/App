@@ -1,8 +1,8 @@
 <?php
- Class Subscription extends GW {
+ Class Subscription extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Index(array $a) {
    $accessCode = "Accepted";

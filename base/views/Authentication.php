@@ -1,9 +1,9 @@
 <?php
- Class Authentication extends GW {
+ Class Authentication extends OH {
   function __construct() {
    parent::__construct();
    $this->authID = md5($this->core->timestamp.uniqid());
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function ArticleChangeMemberRole(array $a) {
    $accessCode = "Denied";

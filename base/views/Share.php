@@ -1,8 +1,8 @@
 <?php
- Class Share extends GW {
+ Class Share extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Home(array $a) {
    $accessCode = "Denied";

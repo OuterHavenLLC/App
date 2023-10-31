@@ -4,223 +4,143 @@
  $doNotEncode = [
   "Design",
   "JS",
-  "Maintanance"
+  "Maintenance"
  ];
  $api = $data["_API"] ?? "";
- $gw = New GW;
+ $oh = New OH;
  $view = $data["v"] ?? "";
  $r = "";
- $gw->core->Setup("App");
- $y = $gw->core->Member($gw->core->Username());
- $you = $y["Login"]["Username"];
+ $oh->core->Setup("App");
  if($api == "Design") {
   header("content-type: text/CSS");
-  $r = $gw->core->Page("d4efcd44be4b2ef2a395f0934a9e446a");
+  $r = $oh->core->Page("d4efcd44be4b2ef2a395f0934a9e446a");
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
   if($view == "Cypher") {
-   $r = $gw->core->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
+   $r = $oh->core->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
   } elseif($view == "Functions") {
-   $r = $gw->core->Page("9899b8bb388bf8520c3b5cee4ef6778b");
+   $r = $oh->core->Page("9899b8bb388bf8520c3b5cee4ef6778b");
   } elseif($view == "GUI") {
-   $r = $gw->core->Page("a62f482184a8b2eefa006a37890666d7");
+   $r = $oh->core->Page("a62f482184a8b2eefa006a37890666d7");
   }
-  $r = $gw->core->Change([[
+  $r = $oh->core->Change([[
    "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
+   "[App.Language]" => $oh->core->language,
    "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
    "[App.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
    "[App.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
-   "[App.region]" => $gw->core->region,
    "[App.WYSIWYG]" => base64_encode("v=".base64_encode("WebUI:WYSIWYG"))
-  ], $gw->core->PlainText([
+  ], $oh->core->PlainText([
    "Data" => $r,
    "Display" => 1,
    "HTMLDecode" => 1
   ])]);
- } elseif($api == "Maintanance") {
+ } elseif($api == "Maintenance") {
   # MAINTANANCE STATUS
-  $r = $gw->core->config[$c[0]];
+  $r = $oh->core->config["Maintenance"] ?? 0;
  } elseif($api == "Web") {
   if($view == base64_encode("File:SaveUpload")) {
-   $r = $gw->view($view, [
+   $r = $oh->view($view, [
     "Data" => $data,
     "Files" => $_FILES["Uploads"]
    ]);
   } elseif($view == "MD5") {
    $r = md5(base64_decode($data["MD5"]));
   } else {
-   $r = $gw->view($view, ["Data" => $data]);
+   $r = $oh->view($view, ["Data" => $data]);
   }
  } else {
-  $_ViewTitle = $gw->core->config["App"]["Name"];
-  $c = $data["_cmd"] ?? "";
-  $c = (!empty($c)) ? explode("/", urldecode($c)) : [$c];
-  $c = $gw->core->FixMissing($c, [0, 1, 2, 3]);
-  if($c[0] == "Errors") {
+  $_ViewTitle = $oh->core->config["App"]["Name"];
+  $command = $data["_cmd"] ?? "";
+  $command = (!empty($command)) ? explode("/", urldecode($command)) : [$command];
+  $command = $oh->core->FixMissing($command, [0, 1, 2, 3]);
+  if($command[0] == "Errors") {
    # ERRORS
-   $r = $gw->view(base64_encode("WebUI:Error"), ["Data" => [
-    "Error" => $c[1]
-   ]]);
-  } elseif($c[0] == "MadeInNY") {
+   $content = "v=".base64_encode("WebUI:Error")."&Error=".$command[1];
+  } elseif($command[0] == "MadeInNY") {
    # MADE IN NEW YORK
-   $r = $gw->view(base64_encode("Shop:MadeInNewYork"), ["Data" => [
-    "pub" => 1
-   ]]);
-   if(!empty($c[1])) {
-    $r = $gw->view(base64_encode("Shop:Home"), ["Data" => [
-     "UN" => base64_encode($c[1]),
-     "pub" => 1
-    ]]);
-    if(!empty($c[2])) {
-     $r = $gw->view(base64_encode("Product:Home"), ["Data" => [
-      "CallSign" => $c[2],
-      "UN" => base64_encode($c[1]),
-      "pub" => 1
-     ]]);
+   $content = "v=".base64_encode("Shop:MadeInNewYork")."&pub=1";
+   if(!empty($command[1])) {
+    $content = "v=".base64_encode("Shop:Home")."&UN=".base64_encode($command[1])."&pub=1";
+    if(!empty($command[2])) {
+     $content = "v=".base64_encode("Product:Home")."&CallSign=".$command[2]."&UN=".base64_encode($command[1])."&pub=1";
     }
    }
-  } elseif($c[0] == "Member") {
+  } elseif($command[0] == "Member") {
    # PROFILES
-   $r = $gw->view(base64_encode("Profile:Home"), ["Data" => [
-    "back" => 0,
-    "onProf" => 1,
-    "UN" => base64_encode($c[1]),
-    "pub" => 1
-   ]]);
-   $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "VVA") {
+   $content = "v=".base64_encode("Profile:Home")."&back=0&onProf=1&UN=".base64_encode($command[1])."&pub=1";
+  } elseif($command[0] == "VVA") {
    # VISUAL VANGUARD ARCHITECTURE
-   $r = $gw->view(base64_encode("Company:VVA"), ["Data" => [
-    "pub" => 1
-   ]]);
-   $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "about") {
-   # HIRE
-   $r = $gw->view(base64_encode("Company:Home"), ["Data" => [
-    "pub" => 1
-   ]]);
-   $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "archive") {
+   $content = "v=".base64_encode("Company:VVA")."&pub=1";
+  } elseif($command[0] == "about") {
+   # ABOUT
+   $content = "v=".base64_encode("Company:Home")."&pub=1";
+  } elseif($command[0] == "archive") {
    # COMMUNITY ARCHIVE
-   $r = $gw->view(base64_encode("Page:Home"), ["Data" => [
-    "LLP" => $c[1],
-    "pub" => 1
-   ]]);
-   $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "blogs") {
+   $content = "v=".base64_encode("Page:Home")."&LLP=".$command[1]."&pub=1";
+  } elseif($command[0] == "blogs") {
    # BLOGS
-   $r = $gw->view(base64_encode("Search:Containers"), ["Data" => [
-    "pub" => 1,
-    "st" => "BLG"
-   ]]);
-   if(!empty($c[1])) {
-    $r = $gw->view(base64_encode("Blog:Home"), ["Data" => [
-     "CallSign" => $c[1],
-     "ID" => $c[1],
-     "pub" => 1
-    ]]);
-    if(!empty($c[2])) {
-     $r = $gw->view(base64_encode("BlogPost:Home"), ["Data" => [
-      "CallSign" => $c[1],
-      "BLG" => $c[1],
-      "ID" => $c[2],
-      "pub" => 1
-     ]]);
+   $content = "v=".base64_encode("Search:Containers")."&pub=1&st=BLG";
+   if(!empty($command[1])) {
+    $content = "v=".base64_encode("Blog:Home")."&CallSign=".$command[1]."&ID=".$command[1]."&pub=1";
+    if(!empty($command[2])) {
+     $content = "v=".base64_encode("BlogPost:Home")."CallSign=".$command[1]."&BLG=".$command[1]."&ID=".$command[2]."&pub=1";
     }
    }
-  } elseif($c[0] == "chat") {
+  } elseif($command[0] == "chat") {
    # CHAT
-   $r = $gw->view(base64_encode("WebUI:Containers"), []);
-   if(!empty($gw->core->ID != $you)) {
-    $r = $gw->view(base64_encode("WebUI:Containers"), ["Data" => [
-     "Type" => "Chat"
-    ]]);
-    if(!empty($c[1])) {
-     $r = $gw->view(base64_encode("Chat:PublicHome"), ["Data" => [
-      "ID" => base64_encode($c[1])
-     ]]);
-    }
+   $content = "v=".base64_encode("WebUI:Containers")."&Type=Chat";
+   if(!empty($command[1])) {
+    $content = "v=".base64_encode("Chat:PublicHome")."&ID=".base64_encode($command[1]);
    }
    $_ViewTitle = "Chat";
-  } elseif($c[0] == "congress") {
+  } elseif($command[0] == "congress") {
    # CONGRESS
-   $r = $gw->view(base64_encode("Congress:Home"), ["Data" => [
-    "pub" => 1
-   ]]);
-   $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "donate") {
+   $content = "v=".base64_encode("Congress:Home")."&pub=1";
+  } elseif($command[0] == "donate") {
    # DONATE
-   $r = $gw->view(base64_encode("Company:Donate"), ["Data" => [
-    "pub" => 1
-   ]]);
-  } elseif($c[0] == "feedback") {
+   $content = "v=".base64_encode("Company:Donate")."&pub=1";
+  } elseif($command[0] == "feedback") {
    # FEEDBACK
-   $r = $gw->view(base64_encode("Feedback:Home"), ["Data" => [
-    "ID" => $c[1],
-    "pub" => 1
-   ]]);
-  } elseif($c[0] == "forums") {
+   $content = "v=".base64_encode("Company:VVA")."&ID=".$command[1]."&pub=1";
+  } elseif($command[0] == "forums") {
    # FORUMS
-   $r = $gw->view(base64_encode("Forum:PublicHome"), ["Data" => [
-    "CallSign" => $c[1],
-    "ID" => $c[1]
-   ]]);
-  } elseif($c[0] == "hire") {
+   $content = "v=".base64_encode("Forum:PublicHome")."&CallSign=".$command[1]."&ID=".$command[1];
+  } elseif($command[0] == "hire") {
    # HIRE
-   $r = $gw->view(base64_encode("Invoice:Hire"), ["Data" => [
-    "ID" => md5($gw->core->ShopID),
-    "pub" => 1
-   ]]);
-   $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "income") {
+   $content = "v=".base64_encode("Invoice:Hire")."&ID=".md5($oh->core->ShopID)."&pub=1";
+  } elseif($command[0] == "income") {
    # INCOME DISCLOSURES
-   $r = $gw->view(base64_encode("Common:Income"), ["Data" => [
-    "UN" => base64_encode($c[1]),
-    "pub" => 1
-   ]]);
-  } elseif($c[0] == "invoice") {
+   $content = "v=".base64_encode("Common:Income")."&UN=".base64_encode($command[1])."&pub=1";
+  } elseif($command[0] == "invoice") {
    # INVOICE
-   $r = $gw->view(base64_encode("WebUI:Containers"), []);
-   if(!empty($c[1])) {
-    $r = $gw->view(base64_encode("Invoice:Home"), ["Data" => [
-     "ID" => $c[1],
-     "pub" => 1
-    ]]);
+   $content = "v=".base64_encode("WebUI:Containers");
+   if(!empty($command[1])) {
+    $content = "v=".base64_encode("Invoice:Home")."&ID=".$command[1]."&pub=1";
    }
-   $_ViewTitle = json_decode($r, true)["Title"];
-  } elseif($c[0] == "search") {
+  } elseif($command[0] == "search") {
    # SEARCH
-   $r = $gw->view(base64_encode("Search:ReSearch"), ["Data" => [
-    "pub" => 1
-   ]]);
-   if(!empty($c[1])) {
-    $r = $gw->view(base64_encode("Search:ReSearch"), ["Data" => [
-     "pub" => 1,
-     "q" => base64_encode($c[1])
-    ]]);
+   $content = "v=".base64_encode("Search:ReSearch")."&pub=1";
+   if(!empty($command[1])) {
+    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&q=".base64_encode($command[1]);
    }
-  } elseif($c[0] == "topics") {
+  } elseif($command[0] == "topics") {
    # TOPICS
-   $r = $gw->view(base64_encode("Search:ReSearch"), ["Data" => [
-    "pub" => 1,
-    "q" => base64_encode("#FreedomAlwaysWins")
-   ]]);
-   if(!empty($c[1])) {
-    $r = $gw->view(base64_encode("Search:ReSearch"), ["Data" => [
-     "pub" => 1,
-     "q" => base64_encode("#".$c[1])
-    ]]);
+   $content = "v=".base64_encode("Search:ReSearch")."&pub=1&q=".base64_encode("#FreedomAlwaysWins");
+   if(!empty($command[1])) {
+    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&q=".base64_encode($command[1]);
    }
   } else {
-   $gw->core->Statistic("Visits");
-   $r = $gw->view(base64_encode("WebUI:UIContainers"), []);
+   $oh->core->Statistic("Visits");
+   $content = "v=".base64_encode("WebUI:UIContainers");
   }
-  $r = $gw->core->Change([[
-   "[Body]" => $gw->core->RenderView($r),
-   "[Description]" => $gw->core->config["App"]["Description"],
-   "[Keywords]" => $gw->core->config["App"]["Keywords"],
-   "[Title]" => $_ViewTitle
-  ], $gw->core->PlainText([
+  $r = $oh->core->Change([[
+   "[App.Content]" => base64_encode($content),
+   "[App.Description]" => $oh->core->config["App"]["Description"],
+   "[App.Keywords]" => $oh->core->config["App"]["Keywords"],
+   "[App.Owner]" => $oh->core->ShopID,
+   "[App.Title]" => $_ViewTitle
+  ], $oh->core->PlainText([
    "BBCodes" => 1,
    "Data" => file_get_contents("./index.txt"),
    "Display" => 1

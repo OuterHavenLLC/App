@@ -1,8 +1,8 @@
 <?php
- Class BlogPost extends GW {
+ Class BlogPost extends OH {
   function __construct() {
    parent::__construct();
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Edit(array $a) {
    $accessCode = "Denied";

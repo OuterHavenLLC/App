@@ -1,11 +1,11 @@
 <?php
- Class Vote extends GW {
+ Class Vote extends OH {
   function __construct() {
    parent::__construct();
    $this->NoID = $this->core->Element([
     "div", "Missing Vote ID", ["class" => "CenterText InnerMargin"]
    ]);
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Containers(array $a) {
    $accessCode = "Denied";

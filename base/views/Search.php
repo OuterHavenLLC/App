@@ -1,10 +1,10 @@
 <?php
- Class Search extends GW {
+ Class Search extends OH {
   function __construct() {
    parent::__construct();
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
    $this->lists = base64_encode("Search:Lists");
-   $this->you = $this->core->Member($this->core->Username());
+   $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Containers(array $a) {
    $accessCode = "Denied";
