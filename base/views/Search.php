@@ -1414,15 +1414,15 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "Y" => $you
       ]);
       if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
-       $att = "";
+       $attachments = "";
        if(!empty($post["Attachments"])) {
-        $att =  $this->view(base64_encode("LiveView:InlineMossaic"), [
+        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
          "Data" => [
           "ID" => base64_encode(implode(";", $post["Attachments"])),
           "Type" => base64_encode("DLC")
          ]
         ]);
-        $att = $this->core->RenderView($att);
+        $attachments = $this->core->RenderView($attachments);
        }
        $bl = $this->core->CheckBlocked([$y, "Status Updates", $id]);
        $con = base64_encode("Conversation:Home");
@@ -1469,7 +1469,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $votes = base64_encode("v=$votes&ID=".$post["ID"]."&Type=1");
        array_push($msg, [
         "[ForumPost.Actions]" => base64_encode($actions),
-        "[ForumPost.Attachments]" => base64_encode($att),
+        "[ForumPost.Attachments]" => base64_encode($attachments),
         "[ForumPost.Body]" => base64_encode($this->core->PlainText([
          "BBCodes" => 1,
          "Data" => $post["Body"],
@@ -1510,7 +1510,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $illegal = $su["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($bl == 0 && $illegal == 0) {
-      $att = "";
+      $attachments = "";
       $op = ($from == $you) ? $y : $this->core->Member($from);
       $cms = $this->core->Data("Get", [
        "cms",
@@ -1524,7 +1524,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "Y" => $you
       ]);
       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
-       $att = (!empty($su["Attachments"])) ? $this->view($attlv, ["Data" => [
+       $attachments = (!empty($su["Attachments"])) ? $this->view($attlv, ["Data" => [
         "ID" => base64_encode(implode(";", $su["Attachments"])),
         "Type" => base64_encode("DLC")
        ]]) : "";
@@ -1551,7 +1551,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
        $votes = base64_encode("v=$votes&ID=".$su["ID"]."&Type=1");
        array_push($msg, [
-        "[StatusUpdate.Attachments]" => base64_encode($att),
+        "[StatusUpdate.Attachments]" => base64_encode($attachments),
         "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
          "BBCodes" => 1,
          "Data" => $su["Body"],
@@ -1849,7 +1849,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
     foreach($stream as $key => $value) {
      $id = $value["UpdateID"] ?? "";
-     $att = "";
+     $attachments = "";
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $id]);
      $su = $this->core->Data("Get", ["su", $id]) ?? [];
      $ck = (empty($su["To"]) && $su["From"] == $you) ? 1 : 0;
@@ -1870,15 +1870,15 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
       $ck2 = 1;
       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
-       $att = "";
+       $attachments = "";
        if(!empty($su["Attachments"])) {
-        $att =  $this->view(base64_encode("LiveView:InlineMossaic"), [
+        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
          "Data" => [
           "ID" => base64_encode(implode(";", $su["Attachments"])),
           "Type" => base64_encode("DLC")
          ]
         ]);
-        $att = $this->core->RenderView($att);
+        $attachments = $this->core->RenderView($attachments);
        }
        $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
@@ -1903,7 +1903,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
        $votes = base64_encode("v=$votes&ID=$id&Type=1");
        array_push($msg, [
-        "[StatusUpdate.Attachments]" => base64_encode($att),
+        "[StatusUpdate.Attachments]" => base64_encode($attachments),
         "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
          "BBCodes" => 1,
          "Data" => $su["Body"],
@@ -2218,9 +2218,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
      }
     }
-   } elseif($st == "US-SU") {
+   } elseif($st == "StatusUpdates") {
     $ec = "Accepted";
-    $edit = base64_encode("StatusUpdate:Edit");
     $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
     $x = $this->core->DatabaseSet("SU") ?? [];
     foreach($x as $k => $v) {
@@ -2234,15 +2233,15 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $bl = $this->core->CheckBlocked([$y, "Status Updates", $v]);
       $from = $from ?? $this->core->ID;
       if($bl == 0 || $from == $you) {
-       $att = "";
+       $attachments = "";
        if(!empty($su["Attachments"])) {
-        $att =  $this->view(base64_encode("LiveView:InlineMossaic"), [
+        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
          "Data" => [
           "ID" => base64_encode(implode(";", $su["Attachments"])),
           "Type" => base64_encode("DLC")
          ]
         ]);
-        $att = $this->core->RenderView($att);
+        $attachments = $this->core->RenderView($attachments);
        }
        $op = ($from == $y["Login"]["Username"]) ? $y : $this->core->Member($from);
        $cms = $this->core->Data("Get", [
@@ -2254,13 +2253,17 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "Contacts" => $cms["Contacts"],
         "Privacy" => $op["Privacy"]["Posts"],
         "UN" => $from,
-        "Y" => $y["Login"]["Username"]
+        "Y" => $you
        ]);
        if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
-        $att = (!empty($su["Attachments"])) ? $this->view($attlv, ["Data" => [
-         "ID" => base64_encode(implode(";", $su["Attachments"])),
-         "Type" => base64_encode("DLC")
-        ]]) : "";
+        $attachments = "";
+        if(!empty($su["Attachments"])) {
+         $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+          "ID" => base64_encode(implode(";", $su["Attachments"])),
+          "Type" => base64_encode("DLC")
+         ]]);
+         $attachments = $this->core->RenderView($attachments);
+        }
         $bdy = base64_decode($su["Body"]);
         $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
@@ -2285,7 +2288,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
         $votes = base64_encode("v=$votes&ID=$v&Type=1");
         array_push($msg, [
-         "[StatusUpdate.Attachments]" => base64_encode($att),
+         "[StatusUpdate.Attachments]" => base64_encode($attachments),
          "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
           "BBCodes" => 1,
           "Data" => $su["Body"],
@@ -2368,13 +2371,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    ], $this->core->Page("df4f7bc99b9355c34b571946e76b8481")]);
    if(!empty($query)) {
     $r = $this->core->Change([[
-     "[ReSearch.Query]" => $query,
      "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
      "[ReSearch.Artists]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=SHOP"),
      "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
+     "[ReSearch.Chat]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
      "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
      "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
-     "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=US-SU")
+     "[ReSearch.Query]" => $query,
+     "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates")
     ], $this->core->Page("bae5cdfa85bf2c690cbff302ba193b0b")]);
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [

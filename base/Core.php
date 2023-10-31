@@ -210,6 +210,7 @@
       "SHOP-Invoices",
       "SHOP-Orders",
       "SHOP-Products",
+      "StatusUpdates",
       "XFS"
      ]
     ],
