@@ -460,16 +460,22 @@
    ]);
   }
   function SaveUpload(array $a) {
-   $accessCode = "Denied";
    $_Failed = [];
    $_Passed = [];
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $err = "Internal Error";
    $id = $data["AID"] ?? md5("unsorted");
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(empty($id) || empty($username)) {
+   if($this->core->ID == $you) {
+    $r = [
+     "Failed" => $_Failed,
+     "MSG" => "You must be signed in to upload media.",
+     "Passed" => $_Passed
+    ];
+   } elseif(empty($data["AID"]) || empty($username)) {
     $r = [
      "Failed" => $_Failed,
      "MSG" => "You don't have permission to access this view.",
