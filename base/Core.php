@@ -218,7 +218,7 @@
     "Media" => [
      "CHECK" => "875be5c73e0671200587f26139501a8c.png",
      "CODE" => "78569ee93f82cf2cd9415e7c4ca5e65b.png",
-     "Congress" => "",
+     "Congress" => "a1b9837369061a7b3db741e532b40b9d.jpg",
      "CP" => "1c48161334e41522f112494baf2c8a60.jpg",
      "DOC" => "0dc477cf7c6d1210b9312c1f579f8a1d.png",
      "FAB" => "8806a28fa51a9cf0ecbec012f1e4fd66.png",

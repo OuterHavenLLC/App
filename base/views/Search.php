@@ -765,7 +765,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
      $cms = $this->core->Data("Get", ["cms", md5($blog["UN"])]);
      $bl = $this->core->CheckBlocked([$y, "Blogs", $blog["ID"]]);
-     $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $bg["NSFW"] == 0) ? 1 : 0;
+     $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $blog["NSFW"] == 0) ? 1 : 0;
      $ck2 = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $blog["Privacy"],

@@ -129,6 +129,7 @@
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
+     "[Menu.Congress]" => base64_encode("v=".base64_encode("Congress:Home")),
      "[Menu.LockScreen]" => base64_encode("v=".base64_encode("WebUI:LockScreen")),
      "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
      "[Menu.Member.Articles]" => base64_encode("v=$search&st=MBR-LLP"),
