@@ -30,14 +30,24 @@
      $r = $this->core->Element([
       "h2", "$chamber of Representatives"
      ]).$this->core->Element([
-      "p", "Welcome to the Chamber of the $chamber of Congress.. A list of House members, the ability to vote in new members, and more will be present here in the future."
+      "p", "Welcome to the Chamber of the $chamber of Congress."
      ]);
+     if($yourRole == "HouseRepresentative") {
+      $r .= $this->core->Element([
+       "p", "A list of House members, the ability to vote in new members, and more will be present here in the future."
+      ]);
+     }
     } elseif($chamber == "Senate") {
      $r = $this->core->Element([
       "h2", $chamber
      ]).$this->core->Element([
-      "p", "Welcome to the Chamber of the $chamber of Congress. A list of Senators, the ability to vote in new Senators if you are a House member, and more will be present here in the future."
+      "p", "Welcome to the Congressional $chamber."
      ]);
+     if($yourRole == "Senator") {
+      $r .= $this->core->Element([
+        "p", "Welcome to the Chamber of the $chamber of Congress. A list of Senators, the ability to vote in new Senators if you are a House member, and more will be present here in the future."
+      ]);
+     }
     }
    } else {
     $notAnon = ($this->core->ID !== $you) ? 1 : 0;
