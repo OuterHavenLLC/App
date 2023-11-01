@@ -270,7 +270,7 @@
      $join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Element([
       "button", $joinCommand, [
        "class" => "BBB UpdateButton v2 v2w",
-       "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=".$joinCommand."&ID=$id")
+       "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=$joinCommand&ID=$id")
       ]
      ]) : "";
      $search = base64_encode("Search:Containers");
