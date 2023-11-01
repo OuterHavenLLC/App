@@ -15,20 +15,14 @@
    // HOUSE = 2X POPULATION OF SENATE, EX: 200:100 OR 800:400 RATIOS
    if($chambers == 1) {
     if($chamber == "House") {
-     $r = $this->core->Element(["button", "Back", [
-      "class" => "LI GoToParent",
-      "data-type" => "Congress"
-     ]]).$this->core->Element([
-      "h1", $chamber
+     $r = $this->core->Element([
+      "h2", $chamber
      ]).$this->core->Element([
       "p", "Welcome to the Chamber of the $chamber of Congress.. A list of House members, the ability to vote in new members, and more will be present here in the future."
      ]);
     } elseif($chamber == "Senate") {
-     $r = $this->core->Element(["button", "Back", [
-      "class" => "LI GoToParent",
-      "data-type" => "Congress"
-     ]]).$this->core->Element([
-      "h1", $chamber
+     $r = $this->core->Element([
+      "h2", $chamber
      ]).$this->core->Element([
       "p", "Welcome to the Chamber of the $chamber of Congress. A list of Senators, the ability to vote in new Senators if you are a House member, and more will be present here in the future."
      ]);
