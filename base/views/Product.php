@@ -317,7 +317,7 @@
       "[Product.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
       "[Product.ID]" => $product["ID"],
-      "[Product.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Product;".$product["ID"])),
+      "[Product.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;".$product["ID"])),
       "[Product.Modified]" => $modified,
       "[Product.Title]" => $product["Title"],
       "[Product.Share]" => $share,

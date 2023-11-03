@@ -156,7 +156,7 @@
      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
      "[StatusUpdate.DisplayName]" => $ft,
      "[StatusUpdate.ID]" => $update["ID"],
-     "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
+     "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
      "[StatusUpdate.Modified]" => $modified,
      "[StatusUpdate.Options]" => $opt,
      "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),

@@ -180,6 +180,175 @@
     "ResponseType" => "View"
    ]);
   }
+  function Report(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Content Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id)) {
+    $accessCode = "Accepted";
+    $id = explode(";", base64_decode($id));
+    $att = "";
+    $body = "";
+    if(!empty($id[0]) && !empty($id[1])) {
+     /*$content = $this->core->ContentData([
+      "ID" => $id[1],
+      "Type" => $id[0]
+     ]);*/
+     if($id[0] == "Album" && !empty($id[2])) {
+      $x = $this->core->Data("Get", ["fs", md5($id[1])]) ?? [];
+      $x = $x["Albums"][$id[2]] ?? [];
+      $att = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Description"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+      $body = $this->core->Element(["h3", $x["Title"], [
+       "class" => "UpperCase"
+      ]]);
+     } elseif($id[0] == "Blog") {
+      $x = $this->core->Data("Get", ["blg", $id[1]]) ?? [];
+      $att = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Description"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+      $body = $this->core->Element(["h3", $x["Title"], [
+       "class" => "UpperCase"
+      ]]);
+     } elseif($id[0] == "BlogPost") {
+      $x = $this->core->Data("Get", ["bp", $id[1]]) ?? [];
+      $att = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Description"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+      $body = $this->core->Element(["h3", $x["Title"], [
+       "class" => "UpperCase"
+      ]]);
+     } elseif($id[0] == "Comment" && !empty($id[2])) {
+      $x = $this->core->Data("Get", ["conversation", $id[1]]) ?? [];
+      $x = $x[$id[2]] ?? [];
+      if(!empty($x["DLC"])) {
+       $att = base64_encode("LiveView:InlineMossaic");
+       $att = $this->view($att, ["Data" => [
+        "ID" => base64_encode(implode(";", $x["DLC"])),
+        "Type" => base64_encode("DLC")
+       ]]);
+      }
+      $body = $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Body"],
+       "Display" => 1
+      ]);
+     } elseif($id[0] == "File" && !empty($id[2])) {
+      $x = $this->core->Data("Get", ["fs", md5($id[1])]) ?? [];
+      $x = $x["Files"][$id[2]] ?? [];
+      $att = $this->core->GetAttachmentPreview([
+       "DLL" => $x,
+       "T" => $id[1],
+       "Y" => $y["Login"]["Username"]
+      ]).$this->core->Element(["div", NULL, [
+       "class" => "NONAME",
+       "style" => "height:0.5em"
+      ]]);
+      $body = $this->core->Element(["h3", $x["Title"], [
+       "class" => "UpperCase"
+      ]]);
+     } elseif($id[0] == "Forum") {
+      $x = $this->core->Data("Get", ["pf", $id[1]]) ?? [];
+      $att = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Description"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+      $body = $this->core->Element(["h3", $x["Title"], [
+       "class" => "UpperCase"
+      ]]);
+     } elseif($id[0] == "ForumPost") {
+      $x = $this->core->Data("Get", ["post", $id[1]]) ?? [];
+      if(!empty($x["Attachments"])) {
+       $att = base64_encode("LiveView:InlineMossaic");
+       $att = $this->view($att, ["Data" => [
+        "ID" => base64_encode(implode(";", $x["Attachments"])),
+        "Type" => base64_encode("DLC")
+       ]]);
+      }
+      $body = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Body"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+     } elseif($id[0] == "Page") {
+      $x = $this->core->Data("Get", ["pg", $id[1]]) ?? [];
+      $att = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Description"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+      $body = $this->core->Element(["h3", $x["Title"], [
+       "class" => "UpperCase"
+      ]]);
+     } elseif($id[0] == "Product") {
+      $x = $this->core->Data("Get", ["miny", $id[1]]) ?? [];
+      $att = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Description"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+      $body = $this->core->Element(["h3", $x["Title"], [
+       "class" => "UpperCase"
+      ]]);
+     } elseif($id[0] == "StatusUpdate") {
+      $x = $this->core->Data("Get", ["su", $id[1]]) ?? [];
+      if(!empty($x["Attachments"])) {
+       $att = base64_encode("LiveView:InlineMossaic");
+       $att = $this->view($att, ["Data" => [
+        "ID" => base64_encode(implode(";", $x["Attachments"])),
+        "Type" => base64_encode("DLC")
+       ]]);
+      }
+      $body = $this->core->Element(["p", $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $x["Body"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ])]);
+     }
+    }
+    $processor = "v=".base64_encode("Common:SaveIllegal")."&ID=[ID]";
+    $r = $this->core->Change([[
+     "[Illegal.Content]" => $body,
+     "[Illegal.Content.LiveView]" => $att,
+     "[Illegal.ID]" => base64_encode(implode(";", $id)),
+     "[Illegal.Processor]" => base64_encode($processor)
+    ], $this->core->Page("0eaea9fae43712d8c810c737470021b3")]);
+    $r = [
+     "Front" => $r
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function __destruct() {
    // DESTROYS THIS CLASS
   }

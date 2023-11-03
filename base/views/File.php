@@ -225,7 +225,7 @@
       "[File.Description]" => $file["Description"],
       "[File.Extension]" => $file["EXT"],
       "[File.ID]" => $id,
-      "[File.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("File;".$t["Login"]["Username"].";$id")),
+      "[File.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("File;".$t["Login"]["Username"].";$id")),
       "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
       "[File.Name]" => $file["Name"],
       "[File.NSFW]" => $nsfw,

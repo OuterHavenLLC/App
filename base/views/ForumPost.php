@@ -195,7 +195,7 @@
        "[Conversation.URL]" => base64_encode("v=$con&CRID=[CRID]&LVL=[LVL]")
       ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[ForumPost.ID]" => $id,
-      "[ForumPost.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("ForumPost;$id")),
+      "[ForumPost.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$id")),
       "[ForumPost.MemberRole]" => $memberRole,
       "[ForumPost.Modified]" => $modified,
       "[ForumPost.OriginalPoster]" => $display,

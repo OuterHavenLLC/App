@@ -233,7 +233,7 @@
      "[Article.CoverPhoto]" => $coverPhoto,
      "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
      "[Article.Description]" => $post["Description"],
-     "[Article.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("BlogPost;".$post["ID"])),
+     "[Article.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;".$post["ID"])),
      "[Article.Modified]" => $modified,
      "[Article.Reactions]" => $votes,
      "[Article.Share]" => $share,

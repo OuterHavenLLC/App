@@ -163,7 +163,7 @@
      "[Album.Description]" => $alb["Description"],
      "[Album.ID]" => $id,
      "[Album.Modified]" => $this->core->TimeAgo($alb["Modified"]),
-     "[Album.Illegal]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Album;".$t["Login"]["Username"].";$id")),
+     "[Album.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Album;".$t["Login"]["Username"].";$id")),
      "[Album.Owner]" => $t["Personal"]["DisplayName"],
      "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$tun"),
      "[Album.Title]" => $alb["Title"],

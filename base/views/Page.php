@@ -382,7 +382,7 @@
       "[Article.Description]" => $article["Description"],
       "[Article.ID]" => $id,
       "[Article.Modified]" => $modified,
-      "[Article.Report]" => base64_encode("v=".base64_encode("Common:Illegal")."&ID=".base64_encode("Page;$id")),
+      "[Article.Report]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;$id")),
       "[Article.Share]" => $share,
       "[Article.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Article"),
       "[Article.Title]" => $article["Title"],
