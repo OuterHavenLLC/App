@@ -333,6 +333,7 @@
    return "$r://";
   }
   function ContentData(array $content) {
+   $body = "";
    $coverPhoto = "";
    $data = [];
    $description = "";
@@ -352,18 +353,18 @@
    if(!emptyz($id) && !empty($type)) {
     $contentID = explode(";", $id);
     if($type == "Album") {
-     $data = $this->core->Data("Get", ["fs", md5($contentID[0])]) ?? [];
+     $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
      $data = $data["Albums"][$contentID[1]] ?? [];
+     $content = $data["Title"] ?? "";
      $description = $data["Description"] ?? "";
-     $description = $this->core->PlainText([
-      "BBCodes" => 1,
-      "Data" => $description,
-      "Display" => 1,
-      "HTMLDecode" => 1
-     ]);
+     $empty = (empty($data)) ? 1 : 0;
+     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=".$contentID[1]."&UN=".$contentID[0]));
+    } elseif($type == "Blog") {
+     $data = $this->Data("Get", ["blg", $id[1]]) ?? [];
+     $content = $data["Title"] ?? "";
+     $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
-     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=".$contentID[1]."&UN=".$contentID[0]));
     }
    }
    return [
@@ -374,8 +375,14 @@
      "Type" => $type
     ],
     "ListItem" => [
+     "Body" => $body,
      "CoverPhoto" => $coverPhoto,
-     "Description" => $descrioption,
+     "Description" => $this->PlainText([
+      "BBCodes" => 1,
+      "Data" => $description,
+      "Display" => 1,
+      "HTMLDecode" => 1
+     ]),
      "ProfilePicture" => $profilePicture,
      "Title" => $title,
      "View" => $view
