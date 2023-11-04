@@ -191,7 +191,11 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($id)) {
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = explode(";", base64_decode($id));
     $content = $this->core->GetContentData([
@@ -205,14 +209,24 @@
     $title = (!empty($listItem["Title"])) ? $this->core->Element([
      "h3", $listItem["Title"]
     ]) : "";
-    $r = $this->core->Change([[
-     "[Content.Attachments]" => $listItem["Attachments"],
-     "[Content.Body]" => $listItem["Body"],
-     "[Content.Description]" => $description,
-     "[Content.ID]" => base64_encode(implode(";", $id)),
-     "[Content.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
-     "[Content.Title]" => $title
-    ], $this->core->Page("0eaea9fae43712d8c810c737470021b3")]);
+    $wasDeemedLegal = $content["DataModel"]["CongressDeemedLegal"] ?? 0;
+    if($wasDeemedLegal == 0) {
+     $r = $this->core->Element([
+      "h1", "Forbidden", ["class" => "CenterText UpperCase"]
+     ]).$this->core->Element([
+      "p", "Congressional action has already been taken, and Congress deemed this content legal in accordance with the United States Constitution and ".$this->core->config["App"]["Name"]."'s Bill of Rights",
+      ["class" => "CenterText UpperCase"]
+     ]);;
+    } else {
+     $r = $this->core->Change([[
+      "[Content.Attachments]" => $listItem["Attachments"],
+      "[Content.Body]" => $listItem["Body"],
+      "[Content.Description]" => $description,
+      "[Content.ID]" => base64_encode(implode(";", $id)),
+      "[Content.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
+      "[Content.Title]" => $title
+     ], $this->core->Page("0eaea9fae43712d8c810c737470021b3")]);
+    }
     $r = [
      "Front" => $r
     ];
@@ -265,27 +279,33 @@
      $weight = ($type == "Terrorism") ? ($limit / 100) : $weight;
      if(!empty($id) && !empty($type)) {
       $data = $content["DataModel"];
-      $isLegal = $data["CongressDeemedLegal"] ?? 0;
-      $data["CongressDeemedLegal"] = $isLegal;
+      $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
+      $data["CongressDeemedLegal"] = $wasDeemedLegal;
       if($type == "Album") {
        if(!empty($data)) {
         $dlc = $data["Albums"][$additionalContentID] ?? [];
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $data["Albums"][$additionalContentID] = $dlc;
-        #$this->core->Data("Save", ["fs", md5($id), $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["fs", md5($id), $data]);
+        }
        }
       } elseif($type == "Blog") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
-        #$this->core->Data("Save", ["blg", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["blg", $id, $data]);
+        }
        }
       } elseif($type == "BlogPost") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
-        #$this->core->Data("Save", ["bp", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["bp", $id, $data]);
+        }
        }
       } elseif($type == "Comment" && !empty($additionalContentID)) {
        if(!empty($data)) {
@@ -293,7 +313,9 @@
         $comment["Illegal"] = $comment["Illegal"] ?? 0;
         $comment["Illegal"] = $comment["Illegal"] + $weight;
         $data[$additionalContentID] = $comment;
-        #$this->core->Data("Save", ["conversation", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["conversation", $id, $data]);
+        }
        }
       } elseif($type == "File" && !empty($additionalContentID)) {
        if(!empty($data)) {
@@ -301,37 +323,49 @@
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $data["Files"][$additionalContentID] = $dlc;
-        #$this->core->Data("Save", ["fs", md5($id), $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["fs", md5($id), $data]);
+        }
        }
       } elseif($type == "Forum") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
-        #$this->core->Data("Save", ["pf", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["pf", $id, $data]);
+        }
        }
       } elseif($type == "ForumPost") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
-        #$this->core->Data("Save", ["post", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["post", $id, $data]);
+        }
        }
       } elseif($type == "Page") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
-        #$this->core->Data("Save", ["pg", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["pg", $id, $data]);
+        }
        }
       } elseif($type == "Product") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
-        #$this->core->Data("Save", ["product", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["product", $id, $data]);
+        }
        }
       } elseif($type == "StatusUpdate") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
-        #$this->core->Data("Save", ["su", $id, $data]);
+        if($wasDeemedLegal == 0) {
+         #$this->core->Data("Save", ["su", $id, $data]);
+        }
        }
       }
      }
