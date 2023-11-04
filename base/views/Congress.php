@@ -197,11 +197,10 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
+    $contentID = explode(";", base64_decode($id));
     $content = $this->core->GetContentData([
-     "ID" => $id,
-     "Type" => $id[0]
+     "ID" => $id
     ]) ?? [];
-    $id = explode(";", base64_decode($id));
     $listItem = $content["ListItem"] ?? [];
     $description = (!empty($listItem["Description"])) ? $this->core->Element([
      "p", $listItem["Description"]
@@ -222,7 +221,7 @@
       "[Content.Attachments]" => $listItem["Attachments"],
       "[Content.Body]" => $listItem["Body"],
       "[Content.Description]" => $description,
-      "[Content.ID]" => base64_encode(implode(";", $id)),
+      "[Content.ID]" => base64_encode($id),
       "[Content.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
       "[Content.Title]" => $title
      ], $this->core->Page("0eaea9fae43712d8c810c737470021b3")]);
@@ -250,10 +249,11 @@
    ];
    $y = $this->you;
    if(!empty($id) && !empty($type)) {
-    $r = [
-     "Body" => "The Content Type is incorrect.<br/>ID: $id<br/>Type: ".base64_decode($type)
-    ];
+    $id = base64_decode($id);
     $type = base64_decode($type);
+    $r = [
+     "Body" => "The Report Type is incorrect."
+    ];
     $types = [
      "CriminalActs",
      "ChildPorn",
@@ -265,115 +265,117 @@
      $accessCode = "Accepted";
      $contentID = explode(";", base64_decode($id));
      $additionalContentID = $contentID[2] ?? "";
+     $contentType = $contentID[0] ?? "";
      $content = $this->core->GetContentData([
-      "ID" => $id,
-      "Type" => $contentID[0]
+      "ID" => $id
      ]) ?? [];
      $id = $contentID[1] ?? "";
-     $type = $contentID[0] ?? "";
      $limit = $this->core->config["App"]["Illegal"] ?? 777;
+     $r = [
+      "Body" => "The Content ID is missing."
+     ];
      $weight = ($type == "CriminalActs") ? ($limit / 1000) : 0;
      $weight = ($type == "ChildPorn") ? ($limit / 3) : $weight;
      $weight = ($type == "FairUse") ? ($limit / 100000) : $weight;
      $weight = ($type == "Privacy") ? ($limit / 10000) : $weight;
      $weight = ($type == "Terrorism") ? ($limit / 100) : $weight;
-     if(!empty($id) && !empty($type)) {
+     if(!empty($contentType) && !empty($id)) {
       $data = $content["DataModel"];
       $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
       $data["CongressDeemedLegal"] = $wasDeemedLegal;
-      if($type == "Album") {
+      if($contentType == "Album") {
        if(!empty($data)) {
         $dlc = $data["Albums"][$additionalContentID] ?? [];
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $data["Albums"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["fs", md5($id), $data]);
+         $this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
-      } elseif($type == "Blog") {
+      } elseif($contentType == "Blog") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["blg", $id, $data]);
+         $this->core->Data("Save", ["blg", $id, $data]);
         }
        }
-      } elseif($type == "BlogPost") {
+      } elseif($contentType == "BlogPost") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["bp", $id, $data]);
+         $this->core->Data("Save", ["bp", $id, $data]);
         }
        }
-      } elseif($type == "Comment" && !empty($additionalContentID)) {
+      } elseif($contentType == "Comment" && !empty($additionalContentID)) {
        if(!empty($data)) {
         $comment = $data[$additionalContentID] ?? [];
         $comment["Illegal"] = $comment["Illegal"] ?? 0;
         $comment["Illegal"] = $comment["Illegal"] + $weight;
         $data[$additionalContentID] = $comment;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["conversation", $id, $data]);
+         $this->core->Data("Save", ["conversation", $id, $data]);
         }
        }
-      } elseif($type == "File" && !empty($additionalContentID)) {
+      } elseif($contentType == "File" && !empty($additionalContentID)) {
        if(!empty($data)) {
         $dlc = $data["Files"][$additionalContentID] ?? [];
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $data["Files"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["fs", md5($id), $data]);
+         $this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
-      } elseif($type == "Forum") {
+      } elseif($contentType == "Forum") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["pf", $id, $data]);
+         $this->core->Data("Save", ["pf", $id, $data]);
         }
        }
-      } elseif($type == "ForumPost") {
+      } elseif($contentType == "ForumPost") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["post", $id, $data]);
+         $this->core->Data("Save", ["post", $id, $data]);
         }
        }
-      } elseif($type == "Page") {
+      } elseif($contentType == "Page") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["pg", $id, $data]);
+         $this->core->Data("Save", ["pg", $id, $data]);
         }
        }
-      } elseif($type == "Product") {
+      } elseif($contentType == "Product") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["product", $id, $data]);
+         $this->core->Data("Save", ["product", $id, $data]);
         }
        }
-      } elseif($type == "StatusUpdate") {
+      } elseif($contentType == "StatusUpdate") {
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["su", $id, $data]);
+         $this->core->Data("Save", ["su", $id, $data]);
         }
        }
       }
+      $data["Illegal"] = round($data["Illegal"]);
+      $r = [
+       "Body" => "The Content was reported.",
+       "Header" => "Done"
+      ];
      }
-     $r = [
-      "Body" => "The Content was reported.",
-      "Header" => "Done",
-      "Scrollable" => "Debug Dta:<br/>".json_encode($data, true)
-     ];
     }
    }
    return $this->core->JSONResponse([

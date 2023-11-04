@@ -531,10 +531,11 @@
    $description = "";
    $empty = 0;
    $id = $content["ID"] ?? "";
+   $id = explode(";", base64_decode($id));
    $json = [];
    $profilePicture = "";
    $title = "";
-   $type = $content["Type"] ?? "";
+   $type = $id[0] ?? "";
    $view = "";
    $web = $this->Element(["div", $this->Element([
      "h4", "Content Unavailable"
@@ -544,28 +545,28 @@
    ]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($id) && !empty($type)) {
-    $contentID = explode(";", $id);
-    $additionalContantID = $contentID[1] ?? "";
+   if(!empty($id[1]) && !empty($type)) {
+    $contentID = $id[1] ?? "";
+    $additionalContantID = $id[2] ?? "";
     if($type == "Album" && !empty($additionalContantID)) {
-     $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
+     $data = $this->Data("Get", ["fs", md5($contentID)]) ?? [];
      $album = $data["Albums"][$additionalContantID] ?? [];
      $description = $album["Description"] ?? "";
      $empty = (empty($album)) ? 1 : 0;
-     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContantID&UN=".$contentID[0]));
+     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContantID&UN=".$contentID));
     } elseif($type == "Blog") {
-     $data = $this->Data("Get", ["blg", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["blg", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "BlogPost") {
-     $data = $this->Data("Get", ["bp", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["bp", $contentID]) ?? [];
      $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "Comment" && !empty($additionalContantID)) {
-     $data = $this->Data("Get", ["conversation", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["conversation", $contentID]) ?? [];
      if(!empty($comment["DLC"])) {
       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
        "ID" => base64_encode(implode(";", $comment["DLC"])),
@@ -577,12 +578,12 @@
      $body = $comment["Body"];
      $empty = (empty($comment)) ? 1 : 0;
     } elseif($type == "File" && !empty($additionalContantID)) {
-     $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
+     $data = $this->Data("Get", ["fs", md5($contentID)]) ?? [];
      $file = $data["Files"][$additionalContantID] ?? [];
      $empty = (empty($file)) ? 1 : 0;
      $attachments = $this->GetAttachmentPreview([
       "DLL" => $file,
-      "T" => $contentID[0],
+      "T" => $contentID,
       "Y" => $you
      ]).$this->core->Element(["div", NULL, [
       "class" => "NONAME",
@@ -590,12 +591,12 @@
      ]]);
      $title = $file["Title"];
     } elseif($type == "Forum") {
-     $data = $this->Data("Get", ["pf", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["pf", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "ForumPost") {
-     $data = $this->Data("Get", ["post", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["post", $contentID]) ?? [];
      if(!empty($data["Attachments"])) {
       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
        "ID" => base64_encode(implode(";", $data["Attachments"])),
@@ -608,7 +609,7 @@
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "Page") {
-     $data = $this->Data("Get", ["pg", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["pg", $contentID]) ?? [];
      if(!empty($data["Attachments"])) {
       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
        "ID" => base64_encode(implode(";", $data["Attachments"])),
@@ -626,7 +627,7 @@
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "Product") {
-     $data = $this->Data("Get", ["product", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["product", $contentID]) ?? [];
      if(!empty($data["Attachments"])) {
       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
        "ID" => base64_encode(implode(";", $data["Attachments"])),
@@ -644,7 +645,7 @@
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "StatusUpdate") {
-     $data = $this->Data("Get", ["su", $contentID[0]]) ?? [];
+     $data = $this->Data("Get", ["su", $contentID]) ?? [];
      if(!empty($data["Attachments"])) {
       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
        "ID" => base64_encode(implode(";", $data["Attachments"])),
