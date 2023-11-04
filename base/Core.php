@@ -456,11 +456,16 @@
    }
    return "$r\r\n";
   }
-  function Excerpt(string $data, $limit = 1000) {
-   $data = substr($data, 0, $limit);
-   $data = substr($data, 0, strrpos($data, " "));
-   $data = (strlen($data) > $limit) ? "$data..." : $data;
-   return htmlentities(strip_tags($data));
+  function Excerpt(string $data, $limit = 180) {
+   if(strlen($data) <= $limit) {
+    return $data;
+   }
+   $excerpt = substr($data, 0, $limit);
+   $lastSpace = strrpos($excerpt, " ");
+   if($lastSpace !== false) {
+    $excerpt = substr($excerpt, 0, $lastSpace);
+   }
+   return $excerpt;
   }
   function FixMissing(array $a, array $b) {
    foreach($b as $b) {
@@ -630,6 +635,11 @@
       $attachments = $this->RenderView($attachments);
      }
      $body = $data["Body"] ?? "";
+     $body = $this->PlainText([
+      "Data" => $body,
+      "Decode" => 1,
+      "HTMLDecode" => 1
+     ]);
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
@@ -662,9 +672,7 @@
      ]),
      "CoverPhoto" => $coverPhoto,
      "Description" => $this->PlainText([
-      "BBCodes" => 1,
-      "Data" => $this->Excerpt($description, 500),
-      "Display" => 1,
+      "Data" => $this->Excerpt($description, 180),
       "HTMLDecode" => 1
      ]),
      "ProfilePicture" => $profilePicture,
