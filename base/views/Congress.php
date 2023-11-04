@@ -194,26 +194,25 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $id = explode(";", base64_decode($id));
-    $id2 = $id[2] ?? "N/A";
+    $id2 = $id[2] ?? "";
     $content = $this->core->GetContentData([
      "ID" => $id[1].";$id2",
      "Type" => $id[0]
     ]) ?? [];
     $listItem = $content["ListItem"] ?? [];
-    $content = $listItem["Body"] ?? $listItem["Title"];
-    $description = (!empty($listItem["Descriotion"])) ? $this->core->Element([
+    $description = (!empty($listItem["Description"])) ? $this->core->Element([
      "p", $listItem["Description"]
     ]) : "";
     $title = (!empty($listItem["Title"])) ? $this->core->Element([
      "h3", $listItem["Title"]
     ]) : "";
     $r = $this->core->Change([[
-     "[Illegal.Attachments]" => $listItem["Attachments"],
-     "[Illegal.Body]" => $listItem["Body"],
-     "[Illegal.Description]" => $description,
-     "[Illegal.ID]" => base64_encode(implode(";", $id)),
-     "[Illegal.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
-     "[Illegal.Title]" => $title
+     "[Content.Attachments]" => $listItem["Attachments"],
+     "[Content.Body]" => $listItem["Body"],
+     "[Content.Description]" => $description,
+     "[Content.ID]" => base64_encode(implode(";", $id)),
+     "[Content.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
+     "[Content.Title]" => $title
     ], $this->core->Page("0eaea9fae43712d8c810c737470021b3")]);
     $r = [
      "Front" => $r

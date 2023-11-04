@@ -460,7 +460,7 @@
    $data = substr($data, 0, $limit);
    $data = substr($data, 0, strrpos($data, " "));
    $data = (strlen($data) > $limit) ? "$data..." : $data;
-   return htmlentities(striptags($data));
+   return htmlentities(strip_tags($data));
   }
   function FixMissing(array $a, array $b) {
    foreach($b as $b) {
@@ -541,24 +541,25 @@
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($type)) {
     $contentID = explode(";", $id);
-    if($type == "Album" && !empty($contentID[1])) {
+    $additionalContantID = $contentID[1] ?? "";
+    if($type == "Album" && !empty($additionalContantID)) {
      $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
-     $album = $data["Albums"][$contentID[1]] ?? [];
+     $album = $data["Albums"][$additionalContantID] ?? [];
      $description = $album["Description"] ?? "";
      $empty = (empty($album)) ? 1 : 0;
-     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=".$contentID[1]."&UN=".$contentID[0]));
+     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContantID&UN=".$contentID[0]));
     } elseif($type == "Blog") {
-     $data = $this->Data("Get", ["blg", $id[1]]) ?? [];
+     $data = $this->Data("Get", ["blg", $contentID[0]]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "BlogPost") {
-     $data = $this->Data("Get", ["bp", $id[1]]) ?? [];
+     $data = $this->Data("Get", ["bp", $contentID[0]]) ?? [];
      $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
-    } elseif($type == "Comment" && !empty($contentID[1])) {
+    } elseif($type == "Comment" && !empty($additionalContantID)) {
      $data = $this->Data("Get", ["conversation", $contentID[0]]) ?? [];
      if(!empty($comment["DLC"])) {
       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
@@ -567,12 +568,12 @@
       ]]);
       $attachments = $this->RenderView($attachments);
      }
-     $comment = $data[$id[2]] ?? [];
+     $comment = $data[$additionalContantID] ?? [];
      $body = $comment["Body"];
      $empty = (empty($comment)) ? 1 : 0;
-    } elseif($type == "File" && !empty($contentID[1])) {
+    } elseif($type == "File" && !empty($additionalContantID)) {
      $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
-     $file = $data["Files"][$contentID[1]] ?? [];
+     $file = $data["Files"][$additionalContantID] ?? [];
      $empty = (empty($file)) ? 1 : 0;
      $attachments = $this->GetAttachmentPreview([
       "DLL" => $file,
@@ -639,9 +640,9 @@
        "ID" => base64_encode(implode(";", $data["Attachments"])),
        "Type" => base64_encode("DLC")
       ]]);
+      $attachments = $this->RenderView($attachments);
      }
      $body = $data["Body"] ?? "";
-     $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
     }
    }
@@ -662,7 +663,7 @@
      "CoverPhoto" => $coverPhoto,
      "Description" => $this->PlainText([
       "BBCodes" => 1,
-      "Data" => $this->Excerpt($description, 256),
+      "Data" => $this->Excerpt($description, 500),
       "Display" => 1,
       "HTMLDecode" => 1
      ]),
