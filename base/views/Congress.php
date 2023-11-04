@@ -325,7 +325,6 @@
         #$this->core->Data("Save", ["miny", $id[1], $data]);
        }
       } elseif($id[0] == "StatusUpdate") {
-       $data = $this->core->Data("Get", ["su", $id[1]]) ?? [];
        if(!empty($data)) {
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;

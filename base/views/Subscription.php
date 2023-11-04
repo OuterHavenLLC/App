@@ -113,7 +113,7 @@
         "Data" => "[Media:CP]",
         "Display" => 1
        ]),
-       "[Blogger.List]" => base64_encode("v=$search&st=S-Blogger"),
+       "[Blogger.Stream]" => base64_encode("v=$search&st=S-Blogger"),
        "[Blogger.Title]" => $sub["Title"]
       ], $this->core->Page("566f9967f00f97350e54b0ee14faef36")]);
      } elseif($s == "VIP") {

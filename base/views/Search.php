@@ -910,13 +910,21 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $extension = $this->core->Page($extension);
      $groups = $this->core->DatabaseSet("Chat") ?? [];
      foreach($groups as $key => $group) {
+      $active = 0;
+      $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
       $group = str_replace("c.oh.chat.", "", $group);
       $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
+      $contributors = $chat["Contributors"] ?? [];
+      foreach($contributors as $member => $role) {
+       if($member == $you) {
+        $active++;
+       }
+      }
       $nsfw = $chat["NSFW"] ?? 0;
       $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $privacy = $chat["Privacy"] ?? 0;
-      $privacy = ($privacy != md5("Private")) ? 1 : 0;
-      if($chat["UN"] == $you || ($nsfw == 1 && $privacy == 1)) {
+      $privacy = ($active == 1 || $privacy != md5("Private")) ? 1 : 0;
+      if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
        $contributors = $chat["Contributors"] ?? [];
        $isGroupChat = $chat["Group"] ?? 0;
        if(!empty($contributors) || $isGroupChat == 1) {
@@ -1753,17 +1761,32 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      if($group == 1) {
       $groups = $y["GroupChats"] ?? [];
       foreach($groups as $key => $group) {
+       $active = 0;
+       $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
+       $group = str_replace("c.oh.chat.", "", $group);
        $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
-       $displayName = $chat["Title"] ?? "Group Chat";
-       $t = $this->core->Member($this->core->ID);
-       $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group)."&Integrated=$integrated";
-       $view .= ($integrated == 1) ? "&Card=1" : "";
-       array_push($msg, [
-        "[Chat.DisplayName]" => base64_encode($displayName),
-        "[Chat.Online]" => base64_encode(""),
-        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-        "[Chat.View]" => base64_encode(base64_encode($view))
-       ]);
+       $contributors = $chat["Contributors"] ?? [];
+       foreach($contributors as $member => $role) {
+        if($member == $you) {
+         $active++;
+        }
+       }
+       $nsfw = $chat["NSFW"] ?? 0;
+       $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+       $privacy = $chat["Privacy"] ?? 0;
+       $privacy = ($active == 1 || $privacy != md5("Private")) ? 1 : 0;
+       if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
+        $displayName = $chat["Title"] ?? "Group Chat";
+        $t = $this->core->Member($this->core->ID);
+        $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group)."&Integrated=$integrated";
+        $view .= ($integrated == 1) ? "&Card=1" : "";
+        array_push($msg, [
+         "[Chat.DisplayName]" => base64_encode($displayName),
+         "[Chat.Online]" => base64_encode(""),
+         "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
+         "[Chat.View]" => base64_encode(base64_encode($view))
+        ]);
+       }
       }
      } elseif($oneOnOne == 1) {
       $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
