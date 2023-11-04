@@ -2029,7 +2029,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $ck = ($ck == 1 || $v["Login"]["Username"] == $this->core->ShopID) ? 1 : 0;
        $illegal = $product["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       $illegal = ($v["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
+       $illegal = ($this->core->ShopID != $v["Login"]["Username"]) ? 1 : 0;
        if($bl == 0 && $ck == 1 && $illegal == 0) {
         $coverPhoto = $product["ICO"] ?? $coverPhoto;
         $coverPhoto = base64_encode($coverPhoto);
@@ -2376,6 +2376,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
      "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
      "[ReSearch.Query]" => $query,
+     "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products")
      "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates")
     ], $this->core->Page("bae5cdfa85bf2c690cbff302ba193b0b")]);
    } if($pub == 1) {

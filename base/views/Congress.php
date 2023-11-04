@@ -197,8 +197,9 @@
     $att = "";
     $body = "";
     if(!empty($id[0]) && !empty($id[1])) {
+     $id2 = $id[2] ?? "N/A";
      $content = $this->core->ContentData([
-      "ID" => $id[1],
+      "ID" => $id[1].";$id2",
       "Type" => $id[0]
      ]) ?? [];
      if($id[0] == "Album" && !empty($id[2])) {

@@ -333,11 +333,16 @@
    return "$r://";
   }
   function ContentData(array $content) {
+   $coverPhoto = "";
    $data = [];
-   $emptyo = 0;
+   $description = "";
+   $empty = 0;
    $id = $content["ID"] ?? "";
    $json = [];
+   $profilePicture = "";
+   $title = "";
    $type = $content["Type"] ?? "";
+   $view = "";
    $web = $this->Element(["div", $this->Element([
      "h4", "Content Unavailable"
     ]).$this->Element([
@@ -345,13 +350,35 @@
     ]), ["class" => "K4i"]
    ]);
    if(!emptyz($id) && !empty($type)) {
+    $contentID = explode(";", $id);
+    if($type == "Album") {
+     $data = $this->core->Data("Get", ["fs", md5($contentID[0])]) ?? [];
+     $data = $data["Albums"][$contentID[1]] ?? [];
+     $description = $data["Description"] ?? "";
+     $description = $this->core->PlainText([
+      "BBCodes" => 1,
+      "Data" => $description,
+      "Display" => 1,
+      "HTMLDecode" => 1
+     ]);
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=".$contentID[1]."&UN=".$contentID[0]));
+    }
    }
    return [
     "DataModel" => $data,
     "Empty" => $empty,
+    "InputData" => [
+     "ID" => $id,
+     "Type" => $type
+    ],
     "ListItem" => [
-     "JSON" => $json,
-     "Web" => $web
+     "CoverPhoto" => $coverPhoto,
+     "Description" => $descrioption,
+     "ProfilePicture" => $profilePicture,
+     "Title" => $title,
+     "View" => $view
     ]
    ];
   }
