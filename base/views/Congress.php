@@ -197,11 +197,11 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $id = explode(";", base64_decode($id));
     $content = $this->core->GetContentData([
      "ID" => $id,
      "Type" => $id[0]
     ]) ?? [];
+    $id = explode(";", base64_decode($id));
     $listItem = $content["ListItem"] ?? [];
     $description = (!empty($listItem["Description"])) ? $this->core->Element([
      "p", $listItem["Description"]
@@ -210,12 +210,12 @@
      "h3", $listItem["Title"]
     ]) : "";
     $wasDeemedLegal = $content["DataModel"]["CongressDeemedLegal"] ?? 0;
-    if($wasDeemedLegal == 0) {
+    if($wasDeemedLegal == 1) {
      $r = $this->core->Element([
       "h1", "Forbidden", ["class" => "CenterText UpperCase"]
      ]).$this->core->Element([
       "p", "Congressional action has already been taken, and Congress deemed this content legal in accordance with the United States Constitution and ".$this->core->config["App"]["Name"]."'s Bill of Rights",
-      ["class" => "CenterText UpperCase"]
+      ["class" => "CenterText"]
      ]);;
     } else {
      $r = $this->core->Change([[
@@ -263,14 +263,14 @@
     ];
     if(in_array($type, $types)) {
      $accessCode = "Accepted";
-     $id = explode(";", base64_decode($id));
-     $additionalContentID = $id[2] ?? "";
-     $id = $id[1] ?? "";
-     $type = $id[0] ?? "";
+     $contentID = explode(";", base64_decode($id));
+     $additionalContentID = $contentID[2] ?? "";
      $content = $this->core->GetContentData([
       "ID" => $id,
-      "Type" => $id[0]
+      "Type" => $contentID[0]
      ]) ?? [];
+     $id = $contentID[1] ?? "";
+     $type = $contentID[0] ?? "";
      $limit = $this->core->config["App"]["Illegal"] ?? 777;
      $weight = ($type == "CriminalActs") ? ($limit / 1000) : 0;
      $weight = ($type == "ChildPorn") ? ($limit / 3) : $weight;
