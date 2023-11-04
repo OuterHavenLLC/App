@@ -195,7 +195,7 @@
     $accessCode = "Accepted";
     $products = $this->core->DatabaseSet("PROD") ?? [];
     foreach($products as $key => $value) {
-     $product = str_replace("c.oh.miny.", "", $value);
+     $product = str_replace("c.oh.product.", "", $value);
      $product = $this->core->Data("Get", ["shop", $product]) ?? [];
      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {

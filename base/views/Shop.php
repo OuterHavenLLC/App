@@ -1392,7 +1392,6 @@
       ]);
       $coverPhoto = base64_encode($coverPhoto);
       $points = $this->core->config["PTS"]["Products"];
-      $quantity = $product["Quantity"] ?? 1;
       $subscriptionTerm = $product["SubscriptionTerm"] ?? "month";
       if($category == "Architecture") {
        # Architecture

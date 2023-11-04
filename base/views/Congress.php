@@ -197,10 +197,10 @@
     $att = "";
     $body = "";
     if(!empty($id[0]) && !empty($id[1])) {
-     /*$content = $this->core->ContentData([
+     $content = $this->core->ContentData([
       "ID" => $id[1],
       "Type" => $id[0]
-     ]);*/
+     ]) ?? [];
      if($id[0] == "Album" && !empty($id[2])) {
       $x = $this->core->Data("Get", ["fs", md5($id[1])]) ?? [];
       $x = $x["Albums"][$id[2]] ?? [];

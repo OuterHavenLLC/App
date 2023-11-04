@@ -488,7 +488,7 @@
   function DeleteProduct(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
+   $id = $data["ID"] ?? "":;
    $pd = base64_encode("Product:SaveDelete");
    $r = [
     "Body" => "The Product Identifier is missing."
@@ -500,17 +500,17 @@
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($data["ID"])) {
+   } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $dialogID = "Delete".$data["ID"];
-    $product = $this->core->Data("Get", ["miny", $data["ID"]]) ?? [];
+    $dialogID = "Delete$id";
+    $product = $this->core->Data("Get", ["product", $id]) ?? [];
     $r = [
      "Body" => "You are about to permanently delete <em>".$product["Title"]."</em>.",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
-      "[Delete.ID]" => $product["ID"],
+      "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:SaveDelete")),
       "[Delete.Title]" => $product["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])

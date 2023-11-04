@@ -332,6 +332,29 @@
    $r = (!empty($r) && $r == "on") ? "https" : "http";
    return "$r://";
   }
+  function ContentData(array $content) {
+   $data = [];
+   $emptyo = 0;
+   $id = $content["ID"] ?? "";
+   $json = [];
+   $type = $content["Type"] ?? "";
+   $web = $this->Element(["div", $this->Element([
+     "h4", "Content Unavailable"
+    ]).$this->Element([
+     "p", "The Identifier or Type are missing."
+    ]), ["class" => "K4i"]
+   ]);
+   if(!emptyz($id) && !empty($type)) {
+   }
+   return [
+    "DataModel" => $data,
+    "Empty" => $empty,
+    "ListItem" => [
+     "JSON" => $json,
+     "Web" => $web
+    ]
+   ];
+  }
   function ConvertCalendarMonths(int $a) {
    $r = ($a == "01") ? "January" : $a;
    $r = ($a == "02") ? "February" : $r;

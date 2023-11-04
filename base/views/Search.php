@@ -624,7 +624,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $bl = base64_decode($data["BL"]);
      $x = $y["Blocked"][$bl] ?? [];
      foreach($x as $k => $v) {
-      $p = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($v)."&List=".base64_encode($bl));
+      $unblock = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($v)."&List=".base64_encode($bl));
       if($bl == "Albums") {
        $alb = explode("-", base64_decode($v));
        $t = ($alb[0] != $y["Login"]["Username"]) ? $this->core->Member($alb[0]) : $y;
@@ -746,7 +746,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "[X.LI.Header]" => base64_encode($h),
        "[X.LI.ID]" => base64_encode($v),
        "[X.LI.Unblock]" => base64_encode($u),
-       "[X.LI.Unblock.Proc]" => base64_encode(base64_encode($p)),
+       "[X.LI.Unblock.Proc]" => base64_encode(base64_encode($unblock)),
        "[X.LI.View]" => base64_encode($vi)
       ]);
      }
@@ -801,11 +801,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $message = $this->view($message, [
        "Data" => $value
       ]);
-      $options = $this->view($options, [
-       "Data" => [
-        "Bulletin" => base64_encode(json_encode($value, true))
-       ]
-      ]);
+      $options = $this->view($options, ["Data" => [
+       "Bulletin" => base64_encode(json_encode($value, true))
+      ]]);
       $pic = $this->core->ProfilePicture($t, "margin:5%;width:90%");
       $value["ID"] = $key;
       array_push($msg, [
@@ -1972,30 +1970,30 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     ]) ?? [];
     $products = $shop["Products"] ?? [];
     foreach($products as $key => $value) {
-     $p = $this->core->Data("Get", ["product", $value]) ?? [];
-     $bl = $this->core->CheckBlocked([$y, "Products", $p["ID"]]);
-     $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-     $ck2 = (strtotime($this->core->timestamp) < $p["Expires"]) ? 1 : 0;
+     $product = $this->core->Data("Get", ["product", $value]) ?? [];
+     $bl = $this->core->CheckBlocked([$y, "Products", $value]);
+     $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+     $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
      $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
      $ck = ($ck == 1 || $t["Login"]["Username"] == $this->core->ShopID) ? 1 : 0;
-     $illegal = $p["Illegal"] ?? 0;
+     $illegal = $product["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      $illegal = ($t["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
      if($bl == 0 && $ck == 1 && $illegal == 0) {
-      $coverPhoto = $p["ICO"] ?? $coverPhoto;
+      $coverPhoto = $product["ICO"] ?? $coverPhoto;
       $coverPhoto = base64_encode($coverPhoto);
-      $pub = $data["pubP"] ?? 0;
+      $pub = $data["pub"] ?? 0;
       array_push($msg, [
        "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-       "[X.LI.T]" => base64_encode($p["Title"]),
+       "[X.LI.T]" => base64_encode($product["Title"]),
        "[X.LI.D]" => base64_encode($this->core->PlainText([
         "BBCodes" => 1,
-        "Data" => $p["Description"],
+        "Data" => $product["Description"],
         "Display" => 1,
         "HTMLDecode" => 1
        ])),
-       "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$p["ID"]."&UN=$une"))
+       "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=$value&UN=$une"))
       ]);
      }
     }
@@ -2020,32 +2018,32 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]) ?? [];
       $b2 = $b2 ?? "Products";
       $products = $shop["Products"] ?? [];
-      foreach($products as $mbr => $p) {
-       $p = $this->core->Data("Get", ["product", $p]) ?? [];
-       $bl = $this->core->CheckBlocked([$y, "Products", $p["ID"]]);
+      foreach($products as $key => $value) {
+       $product = $this->core->Data("Get", ["product", $value]) ?? [];
+       $bl = $this->core->CheckBlocked([$y, "Products", $value]);
        $une = base64_encode($v["Login"]["Username"]);
-       $ck = ($p["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-       $ck2 = (strtotime($this->core->timestamp) < $p["Expires"]) ? 1 : 0;
+       $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+       $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
        $ck3 = $v["Subscriptions"]["Artist"]["A"] ?? 0;
        $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
        $ck = ($ck == 1 || $v["Login"]["Username"] == $this->core->ShopID) ? 1 : 0;
-       $illegal = $p["Illegal"] ?? 0;
+       $illegal = $product["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        $illegal = ($v["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
        if($bl == 0 && $ck == 1 && $illegal == 0) {
-        $coverPhoto = $p["ICO"] ?? $coverPhoto;
+        $coverPhoto = $product["ICO"] ?? $coverPhoto;
         $coverPhoto = base64_encode($coverPhoto);
         $pub = $data["pubP"] ?? 0;
         array_push($msg, [
          "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-         "[X.LI.T]" => base64_encode($p["Title"]),
+         "[X.LI.T]" => base64_encode($product["Title"]),
          "[X.LI.D]" => base64_encode($this->core->PlainText([
           "BBCodes" => 1,
-          "Data" => $p["Description"],
+          "Data" => $product["Description"],
           "Display" => 1,
           "HTMLDecode" => 1
          ])),
-         "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$p["ID"]."&UN=".base64_encode($v["Login"]["Username"])."&lPG=$lpg&pubP=$pub"))
+         "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$product["ID"]."&UN=".base64_encode($v["Login"]["Username"])."&lPG=$lpg&pubP=$pub"))
         ]);
        }
       }
