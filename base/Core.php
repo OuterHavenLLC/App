@@ -456,11 +456,11 @@
    }
    return "$r\r\n";
   }
-  function Excerpt($a, $b = 180) {
-   $a = substr($a, 0, $b);
-   $a = substr($a, 0, strrpos($a, " "));
-   $a = (strlen($a) > $b) ? strip_tags($a)."..." : strip_tags($a);
-   return htmlentities($a);
+  function Excerpt(string $data, $limit = 1000) {
+   $data = substr($data, 0, $limit);
+   $data = substr($data, 0, strrpos($data, " "));
+   $data = (strlen($data) > $limit) ? "$data..." : $data;
+   return htmlentities(striptags($data));
   }
   function FixMissing(array $a, array $b) {
    foreach($b as $b) {
@@ -539,7 +539,7 @@
    ]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!emptyz($id) && !empty($type)) {
+   if(!empty($id) && !empty($type)) {
     $contentID = explode(";", $id);
     if($type == "Album" && !empty($contentID[1])) {
      $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
@@ -565,6 +565,7 @@
        "ID" => base64_encode(implode(";", $comment["DLC"])),
        "Type" => base64_encode("DLC")
       ]]);
+      $attachments = $this->RenderView($attachments);
      }
      $comment = $data[$id[2]] ?? [];
      $body = $comment["Body"];
@@ -594,6 +595,7 @@
        "ID" => base64_encode(implode(";", $data["Attachments"])),
        "Type" => base64_encode("DLC")
       ]]);
+      $attachments = $this->RenderView($attachments);
      }
      $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
@@ -606,8 +608,14 @@
        "ID" => base64_encode(implode(";", $data["Attachments"])),
        "Type" => base64_encode("DLC")
       ]]);
+      $attachments = $this->RenderView($attachments);
      }
      $body = $data["Body"] ?? "";
+     $body = $this->PlainText([
+      "Data" => $body,
+      "Decode" => 1,
+      "HTMLDecode" => 1
+     ]);
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
@@ -618,6 +626,7 @@
        "ID" => base64_encode(implode(";", $data["Attachments"])),
        "Type" => base64_encode("DLC")
       ]]);
+      $attachments = $this->RenderView($attachments);
      }
      $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
@@ -647,7 +656,7 @@
      "Attachments" => $attachments,
      "Body" => $this->PlainText([
       "BBCodes" => 1,
-      "Data" => $body,
+      "Data" => $this->Excerpt($body, 3000),
       "Display" => 1
      ]),
      "CoverPhoto" => $coverPhoto,

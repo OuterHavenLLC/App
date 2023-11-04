@@ -330,7 +330,7 @@
       ]]);
       $attachments = $this->core->RenderView($attachments);
      }
-     $t = ($article["UN"] == $you) ? $y : $this->core->Member($t);
+     $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
      $contributors = $article["Contributors"] ?? [];
      $contributors[$article["UN"]] = "Admin";
