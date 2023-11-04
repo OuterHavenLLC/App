@@ -194,126 +194,26 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $id = explode(";", base64_decode($id));
-    $att = "";
-    $body = "";
-    if(!empty($id[0]) && !empty($id[1])) {
-     $id2 = $id[2] ?? "N/A";
-     $content = $this->core->ContentData([
-      "ID" => $id[1].";$id2",
-      "Type" => $id[0]
-     ]) ?? [];
-     if($id[0] == "BlogPost") {
-      $x = $this->core->Data("Get", ["bp", $id[1]]) ?? [];
-      $att = $this->core->Element(["p", $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $x["Description"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ])]);
-      $body = $this->core->Element(["h3", $x["Title"], [
-       "class" => "UpperCase"
-      ]]);
-     } elseif($id[0] == "Comment" && !empty($id[2])) {
-      $x = $this->core->Data("Get", ["conversation", $id[1]]) ?? [];
-      $x = $x[$id[2]] ?? [];
-      if(!empty($x["DLC"])) {
-       $att = base64_encode("LiveView:InlineMossaic");
-       $att = $this->view($att, ["Data" => [
-        "ID" => base64_encode(implode(";", $x["DLC"])),
-        "Type" => base64_encode("DLC")
-       ]]);
-      }
-      $body = $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $x["Body"],
-       "Display" => 1
-      ]);
-     } elseif($id[0] == "File" && !empty($id[2])) {
-      $x = $this->core->Data("Get", ["fs", md5($id[1])]) ?? [];
-      $x = $x["Files"][$id[2]] ?? [];
-      $att = $this->core->GetAttachmentPreview([
-       "DLL" => $x,
-       "T" => $id[1],
-       "Y" => $y["Login"]["Username"]
-      ]).$this->core->Element(["div", NULL, [
-       "class" => "NONAME",
-       "style" => "height:0.5em"
-      ]]);
-      $body = $this->core->Element(["h3", $x["Title"], [
-       "class" => "UpperCase"
-      ]]);
-     } elseif($id[0] == "Forum") {
-      $x = $this->core->Data("Get", ["pf", $id[1]]) ?? [];
-      $att = $this->core->Element(["p", $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $x["Description"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ])]);
-      $body = $this->core->Element(["h3", $x["Title"], [
-       "class" => "UpperCase"
-      ]]);
-     } elseif($id[0] == "ForumPost") {
-      $x = $this->core->Data("Get", ["post", $id[1]]) ?? [];
-      if(!empty($x["Attachments"])) {
-       $att = base64_encode("LiveView:InlineMossaic");
-       $att = $this->view($att, ["Data" => [
-        "ID" => base64_encode(implode(";", $x["Attachments"])),
-        "Type" => base64_encode("DLC")
-       ]]);
-      }
-      $body = $this->core->Element(["p", $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $x["Body"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ])]);
-     } elseif($id[0] == "Page") {
-      $x = $this->core->Data("Get", ["pg", $id[1]]) ?? [];
-      $att = $this->core->Element(["p", $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $x["Description"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ])]);
-      $body = $this->core->Element(["h3", $x["Title"], [
-       "class" => "UpperCase"
-      ]]);
-     } elseif($id[0] == "Product") {
-      $x = $this->core->Data("Get", ["miny", $id[1]]) ?? [];
-      $att = $this->core->Element(["p", $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $x["Description"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ])]);
-      $body = $this->core->Element(["h3", $x["Title"], [
-       "class" => "UpperCase"
-      ]]);
-     } elseif($id[0] == "StatusUpdate") {
-      $x = $this->core->Data("Get", ["su", $id[1]]) ?? [];
-      if(!empty($x["Attachments"])) {
-       $att = base64_encode("LiveView:InlineMossaic");
-       $att = $this->view($att, ["Data" => [
-        "ID" => base64_encode(implode(";", $x["Attachments"])),
-        "Type" => base64_encode("DLC")
-       ]]);
-      }
-      $body = $this->core->Element(["p", $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $x["Body"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ])]);
-     }
-    }
+    $id2 = $id[2] ?? "N/A";
+    $content = $this->core->GetContentData([
+     "ID" => $id[1].";$id2",
+     "Type" => $id[0]
+    ]) ?? [];
     $listItem = $content["ListItem"] ?? [];
     $content = $listItem["Body"] ?? $listItem["Title"];
+    $description = (!empty($listItem["Descriotion"])) ? $this->core->Element([
+     "p", $listItem["Description"]
+    ]) : "";
+    $title = (!empty($listItem["Title"])) ? $this->core->Element([
+     "h3", $listItem["Title"]
+    ]) : "";
     $r = $this->core->Change([[
-     "[Illegal.Content]" => $content,
-     "[Illegal.Content.LiveView]" => $listItem["Description"],
+     "[Illegal.Attachments]" => $listItem["Attachments"],
+     "[Illegal.Body]" => $listItem["Body"],
+     "[Illegal.Description]" => $description,
      "[Illegal.ID]" => base64_encode(implode(";", $id)),
-     "[Illegal.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]")
+     "[Illegal.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
+     "[Illegal.Title]" => $title
     ], $this->core->Page("0eaea9fae43712d8c810c737470021b3")]);
     $r = [
      "Front" => $r
@@ -331,9 +231,8 @@
   function SaveReport(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Type"]);
-   $id = $data["ID"];
-   $type = $data["Type"];
+   $id = $data["ID"] ?? "";
+   $type = $data["Type"] ?? "";
    $r = [
     "Body" => "The Content Identifier or Type are missing."
    ];
@@ -353,6 +252,11 @@
     if(in_array($type, $types)) {
      $accessCode = "Accepted";
      $id = explode(";", base64_decode($id));
+     $id2 = $id[2] ?? "N/A";
+     $content = $this->core->GetContentData([
+      "ID" => $id[1].";$id2",
+      "Type" => $id[0]
+     ]) ?? [];
      $limit = $this->core->config["App"]["Illegal"] ?? 777;
      $weight = ($type == "CriminalActs") ? ($limit / 1000) : 0;
      $weight = ($type == "ChildPorn") ? ($limit / 3) : $weight;
@@ -360,81 +264,73 @@
      $weight = ($type == "Privacy") ? ($limit / 10000) : $weight;
      $weight = ($type == "Terrorism") ? ($limit / 100) : $weight;
      if(!empty($id[0]) && !empty($id[1])) {
-      if($id[0] == "Album" && !empty($id[2])) {
-       $x = $this->core->Data("Get", ["fs", md5($id[1])]) ?? [];
-       if(!empty($x)) {
-        $dlc = $x["Albums"][$id[2]] ?? [];
+      $data = $content["DataModel"];
+      if($id[0] == "Album") {
+       if(!empty($data)) {
+        $dlc = $data["Albums"][$id[2]] ?? [];
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
-        $x["Albums"][$id[2]] = $dlc;
-        #$this->core->Data("Save", ["fs", md5($id[1]), $x]);
+        $data["Albums"][$id[2]] = $dlc;
+        #$this->core->Data("Save", ["fs", md5($id[1]), $data]);
        }
       } elseif($id[0] == "Blog") {
-       $x = $this->core->Data("Get", ["blg", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $x["Illegal"] = $x["Illegal"] ?? 0;
-        $x["Illegal"] = $x["Illegal"] + $weight;
-        #$this->core->Data("Save", ["blg", $id[1], $x]);
+       if(!empty($data)) {
+        $data["Illegal"] = $data["Illegal"] ?? 0;
+        $data["Illegal"] = $data["Illegal"] + $weight;
+        #$this->core->Data("Save", ["blg", $id[1], $data]);
        }
       } elseif($id[0] == "BlogPost") {
-       $x = $this->core->Data("Get", ["bp", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $x["Illegal"] = $x["Illegal"] ?? 0;
-        $x["Illegal"] = $x["Illegal"] + $weight;
-        #$this->core->Data("Save", ["bp", $id[1], $x]);
+       if(!empty($data)) {
+        $data["Illegal"] = $data["Illegal"] ?? 0;
+        $data["Illegal"] = $data["Illegal"] + $weight;
+        #$this->core->Data("Save", ["bp", $id[1], $data]);
        }
       } elseif($id[0] == "Comment" && !empty($id[2])) {
-       $x = $this->core->Data("Get", ["conversation", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $comment = $x[$id[2]] ?? [];
+       if(!empty($data)) {
+        $comment = $data[$id[2]] ?? [];
         $comment["Illegal"] = $comment["Illegal"] ?? 0;
         $comment["Illegal"] = $comment["Illegal"] + $weight;
-        $x[$id[2]] = $comment;
-        #$this->core->Data("Save", ["conversation", $id[1], $x]);
+        $data[$id[2]] = $comment;
+        #$this->core->Data("Save", ["conversation", $id[1], $data]);
        }
       } elseif($id[0] == "File" && !empty($id[2])) {
-       $x = $this->core->Data("Get", ["fs", md5($id[1])]) ?? [];
-       if(!empty($x)) {
-        $dlc = $x["Files"][$id[2]] ?? [];
+       if(!empty($data)) {
+        $dlc = $data["Files"][$id[2]] ?? [];
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
-        $x["Files"][$id[2]] = $dlc;
-        #$this->core->Data("Save", ["fs", md5($id[1]), $x]);
+        $data["Files"][$id[2]] = $dlc;
+        #$this->core->Data("Save", ["fs", md5($id[1]), $data]);
        }
       } elseif($id[0] == "Forum") {
-       $x = $this->core->Data("Get", ["pf", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $x["Illegal"] = $x["Illegal"] ?? 0;
-        $x["Illegal"] = $x["Illegal"] + $weight;
-        #$this->core->Data("Save", ["pf", $id[1], $x]);
+       if(!empty($data)) {
+        $data["Illegal"] = $data["Illegal"] ?? 0;
+        $data["Illegal"] = $data["Illegal"] + $weight;
+        #$this->core->Data("Save", ["pf", $id[1], $data]);
        }
       } elseif($id[0] == "ForumPost") {
-       $x = $this->core->Data("Get", ["post", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $x["Illegal"] = $x["Illegal"] ?? 0;
-        $x["Illegal"] = $x["Illegal"] + $weight;
-        #$this->core->Data("Save", ["post", $id[1], $x]);
+       if(!empty($data)) {
+        $data["Illegal"] = $data["Illegal"] ?? 0;
+        $data["Illegal"] = $data["Illegal"] + $weight;
+        #$this->core->Data("Save", ["post", $id[1], $data]);
        }
       } elseif($id[0] == "Page") {
-       $x = $this->core->Data("Get", ["pg", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $x["Illegal"] = $x["Illegal"] ?? 0;
-        $x["Illegal"] = $x["Illegal"] + $weight;
-        #$this->core->Data("Save", ["pg", $id[1], $x]);
+       if(!empty($data)) {
+        $data["Illegal"] = $data["Illegal"] ?? 0;
+        $data["Illegal"] = $data["Illegal"] + $weight;
+        #$this->core->Data("Save", ["pg", $id[1], $data]);
        }
       } elseif($id[0] == "Product") {
-       $x = $this->core->Data("Get", ["miny", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $x["Illegal"] = $x["Illegal"] ?? 0;
-        $x["Illegal"] = $x["Illegal"] + $weight;
-        #$this->core->Data("Save", ["miny", $id[1], $x]);
+       if(!empty($data)) {
+        $data["Illegal"] = $data["Illegal"] ?? 0;
+        $data["Illegal"] = $data["Illegal"] + $weight;
+        #$this->core->Data("Save", ["miny", $id[1], $data]);
        }
       } elseif($id[0] == "StatusUpdate") {
-       $x = $this->core->Data("Get", ["su", $id[1]]) ?? [];
-       if(!empty($x)) {
-        $x["Illegal"] = $x["Illegal"] ?? 0;
-        $x["Illegal"] = $x["Illegal"] + $weight;
-        #$this->core->Data("Save", ["su", $id[1], $x]);
+       $data = $this->core->Data("Get", ["su", $id[1]]) ?? [];
+       if(!empty($data)) {
+        $data["Illegal"] = $data["Illegal"] ?? 0;
+        $data["Illegal"] = $data["Illegal"] + $weight;
+        #$this->core->Data("Save", ["su", $id[1], $data]);
        }
       }
      }

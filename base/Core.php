@@ -332,63 +332,6 @@
    $r = (!empty($r) && $r == "on") ? "https" : "http";
    return "$r://";
   }
-  function ContentData(array $content) {
-   $body = "";
-   $coverPhoto = "";
-   $data = [];
-   $description = "";
-   $empty = 0;
-   $id = $content["ID"] ?? "";
-   $json = [];
-   $profilePicture = "";
-   $title = "";
-   $type = $content["Type"] ?? "";
-   $view = "";
-   $web = $this->Element(["div", $this->Element([
-     "h4", "Content Unavailable"
-    ]).$this->Element([
-     "p", "The Identifier or Type are missing."
-    ]), ["class" => "K4i"]
-   ]);
-   if(!emptyz($id) && !empty($type)) {
-    $contentID = explode(";", $id);
-    if($type == "Album") {
-     $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
-     $data = $data["Albums"][$contentID[1]] ?? [];
-     $content = $data["Title"] ?? "";
-     $description = $data["Description"] ?? "";
-     $empty = (empty($data)) ? 1 : 0;
-     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=".$contentID[1]."&UN=".$contentID[0]));
-    } elseif($type == "Blog") {
-     $data = $this->Data("Get", ["blg", $id[1]]) ?? [];
-     $content = $data["Title"] ?? "";
-     $description = $data["Description"] ?? "";
-     $empty = (empty($data)) ? 1 : 0;
-     $title = $data["Title"] ?? "";
-    }
-   }
-   return [
-    "DataModel" => $data,
-    "Empty" => $empty,
-    "InputData" => [
-     "ID" => $id,
-     "Type" => $type
-    ],
-    "ListItem" => [
-     "Body" => $body,
-     "CoverPhoto" => $coverPhoto,
-     "Description" => $this->PlainText([
-      "BBCodes" => 1,
-      "Data" => $description,
-      "Display" => 1,
-      "HTMLDecode" => 1
-     ]),
-     "ProfilePicture" => $profilePicture,
-     "Title" => $title,
-     "View" => $view
-    ]
-   ];
-  }
   function ConvertCalendarMonths(int $a) {
    $r = ($a == "01") ? "January" : $a;
    $r = ($a == "02") ? "February" : $r;
@@ -574,6 +517,151 @@
     }
    }
    return $r;
+  }
+  function GetContentData(array $content) {
+   $attachments = "";
+   $body = "";
+   $coverPhoto = "";
+   $data = [];
+   $description = "";
+   $empty = 0;
+   $id = $content["ID"] ?? "";
+   $json = [];
+   $profilePicture = "";
+   $title = "";
+   $type = $content["Type"] ?? "";
+   $view = "";
+   $web = $this->Element(["div", $this->Element([
+     "h4", "Content Unavailable"
+    ]).$this->Element([
+     "p", "The Identifier or Type are missing."
+    ]), ["class" => "K4i"]
+   ]);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!emptyz($id) && !empty($type)) {
+    $contentID = explode(";", $id);
+    if($type == "Album" && !empty($contentID[1])) {
+     $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
+     $album = $data["Albums"][$contentID[1]] ?? [];
+     $description = $album["Description"] ?? "";
+     $empty = (empty($album)) ? 1 : 0;
+     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=".$contentID[1]."&UN=".$contentID[0]));
+    } elseif($type == "Blog") {
+     $data = $this->Data("Get", ["blg", $id[1]]) ?? [];
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+    } elseif($type == "BlogPost") {
+     $data = $this->Data("Get", ["bp", $id[1]]) ?? [];
+     $body = $data["Body"] ?? "";
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+    } elseif($type == "Comment" && !empty($contentID[1])) {
+     $data = $this->Data("Get", ["conversation", $contentID[0]]) ?? [];
+     if(!empty($comment["DLC"])) {
+      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+       "ID" => base64_encode(implode(";", $comment["DLC"])),
+       "Type" => base64_encode("DLC")
+      ]]);
+     }
+     $comment = $data[$id[2]] ?? [];
+     $body = $comment["Body"];
+     $empty = (empty($comment)) ? 1 : 0;
+    } elseif($type == "File" && !empty($contentID[1])) {
+     $data = $this->Data("Get", ["fs", md5($contentID[0])]) ?? [];
+     $file = $data["Files"][$contentID[1]] ?? [];
+     $empty = (empty($file)) ? 1 : 0;
+     $attachments = $this->GetAttachmentPreview([
+      "DLL" => $file,
+      "T" => $contentID[0],
+      "Y" => $you
+     ]).$this->core->Element(["div", NULL, [
+      "class" => "NONAME",
+      "style" => "height:0.5em"
+     ]]);
+     $title = $file["Title"];
+    } elseif($type == "Forum") {
+     $data = $this->Data("Get", ["pf", $contentID[0]]) ?? [];
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+    } elseif($type == "ForumPost") {
+     $data = $this->Data("Get", ["post", $contentID[0]]) ?? [];
+     if(!empty($data["Attachments"])) {
+      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+       "ID" => base64_encode(implode(";", $data["Attachments"])),
+       "Type" => base64_encode("DLC")
+      ]]);
+     }
+     $body = $data["Body"] ?? "";
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+    } elseif($type == "Page") {
+     $data = $this->Data("Get", ["pg", $contentID[0]]) ?? [];
+     if(!empty($data["Attachments"])) {
+      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+       "ID" => base64_encode(implode(";", $data["Attachments"])),
+       "Type" => base64_encode("DLC")
+      ]]);
+     }
+     $body = $data["Body"] ?? "";
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+    } elseif($type == "Product") {
+     $data = $this->Data("Get", ["product", $contentID[0]]) ?? [];
+     if(!empty($data["Attachments"])) {
+      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+       "ID" => base64_encode(implode(";", $data["Attachments"])),
+       "Type" => base64_encode("DLC")
+      ]]);
+     }
+     $body = $data["Body"] ?? "";
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+    } elseif($type == "StatusUpdate") {
+     $data = $this->Data("Get", ["su", $contentID[0]]) ?? [];
+     if(!empty($data["Attachments"])) {
+      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+       "ID" => base64_encode(implode(";", $data["Attachments"])),
+       "Type" => base64_encode("DLC")
+      ]]);
+     }
+     $body = $data["Body"] ?? "";
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+    }
+   }
+   return [
+    "DataModel" => $data,
+    "Empty" => $empty,
+    "InputData" => [
+     "ID" => $id,
+     "Type" => $type
+    ],
+    "ListItem" => [
+     "Attachments" => $attachments,
+     "Body" => $this->PlainText([
+      "BBCodes" => 1,
+      "Data" => $body,
+      "Display" => 1
+     ]),
+     "CoverPhoto" => $coverPhoto,
+     "Description" => $this->PlainText([
+      "BBCodes" => 1,
+      "Data" => $this->Excerpt($description, 256),
+      "Display" => 1,
+      "HTMLDecode" => 1
+     ]),
+     "ProfilePicture" => $profilePicture,
+     "Title" => $title,
+     "View" => $view
+    ]
+   ];
   }
   function GetCopyrightInformation() {
    return $this->Element([
