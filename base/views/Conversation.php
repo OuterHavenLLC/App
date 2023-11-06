@@ -7,80 +7,73 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "CommentID",
-    "CRID",
-    "ID",
-    "Level",
-    "new"
-   ]);
-   $new = $data["new"] ?? 0;
-   $crid = $data["CRID"];
-   $cid = $data["CommentID"];
-   $id = $data["ID"];
+   $commentID = $data["CommentID"] ?? base64_encode("");
+   $conversationID = $data["ConversationID"] ?? base64_encode("");
    $level = $data["Level"] ?? base64_encode(1);
-   $save = base64_encode("Conversation:Save");
+   $new = $data["new"] ?? 0;
    $r = [
     "Body" => "The Conversation Identifier is missing."
    ];
+   $replyingTo = $data["ReplyingTo"] ?? base64_encode("");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($crid)) {
+   if(!empty($conversationID)) {
     $accessCode = "Accepted";
-    $action = ($new == 1) ? "Post" : "Update";
-    $action = $this->core->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".ConversationEditor$id",
-     "data-processor" => base64_encode("v=".base64_encode("Conversation:Save"))
-    ]]);
     $attachments = "";
-    $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
-    $level = (!empty($level)) ? base64_decode($level) : 1;
+    $commentID = base64_decode($commentID);
+    $commentID = ($new == 1) ? md5($you."CR".$this->core->timestamp) : $commentID;
+    $conversationID = base64_decode($conversationID);
+    $action = ($new == 1) ? "Post" : "Update";
+    $level = base64_decode($level);
     $commentType = ($level == 1) ? "Comment" : "Reply";
-    $crid = base64_decode($crid);
-    $id = (!empty($id)) ? base64_decode($id) : $id;
-    $id = ($new == 1) ? md5($you."_CR_".$this->core->timestamp) : $id;
-    $c = $this->core->Data("Get", ["conversation", $crid]) ?? [];
-    $c = $c[$id] ?? [];
-    if(!empty($c["Attachments"])) {
-     $attachments = base64_encode(implode(";", $c["Attachments"]));
+    $conversation = $this->core->Data("Get", ["conversation", $conversationID]) ?? [];
+    $comment = $cconversation[$commentID] ?? [];
+    if(!empty($conversation["Attachments"])) {
+     $attachments = base64_encode(implode(";", $conversation["Attachments"]));
     }
-    $body = $c["Body"] ?? "";
+    $body = $conversation["Body"] ?? "";
     $body = (!empty($body)) ? base64_decode($body) : $body;
     $at = base64_encode("Added to $commentType!");
-    $at2 = base64_encode("Add Downloadable Content to $commentType:.EditComment$id");
+    $at2 = base64_encode("Add Media to $commentType:.EditComment$conversationID");
     $header = ($new == 1) ? "New $commentType" : "Edit $commentType";
-    $nsfw = $c["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $c["Privacy"] ?? $y["Privacy"]["Comments"];
+    $nsfw = $conversation["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $privacy = $conversation["Privacy"] ?? $y["Privacy"]["Comments"];
+    $replyingTo = base64_decode($replyingTo);
     $r = $this->core->Change([[
      "[Conversation.AdditionalContent]" => $this->core->Change([
       [
        "[Extras.ContentType]" => $commentType,
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
+       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
        "[Extras.DesignView.Origin]" => "NA",
        "[Extras.DesignView.Destination]" => "NA",
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=$you"),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
+       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&UN=$you"),
+       "[Extras.ID]" => $conversationID,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($conversationID))
       ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Conversation.Attachments]" => $attachments,
      "[Conversation.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
      "[Conversation.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $body
+      "Data" => $data["Body"],
+      "Decode" => 1,
+      "HTMLDecode" => 1
      ])),
-     "[Conversation.CRID]" => $crid,
-     "[Conversation.CommentID]" => $cid,
+     "[Conversation.CommentID]" => $commentID,
      "[Conversation.Header]" => $header,
-     "[Conversation.ID]" => $id,
+     "[Conversation.ID]" => $conversationID,
      "[Conversation.Level]" => $level,
      "[Conversation.New]" => $new,
+     "[Conversation.ReplyingTo]" => $replyingTo,
      "[Conversation.Visibility.NSFW]" => $nsfw,
      "[Conversation.Visibility.Privacy]" => $privacy
     ], $this->core->Page("0426a7fc6b31e5034b6c2cec489ea638")]);
     $r = [
-     "Action" => $action,
+     "Action" => $this->core->Element(["button", $action, [
+      "class" => "CardButton SendData",
+      "data-form" => ".ConversationEditor$conversationID",
+      "data-processor" => base64_encode("v=".base64_encode("Conversation:Save"))
+     ]]),
      "Front" => $r
     ];
    }
@@ -96,223 +89,213 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "CommentID",
-    "CRID"
-   ]);
-   $cid = $data["CommentID"];
-   $crid = $data["CRID"];
+   $commentID = $data["CommentID"] ?? base64_encode("");
+   $conversationID = $data["CRID"] ?? base64_encode("");
    $edit = base64_encode("Conversation:Edit");
    $hide = base64_encode("Conversation:MarkAsHidden");
    $i = 0;
-   $l = $data["Level"] ?? base64_encode(1);
+   $level = $data["Level"] ?? base64_encode(1);
    $r = [
     "Body" => "The Conversation Identifier is missing.",
     "Header" => "Not Found"
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($crid)) {
+   if(!empty($conversationID)) {
     $accessCode = "Accepted";
     $anon = "Anonymous";
-    $cr = "";
-    $cid = (!empty($cid)) ? base64_decode($cid) : $cid;
-    $crid = (!empty($crid)) ? base64_decode($crid) : $crid;
-    $l = base64_decode($l);
-    $l = $l ?? 1;
-    $c = $this->core->Data("Get", ["conversation", $crid]) ?? [];
-    $ch = base64_encode("Conversation:Home");
+    $commentID = base64_decode($commentID);
+    $commentType = "";
+    $conversationID = base64_decode($conversationID);
+    $level = base64_decode($level);
+    $level = $level ?? 1;
+    $conversation = $this->core->Data("Get", ["conversation", $conversationID]) ?? [];
+    $home = base64_encode("Conversation:Home");
     $im = base64_encode("LiveView:InlineMossaic");
     $vote = base64_encode("Vote:Containers");
-    if($l == 1) {
+    if($level == 1) {
+     # COMMENTS
+     $extension = $this->core->Page("8938c49b85c52a5429cc8a9f46c14616");
      $r = $this->core->Change([[
-      "[Comment.Editor]" => base64_encode("v=$edit&CRID=".$data["CRID"]."&new=1")
+      "[Comment.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&new=1")
      ], $this->core->Page("97e7d7d9a85b30e10ab51b23623ccee5")]);
-     $tpl = $this->core->Page("8938c49b85c52a5429cc8a9f46c14616");
-     foreach($c as $k => $v) {
-      $t = ($v["From"] == $you) ? $y : $this->core->Member($v["From"]);
-      $bl = $this->core->CheckBlocked([$y, "Comments", $k]);
-      $cms = $this->core->Data("Get", ["cms", md5($v["From"])]) ?? [];
-      $ck = ($v["NSFW"] == 0 || ($y["age"] >= $this->core->config["minAge"])) ? 1 : 0;
+     foreach($conversation as $key => $value) {
+      $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
+      $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
+      $cms = $this->core->Data("Get", ["cms", md5($value["From"])]) ?? [];
+      $ck = ($value["NSFW"] == 0 || ($y["age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $ck2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
-       "Privacy" => $v["Privacy"],
+       "Privacy" => $value["Privacy"],
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
-      $ck3 = ($v["Level"] == 1) ? 1 : 0;
+      $ck3 = (empty($value["CommentID"])) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1) {
-       $dlc = $v["DLC"] ?? "";
-       $dlc = (!empty($dlc)) ?  $this->view($in, ["Data" => [
-        "ID" => base64_encode(implode(";", $dlc))
-       ]]) : "";
-       $op = ($v["From"] == $this->core->ID) ? $anon : $v["From"];
-       $opt = ($this->core->ID != $you && $v["From"] == $you) ? $this->core->Element([
+       $attachments = $value["DLC"] ?? "";
+       if(!empty($attachments)) {
+        $attachments = (!empty($attachments)) ?  $this->view($in, ["Data" => [
+         "ID" => base64_encode(implode(";", $attachments))
+        ]]) : "";
+        $attachments = $this->core->RenderView($attachments);
+       }
+       $op = ($value["From"] == $this->core->ID) ? $anon : $value["From"];
+       $opt = ($this->core->ID != $you && $value["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k))
+         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level))
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l")
+         "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
-       $cr .= $this->core->Change([[
-        "[Comment.Attachments]" => $dlc,
+       $commentType .= $this->core->Change([[
+        "[Comment.Attachments]" => $attachments,
         "[Comment.Body]" => $this->core->PlainText([
          "BBCodes" => 1,
-         "Data" => base64_decode($v["Body"]),
+         "Data" => base64_decode($value["Body"]),
          "Display" => 1,
          "HTMLDecode" => 1
         ]),
-        "[Comment.Created]" => $this->core->TimeAgo($v["Created"]),
-        "[Comment.ID]" => $k,
+        "[Comment.Created]" => $this->core->TimeAgo($value["Created"]),
+        "[Comment.ID]" => $key,
         "[Comment.Options]" => $opt,
         "[Comment.OriginalPoster]" => $op,
         "[Comment.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Comment.Replies]" => $this->view($ch, ["Data" => [
-         "CommentID" => base64_encode($k),
-         "CRID" => base64_encode($crid),
-         "Level" => base64_encode(2)
-        ]]),
-        "[Comment.Votes]" => base64_encode("v=$vote&ID=$k&Type=3")
-       ], $tpl]);
+        "[Comment.Replies]" => base64_encode("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(2)),
+        "[Comment.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
+       ], $extension]);
        $i++;
       }
      }
-     $cr .= $this->core->Change([[
-      "[Reply.Editor]" => base64_encode("v=$edit&CRID=".$data["CRID"]."&new=1")
+     $commentType .= $this->core->Change([[
+      "[Reply.Editor]" => base64_encode("v=$edit&CommentID=".base64_encode($commentID)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&new=1")
      ], $this->core->Page("5efa423862a163dd55a2785bc7327727")]);
-     $r = ($i > 0) ? $cr : $r;
-    } elseif($l == 2) {
+     $r = ($i > 0) ? $commentType : $r;
+    } elseif($level == 2) {
      # REPLIES
-     $t = $this->core->Member($c[$cid]["From"]);
+     $extension = $this->core->Page("ccf260c40f8fa63be5686f5ceb2b95b1");
+     $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $r = $this->core->Page("cc3c7b726c1d7f9c50f5f7869513bd80");
-     $tpl = $this->core->Page("ccf260c40f8fa63be5686f5ceb2b95b1");
-     foreach($c as $k => $v) {
-      $t = ($v["From"] == $you) ? $y : $this->core->Member($v["From"]);
-      $bl = $this->core->CheckBlocked([$y, "Replies", $k]);
-      $cms = $this->core->Data("Get", [
-       "cms",
-       md5($t["Login"]["Username"])
-      ]) ?? [];
-      $ck = ($cid == $v["CommentID"]) ? 1 : 0;
-      $ck2 = ($v["NSFW"] == 0 || ($y["age"] >= $this->core->config["minAge"])) ? 1 : 0;
+     foreach($conversation as $key => $value) {
+      $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
+      $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
+      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
+      $ck = ($commentID == $value["CommentID"]) ? 1 : 0;
+      $ck2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
       $ck3 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
-       "Privacy" => $v["Privacy"],
+       "Privacy" => $value["Privacy"],
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
-      $ck4 = ($v["Level"] == 2) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) {
-       $dlc = $v["DLC"] ?? "";
-       $dlc = (!empty($dlc)) ?  $this->view($in, ["Data" => [
-        "ID" => base64_encode(implode(";", $dlc))
-       ]]) : "";
-       $op = ($v["From"] == $this->core->ID) ? $anon : $v["From"];
-       $opt = ($this->core->ID != $you && $v["From"] == $you) ? $this->core->Element([
+      if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1) {
+       $attachments = $value["DLC"] ?? "";
+       if(!empty($attachments)) {
+        $attachments = (!empty($attachments)) ?  $this->view($in, ["Data" => [
+         "ID" => base64_encode(implode(";", $attachments))
+        ]]) : "";
+        $attachments = $this->core->RenderView($attachments);
+       }
+       $op = ($value["From"] == $this->core->ID) ? $anon : $value["From"];
+       $opt = ($this->core->ID != $you && $value["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($v["CommentID"])."&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
+         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($value["CommentID"]))
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l")
+         "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
-      $cr .= $this->core->Change([[
-       "[Reply.Attachments]" => $dlc,
+      $commentType .= $this->core->Change([[
+       "[Reply.Attachments]" => $attachments,
        "[Reply.Body]" => $this->core->PlainText([
         "BBCodes" => 1,
-        "Data" => base64_decode($v["Body"]),
+        "Data" => base64_decode($value["Body"]),
         "Display" => 1,
         "HTMLDecode" => 1
        ]),
-       "[Reply.Created]" => $this->core->TimeAgo($v["Created"]),
-       "[Reply.ID]" => $k,
+       "[Reply.Created]" => $this->core->TimeAgo($value["Created"]),
+       "[Reply.ID]" => $key,
        "[Reply.Options]" => $opt,
        "[Reply.OriginalPoster]" => $op,
        "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-       "[Reply.Replies]" => $this->view($ch, ["Data" => [
-        "CommentID" => base64_encode($k),
-        "CRID" => base64_encode($crid),
-        "Level" => base64_encode(3)
-       ]]),
-       "[Reply.Votes]" => base64_encode("v=$vote&ID=$k&Type=3")
-      ], $tpl]);
+       "[Reply.Replies]" => base64_encode("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(3)),
+       "[Reply.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
+      ], $extension]);
       $i++;
      }
     }
-    $r = ($i > 0) ? $cr : $r;
+    $r = ($i > 0) ? $commentType : $r;
     $r .= $this->core->Change([[
      "[Reply.DisplayName]" => $display,
-     "[Reply.Editor]" => base64_encode("v=$edit&new=1&CommentID=".$data["CommentID"]."&CRID=".$data["CRID"]."&Level=".$data["Level"])
+     "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
     ], $this->core->Page("f6876eb53ff51bf537b1b1848500bdab")]);
-   } elseif($l == 3) {
+   } elseif($level == 3) {
      # REPLIES TO REPLIES
-     $t = $this->core->Member($c[$cid]["From"]);
+     $extension = $this->core->Page("3847a50cd198853fe31434b6f4e922fd");
+     $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $r = $this->core->Page("cc3c7b726c1d7f9c50f5f7869513bd80");
-     $tpl = $this->core->Page("3847a50cd198853fe31434b6f4e922fd");
-     foreach($c as $k => $v) {
-      $t = ($v["From"] == $you) ? $y : $this->core->Member($v["From"]);
-      $bl = $this->core->CheckBlocked([$y, "Replies", $k]);
-      $cms = $this->core->Data("Get", [
-       "cms",
-       md5($t["Login"]["Username"])
-      ]) ?? [];
-      $ck = ($cid == $v["CommentID"]) ? 1 : 0;
-      $ck2 = ($v["NSFW"] == 0 || ($y["age"] >= $this->core->config["minAge"])) ? 1 : 0;
+     foreach($conversation as $key => $value) {
+      $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
+      $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
+      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
+      $ck = ($commentID == $value["CommentID"]) ? 1 : 0;
+      $ck2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
       $ck3 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
-       "Privacy" => $v["Privacy"],
+       "Privacy" => $value["Privacy"],
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
-      $ck4 = ($v["Level"] == 3) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) {
-       $dlc = $v["DLC"] ?? "";
-       $dlc = (!empty($dlc)) ?  $this->view($in, ["Data" => [
-        "ID" => base64_encode(implode(";", $dlc))
-       ]]) : "";
-       $op = ($v["From"] == $this->core->ID) ? $anon : $v["From"];
-       $opt = ($this->core->ID != $you && $v["From"] == $you) ? $this->core->Element([
+      if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1) {
+       $attachments = $value["DLC"] ?? "";
+       if(!empty($attachments)) {
+        $attachments = (!empty($attachments)) ?  $this->view($in, ["Data" => [
+         "ID" => base64_encode(implode(";", $attachments))
+        ]]) : "";
+        $attachments = $this->core->RenderView($attachments);
+       }
+       $op = ($value["From"] == $this->core->ID) ? $anon : $value["From"];
+       $opt = ($this->core->ID != $you && $value["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
+         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($value["CommentID"]))
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l")
+         "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
-       $cr .= $this->core->Change([[
-        "[Reply.Attachments]" => $dlc,
+       $commentType .= $this->core->Change([[
+        "[Reply.Attachments]" => $attachments,
         "[Reply.Body]" => $this->core->PlainText([
          "BBCodes" => 1,
-         "Data" => base64_decode($v["Body"]),
+         "Data" => base64_decode($value["Body"]),
          "Display" => 1,
          "HTMLDecode" => 1
         ]),
-        "[Reply.Created]" => $this->core->TimeAgo($v["Created"]),
-        "[Reply.ID]" => $k,
+        "[Reply.Created]" => $this->core->TimeAgo($value["Created"]),
+        "[Reply.ID]" => $key,
         "[Reply.Options]" => $opt,
         "[Reply.OriginalPoster]" => $op,
         "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Reply.Votes]" => base64_encode("v=$vote&ID=$k&Type=3")
-       ], $tpl]);
+        "[Reply.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
+       ], $extension]);
        $i++;
       }
      }
-     $r = ($i > 0) ? $cr : $r;
+     $r = ($i > 0) ? $commentType : $r;
      $r .= $this->core->Change([[
       "[Reply.DisplayName]" => $display,
-      "[Reply.Editor]" => base64_encode("v=$edit&new=1&CommentID=".$data["CommentID"]."&CRID=".$data["CRID"]."&Level=".$data["Level"])
+     "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
      ], $this->core->Page("f6876eb53ff51bf537b1b1848500bdab")]);
     }
    }
@@ -329,40 +312,35 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "CommentID",
-    "CRID",
-    "ID",
-    "Level"
-   ]);
-   $cid = $data["CommentID"];
-   $crid = $data["CRID"];
-   $id = $data["ID"];
+   $commentID = $data["CommentID"] ?? "";
+   $id = $data["ID"] ?? "";
    $level = $data["Level"] ?? 1;
-   $new = $data["New"] ?? 0;
    $commentType = ($level == 1) ? "comment" : "reply";
+   $new = $data["New"] ?? 0;
    $r = [
-    "Body" => "The Conversation or $commentType Identifier is missing."
+    "Body" => "The Conversation or $commentType Identifier are missing."
    ];
+   $replyingTo = $data["ReplyingTo"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($crid) && !empty($id)) {
+   if(!empty($commentID) && !empty($id)) {
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
     $attachments = [];
-    $cc = ($level > 1) ? "Comment$cid" : "Conversation$crid";
-    $con = $this->core->Data("Get", ["conversation", $crid]) ?? [];
-    $created = $con[$id]["Created"] ?? $this->core->timestamp;
+    $cc = ($level > 1) ? "Comment$commentID" : "Conversation$id";
+    $conversation = $this->core->Data("Get", ["conversation", $id]) ?? [];
+    $comment = $conversation[$commentID] ?? [];
+    $created = $conversation["Created"] ?? $this->core->timestamp;
     $home = base64_encode("Conversation:Home");
-    $nsfw = $con[$id]["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $nsfw = $conversation["NSFW"] ?? $y["Privacy"]["NSFW"];
     $nsfw = $data["NSFW"] ?? $nsfw;
-    $privacy = $con[$id]["Privacy"] ?? $y["Privacy"]["Comments"];
+    $privacy = $conversation["Privacy"] ?? $y["Privacy"]["Comments"];
     $privacy = $data["Privacy"] ?? $privacy;
     if(!empty($data["rATTDLC"])) {
-     $dlc = array_reverse(explode(";", base64_decode($data["rATTDLC"])));
-     foreach($dlc as $dlc) {
-      if(!empty($dlc)) {
-       $f = explode("-", base64_decode($dlc));
+     $attachments = array_reverse(explode(";", base64_decode($data["rATTDLC"])));
+     foreach($attachments as $attachments) {
+      if(!empty($attachments)) {
+       $f = explode("-", base64_decode($attachments));
        if(!empty($f[0]) && !empty($f[1])) {
         array_push($attachments, base64_encode($f[0]."-".$f[1]));
        }
@@ -370,26 +348,25 @@
      }
     }
     $attachments = array_unique($attachments);
-    $con[$id] = [
+    $conversation[$commentID] = [
      "Attachments" => $attachments,
      "Body" => $this->core->PlainText([
       "Data" => $data["Body"],
-      "Encode" => 1,
       "HTMLEncode" => 1
      ]),
-     "CommentID" => $cid,
+     "CommentID" => $replyingTo,
      "Created" => $created,
      "From" => $you,
-     "Level" => $level,
      "Modified" => $this->core->timestamp,
      "NSFW" => $nsfw,
      "Privacy" => $privacy
     ];
     $r = [
      "Body" => "Your $commentType was $actionTaken.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($conversation, true)
     ];
-    $this->core->Data("Save", ["conversation", $crid, $con]);
+    $this->core->Data("Save", ["conversation", $id, $conversation]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -404,18 +381,10 @@
   function MarkAsHidden(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "CRID",
-    "ID",
-    "Level"
-   ]);
-   $crid = $data["CRID"];
-   $id = $data["ID"];
-   $l = $data["Level"];
-   $cr = ($l == 1) ? "comment" : "reply";
+   $commentID = $data["CommentID"] ?? base64_encode("");
+   $conversationID = $data["ConversationID"] ?? base64_encode("");
    $r = [
-    "Body" => "The Conversation or $cr Identifier are missing."
+    "Body" => "The Conversation or comment Identifier are missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -424,20 +393,22 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($crid) && !empty($id)) {
+   } elseif(!empty($commentID) && !empty($conversationID)) {
     $accessCode = "Accepted";
+    $commentID = base64_decode($commentID);
+    $conversationID = base64_decode($conversationID);
     $conversation = $this->core->Data("Get", [
      "conversation",
-     $crid
+     $conversationID
     ]) ?? [];
-    $comment = $conversation[$id] ?? [];
+    $comment = $conversation[$commentID] ?? [];
     $comment["Privacy"] = md5("Private");
-    $conversation[$id] = $comment;
+    $conversation[$commentID] = $comment;
+    $this->core->Data("Save", ["conversation", $conversationID, $conversation]);
     $r = [
-     "Body" => "The $cr is hidden, only you can see it.",
+     "Body" => "The comment is hidden, and only you can see it.",
      "Header" => "Done"
     ];
-    $this->core->Data("Save", ["conversation", $crid, $conversation]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
