@@ -274,6 +274,7 @@
      $r = [
       "Body" => "The Content ID is missing."
      ];
+     $wasDeemedLegal = 0;
      $weight = ($type == "CriminalActs") ? ($limit / 1000) : 0;
      $weight = ($type == "ChildPorn") ? ($limit / 3) : $weight;
      $weight = ($type == "FairUse") ? ($limit / 100000) : $weight;
@@ -281,91 +282,113 @@
      $weight = ($type == "Terrorism") ? ($limit / 100) : $weight;
      if(!empty($contentType) && !empty($id)) {
       $data = $content["DataModel"];
-      $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
-      $data["CongressDeemedLegal"] = $wasDeemedLegal;
       if($contentType == "Album") {
        if(!empty($data)) {
         $dlc = $data["Albums"][$additionalContentID] ?? [];
+        $dlc["CongressDeemedLegal"] = $dlc["CongressDeemedLegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
+        $dlc["Illegal"] = round($dlc["Illegal"]);
+        $wasDeemedLegal = $dlc["CongressDeemedLegal"] ?? 0;
         $data["Albums"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["fs", md5($id), $data]);
+         $this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Blog") {
        if(!empty($data)) {
+        $data["CongressDeemedLegal"] = $data["CongressDeemedLegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
+        $data["Illegal"] = round($data["Illegal"]);
+        $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["blg", $id, $data]);
+         $this->core->Data("Save", ["blg", $id, $data]);
         }
        }
       } elseif($contentType == "BlogPost") {
        if(!empty($data)) {
+        $data["CongressDeemedLegal"] = $data["CongressDeemedLegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
+        $data["Illegal"] = round($data["Illegal"]);
+        $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["bp", $id, $data]);
+         $this->core->Data("Save", ["bp", $id, $data]);
         }
        }
       } elseif($contentType == "File" && !empty($additionalContentID)) {
        if(!empty($data)) {
         $dlc = $data["Files"][$additionalContentID] ?? [];
+        $dlc["CongressDeemedLegal"] = $dlc["CongressDeemedLegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] ?? 0;
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
+        $dlc["Illegal"] = round($dlc["Illegal"]);
+        $wasDeemedLegal = $dlc["CongressDeemedLegal"] ?? 0;
         $data["Files"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["fs", md5($id), $data]);
+         $this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Forum") {
        if(!empty($data)) {
+        $data["CongressDeemedLegal"] = $data["CongressDeemedLegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
+        $data["Illegal"] = round($data["Illegal"]);
+        $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["pf", $id, $data]);
+         $this->core->Data("Save", ["pf", $id, $data]);
         }
        }
       } elseif($contentType == "ForumPost") {
        if(!empty($data)) {
+        $data["CongressDeemedLegal"] = $data["CongressDeemedLegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
+        $data["Illegal"] = round($data["Illegal"]);
+        $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["post", $id, $data]);
+         $this->core->Data("Save", ["post", $id, $data]);
         }
        }
       } elseif($contentType == "Page") {
        if(!empty($data)) {
+        $data["CongressDeemedLegal"] = $data["CongressDeemedLegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
+        $data["Illegal"] = round($data["Illegal"]);
+        $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["pg", $id, $data]);
+         $this->core->Data("Save", ["pg", $id, $data]);
         }
        }
       } elseif($contentType == "Product") {
        if(!empty($data)) {
+        $data["CongressDeemedLegal"] = $data["CongressDeemedLegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
+        $data["Illegal"] = round($data["Illegal"]);
+        $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["product", $id, $data]);
+         $this->core->Data("Save", ["product", $id, $data]);
         }
        }
       } elseif($contentType == "StatusUpdate") {
        if(!empty($data)) {
+        $data["CongressDeemedLegal"] = $data["CongressDeemedLegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
+        $data["Illegal"] = round($data["Illegal"]);
+        $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["su", $id, $data]);
+         $this->core->Data("Save", ["su", $id, $data]);
         }
        }
       }
-      $data["Illegal"] = round($data["Illegal"]);
-      $data["Body"] = "";//TEMP
       $r = [
        "Body" => "The Content was reported.",
-       "Header" => "Done",
-       "Scrollable" => "Debug Data: ".json_encode($data, true)//TEMP
+       "Header" => "Done"
       ];
      }
     }

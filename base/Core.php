@@ -594,7 +594,7 @@
       "DLL" => $file,
       "T" => $contentID,
       "Y" => $you
-     ]).$this->core->Element(["div", NULL, [
+     ]).$this->Element(["div", NULL, [
       "class" => "NONAME",
       "style" => "height:0.5em"
      ]]);
