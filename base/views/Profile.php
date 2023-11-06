@@ -67,10 +67,10 @@
   }
   function BlacklistCategories(array $a) {
    $accessCode = "Accepted";
-   $r = "";
    $y = $this->you;
-   $y = $y["Blocked"] ?? [];
-   foreach($y as $key => $value) {
+   $r = "";
+   $blacklidt = $y["Blocked"] ?? [];
+   foreach($blacklidt as $key => $list) {
     $r .= $this->core->Element(["button", $key, [
      "class" => "LI OpenFirSTEPTool v2 v2w",
      "data-fst" => base64_encode("v=".base64_encode("Search:Containers")."&st=BL&BL=".base64_encode($key))

@@ -290,7 +290,7 @@
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $data["Albums"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["fs", md5($id), $data]);
+         #$this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Blog") {
@@ -298,7 +298,7 @@
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["blg", $id, $data]);
+         #$this->core->Data("Save", ["blg", $id, $data]);
         }
        }
       } elseif($contentType == "BlogPost") {
@@ -306,17 +306,7 @@
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["bp", $id, $data]);
-        }
-       }
-      } elseif($contentType == "Comment" && !empty($additionalContentID)) {
-       if(!empty($data)) {
-        $comment = $data[$additionalContentID] ?? [];
-        $comment["Illegal"] = $comment["Illegal"] ?? 0;
-        $comment["Illegal"] = $comment["Illegal"] + $weight;
-        $data[$additionalContentID] = $comment;
-        if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["conversation", $id, $data]);
+         #$this->core->Data("Save", ["bp", $id, $data]);
         }
        }
       } elseif($contentType == "File" && !empty($additionalContentID)) {
@@ -326,7 +316,7 @@
         $dlc["Illegal"] = $dlc["Illegal"] + $weight;
         $data["Files"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["fs", md5($id), $data]);
+         #$this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Forum") {
@@ -334,7 +324,7 @@
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["pf", $id, $data]);
+         #$this->core->Data("Save", ["pf", $id, $data]);
         }
        }
       } elseif($contentType == "ForumPost") {
@@ -342,7 +332,7 @@
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["post", $id, $data]);
+         #$this->core->Data("Save", ["post", $id, $data]);
         }
        }
       } elseif($contentType == "Page") {
@@ -350,7 +340,7 @@
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["pg", $id, $data]);
+         #$this->core->Data("Save", ["pg", $id, $data]);
         }
        }
       } elseif($contentType == "Product") {
@@ -358,7 +348,7 @@
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["product", $id, $data]);
+         #$this->core->Data("Save", ["product", $id, $data]);
         }
        }
       } elseif($contentType == "StatusUpdate") {
@@ -366,14 +356,22 @@
         $data["Illegal"] = $data["Illegal"] ?? 0;
         $data["Illegal"] = $data["Illegal"] + $weight;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["su", $id, $data]);
+         #$this->core->Data("Save", ["su", $id, $data]);
         }
        }
       }
       $data["Illegal"] = round($data["Illegal"]);
+      // BEGIN TEMP
+      $debug = (in_array($contentType, [
+       "Album",
+       "Comment",
+       "File"
+      ])) ? json_encode($data, true) : "";
+      // END TEMP
       $r = [
        "Body" => "The Content was reported.",
-       "Header" => "Done"
+       "Header" => "Done",
+       "Scrollable" => "Debug Data: $debug"//TEMP
       ];
      }
     }

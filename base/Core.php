@@ -565,6 +565,12 @@
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
+    } elseif($type == "Chat") {
+     $data = $this->Data("Get", ["chat", $contentID]) ?? [];
+     $body = $data["Body"] ?? "";
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
     } elseif($type == "Comment" && !empty($additionalContantID)) {
      $data = $this->Data("Get", ["conversation", $contentID]) ?? [];
      if(!empty($comment["DLC"])) {
@@ -577,6 +583,9 @@
      $comment = $data[$additionalContantID] ?? [];
      $body = $comment["Body"];
      $empty = (empty($comment)) ? 1 : 0;
+    } elseif($type == "Conversation") {
+     $data = $this->Data("Get", ["conversation", $contentID]) ?? [];
+     $empty = (empty($data)) ? 1 : 0;
     } elseif($type == "File" && !empty($additionalContantID)) {
      $data = $this->Data("Get", ["fs", md5($contentID)]) ?? [];
      $file = $data["Files"][$additionalContantID] ?? [];

@@ -168,7 +168,6 @@
         ]),
         "[Comment.Created]" => $this->core->TimeAgo($v["Created"]),
         "[Comment.ID]" => $k,
-        "[Comment.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Comment;$crid;$k")),
         "[Comment.Options]" => $opt,
         "[Comment.OriginalPoster]" => $op,
         "[Comment.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
@@ -235,7 +234,6 @@
        ]),
        "[Reply.Created]" => $this->core->TimeAgo($v["Created"]),
        "[Reply.ID]" => $k,
-       "[Reply.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Comment;$crid;$k")),
        "[Reply.Options]" => $opt,
        "[Reply.OriginalPoster]" => $op,
        "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
@@ -303,7 +301,6 @@
         ]),
         "[Reply.Created]" => $this->core->TimeAgo($v["Created"]),
         "[Reply.ID]" => $k,
-        "[Reply.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Comment;$crid;$k")),
         "[Reply.Options]" => $opt,
         "[Reply.OriginalPoster]" => $op,
         "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
@@ -357,7 +354,6 @@
     $con = $this->core->Data("Get", ["conversation", $crid]) ?? [];
     $created = $con[$id]["Created"] ?? $this->core->timestamp;
     $home = base64_encode("Conversation:Home");
-    $illegal = $con[$id]["Illegal"] ?? 0;
     $nsfw = $con[$id]["NSFW"] ?? $y["Privacy"]["NSFW"];
     $nsfw = $data["NSFW"] ?? $nsfw;
     $privacy = $con[$id]["Privacy"] ?? $y["Privacy"]["Comments"];
@@ -384,7 +380,6 @@
      "CommentID" => $cid,
      "Created" => $created,
      "From" => $you,
-     "Illegal" => $illegal,
      "Level" => $level,
      "Modified" => $this->core->timestamp,
      "NSFW" => $nsfw,

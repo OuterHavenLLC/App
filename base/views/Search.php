@@ -656,13 +656,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Files") {
-       $de = "{comment}";
-       $h = "<em>{poster}</em>";
-       $vi = $this->core->Element(["button", "View $h's Comment", [
-        "class" => "BB v2 v2w",
-        "data-type" => base64_encode("#")
-       ]]);
-      } elseif($bl == "Files") {
        $de = "{file_description}";
        $h = "<em>{file_name}</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -692,7 +685,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Pages") {
+      } elseif($bl == "Members") {
        $member = $this->core->Data("Get", ["mbr", $v]) ?? [];
        $de = $member["Description"];
        $h = "<em>".$member["Personal"]["DisplayName"]."</em>";
@@ -704,14 +697,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $page = $this->core->Data("Get", ["pg", $v]) ?? [];
        $de = $page["Description"];
        $h = "<em>".$page["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $h", [
-        "class" => "BB v2 v2w",
-        "data-type" => base64_encode("#")
-       ]]);
-      } elseif($bl == "Polls") {
-       $poll = $this->core->Data("Get", ["poll", $v]) ?? [];
-       $de = $poll["Description"];
-       $h = "<em>".$poll["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
