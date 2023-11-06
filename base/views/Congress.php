@@ -361,17 +361,11 @@
        }
       }
       $data["Illegal"] = round($data["Illegal"]);
-      // BEGIN TEMP
-      $debug = (in_array($contentType, [
-       "Album",
-       "Comment",
-       "File"
-      ])) ? json_encode($data, true) : "";
-      // END TEMP
+      $data["Body"] = "";//TEMP
       $r = [
        "Body" => "The Content was reported.",
        "Header" => "Done",
-       "Scrollable" => "Debug Data: $debug"//TEMP
+       "Scrollable" => "Debug Data: ".json_encode($data, true)//TEMP
       ];
      }
     }

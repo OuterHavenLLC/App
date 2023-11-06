@@ -147,7 +147,7 @@
         "ID" => base64_encode(implode(";", $dlc))
        ]]) : "";
        $op = ($v["From"] == $this->core->ID) ? $anon : $v["From"];
-       $opt = ($v["From"] == $you && $you != $this->core->ID) ? $this->core->Element([
+       $opt = ($this->core->ID != $you && $v["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenDialog",
          "data-view" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k))
@@ -213,15 +213,15 @@
         "ID" => base64_encode(implode(";", $dlc))
        ]]) : "";
        $op = ($v["From"] == $this->core->ID) ? $anon : $v["From"];
-       $opt = ($v["From"] == $you && $you != $this->core->ID) ? $this->core->Element([
+       $opt = ($this->core->ID != $you && $v["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
-         "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=$edit&CommentID=".base64_encode($v["CommentID"])."&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
+         "class" => "InnerMargin OpenCard",
+         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($v["CommentID"])."&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
-         "class" => "InnerMargin dBO",
-         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l"
+         "class" => "InnerMargin OpenDialog",
+         "data-view" => base64_encode("v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l")
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
       $cr .= $this->core->Change([[
@@ -280,15 +280,15 @@
         "ID" => base64_encode(implode(";", $dlc))
        ]]) : "";
        $op = ($v["From"] == $this->core->ID) ? $anon : $v["From"];
-       $opt = ($v["From"] == $you && $you != $this->core->ID) ? $this->core->Element([
+       $opt = ($this->core->ID != $you && $v["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
-         "class" => "InnerMargin dB2O",
-         "data-type" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
+         "class" => "InnerMargin OpenCard",
+         "data-view" => base64_encode("v=$edit&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=".$data["Level"])
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
-         "class" => "InnerMargin dBO",
-         "data-type" => "v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l"
+         "class" => "InnerMargin OpenDialog",
+         "data-view" => base64_encode("v=$hide&CRID=".$data["CRID"]."&ID=".base64_encode($k)."&Level=$l")
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
        $cr .= $this->core->Change([[

@@ -803,6 +803,7 @@
      "Albums" => [],
      "Blogs" => [],
      "Blog Posts" => [],
+     "Comments" => [],
      "Files" => [],
      "Forums" => [],
      "Forum Posts" => [],
