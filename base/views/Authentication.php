@@ -408,10 +408,8 @@
   function DeleteForumPost(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["FID", "ID"]);
-   $all = $data["all"] ?? 0;
-   $fid = $data["FID"];
-   $id = $data["ID"];
+   $fid = $data["FID"] ?? "";
+   $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Forum or Post Identifiers are missing."
    ];
@@ -425,6 +423,7 @@
    } elseif((!empty($fid) && !empty($id))) {
     $accessCode = "Accepted";
     $dialogID = "Delete$id";
+    $post = $this->core->Data("Get", ["post", $id]) ?? [];
     $r = [
      "Body" => "You are about to permanently delete ".$post["Title"].".",
      "Header" => "Delete",

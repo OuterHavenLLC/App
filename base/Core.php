@@ -406,6 +406,8 @@
       $a = "c.oh.pf.";
      } elseif($a == "PG") {
       $a = "c.oh.pg.";
+     } elseif($a == "Shop") {
+      $a = "c.oh.shop.";
      } elseif($a == "SU") {
       $a = "c.oh.su.";
      } if(strpos($v, $a) !== false) { 
@@ -620,15 +622,33 @@
      $data = $this->Data("Get", ["pf", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $options = [
+      "Delete" => "",
+      "Edit" => "",
+      "View" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".base64_encode($contentID))
+     ];
      $title = $data["Title"] ?? "";
     } elseif($type == "ForumPost") {
      $data = $this->Data("Get", ["post", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
      $body = $data["Body"] ?? "";
+     $body = $this->PlainText([
+      "Data" => $body,
+      "HTMLDecode" => 1
+     ]);
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $options = [
+      "Block" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($contentID)."&list=".base64_encode("Forum Posts")."&BC="),
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteForumPost")."&FID=".$content["Forum"]."&ID=$contentID"),
+      "Edit" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=".$content["Forum"]."&ID=$contentID"),
+      "Share" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($content["Forum"]."-$contentID")),
+      "View" => base64_encode("v=".base64_encode("ForumPost:Home")."&FID=".$content["Forum"]."&ID=$contentID")
+     ];
      $title = $data["Title"] ?? "";
+     $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $vote = base64_encode("v=$vote&ID=$contentID&Type=1");
     } elseif($type == "Page") {
      $data = $this->Data("Get", ["pg", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
@@ -661,6 +681,15 @@
      ]);
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+    } elseif($type == "Shop") {
+     $data = $this->Data("Get", ["shop", $contentID]) ?? [];
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $options = [
+      "Edit" => "",
+      "View" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($content["Owner"]))
+     ];
      $title = $data["Title"] ?? "";
     } elseif($type == "StatusUpdate") {
      $data = $this->Data("Get", ["su", $contentID]) ?? [];

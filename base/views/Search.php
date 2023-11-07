@@ -938,7 +938,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "ContactsProfileList") {
     $ec = "Accepted";
-    $home = base64_encode("Profile:Home");
     $extension = $this->core->Page("ba17995aafb2074a28053618fb71b912");
     $x = $this->core->Data("Get", [
      "cms",
@@ -966,7 +965,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      if($bl == 0 && $bl2 == 0 && $ck == 1) {
       $opt = $this->core->Element(["button", "View Profile", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("CARD=1&v=$home&back=1&b2=$b2&lPG=$lpg&pub=0&UN=".base64_encode($t["Login"]["Username"]))
+       "data-view" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&back=1&b2=$b2&lPG=$lpg&pub=0&UN=".base64_encode($t["Login"]["Username"]))
       ]]);
       array_push($msg, [
        "[X.LI.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
@@ -1268,14 +1267,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "Forums") {
     $ec = "Accepted";
-    $home = base64_encode("Forum:Home");
     $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
-    $x = $this->core->DatabaseSet("PF") ?? [];
-    foreach($x as $key => $value) {
-     $active = 0;
+    $forums = $this->core->DatabaseSet("PF") ?? [];
+    foreach($forums as $key => $value) {
      $value = str_replace("c.oh.pf.", "", $value);
+     $_Forum = $this->core->GetContentData([
+      "ID" => base64_encode("Forum;$value")
+     ]);
+     $active = 0;
      $bl = $this->core->CheckBlocked([$y, "Forums", $value]);
-     $forum = $this->core->Data("Get", ["pf", $value]) ?? [];
+     $forum = $_Forum["DataModel"];
      $manifest = $this->core->Data("Get", ["pfmanifest", $value]) ?? [];
      $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
@@ -1295,13 +1296,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $active++;
       }
      } if($bl == 0 && ($active == 1 || $ck == 1) && $illegal == 0) {
-      $coverPhoto = $forum["ICO"] ?? "";
-      $coverPhoto = base64_encode($coverPhoto);
+      $options = $_Forum["ListItem"]["Options"];
       array_push($msg, [
-       "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-       "[X.LI.T]" => base64_encode($forum["Title"]),
-       "[X.LI.D]" => base64_encode($forum["Description"]),
-       "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".base64_encode($value)))
+       "[X.LI.I]" => base64_encode($_Forum["ListItem"]["CoverPhoto"]),
+       "[X.LI.T]" => base64_encode($_Forum["ListItem"]["Title"]),
+       "[X.LI.D]" => base64_encode($_Forum["ListItem"]["Description"]),
+       "[X.LI.DT]" => base64_encode($options["View"])
       ]);
      }
     }
@@ -1317,16 +1317,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      foreach($manifest as $member => $role) {
       if($member == $admin || $role == "Admin") {
        $t = ($member == $you) ? $y : $this->core->Member($member);
-       $bl = $this->core->CheckBlocked([
-        $t,
-        "Members",
-        $you
-       ]);
-       $bl2 = $this->core->CheckBlocked([
-        $y,
-        "Members",
-        $t["Login"]["Username"]
-       ]);
+       $bl = $this->core->CheckBlocked([$t, "Members", $you]);
+       $bl2 = $this->core->CheckBlocked([$y, "Members", $t["Login"]["Username"]]);
        $contacts = $this->core->Data("Get", ["cms", md5($member)]) ?? [];
        $ck = $this->core->CheckPrivacy([
         "Contacts" => $contacts["Contacts"],
@@ -1339,7 +1331,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $description = ($t["Login"]["Username"] != $you) ? $t["Personal"]["DisplayName"]." has not added a Description." : $description;
         $description = (!empty($t["Personal"]["Description"])) ? $this->core->PlainText([
          "BBCodes" => 1,
-         "Data" => $t["Description"],
+         "Data" => $t["Personal"]["Description"],
          "Display" => 1
         ]) : $description;
         $displayname = $t["Personal"]["DisplayName"];
@@ -1359,7 +1351,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $admin = 0;
     $id = $data["ID"] ?? "";
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-    $home = base64_encode("ForumPost:Home");
     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
     foreach($manifest as $k => $v) {
      if($active == 0 && $k == $y["Login"]["Username"]) {
@@ -1373,13 +1364,19 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Page("150dcee8ecbe0e324a47a8b5f3886edf");
     if($active == 1 || $admin == 1 || $forum["Type"] == "Public") {
      foreach($posts as $key => $value) {
+      $_ForumPost = $this->core->GetContentData([
+       "Forum" => $id,
+       "ID" => base64_encode("ForumPost;$value")
+      ]);
       $actions = "";
+      $active = 0;
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $value]);
-      $post = $this->core->Data("Get", ["post", $value]) ?? [];
+      $post = $_ForumPost["DataModel"];
       $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
       $illegal = $post["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $op = ($forum["UN"] == $you) ? $y : $this->core->Member($post["From"]);
+      $options = $_ForumPost["ListItem"]["Options"];
       $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
       $ck2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
       $ck3 = $this->core->CheckPrivacy([
@@ -1389,23 +1386,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "Y" => $you
       ]);
       if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
-       $attachments = "";
-       if(!empty($post["Attachments"])) {
-        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
-         "Data" => [
-          "ID" => base64_encode(implode(";", $post["Attachments"])),
-          "Type" => base64_encode("DLC")
-         ]
-        ]);
-        $attachments = $this->core->RenderView($attachments);
-       }
        $bl = $this->core->CheckBlocked([$y, "Status Updates", $id]);
        $con = base64_encode("Conversation:Home");
        $actions = ($post["From"] != $you) ? $this->core->Element([
         "button", "Block", [
-         "class" => "BLK InnerMargin",
+         "class" => "InnerMargin",
          "data-cmd" => base64_encode("B"),
-         "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($post["ID"])."&list=".base64_encode("Forum Posts")."&BC=")
+         "data-u" => $options["Block"]
         ]
        ]) : "";
        $actions = ($this->core->ID != $you) ? $actions : "";
@@ -1413,54 +1400,38 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $actions .= $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
-          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteForumPost")."&FID=$id&ID=".$post["ID"])
+          "data-view" => $options["Delete"]
          ]
         ]);
         $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element([
          "button", "Edit", [
           "class" => "InnerMargin OpenCard",
-          "data-view" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$id&ID=".$post["ID"])
+          "data-view" => $options["Edit"]
          ]
         ]) : "";
        }
        $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
         "button", "Share", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id."-".$post["ID"]))
+         "data-view" => $options["Share"]
         ]
        ]) : "";
-       $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
-       $memberRole = ($op["Login"]["Username"] == $forum["UN"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
-       $modified = $post["ModifiedBy"] ?? [];
-       if(empty($modified)) {
-        $modified = "";
-       } else {
-        $_Member = end($modified);
-        $_Time = $this->core->TimeAgo(array_key_last($modified));
-        $modified = " &bull; Modified ".$_Time." by ".$_Member;
-        $modified = $this->core->Element(["em", $modified]);
-       }
-       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-       $votes = base64_encode("v=$votes&ID=".$post["ID"]."&Type=1");
+       $display = ($post["From"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+       $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
        array_push($msg, [
         "[ForumPost.Actions]" => base64_encode($actions),
-        "[ForumPost.Attachments]" => base64_encode($attachments),
-        "[ForumPost.Body]" => base64_encode($this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $post["Body"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ])),
-        "[ForumPost.Comment]" => base64_encode(base64_encode("v=$home&FID=$id&ID=".$post["ID"])),
+        "[ForumPost.Attachments]" => base64_encode($_ForumPost["ListItem"]["Attachments"]),
+        "[ForumPost.Body]" => base64_encode($_ForumPost["ListItem"]["Body"]),
+        "[ForumPost.Comment]" => base64_encode($options["View"]),
         "[ForumPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
-        "[ForumPost.ID]" => base64_encode($post["ID"]),
+        "[ForumPost.ID]" => base64_encode($value),
         "[ForumPost.MemberRole]" => base64_encode($memberRole),
-        "[ForumPost.Modified]" => base64_encode($modified),
+        "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
         "[ForumPost.OriginalPoster]" => base64_encode($display),
         "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-        "[ForumPost.Title]" => base64_encode($post["Title"]),
-        "[ForumPost.VoteID]" => base64_encode($post["ID"]),
-        "[ForumPost.Votes]" => base64_encode($votes)
+        "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),
+        "[ForumPost.VoteID]" => base64_encode($value),
+        "[ForumPost.Votes]" => base64_encode($_ForumPost["ListItem"]["Vote"])
        ]);
       }
      }
@@ -2042,56 +2013,37 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Page("6d8aedce27f06e675566fd1d553c5d92");
     if($notAnon == 1) {
      $b2 = $b2 ?? "Artists";
-     $coverPhoto = $this->core->PlainText([
-      "Data" => "[Media:MiNY]",
-      "Display" => 1
-     ]);
      $card = base64_encode("Shop:Home");
-     $x = $this->core->DatabaseSet("MBR") ?? [];
-     foreach($x as $k => $v) {
-      $v = str_replace("c.oh.mbr.", "", $v);
-      $t = $this->core->Data("Get", ["mbr", $v]) ?? [];
-      if(!empty($t["Login"]["Username"])) {
-       $cms = $this->core->Data("Get", [
-        "cms",
-        md5($t["Login"]["Username"])
-       ]) ?? [];
-       $cms = $cms["Contacts"] ?? [];
-       $g = $this->core->Data("Get", [
-        "shop",
-        md5($t["Login"]["Username"])
-       ]) ?? [];
-       /*$shop = $this->core->Data("Get", [
-        "shop",
-        md5($t["Login"]["Username"])
-       ]) ?? [];*/
-       $bl = $this->core->CheckBlocked([
-        $t, "Members", $y["Login"]["Username"]
+     $shops = $this->core->DatabaseSet("Shop") ?? [];
+     foreach($shops as $key => $value) {
+      $value = str_replace("c.oh.shop.", "", $value);
+      $t = (md5($you) == $value) ? $y : $this->core->Data("Get", ["mbr", $value]);
+      $them = $t["Login"]["Username"];
+      $_Shop = $this->core->GetContentData([
+       "ID" => base64_encode("Shop;$value"),
+       "Owner" => $them
+      ]);
+      $bl = $this->core->CheckBlocked([$y, "Members", $them]);
+      $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
+      $cms = $cms["Contacts"] ?? [];
+      $ck = $this->core->CheckPrivacy([
+       "Contacts" => $cms,
+       "Privacy" => $t["Privacy"]["Shop"],
+       "UN" => $them,
+       "Y" => $you
+      ]);
+      $shop = $_Shop["DataModel"];
+      $ck2 = $shop["Open"] ?? 0;
+      $illegal = $shop["Illegal"] ?? 0;
+      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+      if(($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) || $them == $you) {
+       array_push($msg, [
+        "[X.LI.CoverPhoto]" => base64_encode($_Shop["ListItem"]["CoverPhoto"]),
+        "[X.LI.Description]" => base64_encode($_Shop["ListItem"]["Description"]),
+        "[X.LI.Lobby]" => base64_encode($_Shop["ListItem"]["Options"]["View"]),
+        "[X.LI.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%")),
+        "[X.LI.Title]" => base64_encode($_Shop["ListItem"]["Title"])
        ]);
-       $ck = $this->core->CheckPrivacy([
-        "Contacts" => $cms,
-        "Privacy" => $t["Privacy"]["Shop"],
-        "UN" => $t["Login"]["Username"],
-        "Y" => $y["Login"]["Username"]
-       ]);
-       $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-       $ck3 = $g["Open"] ?? 0;
-       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-       $illegal = $g["Illegal"] ?? 0;
-       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       if($t["Login"]["Username"] == $y["Login"]["Username"] || ($bl == 0 && $ck == 1) && $illegal == 0) {
-        $bl = $this->core->CheckBlocked([$y, "Shops", md5($t["Login"]["Username"])]);
-        $coverPhoto = $g["CoverPhoto"] ?? $coverPhoto;
-        $coverPhoto = base64_encode($coverPhoto);
-        $tun = base64_encode($t["Login"]["Username"]);
-        array_push($msg, [
-         "[X.LI.CoverPhoto]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-         "[X.LI.Description]" => base64_encode($g["Description"]),
-         "[X.LI.Lobby]" => base64_encode(base64_encode("v=$card&CARD=1&UN=$tun")),
-         "[X.LI.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%")),
-         "[X.LI.Title]" => base64_encode($g["Title"])
-        ]);
-       }
       }
      }
     }
@@ -2151,11 +2103,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "SHOP-Orders") {
     $ec = "Accepted";
     $extension = $this->core->Page("504e2a25db677d0b782d977f7b36ff30");
-    $x = $this->core->Data("Get", [
-     "po",
-     md5($y["Login"]["Username"])
-    ]) ?? [];
-    foreach($x as $key => $value) {
+    $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]) ?? [];
+    foreach($purchaseOrders as $key => $value) {
      $t = $this->core->Member($value["UN"]);
      $t = $this->core->ProfilePicture($t, "margin:5%;width:90%");
      if(!empty($t["Login"])) {
@@ -2220,8 +2169,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $attachments = $this->core->RenderView($attachments);
         }
         $bdy = base64_decode($update["Body"]);
-        $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
-        $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
+        $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+        $edit = ($from == $you) ? $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
           "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($v))
