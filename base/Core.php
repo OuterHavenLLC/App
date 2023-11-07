@@ -526,17 +526,19 @@
   function GetContentData(array $content) {
    $attachments = "";
    $body = "";
-   $coverPhoto = "";
+   $coverPhoto = $this->PlainText([
+    "Data" => "[Media:CP]",
+    "Display" => 1
+   ]);
    $data = [];
    $description = "";
    $empty = 0;
    $id = $content["ID"] ?? "";
    $id = explode(";", base64_decode($id));
-   $json = [];
-   $profilePicture = "";
+   $options = [];
    $title = "";
    $type = $id[0] ?? "";
-   $view = "";
+   $vote = "";
    $web = $this->Element(["div", $this->Element([
      "h4", "Content Unavailable"
     ]).$this->Element([
@@ -553,17 +555,30 @@
      $album = $data["Albums"][$additionalContantID] ?? [];
      $description = $album["Description"] ?? "";
      $empty = (empty($album)) ? 1 : 0;
-     $view = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContantID&UN=".$contentID));
+     $options["View"] = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContantID&UN=".$contentID));
     } elseif($type == "Blog") {
      $data = $this->Data("Get", ["blg", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $options = [
+      "Delete" => "",
+      "Edit" => "",
+      "View" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=$contentID")
+     ];
      $title = $data["Title"] ?? "";
     } elseif($type == "BlogPost") {
      $data = $this->Data("Get", ["bp", $contentID]) ?? [];
+     $attachments = $data["Attachments"] ?? [];
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
      $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $options = [
+      "Block" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($contentID)."&list=".base64_encode("Blog Posts")."&BC="),
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlogPost")."&ID=".base64_encode($content["BlogID"]."-$contentID")),
+      "Edit" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$content["BlogID"]."&Post=$contentID"),
+      "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=".$content["BlogID"]."&Post=$contentID&b2=".$content["BackTo"]."&back=1")
+     ];
      $title = $data["Title"] ?? "";
     } elseif($type == "Chat") {
      $data = $this->Data("Get", ["chat", $contentID]) ?? [];
@@ -571,15 +586,17 @@
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
+     $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
+     $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
+     $options = [
+      "Delete" => "",
+      "Edit" => "",
+      "View" => base64_encode($view)
+     ];
     } elseif($type == "Comment" && !empty($additionalContantID)) {
      $data = $this->Data("Get", ["conversation", $contentID]) ?? [];
-     if(!empty($comment["DLC"])) {
-      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-       "ID" => base64_encode(implode(";", $comment["DLC"])),
-       "Type" => base64_encode("DLC")
-      ]]);
-      $attachments = $this->RenderView($attachments);
-     }
+     $attachments = $comment["DLC"] ?? [];
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
      $comment = $data[$additionalContantID] ?? [];
      $body = $comment["Body"];
      $empty = (empty($comment)) ? 1 : 0;
@@ -606,26 +623,17 @@
      $title = $data["Title"] ?? "";
     } elseif($type == "ForumPost") {
      $data = $this->Data("Get", ["post", $contentID]) ?? [];
-     if(!empty($data["Attachments"])) {
-      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-       "ID" => base64_encode(implode(";", $data["Attachments"])),
-       "Type" => base64_encode("DLC")
-      ]]);
-      $attachments = $this->RenderView($attachments);
-     }
+     $attachments = $data["Attachments"] ?? [];
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
      $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "Page") {
      $data = $this->Data("Get", ["pg", $contentID]) ?? [];
-     if(!empty($data["Attachments"])) {
-      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-       "ID" => base64_encode(implode(";", $data["Attachments"])),
-       "Type" => base64_encode("DLC")
-      ]]);
-      $attachments = $this->RenderView($attachments);
-     }
+     $attachments = $data["Attachments"] ?? [];
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+     $attachments = $this->RenderView($attachments);
      $body = $data["Body"] ?? "";
      $body = $this->PlainText([
       "Data" => $body,
@@ -635,15 +643,16 @@
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
+     $view = (!empty($content["BackTo"]) && !empty($content["ParentPage"])) ? base64_encode("v=".base64_encode("Page:Home")."&b2=".$content["BackTo"]."&back=1&lPG=".$content["ParentPage"]."&ID=$contentID") : base64_encode("v=".base64_encode("Page:Home")."&ID=$contentID");
+     $options = [
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$contentID"),
+      "Edit" => base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($contentID)),
+      "View" => $view
+     ];
     } elseif($type == "Product") {
      $data = $this->Data("Get", ["product", $contentID]) ?? [];
-     if(!empty($data["Attachments"])) {
-      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-       "ID" => base64_encode(implode(";", $data["Attachments"])),
-       "Type" => base64_encode("DLC")
-      ]]);
-      $attachments = $this->RenderView($attachments);
-     }
+     $attachments = $data["Attachments"] ?? [];
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
      $body = $data["Body"] ?? "";
      $body = $this->PlainText([
       "Data" => $body,
@@ -655,16 +664,34 @@
      $title = $data["Title"] ?? "";
     } elseif($type == "StatusUpdate") {
      $data = $this->Data("Get", ["su", $contentID]) ?? [];
-     if(!empty($data["Attachments"])) {
-      $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-       "ID" => base64_encode(implode(";", $data["Attachments"])),
-       "Type" => base64_encode("DLC")
-      ]]);
-      $attachments = $this->RenderView($attachments);
-     }
+     $attachments = $data["Attachments"] ?? [];
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
      $body = $data["Body"] ?? "";
+     $body = $this->PlainText([
+      "Data" => $body,
+      "Display" => 1,
+      "HTMLDecode" => 1
+     ]);
      $empty = (empty($data)) ? 1 : 0;
+     $options = [
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($contentID)),
+      "Edit" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
+      "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=$contentID")
+     ];
+     $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $vote = base64_encode("v=$vote&ID=$contentID&Type=1");
     }
+   }
+   $coverPhoto = $data["ICO"] ?? $coverPhoto;
+   $coverPhoto = base64_encode($coverPhoto);
+   $coverPhoto = $this->CoverPhoto($coverPhoto);
+   $modified = $data["Modified"] ?? "";
+   if(empty($modified)) {
+    $modified = "";
+   } else {
+    $_Time = $this->TimeAgo($modified);
+    $modified = " &bull; Modified ".$_Time;
+    $modified = $this->Element(["em", $modified]);
    }
    return [
     "DataModel" => $data,
@@ -685,9 +712,10 @@
       "Data" => $this->Excerpt($description, 180),
       "HTMLDecode" => 1
      ]),
-     "ProfilePicture" => $profilePicture,
+     "Modified" => $modified,
+     "Options" => $options,
      "Title" => $title,
-     "View" => $view
+     "Vote" => $vote
     ]
    ];
   }

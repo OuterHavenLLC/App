@@ -488,7 +488,7 @@
   function DeleteProduct(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "":;
+   $id = $data["ID"] ?? "";
    $pd = base64_encode("Product:SaveDelete");
    $r = [
     "Body" => "The Product Identifier is missing."

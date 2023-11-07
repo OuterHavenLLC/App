@@ -498,22 +498,20 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      foreach($articles as $key => $value) {
       #$na.=" ".$query.json_encode($article, true);//TEMP
       $value = str_replace("c.oh.pg.", "", $value);
-      #$Page = $this->core->Data("Get", ["pg", $article["ID"]]) ?? [];
-      $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+      $_Article = $this->core->GetContentData([
+       "ID" => base64_encode("Page;$value")
+      ]);
+      $article = $_Article["DataModel"];
       if($article["Category"] == "EXT" || $article["High Command"] == 1) {
        $id = $article["ID"] ?? $value;
+       $options = $_Article["ListItem"]["Options"];
        array_push($msg, [
         "[Extension.Category]" => base64_encode($article["Category"]),
-        "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$id")),
-        "[Extension.Description]" => base64_encode($this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $article["Description"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ])),
-        "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($id))),
+        "[Extension.Delete]" => base64_encode($options["Delete"]),
+        "[Extension.Description]" => base64_encode($_Article["ListItem"]["Description"]),
+        "[Extension.Edit]" => base64_encode($options["Edit"]),
         "[Extension.ID]" => base64_encode($id),
-        "[Extension.Title]" => base64_encode($article["Title"])
+        "[Extension.Title]" => base64_encode($_Article["ListItem"]["Title"])
        ]);
       }
      }
@@ -552,15 +550,22 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $title = urlencode($title);
      $posts = $blog["Posts"] ?? [];
      foreach($posts as $key => $value) {
-      $post = $this->core->Data("Get", ["bp", $value]) ?? [];
+      $_BlogPost = $this->core->GetContentData([
+       "BackTo" => $title,
+       "BlogID" => $blog["ID"],
+       "ID" => base64_encode("BlogPost;$value")
+      ]);
+      $options = $_BlogPost["ListItem"]["Options"];
+      $post = $_BlogPost["DataModel"];
       $actions = ($post["UN"] != $you) ? $this->core->Element([
        "button", "Block", [
         "class" => "BLK InnerMargin",
         "data-cmd" => base64_encode("B"),
-        "data-u" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($post["ID"])."&list=".base64_encode("Blog Posts")."&BC=")
+        "data-u" => $options["Block"]
        ]
       ]) : "";
       $actions = ($this->core->ID != $you) ? $actions : "";
+      $admin = ($blog["UN"] == $you || $post["UN"] == $you) ? 1 : 0;
       $bl = $this->core->CheckBlocked([$y, "Blog Posts", $value]);
       $cms = $this->core->Data("Get", ["cms", md5($post["UN"])]) ?? [];
       $ck = $this->core->CheckPrivacy([
@@ -572,47 +577,35 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $ck2 = ($post["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $illegal = $post["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && ($ck == 1 && $ck2 == 1) && $illegal == 0) {
-       if($blog["UN"] == $you || $post["UN"] == $you) {
-        $combinedID = base64_encode($blog["ID"]."-".$post["ID"]);
-        $actions .= $this->core->Element([
-         "button", "Delete", [
-          "class" => "InnerMargin OpenDialog",
-          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteBlogPost")."&ID=$combinedID")
-         ]
-        ]);
-        $actions .= ($_IsBlogger == 1) ? $this->core->Element([
-         "button", "Edit", [
-          "class" => "InnerMargin OpenCard",
-          "data-view" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$blog["ID"]."&Post=".$post["ID"])
-         ]
-        ]) : "";
+      if($admin == 1 || ($bl == 0 && ($ck == 1 && $ck2 == 1) && $illegal == 0)) {
+       if($admin == 1) {
+        $actions .= $this->core->Element(["button", "Delete", [
+         "class" => "InnerMargin OpenDialog",
+         "data-view" => $options["Delete"]
+        ]]);
+        $actions .= ($_IsBlogger == 1) ? $this->core->Element(["button", "Edit", [
+         "class" => "InnerMargin OpenCard",
+         "data-view" => $options["Edit"]
+        ]]) : "";
        }
        $contributors = $post["Contributors"] ?? $blog["Contributors"];
        $coverPhoto = (!empty($post["ICO"])) ? base64_encode($post["ICO"]) : $coverPhoto;
        $op = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
-       $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+       $display = ($post["UN"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $memberRole = ($blog["UN"] == $post["UN"]) ? "Owner" : $contributors[$author];
        $modified = $post["ModifiedBy"] ?? [];
-       if(empty($modified)) {
-        $modified = "";
-       } else {
-        $_Member = end($modified);
-        $_Time = $this->core->TimeAgo(array_key_last($modified));
-        $modified = " &bull; Modified ".$_Time." by ".$_Member;
-        $modified = $this->core->Element(["em", $modified]);
-       }
        array_push($msg, [
         "[BlogPost.Actions]" => base64_encode($actions),
+        "[BlogPost.Attachments]" => base64_encode($_BlogPost["ListItem"]["Attachments"]),
         "[BlogPost.Author]" => base64_encode($display),
-        "[BlogPost.Description]" => base64_encode($post["Description"]),
+        "[BlogPost.Description]" => base64_encode($_BlogPost["ListItem"]["Description"]),
         "[BlogPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
         "[BlogPost.ID]" => base64_encode($post["ID"]),
         "[BlogPost.MemberRole]" => base64_encode($memberRole),
-        "[BlogPost.Modified]" => base64_encode($modified),
+        "[BlogPost.Modified]" => base64_encode($_BlogPost["ListItem"]["Modified"]),
         "[BlogPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-        "[BlogPost.Title]" => base64_encode($post["Title"]),
-        "[BlogPost.View]" => base64_encode("Blog".$blog["ID"].";".base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=".$blog["ID"]."&Post=".$post["ID"]."&b2=".$blog["Title"]."&back=1"))
+        "[BlogPost.Title]" => base64_encode($_BlogPost["ListItem"]["Title"]),
+        "[BlogPost.View]" => base64_encode("Blog".$blog["ID"].";".$options["View"])
        ]);
       }
      }
@@ -622,12 +615,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Page("e05bae15ffea315dc49405d6c93f9b2c");
     if($notAnon == 1) {
      $bl = base64_decode($data["BL"]);
-     $x = $y["Blocked"][$bl] ?? [];
-     foreach($x as $k => $v) {
-      $unblock = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($v)."&List=".base64_encode($bl));
+     $blacklist = $y["Blocked"][$bl] ?? [];
+     foreach($blacklist as $key => $value) {
+      $unblock = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($value)."&List=".base64_encode($bl));
       if($bl == "Albums") {
-       $alb = explode("-", base64_decode($v));
-       $t = ($alb[0] != $y["Login"]["Username"]) ? $this->core->Member($alb[0]) : $y;
+       $alb = explode("-", base64_decode($value));
+       $t = ($alb[0] != $you) ? $this->core->Member($alb[0]) : $y;
        $fs = $this->core->Data("Get", [
         "fs",
         md5($t["Login"]["Username"])
@@ -640,7 +633,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blogs") {
-       $bg = $this->core->Data("Get", ["blg", $v]) ?? [];
+       $bg = $this->core->Data("Get", ["blg", $value]) ?? [];
        $de = $bg["Description"];
        $h = "<em>".$bg["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -648,7 +641,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blog Posts") {
-       $bp = $this->core->Data("Get", ["bp", $v]) ?? [];
+       $bp = $this->core->Data("Get", ["bp", $value]) ?? [];
        $de = $bp["Description"];
        $h = "<em>".$bp["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -671,7 +664,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forum Posts") {
-       $post = $this->core->Data("Get", ["post", $v]) ?? [];
+       $post = $this->core->Data("Get", ["post", $value]) ?? [];
        $de = $post["Description"];
        $h = "<em>".$post["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -686,7 +679,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Members") {
-       $member = $this->core->Data("Get", ["mbr", $v]) ?? [];
+       $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
        $de = $member["Description"];
        $h = "<em>".$member["Personal"]["DisplayName"]."</em>";
        $vi = $this->core->Element(["button", "View $h's Profile", [
@@ -694,7 +687,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Pages") {
-       $page = $this->core->Data("Get", ["pg", $v]) ?? [];
+       $page = $this->core->Data("Get", ["pg", $value]) ?? [];
        $de = $page["Description"];
        $h = "<em>".$page["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -702,7 +695,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Products") {
-       $product = $this->core->Data("Get", ["product", $v]) ?? [];
+       $product = $this->core->Data("Get", ["product", $value]) ?? [];
        $de = $product["Description"];
        $h = "<em>".$product["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -710,7 +703,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Shops") {
-       $shop = $this->core->Data("Get", ["shop", $v]) ?? [];
+       $shop = $this->core->Data("Get", ["shop", $value]) ?? [];
        $de = $shop["Description"];
        $h = "<em>".$shop["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -718,9 +711,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Status Updates") {
-       $su = $this->core->Data("Get", ["su", $v]) ?? [];
-       $de = $this->core->Excerpt(base64_decode($su["Body"]), 180);
-       $h = $su["From"];
+       $update = $this->core->Data("Get", ["su", $value]) ?? [];
+       $de = $this->core->Excerpt(base64_decode($update["Body"]), 180);
+       $h = $update["From"];
        $vi = $this->core->Element(["button", "View $u", [
         "class" => "BB v2 v2w",
         "data-type" => base64_encode("#")
@@ -738,18 +731,18 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "BLG") {
     $blogs = $this->core->DatabaseSet("BLG") ?? [];
-    $coverPhoto = $this->core->PlainText([
-     "Data" => "[Media:CP]",
-     "Display" => 1
-    ]);
     $ec = "Accepted";
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
     foreach($blogs as $key => $value) {
      $value = str_replace("c.oh.blg.", "", $value);
-     $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
+     $_Blog = $this->core->GetContentData([
+      "ID" => base64_encode("Blog;$value")
+     ]);
+     $options = $_Blog["ListItem"]["Options"];
+     $blog = $_Blog["DataModel"];
+     $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
      $cms = $this->core->Data("Get", ["cms", md5($blog["UN"])]);
-     $bl = $this->core->CheckBlocked([$y, "Blogs", $blog["ID"]]);
      $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $blog["NSFW"] == 0) ? 1 : 0;
      $ck2 = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
@@ -760,13 +753,11 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $illegal = $blog["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) {
-      $coverPhoto = $blog["ICO"] ?? $coverPhoto;
-      $coverPhoto = base64_encode($coverPhoto);
       array_push($msg, [
-       "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-       "[X.LI.T]" => base64_encode($blog["Title"]),
-       "[X.LI.D]" => base64_encode($blog["Description"]),
-       "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$blog["ID"]))
+       "[X.LI.I]" => base64_encode($_Blog["ListItem"]["CoverPhoto"]),
+       "[X.LI.T]" => base64_encode($_Blog["ListItem"]["Title"]),
+       "[X.LI.D]" => base64_encode($_Blog["ListItem"]["Description"]),
+       "[X.LI.DT]" => base64_encode($_Blog["ListItem"]["Options"]["View"])
       ]);
      }
     }
@@ -803,87 +794,78 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "CA" || $st == "PR") {
     $ec = "Accepted";
-    $home = base64_encode("Page:Home");
     $extension = $this->core->Page("e7829132e382ee4ab843f23685a123cf");
     $articles = $this->core->DatabaseSet("PG") ?? [];
     foreach($articles as $key => $value) {
      $value = str_replace("c.oh.pg.", "", $value);
-     $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+     $_Article = $this->core->GetContentData([
+      "BackTo" => $b2,
+      "ID" => base64_encode("Page;$value"),
+      #"ID" => base64_encode("Page;".$article["ID"]),
+      "ParentPage" => $lpg
+     ]);
+     $article = $_Article["DataModel"];
      if(!empty($article["UN"])) {
       $nsfw = $article["NSFW"] ?? 0;
       $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
       $bl = $this->core->CheckBlocked([$y, "Pages", $article["ID"]]);
       $cat = $article["Category"] ?? "";
-      $cms = $this->core->Data("Get", [
-       "cms",
-       md5($t["Login"]["Username"])
-      ]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($article["UN"])]) ?? [];
       $ck = ($article["Category"] == $st) ? 1 : 0;
       $ck2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $ck3 = (($st == "CA" && $article["Category"] == "CA") || ($st == "PR" && $article["Category"] == "PR")) ? 1 : 0;
       $ck4 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $article["Privacy"],
-       "UN" => $t["Login"]["Username"],
+       "UN" => $article["UN"],
        "Y" => $you
       ]);
       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) ? 1 : 0;
       $illegal = $article["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
-      $coverPhoto = $article["ICO"] ?? $coverPhoto;
-      $coverPhoto = base64_encode($coverPhoto);
        array_push($msg, [
-        "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-        "[X.LI.T]" => base64_encode($article["Title"]),
-        "[X.LI.D]" => base64_encode($this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $article["Description"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ])),
-        "[X.LI.DT]" => base64_encode("$lpg;".base64_encode("v=$home&b2=$b2&back=1&lPG=$lpg&ID=".$article["ID"]))
+        "[X.LI.I]" => base64_encode($_Article["ListItem"]["CoverPhoto"]),
+        "[X.LI.T]" => base64_encode($_Article["ListItem"]["Title"]),
+        "[X.LI.D]" => base64_encode($_Article["ListItem"]["Description"]),
+        "[X.LI.DT]" => base64_encode("$lpg;".$_Article["ListItem"]["Options"]["View"])
        ]);
       }
      }
     }
    } elseif($st == "CART") {
+    $_ShopID = $data["ID"] ?? md5($this->core->ShopID);
     $ec = "Accepted";
-    $coverPhoto = $this->core->PlainText([
-     "Data" => "[Media:MiNY]",
-     "Display" => 1
-    ]);
-    $data = $this->core->FixMissing($data, ["ID"]);
     $newCartList = [];
     $now = $this->core->timestamp;
-    $remove = base64_encode("Cart:Remove");
     $extension = $this->core->Page("dea3da71b28244bf7cf84e276d5d1cba");
-    $products = $y["Shopping"]["Cart"][$data["ID"]] ?? [];
+    $products = $y["Shopping"]["Cart"][$_ShopID] ?? [];
     $products = $products["Products"] ?? [];
     foreach($products as $key => $value) {
-     $product = $this->core->Data("Get", ["product", $key]) ?? [];
+     $_Product = $this->core->GetContentData([
+      "ID" => base64_encode("Page;$key")
+     ]);
+     $product = $_Product["DataModel"];
      $isActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
      $illegal = $product["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      $quantity = $product["Quantity"] ?? 0;
      if(!empty($product) && $isActive == 1 && $quantity != 0 && $illegal == 0) {
-      $coverPhoto = $product["ICO"] ?? $coverPhoto;
-      $coverPhoto = base64_encode($coverPhoto);
       $newCartList[$key] = $value;
-      $remove = $this->view($remove, ["Data" => [
+      $remove = $this->view(base64_encode("Cart:Remove"), ["Data" => [
        "ProductID" => base64_encode($key),
-       "ShopID" => base64_encode($data["ID"])
+       "ShopID" => base64_encode($_ShopID)
       ]]);
       $remove = $this->core->RenderView($remove);
       array_push($msg, [
-       "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-       "[X.LI.T]" => base64_encode($product["Title"]),
-       "[X.LI.D]" => base64_encode($product["Description"]),
+       "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
+       "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
+       "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
        "[X.LI.Remove]" => base64_encode($remove)
       ]);
      }
     }
-    $y["Shopping"]["Cart"][$data["ID"]]["Products"] = $newCartList;
+    $y["Shopping"]["Cart"][$_ShopID]["Products"] = $newCartList;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
    } elseif($st == "Chat") {
     $ec = "Accepted";
@@ -895,10 +877,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $extension = $this->core->Page($extension);
      $groups = $this->core->DatabaseSet("Chat") ?? [];
      foreach($groups as $key => $group) {
+      $group = str_replace("c.oh.chat.", "", $group);
+      $_Chat = $this->core->GetContentData([
+       "ID" => base64_encode("Chat;$group"),
+       "Integrated" => $integrated
+      ]);
       $active = 0;
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
-      $group = str_replace("c.oh.chat.", "", $group);
-      $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
+      $chat = $_Chat["DataModel"];
       $contributors = $chat["Contributors"] ?? [];
       foreach($contributors as $member => $role) {
        if($member == $you) {
@@ -915,13 +901,11 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        if(!empty($contributors) || $isGroupChat == 1) {
         $displayName = $chat["Title"] ?? "Group Chat";
         $t = $this->core->Member($this->core->ID);
-        $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group)."&Integrated=$integrated";
-        $view .= ($integrated == 1) ? "&Card=1" : "";
         array_push($msg, [
          "[Chat.DisplayName]" => base64_encode($displayName),
          "[Chat.Online]" => base64_encode(""),
          "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-         "[Chat.View]" => base64_encode(base64_encode($view))
+         "[Chat.View]" => base64_encode($_Chat["ListItem"]["Options"]["View"])
         ]);
        }
       }
@@ -1493,21 +1477,24 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $edit = base64_encode("StatusUpdate:Edit");
     $attlv = base64_encode("LiveView:InlineMossaic");
     $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
-    $x = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
-    foreach($x as $k => $v) {
-     $bl = $this->core->CheckBlocked([$y, "Status Opdates", $v]);
-     $su = $this->core->Data("Get", ["su", $v]) ?? [];
-     $from = $su["From"] ?? $this->core->ID;
-     $illegal = $su["Illegal"] ?? 0;
+    $statusUpdates = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
+    foreach($statusUpdates as $key => $value) {
+     $_StatusUpdate = $this->core->GetContentData([
+      "ID" => base64_encode("StatusUpdate;$value")
+     ]);
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
+     $update = $_StatusUpdate["DataModel"];
+     $from = $update["From"] ?? $this->core->ID;
+     $illegal = $update["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     if($bl == 0 && $illegal == 0) {
+     if($from == $you || ($bl == 0 && $illegal == 0)) {
       $attachments = "";
       $op = ($from == $you) ? $y : $this->core->Member($from);
       $cms = $this->core->Data("Get", [
        "cms",
-       md5($op["Login"]["Username"])
+       md5($from)
       ]) ?? [];
-      $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
+      $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
       $ck2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $op["Privacy"]["Posts"],
@@ -1515,49 +1502,32 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "Y" => $you
       ]);
       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
-       $attachments = (!empty($su["Attachments"])) ? $this->view($attlv, ["Data" => [
-        "ID" => base64_encode(implode(";", $su["Attachments"])),
-        "Type" => base64_encode("DLC")
-       ]]) : "";
-       $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
-       $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
+       $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+       $options = $_StatusUpdate["ListItem"]["Options"];
+       $edit = ($from == $you) ? $this->core->Element([
         "button", "Delete", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($v))
+         "data-view" => $options["Delete"]
         ]
        ]).$this->core->Element([
         "button", "Edit", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$v")
+         "data-view" => $options["Edit"]
         ]
        ]) : "";
-       $modified = $su["Modified"] ?? "";
-       if(empty($modified)) {
-        $modified = "";
-       } else {
-        $_Time = $this->core->TimeAgo($modified);
-        $modified = " &bull; Modified ".$_Time;
-        $modified = $this->core->Element(["em", $modified]);
-       }
-       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-       $votes = base64_encode("v=$votes&ID=".$su["ID"]."&Type=1");
        array_push($msg, [
-        "[StatusUpdate.Attachments]" => base64_encode($attachments),
-        "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $su["Body"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ])),
-        "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($su["Created"])),
-        "[StatusUpdate.DT]" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=".$su["ID"])),
+        "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
+        "[StatusUpdate.AttachmentsID]" => base64_encode($value),
+        "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
+        "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
+        "[StatusUpdate.DT]" => base64_encode($options["View"]),
         "[StatusUpdate.Edit]" => base64_encode($edit),
-        "[StatusUpdate.ID]" => base64_encode($su["ID"]),
-        "[StatusUpdate.Modified]" => base64_encode($modified),
-        "[StatusUpdate.OriginalPoster]" => base64_encode($op["Personal"]["DisplayName"]),
+        "[StatusUpdate.ID]" => base64_encode($value),
+        "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
+        "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-        "[StatusUpdate.VoteID]" => base64_encode($su["ID"]),
-        "[StatusUpdate.Votes]" => base64_encode($votes)
+        "[StatusUpdate.VoteID]" => base64_encode($value),
+        "[StatusUpdate.Votes]" => base64_encode($_StatusUpdate["ListItem"]["Vote"])
        ]);
       }
      }
@@ -1826,20 +1796,19 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     if($notAnon == 1) {
      $articles = $y["Pages"] ?? [];
      foreach($articles as $key => $value) {
-      $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+      $_Article = $this->core->GetContentData([
+       "ID" => base64_encode("Page;$value")
+      ]);
+      $article = $_Article["DataModel"];
       if($article["Category"] != "EXT") {
+       $options = $_Article["ListItem"]["Options"];
        array_push($msg, [
         "[Extension.Category]" => base64_encode($article["Category"]),
-        "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$value")),
-        "[Extension.Description]" => base64_encode($this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $article["Description"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ])),
-        "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($value))),
+        "[Extension.Delete]" => base64_encode($options["Delete"]),
+        "[Extension.Description]" => base64_encode($_Article["ListItem"]["Description"]),
+        "[Extension.Edit]" => base64_encode($options["Edit"]),
         "[Extension.ID]" => base64_encode($value),
-        "[Extension.Title]" => base64_encode($article["Title"])
+        "[Extension.Title]" => base64_encode($_Article["ListItem"]["Title"])
        ]);
       }
      }
@@ -1855,76 +1824,56 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
     foreach($stream as $key => $value) {
      $id = $value["UpdateID"] ?? "";
-     $attachments = "";
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $id]);
-     $su = $this->core->Data("Get", ["su", $id]) ?? [];
-     $ck = (empty($su["To"]) && $su["From"] == $you) ? 1 : 0;
-     $illegal = $su["Illegal"] ?? 0;
+     $_StatusUpdate = $this->core->GetContentData([
+      "ID" => base64_encode("StatusUpdate;$id")
+     ]);
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
+     $update = $_StatusUpdate["DataModel"];
+     $from = $update["From"] ?? $this->core->ID;
+     $check = ($from == $you) ? 1 : 0;
+     $illegal = $update["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     if(($bl == 0 || $ck == 1) && $illegal == 0) {
-      $op = ($ck == 1) ? $y : $this->core->Member($su["From"]);
+     if($check == 1 || ($bl == 0 && $illegal == 0)) {
+      $op = ($check == 1) ? $y : $this->core->Member($from);
       $cms = $this->core->Data("Get", [
        "cms",
-       md5($op["Login"]["Username"])
+       md5($from)
       ]) ?? [];
-      $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
+      $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
       $ck2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
-       "Privacy" => $su["Privacy"],
-       "UN" => $su["From"],
+       "Privacy" => $update["Privacy"],
+       "UN" => $update["From"],
        "Y" => $you
       ]);
       $ck2 = 1;
       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
-       $attachments = "";
-       if(!empty($su["Attachments"])) {
-        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
-         "Data" => [
-          "ID" => base64_encode(implode(";", $su["Attachments"])),
-          "Type" => base64_encode("DLC")
-         ]
-        ]);
-        $attachments = $this->core->RenderView($attachments);
-       }
-       $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+       $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+       $options = $_StatusUpdate["ListItem"]["Options"];
        $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
         "button", "Delete", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($id))
+         "data-view" => base64_encode($options["Delete"])
         ]
        ]).$this->core->Element([
         "button", "Edit", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$id")
+         "data-view" => base64_encode($options["Edit"])
         ]
        ]) : "";
-       $modified = $su["Modified"] ?? "";
-       if(empty($modified)) {
-        $modified = "";
-       } else {
-        $_Time = $this->core->TimeAgo($modified);
-        $modified = " &bull; Modified ".$_Time;
-        $modified = $this->core->Element(["em", $modified]);
-       }
-       $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-       $votes = base64_encode("v=$votes&ID=$id&Type=1");
        array_push($msg, [
-        "[StatusUpdate.Attachments]" => base64_encode($attachments),
-        "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $su["Body"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ])),
-        "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($su["Created"])),
-        "[StatusUpdate.DT]" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=$id")),
+        "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
+        "[StatusUpdate.AttachmentsID]" => base64_encode($id),
+        "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
+        "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
+        "[StatusUpdate.DT]" => base64_encode($options["View"]),
         "[StatusUpdate.Edit]" => base64_encode($edit),
         "[StatusUpdate.ID]" => base64_encode($id),
-        "[StatusUpdate.Modified]" => base64_encode($modified),
+        "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
         "[StatusUpdate.VoteID]" => base64_encode($id),
-        "[StatusUpdate.Votes]" => base64_encode($votes)
+        "[StatusUpdate.Votes]" => base64_encode($_StatusUpdate["ListItem"]["Vote"])
        ]);
       }
      }
@@ -2230,20 +2179,20 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $x = $this->core->DatabaseSet("SU") ?? [];
     foreach($x as $k => $v) {
      $v = str_replace("c.oh.su.", "", $v);
-     $su = $this->core->Data("Get", ["su", $v]) ?? [];
-     $from = $su["From"] ?? "";
+     $update = $this->core->Data("Get", ["su", $v]) ?? [];
+     $from = $update["From"] ?? "";
      $ck = (!empty($from)) ? 1 : 0;
-     $illegal = $su["Illegal"] ?? 0;
+     $illegal = $update["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($ck == 1 && $illegal == 0) {
       $bl = $this->core->CheckBlocked([$y, "Status Updates", $v]);
       $from = $from ?? $this->core->ID;
       if($bl == 0 || $from == $you) {
        $attachments = "";
-       if(!empty($su["Attachments"])) {
+       if(!empty($update["Attachments"])) {
         $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
          "Data" => [
-          "ID" => base64_encode(implode(";", $su["Attachments"])),
+          "ID" => base64_encode(implode(";", $update["Attachments"])),
           "Type" => base64_encode("DLC")
          ]
         ]);
@@ -2254,7 +2203,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "cms",
         md5($op["Login"]["Username"])
        ]) ?? [];
-       $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $su["NSFW"] == 0) ? 1 : 0;
+       $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
        $ck2 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $op["Privacy"]["Posts"],
@@ -2263,14 +2212,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]);
        if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
         $attachments = "";
-        if(!empty($su["Attachments"])) {
+        if(!empty($update["Attachments"])) {
          $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-          "ID" => base64_encode(implode(";", $su["Attachments"])),
+          "ID" => base64_encode(implode(";", $update["Attachments"])),
           "Type" => base64_encode("DLC")
          ]]);
          $attachments = $this->core->RenderView($attachments);
         }
-        $bdy = base64_decode($su["Body"]);
+        $bdy = base64_decode($update["Body"]);
         $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
          "button", "Delete", [
@@ -2283,7 +2232,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
           "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$v"))
          ]
         ]) : "";
-        $modified = $su["Modified"] ?? "";
+        $modified = $update["Modified"] ?? "";
         if(empty($modified)) {
          $modified = "";
         } else {
@@ -2297,12 +2246,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          "[StatusUpdate.Attachments]" => base64_encode($attachments),
          "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
           "BBCodes" => 1,
-          "Data" => $su["Body"],
+          "Data" => $update["Body"],
           "Display" => 1,
           "HTMLDecode" => 1
          ])),
-         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($su["Created"])),
-         "[StatusUpdate.DT]" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=".$su["ID"])),
+         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
+         "[StatusUpdate.DT]" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=".$update["ID"])),
          "[StatusUpdate.Edit]" => base64_encode($edit),
          "[StatusUpdate.ID]" => base64_encode($v),
          "[StatusUpdate.Modified]" => base64_encode($modified),
