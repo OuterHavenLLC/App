@@ -1280,22 +1280,20 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $manifest = $this->core->Data("Get", ["pfmanifest", $value]) ?? [];
      $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
-     $ck = $forum["Open"] ?? 0;
-     $ck2 = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-     $ck3 = $this->core->CheckPrivacy([
+     $ck = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+     $ck2 = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $forum["Privacy"],
       "UN" => $forum["UN"],
       "Y" => $you
      ]);
-     $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
      $illegal = $forum["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      foreach($manifest as $member => $role) {
       if($active == 0 && $member == $you) {
        $active++;
       }
-     } if($bl == 0 && ($active == 1 || $ck == 1) && $illegal == 0) {
+     } if($bl == 0 && ($active == 1 || $ck == 1 && $ck2 == 1) && $illegal == 0) {
       $options = $_Forum["ListItem"]["Options"];
       array_push($msg, [
        "[X.LI.I]" => base64_encode($_Forum["ListItem"]["CoverPhoto"]),
