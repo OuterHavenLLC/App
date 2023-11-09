@@ -560,11 +560,13 @@
      $options["View"] = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContantID&UN=".$contentID));
     } elseif($type == "Blog") {
      $data = $this->Data("Get", ["blg", $contentID]) ?? [];
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
      $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $options = [
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Blogs")),
       "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlog")."&ID=".base64_encode($contentID)),
       "Edit" => base64_encode("v=".base64_encode("Blog:Edit")."&BLG=$contentID"),
@@ -578,19 +580,28 @@
      $data = $this->Data("Get", ["bp", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $body = $data["Body"] ?? "";
+     $body = $this->PlainText([
+      "Data" => $body,
+      "Decode" => 1,
+      "HTMLDecode" => 1
+     ]);
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
-     $options = [
-      "Block" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($contentID)."&list=".base64_encode("Blog Posts")."&BC="),
-      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlogPost")."&ID=".base64_encode($content["BlogID"]."-$contentID")),
-      "Edit" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$content["BlogID"]."&Post=$contentID"),
-      "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=".$content["BlogID"]."&Post=$contentID&b2=".$content["BackTo"]."&back=1")
-     ];
      $title = $data["Title"] ?? "";
+     $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $options = [
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Blog Posts")),
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlogPost")."&ID=".base64_encode($content["BlogID"].";$contentID")),
+      "Edit" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$content["BlogID"]."&Post=$contentID"),
+      "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID")),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("BlogPost")."&Username=".base64_encode($data["UN"])),
+      "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=".$content["BlogID"]."&Post=$contentID&b2=".$content["BackTo"]."&back=1"),
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
+     ];
     } elseif($type == "Chat") {
      $data = $this->Data("Get", ["chat", $contentID]) ?? [];
-     $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
@@ -681,6 +692,7 @@
      $attachments = $data["Attachments"] ?? [];
      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
      $attachments = $this->RenderView($attachments);
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $body = $data["Body"] ?? "";
      $body = $this->PlainText([
       "Data" => $body,
@@ -691,10 +703,18 @@
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
      $view = (!empty($content["BackTo"]) && !empty($content["ParentPage"])) ? base64_encode("v=".base64_encode("Page:Home")."&b2=".$content["BackTo"]."&back=1&lPG=".$content["ParentPage"]."&ID=$contentID") : base64_encode("v=".base64_encode("Page:Home")."&ID=$contentID");
+     $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $options = [
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Pages")),
+      "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
+      "Contributors" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($contentID)."&Type=".base64_encode("Article")."&st=Contributors"),
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$contentID"),
       "Edit" => base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($contentID)),
-      "View" => $view
+      "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;".$contentID)),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Article")."&Username=".base64_encode($data["UN"])),
+      "Subscribe" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$contentID&Type=Article"),
+      "View" => $view,
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
      ];
     } elseif($type == "Product") {
      $data = $this->Data("Get", ["product", $contentID]) ?? [];

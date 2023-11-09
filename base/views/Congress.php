@@ -185,7 +185,7 @@
    $data = $a["Data"] ?? [];
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
+   $id = $data["ID"] ?? base64_encode("");
    $r = [
     "Body" => "The Content Identifier is missing."
    ];
@@ -199,6 +199,9 @@
     $accessCode = "Accepted";
     $contentID = explode(";", base64_decode($id));
     $content = $this->core->GetContentData([
+     "BackTo" => "",
+     "Blacklisted" => 0,
+     "BlogID" => "",
      "ID" => $id
     ]) ?? [];
     $listItem = $content["ListItem"] ?? [];

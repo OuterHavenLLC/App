@@ -502,6 +502,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       #$na.=" ".$query.json_encode($article, true);//TEMP
       $value = str_replace("c.oh.pg.", "", $value);
       $_Article = $this->core->GetContentData([
+       "Blacklisted" => 0,
        "ID" => base64_encode("Page;$value")
       ]);
       $article = $_Article["DataModel"];
@@ -537,24 +538,19 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "BGP") {
     $ec = "Accepted";
-    $blog = $this->core->Data("Get", [
-     "blg",
-     base64_decode($data["ID"])
-    ]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", base64_decode($data["ID"])]) ?? [];
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     $extension = $this->core->Page("dba88e1a123132be03b9a2e13995306d");
     if($notAnon == 1) {
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
-     $coverPhoto = $this->core->PlainText([
-      "Data" => "[Media:CP]",
-      "Display" => 1
-     ]);
      $title = $blog["Title"];
      $title = urlencode($title);
      $posts = $blog["Posts"] ?? [];
      foreach($posts as $key => $value) {
+      $bl = $this->core->CheckBlocked([$y, "Blog Posts", $value]);
       $_BlogPost = $this->core->GetContentData([
        "BackTo" => $title,
+       "Blacklisted" => $bl,
        "BlogID" => $blog["ID"],
        "ID" => base64_encode("BlogPost;$value")
       ]);
@@ -569,7 +565,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]) : "";
       $actions = ($this->core->ID != $you) ? $actions : "";
       $admin = ($blog["UN"] == $you || $post["UN"] == $you) ? 1 : 0;
-      $bl = $this->core->CheckBlocked([$y, "Blog Posts", $value]);
       $cms = $this->core->Data("Get", ["cms", md5($post["UN"])]) ?? [];
       $ck = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
@@ -596,7 +591,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $op = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
        $display = ($post["UN"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $memberRole = ($blog["UN"] == $post["UN"]) ? "Owner" : $contributors[$author];
-       $modified = $post["ModifiedBy"] ?? [];
        array_push($msg, [
         "[BlogPost.Actions]" => base64_encode($actions),
         "[BlogPost.Attachments]" => base64_encode($_BlogPost["ListItem"]["Attachments"]),
@@ -739,12 +733,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
     foreach($blogs as $key => $value) {
      $value = str_replace("c.oh.blg.", "", $value);
+     $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
      $_Blog = $this->core->GetContentData([
+      "Blacklisted" => $bl,
       "ID" => base64_encode("Blog;$value")
      ]);
      $options = $_Blog["ListItem"]["Options"];
      $blog = $_Blog["DataModel"];
-     $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
      $cms = $this->core->Data("Get", ["cms", md5($blog["UN"])]);
      $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $blog["NSFW"] == 0) ? 1 : 0;
      $ck2 = $this->core->CheckPrivacy([
@@ -797,17 +792,17 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $articles = $this->core->DatabaseSet("PG") ?? [];
     foreach($articles as $key => $value) {
      $value = str_replace("c.oh.pg.", "", $value);
+     $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
      $_Article = $this->core->GetContentData([
       "BackTo" => $b2,
+      "Blacklisted" => $bl,
       "ID" => base64_encode("Page;$value"),
-      #"ID" => base64_encode("Page;".$article["ID"]),
       "ParentPage" => $lpg
      ]);
      $article = $_Article["DataModel"];
      if(!empty($article["UN"])) {
       $nsfw = $article["NSFW"] ?? 0;
       $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
-      $bl = $this->core->CheckBlocked([$y, "Pages", $article["ID"]]);
       $cat = $article["Category"] ?? "";
       $cms = $this->core->Data("Get", ["cms", md5($article["UN"])]) ?? [];
       $ck = ($article["Category"] == $st) ? 1 : 0;
@@ -1534,27 +1529,29 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      }
     }
    } elseif($st == "MBR-BLG") {
-    $coverPhoto = $this->core->PlainText([
-     "Data" => "[Media:CP]",
-     "Display" => 1
-    ]);
     $ec = "Accepted";
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
     if($notAnon == 1) {
      $blogs = $y["Blogs"] ?? [];
      foreach($blogs as $key => $value) {
-      $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
+      $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
+      $_Blog = $this->core->GetContentData([
+       "Blacklisted" => $bl,
+       "ID" => base64_encode("Blog;$value")
+      ]);
+      $options = $_Blog["ListItem"]["Options"];
+      $blog = $_Blog["DataModel"];
       $illegal = $blog["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($illegal == 0) {
       $coverPhoto = $blog["ICO"] ?? $coverPhoto;
       $coverPhoto = base64_encode($coverPhoto);
        array_push($msg, [
-        "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-        "[X.LI.T]" => base64_encode($blog["Title"]),
-        "[X.LI.D]" => base64_encode($blog["Description"]),
-        "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$blog["ID"]))
+        "[X.LI.I]" => base64_encode($_Blog["ListItem"]["CoverPhoto"]),
+        "[X.LI.T]" => base64_encode($_Blog["ListItem"]["Title"]),
+        "[X.LI.D]" => base64_encode($_Blog["ListItem"]["Description"]),
+        "[X.LI.DT]" => base64_encode($_Blog["ListItem"]["Options"]["View"])
        ]);
       }
      }
@@ -1700,6 +1697,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $articles = $y["Pages"] ?? [];
      foreach($articles as $key => $value) {
       $_Article = $this->core->GetContentData([
+       "Blacklisted" => 0,
        "ID" => base64_encode("Page;$value")
       ]);
       $article = $_Article["DataModel"];

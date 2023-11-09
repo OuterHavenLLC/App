@@ -216,7 +216,9 @@
      }
     }
    } if(!empty($id) || $i > 0) {
+    $bl = $this->core->CheckBlocked([$y, "Blogs", $id]);
     $_Blog = $this->core->GetContentData([
+     "Blacklisted" => $bl,
      "ID" => base64_encode("Blog;$id")
     ]);
     $active = 0;
@@ -238,7 +240,6 @@
      $accessCode = "Accepted";
      $actions = "";
      $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
-     $bl = $this->core->CheckBlocked([$y, "Blogs", $id]);
      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
      $actions .= ($blog["UN"] != $you) ? $this->core->Element([

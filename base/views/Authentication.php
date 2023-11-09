@@ -197,7 +197,7 @@
   function DeleteBlogPost(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
+   $id = $data["ID"] ?? base64_encode("");
    $r = [
     "Body" => "The Blog-Post Identifier is missing."
    ];
@@ -210,16 +210,16 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $post = explode("-", base64_decode($id));
-    $post = $this->core->Data("Get", ["bp", $post[1]]) ?? [];
-    $dialogID = "Delete".$post[1];
+    $id = explode(";", base64_decode($id));
+    $post = $this->core->Data("Get", ["bp", $id[1]]) ?? [];
+    $dialogID = "Delete".$id[1];
     $r = [
      "Body" => "You are about to permanently delete ".$post["Title"].".",
      "Header" => "Delete",
      "ID" => $dialogID,
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
-      "[Delete.ID]" => base64_decode($id),
+      "[Delete.ID]" => base64_decode($data["ID"]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:SaveDelete")),
       "[Delete.Title]" => $post["Title"]
      ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
