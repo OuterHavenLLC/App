@@ -501,38 +501,39 @@
    ]);
   }
   function Home(array $a) {
-   $accessCode = "Denied";
    $_ViewTitle = $this->core->config["App"]["Name"];
+   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "CARD",
-    "UN",
-    "lPG"
+   $member = $data["UN"] ?? "";
+   $_Member = $this->core->GetContentData([
+    "ID" => base64_encode("Member;".md5(base64_decode($member)))
    ]);
+   $parentPage = $data["lPG"] ?? "";
    $b2 = $data["b2"] ?? "";
    $back = $data["back"] ?? 0;
    $back = ($back == 1) ? $this->core->Element(["button", "Back to $b2", [
     "class" => "GoToParent LI head",
-    "data-type" => $data["lPG"]
+    "data-type" => $parentPage
    ]]) : "";
+   $card = $data["Card"] ?? 0;
    $chat = $data["Chat"] ?? 0;
+   $member = $_Member["DataModel"];
    $pub = $data["pub"] ?? 0;
-   $t = $this->core->Member(base64_decode($data["UN"]));
-   $id = $t["Login"]["Username"];
-   $display = ($id == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
    $r = [
     "Body" => "The requested Member could not be found.",
     "Header" => "Not Found"
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($id)) {
+   if($_Member["Empty"] == 0) {
+    $id = $member["Login"]["Username"];
     $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]) ?? [];
-    $_TheyBlockedYou = $this->core->CheckBlocked([$t, "Members", $you]);
+    $_TheyBlockedYou = $this->core->CheckBlocked([$id, "Members", $you]);
     $_YouBlockedThem = $this->core->CheckBlocked([$y, "Members", $id]);
-    $b2 = ($id == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
+    $displayName = $_Member["ListItem"]["Title"];
+    $b2 = ($id == $you) ? "Your Profile" : "$displayName's Profile";
     $lpg = "Profile".md5($id);
-    $privacy = $t["Privacy"] ?? [];
+    $privacy = $member["Privacy"] ?? [];
     $ck = ($id == $you) ? 1 : 0;
     $ck2 = ($privacy["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->config["minAge"])) ? 1 : 0;
     $ckart = 0;
@@ -550,11 +551,11 @@
      "UN" => $id,
      "Y" => $you
     ]);
-    if($_TheyBlockedYou == 0 && ($ck == 1 || $ck2 == 1 || $visible == 1)) {
+    if($_TheyBlockedYou == 0 && $_YouBlockedThem == 0 && ($ck == 1 || $ck2 == 1 || $visible == 1)) {
+     $_Artist = $member["Subscriptions"]["Artist"]["A"] ?? 0;
+     $_ViewTitle = "$displayName @ ".$_ViewTitle;
+     $_VIP = $member["Subscriptions"]["VIP"]["A"];
      $accessCode = "Accepted";
-     $_Artist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-     $_ViewTitle = $t["Personal"]["DisplayName"]." @ ".$_ViewTitle;
-     $_VIP = $t["Subscriptions"]["VIP"]["A"];
      $blockCommand = ($_YouBlockedThem == 0) ? "Block" : "Unblock";
      $actions = $this->core->Element([
       "button", $blockCommand, [
@@ -580,7 +581,7 @@
      $albums = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
-      "[Error.Message]" => "$display keeps their media albums to themselves."
+      "[Error.Message]" => "$displayName keeps their media albums to themselves."
      ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Albums"] == $public || $visible == 1) {
       $albums = $this->view($search, ["Data" => [
@@ -592,7 +593,7 @@
      $articles = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
-      "[Error.Message]" => "$display keeps their archive contributions to themselves."
+      "[Error.Message]" => "$displayName keeps their archive contributions to themselves."
      ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Archive"] == $public || $visible == 1) {
       $articles = $this->view($search, ["Data" => [
@@ -606,7 +607,7 @@
      $blogs = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
-      "[Error.Message]" => "$display keeps their blogs to themselves."
+      "[Error.Message]" => "$displayName keeps their blogs to themselves."
      ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Posts"] == $public || $visible == 1) {
       $blogs = $this->view($search, ["Data" => [
@@ -621,7 +622,7 @@
      $contacts = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
-      "[Error.Message]" => "$display keeps their contacts to themselves."
+      "[Error.Message]" => "$displayName keeps their contacts to themselves."
      ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Contacts"] == $public || $visible == 1) {
       $contacts = $this->view($search, ["Data" => [
@@ -634,7 +635,7 @@
      }
      $contactRequestsAllowed = $this->core->CheckPrivacy([
       "Contacts" => $theirContacts,
-      "Privacy" => $t["Privacy"]["ContactRequests"],
+      "Privacy" => $member["Privacy"]["ContactRequests"],
       "UN" => $id,
       "Y" => $you
      ]);
@@ -649,7 +650,7 @@
        if($contactStatus["TheyRequested"] > 0) {
         $addContact = $this->core->Element([
          "div", $this->core->Element(["button", "Accept", [
-          "class" => "BB BBB SendData v2 v2w",
+          "class" => "BBB SendData v2 v2w",
           "data-form" => ".ContactRequest$id",
           "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&accept=1")
          ]]), ["class" => "Desktop50"]
@@ -676,7 +677,7 @@
         ], $this->core->Page("a73ffa3f28267098851bf3550eaa9a02")]);
        } else {
         $addContact = $this->core->Change([[
-         "[ContactRequest.Header]" => "Add $display",
+         "[ContactRequest.Header]" => "Add $displayName",
          "[ContactRequest.ID]" => $id,
          "[ContactRequest.Option]" => $this->core->Element([
           "button", "Add $display", [
@@ -685,7 +686,7 @@
            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests"))
           ]
          ]),
-         "[ContactRequest.Text]" => "Send $display a Contact Request.",
+         "[ContactRequest.Text]" => "Send $displayName a Contact Request.",
          "[ContactRequest.Username]" => $id
         ], $this->core->Page("a73ffa3f28267098851bf3550eaa9a02")]);
        }
@@ -707,7 +708,7 @@
        }
        $changeRank = $this->core->Change([[
         "[Ranks.Authentication]" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".MemberRank".md5($id))."&ID=".md5($id)."&Processor=".base64_encode("v=".base64_encode("Profile:ChangeRank"))."&Text=".base64_encode("Do you authorize the Change of $display's rank?")),
-        "[Ranks.DisplayName]" => $display,
+        "[Ranks.DisplayName]" => $displayName,
         "[Ranks.ID]" => md5($id),
         "[Ranks.Options]" => json_encode($ranks, true),
         "[Ranks.Username]" => $id,
@@ -715,19 +716,12 @@
        ], $this->core->Page("914dd9428c38eecf503e3a5dda861559")]);
       }
      }
-     $gender = $t["Personal"]["Gender"] ?? "Male";
+     $gender = $member["Personal"]["Gender"] ?? "Male";
      $gender = $this->core->Gender($gender);
-     $description = "You have not added a Description.";
-     $description = ($id != $you) ? "$display has not added a Description." : $description;
-     $description = (!empty($t["Personal"]["Description"])) ? $this->core->PlainText([
-      "BBCodes" => 1,
-      "Data" => $t["Personal"]["Description"],
-      "Display" => 1
-     ]) : $description;
      $journal = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
-      "[Error.Message]" => "$display keeps their Journal to themselves."
+      "[Error.Message]" => "$displayName keeps their Journal to themselves."
      ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Journal"] == $public || $visible == 1) {
       $journal = $this->view($search, ["Data" => [
@@ -738,14 +732,14 @@
       ]]);
       $journal = $this->core->RenderView($journal);
      }
-     $share = ($id == $you || $t["Privacy"]["Profile"] == md5("Public")) ? 1 : 0;
+     $options = $_Member["ListItem"]["Options"];
+     $share = ($id == $you || $privacy["Profile"] == $public) ? 1 : 0;
      $share = ($share == 1) ? $this->core->Element([
       "button", "Share", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Profile")."&Username=".base64_encode($id))
+       "data-view" => $options["Share"]
       ]
      ]) : "";
-     $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $r = $this->core->Change([[
       "[Member.Actions]" => $actions,
       "[Member.AddContact]" => $addContact,
@@ -754,7 +748,7 @@
       "[Member.Blogs]" => $blogs,
       "[Member.Back]" => $back,
       "[Member.ChangeRank]" => $changeRank,
-      "[Member.CoverPhoto]" => $this->core->CoverPhoto($t["Personal"]["CoverPhoto"]),
+      "[Member.CoverPhoto]" => $_Member["ListItem"]["CoverPhoto"],
       "[Member.Contacts]" => $contacts,
       "[Member.Conversation]" => $this->core->Change([[
        "[Conversation.CRID]" => md5($id),
@@ -762,19 +756,19 @@
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
       ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-      "[Member.Description]" => $description,
-      "[Member.DisplayName]" => $display,
+      "[Member.Description]" => $_Member["ListItem"]["Description"],
+      "[Member.DisplayName]" => $displayName,
       "[Member.Footer]" => $this->core->Page("a095e689f81ac28068b4bf426b871f71"),
       "[Member.ID]" => md5($id),
       "[Member.Journal]" => $journal,
-      "[Member.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:2em;width:calc(100% - 4em)"),
+      "[Member.ProfilePicture]" => $options["ProfilePicture"],
       "[Member.Share]" => $share,
       "[Member.Stream]" => base64_encode("v=$search&UN=".base64_encode($id)."&st=MBR-SU"),
-      "[Member.Votes]" => base64_encode("v=$votes&ID=".md5($id)."&Type=4")
+      "[Member.Votes]" => $options["Vote"]
      ], $this->core->Page("72f902ad0530ad7ed5431dac7c5f9576")]);
     }
    }
-   $r = ($data["CARD"] == 1) ? [
+   $r = ($card == 1) ? [
     "Front" => $r
    ] : $r;
    if($pub == 1) {

@@ -775,7 +775,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $member = $_Member["DataModel"];
      $value["ID"] = $key;
      if(!empty($member["Login"])) {
-      $display = ($t["Personal"]["DisplayName"] == $this->core->ID) ? "Anonymous" : $member["Personal"]["DisplayName"];
       $message = $this->view(base64_encode("Profile:BulletinMessage"), [
        "Data" => $value
       ]);

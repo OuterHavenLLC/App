@@ -562,12 +562,18 @@
      $data = $this->Data("Get", ["blg", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
-     $options = [
-      "Delete" => "",
-      "Edit" => "",
-      "View" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=$contentID")
-     ];
      $title = $data["Title"] ?? "";
+     $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $options = [
+      "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlog")."&ID=".base64_encode($contentID)),
+      "Edit" => base64_encode("v=".base64_encode("Blog:Edit")."&BLG=$contentID"),
+      "Invite" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=".base64_encode($contentID)),
+      "Post" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode("Blog")."&Username=".base64_encode($data["UN"])),
+      "View" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=$contentID"),
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
+     ];
     } elseif($type == "BlogPost") {
      $data = $this->Data("Get", ["bp", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
@@ -652,18 +658,23 @@
     } elseif($type == "Member") {
      $data = $this->Data("Get", ["mbr", $contentID]) ?? [];
      $empty = (empty($data)) ? 1 : 0;
+     $them = $data["Login"]["Username"] ?? "";
      if($empty == 0) {
+      $coverPhoto = base64_decode($data["Personal"]["CoverPhoto"]);
       $description = "You have not added a Description.";
-      $displayName = $data["Personal"]["DisplayName"] ?? $data["Login"]["Username"];
-      $description = ($data["Login"]["Username"] != $you) ? "$displayName has not added a Description." : $description;
+      $displayName = $data["Personal"]["DisplayName"] ?? $them;
+      $description = ($them != $you) ? "$displayName has not added a Description." : $description;
       $description = (!empty($data["Personal"]["Description"])) ? $data["Personal"]["Description"] : $description;
+      $title = ($them == $this->ID) ? "Anonymous" : $displayName;
+      $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Blcok" => "",
        "Edit" => base64_encode("v=".base64_encode("Profile:Preferences")),
        "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
-       "View" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&UN=".base64_encode($data["Login"]["Username"]))
+       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode("Profile")."&Username=".base64_encode($them)),
+       "View" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($them)),
+       "Vote" => base64_encode("v=$vote&ID=".md5($them)."&Type=4")
       ];
-      $title = ($data["Login"]["Username"] == $this->ID) ? "Anonymous" : $displayName;
      }
     } elseif($type == "Page") {
      $data = $this->Data("Get", ["pg", $contentID]) ?? [];

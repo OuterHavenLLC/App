@@ -216,10 +216,14 @@
      }
     }
    } if(!empty($id) || $i > 0) {
+    $_Blog = $this->core->GetContentData([
+     "ID" => base64_encode("Blog;$id")
+    ]);
     $active = 0;
     $admin = 0;
-    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+    $blog = $_Blog["DataModel"];
     $contributors = $blog["Contributors"] ?? [];
+    $options = $_Blog["ListItem"]["Options"];
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     foreach($contributors as $member => $role) {
      if($active == 0 && $member == $you) {
@@ -246,13 +250,13 @@
      $actions .= (!empty($chat)) ? $this->core->Element([
       "button", "Chat", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
+       "data-view" => $options["Chat"]
       ]
      ]) : "";
      $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([
       "button", "Delete", [
        "class" => "CloseCard OpenDialog Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteBlog")."&ID=".base64_encode($id))
+       "data-view" => $options["Delete"]
       ]
      ]) : "";
      $actions .= ($_IsArtist == 1) ? $this->core->Element([
@@ -264,53 +268,41 @@
      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&BLG=$id")
+       "data-view" => $options["Edit"]
       ]
      ]) : "";
      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
       "button", "Invite", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=".base64_encode($id))
+       "data-view" => $options["Invite"]
       ]
      ]) : "";
      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
       "button", "Post", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=".$blog["ID"]."&new=1")
+       "data-view" => $options["Post"]
       ]
      ]) : "";
      $actions .= $this->core->Element(["button", "Share", [
       "class" => "OpenCard Small v2",
-      "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($blog["ID"])."&Type=".base64_encode("Blog")."&Username=".base64_encode($blog["UN"]))
+      "data-view" => $options["Share"]
      ]]);
-     $coverPhoto = $this->core->PlainText([
-      "Data" => "[Media:CP]",
-      "Display" => 1
-     ]);
-     $coverPhoto = (!empty($blog["ICO"])) ? $this->core->CoverPhoto(base64_encode($blog["ICO"])) : $coverPhoto;
      $search = base64_encode("Search:Containers");
-     $votes = ($blog["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = base64_encode("v=$votes&ID=$id&Type=4");
-     $tpl = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
+     $extension = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
      $r = $this->core->Change([[
       "[Blog.About]" => "About ".$owner["Personal"]["DisplayName"],
       "[Blog.Actions]" => $actions,
       "[Blog.Back]" => $bck,
-      "[Blog.CoverPhoto]" => $coverPhoto,
+      "[Blog.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
       "[Blog.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors"),
       "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
-      "[Blog.Description]" => $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $blog["Description"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ]),
+      "[Blog.Description]" => $_Blog["ListItem"]["Description"],
       "[Blog.ID]" => $id,
       "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),
       "[Blog.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Blog"),
-      "[Blog.Title]" => $blog["Title"],
-      "[Blog.Votes]" => $votes
-     ], $this->core->Page($tpl)]);
+      "[Blog.Title]" => $_Blog["ListItem"]["Title"],
+      "[Blog.Votes]" => $options["Vote"]
+     ], $this->core->Page($extension)]);
      $r = ($data["CARD"] == 1) ? [
       "Front" => $r
      ] : $r;
