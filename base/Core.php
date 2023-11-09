@@ -649,6 +649,22 @@
      $title = $data["Title"] ?? "";
      $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $vote = base64_encode("v=$vote&ID=$contentID&Type=1");
+    } elseif($type == "Member") {
+     $data = $this->Data("Get", ["mbr", $contentID]) ?? [];
+     $empty = (empty($data)) ? 1 : 0;
+     if($empty == 0) {
+      $description = "You have not added a Description.";
+      $displayName = $data["Personal"]["DisplayName"] ?? $data["Login"]["Username"];
+      $description = ($data["Login"]["Username"] != $you) ? "$displayName has not added a Description." : $description;
+      $description = (!empty($data["Personal"]["Description"])) ? $data["Personal"]["Description"] : $description;
+      $options = [
+       "Blcok" => "",
+       "Edit" => base64_encode("v=".base64_encode("Profile:Preferences")),
+       "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
+       "View" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&UN=".base64_encode($data["Login"]["Username"]))
+      ];
+      $title = ($data["Login"]["Username"] == $this->ID) ? "Anonymous" : $displayName;
+     }
     } elseif($type == "Page") {
      $data = $this->Data("Get", ["pg", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
