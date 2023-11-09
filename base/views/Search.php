@@ -1049,8 +1049,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
       $member = $_Member["DataModel"];
       $options = $_Member["ListItem"]["Options"];
-      $them = $member["Login"]["Username"];
       if($_Member["Empty"] == 0) {
+       $them = $member["Login"]["Username"];
        $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
        $ck = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
@@ -1066,7 +1066,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $ck2 = ($Page["UN"] == $you || $admin == 1) ? 1 : 0;
          $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
          if($ck == 1 || $ck2 == 1) {
-          $ck = ($Page["UN"] != $member) ? 1 : 0;
+          $ck = ($Page["UN"] != $member && $Page["UN"] != $you) ? 1 : 0;
           $eid = base64_encode($Page["ID"]);
           $mbr = base64_encode($them);
           $opt = ($ck == 1 && $ck2 == 1) ? $this->core->Element([
@@ -1085,7 +1085,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $ck2 = ($blog["UN"] == $you || $admin == 1) ? 1 : 0;
          $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
          if($ck == 1 || $ck2 == 1) {
-          $ck = ($blog["UN"] != $member) ? 1 : 0;
+          $ck = ($blog["UN"] != $member && $blog["UN"] != $you) ? 1 : 0;
           $eid = base64_encode($blog["ID"]);
           $mbr = base64_encode($them);
           $opt = ($ck == 1 && $ck2 == 1) ? $this->core->Element([
@@ -1104,9 +1104,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $ck2 = ($forum["UN"] == $you || $admin == 1) ? 1 : 0;
          $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
          if($ck == 1 || $ck2 == 1) {
-          $ck = ($forum["UN"] != $member) ? 1 : 0;
+          $ck = ($forum["UN"] != $member && $forum["UN"] != $you) ? 1 : 0;
           $eid = base64_encode($forum["ID"]);
-          $mbr = base64_encode($t["Login"]["Username"]);
+          $mbr = base64_encode($them);
           $opt = ($ck == 1 && $ck2 == 1) ? $this->core->Element([
            "button", "Banish", [
             "class" => "OpenDialog v2",
@@ -1120,11 +1120,10 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
           ]) : "";
          }
         } elseif($type == "Shop") {
-         $ck = ($id == md5($you)) ? 1 : 0;
-         $ck = ($ck == 1 && $member != $you) ? 1 : 0;
+         $ck = ($id == md5($you) && $member != $you) ? 1 : 0;
          $description = "<b>".$role["Title"]."</b><br/>".$role["Description"];
          $eid = base64_encode($id);
-         $memberID = base64_encode($member);
+         $memberID = base64_encode($them);
          $opt = ($ck == 1) ? $this->core->Element(["button", "Edit", [
           "class" => "OpenCard v2",
           "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
