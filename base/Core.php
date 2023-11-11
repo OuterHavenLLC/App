@@ -504,7 +504,6 @@
      "HTMLDecode" => 1
     ]);
    }
-   die("Extension: $extension");
    return $r;
   }
   function Extensions() {
@@ -1063,7 +1062,7 @@
      "[Error.Back]" => "",
      "[Error.Header]" => "Not Found",
      "[Error.Message]" => "The Extension <em>$a</em> could not be found."
-    ], $this->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+    ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
    } else {
     $r = $this->PlainText([
      "Data" => $x["Body"],
@@ -1242,7 +1241,7 @@
     $message = $this->Element([
      "html", $this->Element([
       "head", $this->Element([
-       "style", $this->Page("669ae04b308fc630f8e06317313d9efe")
+       "style", $this->Extension("669ae04b308fc630f8e06317313d9efe")
       ])
      ]).$this->Element([
       "body", $a["Message"]
@@ -1260,7 +1259,7 @@
      $template = "97291f4b155f663aa79cc8b624323c5b";
     }
     $d = fopen($a, "w+");
-    fwrite($d, $this->Page($template));
+    fwrite($d, $this->Extension($template));
     fclose($d);
     chmod($a, 0755);
    }

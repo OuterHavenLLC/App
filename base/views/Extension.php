@@ -9,7 +9,7 @@
    $buttion = "";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
-   $new = $data["new"] ?? 0;
+   $new = $data["New"] ?? 0;
    $r = [
     "Body" => "The Extension Identifier is missing."
    ];

@@ -38,7 +38,7 @@
      $lo =  ($notAnon == 1) ? $this->core->Element([
       "button", "+", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Extension:Edit")."&new=1")
+       "data-view" => base64_encode("v=".base64_encode("Extension:Edit")."&New=1")
       ]
      ]) : "";
     } elseif($st == "ADM-MassMail") {
