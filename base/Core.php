@@ -22,6 +22,23 @@
     ]);
    }
   }
+  function Article(string $id) {
+   $article = $this->Data("Get", ["pg", $id]) ?? [];
+   $r = $this->Change([[
+    "[Error.Back]" => "",
+    "[Error.Header]" => "Not Found",
+    "[Error.Message]" => "The Article <em>$id</em> could not be found."
+   ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+   if(!empty($article)) {
+    $r = $this->PlainText([
+     "Data" => $article["Body"],
+     "Decode" => 1,
+     "Display" => 1,
+     "HTMLDecode" => 1
+    ]);
+   }
+   return $r;
+  }
   function Authenticate(string $action, $data = []) {
    $action = $action ?? "";
    $data = $data ?? [];
@@ -434,9 +451,6 @@
   function Decrypt($data) {
    return $this->cypher->Decrypt($data);
   }
-  function Encrypt($data) {
-   return $this->cypher->Encrypt($data);
-  }
   function Element(array $a) {
    $a[2] = $a[2] ?? [];
    $r = "";
@@ -458,6 +472,9 @@
    }
    return "$r\r\n";
   }
+  function Encrypt($data) {
+   return $this->cypher->Encrypt($data);
+  }
   function Excerpt(string $data, $limit = 180) {
    if(strlen($data) <= $limit) {
     return $data;
@@ -468,6 +485,36 @@
     $excerpt = substr($excerpt, 0, $lastSpace);
    }
    return $excerpt;
+  }
+  function Extension(string $id) {
+   $extension = $this->Extensions();
+   $extension = $extension[$id] ?? [];
+   $r = "";
+   if(empty($extension)) {
+    $r = $this->Change([[
+     "[Error.Back]" => "",
+     "[Error.Header]" => "Not Found",
+     "[Error.Message]" => "The Extension <em>$id</em> could not be found."
+    ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+   } else {
+    $extension = $extension["Body"] ?? base64_encode("");
+    $r = $this->PlainText([
+     "Data" => base64_decode($extension),
+     "Display" => 1,
+     "HTMLDecode" => 1
+    ]);
+   }
+   return $r;
+  }
+  function Extensions() {
+   $extensions = $this->DocumentRoot."/data/c.oh.app.".md5("Extensions");
+   if(!file_exists($extensions)) {
+    $extensions = json_encode([]);
+   } else {
+    $extensions = file_get_contents($extensions);
+    $extensions = json_decode($extensions, true);
+   }
+   return $extensions;
   }
   function FixMissing(array $a, array $b) {
    foreach($b as $b) {
@@ -666,23 +713,6 @@
      $title = $data["Title"] ?? "";
      $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $vote = base64_encode("v=$vote&ID=$contentID&Type=1");
-    } elseif($type == "Extensions") {
-     $data = $this->Data("Get", ["app", md5("Sxtensions")]) ?? [];
-     $extension = $data[$contentID] ?? [];
-     $body = $extension["Body"] ?? "";
-     $body = $this->PlainText([
-      "Data" => $body,
-      "Decode" => 1,
-      "HTMLDecode" => 1
-     ]);
-     $description = $extension["Description"] ?? "";
-     $empty = (empty($data)) ? 1 : 0;
-     $title = $extension["Title"] ?? "";
-     $options = [
-      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$contentID"),
-      "Edit" => base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($contentID)),
-      "Category" => $extension["Category"]
-     ];
     } elseif($type == "Member") {
      $data = $this->Data("Get", ["mbr", $contentID]) ?? [];
      $empty = (empty($data)) ? 1 : 0;
@@ -1026,7 +1056,7 @@
     "Verified" => 0
    ];
   }
-  function Page(string $a) {
+  function Page(string $a) {//TEMP
    $x = $this->Data("Get", ["pg", $a]) ?? [];
    if(empty($x)) {
     $r = $this->Change([[
@@ -1063,7 +1093,9 @@
     $r = html_entity_decode($r);
    } if($a["Display"] == 1) {
     $extensionCard = base64_encode("Page:Card");
-    $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "Extension"), $r);
+    $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
+    $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
+    $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "GetPage"), $r);//TEMP
     $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
     $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
     $r = $this->Change([[
@@ -1415,7 +1447,23 @@
    }
    return $r;
   }
-  public static function Extension($a = NULL) {
+  public static function GetArticle($a = NULL) {
+   $x = New Core;
+   if(!empty($a)) {
+    $r = $x->Article($a[1]);
+    $x->__destruct();
+    return $r;
+   }
+  }
+  public static function GetExtension($a = NULL) {
+   $x = New Core;
+   if(!empty($a)) {
+    $r = $x->Extension($a[1]);
+    $x->__destruct();
+    return $r;
+   }
+  }
+  public static function GetPage($a = NULL) {//TEMP
    $x = New Core;
    if(!empty($a)) {
     $r = $x->Page($a[1]);

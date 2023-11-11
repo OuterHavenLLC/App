@@ -325,12 +325,12 @@
        "[Album.Owner]" => $display,
        "[Album.Uploader]" => base64_encode("v=".base64_encode("File:Upload")."&AID=$aid&UN=".$t["Login"]["Username"]),
        "[Album.FStats]" => $unlimitedFiles
-      ], $this->core->Page("b9e1459dc1c687cebdaa9aade72c50a9")]);
+      ], $this->core->Extension("b9e1459dc1c687cebdaa9aade72c50a9")]);
      } else {
       $lo = $this->core->Change([[
        "[Album.Description]" => $de,
        "[Album.Owner]" => $display
-      ], $this->core->Page("af26c6866abb335fb69327ed3963a182")]);
+      ], $this->core->Extension("af26c6866abb335fb69327ed3963a182")]);
      }
      $extension = "46ef1d0890a2a5639f67bfda1634ca82";
     } elseif($st == "PR") {
@@ -434,7 +434,7 @@
      "[Search.Options]" => $lo,
      "[Search.ParentPage]" => $lpg,
      "[Search.Text]" => $lis
-    ], $this->core->Page($extension)]);
+    ], $this->core->Extension($extension)]);
    } if(in_array($st, [
      "DC",
      "SHOP-InvoicePresets",
@@ -481,10 +481,9 @@
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
    if($st == "ADM-LLP") {
     $ec = "Accepted";
-    $extension = $this->core->Page("da5c43f7719b17a9fab1797887c5c0d1");
+    $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
-     #$articles = $this->core->Data("Get", ["app", md5("Extensions")]) ?? [];
-     $articles = $this->core->DatabaseSet("PG") ?? [];
+     $extensions = $this->core->Extensions();
      /*$extensions = $this->core->SQL("SELECT CAST(AES_DECRYPT(Body, :key) AS CHAR(8000)) AS Body,
      CAST(AES_DECRYPT(Description, :key) AS CHAR(8000)) AS Description,
      CAST(AES_DECRYPT(ID, :key) AS CHAR(8000)) AS ID,
@@ -499,33 +498,23 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      ]);
      die($query.var_dump($Pages->fetchAll(PDO::FETCH_ASSOC)));
      while($article = $articles->fetchAll(PDO::FETCH_ASSOC)) {*/
-     foreach($articles as $key => $value) {
+     foreach($extensions as $key => $value) {
       #$na.=" ".$query.json_encode($article, true);//TEMP
-      $value = str_replace("c.oh.pg.", "", $value);
-      $_Article = $this->core->GetContentData([
-       "Blacklisted" => 0,
-       "ID" => base64_encode("Page;$value")
+      array_push($msg, [
+       "[Extension.Category]" => $value["Category"],
+       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$key")),
+       "[Extension.Description]" => $value["Description"],
+       "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($key))),
+       "[Extension.ID]" => base64_encode($key),
+       "[Extension.Title]" => $value["Title"]
       ]);
-      $article = $_Article["DataModel"];
-      if($article["Category"] == "EXT" || $article["High Command"] == 1) {
-       $id = $article["ID"] ?? $value;
-       $options = $_Article["ListItem"]["Options"];
-       array_push($msg, [
-        "[Extension.Category]" => base64_encode($article["Category"]),
-        "[Extension.Delete]" => base64_encode($options["Delete"]),
-        "[Extension.Description]" => base64_encode($_Article["ListItem"]["Description"]),
-        "[Extension.Edit]" => base64_encode($options["Edit"]),
-        "[Extension.ID]" => base64_encode($id),
-        "[Extension.Title]" => base64_encode($_Article["ListItem"]["Title"])
-       ]);
-      }
      }
-     #$na.=" ".$query.json_encode($articles, true);//TEMP
+     #$na.=" ".$query.json_encode($extensions, true);//TEMP
     }
    } elseif($st == "ADM-MassMail") {
     $ec = "Accepted";
     $preSets = $this->core->Data("Get", ["app", md5("MassMail")]) ?? [];
-    $extension = $this->core->Page("3536f06229e7b9d9684f8ca1bb08a968");
+    $extension = $this->core->Extension("3536f06229e7b9d9684f8ca1bb08a968");
     if($notAnon == 1) {
      foreach($preSets as $key => $preSet) {
       if($key != "NextSend") {
@@ -541,7 +530,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $blog = $this->core->Data("Get", ["blg", base64_decode($data["ID"])]) ?? [];
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
-    $extension = $this->core->Page("dba88e1a123132be03b9a2e13995306d");
+    $extension = $this->core->Extension("dba88e1a123132be03b9a2e13995306d");
     if($notAnon == 1) {
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
      $title = $blog["Title"];
@@ -610,7 +599,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "BL") {
     $ec = "Accepted";
-    $extension = $this->core->Page("e05bae15ffea315dc49405d6c93f9b2c");
+    $extension = $this->core->Extension("e05bae15ffea315dc49405d6c93f9b2c");
     if($notAnon == 1) {
      $bl = base64_decode($data["BL"]);
      $blacklist = $y["Blocked"][$bl] ?? [];
@@ -731,7 +720,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $blogs = $this->core->DatabaseSet("BLG") ?? [];
     $ec = "Accepted";
     $home = base64_encode("Blog:Home");
-    $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     foreach($blogs as $key => $value) {
      $value = str_replace("c.oh.blg.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
@@ -763,7 +752,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "Bulletins") {
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]) ?? [];
     $ec = "Accepted";
-    $extension = $this->core->Page("ae30582e627bc060926cfacf206920ce");
+    $extension = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
     foreach($bulletins as $key => $value) {
      $_Member = $this->core->GetContentData([
       "ID" => base64_encode("Member;".md5($value["From"]))
@@ -789,7 +778,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "CA" || $st == "PR") {
     $ec = "Accepted";
-    $extension = $this->core->Page("e7829132e382ee4ab843f23685a123cf");
+    $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
     $articles = $this->core->DatabaseSet("PG") ?? [];
     foreach($articles as $key => $value) {
      $value = str_replace("c.oh.pg.", "", $value);
@@ -833,7 +822,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $newCartList = [];
     $now = $this->core->timestamp;
-    $extension = $this->core->Page("dea3da71b28244bf7cf84e276d5d1cba");
+    $extension = $this->core->Extension("dea3da71b28244bf7cf84e276d5d1cba");
     $products = $y["Shopping"]["Cart"][$_ShopID] ?? [];
     $products = $products["Products"] ?? [];
     foreach($products as $key => $value) {
@@ -865,11 +854,11 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "Chat") {
     $ec = "Accepted";
     $integrated = $data["Integrated"] ?? 0;
-    $extension = $this->core->Page("343f78d13872e3b4e2ac0ba587ff2910");
+    $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
     if($notAnon == 1) {
      $extension = "343f78d13872e3b4e2ac0ba587ff2910";
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
-     $extension = $this->core->Page($extension);
+     $extension = $this->core->Extension($extension);
      $groups = $this->core->DatabaseSet("Chat") ?? [];
      foreach($groups as $key => $group) {
       $group = str_replace("c.oh.chat.", "", $group);
@@ -908,7 +897,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "Contacts") {
     $ec = "Accepted";
-    $extension = $this->core->Page("ccba635d8c7eca7b0b6af5b22d60eb55");
+    $extension = $this->core->Extension("ccba635d8c7eca7b0b6af5b22d60eb55");
     if($notAnon == 1) {
      $cms = $this->core->Data("Get", [
       "cms",
@@ -933,7 +922,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "ContactsProfileList") {
     $ec = "Accepted";
-    $extension = $this->core->Page("ba17995aafb2074a28053618fb71b912");
+    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     $x = $this->core->Data("Get", [
      "cms",
      md5(base64_decode($data["UN"]))
@@ -972,7 +961,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "ContactsRequests") {
     $ec = "Accepted";
-    $extension = $this->core->Page("8b6ac25587a4524c00b311c184f6c69b");
+    $extension = $this->core->Extension("8b6ac25587a4524c00b311c184f6c69b");
     if($notAnon == 1) {
      $cms = $this->core->Data("Get", [
       "cms",
@@ -1004,7 +993,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $contributors = [];
     $data = $this->core->FixMissing($data, ["ID", "Type"]);
     $id = $data["ID"];
-    $extension = $this->core->Page("ba17995aafb2074a28053618fb71b912");
+    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     $type = $data["Type"];
     $ck = (!empty($id)) ? 1 : 0;
     $ck2 = (!empty($type)) ? 1 : 0;
@@ -1151,7 +1140,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     ];
    } elseif($st == "DC") {
     $ec = "Accepted";
-    $extension = $this->core->Page("e9f34ca1985c166bf7aa73116a745e92");
+    $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
     if($notAnon == 1) {
      $x = $this->core->Data("Get", [
       "dc",
@@ -1176,7 +1165,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $now = $this->core->timestamp;
     $x = $this->core->DatabaseSet("KB") ?? [];
-    $extension = $this->core->Page("e7c4e4ed0a59537ffd00a2b452694750");
+    $extension = $this->core->Extension("e7c4e4ed0a59537ffd00a2b452694750");
     foreach($x as $key => $value) {
      $value = str_replace("c.oh.knowledge.", "", $value);
      $feedback = $this->core->Data("Get", ["knowledge", $value]) ?? [];
@@ -1209,7 +1198,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "Forums") {
     $ec = "Accepted";
-    $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $forums = $this->core->DatabaseSet("PF") ?? [];
     foreach($forums as $key => $value) {
      $value = str_replace("c.oh.pf.", "", $value);
@@ -1249,7 +1238,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $admin = $data["Admin"] ?? base64_encode("");
     $ec = "Accepted";
     $id = $data["ID"] ?? "";
-    $extension = $this->core->Page("ba17995aafb2074a28053618fb71b912");
+    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     if(!empty($id)) {
      $admin = base64_decode($admin);
      $id = base64_decode($id);
@@ -1300,7 +1289,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      }
     }
     $posts = $forum["Posts"] ?? [];
-    $extension = $this->core->Page("150dcee8ecbe0e324a47a8b5f3886edf");
+    $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
     if($active == 1 || $admin == 1 || $forum["Type"] == "Public") {
      foreach($posts as $key => $value) {
       $_ForumPost = $this->core->GetContentData([
@@ -1377,7 +1366,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "Knowledge") {
     $ec = "Accepted";
-    $extension = $this->core->Page("#");
+    $extension = $this->core->Extension("#");
     $x = $this->core->DatabaseSet("KB");
     foreach($x as $k => $v) {
      $v = str_replace("c.oh.kb.", "", $v);
@@ -1386,7 +1375,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $edit = base64_encode("StatusUpdate:Edit");
     $attlv = base64_encode("LiveView:InlineMossaic");
-    $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
+    $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
     $statusUpdates = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
     foreach($statusUpdates as $key => $value) {
      $_StatusUpdate = $this->core->GetContentData([
@@ -1445,7 +1434,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "MBR") {
     $ec = "Accepted";
     $home = base64_encode("Profile:Home");
-    $extension = $this->core->Page("ba17995aafb2074a28053618fb71b912");
+    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     $x = $this->core->DatabaseSet("MBR") ?? [];
     foreach($x as $key => $value) {
      $value = str_replace("c.oh.mbr.", "", $value);
@@ -1482,7 +1471,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "MBR-ALB") {
     $ec = "Accepted";
-    $extension = $this->core->Page("b6728e167b401a5314ba47dd6e4a55fd");
+    $extension = $this->core->Extension("b6728e167b401a5314ba47dd6e4a55fd");
     if($notAnon == 1) {
      $username = base64_decode($data["UN"]);
      $t = ($username != $you) ? $this->core->Member($username) : $y;
@@ -1532,7 +1521,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "MBR-BLG") {
     $ec = "Accepted";
     $home = base64_encode("Blog:Home");
-    $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     if($notAnon == 1) {
      $blogs = $y["Blogs"] ?? [];
      foreach($blogs as $key => $value) {
@@ -1563,7 +1552,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
-    $extension = $this->core->Page("90bfbfb86908fdc401c79329bedd7df5");
+    $extension = $this->core->Extension("90bfbfb86908fdc401c79329bedd7df5");
     foreach($t["Pages"] as $key => $value) {
      $Page = $this->core->Data("Get", ["pg", $value]) ?? [];
      $st = str_replace("MBR-", "", $st);
@@ -1609,11 +1598,11 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $group = $data["Group"] ?? 0;
     $integrated = $data["Integrated"] ?? 0;
     $oneOnOne = $data["1on1"] ?? 0;
-    $extension = $this->core->Page("343f78d13872e3b4e2ac0ba587ff2910");
+    $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
     if($notAnon == 1) {
      $extension = "343f78d13872e3b4e2ac0ba587ff2910";
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
-     $extension = $this->core->Page($extension);
+     $extension = $this->core->Extension($extension);
      if($group == 1) {
       $groups = $y["GroupChats"] ?? [];
       foreach($groups as $key => $group) {
@@ -1674,7 +1663,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "MBR-Forums") {
     $ec = "Accepted";
     $home = base64_encode("Forum:Home");
-    $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $x = $y["Forums"] ?? [];
     foreach($x as $key => $value) {
      $illegal = $value["Illegal"] ?? 0;
@@ -1693,7 +1682,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "MBR-LLP") {
     $ec = "Accepted";
-    $extension = $this->core->Page("da5c43f7719b17a9fab1797887c5c0d1");
+    $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
      $articles = $y["Pages"] ?? [];
      foreach($articles as $key => $value) {
@@ -1723,7 +1712,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "stream",
      md5(base64_decode($data["UN"]))
     ]) ?? [];
-    $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
+    $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
     foreach($stream as $key => $value) {
      $id = $value["UpdateID"] ?? "";
      $_StatusUpdate = $this->core->GetContentData([
@@ -1765,7 +1754,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]) : "";
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-        "[StatusUpdate.AttachmentsID]" => base64_encode($id),
+        "[StatusUpdate.AttachmentsID]" => base64_encode($value),
         "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
         "[StatusUpdate.DT]" => base64_encode($options["View"]),
@@ -1786,7 +1775,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
-    $extension = $this->core->Page("e15a0735c2cb8fa2d508ee1e8a6d658d");
+    $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $fileSystem = $this->core->Data("Get", [
      "fs",
      md5($t["Login"]["Username"])
@@ -1822,7 +1811,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $une = $un;
     $un = base64_decode($un);
     $t = ($un == $you) ? $y : $this->core->Member($un);
-    $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $shop = $this->core->Data("Get", [
      "shop",
      md5($t["Login"]["Username"])
@@ -1863,7 +1852,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "Data" => "[Media:MiNY]",
      "Display" => 1
     ]);
-    $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $members = $this->core->DatabaseSet("MBR") ?? [];
     foreach($members as $key => $value) {
      $v = $this->core->Data("Get", [
@@ -1915,7 +1904,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "Display" => 1
     ]);
     $ec = "Accepted";
-    $extension = $this->core->Page("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     foreach($blogs as $key => $value) {
      $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
      $bg = $this->core->Data("Get", ["blg", $value]) ?? [];
@@ -1941,7 +1930,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "SHOP") {
     $ec = "Accepted";
-    $extension = $this->core->Page("6d8aedce27f06e675566fd1d553c5d92");
+    $extension = $this->core->Extension("6d8aedce27f06e675566fd1d553c5d92");
     if($notAnon == 1) {
      $b2 = $b2 ?? "Artists";
      $card = base64_encode("Shop:Home");
@@ -1985,7 +1974,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $data["Shop"]
     ]) ?? [];
     $invoicePresets = $shop["InvoicePresets"] ?? [];
-    $extension = $this->core->Page("e9f34ca1985c166bf7aa73116a745e92");
+    $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
     foreach($invoicePresets as $key => $value) {
      $preset = $this->core->Data("Get", [
       "invoice-preset",
@@ -2010,7 +1999,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $data["Shop"]
     ]) ?? [];
     $invoices = $shop["Invoices"] ?? [];
-    $extension = $this->core->Page("e9f34ca1985c166bf7aa73116a745e92");
+    $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
     foreach($invoices as $key => $value) {
      $invoice = $this->core->Data("Get", [
       "invoice",
@@ -2033,7 +2022,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "SHOP-Orders") {
     $ec = "Accepted";
-    $extension = $this->core->Page("504e2a25db677d0b782d977f7b36ff30");
+    $extension = $this->core->Extension("504e2a25db677d0b782d977f7b36ff30");
     $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]) ?? [];
     foreach($purchaseOrders as $key => $value) {
      $member = $this->core->Member($value["UN"]);
@@ -2054,7 +2043,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "StatusUpdates") {
     $ec = "Accepted";
-    $extension = $this->core->Page("18bc18d5df4b3516c473b82823782657");
+    $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
     $x = $this->core->DatabaseSet("SU") ?? [];
     foreach($x as $k => $v) {
      $v = str_replace("c.oh.su.", "", $v);
@@ -2077,7 +2066,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         ]);
         $attachments = $this->core->RenderView($attachments);
        }
-       $op = ($from == $y["Login"]["Username"]) ? $y : $this->core->Member($from);
+       $op = ($from == $you) ? $y : $this->core->Member($from);
        $cms = $this->core->Data("Get", [
         "cms",
         md5($op["Login"]["Username"])
@@ -2145,7 +2134,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "XFS") {
     $ec = "Accepted";
-    $extension = $this->core->Page("e15a0735c2cb8fa2d508ee1e8a6d658d");
+    $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $username = base64_decode($data["UN"]);
     if($this->core->ID == $username) {
      $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
@@ -2202,7 +2191,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    $secureQuery = base64_encode("%$query%");
    $r = $this->core->Change([[
     "[ReSearch.GoHome]" => $goHome
-   ], $this->core->Page("df4f7bc99b9355c34b571946e76b8481")]);
+   ], $this->core->Extension("df4f7bc99b9355c34b571946e76b8481")]);
    if(!empty($query)) {
     $r = $this->core->Change([[
      "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
@@ -2214,7 +2203,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "[ReSearch.Query]" => $query,
      "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products"),
      "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates")
-    ], $this->core->Page("bae5cdfa85bf2c690cbff302ba193b0b")]);
+    ], $this->core->Extension("bae5cdfa85bf2c690cbff302ba193b0b")]);
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]

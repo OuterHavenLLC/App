@@ -128,7 +128,7 @@
    $accessCode = "Denied";
    $buttion = "";
    $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
+   $id = $data["ID"] ?? base64_encode("");
    $new = $data["new"] ?? 0;
    $r = [
     "Body" => "The Article Identifier is missing."
@@ -141,9 +141,8 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
-    $_HC = ($y["Rank"] == md5("High Command")) ? 1 : 0;
     $accessCode = "Accepted";
-    $id = (!empty($id)) ? base64_decode($id) : $id;
+    $id = base64_decode($id);
     $id = ($new == 1) ? md5($you."_PG_".$time) : $id;
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
@@ -179,18 +178,9 @@
     $at4input = ".EditPage$id-ATTP";
     $at4 = base64_encode("Attach to the Article.:$at4input");
     $at4input = "$at4input .rATT";
-    $categories = ($y["Rank"] == md5("High Command")) ? [
+    $categories = [
      "CA" => "Article",
-     "EXT" => "Extension",
-     "JE" => "Journal Entry",
-     "PR" => "Press Release",
-     "TPL-BLG" => "Blog Template",
-     "TPL-CA" => "Community Archive Template"
-    ] : [
-     "CA" => "Article",
-     "JE" => "Journal Entry",
-     "TPL-BLG" => "Blog Template",
-     "TPL-CA" => "Community Archive Template"
+     "JE" => "Journal Entry"
     ];
     $category = $article["Category"] ?? "CA";
     $em = base64_encode("LiveView:EditorMossaic");
@@ -226,7 +216,6 @@
      "[Article.Downloads]" => $attachments,
      "[Article.Downloads.LiveView]" => base64_encode("v=$em&AddTo=$at3input&ID="),
      "[Article.Header]" => $header,
-     "[Article.HighCommand]" => $_HC,
      "[Article.ID]" => $id,
      "[Article.New]" => $new,
      "[Article.Products]" => $products,
@@ -432,13 +421,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "Category",
-    "ID",
-    "New",
-    "Title",
-   ]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $new = $data["New"] ?? 0;
    $r = [
     "Body" => "The Article Identifier is missing.",
@@ -452,12 +435,12 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $category = ($y["Rank"] != md5("High Command") && $category == "EXT") ? "CA" : $data["Category"];
+    $category = $data["Category"] ?? "";
     $i = 0;
     $isPublic = (in_array($category, ["CA", "JE"])) ? 1 : 0;
     $now = $this->core->timestamp;
     $articles = $this->core->DatabaseSet("PG");
-    $title = $data["Title"];
+    $title = $data["Title"] ?? "";
     foreach($articles as $key => $value) {
      $article = str_replace("c.oh.pg.", "", $value);
      $article = $this->core->Data("Get", ["pg", $article]) ?? [];
@@ -477,7 +460,7 @@
      $coverPhotoSource = "";
      $attachments = $article["Attachments"] ?? [];
      $author = $article["UN"] ?? $you;
-     $newCategory = ($category == "EXT") ? "Extention" : "Article";
+     $newCategory = "Article";
      $newCategory = ($category == "JE") ? "Journal Entry" : $newCategory;
      $contributors = $article["Contributors"] ?? [];
      $contributors[$author] = "Admin";
@@ -547,7 +530,6 @@
        $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
       }
      }
-     $highCommand = ($y["Rank"] == md5("High Command")) ? 1 : 0;
      $article = [
       "Attachments" => array_unique($attachments),
       "Body" => $this->core->PlainText([
@@ -559,7 +541,6 @@
       "Contributors" => $contributors,
       "Created" => $created,
       "Description" => htmlentities($data["Description"]),
-      "High Command" => $highCommand,
       "ICO" => $coverPhoto,
       "ICO-SRC" => base64_encode($coverPhotoSource),
       "ID" => $id,
@@ -662,15 +643,15 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
+   $pin = $data["PIN"] ?? "";
    $r = [
     "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
+   if(md5($pin) != $y["Login"]["PIN"]) {
     $r = [
      "Body" => "The PINs do not match.",
      "Header" => "Error"

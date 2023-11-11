@@ -57,13 +57,11 @@
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Profile"];
     $search = base64_encode("Search:Containers");
     $template = $post["TPL"] ?? "";
-    $templateOptions = $this->core->DatabaseSet("PG") ?? [];
+    $templateOptions = $this->core->Extensions();
     $templates = [];
     foreach($templateOptions as $key => $value) {
-     $value = str_replace("c.oh.pg.", "", $value);
-     $t = $this->core->Data("Get", ["pg", $value]) ?? [];
-     if($t["Category"] == "TPL-CA") {
-      $templates[$value] = $t["Title"];
+     if($value["Category"] == "BlogTemplate") {
+      $templates[$key] = $value["Title"];
      }
     }
     $title = $post["Title"] ?? "";

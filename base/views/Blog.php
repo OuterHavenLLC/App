@@ -127,14 +127,12 @@
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
     $template = $blog["TPL"] ?? "";
-    $templateOptions = $this->core->DatabaseSet("PG") ?? [];
+    $templateOptions = $this->core->Extensions();
     $templates = [];
     $title = $blog["Title"] ?? "";
     foreach($templateOptions as $key => $value) {
-     $value = str_replace("c.oh.pg.", "", $value);
-     $t = $this->core->Data("Get", ["pg", $value]) ?? [];
-     if($t["Category"] == "TPL-BLG") {
-      $templates[$value] = $t["Title"];
+     if($value["Category"] == "BlogTemplate") {
+      $templates[$key] = $value["Title"];
      }
     }
     $r = $this->core->Change([[
