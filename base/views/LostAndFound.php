@@ -11,7 +11,7 @@
      "[LostAndFound.Options.Password]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPassword")),
      "[LostAndFound.Options.PIN]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPIN")),
      "[LostAndFound.Options.Username]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername"))
-    ], $this->core->Page("65c5bed973a21411e6167bbdc721bbe4")])
+    ], $this->core->Extension("65c5bed973a21411e6167bbdc721bbe4")])
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -49,7 +49,7 @@
     $r = $this->core->Change([[
      "[Success.Message]" => "Your provisional password is <strong>$password</strong>. We recommend changing this password as soon as possible for your security.",
      "[Success.ViewPairID]" => "LostAndFound",
-    ], $this->core->Page("d4449b01c6da01613cff89e6cf723ad1")]);
+    ], $this->core->Extension("d4449b01c6da01613cff89e6cf723ad1")]);
    } else {
     $r = $this->core->Change([[
      "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
@@ -58,7 +58,7 @@
       "View" => "RecoverPassword"
      ])),
      "[LostAndFound.Recovery.Type]" => "Password"
-    ], $this->core->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
+    ], $this->core->Extension("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -96,7 +96,7 @@
     $r = $this->core->Change([[
      "[Success.Message]" => "Use <strong>$pin</strong> the next time a PIN is required. We also recommend changing this provisional PIN as soon as possible for your security.",
      "[Success.ViewPairID]" => "LostAndFound",
-    ], $this->core->Page("d4449b01c6da01613cff89e6cf723ad1")]);
+    ], $this->core->Extension("d4449b01c6da01613cff89e6cf723ad1")]);
    } else {
     $r = $this->core->Change([[
      "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
@@ -105,7 +105,7 @@
       "View" => "RecoverPIN"
      ])),
      "[LostAndFound.Recovery.Type]" => "PIN"
-    ], $this->core->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
+    ], $this->core->Extension("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -139,7 +139,7 @@
     $r = $this->core->Change([[
      "[Success.Message]" => "Welcome back, <strong>$username</strong>! You may now sign in to your profile.",
      "[Success.ViewPairID]" => "LostAndFound",
-    ], $this->core->Page("d4449b01c6da01613cff89e6cf723ad1")]);
+    ], $this->core->Extension("d4449b01c6da01613cff89e6cf723ad1")]);
    } else {
     $r = $this->core->Change([[
      "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
@@ -148,7 +148,7 @@
       "View" => "RecoverUsername"
      ])),
      "[LostAndFound.Recovery.Type]" => "Username"
-    ], $this->core->Page("84e04efba2e596a97d2ba5f2762dd60b")]);
+    ], $this->core->Extension("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

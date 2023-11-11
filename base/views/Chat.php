@@ -174,7 +174,7 @@
      "[Chat.Title]" => base64_encode($title),
      "[Chat.Visibility.NSFW]" => $nsfw,
      "[Chat.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("eb169be369e5497344f98d826aea4e7d")]);
+    ], $this->core->Extension("eb169be369e5497344f98d826aea4e7d")]);
     $r = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
@@ -287,7 +287,7 @@
        "[Chat.Options]" => $options,
        "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
        "[Chat.Title]" => $chat["Title"],
-      ], $this->core->Page("5252215b917d920d5d2204dd5e3c8168")]);
+      ], $this->core->Extension("5252215b917d920d5d2204dd5e3c8168")]);
      } elseif($oneOnOne == 1) {
       $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
        "Chat" => 1,
@@ -337,7 +337,7 @@
         "Display" => 1
        ]),
        "[Message.Sent]" => $this->core->TimeAgo($message["Timestamp"])
-      ], $this->core->Page("1f4b13bf6e6471a7f5f9743afffeecf9")]);
+      ], $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9")]);
      }
      $r = [
       "Front" => $r
@@ -345,7 +345,7 @@
     } elseif($paidMessages == 1) {
      $accessCode = "Accepted";
      $chat = $this->core->Data("Get", ["chat", $chatID]) ?? [];
-     $extension = $this->core->Page("PaidMessage");
+     $extension = $this->core->Extension("PaidMessage");
      $messages = $chat["Messages"] ?? [];
      $r = "";
      foreach($messages as $key => $value) {
@@ -408,7 +408,7 @@
        "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
        "[Chat.To]" => $to,
        "[Chat.Type]" => $group
-      ], $this->core->Page($extension)]);
+      ], $this->core->Extension($extension)]);
       $r = ($card == 1) ? [
        "Front" => $r
       ] : $r;
@@ -430,12 +430,12 @@
    $group = $data["Group"] ?? 0;
    $id = $data["ID"] ?? "";
    $oneOnOne = $data["1on1"] ?? 0;
-   $r = $this->core->Page("2ce9b2d2a7f5394df6a71df2f0400873");
+   $r = $this->core->Extension("2ce9b2d2a7f5394df6a71df2f0400873");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $chat = [];
-    $extension = $this->core->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
+    $extension = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
     $id = base64_decode($id);
     if($group == 1) {
      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
@@ -538,7 +538,7 @@
      "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=MBR-GroupChat"),
      "[Chat.New]" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you)),
      "[Chat.ID]" => md5($you)
-    ], $this->core->Page("2e1855b9baa7286162fb571c5f80da0f")]);
+    ], $this->core->Extension("2e1855b9baa7286162fb571c5f80da0f")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

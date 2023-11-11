@@ -67,7 +67,7 @@
      "[File.Privacy]" => $privacy,
      "[File.Title]" => base64_encode($title),
      "[File.Username]" => $username
-    ], $this->core->Page("7c85540db53add027bddeb42221dd104")]);
+    ], $this->core->Extension("7c85540db53add027bddeb42221dd104")]);
     $action = $this->core->Element(["button", "Update", [
      "class" => "CardButton SendData",
      "data-form" => ".EditFile$id",
@@ -221,7 +221,7 @@
        "[Conversation.CRIDE]" => base64_encode($id),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[File.Description]" => $file["Description"],
       "[File.Extension]" => $file["EXT"],
       "[File.ID]" => $id,
@@ -243,7 +243,7 @@
       "[File.Type]" => $file["Type"],
       "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
       "[File.Votes]" => $votes
-     ], $this->core->Page("c31701a05a48069702cd7590d31ebd63")]);
+     ], $this->core->Extension("c31701a05a48069702cd7590d31ebd63")]);
     }
    }
    $r = ($data["CARD"] == 1) ? [
@@ -717,7 +717,7 @@
         "[Upload.Options]" => $options,
         "[Upload.Processor]" => base64_encode("v=".base64_encode("File:SaveUpload")),
         "[Upload.Title]" => $title
-       ], $this->core->Page("bf6bb3ddf61497a81485d5eded18e5f8")])
+       ], $this->core->Extension("bf6bb3ddf61497a81485d5eded18e5f8")])
       ];
      }
     }

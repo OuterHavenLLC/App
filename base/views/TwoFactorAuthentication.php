@@ -52,7 +52,7 @@
       "[2FA.Step2]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
       "[2FA.ReturnView]" => $data["ReturnView"],
       "[2FA.ViewPairID]" => $data["ViewPairID"]
-     ], $this->core->Page("ab9d092807adfadc3184c8ab844a1406")]);
+     ], $this->core->Extension("ab9d092807adfadc3184c8ab844a1406")]);
     }
    } elseif($ck == 1) {
     $_VerificationCode = md5($data["2FA"]);
@@ -208,7 +208,7 @@
        "[2FA.Step2]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
        "[2FA.ReturnView]" => $data["ReturnView"],
        "[2FA.ViewPairID]" => $data["ViewPairID"]
-      ], $this->core->Page("e0513cfec7f3f4505d30c0c854e9dac2")]);
+      ], $this->core->Extension("e0513cfec7f3f4505d30c0c854e9dac2")]);
      }
     } elseif($ck == 1) {
      $accessCode = "Accepted";

@@ -55,7 +55,7 @@
      //END TEMP
      "[Article.Body]" => $body,
      "[Article.Categories]" => json_encode($categories, true),
-     "[Article.Category]" => $category,
+     "[Article.Category]" => base64_decode($category),
      "[Article.Description]" => $description,
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,

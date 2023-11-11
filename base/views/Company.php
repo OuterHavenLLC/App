@@ -21,7 +21,7 @@
     "[Donate.45]" => base64_encode($donate.base64_encode(45)),
     "[Donate.1000]" => base64_encode($donate.base64_encode(1000)),
     "[Donate.2000]" => base64_encode($donate.base64_encode(2000))
-   ], $this->core->Page("39e1ff34ec859482b7e38e012f81a03f")]);
+   ], $this->core->Extension("39e1ff34ec859482b7e38e012f81a03f")]);
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
@@ -53,7 +53,7 @@
     "[App.Shop]" => "OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
     "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
     "[App.VVA]" => "OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
-   ], $this->core->Page("0a24912129c7df643f36cb26038300d6")]);
+   ], $this->core->Extension("0a24912129c7df643f36cb26038300d6")]);
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
@@ -113,7 +113,7 @@
      "[Email.ID]" => $id,
      "[Email.SecureTitle]" => base64_encode($title),
      "[Email.Title]" => $title
-    ], $this->core->Page("81ccdda23bf18e557bc0ba3071c1c2d4")]);
+    ], $this->core->Extension("81ccdda23bf18e557bc0ba3071c1c2d4")]);
     $r = [
      "Action" => $button,
      "Front" => $r
@@ -137,7 +137,7 @@
    ]) ?? [];
    $partners = $shop["Contributors"] ?? [];
    $partnersList = "";
-   $template = $this->core->Page("a10a03f2d169f34450792c146c40d96d");
+   $template = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
    foreach($partners as $key => $value) {
     $partnersList .= $this->core->Change([[
      "[IncomeDisclosure.Partner.Company]" => $value["Company"],
@@ -148,7 +148,7 @@
    }
    $r = $this->core->Change([[
     "[Partners.Table]" => $partnersList
-   ], $this->core->Page("2c726e65e5342489621df8fea850dc47")]);
+   ], $this->core->Extension("2c726e65e5342489621df8fea850dc47")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -235,9 +235,9 @@
    $accessCode = "Accepted";
    $st = "";
    $statistics = $this->core->Data("Get", ["app", "stats"]) ?? [];
-   $tpl = $this->core->Page("676193c49001e041751a458c0392191f");
-   $tpl2 = $this->core->Page("a936651004efc98932b63c2d684715f8");
-   $tpl3 = $this->core->Page("d019a2b62accac6e883e04b358953f3f");
+   $tpl = $this->core->Extension("676193c49001e041751a458c0392191f");
+   $tpl2 = $this->core->Extension("a936651004efc98932b63c2d684715f8");
+   $tpl3 = $this->core->Extension("d019a2b62accac6e883e04b358953f3f");
    foreach($statistics as $key => $value) {
     $stk = "";
     foreach($value as $key2 => $value2) {
@@ -263,7 +263,7 @@
    }
    $r = $this->core->Change([[
     "[Statistics.Table]" => $st
-   ], $this->core->Page("0ba6b9256b4c686505aa66d23bec6b5c")]);
+   ], $this->core->Extension("0ba6b9256b4c686505aa66d23bec6b5c")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -292,7 +292,7 @@
    $r = $this->core->Change([[
     "[VVA.Back]" => $back,
     "[VVA.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID))
-   ], $this->core->Page("a7977ac51e7f8420f437c70d801fc72b")]);
+   ], $this->core->Extension("a7977ac51e7f8420f437c70d801fc72b")]);
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r
    ] : $r;

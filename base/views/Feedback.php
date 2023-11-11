@@ -34,7 +34,7 @@
       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title,
       "[Feedback.UseParaphrasedQuestion]" => $feedback["UseParaphrasedQuestion"]
-     ], $this->core->Page("56718d75fb9ac2092c667697083ec73f")]);
+     ], $this->core->Extension("56718d75fb9ac2092c667697083ec73f")]);
     }
     $r = [
      "Action" => $action,
@@ -46,7 +46,7 @@
      "[Error.Back]" => "",
      "[Error.Header]" => "Let's Talk!",
      "[Error.Message]" => "We want to hear from you, send us your feedback."
-    ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+    ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
     $r .= $this->core->Element([
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
     ]).$this->core->Element([
@@ -71,7 +71,7 @@
       "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title
-     ], $this->core->Page("599e260591d6dca59a8e0a52f5bd64be")]);
+     ], $this->core->Extension("599e260591d6dca59a8e0a52f5bd64be")]);
     }
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
@@ -101,7 +101,7 @@
      "[Feedback.Email]" => base64_encode($y["Personal"]["Email"]),
      "[Feedback.ID]" => $id,
      "[Feedback.Name]" => base64_encode($y["Personal"]["FirstName"])
-    ], $this->core->Page("2b5ca0270981e891ce01dba62ef32fe4")])
+    ], $this->core->Extension("2b5ca0270981e891ce01dba62ef32fe4")])
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -241,7 +241,7 @@
        ]),
        "[Email.Name]" => $feedback["Name"],
        "[Email.Link]" => $this->core->base."/feedback/$id"
-      ], $this->core->Page("dc901043662c5e71b5a707af782fdbc1")]),
+      ], $this->core->Extension("dc901043662c5e71b5a707af782fdbc1")]),
       "Title" => "Re: ".$feedback["Subject"],
       "To" => $feedback["Email"]
      ]);
@@ -266,7 +266,7 @@
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = [
-    "Scrollable" => $this->core->Page("2ce9b2d2a7f5394df6a71df2f0400873")
+    "Scrollable" => $this->core->Extension("2ce9b2d2a7f5394df6a71df2f0400873")
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -275,7 +275,7 @@
     $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
     $r = "";
     $thread = $feedback["Thread"] ?? [];
-    $tpl = $this->core->Page("1f4b13bf6e6471a7f5f9743afffeecf9");
+    $tpl = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
     foreach($thread as $key => $message) {
      $class = ($message["From"] != $you) ? "MSGt" : "MSGy";
      $r .= $this->core->Change([[

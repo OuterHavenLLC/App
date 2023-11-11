@@ -50,7 +50,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&UN=$you"),
        "[Extras.ID]" => $conversationID,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($conversationID))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Conversation.Attachments]" => $attachments,
      "[Conversation.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
@@ -67,7 +67,7 @@
      "[Conversation.ReplyingTo]" => $replyingTo,
      "[Conversation.Visibility.NSFW]" => $nsfw,
      "[Conversation.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("0426a7fc6b31e5034b6c2cec489ea638")]);
+    ], $this->core->Extension("0426a7fc6b31e5034b6c2cec489ea638")]);
     $r = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
@@ -115,10 +115,10 @@
     $vote = base64_encode("Vote:Containers");
     if($level == 1) {
      # COMMENTS
-     $extension = $this->core->Page("8938c49b85c52a5429cc8a9f46c14616");
+     $extension = $this->core->Extension("8938c49b85c52a5429cc8a9f46c14616");
      $r = $this->core->Change([[
       "[Comment.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&new=1")
-     ], $this->core->Page("97e7d7d9a85b30e10ab51b23623ccee5")]);
+     ], $this->core->Extension("97e7d7d9a85b30e10ab51b23623ccee5")]);
      foreach($conversation as $key => $value) {
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
@@ -172,14 +172,14 @@
      }
      $commentType .= $this->core->Change([[
       "[Reply.Editor]" => base64_encode("v=$edit&CommentID=".base64_encode($commentID)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&new=1")
-     ], $this->core->Page("5efa423862a163dd55a2785bc7327727")]);
+     ], $this->core->Extension("5efa423862a163dd55a2785bc7327727")]);
      $r = ($i > 0) ? $commentType : $r;
     } elseif($level == 2) {
      # REPLIES
-     $extension = $this->core->Page("ccf260c40f8fa63be5686f5ceb2b95b1");
+     $extension = $this->core->Extension("ccf260c40f8fa63be5686f5ceb2b95b1");
      $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
-     $r = $this->core->Page("cc3c7b726c1d7f9c50f5f7869513bd80");
+     $r = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
      foreach($conversation as $key => $value) {
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
@@ -235,13 +235,13 @@
     $r .= $this->core->Change([[
      "[Reply.DisplayName]" => $display,
      "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
-    ], $this->core->Page("f6876eb53ff51bf537b1b1848500bdab")]);
+    ], $this->core->Extension("f6876eb53ff51bf537b1b1848500bdab")]);
    } elseif($level == 3) {
      # REPLIES TO REPLIES
-     $extension = $this->core->Page("3847a50cd198853fe31434b6f4e922fd");
+     $extension = $this->core->Extension("3847a50cd198853fe31434b6f4e922fd");
      $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
-     $r = $this->core->Page("cc3c7b726c1d7f9c50f5f7869513bd80");
+     $r = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
      foreach($conversation as $key => $value) {
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
@@ -296,7 +296,7 @@
      $r .= $this->core->Change([[
       "[Reply.DisplayName]" => $display,
      "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
-     ], $this->core->Page("f6876eb53ff51bf537b1b1848500bdab")]);
+     ], $this->core->Extension("f6876eb53ff51bf537b1b1848500bdab")]);
     }
    }
    return $this->core->JSONResponse([

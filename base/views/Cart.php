@@ -90,7 +90,7 @@
        "[AddToCart.Product.Quantity]" => $quantity,
        "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
        "[AddToCart.Shop.Owner]" => $t["Login"]["Username"]
-      ], $this->core->Page("624bcc664e9bff0002e01583e7706d83")]);
+      ], $this->core->Extension("624bcc664e9bff0002e01583e7706d83")]);
       if(($category == "Product") && $t["Login"]["Username"] == $you) {
        $r = $this->core->Element([
         "p", "Physical orders are disabled as you own this shop.",
@@ -133,7 +133,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $r = [
-    "Scrollable" => $this->core->Page("8b3e21c565a8220fb6eb0a4433fe0739")
+    "Scrollable" => $this->core->Extension("8b3e21c565a8220fb6eb0a4433fe0739")
    ];
    $username = base64_decode($data["UN"]);
    $y = $this->you;
@@ -156,7 +156,7 @@
       "[CreditExchange.Points]" => $points,
       "[CreditExchange.Processor]" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P="),
       "[CreditExchange.YourPoints]" => $y["Points"]
-     ], $this->core->Page("b9c61e4806cf07c0068f1721678bef1e")]);
+     ], $this->core->Extension("b9c61e4806cf07c0068f1721678bef1e")]);
     }
     $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? 0;
     $discountCodes = ($discountCodes == 0) ? $this->core->Change([
@@ -165,7 +165,7 @@
       "[DiscountCodes.Points]" => $points,
       "[DiscountCodes.Processor]" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
       "[DiscountCodes.Shop.Title]" => $shop["Title"]
-     ], $this->core->Page("0511fae6fcc6f9c583dfe7669b0217cc")
+     ], $this->core->Extension("0511fae6fcc6f9c583dfe7669b0217cc")
     ]) : $this->core->Element([
      "p", "<em>".base64_decode($discountCodes["Code"])."</em> was applied to your order!",
      ["class" => "CenterText"]
@@ -177,7 +177,7 @@
      "[Cart.Shop.ID]" => $id,
      "[Cart.Shop.Title]" => $shop["Title"],
      "[Cart.Summary]" => base64_encode("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])
-    ], $this->core->Page("ac678179fb0fb0c66cd45d738991abb9")]);
+    ], $this->core->Extension("ac678179fb0fb0c66cd45d738991abb9")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -204,7 +204,7 @@
      "[RemoveFromCart.ProductID]" => $data["ProductID"],
      "[RemoveFromCart.ShopID]" => $data["ShopID"],
      "[RemoveFromCart.Remove]" => base64_encode("Cart:SaveRemove")
-    ], $this->core->Page("554566eff3c7949301784c2be0a6be07")]);
+    ], $this->core->Extension("554566eff3c7949301784c2be0a6be07")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -373,7 +373,7 @@
     "[Cart.Summary.Subtotal]" => number_format($subtotal, 2),
     "[Cart.Summary.Tax]" => number_format($tax, 2),
     "[Cart.Summary.Total]" => number_format($tax + $total, 2)
-   ], $this->core->Page("94eb319f456356da1d6e102670686a29")]);
+   ], $this->core->Extension("94eb319f456356da1d6e102670686a29")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

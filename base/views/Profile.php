@@ -91,7 +91,7 @@
    $y = $this->you;
    $r = $this->core->Change([[
     "[Blacklist.Categories]" => base64_encode("v=".base64_encode("Profile:BlacklistCategories"))
-   ], $this->core->Page("03d53918c3da9fbc174f94710182a8f2")]);
+   ], $this->core->Extension("03d53918c3da9fbc174f94710182a8f2")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -107,7 +107,7 @@
    $r = $this->core->Change([[
     "[BulletinCenter.Bulletins]" => base64_encode("v=$search&st=Bulletins"),
     "[BulletinCenter.ContactRequests]" => base64_encode("v=$search&Chat=0&st=ContactsRequests")
-   ], $this->core->Page("6cbe240071d79ac32edbe98679fcad39")]);
+   ], $this->core->Extension("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -317,7 +317,7 @@
   function Bulletins(array $a) {
    $accessCode = "Denied";
    $r = [];
-   $tpl = $this->core->Page("ae30582e627bc060926cfacf206920ce");
+   $tpl = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
@@ -582,7 +582,7 @@
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$displayName keeps their media albums to themselves."
-     ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Albums"] == $public || $visible == 1) {
       $albums = $this->view($search, ["Data" => [
        "UN" => base64_encode($id),
@@ -594,7 +594,7 @@
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$displayName keeps their archive contributions to themselves."
-     ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Archive"] == $public || $visible == 1) {
       $articles = $this->view($search, ["Data" => [
        "UN" => base64_encode($id),
@@ -608,7 +608,7 @@
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$displayName keeps their blogs to themselves."
-     ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Posts"] == $public || $visible == 1) {
       $blogs = $this->view($search, ["Data" => [
        "UN" => base64_encode($id),
@@ -623,7 +623,7 @@
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$displayName keeps their contacts to themselves."
-     ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Contacts"] == $public || $visible == 1) {
       $contacts = $this->view($search, ["Data" => [
        "UN" => base64_encode($id),
@@ -674,7 +674,7 @@
          ]),
          "[ContactRequest.Text]" => "Cancel the contact request you snet to $display.",
          "[ContactRequest.Username]" => $id
-        ], $this->core->Page("a73ffa3f28267098851bf3550eaa9a02")]);
+        ], $this->core->Extension("a73ffa3f28267098851bf3550eaa9a02")]);
        } else {
         $addContact = $this->core->Change([[
          "[ContactRequest.Header]" => "Add $displayName",
@@ -688,7 +688,7 @@
          ]),
          "[ContactRequest.Text]" => "Send $displayName a Contact Request.",
          "[ContactRequest.Username]" => $id
-        ], $this->core->Page("a73ffa3f28267098851bf3550eaa9a02")]);
+        ], $this->core->Extension("a73ffa3f28267098851bf3550eaa9a02")]);
        }
       }
       $addContact = ($you != $this->core->ID) ? $addContact : "";
@@ -713,7 +713,7 @@
         "[Ranks.Options]" => json_encode($ranks, true),
         "[Ranks.Username]" => $id,
         "[Ranks.YourRank]" => $y["Rank"]
-       ], $this->core->Page("914dd9428c38eecf503e3a5dda861559")]);
+       ], $this->core->Extension("914dd9428c38eecf503e3a5dda861559")]);
       }
      }
      $gender = $member["Personal"]["Gender"] ?? "Male";
@@ -722,7 +722,7 @@
       "[Error.Back]" => "",
       "[Error.Header]" => "Forbidden",
       "[Error.Message]" => "$displayName keeps their Journal to themselves."
-     ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if($ck == 1 || $privacy["Journal"] == $public || $visible == 1) {
       $journal = $this->view($search, ["Data" => [
        "UN" => base64_encode($id),
@@ -755,17 +755,17 @@
        "[Conversation.CRIDE]" => base64_encode(md5($id)),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[Member.Description]" => $_Member["ListItem"]["Description"],
       "[Member.DisplayName]" => $displayName,
-      "[Member.Footer]" => $this->core->Page("a095e689f81ac28068b4bf426b871f71"),
+      "[Member.Footer]" => $this->core->Extension("a095e689f81ac28068b4bf426b871f71"),
       "[Member.ID]" => md5($id),
       "[Member.Journal]" => $journal,
       "[Member.ProfilePicture]" => $options["ProfilePicture"],
       "[Member.Share]" => $share,
       "[Member.Stream]" => base64_encode("v=$search&UN=".base64_encode($id)."&st=MBR-SU"),
       "[Member.Votes]" => $options["Vote"]
-     ], $this->core->Page("72f902ad0530ad7ed5431dac7c5f9576")]);
+     ], $this->core->Extension("72f902ad0530ad7ed5431dac7c5f9576")]);
     }
    }
    $r = ($card == 1) ? [
@@ -881,7 +881,7 @@
      "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
      "[Member.Update]" => base64_encode("v=".base64_encode("Profile:SavePassword")),
      "[Member.Username]" => $y["Login"]["Username"]
-    ], $this->core->Page("08302aec8e47d816ea0b3f80ad87503c")]);
+    ], $this->core->Extension("08302aec8e47d816ea0b3f80ad87503c")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -906,7 +906,7 @@
      "[Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:5%;width:90%"),
      "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
      "[Member.Update]" => base64_encode("v=".base64_encode("Profile:SavePIN"))
-    ], $this->core->Page("867bd8480f46eea8cc3d2a2ed66590b7")]);
+    ], $this->core->Extension("867bd8480f46eea8cc3d2a2ed66590b7")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1000,7 +1000,7 @@
      "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
      "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
      "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"]
-    ], $this->core->Page("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
+    ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
    $r = [
     "Action" => $action,
@@ -1401,9 +1401,9 @@
     if(!empty($data["Email"])) {
      $this->core->SendEmail([
       "Message" => $this->core->Change([[
-       "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+       "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
        "[Email.Name]" => $name
-      ], $this->core->Page("35fb42097f5a625e9bd0a38554226743")]),
+      ], $this->core->Extension("35fb42097f5a625e9bd0a38554226743")]),
       "Title" => "Welcome to ".$this->core->config["App"]["Name"]."!",
       "To" => $data["Email"]
      ]);
@@ -1412,12 +1412,12 @@
     $r = $this->core->Change([[
      "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
      "[Success.Username]" => $username
-    ], $this->core->Page("872fd40c7c349bf7220293f3eb64ab45")]);
+    ], $this->core->Extension("872fd40c7c349bf7220293f3eb64ab45")]);
    } if($accessCode != "Accepted") {
     $r = $this->core->Change([[
      "[2FA.Error.Message]" => $r,
      "[2FA.Error.ViewPairID]" => "2FAStep1"
-    ], $this->core->Page("ef055d5546ab5fead63311a3113f3f5f")]);
+    ], $this->core->Extension("ef055d5546ab5fead63311a3113f3f5f")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1439,7 +1439,7 @@
      ]])
     ],
     "Header" => "Sign In",
-    "Scrollable" => $this->core->Page("ff434d30a54ee6d6bbe5e67c261b2005")
+    "Scrollable" => $this->core->Extension("ff434d30a54ee6d6bbe5e67c261b2005")
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1469,7 +1469,7 @@
       "Group" => "Profile",
       "View" => "SaveSignUp"
      ], true))
-    ], $this->core->Page("c48eb7cf715c4e41e2fb62bdfa60f198")])
+    ], $this->core->Extension("c48eb7cf715c4e41e2fb62bdfa60f198")])
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

@@ -84,7 +84,7 @@
       "Data" => "[Media:Congress]",
       "Display" => 1
      ])
-    ], $this->core->Page("8a38a3053ce5449ca2d321719f5aea0f")]);
+    ], $this->core->Extension("8a38a3053ce5449ca2d321719f5aea0f")]);
    }
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
@@ -227,7 +227,7 @@
       "[Content.ID]" => base64_encode($id),
       "[Content.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
       "[Content.Title]" => $title
-     ], $this->core->Page("0eaea9fae43712d8c810c737470021b3")]);
+     ], $this->core->Extension("0eaea9fae43712d8c810c737470021b3")]);
     }
     $r = [
      "Front" => $r

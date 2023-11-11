@@ -39,11 +39,11 @@
    $you = $y["Login"]["Username"];
    if(!empty($username)) {
     $accessCode = "Accepted";
-    $_Day = $this->core->Page("ca72b0ed3686a52f7db1ae3b2f2a7c84");
-    $_Month = $this->core->Page("2044776cf5f8b7307b3c4f4771589111");
-    $_Partner = $this->core->Page("a10a03f2d169f34450792c146c40d96d");
-    $_Sale = $this->core->Page("a2adc6269f67244fc703a6f3269c9dfe");
-    $_Year = $this->core->Page("676193c49001e041751a458c0392191f");
+    $_Day = $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84");
+    $_Month = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
+    $_Partner = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
+    $_Sale = $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe");
+    $_Year = $this->core->Extension("676193c49001e041751a458c0392191f");
     $username = base64_decode($username);
     $income = $this->core->Data("Get", ["id", md5($username)]) ?? [];
     $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
@@ -120,7 +120,7 @@
      "[IncomeDisclosure.DisplayName]" => $t["Personal"]["DisplayName"],
      "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
      "[IncomeDisclosure.Table]" => $yearTable
-    ], $this->core->Page("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
+    ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
@@ -222,7 +222,7 @@
       "[Subscribe.Processor]" => $processor,
       "[Subscribe.Text]" => $text,
       "[Subscribe.Title]" => $title
-     ], $this->core->Page("489a64595f3ec2ec39d1c568cd8a8597")]);
+     ], $this->core->Extension("489a64595f3ec2ec39d1c568cd8a8597")]);
     }
    }
    return $this->core->JSONResponse([

@@ -134,7 +134,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Forum.About]" => base64_encode($about),
      "[Forum.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
@@ -147,7 +147,7 @@
      "[Forum.New]" => $new,
      "[Forum.Title]" => base64_encode($title),
      "[Forum.Type]" => $type
-    ], $this->core->Page("8304362aea73bddb2c12eb3f7eb226dc")]);
+    ], $this->core->Extension("8304362aea73bddb2c12eb3f7eb226dc")]);
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditForum$id",
@@ -286,7 +286,7 @@
       "[Forum.Stream]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=Forums-Posts"),
       "[Forum.Title]" => $forum["Title"],
       "[Forum.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
-     ], $this->core->Page("4159d14e4e8a7d8936efca6445d11449")]);
+     ], $this->core->Extension("4159d14e4e8a7d8936efca6445d11449")]);
     }
    }
    $r = ($card == 1) ? [
@@ -340,7 +340,7 @@
      "[Invite.Content]" => json_encode($content, true),
      "[Invite.ID]" => $id,
      "[Invite.Member]" => $member
-    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
+    ], $this->core->Extension("80e444c34034f9345eee7399b4467646")]);
     $r = [
      "Action" => $action,
      "Front" => $r

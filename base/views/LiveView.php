@@ -57,7 +57,7 @@
          "T" => $f[0],
          "Y" => $you
         ])
-       ], $this->core->Page("8d25bf64ec06d4600180aa5881215a73")]);
+       ], $this->core->Extension("8d25bf64ec06d4600180aa5881215a73")]);
       }
      }
     }
@@ -102,7 +102,7 @@
        ]),
        "[Attachment.Title]" => $efs[$f[1]]["Title"],
        "[Attachment.View]" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
-      ], $this->core->Page("63668c4c623066fa275830696fda5b4a")]);
+      ], $this->core->Extension("63668c4c623066fa275830696fda5b4a")]);
       $i2++;
      }
     }
@@ -145,7 +145,7 @@
         "[Attachment.Preview]" => $this->core->CoverPhoto($coverPhoto),
         "[Attachment.Title]" => $p["Title"],
         "[Attachment.View]" => base64_encode("v=".base64_encode("Product:Home")."&ID=".$p["ID"])
-       ], $this->core->Page("63668c4c623066fa275830696fda5b4a")]);
+       ], $this->core->Extension("63668c4c623066fa275830696fda5b4a")]);
        $i2++;
       }
      }
@@ -241,7 +241,7 @@
           "HTMLDecode" => 1
          ]),
          "[X.LI.DT]" => base64_encode("v=".base64_encode("Product:Home")."&CS=".$this->core->CallSign($product["Title"])."&CARD=1&UN=".base64_encode($p[0]))
-        ], $this->core->Page("ed27ee7ba73f34ead6be92293b99f844")]);//NEW
+        ], $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844")]);//NEW
        }
       }
      }

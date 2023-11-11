@@ -88,7 +88,7 @@
      "[Contact.ProfilePicture]" => $profilePicture,
      "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save")),
      "[Contact.Username]" => $username
-    ], $this->core->Page("297c6906ec2f4cb2013789358c5ea77b")]);
+    ], $this->core->Extension("297c6906ec2f4cb2013789358c5ea77b")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

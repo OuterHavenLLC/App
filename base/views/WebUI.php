@@ -12,17 +12,17 @@
    $content = $data["Content"] ?? $content;
    $r = $this->core->Change([[
     "[App.Content]" => $content
-   ], $this->core->Page("606c44e9e7eac67c34c5ad8d1062b003")]);
+   ], $this->core->Extension("606c44e9e7eac67c34c5ad8d1062b003")]);
    $type = $data["Type"] ?? "";
    if($type == "Chat") {
     $r = $this->core->Change([[
      "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))
-    ], $this->core->Page("988e96fd9025b718f43ad357dc25247d")]);
+    ], $this->core->Extension("988e96fd9025b718f43ad357dc25247d")]);
    } elseif($type == "ReSearch") {
     $r = $this->core->Change([[
      "[App.Content]" => $content,
      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
-    ], $this->core->Page("937560239a386533aecf5017371f4d34")]);
+    ], $this->core->Extension("937560239a386533aecf5017371f4d34")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -68,7 +68,7 @@
       "[Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:5%;width:90%"),
       "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
       "[Member.PIN]" => $y["Login"]["PIN"]
-     ], $this->core->Page("723a9e510879c2c16bf9690ffe7273b5")])
+     ], $this->core->Extension("723a9e510879c2c16bf9690ffe7273b5")])
     ];
    }
    return $this->core->JSONResponse([
@@ -97,7 +97,7 @@
     "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
     "[Admin.Server]" => "https://www.digitalocean.com/",
     "[Admin.WHM]" => "https://admin.outerhaven.nyc:2087/"
-   ], $this->core->Page("5c1ce5c08e2add4d1487bcd2193315a7")]) : "";
+   ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]) : "";
    $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->core->Element([
     "button", "Shop", [
      "class" => "CloseNetMap LI UpdateContent",
@@ -166,7 +166,7 @@
    }
    $r = $this->core->Change([
     $changeData,
-    $this->core->Page($extension)
+    $this->core->Extension($extension)
    ]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -188,7 +188,7 @@
     "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".md5($this->core->ShopID)),
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
     "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
-   ], $this->core->Page("db69f503c7c6c1470bd9620b79ab00d7")]);
+   ], $this->core->Extension("db69f503c7c6c1470bd9620b79ab00d7")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -213,7 +213,7 @@
    }
    $r = $this->core->Change([[
     "[LanguageSwitch.Options]" => $options
-   ], $this->core->Page("350d1d8dfa7ce14e12bd62f5f5f27d30")]);
+   ], $this->core->Extension("350d1d8dfa7ce14e12bd62f5f5f27d30")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -272,7 +272,7 @@
     "[App.Content]" => $content,
     "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
     "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
-   ], $this->core->Page("dd5e4f7f995d5d69ab7f696af4786c49")]);
+   ], $this->core->Extension("dd5e4f7f995d5d69ab7f696af4786c49")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -284,7 +284,7 @@
   }
   function WYSIWYG(array $a) {
    $data = $a["Data"] ?? [];
-   $r = $this->core->Page("8980452420b45c1e6e526a7134d6d411");
+   $r = $this->core->Extension("8980452420b45c1e6e526a7134d6d411");
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
     "Response" => [

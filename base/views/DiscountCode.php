@@ -43,7 +43,7 @@
     "[Discount.Percentile]" => $percentile,
     "[Discount.Quantities]" => json_encode($quantities, true),
     "[Discount.Quantity]" => $quantity
-   ], $this->core->Page("47e35864b11d8bdc255b0aec513337c0")]);
+   ], $this->core->Extension("47e35864b11d8bdc255b0aec513337c0")]);
    $r = [
     "Action" => $action,
     "Front" => $r

@@ -58,7 +58,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
@@ -74,7 +74,7 @@
      "[Update.To]" => $to,
      "[Update.Visibility.NSFW]" => $nsfw,
      "[Update.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("7cc50dca7d9bbd7b7d0e3dd7e2450112")]);
+    ], $this->core->Extension("7cc50dca7d9bbd7b7d0e3dd7e2450112")]);
     $r = [
      "Action" => $action,
      "Front" => $r
@@ -153,7 +153,7 @@
       "[Conversation.CRIDE]" => base64_encode($update["ID"]),
       "[Conversation.Level]" => base64_encode(1),
       "[Conversation.URL]" => base64_encode("v=$con&CRID=[CRID]&LVL=[LVL]")
-     ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+     ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
      "[StatusUpdate.DisplayName]" => $ft,
      "[StatusUpdate.ID]" => $update["ID"],
      "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
@@ -162,7 +162,7 @@
      "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
      "[StatusUpdate.Share]" => $share,
      "[StatusUpdate.Votes]" => $votes
-    ], $this->core->Page("2e76fb1523c34ed0c8092cde66895eb1")]);
+    ], $this->core->Extension("2e76fb1523c34ed0c8092cde66895eb1")]);
     $r = [
      "Front" => $r
     ];

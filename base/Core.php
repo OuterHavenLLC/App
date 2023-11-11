@@ -504,6 +504,7 @@
      "HTMLDecode" => 1
     ]);
    }
+   die("Extension: $extension");
    return $r;
   }
   function Extensions() {
@@ -512,9 +513,8 @@
     $extensions = json_encode([]);
    } else {
     $extensions = file_get_contents($extensions);
-    $extensions = json_decode($extensions, true);
    }
-   return $extensions;
+   return json_decode($extensions, true);
   }
   function FixMissing(array $a, array $b) {
    foreach($b as $b) {
@@ -1095,7 +1095,7 @@
     $extensionCard = base64_encode("Page:Card");
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
     $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
-    $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "GetPage"), $r);//TEMP
+    $r = preg_replace_callback("/\[LLP:(.*?)\]/i", array(&$this, "GetExtension"), $r);//TEMP
     $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
     $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
     $r = $this->Change([[

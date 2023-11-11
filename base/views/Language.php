@@ -18,8 +18,8 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id)) {
-    $_Locals = $this->core->Page("63dde5af1a1ec0968ccb006248b55f48");
-    $_Regions = $this->core->Page("5f6ea04c169f32041a39e16d20f95a05");
+    $_Locals = $this->core->Extension("63dde5af1a1ec0968ccb006248b55f48");
+    $_Regions = $this->core->Extension("5f6ea04c169f32041a39e16d20f95a05");
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $locals = "";
@@ -95,7 +95,7 @@
      "[Languages.ID]" => $id,
      "[Languages.Locals]" => $locals,
      "[Languages.Processor]" => base64_encode("v=".base64_encode("Language:Save")),
-    ], $this->core->Page("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
+    ], $this->core->Extension("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

@@ -105,7 +105,7 @@
     $r = $this->core->Change([[
      "[Error.Header]" => "Forbidden",
      "[Error.Message]" => "You must sign in to continue."
-    ], $this->core->Page("eac72ccb1b600e0ccd3dc62d26fa5464")]);
+    ], $this->core->Extension("eac72ccb1b600e0ccd3dc62d26fa5464")]);
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
@@ -146,7 +146,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=N/A&Added=$at2&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Blog.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
      "[Blog.CoverPhoto]" => $coverPhotoSource,
@@ -160,7 +160,7 @@
      "[Blog.Templates]" => json_encode($templates, true),
      "[Blog.Visibility.NSFW]" => $nsfw,
      "[Blog.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("7759aead7a3727dd2baed97550872677")]);
+    ], $this->core->Extension("7759aead7a3727dd2baed97550872677")]);
     $r = [
      "Action" => $action,
      "Front" => $r
@@ -301,7 +301,7 @@
       "[Blog.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Blog"),
       "[Blog.Title]" => $_Blog["ListItem"]["Title"],
       "[Blog.Votes]" => $options["Vote"]
-     ], $this->core->Page($extension)]);
+     ], $this->core->Extension($extension)]);
      $r = ($data["CARD"] == 1) ? [
       "Front" => $r
      ] : $r;
@@ -357,7 +357,7 @@
      "[Invite.Content]" => json_encode($content, true),
      "[Invite.ID]" => $id,
      "[Invite.Member]" => $member
-    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
+    ], $this->core->Extension("80e444c34034f9345eee7399b4467646")]);
     $r = [
      "Action" => $action,
      "Front" => $r

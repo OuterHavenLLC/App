@@ -49,7 +49,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Album.Description]" => base64_encode($description),
      "[Album.Header]" => $header,
@@ -58,7 +58,7 @@
      "[Album.Title]" => base64_encode($title),
      "[Album.Visibility.NSFW]" => $nsfw,
      "[Album.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("760cd577207eb0d2121509d7212038d4")]);
+    ], $this->core->Extension("760cd577207eb0d2121509d7212038d4")]);
     $button = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditAlbum$id",
@@ -168,7 +168,7 @@
      "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$tun"),
      "[Album.Title]" => $alb["Title"],
      "[Album.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
-    ], $this->core->Page("91c56e0ee2a632b493451aa044c32515")]);
+    ], $this->core->Extension("91c56e0ee2a632b493451aa044c32515")]);
     $r = [
      "Front" => $r
     ];

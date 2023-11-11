@@ -59,7 +59,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[ForumPost.Attachments]" => $attachments,
      "[ForumPost.Attachments.LiveView]" => base64_encode("v=$em&AddTo=$atinput&ID="),
@@ -74,7 +74,7 @@
      "[ForumPost.Title]" => base64_encode($title),
      "[ForumPost.Visibility.NSFW]" => $nsfw,
      "[ForumPost.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("cabbfc915c2edd4d4cba2835fe68b1cc")]);
+    ], $this->core->Extension("cabbfc915c2edd4d4cba2835fe68b1cc")]);
     $r = [
      "Action" => $action,
      "Front" => $r
@@ -193,7 +193,7 @@
        "[Conversation.CRIDE]" => base64_encode($id),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=$con&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[ForumPost.ID]" => $id,
       "[ForumPost.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$id")),
       "[ForumPost.MemberRole]" => $memberRole,
@@ -203,7 +203,7 @@
       "[ForumPost.Title]" => $post["Title"],
       "[ForumPost.Share]" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id)),
       "[ForumPost.Votes]" => $votes
-     ], $this->core->Page("d2be822502dd9de5e8b373ca25998c37")]);
+     ], $this->core->Extension("d2be822502dd9de5e8b373ca25998c37")]);
      $r = [
       "Front" => $r
      ];

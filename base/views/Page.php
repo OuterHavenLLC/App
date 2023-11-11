@@ -200,7 +200,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Article.Body]" => base64_encode($this->core->PlainText([
       "Data" => $article["Body"],
@@ -223,7 +223,7 @@
      "[Article.Title]" => base64_encode($article["Title"]),
      "[Article.Visibility.NSFW]" => $nsfw,
      "[Article.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("68526a90bfdbf5ea5830d216139585d7")]);
+    ], $this->core->Extension("68526a90bfdbf5ea5830d216139585d7")]);
     $r = [
      "Action" => $action,
      "Front" => $r
@@ -337,7 +337,7 @@
        "[Conversation.CRIDE]" => base64_encode($id),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[Article.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
       "[Article.Created]" => $this->core->TimeAgo($article["Created"]),
       "[Article.Description]" => $_Article["ListItem"]["Description"],
@@ -351,7 +351,7 @@
       "[Member.DisplayName]" => $author["Personal"]["DisplayName"],
       "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
       "[Member.Description]" => $description
-     ], $this->core->Page("b793826c26014b81fdc1f3f94a52c9a6")]);
+     ], $this->core->Extension("b793826c26014b81fdc1f3f94a52c9a6")]);
     } else {
      $r = $_Article["ListItem"]["Body"];
     }
@@ -402,7 +402,7 @@
      "[Invite.Content]" => json_encode($content, true),
      "[Invite.ID]" => $id,
      "[Invite.Member]" => $member
-    ], $this->core->Page("80e444c34034f9345eee7399b4467646")]);
+    ], $this->core->Extension("80e444c34034f9345eee7399b4467646")]);
     $r = [
      "Action" => $action,
      "Front" => $r

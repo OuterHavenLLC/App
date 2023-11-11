@@ -13,15 +13,15 @@
  $oh->core->Setup("App");
  if($api == "Design") {
   header("content-type: text/CSS");
-  $r = $oh->core->Page("d4efcd44be4b2ef2a395f0934a9e446a");
+  $r = $oh->core->Extension("d4efcd44be4b2ef2a395f0934a9e446a");
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
   if($view == "Cypher") {
-   $r = $oh->core->Page("06dfe9b3d6b9fdab588c1eabfce275fd");
+   $r = $oh->core->Extension("06dfe9b3d6b9fdab588c1eabfce275fd");
   } elseif($view == "Functions") {
-   $r = $oh->core->Page("9899b8bb388bf8520c3b5cee4ef6778b");
+   $r = $oh->core->Extension("9899b8bb388bf8520c3b5cee4ef6778b");
   } elseif($view == "GUI") {
-   $r = $oh->core->Page("a62f482184a8b2eefa006a37890666d7");
+   $r = $oh->core->Extension("a62f482184a8b2eefa006a37890666d7");
   }
   $r = $oh->core->Change([[
    "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),

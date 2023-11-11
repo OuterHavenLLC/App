@@ -62,18 +62,18 @@
            "p", "$$value",
            ["class" => "DesktopRightText"]
           ])
-         ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+         ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
         } if(!empty($chargeList)) {
          $r = $chargeList;
         }
        } else {
         $r = $this->core->Change([[
-         "[Invoice.ChargeClone]" => base64_encode($this->core->Page("cfc6f5b795f1254de32ef292325292a6")),
+         "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
          "[Invoice.Charges]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Charge&ViewCharges=1"),
          "[Invoice.ID]" => $id,
          "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
          "[Invoice.Shop]" => $shopID
-        ], $this->core->Page("60fe8170fa7a51cdd75097855c74a95c")]);
+        ], $this->core->Extension("60fe8170fa7a51cdd75097855c74a95c")]);
        }
       } elseif($type == "Note") {
        $accessCode = "Accepted";
@@ -101,7 +101,7 @@
          "[Invoice.Notes]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Note&ViewNotes=1"),
          "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
          "[Invoice.Shop]" => $shopID
-        ], $this->core->Page("82e29a8d9c5737b07a4db0a1de45c7db")]);
+        ], $this->core->Extension("82e29a8d9c5737b07a4db0a1de45c7db")]);
        }
       }
       $r = ($card == 1) ? [
@@ -221,7 +221,7 @@
       "Phone"
      ]);
      $changeData = [
-      "[Invoice.ChargeClone]" => base64_encode($this->core->Page("cfc6f5b795f1254de32ef292325292a6")),
+      "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
       "[Invoice.Charges]" => json_encode([
        [
         "Attributes" => [
@@ -293,7 +293,7 @@
     }
     $r = $this->core->Change([
      $changeData,
-     $this->core->Page($template)
+     $this->core->Extension($template)
     ]);
     $r = ($card == 1) ? [
      "Front" => $r
@@ -337,7 +337,7 @@
      $r = $this->core->Change([[
       "[Invoice.ID]" => $id,
       "[Invoice.Shop]" => $invoice["Shop"]
-     ], $this->core->Page("bef71930eb3342a550ba9e8a971cebe2")]);
+     ], $this->core->Extension("bef71930eb3342a550ba9e8a971cebe2")]);
      $r = [
       "Action" => $action,
       "Front" => $r
@@ -427,14 +427,14 @@
        if(!empty($data["Email"])) {
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
-          "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+          "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
           "[Email.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
           "[Email.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
           "[Email.Name]" => $name,
           "[Email.Link]" => $this->core->base."/invoice/$id",
           "[Email.Shop.Name]" => $shop["Title"],
           "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-         ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
          "Title" => $shop["Title"].": Invoice $id",
          "To" => $data["Email"]
         ]);
@@ -451,14 +451,14 @@
         $partner = $this->core->Member($key);
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
-          "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+          "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
           "[Email.Message]" => "<em>".$shop["Title"]."</em> has been hired by a potential client! Please verify payment of the deposit before proceeding with the service.",
           "[Email.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
           "[Email.Name]" => $partner["Personal"]["FirstName"],
           "[Email.Link]" => $this->core->base."/invoice/$id",
           "[Email.Shop.Name]" => $shop["Title"],
           "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-         ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
          "Title" => $shop["Title"].": Invoice $id",
          "To" => $data["Email"]
         ]);
@@ -503,7 +503,7 @@
        "[Hire.Shop]" => $id,
        "[Hire.Text]" => $hireText,
        "[Hire.Services]" => json_encode($presets, true)
-      ], $this->core->Page("dab6e25feafcbb2741022bf6083c2975")]);
+      ], $this->core->Extension("dab6e25feafcbb2741022bf6083c2975")]);
      } else {
       $_ViewTitle = "Hire ".$shop["Title"];
       $hireText = (count($partners) == 1) ? "Me" : "Us";
@@ -515,14 +515,14 @@
         "HTMLDecode" => 1
        ]);
       } else {
-       $terms = $this->core->Page("285adc3ef002c11dfe1af302f8812c3a");
+       $terms = $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
       }
       $r = $this->core->Change([[
        "[Shop.Name]" => $shop["Title"],
        "[Shop.Hire]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id&CreateJob=1"),
        "[Shop.Hire.Terms]" => $terms,
        "[Shop.Hire.Text]" => $hireText,
-      ], $this->core->Page("045f6c5cf3728bd31b0d9663498a940c")]);
+      ], $this->core->Extension("045f6c5cf3728bd31b0d9663498a940c")]);
      }
      $responseType = "View";
     }
@@ -618,7 +618,7 @@
         "[Invoice.Charge.Description]" => $description,
         "[Invoice.Charge.Title]" => $title,
         "[Invoice.Charge.Value]" => $value
-       ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+       ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
       }
      } elseif($dependency == "Options") {
       $check = 0;
@@ -688,7 +688,7 @@
        "[Invoice.Balance]" => $balance,
        "[Invoice.Subtotal]" => number_format($subtotal, 2),
        "[Invoice.Taxes]" => $tax
-      ], $this->core->Page("6faa1179113386dad098302e12049b8b")]);
+      ], $this->core->Extension("6faa1179113386dad098302e12049b8b")]);
      } else {
       $home = "v=".base64_encode("Invoice:Home")."&ID=$id&Shop=".$invoice["Shop"];
       $r = $this->core->Change([[
@@ -697,7 +697,7 @@
        "[Invoice.Options]" => base64_encode("$home&Dependency=Options"),
        "[Invoice.Status]" => base64_encode("$home&Dependency=Status"),
        "[Invoice.Total]" => base64_encode("$home&Dependency=Total")
-      ], $this->core->Page("4a78b78f1ebff90e04a33b52fb5c5e97")]);
+      ], $this->core->Extension("4a78b78f1ebff90e04a33b52fb5c5e97")]);
      }
     }
    } if($card == 1) {
@@ -791,7 +791,7 @@
           "p", "$$value",
           ["class" => "DesktopRightText"]
          ])
-        ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+        ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
        }
        $total = $this->view(base64_encode("Invoice:Home"), [
         "Data" => [
@@ -804,14 +804,14 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+         "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
          "[Email.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.",
          "[Email.Invoice]" => $chargeList.$total,
          "[Email.Name]" => $name,
          "[Email.Link]" => $this->core->base."/invoice/$id",
          "[Email.Shop.Name]" => $shop["Title"],
          "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-        ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+        ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
        ]);
@@ -931,7 +931,7 @@
           "p", "$$value",
           ["class" => "DesktopRightText"]
          ])
-        ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+        ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
        }
        $total = $this->view(base64_encode("Invoice:Home"), [
         "Data" => [
@@ -944,14 +944,14 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+         "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
          "[Email.Message]" => "Your Invoice is ready for payment.",
          "[Email.Invoice]" => $chargeList.$total,
          "[Email.Name]" => $name,
          "[Email.Link]" => $this->core->base."/invoice/$id",
          "[Email.Shop.Name]" => $shop["Title"],
          "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-        ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+        ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
        ]);
@@ -999,7 +999,7 @@
            "p", "$$value",
            ["class" => "DesktopRightText"]
           ])
-         ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+         ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
         } if(!empty($email)) {
          $total = $this->view(base64_encode("Invoice:Home"), [
           "Data" => [
@@ -1012,14 +1012,14 @@
          $total = $this->core->RenderView($total);
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
-           "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+           "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
            "[Email.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
            "[Email.Invoice]" => $chargeList.$total,
            "[Email.Name]" => $name,
            "[Email.Link]" => $this->core->base."/invoice/$id",
            "[Email.Shop.Name]" => $shop["Title"],
            "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-          ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
           "Title" => $shop["Title"].": Invoice $id",
           "To" => $data["Email"]
          ]);
@@ -1136,7 +1136,7 @@
             "p", "$".number_format($value, 2),
             ["class" => "DesktopRightText"]
            ])
-          ], $this->core->Page("7a421d1b6fd3b4958838e853ae492588")]);
+          ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
          }
          $invoice = [
           "ChargeTo" => $member,
@@ -1158,14 +1158,14 @@
          if(!empty($data["Email"])) {
           $this->core->SendEmail([
            "Message" => $this->core->Change([[
-            "[Email.Header]" => $this->core->Page("c790e0a597e171ff1d308f923cfc20c9"),
+            "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
             "[Email.Message]" => "Please review the Invoice linked below.",
             "[Email.Invoice]" => $chargeList,
             "[Email.Name]" => $name,
             "[Email.Link]" => $this->core->base."/invoice/$id",
             "[Email.Shop.Name]" => $shop["Title"],
             "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-           ], $this->core->Page("d13bb7e89f941b7805b68c1c276313d4")]),
+           ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
            "Title" => $shop["Title"].": Invoice $id",
            "To" => $data["Email"]
           ]);

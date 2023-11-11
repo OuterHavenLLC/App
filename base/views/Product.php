@@ -26,7 +26,7 @@
      "[Product.Product]" => base64_encode("v=$edit&Editor=Product&Shop=$shop&new=1"),
      "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&Shop=$shop"),
      "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
-    ], $this->core->Page($template)])
+    ], $this->core->Extension($template)])
    ];
    if($this->core->ID == $you) {
     $accessCode = "Denied";
@@ -60,7 +60,7 @@
       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
       "[Extras.ID]" => $id,
       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-     ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+     ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
     ]);
     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
@@ -148,7 +148,7 @@
     ];
     $r = $this->core->Change([
      $changeData,
-     $this->core->Page($extension)
+     $this->core->Extension($extension)
     ]);
     $r = ($card == 1) ? [
      "Front" => $r
@@ -312,7 +312,7 @@
        "[Conversation.CRIDE]" => base64_encode($product["ID"]),
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[Product.Created]" => $this->core->TimeAgo($product["Created"]),
       "[Product.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
@@ -322,7 +322,7 @@
       "[Product.Title]" => $product["Title"],
       "[Product.Share]" => $share,
       "[Product.Votes]" => base64_encode("v=$votes&ID=".$product["ID"]."&Type=4")
-     ], $this->core->Page("96a6768e7f03ab4c68c7532be93dee40")]);
+     ], $this->core->Extension("96a6768e7f03ab4c68c7532be93dee40")]);
      $r = ($data["CARD"] == 1) ? [
       "Front" => $r
      ] : $r;

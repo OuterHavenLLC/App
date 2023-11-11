@@ -113,7 +113,7 @@
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $header = "Edit ".$shop["Title"];
     $hireLimit = $shop["HireLimit"] ?? 5;
-    $hireTerms = $shop["HireTerms"] ?? $this->core->Page("285adc3ef002c11dfe1af302f8812c3a");
+    $hireTerms = $shop["HireTerms"] ?? $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $percentages = [];
@@ -144,7 +144,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
      "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
@@ -189,7 +189,7 @@
      "[Shop.Welcome]" => base64_encode($this->core->PlainText([
       "Data" => $shop["Welcome"]
      ]))
-    ], $this->core->Page("201c1fca2d1214dddcbabdc438747c9f")]);
+    ], $this->core->Extension("201c1fca2d1214dddcbabdc438747c9f")]);
     $r = [
      "Action" => $action,
      "Front" => $r,
@@ -248,7 +248,7 @@
      "[Partner.Title]" => $title,
      "[Partner.Username]" => $username,
      "[Partner.Username.InputType]" => $inputType
-    ], $this->core->Page("a361fab3e32893af6c81a15a81372bb7")]);
+    ], $this->core->Extension("a361fab3e32893af6c81a15a81372bb7")]);
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".Partner".md5($username),
@@ -298,7 +298,7 @@
      $r = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
       "[Hire.Text]" => $hireText,
       "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
-     ], $this->core->Page("357a87447429bc7b6007242dbe4af715")]) : "";
+     ], $this->core->Extension("357a87447429bc7b6007242dbe4af715")]) : "";
     }
    }
    return $this->core->JSONResponse([
@@ -325,7 +325,7 @@
      "Scrollable" => $this->core->Change([[
       "[ShoppingHistory.SignIn]" => base64_encode("v=$si"),
       "[ShoppingHistory.SignUp]" => base64_encode("v=$su")
-     ], $this->core->Page("530578e8f5a619e234704ea1f6cd3d64")])
+     ], $this->core->Extension("530578e8f5a619e234704ea1f6cd3d64")])
     ];
    } else {
     $r = [
@@ -387,7 +387,7 @@
         "[Product.Options]" => $opt,
         "[Product.Quantity]" => $qty2,
         "[Product.Title]" => $product["Title"]
-       ], $this->core->Page("4c304af9fcf2153e354e147e4744eab6")]);
+       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       }
      } if($i == 0) {
       $r = $this->core->Element(["h3", "No Results", [
@@ -399,7 +399,7 @@
      $this->core->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
      $r = $this->core->Change([[
       "[ShoppingHistory.List]" => $r
-     ], $this->core->Page("20664fb1019341a3ea2e539360108ac3")]);
+     ], $this->core->Extension("20664fb1019341a3ea2e539360108ac3")]);
     }
    }
    return $this->core->JSONResponse([
@@ -464,7 +464,7 @@
        "ID" => $id,
        "T" => $t["Login"]["Username"]
       ]])
-     ], $this->core->Page("f844c17ae6ce15c373c2bd2a691d0a9a")]);
+     ], $this->core->Extension("f844c17ae6ce15c373c2bd2a691d0a9a")]);
     } elseif($ck == 1 || $ck2 == 1) {
      $_Search = base64_encode("Search:Containers");
      $bl = $this->core->CheckBlocked([$t, "Members", $you]);
@@ -534,7 +534,7 @@
         "[Conversation.CRIDE]" => base64_encode($id),
         "[Conversation.Level]" => base64_encode(1),
         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-       ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
        "[Shop.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
        "[Shop.Disclaimer]" => $disclaimer,
        "[Shop.Edit]" => $edit,
@@ -553,7 +553,7 @@
         "HTMLDecode" => 1
        ]),
        "[Shop.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
-      ], $this->core->Page("f009776d658c21277f8cfa611b843c24")]);
+      ], $this->core->Extension("f009776d658c21277f8cfa611b843c24")]);
      }
     }
    }
@@ -600,7 +600,7 @@
     "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
     "[MadeInNY.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Shop"),
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
-   ], $this->core->Page("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
+   ], $this->core->Extension("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
@@ -1231,7 +1231,7 @@
       }
       $r = $this->core->Change([
        $changeData,
-       $this->core->Page($extension)
+       $this->core->Extension($extension)
       ]);
      }
     }
@@ -1248,11 +1248,11 @@
   }
   function Payroll(array $a) {
    $accessCode = "Denied";
-   $_Day = $this->core->Page("ca72b0ed3686a52f7db1ae3b2f2a7c84");
-   $_Month = $this->core->Page("2044776cf5f8b7307b3c4f4771589111");
-   $_Partner = $this->core->Page("210642ff063d1b3cbe0b2468aba070f2");
-   $_Sale = $this->core->Page("a2adc6269f67244fc703a6f3269c9dfe");
-   $_Year = $this->core->Page("676193c49001e041751a458c0392191f");
+   $_Day = $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84");
+   $_Month = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
+   $_Partner = $this->core->Extension("210642ff063d1b3cbe0b2468aba070f2");
+   $_Sale = $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe");
+   $_Year = $this->core->Extension("676193c49001e041751a458c0392191f");
    $data = $a["Data"] ?? [];
    $r = [
     "Body" => "You have not earned any income yet...",
@@ -1346,7 +1346,7 @@
      "[IncomeDisclosure.DisplayName]" => $y["Personal"]["DisplayName"],
      "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
      "[IncomeDisclosure.Table]" => $yearTable
-    ], $this->core->Page("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
+    ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
     $r = [
      "Front" => $r
     ];
@@ -1462,7 +1462,7 @@
        "[Product.OrderID]" => $orderID,
        "[Product.Quantity]" => $purchaseQuantity,
        "[Product.Title]" => $product["Title"]
-      ], $this->core->Page("4c304af9fcf2153e354e147e4744eab6")]);
+      ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
       if($bundle == 0) {

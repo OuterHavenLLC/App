@@ -77,7 +77,7 @@
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Page("257b560d9c9499f7a0b9129c2a63492c")
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[BlogPost.Attachments]" => $attachments,
      "[BlogPost.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
@@ -97,7 +97,7 @@
      "[BlogPost.Templates]" => json_encode($templates, true),
      "[BlogPost.Visibility.NSFW]" => $nsfw,
      "[BlogPost.Visibility.Privacy]" => $privacy
-    ], $this->core->Page("15961ed0a116fbd6cfdb793f45614e44")]);
+    ], $this->core->Extension("15961ed0a116fbd6cfdb793f45614e44")]);
     $r = [
      "Action" => $action,
      "Front" => $r
@@ -188,7 +188,7 @@
       "[Conversation.CRIDE]" => base64_encode($postID),
       "[Conversation.Level]" => base64_encode(1),
       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-     ], $this->core->Page("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+     ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
      "[Article.CoverPhoto]" => $_BlogPost["ListItem"]["CoverPhoto"],
      "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
      "[Article.Description]" => $_BlogPost["ListItem"]["Description"],
@@ -201,7 +201,7 @@
      "[Member.DisplayName]" => $author["Personal"]["DisplayName"],
      "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
      "[Member.Description]" => $description
-    ], $this->core->Page($extension)]);
+    ], $this->core->Extension($extension)]);
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]

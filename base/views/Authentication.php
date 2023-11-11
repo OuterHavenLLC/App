@@ -29,7 +29,7 @@
      "[Roles.Member]" => base64_decode($member),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Page:ChangeMemberRole")),
      "[Roles.Title]" => $Page["Title"]
-    ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
+    ], $this->core->Extension("270d16c83b59b067231b0c6124a4038d")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -66,7 +66,7 @@
       "[Authorize.Form]" => base64_decode($form),
       "[Authorize.ID]" => $id,
       "[Authorize.Processor]" => $processor
-     ], $this->core->Page("7f6ec4e23b8b7c616bb7d79b2d1d3157")])
+     ], $this->core->Extension("7f6ec4e23b8b7c616bb7d79b2d1d3157")])
     ];
    }
    return $this->core->JSONResponse([
@@ -102,7 +102,7 @@
      "[Roles.Member]" => base64_decode($member),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Blog:ChangeMemberRole")),
      "[Roles.Title]" => $blog["Title"]
-    ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
+    ], $this->core->Extension("270d16c83b59b067231b0c6124a4038d")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -141,7 +141,7 @@
       "[Delete.ID]" => $album["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Album:SaveDelete")),
       "[Delete.Title]" => $album["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -182,7 +182,7 @@
       "[Delete.ID]" => $blog["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Blog:SaveDelete")),
       "[Delete.Title]" => $blog["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -222,7 +222,7 @@
       "[Delete.ID]" => base64_decode($data["ID"]),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:SaveDelete")),
       "[Delete.Title]" => $post["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -262,7 +262,7 @@
       "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Chat:SaveDelete")),
       "[Delete.Title]" => $chat["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -300,7 +300,7 @@
       "[Delete.ID]" => $data["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("DiscountCode:SaveDelete")),
       "[Delete.Title]" => "this Discount Code"
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -341,7 +341,7 @@
       "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Extension:SaveDelete")),
       "[Delete.Title]" => $title
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -388,7 +388,7 @@
       "[Delete.ID]" => base64_encode("$username-$id"),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("File:SaveDelete")."&ParentView=".$data["ParentView"]),
       "[Delete.Title]" => $file["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -434,7 +434,7 @@
       "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Forum:SaveDelete")),
       "[Delete.Title]" => $title
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -474,7 +474,7 @@
       "[Delete.ID]" => base64_encode("$fid-$id"),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("ForumPost:SaveDelete")),
       "[Delete.Title]" => $post["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -513,7 +513,7 @@
       "[Delete.ID]" => $page["ID"],
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete")),
       "[Delete.Title]" => $page["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -553,7 +553,7 @@
       "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:SaveDelete")),
       "[Delete.Title]" => $product["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -592,7 +592,7 @@
       "[Delete.ID]" => $id,
       "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:SaveDelete")),
       "[Delete.Title]" => "this post"
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -635,7 +635,7 @@
       "[Delete.ID]" => base64_encode("$shopID-$id"),
       "[Delete.Processor]" => base64_encode("v=".base64_encode("Invoice:DeletePreset")),
       "[Delete.Title]" => $preset["Title"]
-     ], $this->core->Page("fca4a243a55cc333f5fa35c8e32dd2a0")])
+     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
    }
    return $this->core->JSONResponse([
@@ -671,7 +671,7 @@
      "[Roles.Member]" => base64_decode($member),
      "[Roles.Processor]" => base64_encode("v=".base64_encode("Forum:ChangeMemberRole")),
      "[Roles.Title]" => $forum["Title"]
-    ], $this->core->Page("270d16c83b59b067231b0c6124a4038d")]);
+    ], $this->core->Extension("270d16c83b59b067231b0c6124a4038d")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
