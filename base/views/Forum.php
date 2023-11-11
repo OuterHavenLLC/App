@@ -170,16 +170,9 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "CARD",
-    "ID",
-    "b2",
-    "back",
-    "lPG",
-    "pub"
-   ]);
-   $id = $data["ID"];
-   $lpg = $data["lPG"];
+   $card = $data["CARD"] ?? 0;
+   $id = $data["ID"] ?? "";
+   $lpg = $data["lPG"] ?? "";
    $b2 = $data["b2"] ?? "Forums";
    $b2 = $this->core->Element(["em", $b2]);
    $bck = $data["back"] ?? 0;
@@ -194,9 +187,9 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
    if(!empty($id)) {
     $id = base64_decode($id);
+    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $active = 0;
@@ -296,7 +289,7 @@
      ], $this->core->Page("4159d14e4e8a7d8936efca6445d11449")]);
     }
    }
-   $r = ($data["CARD"] == 1) ? [
+   $r = ($card == 1) ? [
     "Front" => $r
    ] : $r;
    if($pub == 1) {

@@ -666,6 +666,23 @@
      $title = $data["Title"] ?? "";
      $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $vote = base64_encode("v=$vote&ID=$contentID&Type=1");
+    } elseif($type == "Extensions") {
+     $data = $this->Data("Get", ["app", md5("Sxtensions")]) ?? [];
+     $extension = $data[$contentID] ?? [];
+     $body = $extension["Body"] ?? "";
+     $body = $this->PlainText([
+      "Data" => $body,
+      "Decode" => 1,
+      "HTMLDecode" => 1
+     ]);
+     $description = $extension["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $title = $extension["Title"] ?? "";
+     $options = [
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$contentID"),
+      "Edit" => base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($contentID)),
+      "Category" => $extension["Category"]
+     ];
     } elseif($type == "Member") {
      $data = $this->Data("Get", ["mbr", $contentID]) ?? [];
      $empty = (empty($data)) ? 1 : 0;

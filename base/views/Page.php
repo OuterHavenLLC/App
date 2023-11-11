@@ -231,7 +231,6 @@
      "[Article.New]" => $new,
      "[Article.Products]" => $products,
      "[Article.Products.LiveView]" => base64_encode("v=$ep&AddTo=$at4input&BNDL="),
-     "[Article.Report]" => $options["Report"],
      "[Article.Title]" => base64_encode($article["Title"]),
      "[Article.Visibility.NSFW]" => $nsfw,
      "[Article.Visibility.Privacy]" => $privacy

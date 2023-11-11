@@ -33,12 +33,12 @@
    if($ck == 1) {
     $accessCode = "Accepted";
     if($st == "ADM-LLP") {
-     $h = "Network Extensions";
+     $h = "App Extensions";
      $lis = "Search Extensions";
      $lo =  ($notAnon == 1) ? $this->core->Element([
       "button", "+", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
+       "data-view" => base64_encode("v=".base64_encode("Extension:Edit")."&new=1")
       ]
      ]) : "";
     } elseif($st == "ADM-MassMail") {
@@ -483,6 +483,7 @@
     $ec = "Accepted";
     $extension = $this->core->Page("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
+     #$articles = $this->core->Data("Get", ["app", md5("Extensions")]) ?? [];
      $articles = $this->core->DatabaseSet("PG") ?? [];
      /*$extensions = $this->core->SQL("SELECT CAST(AES_DECRYPT(Body, :key) AS CHAR(8000)) AS Body,
      CAST(AES_DECRYPT(Description, :key) AS CHAR(8000)) AS Description,

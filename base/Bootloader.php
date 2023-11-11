@@ -10,11 +10,11 @@
   function __construct() {
    $this->core = New Core;
   }
-  function view(string $a, array $b) {
-   $a = explode(":", base64_decode($a));
+  function view(string $view, array $data) {
+   $view = explode(":", base64_decode($view));
    $documentRoot = $this->core->DocumentRoot."/base/views/";
-   $group = $a[0] ?? "NA";
-   $view = $a[1] ?? "NoView";
+   $group = $view[0] ?? "NA";
+   $view = $view[1] ?? "NoView";
    $r = $this->core->JSONResponse([
     "AccessCode" => "Denied",
     "Response" => [
@@ -32,7 +32,7 @@
    if(file_exists($documentRoot."$group.php")) {
     require_once($documentRoot."$group.php");
     $this->render = New $group;
-    $r = $this->render->$view($b) ?? "";
+    $r = $this->render->$view($data) ?? "";
     if(empty($r)) {
      $r = $this->core->Change([[
       "[Error.Back]" => "",
