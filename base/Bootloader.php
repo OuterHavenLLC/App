@@ -38,7 +38,7 @@
       "[Error.Back]" => "",
       "[Error.Header]" => "Not Found",
       "[Error.Message]" => "The view <em>$view</em> from group <em>$group</em> was empty, and could not be loaded."
-     ], $this->core->Page("f7d85d236cc3718d50c9ccdd067ae713")]);
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
     }
     $r = $this->core->PlainText([
      "Data" => $r,

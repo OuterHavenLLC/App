@@ -1055,24 +1055,6 @@
     "Verified" => 0
    ];
   }
-  function Page(string $a) {//TEMP
-   $x = $this->Data("Get", ["pg", $a]) ?? [];
-   if(empty($x)) {
-    $r = $this->Change([[
-     "[Error.Back]" => "",
-     "[Error.Header]" => "Not Found",
-     "[Error.Message]" => "The Extension <em>$a</em> could not be found."
-    ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
-   } else {
-    $r = $this->PlainText([
-     "Data" => $x["Body"],
-     "Decode" => 1,
-     "Display" => 1,
-     "HTMLDecode" => 1
-    ]);
-   }
-   return $r;
-  }
   function PlainText(array $a) {
    $ck = [
     "BBCodes",
@@ -1458,14 +1440,6 @@
    $x = New Core;
    if(!empty($a)) {
     $r = $x->Extension($a[1]);
-    $x->__destruct();
-    return $r;
-   }
-  }
-  public static function GetPage($a = NULL) {//TEMP
-   $x = New Core;
-   if(!empty($a)) {
-    $r = $x->Page($a[1]);
     $x->__destruct();
     return $r;
    }

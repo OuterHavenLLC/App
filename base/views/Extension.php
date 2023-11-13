@@ -6,7 +6,6 @@
   }
   function Edit(array $a) {
    $accessCode = "Denied";
-   $buttion = "";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
    $new = $data["New"] ?? 0;
@@ -22,17 +21,15 @@
     ];
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $id = ($new == 1) ? md5($you."Extension".$time) : $id;
+    $id = ($new == 1) ? md5($you."Extension".$time) : base64_decode($id);
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
-     "data-form" => ".EditPage$id",
+     "data-form" => ".EditExtension$id",
      "data-processor" => base64_encode("v=".base64_encode("Extension:Save"))
     ]]);
     $extension = $this->core->Extensions();
     $extension = $extension[$id] ?? [];
-    $author = $extension["UN"] ?? $you;
     $body = $extension["Body"] ?? "";
     $categories = [
      "ArticleTemplate" => "Article Template",
@@ -40,28 +37,21 @@
      "Extension" => "Extension"
     ];
     $category = $extension["Category"] ?? base64_encode("Extension");
-    $category = base64_decode($category);
     $description = $extension["Description"] ?? "";
     $title = $extension["Title"] ?? "";
     $header = ($new == 1) ? "New Extension" : "Edit ".base64_decode($title);
     $r = $this->core->Change([[
-     //BEGIN TEMP
-      "[Article.Attachments]" => "",
-      "[Article.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=.NA&ID="),
-      "[Article.CoverPhoto]" => "",
-      "[Article.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=.NA&ID="),
-      "[Article.Products]" => "",
-      "[Article.Products.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=.NA&ID="),
-     //END TEMP
-     "[Article.Body]" => $body,
-     "[Article.Categories]" => json_encode($categories, true),
-     "[Article.Category]" => base64_decode($category),
-     "[Article.Description]" => $description,
-     "[Article.Header]" => $header,
-     "[Article.ID]" => $id,
-     "[Article.New]" => $new,
-     "[Article.Title]" => $title
-    ], $this->core->Extension("68526a90bfdbf5ea5830d216139585d7")]);
+     "[Extension.Body]" => base64_encode($this->core->PlainText([
+      "Data" => base64_decode($body)
+     ])),
+     "[Extension.Categories]" => json_encode($categories, true),
+     "[Extension.Category]" => base64_decode($category),
+     "[Extension.Description]" => $description,
+     "[Extension.Header]" => $header,
+     "[Extension.ID]" => $id,
+     "[Extension.New]" => $new,
+     "[Extension.Title]" => $title
+    ], $this->core->Extension("5f7686825eb763cda93b62656a96a05f")]);
     $r = [
      "Action" => $action,
      "Front" => $r
@@ -96,6 +86,7 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
+    $body = $data["Body"] ?? "";
     $category = $data["Category"] ?? "Extension";
     $extensions = $this->core->Extensions();
     $extension = $extensions[$id] ?? [];
@@ -109,7 +100,10 @@
     $modifiedBy = $extension["ModifiedBy"] ?? [];
     $modifiedBy[$now] = $you;
     $extension = [
-     "Body" => base64_encode($data["Body"]),
+     "Body" => base64_encode($this->core->PlainText([
+      "Data" => $body,
+      "HTMLEncode" => 1
+     ])),
      "Category" => base64_encode($category),
      "Created" => base64_encode($created),
      "Description" => base64_encode($data["Description"]),
@@ -118,11 +112,10 @@
      "UN" => base64_encode($author)
     ];
     $extensions[$id] = $extension;
-    #file_put_contents($this->core->DocumentRoot."/data/c.oh.app.".md5("Extensions"), json_encode($extensions, true));
+    file_put_contents($this->core->DocumentRoot."/data/c.oh.app.".md5("Extensions"), json_encode($extensions, true));
     $r = [
      "Body" => "The $newCategory has been $actionTaken!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($extension, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
@@ -131,8 +124,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    #"Success" => "CloseCard"
+    "Success" => "CloseCard"
    ]);
   }
   function SaveDelete(array $a) {

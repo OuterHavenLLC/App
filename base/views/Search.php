@@ -1548,49 +1548,50 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "MBR-CA" || $st == "MBR-JE") {
     $ec = "Accepted";
-    $home = base64_encode("Page:Home");
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $extension = $this->core->Extension("90bfbfb86908fdc401c79329bedd7df5");
     foreach($t["Pages"] as $key => $value) {
-     $Page = $this->core->Data("Get", ["pg", $value]) ?? [];
+     $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+     if(!empty($article)) {
      $st = str_replace("MBR-", "", $st);
-     $t = $this->core->Member($Page["UN"]);
+     $t = $this->core->Member($article["UN"]);
      $cms = $this->core->Data("Get", [
       "cms",
       md5($t["Login"]["Username"])
      ]) ?? [];
-     $tP = $t["Privacy"];
      $b2 = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
      $bl = $this->core->CheckBlocked([$t, "Members", $you]);
-     $illegal = $Page["Illegal"] ?? 0;
+     $illegal = $article["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     $privacy = $tP["Profile"];
-     $privacy = ($st == "CA") ? $tP["Contributions"] : $privacy;
-     $privacy = ($st == "JE") ? $tP["Journal"] : $privacy;
-     $ck = ($Page["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+     $theirPrivacy = $t["Privacy"];
+     $privacy = $theirPrivacy["Profile"];
+     $privacy = ($st == "CA") ? $theirPrivacy["Contributions"] : $privacy;
+     $privacy = ($st == "JE") ? $theirPrivacy["Journal"] : $privacy;
+     $ck = ($article["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
      $ck2 = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $privacy,
-      "UN" => $Page["UN"],
+      "UN" => $article["UN"],
       "Y" => $you
      ]);
-     $ck3 = ($illegal == 0 && $Page["Category"] == $st) ? 1 : 0;
+     $ck3 = ($illegal == 0 && $article["Category"] == $st) ? 1 : 0;
      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
      $ck2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
      if($ck == 1 && $ck2 == 1) {
       array_push($msg, [
-       "[Article.Title]" => base64_encode($Page["Title"]),
-       "[Article.Subtitle]" => base64_encode("Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($Page["Created"])."."),
+       "[Article.Title]" => base64_encode($article["Title"]),
+       "[Article.Subtitle]" => base64_encode("Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"])."."),
        "[Article.Description]" => base64_encode($this->core->PlainText([
         "BBCodes" => 1,
-        "Data" => $Page["Description"],
+        "Data" => $article["Description"],
         "Display" => 1,
         "HTMLDecode" => 1
        ])),
-       "[Article.ViewPage]" => base64_encode("$lpg;".base64_encode("v=$home&b2=$b2&back=1&lPG=$lpg&ID=".$Page["ID"]))
+       "[Article.ViewPage]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("Page:Home")."&b2=$b2&back=1&lPG=$lpg&ID=$value"))
       ]);
+     }
      }
     }
    } elseif($st == "MBR-Chat" || $st == "MBR-GroupChat") {
@@ -1754,7 +1755,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]) : "";
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-        "[StatusUpdate.AttachmentsID]" => base64_encode($value),
+        "[StatusUpdate.AttachmentsID]" => base64_encode($id),
         "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
         "[StatusUpdate.DT]" => base64_encode($options["View"]),
