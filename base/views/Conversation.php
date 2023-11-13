@@ -31,8 +31,9 @@
     if(!empty($conversation["Attachments"])) {
      $attachments = base64_encode(implode(";", $conversation["Attachments"]));
     }
-    $body = $conversation["Body"] ?? "";
-    $body = (!empty($body)) ? base64_decode($body) : $body;
+    $body = $data["Body"] ?? base64_encode("");
+    $body = $conversation["Body"] ?? $body;
+    $body = base64_decode($body);
     $at = base64_encode("Added to $commentType!");
     $at2 = base64_encode("Add Media to $commentType:.EditComment$conversationID");
     $header = ($new == 1) ? "New $commentType" : "Edit $commentType";
@@ -55,7 +56,7 @@
      "[Conversation.Attachments]" => $attachments,
      "[Conversation.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
      "[Conversation.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $data["Body"],
+      "Data" => $body,
       "Decode" => 1,
       "HTMLDecode" => 1
      ])),
