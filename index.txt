@@ -26,7 +26,7 @@
    <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
   </div>
   <div class="RegSel h">
-   [LLP:96021f84defa49827569f2aa1070755b]
+   [Extension:96021f84defa49827569f2aa1070755b]
   </div>
   <script>
    UpdateContent(".AppContainer", "[App.Content]");
