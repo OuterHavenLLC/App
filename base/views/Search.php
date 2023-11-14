@@ -937,7 +937,10 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      }
     } if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
      $content = $this->core->DatabaseSet() ?? [];
+     $description = "";
      $illegalThreshold = $this->core->config["App"]["Illegal"] ?? 777;
+     $options = "";
+     $title = "";
      foreach($content as $key => $id) {
       if(strpos($id, "c.oh") === 0) {
        $id = explode(".", $id);
@@ -990,11 +993,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
             "p", "Voted on by $voted."
            ]) : "";
            $title = $info["Name"] ?? $type;
-           array_push($msg, [
-            "[ListItem.Description]" => base64_encode($description),
-            "[ListItem.Options]" => base64_encode($options),
-            "[ListItem.Title]" => base64_encode($title)
-           ]);
           }
          }
         } else {
@@ -1036,13 +1034,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
            "p", "Voted on by $voted."
           ]) : "";
           $title = $info["Title"] ?? $type;
-          array_push($msg, [
-           "[ListItem.Description]" => base64_encode($description),
-           "[ListItem.Options]" => base64_encode($options),
-           "[ListItem.Title]" => base64_encode($title)
-          ]);
          }
         }
+        array_push($msg, [
+         "[ListItem.Description]" => base64_encode($description),
+         "[ListItem.Options]" => base64_encode($options),
+         "[ListItem.Title]" => base64_encode($title)
+        ]);
        }
       }
      }
