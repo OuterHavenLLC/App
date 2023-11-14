@@ -904,6 +904,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "Congress") {
     $accessCode = "Accepted";
     $chamber = $data["Chamber"] ?? "";
+    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+    $congressmen = $congress["Members"] ?? [];
     $exclude = [
      "app",
      "blg",
@@ -924,7 +926,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "votes"
     ];
     $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
-    if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
+    $houseRepresentatives = 0;
+    $senators = 0;
+    $yourRole = $congressmen[$you] ?? "";
+    foreach($congressmen as $member => $role) {
+     if($role == "HouseRepresentative") {
+      $houseRepresentatives++;
+     } elseif($role = "Senator") {
+      $senators++;
+     }
+    } if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
      $content = $this->core->DatabaseSet() ?? [];
      $illegalThreshold = $this->core->config["App"]["Illegal"] ?? 777;
      foreach($content as $key => $id) {
@@ -946,12 +957,36 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
           $illegal = $info["Illegal"] ?? 0;
           if($congressDeemedLegal == 0 && $illegal <= $illegalThreshold) {//TEMP
           #if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
+           $_Congress = $info["Congress"] ?? [];
+           $_Votes = $_Congress["Votes"] ?? [];
+           $_HouseRepVotes = 0;
+           $_SenatorVotes = 0;
+           foreach($_Votes as $member => $role) {
+            if($role == "HouseRepresentative") {
+             $_HouseRepVotes++;
+            } elseif($role = "Senator") {
+             $_SenatorVotes++;
+            }
+           }
            $description = $info["Description"] ?? $type;
-           $options = $this->core->Element(["button", "Legal", [
-            "class" => "DesktopRight v2"
-           ]]).$this->core->Element(["button", "Illegal", [
-            "class" => "DesktopRight v2"
-           ]]);
+           $houseCleared = $_Congress["HouseCleared"] ?? 0;
+           $voted = ($yourRole == "HouseRepresentative") ? "$_HouseRepVotes out of $houseRepresentatives House Representatives" : "$_SenatorVotes out of $senators Senators";
+           $optionCheck = ($_HouseRepVotes < $houseRepresentatives) ? 1 : 0;
+           $optionCheck = ($yourRole == "HouseRepresentative" && $optionCheck == 1) ? 1 : 0;
+           $optionCheck2 = ($_SenatorVotes < $senators) ? 1 : 0;
+           $optionCheck2 = ($yourRole == "Senator" && $optionCheck2 == 1) ? 1 : 0;
+           $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
+           $options = ($optionCheck == 1 || $optionCheck2 == 1) ? $this->core->Element([
+            "button", "Illegal", [
+             "class" => "v2"
+            ]
+           ]).$this->core->Element([
+            "button", "Legal", [
+             "class" => "v2"
+            ]
+           ]).$this->core->Element([
+            "p", "Voted on by $voted."
+           ]) : "";
            $title = $info["Name"] ?? $type;
            array_push($msg, [
             "[ListItem.Description]" => base64_encode($description),
@@ -966,12 +1001,36 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $illegal = $info["Illegal"] ?? 0;
          if($congressDeemedLegal == 0 && $illegal <= $illegalThreshold) {//TEMP
          #if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
+          $_Congress = $info["Congress"] ?? [];
+          $_Votes = $_Congress["Votes"] ?? [];
+          $_HouseRepVotes = 0;
+          $_SenatorVotes = 0;
+          foreach($_Votes as $member => $role) {
+           if($role == "HouseRepresentative") {
+            $_HouseRepVotes++;
+           } elseif($role = "Senator") {
+            $_SenatorVotes++;
+           }
+          }
           $description = $info["Description"] ?? $type;
-          $options = $this->core->Element(["button", "Legal", [
-           "class" => "DesktopRight v2"
-          ]]).$this->core->Element(["button", "Illegal", [
-           "class" => "DesktopRight v2"
-          ]]);
+          $houseCleared = $_Congress["HouseCleared"] ?? 0;
+          $voted = ($congressmen[$you] == "HouseRepresentative") ? "$_HouseRepVotes out of $houseRepresentatives House Representatives" : "$_SenatorVotes out of $senators Senators";
+          $optionCheck = ($_HouseRepVotes < $houseRepresentatives) ? 1 : 0;
+          $optionCheck = ($yourRole == "HouseRepresentative" && $optionCheck == 1) ? 1 : 0;
+          $optionCheck2 = ($_SenatorVotes < $senators) ? 1 : 0;
+          $optionCheck2 = ($yourRole == "Senator" && $optionCheck2 == 1) ? 1 : 0;
+          $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
+          $options = ($optionCheck == 1 || $optionCheck2 == 1) ? $this->core->Element([
+           "button", "Illegal", [
+            "class" => "v2"
+           ]
+          ]).$this->core->Element([
+           "button", "Legal", [
+            "class" => "v2"
+           ]
+          ]).$this->core->Element([
+           "p", "Voted on by $voted."
+          ]) : "";
           $title = $info["Title"] ?? $type;
           array_push($msg, [
            "[ListItem.Description]" => base64_encode($description),

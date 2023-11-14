@@ -17,8 +17,6 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $yourRole = $congressmen[$you] ?? "";
-   // DEMOCRATIZED CONTENT MODERATION
-   // HOUSE = 2X POPULATION OF SENATE, EX: 200:100 OR 800:400 RATIOS
    foreach($congressmen as $member => $role) {
     if($role == "HouseRepresentative") {
      $houseRepresentatives++;
@@ -35,7 +33,7 @@
      ]);
      if($yourRole == "HouseRepresentative") {
       $r .= $this->core->Element([
-       "p", "A list of House members, the ability to vote in new members, and more will be present here in the future. Click or tap below to view content put forth for your Chamber's vote."
+       "p", "A list of House members, the ability to vote in new House Representatives (2x the Senate population, and more will be present here in the future. Click or tap below to view content put forth for your Chamber's vote."
       ]).$this->core->Element(["button", "View Content", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=$search&CARD=1&Chamber=House&st=Congress")
