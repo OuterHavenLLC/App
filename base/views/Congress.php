@@ -409,6 +409,34 @@
     "ResponseType" => "View"
    ]);
   }
+  function Vote(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? base64_encode("");
+   $r = [
+    "Body" => "The Content Identifier or Vote Persuasion are missing."
+   ];
+   $vote = $data["Vote"] ?? base64_encode("");
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id) && !empty($vote)) {
+    $accessCode = "Accepted";
+    $id = base64_decode($id);
+    $vote = base64_decode($vote);
+    $r = [
+     "Body" => "Coming soon...<br/>ID: $id<br/>Vote: $vote",
+     "Header" => "Done"
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function __destruct() {
    // DESTROYS THIS CLASS
   }

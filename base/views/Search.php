@@ -978,11 +978,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
            $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
            $options = ($optionCheck == 1 || $optionCheck2 == 1) ? $this->core->Element([
             "button", "Illegal", [
-             "class" => "v2"
+             "class" => "OpenDialog v2",
+             "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))
             ]
            ]).$this->core->Element([
             "button", "Legal", [
-             "class" => "v2"
+             "class" => "OpenDialog v2",
+             "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal"))
             ]
            ]).$this->core->Element([
             "p", "Voted on by $voted."
@@ -1022,11 +1024,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
           $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
           $options = ($optionCheck == 1 || $optionCheck2 == 1) ? $this->core->Element([
            "button", "Illegal", [
-            "class" => "v2"
+            "class" => "OpenDialog v2",
+            "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))
            ]
           ]).$this->core->Element([
            "button", "Legal", [
-            "class" => "v2"
+            "class" => "OpenDialog v2",
+            "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal"))
            ]
           ]).$this->core->Element([
            "p", "Voted on by $voted."
