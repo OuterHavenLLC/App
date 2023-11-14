@@ -157,7 +157,7 @@
       $r .= $this->core->Element([
        "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
         "class" => "OpenCard Small",
-        "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($t["Login"]["Username"]))
+        "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
        ]
       ]);
      }

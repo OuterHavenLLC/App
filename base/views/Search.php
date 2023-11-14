@@ -1203,11 +1203,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $forums = $this->core->DatabaseSet("PF") ?? [];
     foreach($forums as $key => $value) {
      $value = str_replace("c.oh.pf.", "", $value);
+     $bl = $this->core->CheckBlocked([$y, "Forums", $value]);
      $_Forum = $this->core->GetContentData([
+      "Blacklisted" => $bl,
       "ID" => base64_encode("Forum;$value")
      ]);
      $active = 0;
-     $bl = $this->core->CheckBlocked([$y, "Forums", $value]);
      $forum = $_Forum["DataModel"];
      $manifest = $this->core->Data("Get", ["pfmanifest", $value]) ?? [];
      $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
@@ -1293,13 +1294,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
     if($active == 1 || $admin == 1 || $forum["Type"] == "Public") {
      foreach($posts as $key => $value) {
+      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $value]);
       $_ForumPost = $this->core->GetContentData([
+       "Blacklisted" => $bl,
        "Forum" => $id,
        "ID" => base64_encode("ForumPost;$value")
       ]);
       $actions = "";
       $active = 0;
-      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $value]);
       $post = $_ForumPost["DataModel"];
       $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
       $illegal = $post["Illegal"] ?? 0;
@@ -1359,7 +1361,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[ForumPost.OriginalPoster]" => base64_encode($display),
         "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
         "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),
-        "[ForumPost.VoteID]" => base64_encode($value),
         "[ForumPost.Votes]" => base64_encode($_ForumPost["ListItem"]["Vote"])
        ]);
       }
@@ -1417,7 +1418,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]) : "";
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-        "[StatusUpdate.AttachmentsID]" => base64_encode($value),
         "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
         "[StatusUpdate.DT]" => base64_encode($options["View"]),
@@ -1756,7 +1756,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]) : "";
        array_push($msg, [
         "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-        "[StatusUpdate.AttachmentsID]" => base64_encode($id),
         "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
         "[StatusUpdate.DT]" => base64_encode($options["View"]),

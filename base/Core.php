@@ -711,16 +711,24 @@
      ];
      $title = $data["Title"] ?? "";
     } elseif($type == "Forum") {
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $data = $this->Data("Get", ["pf", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $options = [
-      "Delete" => "",
-      "Edit" => "",
-      "View" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".base64_encode($contentID))
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Forums")),
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteForum")."&ID=".base64_encode($contentID)),
+      "Edit" => base64_encode("v=".base64_encode("Forum:Edit")."&ID=$contentID"),
+      "Invite" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
+      "Post" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Forum")."&Username=".base64_encode($data["UN"])),
+      "View" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".base64_encode($contentID)),
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
      $title = $data["Title"] ?? "";
     } elseif($type == "ForumPost") {
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $data = $this->Data("Get", ["post", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
@@ -731,12 +739,14 @@
      ]);
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $options = [
-      "Block" => base64_encode("v=".base64_encode("Common:SaveBlacklist")."&BU=".base64_encode("this Post")."&content=".base64_encode($contentID)."&list=".base64_encode("Forum Posts")."&BC="),
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Forum Posts")),
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteForumPost")."&FID=".$content["Forum"]."&ID=$contentID"),
       "Edit" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=".$content["Forum"]."&ID=$contentID"),
-      "Share" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($content["Forum"]."-$contentID")),
-      "View" => base64_encode("v=".base64_encode("ForumPost:Home")."&FID=".$content["Forum"]."&ID=$contentID")
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($content["Forum"]."-$contentID")."&Type=".base64_encode("ForumPost")."&Username=".base64_encode($data["From"])),
+      "View" => base64_encode("v=".base64_encode("ForumPost:Home")."&FID=".$content["Forum"]."&ID=$contentID"),
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=3")
      ];
      $title = $data["Title"] ?? "";
      $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
