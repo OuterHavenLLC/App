@@ -223,8 +223,9 @@
       "[Content.Attachments]" => $listItem["Attachments"],
       "[Content.Body]" => $listItem["Body"],
       "[Content.Description]" => $description,
-      "[Content.ID]" => base64_encode($id),
+      "[Content.ID]" => $id,
       "[Content.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
+      "[Content.SecureID]" => base64_encode($id),
       "[Content.Title]" => $title
      ], $this->core->Extension("0eaea9fae43712d8c810c737470021b3")]);
     }

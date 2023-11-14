@@ -801,6 +801,7 @@
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
      ];
     } elseif($type == "Product") {
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $data = $this->Data("Get", ["product", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
@@ -814,12 +815,18 @@
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
     } elseif($type == "Shop") {
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $data = $this->Data("Get", ["shop", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
+     $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
      $options = [
-      "Edit" => "",
-      "View" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($content["Owner"]))
+      "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
+      "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($contentID)),
+      "Payroll" => base64_encode("v=".base64_encode("Shop:Payroll")),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Shop")."&Username=".base64_encode($content["Owner"])),
+      "View" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($content["Owner"])),
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
      $title = $data["Title"] ?? "";
     } elseif($type == "StatusUpdate") {

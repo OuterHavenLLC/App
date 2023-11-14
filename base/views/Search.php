@@ -991,10 +991,9 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ec = "Accepted";
     $admin = 0;
     $contributors = [];
-    $data = $this->core->FixMissing($data, ["ID", "Type"]);
-    $id = $data["ID"];
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
-    $type = $data["Type"];
+    $id = $data["ID"] ?? "";
+    $type = $data["Type"] ?? "";
     $ck = (!empty($id)) ? 1 : 0;
     $ck2 = (!empty($type)) ? 1 : 0;
     if($ck == 1 && $ck2 == 1) {
@@ -1104,7 +1103,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
           ]) : "";
          }
         } elseif($type == "Shop") {
-         $ck = ($id == md5($you) && $member != $you) ? 1 : 0;
+         $ck = ($id == md5($you) && $them != $you) ? 1 : 0;
          $description = "<b>".$role["Title"]."</b><br/>".$role["Description"];
          $eid = base64_encode($id);
          $memberID = base64_encode($them);
@@ -1942,11 +1941,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $value = str_replace("c.oh.shop.", "", $value);
       $t = (md5($you) == $value) ? $y : $this->core->Data("Get", ["mbr", $value]);
       $them = $t["Login"]["Username"];
+      $bl = $this->core->CheckBlocked([$y, "Members", $them]);
       $_Shop = $this->core->GetContentData([
+       "Blacklisted" => $bl,
        "ID" => base64_encode("Shop;$value"),
        "Owner" => $them
       ]);
-      $bl = $this->core->CheckBlocked([$y, "Members", $them]);
       $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
       $cms = $cms["Contacts"] ?? [];
       $ck = $this->core->CheckPrivacy([
@@ -1957,9 +1957,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       ]);
       $shop = $_Shop["DataModel"];
       $ck2 = $shop["Open"] ?? 0;
-      $illegal = $shop["Illegal"] ?? 0;
-      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if(($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) || $them == $you) {
+      if(($bl == 0 && $ck == 1 && $ck2 == 1) || $them == $you) {
        array_push($msg, [
         "[X.LI.CoverPhoto]" => base64_encode($_Shop["ListItem"]["CoverPhoto"]),
         "[X.LI.Description]" => base64_encode($_Shop["ListItem"]["Description"]),
