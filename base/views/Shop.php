@@ -496,7 +496,7 @@
       $block = ($ck == 0) ? $this->core->Element([
        "button", $blockCommand, [
         "class" => "Small UpdateButton v2",
-        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Shops"))
+        "data-processor" => $options["Block"]
        ]
       ]) : "";
       $chat = (!empty($chat) && $ck == 1) ? $this->core->Element([

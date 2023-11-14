@@ -99,48 +99,34 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["SU"])) {
-    $accessCode = "Accepted";
-    $att = "";
-    $con = base64_encode("Conversation:Home");
-    $update = $this->core->Data("Get", ["su", $data["SU"]]) ?? [];
-    $bl = $this->core->CheckBlocked([$y, "Status Updates", $update["ID"]]);
+    $bl = $this->core->CheckBlocked([$y, "Status Updates", $data["SU"]]);
     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-    $ft = $update["From"];
-    $ft = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$ft to ".$update["To"] : $ft;
+    $_StatusUpdate = $this->core->GetContentData([
+     "Blacklisted" => $bl,
+     "ID" => base64_encode("StatusUpdate;".$data["SU"])
+    ]);
+    $accessCode = "Accepted";
+    $update = $_StatusUpdate["DataModel"];
+    $displayName = $update["From"];
+    $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
     $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
-    $modified = $update["Modified"] ?? "";
-    if(empty($modified)) {
-     $modified = "";
-    } else {
-     $_Time = $this->core->TimeAgo($modified);
-     $modified = " &bull; Modified ".$_Time;
-     $modified = $this->core->Element(["em", $modified]);
-    }
+    $options = $_StatusUpdate["ListItem"]["Options"];
     $opt = ($update["From"] != $you) ? $this->core->Element([
      "button", $blockCommand, [
       "class" => "Small UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($update["ID"])."&List=".base64_encode("Status Updates"))
+      "data-processor" => $options["Block"]
      ]
     ]) : "";
     $opt = ($this->core->ID != $you) ? $opt : "";
-    if(!empty($update["Attachments"])) {
-     $att = base64_encode("LiveView:InlineMossaic");
-     $att = $this->view($att, ["Data" => [
-      "ID" => base64_encode(implode(";", $update["Attachments"])),
-      "Type" => base64_encode("DLC")
-     ]]);
-    }
     $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
     $share = ($share == 1) ? $this->core->Element([
      "div", $this->core->Element(["button", "Share", [
       "class" => "InnerMargin OpenCard",
-      "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["SU"])."&Type=".base64_encode("StatusUpdate")."&Username=".base64_encode($update["From"]))
+      "data-view" => $options["Share"]
      ]]), ["class" => "Desktop33"]
     ]) : "";
-    $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-    $votes = base64_encode("v=$votes&ID=".$update["ID"]."&Type=1");
     $r = $this->core->Change([[
-     "[StatusUpdate.Attachments]" => $att,
+     "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
      "[StatusUpdate.Body]" => $this->core->PlainText([
       "BBCodes" => 1,
       "Data" => $update["Body"],
@@ -152,16 +138,16 @@
       "[Conversation.CRID]" => $update["ID"],
       "[Conversation.CRIDE]" => base64_encode($update["ID"]),
       "[Conversation.Level]" => base64_encode(1),
-      "[Conversation.URL]" => base64_encode("v=$con&CRID=[CRID]&LVL=[LVL]")
+      "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-     "[StatusUpdate.DisplayName]" => $ft,
+     "[StatusUpdate.DisplayName]" => $displayName,
      "[StatusUpdate.ID]" => $update["ID"],
      "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
-     "[StatusUpdate.Modified]" => $modified,
+     "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
      "[StatusUpdate.Options]" => $opt,
      "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
      "[StatusUpdate.Share]" => $share,
-     "[StatusUpdate.Votes]" => $votes
+     "[StatusUpdate.Votes]" => $options["Vote"]
     ], $this->core->Extension("2e76fb1523c34ed0c8092cde66895eb1")]);
     $r = [
      "Front" => $r

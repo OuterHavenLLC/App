@@ -200,7 +200,6 @@
     $contentID = explode(";", base64_decode($id));
     $content = $this->core->GetContentData([
      "BackTo" => "",
-     "Blacklisted" => 0,
      "ID" => $id
     ]) ?? [];
     $listItem = $content["ListItem"] ?? [];

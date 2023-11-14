@@ -1424,7 +1424,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
         "[StatusUpdate.VoteID]" => base64_encode($value),
-        "[StatusUpdate.Votes]" => base64_encode($_StatusUpdate["ListItem"]["Vote"])
+        "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
        ]);
       }
      }
@@ -1747,12 +1747,12 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
         "button", "Delete", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode($options["Delete"])
+         "data-view" => $options["Delete"]
         ]
        ]).$this->core->Element([
         "button", "Edit", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode($options["Edit"])
+         "data-view" => $options["Edit"]
         ]
        ]) : "";
        array_push($msg, [
@@ -1766,7 +1766,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
         "[StatusUpdate.VoteID]" => base64_encode($id),
-        "[StatusUpdate.Votes]" => base64_encode($_StatusUpdate["ListItem"]["Vote"])
+        "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
        ]);
       }
      }

@@ -243,7 +243,7 @@
      $actions .= ($blog["UN"] != $you) ? $this->core->Element([
       "button", $blockCommand, [
        "class" => "Small UpdateButton v2",
-       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Blogs"))
+       "data-processor" => $options["Block"]
       ]
      ]) : "";
      $actions .= (!empty($chat)) ? $this->core->Element([
