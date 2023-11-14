@@ -26,6 +26,7 @@
      $senators++;
     }
    } if($chambers == 1) {
+    $search = base64_encode("Search:Containers");
     if($chamber == "House") {
      $r = $this->core->Element([
       "h2", "$chamber of Representatives"
@@ -34,8 +35,11 @@
      ]);
      if($yourRole == "HouseRepresentative") {
       $r .= $this->core->Element([
-       "p", "A list of House members, the ability to vote in new members, and more will be present here in the future."
-      ]);
+       "p", "A list of House members, the ability to vote in new members, and more will be present here in the future. Click or tap below to view content put forth for your Chamber's vote."
+      ]).$this->core->Element(["button", "View Content", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$search&CARD=1&Chamber=House&st=Congress")
+      ]]);
      }
     } elseif($chamber == "Senate") {
      $r = $this->core->Element([
@@ -45,13 +49,16 @@
      ]);
      if($yourRole == "Senator") {
       $r .= $this->core->Element([
-        "p", "Welcome to the Chamber of the $chamber of Congress. A list of Senators, the ability to vote in new Senators if you are a House member, and more will be present here in the future."
-      ]);
+        "p", "Welcome to the Chamber of the $chamber of Congress. A list of Senators, the ability to vote in new Senators if you are a House member, and more will be present here in the future. Click or tap below to view content put forth for your Chamber's vote."
+      ]).$this->core->Element(["button", "View Content", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=$search&CARD=1&Chamber=Senate&st=Congress")
+      ]]);
      }
     }
    } else {
     $notAnon = ($this->core->ID !== $you) ? 1 : 0;
-    $joinTheHouse = ($houseRepresentatives < 50 && $notAnon == 1) ? $this->core->Element([
+    $joinTheHouse = ($houseRepresentatives < 100 && $notAnon == 1) ? $this->core->Element([
      "button", "Become a House Representative", [
       "class" => "UpdateButton v2",
       "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode("HouseRepresentative"))
@@ -63,7 +70,7 @@
       "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Leave")."&Role=".base64_encode("HouseRepresentative"))
      ]
     ]) : $joinTheHouse;
-    $joinTheSenate = ($senators < 100 && $notAnon == 1) ? $this->core->Element([
+    $joinTheSenate = ($senators < 50 && $notAnon == 1) ? $this->core->Element([
      "button", "Become a Senator", [
       "class" => "UpdateButton v2",
       "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode("Senator"))
@@ -139,8 +146,8 @@
       $senators++;
      }
     } if($command == "Join") {
-     $check = ($houseRepresentatives < 50 && $role == "HouseRepresentative") ? 1 : 0;
-     $check2 = ($senators < 100 && $role == "Senator") ? 1 : 0;
+     $check = ($houseRepresentatives < 100 && $role == "HouseRepresentative") ? 1 : 0;
+     $check2 = ($senators < 50 && $role == "Senator") ? 1 : 0;
      $r = [
       "Attributes" => [
        "class" => "v2",
