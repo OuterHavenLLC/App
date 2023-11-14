@@ -201,7 +201,6 @@
     $content = $this->core->GetContentData([
      "BackTo" => "",
      "Blacklisted" => 0,
-     "BlogID" => "",
      "ID" => $id
     ]) ?? [];
     $listItem = $content["ListItem"] ?? [];

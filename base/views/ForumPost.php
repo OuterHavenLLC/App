@@ -104,8 +104,7 @@
     $bl = $this->core->CheckBlocked([$y, "Forum Posts", $id]);
     $_ForumPost = $this->core->GetContentData([
      "Blacklisted" => $bl,
-     "Forum" => $fid,
-     "ID" => base64_encode("ForumPost;$id")
+     "ID" => base64_encode("ForumPost;$fid;$id")
     ]);
     $active = 0;
     $admin = 0;
@@ -142,7 +141,7 @@
       "class" => "InnerMargin UpdateButton v2",
       "data-processor" => $options["Block"]
      ]]) : "";
-     $actions = ($this->core->ID != $you) ? $actions : "";
+     $share = "";
      if($ck == 1) {
       $actions .= $this->core->Element(["button", "Delete", [
        "class" => "InnerMargin OpenDialog v2",
@@ -152,11 +151,12 @@
        "class" => "InnerMargin OpenDialog v2",
        "data-view" => $options["Edit"]
       ]]) : "";
-      $actions .= ($forum["Type"] == "Public") ? $this->core->Element(["button", "Share", [
-       "class" => "InnerMargin OpenCard",
+      $share = ($forum["Type"] == "Public") ? $this->core->Element(["button", "Share", [
+       "class" => "InnerMargin OpenCard v2",
        "data-view" => $options["Share"]
       ]]) : "";
      }
+     $actions = ($this->core->ID != $you) ? $actions : "";
      $op = ($post["From"] == $you) ? $y : $this->core->Member($post["From"]);
      $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
      $memberRole = $manifest[$op["Login"]["Username"]];
@@ -177,13 +177,13 @@
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[ForumPost.ID]" => $id,
-      "[ForumPost.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$id")),
+      "[ForumPost.Illegal]" => $options["Report"],
       "[ForumPost.MemberRole]" => $memberRole,
       "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
       "[ForumPost.OriginalPoster]" => $display,
       "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
       "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
-      "[ForumPost.Share]" => base64_encode("v=".base64_encode("ForumPost:Share")."&ID=".base64_encode($id)),
+      "[ForumPost.Share]" => $share,
       "[ForumPost.Vote]" => $options["Vote"]
      ], $this->core->Extension("d2be822502dd9de5e8b373ca25998c37")]);
      $r = [

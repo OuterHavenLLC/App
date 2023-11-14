@@ -146,8 +146,7 @@
     $_BlogPost = $this->core->GetContentData([
      "BackTo" => $backTo,
      "Blacklisted" => $bl,
-     "BlogID" => $blog,
-     "ID" => base64_encode("BlogPost;$postID")
+     "ID" => base64_encode("BlogPost;$blog;$postID")
     ]);
     $options = $_BlogPost["ListItem"]["Options"];
     $post = $_BlogPost["DataModel"];

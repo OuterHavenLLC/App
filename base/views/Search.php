@@ -541,8 +541,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $_BlogPost = $this->core->GetContentData([
        "BackTo" => $title,
        "Blacklisted" => $bl,
-       "BlogID" => $blog["ID"],
-       "ID" => base64_encode("BlogPost;$value")
+       "ID" => base64_encode("BlogPost;".$blog["ID"].";$value")
       ]);
       $options = $_BlogPost["ListItem"]["Options"];
       $post = $_BlogPost["DataModel"];
@@ -1282,10 +1281,10 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $id = $data["ID"] ?? "";
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
-    foreach($manifest as $k => $v) {
-     if($active == 0 && $k == $y["Login"]["Username"]) {
+    foreach($manifest as $member => $role) {
+     if($active == 0 && $member == $you) {
       $active = 0;
-      if($admin == 0 && $v == "Admin") {
+      if($admin == 0 && $role == "Admin") {
        $admin++;
       }
      }
@@ -1297,8 +1296,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $value]);
       $_ForumPost = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "Forum" => $id,
-       "ID" => base64_encode("ForumPost;$value")
+       "ID" => base64_encode("ForumPost;$id;$value")
       ]);
       $actions = "";
       $active = 0;
@@ -1361,7 +1359,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         "[ForumPost.OriginalPoster]" => base64_encode($display),
         "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
         "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),
-        "[ForumPost.Votes]" => base64_encode($_ForumPost["ListItem"]["Vote"])
+        "[ForumPost.Votes]" => base64_encode($options["Vote"])
        ]);
       }
      }
@@ -1668,17 +1666,21 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $x = $y["Forums"] ?? [];
     foreach($x as $key => $value) {
+     $_Forum = $this->core->GetContentData([
+      "Blacklisted" => 0,
+      "ID" => base64_encode("Forum;$value")
+     ]);
+     $active = 0;
+     $forum = $_Forum["DataModel"];
      $illegal = $value["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($illegal == 0) {
-      $forum = $this->core->Data("Get", ["pf", $value]) ?? [];
-      $coverPhoto = $forum["ICO"] ?? $coverPhoto;
-      $coverPhoto = base64_encode($coverPhoto);
+      $options = $_Forum["ListItem"]["Options"];
       array_push($msg, [
-       "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-       "[X.LI.T]" => base64_encode($forum["Title"]),
-       "[X.LI.D]" => base64_encode($forum["Description"]),
-       "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".base64_encode($forum["ID"])."&b2=".urlencode("Your Forums")."&lPG=$lpg"))
+       "[X.LI.I]" => base64_encode($_Forum["ListItem"]["CoverPhoto"]),
+       "[X.LI.T]" => base64_encode($_Forum["ListItem"]["Title"]),
+       "[X.LI.D]" => base64_encode($_Forum["ListItem"]["Description"]),
+       "[X.LI.DT]" => base64_encode($options["View"])
       ]);
      }
     }
