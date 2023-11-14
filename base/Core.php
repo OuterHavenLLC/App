@@ -814,6 +814,14 @@
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
+     $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $options = [
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Products")),
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteProduct")."&ID=$contentID"),
+      "Edit" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Product")."&Username=".base64_encode($data["UN"])),
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
+     ];
     } elseif($type == "Shop") {
      $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
      $data = $this->Data("Get", ["shop", $contentID]) ?? [];

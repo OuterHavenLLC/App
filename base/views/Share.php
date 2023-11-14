@@ -73,7 +73,7 @@
      $embedCode = "[ForumPost:$id]";
      $shareTitle = $t["Personal"]["DisplayName"]."'s Forum Post" ?? $shareTitle;
     } elseif($type == "Product") {
-     $product = $this->core->Data("Get", ["miny", $id]) ?? [];
+     $product = $this->core->Data("Get", ["product", $id]) ?? [];
      $t = ($username == $you) ? $y : $this->core->Member($username);
      $checkItOut = "Check out <em>".$product["Title"]."</em> by ".$t["Personal"]["DisplayName"]."!";
      $embedCode = "[Product:$id]";

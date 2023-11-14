@@ -93,9 +93,9 @@
      $lis = "Search Contacts";
     } elseif($st == "ContactsProfileList") {
      $data = $this->core->FixMissing($data, ["UN"]);
-     $un = base64_decode($data["UN"]);
-     $ck = ($un == $y["Login"]["Username"]) ? 1 : 0;
-     $t = ($ck == 1) ? $y : $this->core->Member($un);
+     $username = base64_decode($data["UN"]);
+     $ck = ($username == $y["Login"]["Username"]) ? 1 : 0;
+     $t = ($ck == 1) ? $y : $this->core->Member($username);
      $h = ($ck == 1) ? "Your Contacts" : $t["Personal"]["DisplayName"]."'s Contacts";
      $li .= "&b2=$b2&lPG=$lpg&UN=".$data["UN"];
      $lis = "Search Contacts";
@@ -195,8 +195,8 @@
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "MBR-ALB") {
      $ae = base64_encode("Album:Edit");
-     $un = base64_decode($data["UN"]);
-     $t = ($un == $you) ? $y : $this->core->Member($un);
+     $username = base64_decode($data["UN"]);
+     $t = ($username == $you) ? $y : $this->core->Member($username);
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $h = ($ck == 1) ? "Your Albums" : $t["Personal"]["DisplayName"]."'s Albums";
      $b2 = $b2 ?? $h;
@@ -299,9 +299,9 @@
      $xfsUsage = $this->core->ByteNotation($xfsUsage)."MB";
      $limit = $this->core->Change([["MB" => "", "," => ""], $xfsLimit]);
      $usage = $this->core->Change([["MB" => "", "," => ""], $xfsUsage]);
-     $un = $data["UN"] ?? base64_encode($you);
-     $un = base64_decode($un);
-     $t = ($un == $you) ? $y : $this->core->Member($un);
+     $username = $data["UN"] ?? base64_encode($you);
+     $username = base64_decode($username);
+     $t = ($username == $you) ? $y : $this->core->Member($username);
      $fs = $this->core->Data("Get", [
       "fs",
       md5($t["Login"]["Username"])
@@ -309,22 +309,22 @@
      $alb = $fs["Albums"][$aid] ?? [];
      $ck = $y["Subscriptions"]["XFS"]["A"] ?? 0;
      $ck = ($ck == 1 && $notAnon == 1) ? 1 : 0;
-     $ck2 = ($un == $this->core->ID && $y["Rank"] == md5("High Command")) ? 1 : 0;
+     $ck2 = ($username == $this->core->ID && $y["Rank"] == md5("High Command")) ? 1 : 0;
      $de = $alb["Description"] ?? "";
      $display = ($ck2 == 1) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $h = $alb["Title"] ?? "Unsorted";
      $h = ($ck2 == 1) ? "System Media Library" : $h;
      $li .= "&AID=$aid&UN=".$data["UN"]."&lPG=$lpg";
      $lis = "Search $h";
-     $unlimitedFiles = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
-     $unlimitedFiles = ($ck2 == 1) ? "No Upload Limit" : $unlimitedFiles;
+     $usernamelimitedFiles = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
+     $usernamelimitedFiles = ($ck2 == 1) ? "No Upload Limit" : $usernamelimitedFiles;
      $ck = ($ck == 1 || $usage < $limit) ? 1 : 0;
-     if(($ck == 1 && $un == $you) || $ck2 == 1) {
+     if(($ck == 1 && $username == $you) || $ck2 == 1) {
       $lo = $this->core->Change([[
        "[Album.Description]" => $de,
        "[Album.Owner]" => $display,
        "[Album.Uploader]" => base64_encode("v=".base64_encode("File:Upload")."&AID=$aid&UN=".$t["Login"]["Username"]),
-       "[Album.FStats]" => $unlimitedFiles
+       "[Album.FStats]" => $usernamelimitedFiles
       ], $this->core->Extension("b9e1459dc1c687cebdaa9aade72c50a9")]);
      } else {
       $lo = $this->core->Change([[
@@ -603,7 +603,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $bl = base64_decode($data["BL"]);
      $blacklist = $y["Blocked"][$bl] ?? [];
      foreach($blacklist as $key => $value) {
-      $unblock = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($value)."&List=".base64_encode($bl));
+      $usernameblock = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($value)."&List=".base64_encode($bl));
       if($bl == "Albums") {
        $alb = explode("-", base64_decode($value));
        $t = ($alb[0] != $you) ? $this->core->Member($alb[0]) : $y;
@@ -710,7 +710,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        "[X.LI.Header]" => base64_encode($h),
        "[X.LI.ID]" => base64_encode($v),
        "[X.LI.Unblock]" => base64_encode($u),
-       "[X.LI.Unblock.Proc]" => base64_encode(base64_encode($unblock)),
+       "[X.LI.Unblock.Proc]" => base64_encode(base64_encode($usernameblock)),
        "[X.LI.View]" => base64_encode($vi)
       ]);
      }
@@ -1805,45 +1805,34 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
    } elseif($st == "SHOP-Products") {
     $ec = "Accepted";
     $home = base64_encode("Product:Home");
-    $coverPhoto = $this->core->PlainText([
-     "Data" => "[Media:MiNY]",
-     "Display" => 1
-    ]);
-    $un = $data["UN"] ?? base64_encode($you);
-    $une = $un;
-    $un = base64_decode($un);
-    $t = ($un == $you) ? $y : $this->core->Member($un);
+    $username = $data["UN"] ?? base64_encode($you);
+    $username = base64_decode($username);
+    $t = ($username == $you) ? $y : $this->core->Member($username);
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    $shop = $this->core->Data("Get", [
-     "shop",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
     $products = $shop["Products"] ?? [];
     foreach($products as $key => $value) {
-     $product = $this->core->Data("Get", ["product", $value]) ?? [];
      $bl = $this->core->CheckBlocked([$y, "Products", $value]);
+     $_Product = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Product;$value")
+     ]);
+     $product = $_Product["DataModel"];
      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
      $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
      $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-     $ck = ($ck == 1 || $t["Login"]["Username"] == $this->core->ShopID) ? 1 : 0;
+     $ck = ($ck == 1 || $this->core->ShopID == $username) ? 1 : 0;
      $illegal = $product["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     $illegal = ($t["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
+     $illegal = ($this->core->ShopID != $username) ? 1 : 0;
      if($bl == 0 && $ck == 1 && $illegal == 0) {
-      $coverPhoto = $product["ICO"] ?? $coverPhoto;
-      $coverPhoto = base64_encode($coverPhoto);
-      $pub = $data["pub"] ?? 0;
+      $options = $_Product["ListItem"]["Options"];
       array_push($msg, [
-       "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-       "[X.LI.T]" => base64_encode($product["Title"]),
-       "[X.LI.D]" => base64_encode($this->core->PlainText([
-        "BBCodes" => 1,
-        "Data" => $product["Description"],
-        "Display" => 1,
-        "HTMLDecode" => 1
-       ])),
-       "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=$value&UN=$une"))
+       "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
+       "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
+       "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
+       "[X.LI.DT]" => base64_encode(base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$value&UN=".base64_encode($username)))
       ]);
      }
     }
@@ -1871,7 +1860,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       foreach($products as $key => $value) {
        $product = $this->core->Data("Get", ["product", $value]) ?? [];
        $bl = $this->core->CheckBlocked([$y, "Products", $value]);
-       $une = base64_encode($v["Login"]["Username"]);
+       $usernamee = base64_encode($v["Login"]["Username"]);
        $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
        $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
        $ck3 = $v["Subscriptions"]["Artist"]["A"] ?? 0;
