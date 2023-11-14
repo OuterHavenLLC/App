@@ -94,8 +94,6 @@
     "AddTo",
     "Added",
     "CARD",
-    "ID",
-    "UN",
     "back",
     "lPG"
    ]);
@@ -117,29 +115,26 @@
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $attachmentID = base64_encode($t["Login"]["Username"]."-".$id);
     $bl = $this->core->CheckBlocked([$y, "Files", $id]);
+    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+    $_File = $this->core->GetContentData([
+     "Blacklisted" => $bl,
+     "ID" => base64_encode("File;$username;$id")
+    ]);
     $dm = base64_encode(json_encode([
      "t" => $username,
      "y" => $you
     ]));
-    $files = $this->core->Data("Get", [
-     "fs",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
-    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-     "app",
-     "fs"
-    ]) : $files["Files"];
-    $file = $files[$id] ?? [];
+    $file = $_File["DataModel"];
+    $options = $_File["ListItem"]["Options"];
     $r = [
      "Body" => "The File <em>$id</em> could not be found."
     ];
     if(!empty($file)) {
-     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $accessCode = "Accepted";
      $actions = ($username != $you) ? $this->core->Element([
       "button", $blockCommand, [
        "class" => "Small UpdateButton v2",
-       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Files"))
+       "data-processor" => $options["Block"]
       ]
      ]) : "";
      $addTo = $data["AddTo"] ?? "";
@@ -166,23 +161,20 @@
      $actions .= $this->core->Element([
       "button", "Download", [
        "class" => "Small v2",
-       "onclick" => "W('".$this->core->base."/?_API=Web&v=".base64_encode("File:Download")."&FilePath=".base64_encode($t["Login"]["Username"]."/".$file["Name"])."', '_top');"
+       "onclick" => "W('".$options["Download"]."', '_top');"
       ]
      ]);
      $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
       "button", "Edit", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($id)."&UN=".base64_encode($username))
+       "data-view" => $options["Edit"]
       ]
      ]) : "";
      $fileCheck = $this->core->CheckFileType([$file["EXT"], "Photo"]);
      $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
      $setAsProfileImage = "";
      if($nsfw == 0 && $fileCheck == 1) {
-      $_Source = $this->core->GetSourceFromExtension([
-       $t["Login"]["Username"],
-       $file
-      ]);
+      $_Source = $options["Source"];
       $readEFS = curl_init($_Source);
       curl_setopt($readEFS, CURLOPT_NOBODY, true);
       curl_exec($readEFS);
@@ -208,10 +200,8 @@
      $share = ($share == 1) ? $this->core->Element([
       "button", "Share", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("File")."&Username=".base64_encode($t["Login"]["Username"]))
+       "data-view" => $options["Share"]
      ]]) : "";
-     $votes = ($username != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-     $votes = base64_encode("v=$votes&ID=$id&Type=4");
      $r = $this->core->Change([[
       "[File.Actions]" => $actions,
       "[File.AddTo]" => $addTo,
@@ -229,20 +219,13 @@
       "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
       "[File.Name]" => $file["Name"],
       "[File.NSFW]" => $nsfw,
-      "[File.Preview]" => $this->core->GetAttachmentPreview([
-       "DLL" => $file,
-       "T" => $username,
-       "Y" => $you
-      ]).$this->core->Element(["div", NULL, [
-       "class" => "NONAME",
-       "style" => "height:0.5em"
-      ]]),
+      "[File.Preview]" => $_File["ListItem"]["Attachments"],
       "[File.SetAsProfileImage]" => $setAsProfileImage,
       "[File.Share]" => $share,
-      "[File.Title]" => $file["Title"],
+      "[File.Title]" => $_File["ListItem"]["Title"],
       "[File.Type]" => $file["Type"],
       "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
-      "[File.Votes]" => $votes
+      "[File.Votes]" => $options["Vote"]
      ], $this->core->Extension("c31701a05a48069702cd7590d31ebd63")]);
     }
    }

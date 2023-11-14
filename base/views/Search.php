@@ -862,12 +862,13 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $groups = $this->core->DatabaseSet("Chat") ?? [];
      foreach($groups as $key => $group) {
       $group = str_replace("c.oh.chat.", "", $group);
+      $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
       $_Chat = $this->core->GetContentData([
+       "Blacklisted" => $bl,
        "ID" => base64_encode("Chat;$group"),
        "Integrated" => $integrated
       ]);
       $active = 0;
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
       $chat = $_Chat["DataModel"];
       $contributors = $chat["Contributors"] ?? [];
       foreach($contributors as $member => $role) {

@@ -647,15 +647,29 @@
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
      ];
     } elseif($type == "Chat") {
+     $active = 0;
      $data = $this->Data("Get", ["chat", $contentID]) ?? [];
+     $contributors = $data["Contributors"] ?? [];
+     foreach($contributors as $member => $role) {
+      if($member == $you) {
+       $active++;
+      }
+     }
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
+     $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
+     $bookmarkCommand .= "Bookmark";
      $description = $data["Description"] ?? "";
      $empty = (empty($data)) ? 1 : 0;
      $title = $data["Title"] ?? "";
      $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
      $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
      $options = [
-      "Delete" => "",
-      "Edit" => "",
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Group Chats")),
+      "Bookmark" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($contentID)),
+      "Contributors" => $contributors,
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteChat")."&ID=".base64_encode($contentID)),
+      "Edit" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($contentID)."&Username=".base64_encode($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Chat")."&Username=".base64_encode($data["UN"])),
       "View" => base64_encode($view)
      ];
     } elseif($type == "Comment" && !empty($additionalContantID)) {
@@ -665,22 +679,37 @@
      $comment = $data[$additionalContantID] ?? [];
      $body = $comment["Body"];
      $empty = (empty($comment)) ? 1 : 0;
-    } elseif($type == "Conversation") {
-     $data = $this->Data("Get", ["conversation", $contentID]) ?? [];
-     $empty = (empty($data)) ? 1 : 0;
     } elseif($type == "File" && !empty($additionalContantID)) {
-     $data = $this->Data("Get", ["fs", md5($contentID)]) ?? [];
-     $file = $data["Files"][$additionalContantID] ?? [];
-     $empty = (empty($file)) ? 1 : 0;
+     $blockCommand = ($content["Blacklisted"] == 0) ? "Block" : "Unblock";
+     $data = $this->Data("Get", [
+      "fs",
+      md5($contentID)
+     ]) ?? [];
+     $data = ($contentID == $this->ID) ? $this->Data("Get", [
+      "app",
+      "fs"
+     ]) : $data["Files"];
+     $data = $data[$additionalContantID] ?? [];
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
      $attachments = $this->GetAttachmentPreview([
-      "DLL" => $file,
+      "DLL" => $data,
       "T" => $contentID,
       "Y" => $you
      ]).$this->Element(["div", NULL, [
       "class" => "NONAME",
       "style" => "height:0.5em"
      ]]);
-     $title = $file["Title"];
+     $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $options = [
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($content["ID"])."&List=".base64_encode("Files")),
+      "Download" => $this->base."/?_API=Web&v=".base64_encode("File:Download")."&FilePath=".base64_encode("$contentID/".$data["Name"]),
+      "Edit" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContantID)."&UN=".base64_encode($contentID)),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContantID)."&Type=".base64_encode("File")."&Username=".base64_encode($contentID)),
+      "Source" => $this->GetSourceFromExtension([$contentID, $data]),
+      "Vote" => base64_encode("v=$vote&ID=$additionalContantID&Type=4")
+     ];
+     $title = $data["Title"] ?? "";
     } elseif($type == "Forum") {
      $data = $this->Data("Get", ["pf", $contentID]) ?? [];
      $description = $data["Description"] ?? "";

@@ -228,65 +228,65 @@
       "p", "Chat Information is only viewable for Group Chats."
      ]);
      if($group == 1) {
+      $bl = $this->core->CheckBlocked([$y, "Group Chats", $id]);
+      $_Chat = $this->core->GetContentData([
+       "Blacklisted" => $bl,
+       "ID" => base64_encode("Chat;$id"),
+       "Integrated" => $integrated
+      ]);
       $active = 0;
-      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-      $contributors = $chat["Contributors"] ?? [];
+      $chat = $_Chat["DataModel"];
+      $options = $_Chat["ListItem"]["Options"];
+      $contributors = $options["Contributors"] ?? [];
       foreach($contributors as $member => $role) {
        if($member == $you) {
         $active++;
        }
       }
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $id]);
       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
       $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
       $bookmarkCommand .= "Bookmark";
       $delete = ($chat["UN"] == $you && $id != "6cb00ab5e20c385b2c8d56e58ab03f97") ? 1 : 0;
-      $modified = $chat["Modified"] ?? "";
-      if(!empty($modified)) {
-       $_Time = $this->core->TimeAgo($modified);
-       $modified = " &bull; Modified ".$_Time;
-       $modified = $this->core->Element(["em", $modified]);
-      }
       $privacy = ($chat["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"]) && $chat["Privacy"] != md5("Private")) ? 1 : 0;
       $share = (($chat["UN"] == $you || $active == 1) && $id != "6cb00ab5e20c385b2c8d56e58ab03f97") ? 1 : 0;
-      $options = ($chat["UN"] != $you) ? $this->core->Element([
+      $actions = ($chat["UN"] != $you) ? $this->core->Element([
        "button", $blockCommand, [
         "class" => "Small UpdateButton v2",
-        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Group Chats"))
+        "data-processor" => $options["Block"]
        ]
       ]) : $this->core->Element([
        "button", "Edit", [
         "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($id)."&Username=".base64_encode($chat["UN"]))
+        "data-view" => $options["Edit"]
        ]
       ]);
-      $options .= ($chat["UN"] != $you && $privacy == 1 && $share == 1) ? $this->core->Element([
+      $actions .= ($chat["UN"] != $you && $privacy == 1 && $share == 1) ? $this->core->Element([
        "button", $bookmarkCommand, [
         "class" => "UpdateButton v2",
-        "data-processor" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($id))
+        "data-processor" => $options["Bookmark"]
        ]
       ]) : "";
-      $options .= ($delete == 1 && $integrated == 1) ? $this->core->Element([
+      $actions .= ($delete == 1 && $integrated == 1) ? $this->core->Element([
        "button", "Delete", [
         "class" => "CloseCard OpenDialog v2",
-        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteChat")."&ID=".base64_encode($id))
+        "data-view" => $options["Delete"]
        ]
       ]) : "";
-      $options .= ($privacy == 1 && $share == 1) ? $this->core->Element([
+      $actions .= ($privacy == 1 && $share == 1) ? $this->core->Element([
        "button", "Share", [
         "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Chat")."&Username=".base64_encode($chat["UN"]))
+        "data-view" => $options["Share"]
        ]
       ]) : "";
       $r = $this->core->Change([[
        "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
        "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
-       "[Chat.Description]" => $chat["Description"],
+       "[Chat.Description]" => $_Chat["ListItem"]["Description"],
        "[Chat.ID]" => $id,
-       "[Chat.Modified]" => $modified,
-       "[Chat.Options]" => $options,
+       "[Chat.Modified]" => $_Chat["ListItem"]["Modified"],
+       "[Chat.Options]" => $actions,
        "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
-       "[Chat.Title]" => $chat["Title"],
+       "[Chat.Title]" => $_Chat["ListItem"]["Title"],
       ], $this->core->Extension("5252215b917d920d5d2204dd5e3c8168")]);
      } elseif($oneOnOne == 1) {
       $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
