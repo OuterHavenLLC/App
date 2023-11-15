@@ -427,7 +427,6 @@
    } elseif(!empty($id) && !empty($vote)) {
     $_Congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
     $accessCode = "Accepted";
-    $affectedDatabases = "";
     $congressmen = $_Congress["Members"] ?? [];
     $houseVotes = 0;
     $id = explode(";", base64_decode($id));
@@ -460,7 +459,6 @@
      "Role" => $yourRole,
      "Vote" => $yourVote
     ];
-    $affectedDatabases .= $this->core->Element(["p", "c.oh.".str_replace("-", ".", $id[1])]);
     $congress["Votes"] = $votes;
     $data["Congress"] = $congress;
     foreach($votes as $member => $info) {
@@ -521,8 +519,7 @@
      }
      $r = [
       "Body" => "Your <em>$yourVote</em> vote has been cast! $r",
-      "Header" => "Done",
-      "Scrollable" => $affectedDatabases
+      "Header" => "Done"
      ];
     }
    }

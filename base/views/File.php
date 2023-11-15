@@ -129,7 +129,7 @@
     $r = [
      "Body" => "The File <em>$id</em> could not be found."
     ];
-    if(!empty($file)) {
+    if($_File["Empty"] == 0) {
      $accessCode = "Accepted";
      $actions = ($username != $you) ? $this->core->Element([
       "button", $blockCommand, [
