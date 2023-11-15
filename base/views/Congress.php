@@ -4,6 +4,35 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
+  function Elect() {
+   $accessCode = "Denied";
+   $r = [
+    "Body" => "There are currently no eligible candidates to elect."
+   ];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($eligibleCandidates > 0) {
+    $accessCode = "Accepted";
+    // ELECT ALL ELIGIBLE CANDIDATES
+    // THRESHOLD SHOULD BE THE SAME AS THE ILLEGAL THRESHOLD
+    // CHAMBER PROPORTIONS WILL BE TAKEN INTO ACCOUNT
+    // EXAMPLE: HOUSE, SENATE (100, 50)
+    $r = [
+     "Body" => "Comming soon...",
+     "Header" => "Done"
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function Home(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
@@ -12,18 +41,19 @@
    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
    $congressmen = $congress["Members"] ?? [];
    $houseRepresentatives = 0;
-   $senators = 0;
    $pub = $data["pub"] ?? 0;
+   $senators = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $yourRole = $congressmen[$you] ?? "";
+   $notAnon = ($this->core->ID != $you) ? 1 : 0;
    foreach($congressmen as $member => $role) {
     if($role == "HouseRepresentative") {
      $houseRepresentatives++;
     } elseif($role = "Senator") {
      $senators++;
     }
-   } if($chambers == 1) {
+   } if(!empty($chamber) && $chambers == 1) {
     $search = base64_encode("Search:Containers");
     if($chamber == "House") {
      $r = $this->core->Element([
@@ -50,10 +80,14 @@
         "p", "Welcome to the Chamber of the $chamber of Congress. A list of Senators, the ability to vote in new Senators if you are a House member, and more will be present here in the future. Click or tap below to view content put forth for your Chamber's vote."
       ]).$this->core->Element(["button", "View Content", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$search&CARD=1&Chamber=Senate&st=Congress")
+       "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
       ]]);
      }
     }
+    $r .= ($notAnon == 1) ? $this->core->Element(["button", "$chamber Ballot", [
+     "class" => "OpenCard v2",
+     "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=CongressionalBallot")
+    ]]) : "";
    } else {
     $notAnon = ($this->core->ID !== $you) ? 1 : 0;
     $joinTheHouse = ($houseRepresentatives < 100 && $notAnon == 1) ? $this->core->Element([
@@ -175,6 +209,31 @@
      ];
     }
     $this->core->Data("Save", ["app", md5("Congress"), $congress]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function Nominate() {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $chamber = $data["Chamber"] ?? "";
+   $username = $data["Username"] ?? "";
+   $r = [
+    "Body" => "The Chamber or Member are missing."
+   ];
+   if(!empty($chamber) && !empty($member)) {
+    // NOMINATION FORM WILL BE ON EACH MEMBER'S PROFILE
+    // PUT A MEMBER'S NAME ON THE BALLOT
+    $r = [
+     "Body" => "Comming soon..."
+    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

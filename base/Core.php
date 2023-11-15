@@ -197,6 +197,7 @@
       "CART",
       "Chat",
       "Congress",
+      "CongressionalBallot",
       "Contacts",
       "ContactsProfileList",
       "ContactsRequests",

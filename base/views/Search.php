@@ -75,25 +75,30 @@
      $lis = "Search Articles";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "CART") {
-     $t = $data["Username"] ?? $you;
-     $t = ($t == $you) ? $y : $this->core->Member($t);
-     $shopID = md5($t["Login"]["Username"]);
+     $extension = "e58b4fc5070b14c01c88c28050547285";
+     $shopID = $data["Username"] ?? $you;
+     $shopID = md5($shopID);
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
      $li .= "&ID=$shopID";
      $lis = "Search ".$shop["Title"];
-     $extension = "e58b4fc5070b14c01c88c28050547285";
     } elseif($st == "Chat") {
-     $integrated = $data["Integrated"] ?? 0;
+     $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $h = "Group Chats";
+     $integrated = $data["Integrated"] ?? 0;
      $li .= "&Integrated=$integrated";
      $lis = "Search $h";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "Congress") {
      $chamber = $data["Chamber"] ?? "";
      $extension = "8568ac7727dae51ee4d96334fa891395";
      $h = "Content Moderation";
      $li .= "&Chamber=$chamber";
      $lis = "Search Content";
+    } elseif($st == "CongressionalBallot") {
+     $chamber = $data["Chamber"] ?? "";
+     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $h = "Congressional Ballot";
+     $li .= "&Chamber=$chamber";
+     $lis = "Search Candidates";
     } elseif($st == "Contacts") {
      $h = "Contact Manager";
      $lis = "Search Contacts";
@@ -1047,6 +1052,14 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        }
       }
      }
+    }
+   } elseif($st == "CongressionalBallot") {
+    $accessCode = "Accepted";
+    $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
+    $chamber = $data["Chamber"] ?? "";
+    $extension = $this->core->Extension("1f32642e05747ba3cec15d7c9fffbd0f");
+    if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
+     // CONGRESSIONAL BALLOT
     }
    } elseif($st == "Contacts") {
     $accessCode = "Accepted";
