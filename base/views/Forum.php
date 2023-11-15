@@ -274,7 +274,7 @@
       "[Forum.Administrators]" => base64_encode("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin"),
       "[Forum.Back]" => $back,
       "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
-      "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
+      "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
       "[Forum.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
       "[Forum.Description]" => $_Forum["ListItem"]["Description"],
       "[Forum.ID]" => $id,

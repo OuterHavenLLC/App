@@ -294,7 +294,7 @@
       "[Blog.Back]" => $bck,
       "[Blog.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
       "[Blog.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors"),
-      "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
+      "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
       "[Blog.Description]" => $_Blog["ListItem"]["Description"],
       "[Blog.ID]" => $id,
       "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),

@@ -331,7 +331,7 @@
       "[Article.Attachments]" => $_Article["ListItem"]["Attachments"],
       "[Article.Back]" => $back,
       "[Article.Body]" => $_Article["ListItem"]["Body"],
-      "[Article.Contributors]" => base64_encode("v=".base64_encode("Common:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
+      "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
       "[Article.Conversation]" => $this->core->Change([[
        "[Conversation.CRID]" => $id,
        "[Conversation.CRIDE]" => base64_encode($id),

@@ -99,6 +99,11 @@
      $h = "Congressional Ballot";
      $li .= "&Chamber=$chamber";
      $lis = "Search Candidates";
+    } elseif($st == "CongressionalStaffHouse" || $st == "CongressionalStaffSenate") {
+     $chamber = $data["Chamber"] ?? "";
+     $extension = "e58b4fc5070b14c01c88c28050547285";
+     $li .= "&Chamber=$chamber";
+     $lis = "Search  $chamber Staff";
     } elseif($st == "Contacts") {
      $h = "Contact Manager";
      $lis = "Search Contacts";
@@ -1058,8 +1063,39 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
     $chamber = $data["Chamber"] ?? "";
     $extension = $this->core->Extension("1f32642e05747ba3cec15d7c9fffbd0f");
+    $na = "No Candidates for the $chamber";
     if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
      // CONGRESSIONAL BALLOT
+    }
+   } elseif($st == "CongressionalStaffHouse" || $st == "CongressionalStaffSenate") {
+    $accessCode = "Accepted";
+    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+    $congress = $congress["Members"] ?? [];
+    $chamber = $data["Chamber"] ?? "";
+    $extension = $this->core->Element([
+     "div", "[ListItem.Button]", ["class" => "Desktop25"]
+    ]);
+    $na = "No $chamber Staff";
+    if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
+     foreach($congress as $member => $role) {
+      $check = ($chamber == "House" && $role == "HouseRepresentative") ? 1 : 0;
+      $check2 = ($chamber == "Senate" && $role == "Senator") ? 1 : 0;
+      if($check == 1 || $check2 == 1) {
+       $t = ($key == $you) ? $y : $this->core->Member($member);
+       if(!empty($t["Login"])) {
+        array_push($msg, [
+         "[ListItem.Button]" => base64_encode($this->core->Element([
+          "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
+           "class" => "OpenCard Small",
+           "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
+          ]
+         ]).$this->core->Element([
+          "h4", $t["Personal"]["DisplayName"], ["class" => "CenterText UpperCase"]
+         ]))
+        ]);
+       }
+      }
+     }
     }
    } elseif($st == "Contacts") {
     $accessCode = "Accepted";

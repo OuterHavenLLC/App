@@ -198,6 +198,8 @@
       "Chat",
       "Congress",
       "CongressionalBallot",
+      "CongressionalStaffHouse",
+      "CongressionalStaffSenate",
       "Contacts",
       "ContactsProfileList",
       "ContactsRequests",

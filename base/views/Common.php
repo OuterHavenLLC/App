@@ -136,50 +136,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function MemberGrid(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $list = $data["List"] ?? "";
-   $rows = $data["Rows"] ?? 9;
-   $type = $data["Type"] ?? "Web";
-   $r = $this->core->Element(["p", "None, yet..."]);
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(!empty($list)) {
-    $i = 0;
-    $list = json_decode(base64_decode($list), true);
-    $list = $this->core->ShuffleList($list);
-    $r = "";
-    foreach($list as $key => $value) {
-     $t = ($key == $you) ? $y : $this->core->Member($key);
-     if(!empty($t["Login"])) {
-      $i++;
-      $r .= $this->core->Element([
-       "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
-        "class" => "OpenCard Small",
-        "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
-       ]
-      ]);
-     }
-    }
-    $r = ($i == 0) ? $this->core->Element([
-     "p", "None, yet..."
-    ]) : $r;
-    $r = $this->core->Element([
-     "h4", "Contributors", ["class" => "UpperCase"]
-    ]).$this->core->Element([
-     "div", $r, ["class" => "SideScroll"]
-    ]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function SubscribeSection(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];

@@ -54,40 +54,29 @@
      $senators++;
     }
    } if(!empty($chamber) && $chambers == 1) {
+    $options = "";
     $search = base64_encode("Search:Containers");
-    if($chamber == "House") {
-     $r = $this->core->Element([
-      "h2", "$chamber of Representatives"
-     ]).$this->core->Element([
-      "p", "Welcome to the Chamber of the $chamber of Congress."
-     ]);
-     if($yourRole == "HouseRepresentative") {
-      $r .= $this->core->Element([
-       "p", "A list of House members, the ability to vote in new House Representatives (2x the Senate population, and more will be present here in the future. Click or tap below to view content put forth for your Chamber's vote."
-      ]).$this->core->Element(["button", "View Content", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$search&CARD=1&Chamber=House&st=Congress")
-      ]]);
-     }
-    } elseif($chamber == "Senate") {
-     $r = $this->core->Element([
-      "h2", $chamber
-     ]).$this->core->Element([
-      "p", "Welcome to the Congressional $chamber."
-     ]);
-     if($yourRole == "Senator") {
-      $r .= $this->core->Element([
-        "p", "Welcome to the Chamber of the $chamber of Congress. A list of Senators, the ability to vote in new Senators if you are a House member, and more will be present here in the future. Click or tap below to view content put forth for your Chamber's vote."
-      ]).$this->core->Element(["button", "View Content", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
-      ]]);
-     }
-    }
-    $r .= ($notAnon == 1) ? $this->core->Element(["button", "$chamber Ballot", [
+    $options = ($notAnon == 1) ? $this->core->Element(["button", "Ballot", [
      "class" => "OpenCard v2",
      "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=CongressionalBallot")
     ]]) : "";
+    $options = ($chamber == "House" && $yourRole == "HouseRepresentative") ? $this->core->Element([
+     "button", "Reported Content", [
+      "class" => "OpenCard v2",
+      "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
+     ]
+    ]) : "";
+    $options = ($chamber == "Senate" && $yourRole == "Senator") ? $this->core->Element([
+     "button", "Reported Content", [
+      "class" => "OpenCard v2",
+      "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
+     ]
+    ]) : "";
+    $r = $this->core->Change([[
+     "[Congress.Chamber]" => $chamber,
+     "[Congress.Staff]" => base64_encode("v=$search&Chamber=$chamber&st=CongressionalStaff$chamber"),
+     "[Congress.Staff.Options]" => $options,
+    ], $this->core->Extension("4ded3808da05154205a26c869289b6a2")]);
    } else {
     $notAnon = ($this->core->ID !== $you) ? 1 : 0;
     $joinTheHouse = ($houseRepresentatives < 100 && $notAnon == 1) ? $this->core->Element([
