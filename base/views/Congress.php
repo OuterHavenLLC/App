@@ -419,14 +419,112 @@
    $vote = $data["Vote"] ?? base64_encode("");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($id) && !empty($vote)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $vote = base64_decode($vote);
+   if($this->core->ID == $you) {
     $r = [
-     "Body" => "Coming soon...<br/>ID: $id<br/>Vote: $vote",
-     "Header" => "Done"
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
     ];
+   } elseif(!empty($id) && !empty($vote)) {
+    $_Congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+    $accessCode = "Accepted";
+    $affectedDatabases = "";
+    $congressmen = $_Congress["Members"] ?? [];
+    $houseVotes = 0;
+    $id = explode(";", base64_decode($id));
+    $contentID = explode("-", $id[1]);
+    $data = explode("-", $id[1]);
+    $data = $this->core->Data("Get", [$contentID[0], $contentID[1]]) ?? [];
+    $illegal = 0;
+    $legal = 0;
+    $r = "";
+    $houseRepresentatives = 0;
+    $senateVotes = 0;
+    $senators = 0;
+    foreach($congressmen as $member => $role) {
+     if($role == "HouseRepresentative") {
+      $houseRepresentatives++;
+     } elseif($role = "Senator") {
+      $senators++;
+     }
+    } if($id[0] == "File") {
+     $files = $data;
+     $data = $files["Files"] ?? [];
+     $data = $data[$id[2]] ?? [];
+    }
+    $congress = $data["Congress"] ?? [];
+    $congressDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
+    $votes = $congress["Votes"] ?? [];
+    $yourRole = $congressmen[$you] ?? "";
+    $yourVote = base64_decode($vote);
+    $votes[$you] = [
+     "Role" => $yourRole,
+     "Vote" => $yourVote
+    ];
+    $affectedDatabases .= $this->core->Element(["p", "c.oh.".str_replace("-", ".", $id[1])]);
+    $congress["Votes"] = $votes;
+    $data["Congress"] = $congress;
+    foreach($votes as $member => $info) {
+     $role = $info["Role"] ?? "";
+     $vote = $info["Vote"] ?? "";
+     if($role == "HouseRepresentative") {
+      $houseVotes++;
+     } elseif($role = "Senator") {
+      $senateVotes++;
+     }  if($vote == "Illegal") {
+      $illegal++;
+     } elseif($vote = "Legal") {
+      $legal++;
+     }
+    } if($congressDeemedLegal == 1) {
+     $r = [
+      "Body" => "Congress has deemed this content legal, and no further action may be taken."
+     ];
+    } else {
+     if($yourRole == "HouseRepresentative" && $houseVotes == $houseRepresentatives) {
+      if($legal > $illegal) {
+       $newData = [];
+       foreach($data as $key => $value) {
+        if($key != "Congress" && $key != "Illegal") {
+         $newData[$key] = $value;
+        }
+       }
+       $data = $newData;
+       $data["CongressDeemedLegal"] = 1;
+       $r = "The content has been placed back in circulation with prejudice.";
+      } else {
+       $r = "This content has been put forth for a Senate vote.";
+      } if($id[0] == "File") {
+       $files["Files"][$id[2]] = $data;
+       $data = $files;
+      }
+      $this->core->Data("Save", [$contentID[0], $contentID[1], $data]);
+     } elseif($yourRole == "Senator" && $senateVotes == $senators) {
+      if($legal > $illegal || $legal == $illegal) {
+       $newData = [];
+       foreach($data as $key => $value) {
+        if($key != "Congress" && $key != "Illegal") {
+         $newData[$key] = $value;
+        }
+       }
+       $data = $newData;
+       $data["CongressDeemedLegal"] = 1;
+       $r = "The content has been placed back in circulation with prejudice.";
+      } else {
+       $data["Purge"] = 1;
+       $r = "The content has been purged as it was deemed illegal.";
+      }
+      if($id[0] == "File") {
+       $files["Files"][$id[2]] = $data;
+       $data = $files;
+      }
+      $this->core->Data("Save", [$contentID[0], $contentID[1], $data]);
+     }
+     $r = [
+      "Body" => "Your <em>$yourVote</em> vote has been cast! $r",
+      "Header" => "Done",
+      "Scrollable" => $affectedDatabases
+     ];
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

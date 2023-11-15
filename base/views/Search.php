@@ -951,6 +951,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $type = ($id[2] == "post") ? "Post" : $type;
         $type = ($id[2] == "product") ? "Product" : $type;
         $type = ($id[2] == "su") ? "Status Update" : $type;
+        $contentID = base64_encode("$type;".$id[2]."-".$id[3]);
         if($id[2] == "fs") {
          $files = $this->core->Data("Get", ["fs", $id[3]]) ?? [];
          $files = $files["Files"] ?? [];
@@ -958,33 +959,41 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          foreach($files as $file => $info) {
           $congressDeemedLegal = $info["CongressDeemedLegal"] ?? 0;
           $illegal = $info["Illegal"] ?? 0;
-          if($congressDeemedLegal == 0 && $illegal <= $illegalThreshold) {//TEMP
-          #if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
+          if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
            $_Congress = $info["Congress"] ?? [];
            $_Votes = $_Congress["Votes"] ?? [];
-           $_HouseRepVotes = 0;
-           $_SenatorVotes = 0;
-           foreach($_Votes as $member => $role) {
+           $_HouseVotes = 0;
+           $_Illegal = 0;
+           $_Legal = 0;
+           $_SenateVotes = 0;
+           foreach($_Votes as $member => $memberInfonfo) {
+            $role = $memberInfonfo["Role"] ?? "";
+            $vote = $memberInfonfo["Vote"] ?? "";
             if($role == "HouseRepresentative") {
-             $_HouseRepVotes++;
+             $_HouseVotes++;
             } elseif($role = "Senator") {
-             $_SenatorVotes++;
+             $_SenateVotes++;
+            }  if($vote == "Illegal") {
+             $_Illegal++;
+            } elseif($vote = "Legal") {
+             $_Legal++;
             }
            }
+           $contentID = base64_encode("$type;".$id[2]."-".$id[3].";$file");
            $description = $info["Description"] ?? $type;
            $houseCleared = $_Congress["HouseCleared"] ?? 0;
-           $voted = ($yourRole == "HouseRepresentative") ? "$_HouseRepVotes out of $houseRepresentatives House Representatives" : "$_SenatorVotes out of $senators Senators";
-           $optionCheck = ($_HouseRepVotes < $houseRepresentatives) ? 1 : 0;
+           $voted = ($congressmen[$you] == "HouseRepresentative") ? "$_HouseVotes out of $houseRepresentatives House Representatives" : "$_SenateVotes out of $senators Senators";
+           $optionCheck = ($_HouseVotes < $houseRepresentatives) ? 1 : 0;
            $optionCheck = ($yourRole == "HouseRepresentative" && $optionCheck == 1) ? 1 : 0;
-           $optionCheck2 = ($_SenatorVotes < $senators) ? 1 : 0;
+           $optionCheck2 = ($_SenateVotes < $senators) ? 1 : 0;
            $optionCheck2 = ($yourRole == "Senator" && $optionCheck2 == 1) ? 1 : 0;
-           $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
+           $optionCheck2 = ($_HouseVotes == $houseRepresentatives && $_Illegal > $_Legal && $optionCheck2 == 1) ? 1 : 0;
            $title = $info["Title"] ?? $type;
            if($optionCheck == 1 || $optionCheck2 == 1) {
             array_push($msg, [
              "[Content.Description]" => base64_encode($description),
-             "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))),
-             "[Content.Legal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal")),
+             "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal"))),
+             "[Content.Legal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Legal"))),
              "[Content.Title]" => base64_encode($title),
              "[Content.Voted]" => base64_encode($voted)
             ]);
@@ -995,33 +1004,40 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
          $info = $this->core->Data("Get", [$id[2], $id[3]]) ?? [];
          $congressDeemedLegal = $info["CongressDeemedLegal"] ?? 0;
          $illegal = $info["Illegal"] ?? 0;
-         if($congressDeemedLegal == 0 && $illegal <= $illegalThreshold) {//TEMP
-         #if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
+         if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
           $_Congress = $info["Congress"] ?? [];
           $_Votes = $_Congress["Votes"] ?? [];
-          $_HouseRepVotes = 0;
-          $_SenatorVotes = 0;
-          foreach($_Votes as $member => $role) {
+          $_HouseVotes = 0;
+          $_Illegal = 0;
+          $_Legal = 0;
+          $_SenateVotes = 0;
+          foreach($_Votes as $member => $memberInfonfo) {
+           $role = $memberInfonfo["Role"] ?? "";
+           $vote = $memberInfonfo["Vote"] ?? "";
            if($role == "HouseRepresentative") {
-            $_HouseRepVotes++;
+            $_HouseVotes++;
            } elseif($role = "Senator") {
-            $_SenatorVotes++;
+            $_SenateVotes++;
+           }  if($vote == "Illegal") {
+            $_Illegal++;
+           } elseif($vote = "Legal") {
+            $_Legal++;
            }
           }
           $description = $info["Description"] ?? $type;
           $houseCleared = $_Congress["HouseCleared"] ?? 0;
-          $voted = ($congressmen[$you] == "HouseRepresentative") ? "$_HouseRepVotes out of $houseRepresentatives House Representatives" : "$_SenatorVotes out of $senators Senators";
-          $optionCheck = ($_HouseRepVotes < $houseRepresentatives) ? 1 : 0;
+          $voted = ($congressmen[$you] == "HouseRepresentative") ? "$_HouseVotes out of $houseRepresentatives House Representatives" : "$_SenateVotes out of $senators Senators";
+          $optionCheck = ($_HouseVotes < $houseRepresentatives) ? 1 : 0;
           $optionCheck = ($yourRole == "HouseRepresentative" && $optionCheck == 1) ? 1 : 0;
-          $optionCheck2 = ($_SenatorVotes < $senators) ? 1 : 0;
+          $optionCheck2 = ($_SenateVotes < $senators) ? 1 : 0;
           $optionCheck2 = ($yourRole == "Senator" && $optionCheck2 == 1) ? 1 : 0;
-          $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
+          $optionCheck2 = ($_HouseVotes == $houseRepresentatives && $_Illegal > $_Legal && $optionCheck2 == 1) ? 1 : 0;
           $title = $info["Title"] ?? $type;
           if($optionCheck == 1 || $optionCheck2 == 1) {
            array_push($msg, [
             "[Content.Description]" => base64_encode($description),
-            "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))),
-            "[Content.Legal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal")),
+            "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal"))),
+            "[Content.Legal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Legal"))),
             "[Content.Title]" => base64_encode($title),
             "[Content.Voted]" => base64_encode($voted)
            ]);
