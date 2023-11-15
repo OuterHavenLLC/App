@@ -60,13 +60,7 @@
      "class" => "OpenCard v2",
      "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=CongressionalBallot")
     ]]) : "";
-    $options = ($chamber == "House" && $yourRole == "HouseRepresentative") ? $this->core->Element([
-     "button", "Reported Content", [
-      "class" => "OpenCard v2",
-      "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
-     ]
-    ]) : "";
-    $options = ($chamber == "Senate" && $yourRole == "Senator") ? $this->core->Element([
+    $options .= (!empty($yourRole)) ? $this->core->Element([
      "button", "Reported Content", [
       "class" => "OpenCard v2",
       "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
