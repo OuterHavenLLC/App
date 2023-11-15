@@ -925,7 +925,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "stream",
      "votes"
     ];
-    $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
+    $extension = $this->core->Extension("1f32642e05747ba3cec15d7c9fffbd0f");
     $houseRepresentatives = 0;
     $senators = 0;
     $yourRole = $congressmen[$you] ?? "";
@@ -979,20 +979,16 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
            $optionCheck2 = ($_SenatorVotes < $senators) ? 1 : 0;
            $optionCheck2 = ($yourRole == "Senator" && $optionCheck2 == 1) ? 1 : 0;
            $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
-           $options = ($optionCheck == 1 || $optionCheck2 == 1) ? $this->core->Element([
-            "button", "Illegal", [
-             "class" => "OpenDialog v2",
-             "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))
-            ]
-           ]).$this->core->Element([
-            "button", "Legal", [
-             "class" => "OpenDialog v2",
-             "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal"))
-            ]
-           ]).$this->core->Element([
-            "p", "Voted on by $voted."
-           ]) : "";
-           $title = $info["Name"] ?? $type;
+           $title = $info["Title"] ?? $type;
+           if($optionCheck == 1 || $optionCheck2 == 1) {
+            array_push($msg, [
+             "[Content.Description]" => base64_encode($description),
+             "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))),
+             "[Content.Legal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal")),
+             "[Content.Title]" => base64_encode($title),
+             "[Content.Voted]" => base64_encode($voted)
+            ]);
+           }
           }
          }
         } else {
@@ -1020,27 +1016,18 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
           $optionCheck2 = ($_SenatorVotes < $senators) ? 1 : 0;
           $optionCheck2 = ($yourRole == "Senator" && $optionCheck2 == 1) ? 1 : 0;
           $optionCheck2 = ($houseCleared == 1 && $optionCheck2 == 1) ? 1 : 0;
-          $options = ($optionCheck == 1 || $optionCheck2 == 1) ? $this->core->Element([
-           "button", "Illegal", [
-            "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))
-           ]
-          ]).$this->core->Element([
-           "button", "Legal", [
-            "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal"))
-           ]
-          ]).$this->core->Element([
-           "p", "Voted on by $voted."
-          ]) : "";
           $title = $info["Title"] ?? $type;
+          if($optionCheck == 1 || $optionCheck2 == 1) {
+           array_push($msg, [
+            "[Content.Description]" => base64_encode($description),
+            "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Illegal"))),
+            "[Content.Legal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=".base64_encode("XXXX")."&Vote=".base64_encode("Legal")),
+            "[Content.Title]" => base64_encode($title),
+            "[Content.Voted]" => base64_encode($voted)
+           ]);
+          }
          }
         }
-        array_push($msg, [
-         "[ListItem.Description]" => base64_encode($description),
-         "[ListItem.Options]" => base64_encode($options),
-         "[ListItem.Title]" => base64_encode($title)
-        ]);
        }
       }
      }
