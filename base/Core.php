@@ -1043,6 +1043,7 @@
      "CoverPhoto" => $a["CoverPhoto"],
      "DisplayName" => $displayName,
      "Description" => "",
+     "Electable" => 0,
      "Email" => $email,
      "FirstName" => $firstName,
      "Gender" => $gender,

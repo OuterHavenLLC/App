@@ -2,6 +2,28 @@
 App Documentation is in the works...
 
 # Change Log
+## 1.2: Democracy
+### Release Notes
+A new, democratic form of content moderation is here! We are the first to establish a Congressional form of content moderation.
+
+### Congress
+* Members may now join Congress if the House has less than 100 members and the Senate has less than 50. After these thresholds are surpassed, future staff must be elected to their Congressional roles.
+* Nomination to the Congressional Ballot is now possible from a Member's profile.
+* Members may now vote and elect others to Congress via the Congressional Ballot.
+* Each Congressional Chamber will present a searchable grid of respective Staff.
+* Reported content is now put forth for a vote in the House and, if the content is voted legal, it will be put back into circulation with prejudice.
+* If the House deems reported content illegal or a deadlock occures, the Senate will make a confirmation vote.
+* If the Senate finds the content legal or their is a deadlock, the content will be put back into circulation with prejudice. Otherwise, it will be marked for purging from the platform and will not be searchable.
+* Prejudiced content cannot be reported further, as it is henceforth considered legal.
+
+### Polls
+* Members may now create and delete Polls
+* Members may search for and vote on other Member's Polls.
+
+### Platform Improvements
+* We've streamlined the means by which most content is rendered by consolidating functionality under a new GetContentData() Core object.
+* A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job.
+
 ## 1.1.1: Supplemental
 ### Release Notes
 This release resolves an issue that prevented Chat messages from rendering properly, and enables recursive client-side loading of searchable lists under the new Search() function.

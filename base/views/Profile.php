@@ -568,7 +568,7 @@
       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($id))
      ]]) : "";
      $actions .= ($_Artist == 1) ? $this->core->Element(["button", "Donate", [
-      "class" => "OpenCardSmall v2",
+      "class" => "OpenCardSmall Small v2",
       "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id))
      ]]) : "";
      $actions .= ($_VIP == 0 && $y["Rank"] == md5("High Command")) ? $this->core->Element(["button", "Make VIP", [
@@ -680,7 +680,7 @@
          "[ContactRequest.Header]" => "Add $displayName",
          "[ContactRequest.ID]" => $id,
          "[ContactRequest.Option]" => $this->core->Element([
-          "button", "Add $display", [
+          "button", "Add $displayName", [
            "class" => "BB SendData v2 v2w",
            "data-form" => ".ContactRequest$id",
            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests"))
@@ -691,6 +691,7 @@
         ], $this->core->Extension("a73ffa3f28267098851bf3550eaa9a02")]);
        }
       }
+      $addContact = ($id != $this->core->ID) ? $addContact : "";
       $addContact = ($you != $this->core->ID) ? $addContact : "";
      } if($id != $you && $y["Rank"] == md5("High Command") || $y["Rank"] == md5("Support")) {
       if($id != $this->core->ID && $id != $this->core->ShopID) {
@@ -707,7 +708,7 @@
         ];
        }
        $changeRank = $this->core->Change([[
-        "[Ranks.Authentication]" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".MemberRank".md5($id))."&ID=".md5($id)."&Processor=".base64_encode("v=".base64_encode("Profile:ChangeRank"))."&Text=".base64_encode("Do you authorize the Change of $display's rank?")),
+        "[Ranks.Authentication]" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".MemberRank".md5($id))."&ID=".md5($id)."&Processor=".base64_encode("v=".base64_encode("Profile:ChangeRank"))."&Text=".base64_encode("Do you authorize the Change of $displayName's rank?")),
         "[Ranks.DisplayName]" => $displayName,
         "[Ranks.ID]" => md5($id),
         "[Ranks.Options]" => json_encode($ranks, true),
@@ -761,6 +762,7 @@
       "[Member.Footer]" => $this->core->Extension("a095e689f81ac28068b4bf426b871f71"),
       "[Member.ID]" => md5($id),
       "[Member.Journal]" => $journal,
+      "[Member.Nominate]" => base64_encode("v=".base64_encode("Congress:Nominate")."&Username=".base64_encode($id)),
       "[Member.ProfilePicture]" => $options["ProfilePicture"],
       "[Member.Share]" => $share,
       "[Member.Stream]" => base64_encode("v=$search&UN=".base64_encode($id)."&st=MBR-SU"),
@@ -944,8 +946,9 @@
     ]]);
     $birthMonths = [];
     $birthYears = [];
-    $choseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
-    $choseMinimalDesign = (!empty($choseMinimalDesign)) ? 1 : 0;
+    $chooseElectable = $y["Personal"]["Electable"] ?? 0;
+    $chooseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
+    $chooseMinimalDesign = (!empty($chooseMinimalDesign)) ? 1 : 0;
     $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
     for($i = 1; $i <= 12; $i++) {
      $birthMonths[$i] = $i;
@@ -972,7 +975,8 @@
      "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode(md5($y["Login"]["Username"]))),
      "[Preferences.Links.NewPassword]" => base64_encode("v=".base64_encode("Profile:NewPassword")),
      "[Preferences.Links.NewPIN]" => base64_encode("v=".base64_encode("Profile:NewPIN")),
-     "[Preferences.Personal.MinimalDesign]" => $choseMinimalDesign,
+     "[Preferences.Personal.Electable]" => $chooseElectable,
+     "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
 
      "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
      "[Preferences.Privacy.Archive]" => $y["Privacy"]["Archive"],
@@ -1083,8 +1087,9 @@
      "Year" => $data["BirthYear"]
     ];
     $newMember["Personal"]["Age"] = date("Y") - $data["BirthYear"];
-    $newMember["Personal"]["FirstName"] = $firstName;
     $newMember["Personal"]["CoverPhoto"] = $y["Personal"]["CoverPhoto"];
+    $newMember["Personal"]["Electable"] = $data["Electable"] ?? 0;
+    $newMember["Personal"]["FirstName"] = $firstName;
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $newMember["Rank"] = $y["Rank"];

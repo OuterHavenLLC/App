@@ -6,8 +6,13 @@
   }
   function Elect() {
    $accessCode = "Denied";
+   $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
+   $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+   $now = $this->core->timestamp;
+   $nextElection = $this->core->Timeplus($now, 1, "month");
+   $electionTime = $congress["ElectionTime"] ?? $now;
    $r = [
-    "Body" => "There are currently no eligible candidates to elect."
+    "Body" => "There are currently no eligible candidates to elect. ($electionTime, $nextElection)"
    ];
    if($this->core->ID == $you) {
     $r = [
@@ -61,6 +66,11 @@
      "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=CongressionalBallot")
     ]]) : "";
     $options .= (!empty($yourRole)) ? $this->core->Element([
+     "button", "Elect Candidates", [
+      "class" => "OpenDialog v2",
+      "data-view" => base64_encode("v=".base64_encode("Congress:Elect"))
+     ]
+    ]).$this->core->Element([
      "button", "Reported Content", [
       "class" => "OpenCard v2",
       "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
@@ -202,21 +212,89 @@
     "ResponseType" => "View"
    ]);
   }
-  function Nominate() {
-   $accessCode = "Denied";
+  function Nominate(array $a) {
+   $accessCode = "Accepted";
+   $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
    $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
+   $addToBallot = $data["AddToBallot"] ?? "";
    $chamber = $data["Chamber"] ?? "";
-   $username = $data["Username"] ?? "";
-   $r = [
-    "Body" => "The Chamber or Member are missing."
-   ];
-   if(!empty($chamber) && !empty($member)) {
-    // NOMINATION FORM WILL BE ON EACH MEMBER'S PROFILE
-    // PUT A MEMBER'S NAME ON THE BALLOT
-    $r = [
-     "Body" => "Comming soon..."
-    ];
+   $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+   $congressionalStaff = $congress["Members"] ?? [];
+   $member = $data["Username"] ?? "";
+   $r = "";
+   $responseType = "View";
+   $success = "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($member)) {
+    if(!empty($addToBallot)) {
+     $accessCode = "Denied";
+     $data = $this->core->DecodeBridgeData($data);
+     $addToBallot = $data["AddToBallot"] ?? $addToBallot;
+     $chamber = $data["Chamber"] ?? $chamber;
+     $member = $data["Username"] ?? $member;
+     $r = [
+      "Body" => "The Chamber is missing."
+     ];
+     $responseType = "Dialog";
+     if(($chamber == "House" || $chamber == "Senate") && $addToBallot == 1) {
+      $accessCode = "Accepted";
+      $isOnStaff = 0;
+      foreach($congressionalStaff as $staff => $role) {
+       if($staff == $member) {
+        $isOnStaff++;
+       }
+      } if($isOnStaff > 0) {
+       $r = "$member is already in the Congressional Staff.";
+      } else {
+       $nominee = $ballot[$member] ?? [];
+       $votes = $nominee["Votes"] ?? 0;
+       $votes++;
+       $nominee["Role"] = $chamber;
+       $nominee["Votes"] = $votes;
+       $ballot[$member] = $nominee;
+       $this->core->Data("Save", ["app", md5("CongressionalBallot"), $ballot]);
+       $r = "You nominated $member for Congress!";
+      }
+      $r = $this->core->Element(["div", $this->core->Element([
+        "h2", "Done", ["class" => "CenterText UpperCase"]
+       ]).$this->core->Element([
+        "p", $r, ["class" => "CenterText"]
+       ]), ["class" => "K4i"]
+      ]);
+      $responseType = "ReplaceContent";
+     }
+    } else {
+     $member = base64_decode($member);
+     $member = ($member == $you) ? $y : $this->core->Member($member);
+     $electionTime = $congress["NextElection"] ?? strtotime($this->core->timestamp);
+     $electionTime = (strtotime($this->core->timestamp) >= $electionTime) ? 1 : 0;
+     $isElectable = $member["Personal"]["Electable"] ?? 0;
+     $isElectable = ($electionTime == 1 && $isElectable == 1) ? 1 : 0;
+     $isElectable = ($electionTime == 1) ? 1 : 0;//TEMP
+     $them = $member["Login"]["Username"];
+     $diaplayName = $member["Personal"]["DisplayName"] ?? $them;
+     if($isElectable == 1 && $them != $this->core->ID && $them != $you) {
+      $isNominated = 0;
+      $isOnStaff = 0;
+      foreach($ballot as $nominee => $info) {
+       if($nominee == $them) {
+        $isNominated++;
+       }
+      } foreach($congressionalStaff as $staff => $role) {
+       if($staff == $them) {
+        #$isOnStaff++;
+       }
+      } if($isNominated == 0 && $isOnStaff == 0) {
+       $r = $this->core->Change([[
+        "[Nomination.DisplayName]" => $diaplayName,
+        "[Nomination.ID]" => md5($them),
+        "[Nomination.Save]" => base64_encode("v=".base64_encode("Congress:Nominate")),
+        "[Nomination.Username]" => $them
+       ], $this->core->Extension("f10284649796c26dd863d3872379e7d9")]);
+      }
+     }
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -224,7 +302,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => $responseType
    ]);
   }
   function Report(array $a) {

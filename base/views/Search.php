@@ -353,11 +353,10 @@
      $h = "Press Releases";
      $li .= "&b2=".urlencode("Press Releases")."&lPG=$lpg";
      $lis = "Search Articles";
-     $pe = base64_encode("Page:Edit");
      $lo = ($y["Rank"] == md5("High Command") && $notAnon == 1) ? $this->core->Element([
       "button", "+", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$pe&new=1")
+       "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
       ]
      ]) : "";
     } elseif($st == "Products") {
@@ -1076,7 +1075,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      "div", "[ListItem.Button]", ["class" => "Desktop25"]
     ]);
     $na = "No $chamber Staff";
-    if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
+    if(($chamber == "House" || $chamber == "Senate")) {
      foreach($congress as $member => $role) {
       $check = ($chamber == "House" && $role == "HouseRepresentative") ? 1 : 0;
       $check2 = ($chamber == "Senate" && $role == "Senator") ? 1 : 0;

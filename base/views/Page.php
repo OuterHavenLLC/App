@@ -178,7 +178,11 @@
     $at4input = ".EditPage$id-ATTP";
     $at4 = base64_encode("Attach to the Article.:$at4input");
     $at4input = "$at4input .rATT";
-    $categories = [
+    $categories = ($y["Rank"] == md5("High Command")) ? [
+     "CA" => "Article",
+     "JE" => "Journal Entry",
+     "PR" => "Press Release"
+    ] : [
      "CA" => "Article",
      "JE" => "Journal Entry"
     ];
