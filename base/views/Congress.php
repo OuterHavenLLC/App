@@ -8,26 +8,47 @@
    $accessCode = "Denied";
    $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+   $congressionalStaff = $congress["Members"] ?? [];
+   $newBallot = [];
    $now = $this->core->timestamp;
    $nextElection = $this->core->Timeplus($now, 1, "month");
    $electionTime = $congress["ElectionTime"] ?? $now;
+   $electionTime = (empty($congress["ElectionTime"])) ? strtotime($electionTime) : $electionTime;
    $r = [
-    "Body" => "There are currently no eligible candidates to elect. ($electionTime, $nextElection)"
+    "Body" => "There are currently no eligible candidates to elect."
    ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue."
     ];
-   } elseif($eligibleCandidates > 0) {
-    $accessCode = "Accepted";
-    // ELECT ALL ELIGIBLE CANDIDATES
-    // THRESHOLD SHOULD BE THE SAME AS THE ILLEGAL THRESHOLD
-    // CHAMBER PROPORTIONS WILL BE TAKEN INTO ACCOUNT
-    // EXAMPLE: HOUSE, SENATE (100, 50)
+   } elseif(strtotime($now) < $electionTime) {
     $r = [
-     "Body" => "Comming soon...",
-     "Header" => "Done"
+     "Body" => "The next Election may be held after ".date("Y-m-d H:i:s", $electionTime)."."
     ];
+   } else {
+    $eligibleCandidates = 0;
+    $threshold = $this->core->config["App"]["Illegal"] ?? 777;
+    foreach($ballot as $member => $info) {
+     $role = $info["Role"] ?? "";
+     $votes = $info["Votes"] ?? 0;
+     if($votes >= $threshold) {
+      $congressionalStaff[$member] = $role;
+      $eligibleCandidates++;
+     } else {
+      $newBallot[$member] = $info;
+     }
+    } if($eligibleCandidates > 0) {
+     $accessCode = "Accepted";
+     $congress["Members"] = $congressionalStaff;
+     $this->core->Data("Save", ["app", md5("Congress"), $congress]);
+     $this->core->Data("Save", ["app", md5("CongressionalBallot"), $newBallot]);
+     $r = [
+      "Body" => "All elegible candidates have been elected into Congress. The next election may be held after $nextElection.",
+      "Header" => "Done"
+     ];
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
