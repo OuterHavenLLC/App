@@ -6,11 +6,22 @@
   }
   function Create() {
    $accessCode = "Accepted";
+   $option = $this->core->Extension("3013dd986b7729f1fc38b82586ee9d8d");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   // CREATE A NEW POLL
    $r = [
-    "Front" => "OK"
+    "Action" => $this->core->Element(["button", "Post", [
+     "class" => "CardButton SendData",
+     "data-form" => ".NewPoll",
+     "data-processor" => base64_encode("v=".base64_encode("Poll:Save"))
+    ]]),
+    "Front" => $this->core->Change([[
+     "[Poll.ID]" => md5("Polls$you".$this->core->timestamp),
+     "[Poll.Option]" => $option,
+     "[Poll.OptionClone]" => base64_encode($option),
+     "[Poll.Visibility.NSFW]" => $y["Privacy"]["NSFW"],
+     "[Poll.Visibility.Privacy]" => $y["Privacy"]["Posts"]
+    ], $this->core->Extension("823bed33cd089cc8973d0fbc56dbfa28")])
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
