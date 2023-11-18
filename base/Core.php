@@ -823,6 +823,7 @@
     } elseif($type == "Shop") {
      $data = $this->Data("Get", ["shop", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
+     $coverPhoto = $data["CoverPhoto"] ?? "";
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
