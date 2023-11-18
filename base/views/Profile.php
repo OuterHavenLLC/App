@@ -766,6 +766,7 @@
       "[Member.ProfilePicture]" => $options["ProfilePicture"],
       "[Member.Share]" => $share,
       "[Member.Stream]" => base64_encode("v=$search&UN=".base64_encode($id)."&st=MBR-SU"),
+      "[Member.Username]" => $id,
       "[Member.Votes]" => $options["Vote"]
      ], $this->core->Extension("72f902ad0530ad7ed5431dac7c5f9576")]);
     }
@@ -1459,9 +1460,10 @@
    $accessCode = "Accepeted";
    $birthMonths = [];
    $birthYears = [];
+   $minAge = $this->core->config["minRegAge"] ?? 13;
    for($i = 1; $i <= 12; $i++) {
     $birthMonths[$i] = $i;
-   } for($i = 1776; $i <= (date("Y") - 18); $i++) {
+   } for($i = 1776; $i <= (date("Y") - $minAge); $i++) {
     $birthYears[$i] = $i;
    }
    $r = [

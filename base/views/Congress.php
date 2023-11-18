@@ -304,7 +304,7 @@
        }
       } foreach($congressionalStaff as $staff => $role) {
        if($staff == $them) {
-        #$isOnStaff++;
+        $isOnStaff++;
        }
       } if($isNominated == 0 && $isOnStaff == 0) {
        $r = $this->core->Change([[
