@@ -7,7 +7,7 @@
   function Create() {
    $accessCode = "Accepted";
    $y = $this->you;
-   $you = $y["Lohin"]["Username"];
+   $you = $y["Login"]["Username"];
    // CREATE A NEW POLL
    $r = [
     "Front" => "OK"
@@ -119,4 +119,5 @@
   function __destruct() {
    // DESTROYS THIS CLASS
   }
+ }
 ?>
