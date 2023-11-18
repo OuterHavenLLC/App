@@ -26,7 +26,7 @@
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Blog Identifier is missing."
+    "Body" => "The Poll Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -55,7 +55,7 @@
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Blog Identifier is missing."
+    "Body" => "The Poll Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -87,7 +87,7 @@
    $id = $data["ID"] ?? "";
    $pin = $data["PIN"] ?? "";
    $r = [
-    "Body" => "The Blog Identifier is missing."
+    "Body" => "The Poll Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -102,6 +102,37 @@
     ];
    } elseif(!empty($id)) {
     // DELETE
+    $r = [
+     "Body" => "Comming soon...",
+     "Header" => "Done"
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function Vote(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $choice = $data["Choice"] ?? "";
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Poll Identifier or Choice are missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($choice) && !empty($id)) {
+    // VOTE
     $r = [
      "Body" => "Comming soon...",
      "Header" => "Done"
