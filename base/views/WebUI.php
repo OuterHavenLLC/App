@@ -159,6 +159,7 @@
      "[Menu.Search.Chat]" => base64_encode("v=$search&Integrated=1&lPG=Chat&st=Chat"),
      "[Menu.Search.Members]" => base64_encode("v=$search&lPG=Members&st=MBR"),
      "[Menu.Search.Forums]" => base64_encode("v=$search&lPG=Forums&st=Forums"),
+     "[Menu.Search.Polls]" => base64_encode("v=$search&lPG=Products&st=Polls"),
      "[Menu.Search.Products]" => base64_encode("v=$search&lPG=Products&st=Products"),
      "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
     ];

@@ -188,33 +188,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function Remove(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "ProductID",
-    "ShopID"
-   ]);
-   $r = [
-    "Body" => "The Product or Shop Identifiers are missing."
-   ];
-   if(!empty($data["ProductID"]) && !empty($data["ShopID"])) {
-    $accessCode = "Accepted";
-    $r = $this->core->Change([[
-     "[RemoveFromCart.ProductID]" => $data["ProductID"],
-     "[RemoveFromCart.ShopID]" => $data["ShopID"],
-     "[RemoveFromCart.Remove]" => base64_encode("Cart:SaveRemove")
-    ], $this->core->Extension("554566eff3c7949301784c2be0a6be07")]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function SaveAdd(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -273,29 +246,30 @@
   function SaveRemove(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "ProductID",
-    "ShopID"
-   ]);
-   $productID = $data["ProductID"];
-   $shopID = $data["ShopID"];
+   $product = $data["Product"] ?? "";
+   $shop = $data["Shop"] ?? "";
    $r = [
     "Body" => "The Shop or Product Identifier are missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($productID) && !empty($shopID)) {
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($product) && !empty($shop)) {
     $accessCode = "Accepted";
     $newProducts = [];
-    $productID = base64_decode($productID);
-    $shopID = base64_decode($shopID);
-    $products = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
+    $cart = $y["Shopping"]["Cart"][$shop] ?? [];
+    $products = $cart["Products"] ?? [];
     foreach($products as $key => $value) {
-     if($key != $productID) {
+     if($key != $product) {
       $newProducts[$key] = $value;
      }
     }
-    $y["Shopping"]["Cart"][$shopID]["Products"] = $newProducts;
+    $cart["Products"] = $newProducts;
+    $y["Shopping"]["Cart"][$shop] = $cart;
     $r = [
      "Body" => "The Product was removed from your cart.",
      "Header" => "Done"
@@ -308,7 +282,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "Dialog"
    ]);
   }
   function Summary(array $a) {

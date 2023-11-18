@@ -315,16 +315,14 @@
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
    $i = 0;
-   $si = base64_encode("Profile:SignIn");
-   $su = base64_encode("Profile:SignUp");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $r = [
      "Header" => "Sign In",
      "Scrollable" => $this->core->Change([[
-      "[ShoppingHistory.SignIn]" => base64_encode("v=$si"),
-      "[ShoppingHistory.SignUp]" => base64_encode("v=$su")
+      "[ShoppingHistory.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
+      "[ShoppingHistory.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
      ], $this->core->Extension("530578e8f5a619e234704ea1f6cd3d64")])
     ];
    } else {

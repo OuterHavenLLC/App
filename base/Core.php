@@ -222,10 +222,9 @@
       "MBR-LLP",
       "MBR-SU",
       "MBR-XFS",
-      "MiNY",
+      "Polls",
       "PR",
       "Products",
-      "S-Blogger",
       "SHOP",
       "SHOP-InvoicePresets",
       "SHOP-Invoices",
@@ -863,6 +862,7 @@
    $coverPhoto = $data["ICO"] ?? $coverPhoto;
    $coverPhoto = base64_encode($coverPhoto);
    $coverPhoto = $this->CoverPhoto($coverPhoto);
+   $empty = $contnet["Blacklisted"] ?? $empty;
    $modified = $data["Modified"] ?? "";
    if(empty($modified)) {
     $modified = "";
@@ -1010,6 +1010,7 @@
      "Blogs" => [],
      "Blog Posts" => [],
      "Comments" => [],
+     "Group Chats" => [],
      "Files" => [],
      "Forums" => [],
      "Forum Posts" => [],
