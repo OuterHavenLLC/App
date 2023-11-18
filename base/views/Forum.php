@@ -195,95 +195,97 @@
      "Blacklisted" => $bl,
      "ID" => base64_encode("Forum;$id")
     ]);
-    $active = 0;
-    $admin = 0;
-    $forum = $_Forum["DataModel"];
-    $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
-    $notAnon = ($this->core->ID != $you) ? 1 : 0;
-    $options = $_Forum["ListItem"]["Options"];
-    $title = $_Forum["ListItem"]["Title"];
-    foreach($manifest as $member => $role) {
-     if($active == 0 && $member == $you) {
-      $active = 1;
-      if($admin == 0 && $role == "Admin") {
-       $admin = 1;
+    if($_Forum["Empty"] == 0) {
+     $active = 0;
+     $admin = 0;
+     $forum = $_Forum["DataModel"];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+     $notAnon = ($this->core->ID != $you) ? 1 : 0;
+     $options = $_Forum["ListItem"]["Options"];
+     $title = $_Forum["ListItem"]["Title"];
+     foreach($manifest as $member => $role) {
+      if($active == 0 && $member == $you) {
+       $active = 1;
+       if($admin == 0 && $role == "Admin") {
+        $admin = 1;
+       }
       }
      }
-    }
-    $ck = ($admin == 1 || $forum["UN"] == $you) ? 1 : 0;
-    $r = [
-     "Body" => "<em>$title</em> is invite-only.",
-     "Header" => "Private Forum"
-    ];
-    if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
-     $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $accessCode = "Accepted";
-     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-     $actions = ($bl == 0 && $ck == 0) ? $this->core->Element([
-      "button", $blockCommand, [
-       "class" => "CloseCard GoToParent Small UpdateButton v2 v2w",
-       "data-type" => ".OHCC;$lpg",
-       "data-processor" => $options["Block"]
-      ]
-     ]) : "";
-     $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
-      "button", "Chat", [
+     $ck = ($admin == 1 || $forum["UN"] == $you) ? 1 : 0;
+     $r = [
+      "Body" => "<em>$title</em> is invite-only.",
+      "Header" => "Private Forum"
+     ];
+     if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
+      $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
+      $accessCode = "Accepted";
+      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+      $actions = ($bl == 0 && $ck == 0) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "CloseCard GoToParent Small UpdateButton v2 v2w",
+        "data-type" => ".OHCC;$lpg",
+        "data-processor" => $options["Block"]
+       ]
+      ]) : "";
+      $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
+       "button", "Chat", [
+        "class" => "OpenCard Small v2 v2w",
+        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
+       ]
+      ]) : "";
+      $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->core->Element([
+       "button", "Delete", [
+        "class" => "CloseCard OpenDialog Small v2",
+        "data-view" => $options["Delete"]
+       ]
+      ]) : "";
+      $actions .= ($admin == 1) ? $this->core->Element(["button", "Edit", [
        "class" => "OpenCard Small v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
-      ]
-     ]) : "";
-     $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->core->Element([
-      "button", "Delete", [
-       "class" => "CloseCard OpenDialog Small v2",
-       "data-view" => $options["Delete"]
-      ]
-     ]) : "";
-     $actions .= ($admin == 1) ? $this->core->Element(["button", "Edit", [
-      "class" => "OpenCard Small v2 v2w",
-      "data-view" => $options["Edit"]
-     ]]) : "";
-     $actions .= ($active == 1 || $ck == 1 || $forum["Type"] == "Public") ? $this->core->Element([
-      "button", "Post", [
-       "class" => "OpenCard Small v2 v2w",
-       "data-view" => $options["Post"]
-      ]
-     ]) : "";
-     $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
-      "button", "Share", [
-       "class" => "OpenCard Small v2 v2w",
-       "data-view" => $options["Share"]
-      ]
-     ]) : "";
-     $invite = ($active == 1 && $forum["ID"] != $_SonsOfLiberty) ? $this->core->Element([
-      "button", "Invite", [
-       "class" => "OpenCard v2",
-       "data-view" => $options["Invite"]
-      ]
-     ]) : "";
-     $joinCommand = ($active == 0) ? "Join" : "Leave";
-     $join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Element([
-      "button", $joinCommand, [
-       "class" => "BBB UpdateButton v2 v2w",
-       "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=$joinCommand&ID=$id")
-      ]
-     ]) : "";
-     $search = base64_encode("Search:Containers");
-     $r = $this->core->Change([[
-      "[Forum.About]" => $forum["About"],
-      "[Forum.Actions]" => $actions,
-      "[Forum.Administrators]" => base64_encode("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin"),
-      "[Forum.Back]" => $back,
-      "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
-      "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
-      "[Forum.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
-      "[Forum.Description]" => $_Forum["ListItem"]["Description"],
-      "[Forum.ID]" => $id,
-      "[Forum.Invite]" => $invite,
-      "[Forum.Join]" => $join,
-      "[Forum.Stream]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=Forums-Posts"),
-      "[Forum.Title]" => $title,
-      "[Forum.Votes]" => $options["Vote"]
-     ], $this->core->Extension("4159d14e4e8a7d8936efca6445d11449")]);
+       "data-view" => $options["Edit"]
+      ]]) : "";
+      $actions .= ($active == 1 || $ck == 1 || $forum["Type"] == "Public") ? $this->core->Element([
+       "button", "Post", [
+        "class" => "OpenCard Small v2 v2w",
+        "data-view" => $options["Post"]
+       ]
+      ]) : "";
+      $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
+       "button", "Share", [
+        "class" => "OpenCard Small v2 v2w",
+        "data-view" => $options["Share"]
+       ]
+      ]) : "";
+      $invite = ($active == 1 && $forum["ID"] != $_SonsOfLiberty) ? $this->core->Element([
+       "button", "Invite", [
+        "class" => "OpenCard v2",
+        "data-view" => $options["Invite"]
+       ]
+      ]) : "";
+      $joinCommand = ($active == 0) ? "Join" : "Leave";
+      $join = ($ck == 0 && $forum["Type"] == "Public") ? $this->core->Element([
+       "button", $joinCommand, [
+        "class" => "BBB UpdateButton v2 v2w",
+        "data-processor" => base64_encode("v=".base64_encode("Forum:Join")."&Command=$joinCommand&ID=$id")
+       ]
+      ]) : "";
+      $search = base64_encode("Search:Containers");
+      $r = $this->core->Change([[
+       "[Forum.About]" => $forum["About"],
+       "[Forum.Actions]" => $actions,
+       "[Forum.Administrators]" => base64_encode("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin"),
+       "[Forum.Back]" => $back,
+       "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
+       "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
+       "[Forum.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
+       "[Forum.Description]" => $_Forum["ListItem"]["Description"],
+       "[Forum.ID]" => $id,
+       "[Forum.Invite]" => $invite,
+       "[Forum.Join]" => $join,
+       "[Forum.Stream]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=Forums-Posts"),
+       "[Forum.Title]" => $title,
+       "[Forum.Votes]" => $options["Vote"]
+      ], $this->core->Extension("4159d14e4e8a7d8936efca6445d11449")]);
+     }
     }
    }
    $r = ($card == 1) ? [

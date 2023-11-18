@@ -120,16 +120,16 @@
      "Blacklisted" => $bl,
      "ID" => base64_encode("File;$username;$id")
     ]);
-    $dm = base64_encode(json_encode([
-     "t" => $username,
-     "y" => $you
-    ]));
-    $file = $_File["DataModel"];
-    $options = $_File["ListItem"]["Options"];
-    $r = [
-     "Body" => "The File <em>$id</em> could not be found."
-    ];
     if($_File["Empty"] == 0) {
+     $dm = base64_encode(json_encode([
+      "t" => $username,
+      "y" => $you
+     ]));
+     $file = $_File["DataModel"];
+     $options = $_File["ListItem"]["Options"];
+     $r = [
+      "Body" => "The File <em>$id</em> could not be found."
+     ];
      $accessCode = "Accepted";
      $actions = ($username != $you) ? $this->core->Element([
       "button", $blockCommand, [

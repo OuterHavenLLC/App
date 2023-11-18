@@ -349,6 +349,10 @@
       ], $this->core->Extension("af26c6866abb335fb69327ed3963a182")]);
      }
      $extension = "46ef1d0890a2a5639f67bfda1634ca82";
+    } elseif($st == "Polls") {
+     $h = "Polls";
+     $lis = "Search Polls";
+     $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "PR") {
      $h = "Press Releases";
      $li .= "&b2=".urlencode("Press Releases")."&lPG=$lpg";
@@ -2055,9 +2059,23 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       }
      }
     }
+   } elseif($st == "Polls") {
+    $accessCode = "Accepted";
+    $extension = $this->core->Extension("XXXX");
+    $polls = $this->core->DatabaseSet("Polls") ?? [];
+    foreach($polls as $key => $value) {
+     $value = str_replace("c.oh.poll.", "", $value);
+     $bl = $this->core->CheckBlocked([$y, "Polls", $value]);
+     $_Poll = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Poll;$value")
+     ]);
+     if($_Poll["Empty"] == 0) {
+      $poll = $_Poll["DataModel"];
+     }
+    }
    } elseif($st == "Products") {
     $accessCode = "Accepted";
-    $home = base64_encode("Product:Home");
     $coverPhoto = $this->core->PlainText([
      "Data" => "[Media:MiNY]",
      "Display" => 1
@@ -2065,44 +2083,50 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $members = $this->core->DatabaseSet("MBR") ?? [];
     foreach($members as $key => $value) {
-     $v = $this->core->Data("Get", [
-      "mbr",
-      str_replace("c.oh.mbr.", "", $value)
-     ]) ?? [];
-     if($notAnon == 1) {
-      $shop = $this->core->Data("Get", [
-       "shop",
-       md5($v["Login"]["Username"])
-      ]) ?? [];
-      $b2 = $b2 ?? "Products";
-      $products = $shop["Products"] ?? [];
-      foreach($products as $key => $value) {
-       $product = $this->core->Data("Get", ["product", $value]) ?? [];
-       $bl = $this->core->CheckBlocked([$y, "Products", $value]);
-       $usernamee = base64_encode($v["Login"]["Username"]);
-       $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-       $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
-       $ck3 = $v["Subscriptions"]["Artist"]["A"] ?? 0;
-       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-       $ck = ($ck == 1 || $v["Login"]["Username"] == $this->core->ShopID) ? 1 : 0;
-       $illegal = $product["Illegal"] ?? 0;
-       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       $illegal = ($this->core->ShopID != $v["Login"]["Username"]) ? 1 : 0;
-       if($bl == 0 && $ck == 1 && $illegal == 0) {
-        $coverPhoto = $product["ICO"] ?? $coverPhoto;
-        $coverPhoto = base64_encode($coverPhoto);
-        $pub = $data["pubP"] ?? 0;
-        array_push($msg, [
-         "[X.LI.I]" => base64_encode($this->core->CoverPhoto($coverPhoto)),
-         "[X.LI.T]" => base64_encode($product["Title"]),
-         "[X.LI.D]" => base64_encode($this->core->PlainText([
-          "BBCodes" => 1,
-          "Data" => $product["Description"],
-          "Display" => 1,
-          "HTMLDecode" => 1
-         ])),
-         "[X.LI.DT]" => base64_encode(base64_encode("v=$home&CARD=1&ID=".$product["ID"]."&UN=".base64_encode($v["Login"]["Username"])."&lPG=$lpg&pubP=$pub"))
-        ]);
+     $value = $this->core->Data("Get", ["mbr", str_replace("c.oh.mbr.", "", $value)]) ?? [];
+     if(!empty($value["Login"])) {
+      $them = $value["Login"]["Username"];
+      if($notAnon == 1) {
+       $bl = $this->core->CheckBlocked([$y, "Members", $them]);
+       $_Shop = $this->core->GetContentData([
+        "Blacklisted" => $bl,
+        "ID" => base64_encode("Shop;".md5($them)),
+        "Owner" => $them
+       ]);
+       if($_Shop["Empty"] == 0) {
+        $b2 = $b2 ?? "Products";
+        $shop = $_Shop["DataModel"];
+        $products = $shop["Products"] ?? [];
+        foreach($products as $id => $product) {
+         $bl = $this->core->CheckBlocked([$y, "Products", $product]);
+         $_Product = $this->core->GetContentData([
+          "BackTo" => $b2,
+          "Blacklisted" => $bl,
+          "ID" => base64_encode("Product;$product"),
+          "Owner" => base64_encode($them)
+         ]);
+         if($_Product["Empty"] == 0) {
+          $product = $_Product["DataModel"];
+          $usernamee = base64_encode($them);
+          $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+          $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+          $ck3 = $value["Subscriptions"]["Artist"]["A"] ?? 0;
+          $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
+          $ck = ($ck == 1 || $them == $this->core->ShopID) ? 1 : 0;
+          $illegal = $product["Illegal"] ?? 0;
+          $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+          $illegal = ($them != $this->core->ShopID) ? 1 : 0;
+          if($bl == 0 && $ck == 1 && $illegal == 0) {
+           $options = $_Product["ListItem"]["Options"];
+           array_push($msg, [
+            "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
+            "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
+            "[X.LI.DT]" => base64_encode($options["View"]),
+            "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"])
+           ]);
+          }
+         }
+        }
        }
       }
      }

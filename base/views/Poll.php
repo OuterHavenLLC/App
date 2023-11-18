@@ -1,5 +1,5 @@
 <?php
- Class Common extends OH {
+ Class Poll extends OH {
   function __construct() {
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));

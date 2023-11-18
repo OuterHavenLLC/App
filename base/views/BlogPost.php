@@ -148,59 +148,61 @@
      "Blacklisted" => $bl,
      "ID" => base64_encode("BlogPost;$blog;$postID")
     ]);
-    $options = $_BlogPost["ListItem"]["Options"];
-    $post = $_BlogPost["DataModel"];
-    $author = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
-    $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
-    $description = $author["Personal"]["DisplayName"] ?? "";
-    $extension = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
-    $contributors = $post["Contributors"] ?? [];
-    $contributors = base64_encode(json_encode($contributors, true));
-    $contributors = $post["Contributors"] ?? $blog["Contributiors"];
-    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-    $actions = ($post["UN"] != $you) ? $this->core->Element([
-     "button", $blockCommand, [
-      "class" => "Small UpdateButton v2",
-      "data-processor" => $options["Block"]
-     ]
-    ]) : "";
-    $actions = $this->core->Element([
-     "button", "View Profile", [
-      "class" => "OpenCard Small v2",
-      "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($post["UN"]))
-     ]
-    ]);
-    $share = ($post["UN"] == $you || $post["Privacy"] == md5("Public")) ? 1 : 0;
-    $share = ($share == 1) ? $this->core->Element(["div", $this->core->Element([
-     "button", "Share", [
-      "class" => "OpenCard Small v2",
-      "data-view" => $options["Share"]
-    ]]), ["class" => "Desktop33"]]) : "";
-    $r = $this->core->Change([[
-     "[Article.Actions]" => $actions,
-     "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
-     "[Article.Back]" => $back,
-     "[Article.Body]" => $_BlogPost["ListItem"]["Body"],
-     "[Article.Contributors]" => $contributors,
-     "[Article.Conversation]" => $this->core->Change([[
-      "[Conversation.CRID]" => $postID,
-      "[Conversation.CRIDE]" => base64_encode($postID),
-      "[Conversation.Level]" => base64_encode(1),
-      "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-     ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-     "[Article.CoverPhoto]" => $_BlogPost["ListItem"]["CoverPhoto"],
-     "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
-     "[Article.Description]" => $_BlogPost["ListItem"]["Description"],
-     "[Article.Modified]" => $_BlogPost["ListItem"]["Modified"],
-     "[Article.Report]" => $options["Report"],
-     "[Article.Share]" => $share,
-     "[Article.Subscribe]" => "",
-     "[Article.Title]" => $_BlogPost["ListItem"]["Title"],
-     "[Article.Votes]" => $options["Vote"],
-     "[Member.DisplayName]" => $author["Personal"]["DisplayName"],
-     "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
-     "[Member.Description]" => $description
-    ], $this->core->Extension($extension)]);
+    if($_BlogPost["Empty"] == 0) {
+     $options = $_BlogPost["ListItem"]["Options"];
+     $post = $_BlogPost["DataModel"];
+     $author = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
+     $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
+     $description = $author["Personal"]["DisplayName"] ?? "";
+     $extension = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
+     $contributors = $post["Contributors"] ?? [];
+     $contributors = base64_encode(json_encode($contributors, true));
+     $contributors = $post["Contributors"] ?? $blog["Contributiors"];
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+     $actions = ($post["UN"] != $you) ? $this->core->Element([
+      "button", $blockCommand, [
+       "class" => "Small UpdateButton v2",
+       "data-processor" => $options["Block"]
+      ]
+     ]) : "";
+     $actions = $this->core->Element([
+      "button", "View Profile", [
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($post["UN"]))
+      ]
+     ]);
+     $share = ($post["UN"] == $you || $post["Privacy"] == md5("Public")) ? 1 : 0;
+     $share = ($share == 1) ? $this->core->Element(["div", $this->core->Element([
+      "button", "Share", [
+       "class" => "OpenCard Small v2",
+       "data-view" => $options["Share"]
+     ]]), ["class" => "Desktop33"]]) : "";
+     $r = $this->core->Change([[
+      "[Article.Actions]" => $actions,
+      "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
+      "[Article.Back]" => $back,
+      "[Article.Body]" => $_BlogPost["ListItem"]["Body"],
+      "[Article.Contributors]" => $contributors,
+      "[Article.Conversation]" => $this->core->Change([[
+       "[Conversation.CRID]" => $postID,
+       "[Conversation.CRIDE]" => base64_encode($postID),
+       "[Conversation.Level]" => base64_encode(1),
+       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      "[Article.CoverPhoto]" => $_BlogPost["ListItem"]["CoverPhoto"],
+      "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
+      "[Article.Description]" => $_BlogPost["ListItem"]["Description"],
+      "[Article.Modified]" => $_BlogPost["ListItem"]["Modified"],
+      "[Article.Report]" => $options["Report"],
+      "[Article.Share]" => $share,
+      "[Article.Subscribe]" => "",
+      "[Article.Title]" => $_BlogPost["ListItem"]["Title"],
+      "[Article.Votes]" => $options["Vote"],
+      "[Member.DisplayName]" => $author["Personal"]["DisplayName"],
+      "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
+      "[Member.Description]" => $description
+     ], $this->core->Extension($extension)]);
+    }
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]

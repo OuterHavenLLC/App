@@ -105,53 +105,55 @@
      "Blacklisted" => $bl,
      "ID" => base64_encode("StatusUpdate;".$data["SU"])
     ]);
-    $accessCode = "Accepted";
-    $update = $_StatusUpdate["DataModel"];
-    $displayName = $update["From"];
-    $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
-    $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
-    $options = $_StatusUpdate["ListItem"]["Options"];
-    $opt = ($update["From"] != $you) ? $this->core->Element([
-     "button", $blockCommand, [
-      "class" => "Small UpdateButton v2",
-      "data-processor" => $options["Block"]
-     ]
-    ]) : "";
-    $opt = ($this->core->ID != $you) ? $opt : "";
-    $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
-    $share = ($share == 1) ? $this->core->Element([
-     "div", $this->core->Element(["button", "Share", [
-      "class" => "InnerMargin OpenCard",
-      "data-view" => $options["Share"]
-     ]]), ["class" => "Desktop33"]
-    ]) : "";
-    $r = $this->core->Change([[
-     "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
-     "[StatusUpdate.Body]" => $this->core->PlainText([
-      "BBCodes" => 1,
-      "Data" => $update["Body"],
-      "Display" => 1,
-      "HTMLDecode" => 1
-     ]),
-     "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
-     "[StatusUpdate.Conversation]" => $this->core->Change([[
-      "[Conversation.CRID]" => $update["ID"],
-      "[Conversation.CRIDE]" => base64_encode($update["ID"]),
-      "[Conversation.Level]" => base64_encode(1),
-      "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-     ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-     "[StatusUpdate.DisplayName]" => $displayName,
-     "[StatusUpdate.ID]" => $update["ID"],
-     "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
-     "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-     "[StatusUpdate.Options]" => $opt,
-     "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-     "[StatusUpdate.Share]" => $share,
-     "[StatusUpdate.Votes]" => $options["Vote"]
-    ], $this->core->Extension("2e76fb1523c34ed0c8092cde66895eb1")]);
-    $r = [
-     "Front" => $r
-    ];
+    if($_StatusUpdate["Empty"] == 0) {
+     $accessCode = "Accepted";
+     $update = $_StatusUpdate["DataModel"];
+     $displayName = $update["From"];
+     $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
+     $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
+     $options = $_StatusUpdate["ListItem"]["Options"];
+     $opt = ($update["From"] != $you) ? $this->core->Element([
+      "button", $blockCommand, [
+       "class" => "Small UpdateButton v2",
+       "data-processor" => $options["Block"]
+      ]
+     ]) : "";
+     $opt = ($this->core->ID != $you) ? $opt : "";
+     $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
+     $share = ($share == 1) ? $this->core->Element([
+      "div", $this->core->Element(["button", "Share", [
+       "class" => "InnerMargin OpenCard",
+       "data-view" => $options["Share"]
+      ]]), ["class" => "Desktop33"]
+     ]) : "";
+     $r = $this->core->Change([[
+      "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
+      "[StatusUpdate.Body]" => $this->core->PlainText([
+       "BBCodes" => 1,
+       "Data" => $update["Body"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ]),
+      "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
+      "[StatusUpdate.Conversation]" => $this->core->Change([[
+       "[Conversation.CRID]" => $update["ID"],
+       "[Conversation.CRIDE]" => base64_encode($update["ID"]),
+       "[Conversation.Level]" => base64_encode(1),
+       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+      "[StatusUpdate.DisplayName]" => $displayName,
+      "[StatusUpdate.ID]" => $update["ID"],
+      "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
+      "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
+      "[StatusUpdate.Options]" => $opt,
+      "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
+      "[StatusUpdate.Share]" => $share,
+      "[StatusUpdate.Votes]" => $options["Vote"]
+     ], $this->core->Extension("2e76fb1523c34ed0c8092cde66895eb1")]);
+     $r = [
+      "Front" => $r
+     ];
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

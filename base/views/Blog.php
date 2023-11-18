@@ -232,7 +232,7 @@
        $admin = 1;
       }
      }
-    } if(!empty($blog)) {
+    } if($_Blog["Empty"] == 0) {
      $_IsArtist = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
      $accessCode = "Accepted";

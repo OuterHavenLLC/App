@@ -425,6 +425,8 @@
       $a = "c.oh.pf.";
      } elseif($a == "PG") {
       $a = "c.oh.pg.";
+     } elseif($a == "Polls") {
+      $a = "c.oh.poll.";
      } elseif($a == "Shop") {
       $a = "c.oh.shop.";
      } elseif($a == "SU") {
@@ -818,6 +820,7 @@
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteProduct")."&ID=$contentID"),
       "Edit" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Product")."&Username=".base64_encode($data["UN"])),
+      "View" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$contentID&UN=".$content["Owner"]),
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
     } elseif($type == "Shop") {

@@ -106,89 +106,91 @@
      "Blacklisted" => $bl,
      "ID" => base64_encode("ForumPost;$fid;$id")
     ]);
-    $active = 0;
-    $admin = 0;
-    $forum = $this->core->Data("Get", ["pf", $fid]) ?? [];
-    $post = $_ForumPost["DataModel"];
-    $r = [
-     "Body" => "The requested Forum Post could not be found."
-    ];
-    $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
-    $ck2 = ($active == 1 || $forum["Type"] == "Public") ? 1 : 0;
-    $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
-    $ck3 = $this->core->CheckPrivacy([
-     "Contacts" => $cms["Contacts"],
-     "Privacy" => $post["Privacy"],
-     "UN" => $post["From"],
-     "Y" => $you
-    ]);
-    $manifest = $this->core->Data("Get", ["pfmanifest", $fid]) ?? [];
-    foreach($manifest as $member => $role) {
-     if($active == 0 && $member == $you) {
-      $active++;
-      if($role == "Admin") {
-       $admin++;
+    if($_ForumPost["Empty"] == 0) {
+     $active = 0;
+     $admin = 0;
+     $forum = $this->core->Data("Get", ["pf", $fid]) ?? [];
+     $post = $_ForumPost["DataModel"];
+     $r = [
+      "Body" => "The requested Forum Post could not be found."
+     ];
+     $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
+     $ck2 = ($active == 1 || $forum["Type"] == "Public") ? 1 : 0;
+     $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
+     $ck3 = $this->core->CheckPrivacy([
+      "Contacts" => $cms["Contacts"],
+      "Privacy" => $post["Privacy"],
+      "UN" => $post["From"],
+      "Y" => $you
+     ]);
+     $manifest = $this->core->Data("Get", ["pfmanifest", $fid]) ?? [];
+     foreach($manifest as $member => $role) {
+      if($active == 0 && $member == $you) {
+       $active++;
+       if($role == "Admin") {
+        $admin++;
+       }
       }
      }
-    }
-    $op = ($ck == 1) ? $y : $this->core->Member($post["From"]);
-    $options = $_ForumPost["ListItem"]["Options"];
-    $privacy = $post["Privacy"] ?? $op["Privacy"]["Posts"];
-    if($ck == 1 || $ck2 == 1) {
-     $accessCode = "Accepted";
-     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-     $actions = ($post["From"] != $you) ? $this->core->Element(["button", $blockCommand, [
-      "class" => "InnerMargin UpdateButton v2",
-      "data-processor" => $options["Block"]
-     ]]) : "";
-     $share = "";
-     if($ck == 1) {
-      $actions .= $this->core->Element(["button", "Delete", [
-       "class" => "InnerMargin OpenDialog v2",
-       "data-view" => $options["Delete"]
-      ]]);
-      $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element(["button", "Edit", [
-       "class" => "InnerMargin OpenDialog v2",
-       "data-view" => $options["Edit"]
+     $op = ($ck == 1) ? $y : $this->core->Member($post["From"]);
+     $options = $_ForumPost["ListItem"]["Options"];
+     $privacy = $post["Privacy"] ?? $op["Privacy"]["Posts"];
+     if($ck == 1 || $ck2 == 1) {
+      $accessCode = "Accepted";
+      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+      $actions = ($post["From"] != $you) ? $this->core->Element(["button", $blockCommand, [
+       "class" => "InnerMargin UpdateButton v2",
+       "data-processor" => $options["Block"]
       ]]) : "";
-      $share = ($forum["Type"] == "Public") ? $this->core->Element(["button", "Share", [
-       "class" => "InnerMargin OpenCard v2",
-       "data-view" => $options["Share"]
-      ]]) : "";
+      $share = "";
+      if($ck == 1) {
+       $actions .= $this->core->Element(["button", "Delete", [
+        "class" => "InnerMargin OpenDialog v2",
+        "data-view" => $options["Delete"]
+       ]]);
+       $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element(["button", "Edit", [
+        "class" => "InnerMargin OpenDialog v2",
+        "data-view" => $options["Edit"]
+       ]]) : "";
+       $share = ($forum["Type"] == "Public") ? $this->core->Element(["button", "Share", [
+        "class" => "InnerMargin OpenCard v2",
+        "data-view" => $options["Share"]
+       ]]) : "";
+      }
+      $actions = ($this->core->ID != $you) ? $actions : "";
+      $op = ($post["From"] == $you) ? $y : $this->core->Member($post["From"]);
+      $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+      $memberRole = $manifest[$op["Login"]["Username"]];
+      $r = $this->core->Change([[
+       "[ForumPost.Actions]" => $actions,
+       "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
+       "[ForumPost.Body]" => $this->core->PlainText([
+        "BBCodes" => 1,
+        "Data" => $post["Body"],
+        "Display" => 1,
+        "HTMLDecode" => 1
+       ]),
+       "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
+       "[ForumPost.Conversation]" => $this->core->Change([[
+        "[Conversation.CRID]" => $id,
+        "[Conversation.CRIDE]" => base64_encode($id),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+       "[ForumPost.ID]" => $id,
+       "[ForumPost.Illegal]" => $options["Report"],
+       "[ForumPost.MemberRole]" => $memberRole,
+       "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
+       "[ForumPost.OriginalPoster]" => $display,
+       "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
+       "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
+       "[ForumPost.Share]" => $share,
+       "[ForumPost.Vote]" => $options["Vote"]
+      ], $this->core->Extension("d2be822502dd9de5e8b373ca25998c37")]);
+      $r = [
+       "Front" => $r
+      ];
      }
-     $actions = ($this->core->ID != $you) ? $actions : "";
-     $op = ($post["From"] == $you) ? $y : $this->core->Member($post["From"]);
-     $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
-     $memberRole = $manifest[$op["Login"]["Username"]];
-     $r = $this->core->Change([[
-      "[ForumPost.Actions]" => $actions,
-      "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
-      "[ForumPost.Body]" => $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $post["Body"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ]),
-      "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
-      "[ForumPost.Conversation]" => $this->core->Change([[
-       "[Conversation.CRID]" => $id,
-       "[Conversation.CRIDE]" => base64_encode($id),
-       "[Conversation.Level]" => base64_encode(1),
-       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-      "[ForumPost.ID]" => $id,
-      "[ForumPost.Illegal]" => $options["Report"],
-      "[ForumPost.MemberRole]" => $memberRole,
-      "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
-      "[ForumPost.OriginalPoster]" => $display,
-      "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-      "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
-      "[ForumPost.Share]" => $share,
-      "[ForumPost.Vote]" => $options["Vote"]
-     ], $this->core->Extension("d2be822502dd9de5e8b373ca25998c37")]);
-     $r = [
-      "Front" => $r
-     ];
     }
    }
    return $this->core->JSONResponse([
