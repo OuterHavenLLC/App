@@ -536,14 +536,14 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
+   $pin = $data["PIN"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
+   if(md5($pin) != $y["Login"]["PIN"]) {
     $r = [
      "Body" => "The PINs do not match."
     ];

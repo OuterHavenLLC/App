@@ -352,6 +352,12 @@
     } elseif($st == "Polls") {
      $h = "Polls";
      $lis = "Search Polls";
+     $lo = ($notAnon == 1) ? $this->core->Element([
+      "button", "+", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
+      ]
+     ]) : "";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "PR") {
      $h = "Press Releases";
