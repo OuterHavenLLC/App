@@ -962,6 +962,7 @@
     $chooseElectable = $y["Personal"]["Electable"] ?? 0;
     $chooseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
     $chooseMinimalDesign = (!empty($chooseMinimalDesign)) ? 1 : 0;
+    $polls = $y["Privacy"]["Posts"] ?? md5("Public");
     $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
     for($i = 1; $i <= 12; $i++) {
      $birthMonths[$i] = $i;
@@ -1010,6 +1011,7 @@
      "[Preferences.Privacy.MSG]" => $y["Privacy"]["MSG"],
      "[Preferences.Privacy.NSFW]" => $y["Privacy"]["NSFW"],
      "[Preferences.Privacy.OnlineStatus]" => $y["Privacy"]["OnlineStatus"],
+     "[Preferences.Privacy.Polls]" => $polls,
      "[Preferences.Privacy.Posts]" => $y["Privacy"]["Posts"],
      "[Preferences.Privacy.Products]" => $y["Privacy"]["Products"],
      "[Preferences.Privacy.Profile]" => $y["Privacy"]["Profile"],

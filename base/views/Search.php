@@ -1954,9 +1954,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
       $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $illegal = $poll["Illegal"] ?? 0;
-      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $illegal == 0) {
+      if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
        $options = $_Poll["ListItem"]["Options"];
@@ -2156,9 +2154,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
       $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $illegal = $poll["Illegal"] ?? 0;
-      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $illegal == 0) {
+      if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
        $options = $_Poll["ListItem"]["Options"];
