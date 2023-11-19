@@ -220,6 +220,7 @@
       "MBR-Forums",
       "MBR-JE",
       "MBR-LLP",
+      "MBR-Polls",
       "MBR-SU",
       "MBR-XFS",
       "Polls",

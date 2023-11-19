@@ -2,6 +2,19 @@
 App Documentation is in the works...
 
 # Change Log
+## 1.3: Re:Search
+### Release Notes
+This release focuses on search—both inside and outside the platform, as well as quality of life improvements. (comming soon...)
+
+### Re:Search
+* Refined content visibility across the platform.
+* Streamlined and built upon the search experience.
+* Added the ability to submit and index external sites.
+* TBA
+
+### Platform Improvements
+* A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job.
+
 ## 1.2: Democracy
 ### Release Notes
 A new, democratic form of content moderation is here! We are the first to establish a Congressional form of content moderation.
@@ -17,13 +30,12 @@ A new, democratic form of content moderation is here! We are the first to establ
 * Prejudiced content cannot be reported further, as it is henceforth considered legal.
 
 ### Polls
-* Members may now create and delete Polls
+* Members may now create, block, share and delete Polls
 * Members may search for and vote on other Member's Polls.
 
 ### Platform Improvements
 * Extensions have been consolidated into a single database, and a new Extension manager has been created.
 * We've streamlined the means by which most content is rendered by consolidating functionality under a new GetContentData() Core object.
-* A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job.
 
 ## 1.1.1: Supplemental
 ### Release Notes

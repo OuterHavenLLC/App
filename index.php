@@ -122,7 +122,7 @@
    # POLLS
    $content = "v=".base64_encode("WebUI:Containers");
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("Poll:Home")."&ID=".$command[1];
+    $content = "v=".base64_encode("Poll:Home")."&ID=".$command[1]."&pub=1";
    }
   } elseif($command[0] == "search") {
    # SEARCH

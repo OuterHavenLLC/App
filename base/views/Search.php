@@ -272,15 +272,22 @@
      $li .= "&b2=$b2&lPG=$lpg";
      $lis = "Search Entries";
     } elseif($st == "MBR-LLP") {
-     $h = "Your Pages";
+     $h = "Your Articles";
      $li .= "&b2=$b2&lPG=$lpg";
-     $lis = "Search Pages";
-     $pd = base64_encode("Authentication:DeletePage");
-     $pe = base64_encode("Page:Edit");
+     $lis = "Search Articles";
      $lo = ($notAnon == 1) ? $this->core->Element([
       "button", "+", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$pe&new=1")
+       "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
+      ]
+     ]) : "";
+    } elseif($st == "MBR-Polls") {
+     $h = "Your Polls";
+     $lis = "Search Polls";
+     $lo = ($notAnon == 1) ? $this->core->Element([
+      "button", "+", [
+       "class" => "OpenCard v2",
+       "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
       ]
      ]) : "";
     } elseif($st == "MBR-SU") {
@@ -1934,6 +1941,76 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       }
      }
     }
+   } elseif($st == "MBR-Polls") {
+    $accessCode = "Accepted";
+    $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
+    $polls = $y["Polls"] ?? [];
+    foreach($polls as $key => $value) {
+     $bl = $this->core->CheckBlocked([$y, "Polls", $value]);
+     $_Poll = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Poll;$value")
+     ]);
+     if($_Poll["Empty"] == 0) {
+      $poll = $_Poll["DataModel"];
+      $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $illegal = $poll["Illegal"] ?? 0;
+      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+      if($bl == 0 && $ck == 1 && $illegal == 0) {
+       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+       $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
+       $options = $_Poll["ListItem"]["Options"];
+       $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
+        "div", $this->core->Element(["button", $blockCommand, [
+         "class" => "UpdateButton v2 v2w",
+         "data-processor" => $options["Block"]
+        ]]), ["class" => "Desktop33"]
+       ]).$this->core->Element([
+        "div", $this->core->Element(["button", "Delete", [
+         "class" => "OpenDialog v2 v2w",
+         "data-view" => $options["Delete"]
+        ]]), ["class" => "Desktop33"]
+       ]) : "";
+       $vote = "";
+       $voteCounts = [];
+       $votes = 0;
+       $youVoted = 0;
+       foreach($poll["Votes"] as $number => $info) {
+        if($info[0] == $you) {
+         $choice = $info[1] ?? 0;
+         $voteCounts[$choice] = $voteCounts[$choice] ?? 0;
+         $voteCounts[$choice]++;
+         $votes++;
+         $youVoted++;
+        }
+       } foreach($poll["Options"] as $number => $option) {
+        $voteShare = $voteCounts[$number] ?? 0;
+        $option = $this->core->Element([
+         "h4", $option
+        ]).$this->core->Element(["progress", $voteShare."%", [
+         "max" => $votes,
+         "value" => $voteShare
+        ]]);
+        if($notAnon == 0 || $youVoted == 0) {
+         $option = $this->core->Element(["button", $option, [
+          "class" => "LI UpdateContent",
+          "data-container" => ".Poll$value",
+          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($value))
+         ]]);
+        }
+        $vote .= $option;
+       }
+       array_push($msg, [
+        "[Poll.BlockOrDelete]" => base64_encode($blockOrDelete),
+        "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
+        "[Poll.ID]" => base64_encode($value),
+        "[Poll.Share]" => base64_encode($options["Share"]),
+        "[Poll.Title]" => base64_encode($_Poll["ListItem"]["Title"]),
+        "[Poll.Vote]" => base64_encode($vote)
+       ]);
+      }
+     }
+    }
    } elseif($st == "MBR-SU") {
     $accessCode = "Accepted";
     $attlv = base64_encode("LiveView:InlineMossaic");
@@ -2082,25 +2159,43 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       $illegal = $poll["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
+       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
        $options = $_Poll["ListItem"]["Options"];
-       $delete = ($poll["UN"] == $you) ? $this->core->Element([
+       $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
+        "div", $this->core->Element(["button", $blockCommand, [
+         "class" => "UpdateButton v2 v2w",
+         "data-processor" => $options["Block"]
+        ]]), ["class" => "Desktop33"]
+       ]).$this->core->Element([
         "div", $this->core->Element(["button", "Delete", [
          "class" => "OpenDialog v2 v2w",
          "data-view" => $options["Delete"]
-        ]]), ["class" => "Desktop50"]
+        ]]), ["class" => "Desktop33"]
        ]) : "";
        $vote = "";
+       $voteCounts = [];
+       $votes = 0;
        $youVoted = 0;
        foreach($poll["Votes"] as $number => $info) {
         if($info[0] == $you) {
+         $choice = $info[1] ?? 0;
+         $voteCounts[$choice] = $voteCounts[$choice] ?? 0;
+         $voteCounts[$choice]++;
+         $votes++;
          $youVoted++;
         }
        } foreach($poll["Options"] as $number => $option) {
-        $option = $this->core->Element(["p", "$number: $option"]);
+        $voteShare = $voteCounts[$number] ?? 0;
+        $option = $this->core->Element([
+         "h4", $option
+        ]).$this->core->Element(["progress", $voteShare."%", [
+         "max" => $votes,
+         "value" => $voteShare
+        ]]);
         if($notAnon == 0 || $youVoted == 0) {
          $option = $this->core->Element(["button", $option, [
-          "class" => "LI UpdateContent v2 v2w",
+          "class" => "LI UpdateContent",
           "data-container" => ".Poll$value",
           "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($value))
          ]]);
@@ -2108,7 +2203,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
         $vote .= $option;
        }
        array_push($msg, [
-        "[Poll.Delete]" => base64_encode($delete),
+        "[Poll.BlockOrDelete]" => base64_encode($blockOrDelete),
         "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
         "[Poll.ID]" => base64_encode($value),
         "[Poll.Share]" => base64_encode($options["Share"]),
