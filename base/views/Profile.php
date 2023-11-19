@@ -144,6 +144,8 @@
     $message = "Posted to their blog.";
    } elseif($type == "NewJob") {
     $message = "Requested a Service.";
+   } elseif($type == "NewPoll") {
+    $message = "Created a new Poll.";
    } elseif($type == "NewMessage") {
     $message = "Sent you a message.";
    } elseif($type == "NewProduct") {
@@ -288,6 +290,16 @@
       "button", "Chat with <em>".$data["From"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&Username=".base64_encode($data["From"]))
+      ]
+     ]);
+    } elseif($bulletin["Type"] == "NewPoll") {
+     $poll = $this->core->Data("Get", ["poll", $data["PollID"]]) ?? [];
+     $r = $this->core->Element([
+      "button", "Take me to <em>".$poll["Title"]."</em>", [
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
+       "data-MAR" => base64_encode($mar),
+       "data-target" => ".Bulletin$id .Options",
+       "data-view" => base64_encode("v=".base64_encode("Poll:Home")."&ID=".base64_encode($data["PollID"]))
       ]
      ]);
     } elseif($bulletin["Type"] == "NewProduct") {
@@ -1093,6 +1105,7 @@
     $newMember["Personal"]["FirstName"] = $firstName;
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
+    $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
     $this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!";

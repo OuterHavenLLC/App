@@ -800,6 +800,21 @@
       "View" => $view,
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
      ];
+    } elseif($type == "Poll") {
+     $data = $this->Data("Get", ["poll", $contentID]) ?? [];
+     $attachments = $data["Attachments"] ?? [];
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+     $body = $data["Body"] ?? "";
+     $description = $data["Description"] ?? "";
+     $empty = $data["Purge"] ?? 0;
+     $empty = (empty($data) || $empty == 1) ? 1 : 0;
+     $title = $data["Title"] ?? "";
+     $options = [
+      "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Polls")),
+      "Delete" => base64_encode("v=".base64_encode("Authentication:DeletePoll")."&ID=$contentID"),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Poll")."&Username=".base64_encode($data["UN"])),
+      "View" => base64_encode("v=".base64_encode("Poll:Home")."&ID=$contentID")
+     ];
     } elseif($type == "Product") {
      $data = $this->Data("Get", ["product", $contentID]) ?? [];
      $attachments = $data["Attachments"] ?? [];
@@ -999,6 +1014,7 @@
    $pages = $a["Pages"] ?? [];
    $password = $a["Password"] ?? md5("P@ssw0rd!");
    $pin = $a["PIN"] ?? md5(0000000);
+   $polls = $a["Polls"] ?? [];
    $rank = $a["Rank"] ?? md5("Member");
    $registered = $a["Registered"] ?? $this->timestamp;
    $relationshipStatus = $a["RelationshipStatus"] ?? md5("Single");
@@ -1058,6 +1074,7 @@
      "RelationshipWith" => ""
     ],
     "Points" => 1000,
+    "Polls" => $polls,
     "Privacy" => [
      "Albums" => md5("Public"),
      "Archive" => md5("Public"),
