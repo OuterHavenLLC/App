@@ -2067,7 +2067,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "Polls") {
     $accessCode = "Accepted";
-    $extension = $this->core->Extension("XXXX");
+    $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
     $polls = $this->core->DatabaseSet("Polls") ?? [];
     foreach($polls as $key => $value) {
      $value = str_replace("c.oh.poll.", "", $value);
@@ -2078,6 +2078,44 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      ]);
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
+      $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $illegal = $poll["Illegal"] ?? 0;
+      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+      if($bl == 0 && $ck == 1 && $illegal == 0) {
+       $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
+       $options = $_Poll["ListItem"]["Options"];
+       $delete = ($poll["UN"] == $you) ? $this->core->Element([
+        "div", $this->core->Element(["button", "Delete", [
+         "class" => "OpenDialog v2 v2w",
+         "data-view" => $options["Delete"]
+        ]]), ["class" => "Desktop50"]
+       ]) : "";
+       $vote = "";
+       $youVoted = 0;
+       foreach($poll["Votes"] as $number => $info) {
+        if($info[0] == $you) {
+         $youVoted++;
+        }
+       } foreach($poll["Options"] as $number => $option) {
+        $option = $this->core->Element(["p", "$number: $option"]);
+        if($notAnon == 0 || $youVoted == 0) {
+         $option = $this->core->Element(["button", $option, [
+          "class" => "LI UpdateContent v2 v2w",
+          "data-container" => ".Poll$value",
+          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($value))
+         ]]);
+        }
+        $vote .= $option;
+       }
+       array_push($msg, [
+        "[Poll.Delete]" => base64_encode($delete),
+        "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
+        "[Poll.ID]" => base64_encode($value),
+        "[Poll.Share]" => base64_encode($options["Share"]),
+        "[Poll.Title]" => base64_encode($_Poll["ListItem"]["Title"]),
+        "[Poll.Vote]" => base64_encode($vote)
+       ]);
+      }
      }
     }
    } elseif($st == "Products") {

@@ -802,8 +802,7 @@
      ];
     } elseif($type == "Poll") {
      $data = $this->Data("Get", ["poll", $contentID]) ?? [];
-     $attachments = $data["Attachments"] ?? [];
-     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+     $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", []))."&Type=".base64_encode("DLC"));
      $body = $data["Body"] ?? "";
      $description = $data["Description"] ?? "";
      $empty = $data["Purge"] ?? 0;
