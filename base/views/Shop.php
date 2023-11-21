@@ -314,7 +314,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $i = 0;
-   $id = $data["ID"] ?? "";
+   $id = $data["ID"] ?? md5($this->core->ShopID);
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -340,7 +340,7 @@
      ];
      $ck = ($this->core->timestamp < $this->core->TimePlus($product["Created"], $exp["Quantity"], $exp["TimeSpan"])) ? 1 : 0;
      if(!empty($product) && $ck == 1) {
-      $cat = $product["Category"];
+      $category = $product["Category"];
       $newHistory[$key] = $value;
       $i++;
       $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
@@ -351,19 +351,19 @@
       $pts = $this->core->config["PTS"]["Products"];
       $qty = $product["Quantity"] ?? 0;
       $qty2 = $product["QTY"] ?? 0;
-      if($cat == "Architecture") {
+      if($category == "Architecture") {
        # Architecture
-      } elseif($cat == "Download") {
+      } elseif($category == "Download") {
        # Downloadable Content
-      } elseif($cat == "Donation") {
+      } elseif($category == "Donation") {
        # Donations
        $opt = $this->core->Element(["p", "Thank you for donating!"]);
-      } elseif($cat == "Product") {
+      } elseif($category == "Product") {
        # Physical Products (require delivery info)
        $opt = $this->core->Element([
         "button", "Contact the Seller", ["class" => "BB BBB v2 v2w"]
        ]);
-      } elseif($cat == "Subscription") {
+      } elseif($category == "Subscription") {
        $opt = $this->core->Element(["button", "Go to Subscription", [
         "class" => "BBB v2 v2w"
        ]]);
@@ -532,7 +532,7 @@
         "[Shop.Disclaimer]" => $disclaimer,
         "[Shop.Edit]" => $edit,
         "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
-        "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id&PFST=$pub"),
+        "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id"),
         "[Shop.ID]" => $id,
         "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
         "[Shop.PartnerChat]" => $chat,
