@@ -313,92 +313,86 @@
   function History(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
    $i = 0;
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $r = [
-     "Header" => "Sign In",
-     "Scrollable" => $this->core->Change([[
-      "[ShoppingHistory.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-      "[ShoppingHistory.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
-     ], $this->core->Extension("530578e8f5a619e234704ea1f6cd3d64")])
+     "Body" => "You must sign in to view your shopping history."
     ];
-   } else {
-    $r = [
-     "Body" => "The Shop Identifier is missing."
-    ];
-    if(!empty($data["ID"])) {
-     $accessCode = "Accepted";
-     $h = $y["Shopping"]["History"] ?? [];
-     $h = $h[$data["ID"]] ?? [];
-     $h2 = [];
-     $r = "";
-     foreach(array_reverse($h) as $k => $v) {
-      $opt = "";
-      $product = $this->core->Data("Get", ["product", $v["ID"]]) ?? [];
-      $exp = $product["Expires"] ?? [
-       "Created" => $product["Created"],
-       "Quantity" => 1,
-       "TimeSpan" => "year"
-      ];
-      $ck = ($this->core->timestamp < $this->core->TimePlus($product["Created"], $exp["Quantity"], $exp["TimeSpan"])) ? 1 : 0;
-      if(!empty($p) && $ck == 1) {
-       $cat = $product["Category"];
-       $h2[$k] = $v;
-       $i++;
-       $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
-        "Data" => "[Media:MiNY]",
-        "Display" => 1
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $history = $y["Shopping"]["History"] ?? [];
+    $history = $history[$id] ?? [];
+    $newHistory = [];
+    $r = "";
+    foreach(array_reverse($history) as $key => $value) {
+     $opt = "";
+     $product = $this->core->Data("Get", ["product", $value["ID"]]) ?? [];
+     $exp = $product["Expires"] ?? [
+      "Created" => $product["Created"],
+      "Quantity" => 1,
+      "TimeSpan" => "year"
+     ];
+     $ck = ($this->core->timestamp < $this->core->TimePlus($product["Created"], $exp["Quantity"], $exp["TimeSpan"])) ? 1 : 0;
+     if(!empty($product) && $ck == 1) {
+      $cat = $product["Category"];
+      $newHistory[$key] = $value;
+      $i++;
+      $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
+       "Data" => "[Media:MiNY]",
+       "Display" => 1
+      ]);
+      $id = $product["ID"];
+      $pts = $this->core->config["PTS"]["Products"];
+      $qty = $product["Quantity"] ?? 0;
+      $qty2 = $product["QTY"] ?? 0;
+      if($cat == "Architecture") {
+       # Architecture
+      } elseif($cat == "Download") {
+       # Downloadable Content
+      } elseif($cat == "Donation") {
+       # Donations
+       $opt = $this->core->Element(["p", "Thank you for donating!"]);
+      } elseif($cat == "Product") {
+       # Physical Products (require delivery info)
+       $opt = $this->core->Element([
+        "button", "Contact the Seller", ["class" => "BB BBB v2 v2w"]
        ]);
-       $id = $product["ID"];
-       $pts = $this->core->config["PTS"]["Products"];
-       $qty = $product["Quantity"] ?? 0;
-       $qty2 = $product["QTY"] ?? 0;
-       if($cat == "Architecture") {
-        # Architecture
-       } elseif($cat == "Download") {
-        # Downloadable Content
-       } elseif($cat == "Donation") {
-        # Donations
-        $opt = $this->core->Element(["p", "Thank you for donating!"]);
-       } elseif($cat == "Product") {
-        # Physical Products (require delivery info)
-        $opt = $this->core->Element([
-         "button", "Contact the Seller", ["class" => "BB BBB v2 v2w"]
-        ]);
-       } elseif($cat == "Subscription") {
-        $opt = $this->core->Element(["button", "Go to Subscription", [
-         "class" => "BBB v2 v2w"
-        ]]);
-       }
-       $r .= $this->core->Change([[
-        "[Product.Added]" => $this->core->TimeAgo($v["Timestamp"]),
-        "[Product.ICO]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
-        "[Product.Description]" => $this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $product["Description"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ]),
-        "[Product.Options]" => $opt,
-        "[Product.Quantity]" => $qty2,
-        "[Product.Title]" => $product["Title"]
-       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
+      } elseif($cat == "Subscription") {
+       $opt = $this->core->Element(["button", "Go to Subscription", [
+        "class" => "BBB v2 v2w"
+       ]]);
       }
-     } if($i == 0) {
-      $r = $this->core->Element(["h3", "No Results", [
-       "class" => "CenterText UpperCase",
-       "style" => "margin:1em"
-      ]]);
+      $r .= $this->core->Change([[
+       "[Product.Added]" => $this->core->TimeAgo($v["Timestamp"]),
+       "[Product.ICO]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
+       "[Product.Description]" => $this->core->PlainText([
+        "BBCodes" => 1,
+        "Data" => $product["Description"],
+        "Display" => 1,
+        "HTMLDecode" => 1
+       ]),
+       "[Product.Options]" => $opt,
+       "[Product.Quantity]" => $qty2,
+       "[Product.Title]" => $product["Title"]
+      ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
      }
-     $y["Shopping"]["History"][$data["ID"]] = $h2;
-     $this->core->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
-     $r = $this->core->Change([[
-      "[ShoppingHistory.List]" => $r
-     ], $this->core->Extension("20664fb1019341a3ea2e539360108ac3")]);
+    } if($i == 0) {
+     $r = $this->core->Element(["h3", "No Results", [
+      "class" => "CenterText UpperCase",
+      "style" => "margin:1em"
+     ]]);
     }
+    $y["Shopping"]["History"][$data["ID"]] = $newHistory;
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = $this->core->Change([[
+     "[ShoppingHistory.List]" => $r
+    ], $this->core->Extension("20664fb1019341a3ea2e539360108ac3")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -527,7 +521,7 @@
        $r = $this->core->Change([[
         "[Shop.Back]" => $back,
         "[Shop.Block]" => $block,
-        "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&PFST=$pub"),
+        "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]),
         "[Shop.Conversation]" => $this->core->Change([[
          "[Conversation.CRID]" => $id,
          "[Conversation.CRIDE]" => base64_encode($id),

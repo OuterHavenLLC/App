@@ -5,29 +5,26 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Add(array $a) {
-   $accessCode = "Denied";
+   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID", "T"]);
    $id = $data["ID"];
-   $r = [
-    "Body" => "You must be signed in to make purchases.",
-   ];
+   $r = $this->core->Element([
+    "p", "You must be signed in to make purchases.", ["class" => "CenterText"]
+   ]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["T"]) && $this->core->ID != $you) {
     $sub = $y["Subscriptions"]["Artist"]["A"] ?? 0;
     $t = ($data["T"] == $you) ? $y : $this->core->Member($data["T"]);
-    $shop = $this->core->Data("Get", [
-     "shop",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", md5($t["Login"]["Username"])]) ?? [];
     if($sub == 0 && $id == "c7054e9c7955203b721d142dedc9e540") {
+     $accessCode = "Accepted";
      $r = [
       "Body" => "Pay your commisiion via the Subscriptions page, and you will automatically be subscribed.",
       "Header" => "Commission Due"
      ];
     } else {
-     $accessCode = "Accepted";
      $product = $this->core->Data("Get", ["product", $id]) ?? [];
      $category = $product["Category"] ?? "";
      $hasInstructions = $product["Instructions"] ?? "";

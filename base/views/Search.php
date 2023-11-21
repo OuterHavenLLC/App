@@ -76,10 +76,10 @@
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "CART") {
      $extension = "e58b4fc5070b14c01c88c28050547285";
-     $shopID = $data["Username"] ?? $you;
-     $shopID = md5($shopID);
+     $username = $data["Username"] ?? $you;
+     $shopID = md5($username);
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-     $li .= "&ID=$shopID";
+     $li .= "&ID=$shopID&Username=".base64_encode($username);
      $lis = "Search ".$shop["Title"];
     } elseif($st == "Chat") {
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
@@ -399,7 +399,7 @@
     } elseif($st == "SHOP-Products") {
      $h = "Products";
      $username = $data["UN"] ?? base64_encode($you);
-     $li .= "&UN=$username&b2=$b2&lPG=$lpg&pubP=".$data["pubP"]."&st=$st";
+     $li .= "&UN=$username&b2=$b2&lPG=$lpg&pub=$pub&st=$st";
      $lis = "Search $b2";
      $t = base64_decode($data["UN"]);
      $t = $this->core->Member($t);
@@ -851,13 +851,15 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $now = $this->core->timestamp;
     $extension = $this->core->Extension("dea3da71b28244bf7cf84e276d5d1cba");
     $shop = $data["ID"] ?? md5($this->core->ShopID);
+    $username = $data["Username"] ?? base64_encode($this->core->ShopID);
     $products = $y["Shopping"]["Cart"][$shop] ?? [];
     $products = $products["Products"] ?? [];
     foreach($products as $key => $value) {
      $bl = $this->core->CheckBlocked([$y, "Products", $value]);;
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Product;$key")
+      "ID" => base64_encode("Product;$key"),
+      "Owner" => $username
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];
@@ -2117,7 +2119,8 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      $bl = $this->core->CheckBlocked([$y, "Products", $value]);
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Product;$value")
+      "ID" => base64_encode("Product;$value"),
+      "Owner" => base64_encode($username)
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];
@@ -2211,10 +2214,6 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     }
    } elseif($st == "Products") {
     $accessCode = "Accepted";
-    $coverPhoto = $this->core->PlainText([
-     "Data" => "[Media:MiNY]",
-     "Display" => 1
-    ]);
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $members = $this->core->DatabaseSet("MBR") ?? [];
     foreach($members as $key => $value) {

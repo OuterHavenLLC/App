@@ -187,7 +187,7 @@
      "BBCodes" => 1,
      "Data" => "[Media:CP]"
     ]),
-    "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".md5($this->core->ShopID)),
+    "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($this->core->ShopID)),
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
     "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
    ], $this->core->Extension("db69f503c7c6c1470bd9620b79ab00d7")]);
