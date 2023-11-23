@@ -7,29 +7,6 @@
    ]]);
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function GetCode(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["Code", "Type"]);
-   $r = [
-    "Body" => "The Code or Code Type are missing."
-   ];
-   if(!empty($data["Code"]) && !empty($data["Type"])) {
-    $accessCode = "Accepted";
-    $r = [
-     "Body" => "Paste the code below anywhere within the text you want it to appear in.<br/>[".$data["Type"].":".$data["Code"]."]",
-     "Header" => "Embed Code"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function EditorSingle(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];

@@ -1871,21 +1871,27 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
       }
       $contacts = array_unique($contacts);
       foreach($contacts as $key => $member) {
-       $t = $this->core->Member($member);
-       $view = "v=".base64_encode("Chat:Home")."&1on1=1&Username=".base64_encode($member);
-       $view .= ($integrated == 1) ? "&Card=1" : "";
-       $online = $t["Activity"]["OnlineStatus"] ?? 0;
-       $online = ($online == 1) ? $this->core->Element([
-        "span",
-        NULL,
-        ["class" => "online"]
-       ]) : "";
-       array_push($msg, [
-        "[Chat.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
-        "[Chat.Online]" => base64_encode($online),
-        "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-        "[Chat.View]" => base64_encode(base64_encode($view))
+       $bl = $this->core->CheckBlocked([$y, "Members", md5($member)]);;
+       $_Member = $this->core->GetContentData([
+        "Blacklisted" => $bl,
+        "ID" => base64_encode("Member;".md5($member))
        ]);
+       if($_Member["Empty"] == 0) {
+        $view = "v=".base64_encode("Chat:Home")."&1on1=1&Username=".base64_encode($member);
+        $view .= ($integrated == 1) ? "&Card=1" : "";
+        $online = $t["Activity"]["OnlineStatus"] ?? 0;
+        $online = ($online == 1) ? $this->core->Element([
+         "span",
+         NULL,
+         ["class" => "online"]
+        ]) : "";
+        array_push($msg, [
+         "[Chat.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
+         "[Chat.Online]" => base64_encode($online),
+         "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
+         "[Chat.View]" => base64_encode(base64_encode($view))
+        ]);
+       }
       }
      }
     }

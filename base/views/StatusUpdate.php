@@ -40,7 +40,7 @@
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->core->Data("Get", ["su", $id]) ?? [];
     $body = $update["Body"] ?? "";
-    $body = $data["body"] ?? $body;
+    $body = (!empty($data["Body"])) ? base64_decode($data["Body"]) : $body;
     if(!empty($update["Attachments"])) {
      $att = base64_encode(implode(";", $update["Attachments"]));
     }

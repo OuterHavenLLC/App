@@ -196,6 +196,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $body = $data["Body"] ?? "";
    $card = $data["Card"] ?? 0;
    $chatID = $data["ID"] ?? "";
    $chatID = $data["Username"] ?? $chatID;
@@ -281,6 +282,7 @@
        ]) : "";
        $r = $this->core->Change([[
         "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
+        "[Chat.Body]" => $body,
         "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
         "[Chat.Description]" => $_Chat["ListItem"]["Description"],
         "[Chat.ID]" => $id,

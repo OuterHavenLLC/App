@@ -625,7 +625,7 @@
       "Edit" => base64_encode("v=".base64_encode("Blog:Edit")."&BLG=$contentID"),
       "Invite" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=".base64_encode($contentID)),
       "Post" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode("Blog")."&Username=".base64_encode($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
       "View" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=$contentID"),
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
@@ -649,7 +649,7 @@
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlogPost")."&ID=".base64_encode("$contentID;$additionalContentID")),
       "Edit" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&Post=$additionalContentID"),
       "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID;$additionalContentID")),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("BlogPost")."&Username=".base64_encode($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
       "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=$contentID&Post=$additionalContentID&b2=".$content["BackTo"]."&back=1"),
       "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=2")
      ];
@@ -676,7 +676,7 @@
       "Contributors" => $contributors,
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteChat")."&ID=".base64_encode($contentID)),
       "Edit" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($contentID)."&Username=".base64_encode($data["UN"])),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Chat")."&Username=".base64_encode($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
       "View" => base64_encode($view)
      ];
     } elseif($type == "File" && !empty($additionalContentID)) {
@@ -705,7 +705,7 @@
       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($content["ID"])."&List=".base64_encode("Files")),
       "Download" => $this->base."/?_API=Web&v=".base64_encode("File:Download")."&FilePath=".base64_encode("$contentID/".$data["Name"]),
       "Edit" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContentID)."&UN=".base64_encode($contentID)),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("File")."&Username=".base64_encode($contentID)),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
       "Source" => $this->GetSourceFromExtension([$contentID, $data]),
       "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
      ];
@@ -722,7 +722,7 @@
       "Edit" => base64_encode("v=".base64_encode("Forum:Edit")."&ID=$contentID"),
       "Invite" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
       "Post" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Forum")."&Username=".base64_encode($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
       "View" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".base64_encode($contentID)),
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
@@ -745,7 +745,7 @@
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteForumPost")."&FID=$contentID&ID=$additionalContentID"),
       "Edit" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&ID=$additionalContentID"),
       "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$contentID;$additionalContentID")),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode("$contentID-$additionalContentID")."&Type=".base64_encode("ForumPost")."&Username=".base64_encode($data["From"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode("$contentID-$additionalContentID")."&Type=".base64_encode($type)."&Username=".base64_encode($data["From"])),
       "View" => base64_encode("v=".base64_encode("ForumPost:Home")."&FID=$contentID&ID=$additionalContentID"),
       "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
      ];
@@ -767,7 +767,7 @@
        "Blcok" => "",
        "Edit" => base64_encode("v=".base64_encode("Profile:Preferences")),
        "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode("Profile")."&Username=".base64_encode($them)),
+       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
        "View" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($them)),
        "Vote" => base64_encode("v=$vote&ID=".md5($them)."&Type=4")
       ];
@@ -796,7 +796,7 @@
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$contentID"),
       "Edit" => base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($contentID)),
       "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;".$contentID)),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Article")."&Username=".base64_encode($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
       "Subscribe" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$contentID&Type=Article"),
       "View" => $view,
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
@@ -812,7 +812,7 @@
      $options = [
       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Polls")),
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeletePoll")."&ID=$contentID"),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Poll")."&Username=".base64_encode($data["UN"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
       "View" => base64_encode("v=".base64_encode("Poll:Home")."&ID=$contentID")
      ];
     } elseif($type == "Product") {
@@ -834,7 +834,7 @@
       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Products")),
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteProduct")."&ID=$contentID"),
       "Edit" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Product")."&Username=".$content["Owner"]),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".$content["Owner"]),
       "View" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$contentID&UN=".$content["Owner"]),
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
@@ -850,7 +850,7 @@
       "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
       "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode($contentID)),
       "Payroll" => base64_encode("v=".base64_encode("Shop:Payroll")),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("Shop")."&Username=".base64_encode($content["Owner"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($content["Owner"])),
       "View" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($content["Owner"])),
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
@@ -872,7 +872,7 @@
       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Status Updates")),
       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($contentID)),
       "Edit" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
-      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode("StatusUpdate")."&Username=".base64_encode($data["From"])),
+      "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["From"])),
       "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=$contentID"),
       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
      ];
@@ -890,6 +890,15 @@
     $modified = " &bull; Modified ".$_Time;
     $modified = $this->Element(["em", $modified]);
    }
+   $body = $this->PlainText([
+    "BBCodes" => 1,
+    "Data" => $this->Excerpt($body, 3000),
+    "Display" => 1
+   ]);
+   $description = $this->PlainText([
+    "Data" => $this->Excerpt($description, 180),
+    "HTMLDecode" => 1
+   ]);
    return [
     "DataModel" => $data,
     "Empty" => $empty,
@@ -899,20 +908,35 @@
     ],
     "ListItem" => [
      "Attachments" => $attachments,
-     "Body" => $this->PlainText([
-      "BBCodes" => 1,
-      "Data" => $this->Excerpt($body, 3000),
-      "Display" => 1
-     ]),
+     "Body" => $body,
      "CoverPhoto" => $coverPhoto,
-     "Description" => $this->PlainText([
-      "Data" => $this->Excerpt($description, 180),
-      "HTMLDecode" => 1
-     ]),
+     "Description" => $description,
      "Modified" => $modified,
      "Options" => $options,
      "Title" => $title,
      "Vote" => $vote
+    ],
+    "Preview" => [
+     "Empty" => $this->Element(["div", $this->Element([
+       "h3", "Preview Unavailable"
+      ]).$this->Element([
+       "p", "The requested content has either been hidden from viewing or purged from the platform."
+      ]), ["class" => "InnerMargin K4i"]
+     ]),
+     "Content" => $this->Element(["div", $this->Element([
+       "h3", $title
+      ]).$this->Element([
+       "p", $description
+      ]).$this->Element([
+       "p", $body
+      ]).$this->Element(["div",
+       $this->Element([
+        "h4", "&bull; &bull; &bull;"
+       ]), ["class" => "Attachments".md5($contentID)." SideScroll"]
+      ]).$this->Element([
+       "script", "UpdateContent('.Attachments".md5($contentID)."', '$attachments');"
+      ]), ["class" => "InnerMargin K4i"]
+     ])
     ]
    ];
   }
