@@ -363,12 +363,17 @@
          "class" => "BBB v2 v2w"
         ]]);
        } elseif($category == "Subscription") {
-        // GET SUBSCRIPTION VIEW FROM ID
-        $opt = $this->core->Element(["button", "Go to Subscription", [
-         "class" => "BBB v2 v2w"
+        $subscriptions = $this->core->config["Subscriptions"] ?? [];
+        $sub = ($id == $subscriptions["Artist"]["ID"]) ? "Artist" : "";
+        $sub = ($id == $subscriptions["Blogger"]["ID"]) ? "S-Blogger" : $subscription;
+        $sub = ($id == $subscriptions["VIP"]["ID"]) ? "VIP" : $subscription;
+        $sub = ($id == $subscriptions["XFS"]["ID"]) ? "XFS" : $subscription;
+        $opt = $this->core->Element(["button", "Go to ".$subscriptions[$sub]["Title"], [
+         "class" => "BBB OpenCard v2 v2w",
+         "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($sub))
         ]]);
        }
-       $opt .= (!empty($media) ? $this->core->Element(["button", "Download Media", [
+       $opt .= (!empty($media)) ? $this->core->Element(["button", "Download Media", [
         "class" => "BBB Download v2 v2w",
         "data-media" => base64_encode(base64_encode(implode(";", $media))),
         "data-view" => base64_encode("v=".base64_encode("File:Download"))

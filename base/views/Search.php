@@ -2137,7 +2137,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        array_push($msg, [
         "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
         "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"].$value),
+        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
         "[X.LI.DT]" => base64_encode(base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$value&UN=".base64_encode($username)))
        ]);
       }

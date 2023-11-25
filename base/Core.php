@@ -296,21 +296,25 @@
     "Subscriptions" => [
       "Artist" => [
        "Description" => "Create and manage a Shop, accept donations, and more, for a 5% commission.",
+       "ID" => "c7054e9c7955203b721d142dedc9e540",
        "Title" => "Artist",
        "Term" => [1, "month"]
       ],
       "Blogger" => [
        "Description" => "Create and manage blogs.",
+       "ID" => "cc84143175d6ae2051058ee0079bd6b8",
        "Title" => "Blogger",
        "Term" => [1, "month"]
       ],
       "VIP" => [
        "Description" => "Enjoy access to all subscriptions, and exclusive content.",
+       "ID" => "355fd2f096bdb49883590b8eeef72b9c",
        "Title" => "V.I.P.",
        "Term" => [1, "month"]
       ],
       "XFS" => [
        "Description" => "Upload files to your heart's delight.",
+       "ID" => "5bfb3f44cdb9d3f2cd969a23f0e37093",
        "Title" => "Unlimited File Storage",
        "Term" => [1, "month"]
       ]
