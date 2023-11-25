@@ -331,10 +331,12 @@
     $newHistory = [];
     $r = "";
     foreach(array_reverse($history) as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Products", $value]);
+     $product = $value["ID"] ?? "";
+     $quantity = $value["Quantity"] ?? 1;
+     $bl = $this->core->CheckBlocked([$y, "Products", $product]);
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Product;$value")
+      "ID" => base64_encode("Product;$product")
      ]);
      if($_Product["Empty"] == 0) {
       $opt = "";
@@ -352,8 +354,6 @@
        $id = $product["ID"];
        $media = $product["DLC"] ?? [];
        $pts = $this->core->config["PTS"]["Products"];
-       $qty = $product["Quantity"] ?? 0;
-       $qty2 = $product["QTY"] ?? 0;
        if($category == "Architecture") {
         $opt = $this->core->Element(["p", "Your project media is ready for download."]);
        } elseif($category == "Donation") {
@@ -383,7 +383,7 @@
          "HTMLDecode" => 1
         ]),
         "[Product.Options]" => $opt,
-        "[Product.Quantity]" => $qty2,
+        "[Product.Quantity]" => $quantity,
         "[Product.Title]" => $product["Title"]
        ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       }
@@ -772,14 +772,12 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
+          $history = $y["Shopping"]["History"][$shopID] ?? [];
           $message = $this->core->Element([
            "p", "Thank you for your purchase!"
           ]);
           $points = $y["Points"] ?? 0;
-          $physicalOrders = $this->core->Data("Get", [
-           "po",
-           $shopID
-          ]) ?? [];
+          $physicalOrders = $this->core->Data("Get", ["po", $shopID]) ?? [];
           foreach($cart as $key => $value) {
            $product = $this->core->Data("Get", ["product", $key]) ?? [];
            if(!empty($product)) {
@@ -788,13 +786,18 @@
             $isActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
             $isInStock = $product["Quantity"] ?? 0;
             $isInStock = ($isInStock != 0) ? 1 : 0;
+            $quantity = $value["Quantity"] ?? 1;
             $value["ID"] = $value["ID"] ?? $key;
-            $value["Quantity"] = $value["Quantity"] ?? 1;
+            $value["Quantity"] = $quantity;
             if($isActive == 0 || $isInStock == 0) {
              $price = str_replace(",", "", $product["Cost"]);
              $price = $price + str_replace(",", "", $product["Profit"]);
              $points = $points + ($price * 10000);
             } else {
+             array_push($history, [
+              "ID" => $key,
+              "Quantity" => $quantity
+             ]);
              $cartOrder = $this->ProcessCartOrder([
               "Bundled" => $bundle,
               "PayPalOrderID" => $orderID,
@@ -813,6 +816,7 @@
           $y["Shopping"]["Cart"][$shopID]["Credits"] = 0;
           $y["Shopping"]["Cart"][$shopID]["DiscountCode"] = 0;
           $y["Shopping"]["Cart"][$shopID]["Products"] = [];
+          $y["Shopping"]["History"][$shopID] = $history;
           $y["Verified"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
