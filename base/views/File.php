@@ -11,8 +11,8 @@
     return "Not Found";
    } else {
     $filePath = $this->core->efs.base64_decode($filePath);
+    header("Content-Disposition: attachment; filename=".basename($filePath));
     header("Content-type: application/x-file-to-save");
-    header("Content-Disposition: attachment; filename=". basename($filePath));
     ob_end_clean();
     readfile($filePath);
     exit;
@@ -160,8 +160,9 @@
      ]) : "";
      $actions .= $this->core->Element([
       "button", "Download", [
-       "class" => "Small v2",
-       "onclick" => "W('".$options["Download"]."', '_top');"
+       "class" => "Download Small v2",
+       "data-media" => base64_encode(base64_encode("$username/".$file["Name"])),
+       "data-view" => base64_encode("v=".base64_encode("File:Download"))
       ]
      ]);
      $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([

@@ -13,7 +13,9 @@ This release focuses on search—both inside and outside the platform, as well a
 * TBA
 
 ### Platform Improvements
+* Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
 * A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job.
+* Download buttons now support simultanious media downloads.
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 
 ## 1.2: Democracy

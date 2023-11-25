@@ -331,56 +331,62 @@
     $newHistory = [];
     $r = "";
     foreach(array_reverse($history) as $key => $value) {
-     $opt = "";
-     $product = $this->core->Data("Get", ["product", $value["ID"]]) ?? [];
-     $exp = $product["Expires"] ?? [
-      "Created" => $product["Created"],
-      "Quantity" => 1,
-      "TimeSpan" => "year"
-     ];
-     $ck = ($this->core->timestamp < $this->core->TimePlus($product["Created"], $exp["Quantity"], $exp["TimeSpan"])) ? 1 : 0;
-     if(!empty($product) && $ck == 1) {
-      $category = $product["Category"];
-      $newHistory[$key] = $value;
-      $i++;
-      $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
-       "Data" => "[Media:MiNY]",
-       "Display" => 1
-      ]);
-      $id = $product["ID"];
-      $pts = $this->core->config["PTS"]["Products"];
-      $qty = $product["Quantity"] ?? 0;
-      $qty2 = $product["QTY"] ?? 0;
-      if($category == "Architecture") {
-       # Architecture
-      } elseif($category == "Download") {
-       # Downloadable Content
-      } elseif($category == "Donation") {
-       # Donations
-       $opt = $this->core->Element(["p", "Thank you for donating!"]);
-      } elseif($category == "Product") {
-       # Physical Products (require delivery info)
-       $opt = $this->core->Element([
-        "button", "Contact the Seller", ["class" => "BB BBB v2 v2w"]
-       ]);
-      } elseif($category == "Subscription") {
-       $opt = $this->core->Element(["button", "Go to Subscription", [
-        "class" => "BBB v2 v2w"
-       ]]);
+     $bl = $this->core->CheckBlocked([$y, "Products", $value]);
+     $_Product = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Product;$value")
+     ]);
+     if($_Product["Empty"] == 0) {
+      $opt = "";
+      $product = $_Product["DataModel"];
+      $exp = $product["Expires"] ?? [
+       "Created" => $product["Created"],
+       "Quantity" => 1,
+       "TimeSpan" => "year"
+      ];
+      $ck = ($this->core->timestamp < $this->core->TimePlus($product["Created"], $exp["Quantity"], $exp["TimeSpan"])) ? 1 : 0;
+      if($ck == 1) {
+       $category = $product["Category"];
+       $newHistory[$key] = $value;
+       $i++;
+       $id = $product["ID"];
+       $media = $product["DLC"] ?? [];
+       $pts = $this->core->config["PTS"]["Products"];
+       $qty = $product["Quantity"] ?? 0;
+       $qty2 = $product["QTY"] ?? 0;
+       if($category == "Architecture") {
+        $opt = $this->core->Element(["p", "Your project media is ready for download."]);
+       } elseif($category == "Donation") {
+        $opt = $this->core->Element(["p", "Thank you for donating!"]);
+       } elseif($category == "Product") {
+        $opt = $this->core->Element(["button", "Contact the Seller", [
+         "class" => "BBB v2 v2w"
+        ]]);
+       } elseif($category == "Subscription") {
+        // GET SUBSCRIPTION VIEW FROM ID
+        $opt = $this->core->Element(["button", "Go to Subscription", [
+         "class" => "BBB v2 v2w"
+        ]]);
+       }
+       $opt .= (!empty($media) ? $this->core->Element(["button", "Download Media", [
+        "class" => "BBB Download v2 v2w",
+        "data-media" => base64_encode(base64_encode(implode(";", $media))),
+        "data-view" => base64_encode("v=".base64_encode("File:Download"))
+       ]]) : "";
+       $r .= $this->core->Change([[
+        "[Product.Added]" => $this->core->TimeAgo($v["Timestamp"]),
+        "[Product.ICO]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
+        "[Product.Description]" => $this->core->PlainText([
+         "BBCodes" => 1,
+         "Data" => $product["Description"],
+         "Display" => 1,
+         "HTMLDecode" => 1
+        ]),
+        "[Product.Options]" => $opt,
+        "[Product.Quantity]" => $qty2,
+        "[Product.Title]" => $product["Title"]
+       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       }
-      $r .= $this->core->Change([[
-       "[Product.Added]" => $this->core->TimeAgo($v["Timestamp"]),
-       "[Product.ICO]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
-       "[Product.Description]" => $this->core->PlainText([
-        "BBCodes" => 1,
-        "Data" => $product["Description"],
-        "Display" => 1,
-        "HTMLDecode" => 1
-       ]),
-       "[Product.Options]" => $opt,
-       "[Product.Quantity]" => $qty2,
-       "[Product.Title]" => $product["Title"]
-      ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
      }
     } if($i == 0) {
      $r = $this->core->Element(["h3", "No Results", [

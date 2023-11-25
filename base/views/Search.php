@@ -405,10 +405,7 @@
      $t = $this->core->Member($t);
      $isArtist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $shopID = md5($t["Login"]["Username"]);
-     $shop = $this->core->Data("Get", [
-      "shop",
-      $shopID
-     ]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
      $contributors = $shop["Contributors"] ?? [];
      foreach($contributors as $member => $role) {
       $ck = ($isArtist == 1 && $member == $you && $notAnon == 1) ? 1 : 0;
@@ -2143,7 +2140,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        array_push($msg, [
         "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
         "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
+        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"].$value),
         "[X.LI.DT]" => base64_encode(base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$value&UN=".base64_encode($username)))
        ]);
       }

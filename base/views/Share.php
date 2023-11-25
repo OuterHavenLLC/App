@@ -147,30 +147,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function EmbedCode(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $contentID = $data["ContentID"] ?? "";
-   $r = [
-    "Body" => "The Content ID is missing."
-   ];
-   if(!empty($contentID)) {
-    $accessCode = "Accepted";
-    $contentID = base64_decode($contentID);
-    $r = [
-     "Body" => "Paste the code anywhere within the text you want it to appear in: $contentID",
-     "Header" => "Embed Code"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -218,7 +194,7 @@
      ]) ?? [];
      $listItem = $content["ListItem"] ?? [];
      $description = $listItem["Description"] ?? "";
-     $embedCode = "[Embed:$contentID]";
+     $embedCode = "[Embed:".base64_encode("$username-$contentID")."]";
      $preview = $content["Preview"] ?? [];
      $preview = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
      $title = $listItem["Title"] ?? "";
@@ -234,10 +210,10 @@
      ]));
      $r = [
       "Front" => $this->core->Change([[
-       "[Share.Code]" => base64_encode("v=".base64_encode("Share:EmbedCode")."&ContentID=".base64_encode($embedCode)),
        "[Share.Chat]" => base64_encode("v=".base64_encode("Share:Chat")."&Body=$body&ID=".base64_encode($id)),
        "[Share.Chat.Group]" => base64_encode("v=".base64_encode("Share:GroupChat")."&Body=$body&ID=".base64_encode($id)),
        "[Share.Chat.Recent]" => base64_encode("v=".base64_encode("Share:RecentChats")."&Body=$body&ID=".base64_encode($id)),
+       "[Share.Code]" => $embedCode,
        "[Share.ID]" => $id,
        "[Share.Link]" => "",
        "[Share.Preview]" => $preview,

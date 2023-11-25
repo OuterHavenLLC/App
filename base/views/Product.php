@@ -347,27 +347,28 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($data["ID"]) && !empty($shopID)) {
-    $check = 0;
+    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    $contributors = $shop["Contributors"] ?? [];
     $isAdmin  = ($shopID == md5($you)) ? 1 : 0;
+    $isContributor = 0;
     $r = [
      "Body" => "You are not authorized to manage Products.",
      "Header" => "Forbidden"
     ];
-    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-    foreach($shop["Contributors"] as $member => $role) {
+    foreach($contributors as $member => $role) {
      if($check == 0 && $member == $you) {
-      $check++;
+      $isContributor++;
+      if($role == "Admin") {
+       $isAdmin++;
+      }
      }
-    } if($check == 1 && $isAdmin == 1) {
+    } if($isAdmin > 0 || $isContributor > 0) {
      $i = 0;
      $new = $data["new"] ?? 0;
-     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
-     $contributors = $shop["Contributors"] ?? [];
-     $isContributor = (!empty($contributors[$you])) ? 1 : 0;
      $products = $this->core->DatabaseSet("PROD") ?? [];
      $title = $data["Title"] ?? "New Product";
      foreach($products as $key => $value) {
-      $product = str_replace("c.oh.miny.", "", $value);
+      $product = str_replace("c.oh.product.", "", $value);
       $product = $this->core->Data("Get", ["product", $product]) ?? [];
       $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
       $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
@@ -500,7 +501,7 @@
        "UN" => $username
       ];
       $this->core->Data("Save", ["product", $id, $product]);
-      $this->core->Data("Save", ["shop", md5($you), $shop]);
+      $this->core->Data("Save", ["shop", $shopID, $shop]);
       $r = [
        "Body" => "The Product <em>$title</em> has been $actionTaken!",
        "Header" => "Done"
