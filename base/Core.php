@@ -268,9 +268,11 @@
      ]
     ],
     "SQL" => [
-     "Key" => base64_encode("ReSearch^2022@OH.nyc"),
-     "Password" => "V2VCZVNlYXJjaGluQE9ILm55Y14yMDIy",
-     "Username" => "research"
+     "ReSearch" => [
+      "Key" => base64_encode("ReSearch^2022@OH.nyc"),
+      "Password" => "V2VCZVNlYXJjaGluQE9ILm55Y14yMDIy",
+      "Username" => "research"
+     ]
     ],
     "Statistics" => [
      "FS" => "Feedback Submissions",
@@ -1398,9 +1400,9 @@
    }
    return $random; 
   }
-  function SQL(string $query, array $values) {
+  function SQL(string $database, string $query, array $values) {
    try {
-    $config = $this->config["SQL"] ?? [];
+    $config = $this->config["SQL"][$database] ?? [];
     $sql = "mysql:host=localhost;dbname=ReSearch";
     $sql = new PDO($sql, $config["Username"], base64_decode($config["Password"]), [
      PDO::ATTR_PERSISTENT => true,
