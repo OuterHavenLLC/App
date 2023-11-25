@@ -483,7 +483,7 @@
    $base = $this->core->base;
    $blu = base64_encode("Common:SaveBlacklist");
    $data = $a["Data"] ?? [];
-   $key = $this->core->config["SQL"]["Key"];
+   $key = $this->core->config["SQL"]["ReSearch"]["Key"];
    $b2 = $data["b2"] ?? "Search";
    $i = 0;
    $msg = [];
@@ -502,32 +502,14 @@
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
      $extensions = $this->core->Extensions();
-     /*$extensions = $this->core->SQL("SELECT CAST(AES_DECRYPT(Body, :key) AS CHAR(8000)) AS Body,
-     CAST(AES_DECRYPT(Description, :key) AS CHAR(8000)) AS Description,
-     CAST(AES_DECRYPT(ID, :key) AS CHAR(8000)) AS ID,
-     CAST(AES_DECRYPT(Title, :key) AS CHAR(8000)) AS Title
-FROM Pages
-HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(Description, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(ID, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(Title, :key) USING utf8mb4) LIKE :search", [
-      ":key" => base64_decode($key),
-      ":search" => $query
+     array_push($msg, [
+      "[Extension.Category]" => $value["Category"],
+      "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$key")),
+      "[Extension.Description]" => $value["Description"],
+      "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($key))),
+      "[Extension.ID]" => base64_encode($key),
+      "[Extension.Title]" => $value["Title"]
      ]);
-     die($query.var_dump($Pages->fetchAll(PDO::FETCH_ASSOC)));
-     while($article = $articles->fetchAll(PDO::FETCH_ASSOC)) {*/
-     foreach($extensions as $key => $value) {
-      #$na.=" ".$query.json_encode($article, true);//TEMP
-      array_push($msg, [
-       "[Extension.Category]" => $value["Category"],
-       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$key")),
-       "[Extension.Description]" => $value["Description"],
-       "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($key))),
-       "[Extension.ID]" => base64_encode($key),
-       "[Extension.Title]" => $value["Title"]
-      ]);
-     }
-     #$na.=" ".$query.json_encode($extensions, true);//TEMP
     }
    } elseif($st == "ADM-MassMail") {
     $accessCode = "Accepted";
@@ -805,7 +787,22 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
     $articles = $this->core->DatabaseSet("PG") ?? [];
+    /*$articles = $this->core->SQL("ReSearch", SELECT CAST(AES_DECRYPT(Body, :key) AS CHAR(8000)) AS Body,
+    CAST(AES_DECRYPT(Description, :key) AS CHAR(8000)) AS Description,
+    CAST(AES_DECRYPT(ID, :key) AS CHAR(8000)) AS ID,
+    CAST(AES_DECRYPT(Title, :key) AS CHAR(8000)) AS Title
+FROM Pages
+HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
+      CONVERT(AES_DECRYPT(Description, :key) USING utf8mb4) LIKE :search OR
+      CONVERT(AES_DECRYPT(ID, :key) USING utf8mb4) LIKE :search OR
+      CONVERT(AES_DECRYPT(Title, :key) USING utf8mb4) LIKE :search", [
+     ":key" => base64_decode($key),
+     ":search" => $query
+    ]);
+    die($query.var_dump($Pages->fetchAll(PDO::FETCH_ASSOC)));
+    while($article = $articles->fetchAll(PDO::FETCH_ASSOC)) {*/
     foreach($articles as $key => $value) {
+     #$na.=" ".$query.json_encode($article, true);//TEMP
      $value = str_replace("c.oh.pg.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
      $_Article = $this->core->GetContentData([
@@ -841,6 +838,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
        ]);
       }
      }
+     #$na.=" ".$query.json_encode($extensions, true);//TEMP
     }
    } elseif($st == "CART") {
     $accessCode = "Accepted";

@@ -29,11 +29,11 @@
   if(!empty($member["Login"]["Username"])) {
    echo "Populating data for ".$member["Login"]["Username"]."...";
    $oh->system->SQL("ReSerach", "INSERT INTO Members(Age, DisplayName, Email, Gender, Username)
-        VALUES(AES_ENCRYPT(:Age, :key),
-               AES_ENCRYPT(:DisplayName, :key),
-               AES_ENCRYPT(:Email, :key),
-               AES_ENCRYPT(:Gender, :key),
-               AES_ENCRYPT(:Username, :key))", [
+    VALUES(AES_ENCRYPT(:Age, :key),
+                   AES_ENCRYPT(:DisplayName, :key),
+                   AES_ENCRYPT(:Email, :key),
+                   AES_ENCRYPT(:Gender, :key),
+                   AES_ENCRYPT(:Username, :key))", [
     ":Age" => $member["Personal"]["Age"],
     ":DisplayName" => $member["Personal"]["DisplayName"],
     ":Email" => $member["Personal"]["Email"],
@@ -44,7 +44,7 @@
    echo "OK!\r\n";
    $oh->system->SQL("ReSerach", "SELECT *, AES_DECRYPT(Username, :key) AS Username
    FROM Members
-   WHERE(CONVERT(AES_DECRYPT(Username, :key) USING utf8mb4)=:Username)", [
+   WHERE(CAST(AES_DECRYPT(Username, :key) AS VARCHAR(10000))=:Username)", [
     ":Username" => $member["Login"]["Username"],
     ":key" => base64_decode($key)
    ]);
@@ -58,11 +58,11 @@
                         AES_DECRYPT(Gender, :key) AS Gender,
                         AES_DECRYPT(Username, :key) AS Username
  FROM Members
- WHERE CONVERT(AES_DECRYPT(Age, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(DisplayName, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(Email, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(Gender, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(Username, :key) USING utf8mb4) LIKE :search", [
+ WHERE CAST(AES_DECRYPT(Age, :key) AS VARCHAR(10000)) LIKE :search OR
+               CAST(AES_DECRYPT(DisplayName, :key) AS VARCHAR(10000)) LIKE :search OR
+               CAST(AES_DECRYPT(Email, :key) AS VARCHAR(10000)) LIKE :search OR
+               CAST(AES_DECRYPT(Gender, :key) AS VARCHAR(10000)) LIKE :search OR
+               CAST(AES_DECRYPT(Username, :key) AS VARCHAR(10000)) LIKE :search", [
   ":key" => base64_decode($key),
   ":search" => "%Mike%"
  ]);
@@ -88,10 +88,10 @@
   $page = $oh->system->Data("Get", ["pg", $value]) ?? [];
   echo "Populating data for ".$page["ID"]."...";
   $oh->system->SQL("ReSerach", "INSERT INTO Pages(Body, Description, ID, Title)
-       VALUES(AES_ENCRYPT(:Body, :key),
-              AES_ENCRYPT(:Description, :key),
-              AES_ENCRYPT(:ID, :key),
-              AES_ENCRYPT(:Title, :key))", [
+   VALUES(AES_ENCRYPT(:Body, :key),
+                  AES_ENCRYPT(:Description, :key),
+                  AES_ENCRYPT(:ID, :key),
+                  AES_ENCRYPT(:Title, :key))", [
    ":Body" => substr($oh->system->PlainText([
     "Data" => $page["Body"],
     "Decode" => 1,
@@ -112,10 +112,10 @@
                         AES_DECRYPT(ID, :key) AS ID,
                         AES_DECRYPT(Title, :key) AS Title
  FROM Pages
- WHERE CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(Description, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(ID, :key) USING utf8mb4) LIKE :search OR
-       CONVERT(AES_DECRYPT(Title, :key) USING utf8mb4) LIKE :search", [
+ WHERE CAST(AES_DECRYPT(Body, :key) AS VARCHAR(10000)) LIKE :search OR
+               CAST(AES_DECRYPT(Description, :key) AS VARCHAR(10000)) LIKE :search OR
+               CAST(AES_DECRYPT(ID, :key) AS VARCHAR(10000)) LIKE :search OR
+               CAST(AES_DECRYPT(Title, :key) AS VARCHAR(10000)) LIKE :search", [
   ":key" => base64_decode($key),
   ":search" => "%About%"
  ]);
