@@ -1698,10 +1698,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
     if($notAnon == 1) {
      $username = base64_decode($data["UN"]);
      $t = ($username != $you) ? $this->core->Member($username) : $y;
-     $fs = $this->core->Data("Get", [
-      "fs",
-      md5($t["Login"]["Username"])
-     ]) ?? [];
+     $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
      $albums = $fs["Albums"] ?? [];
      foreach($albums as $key => $value) {
       $cms = $this->core->Data("Get", [

@@ -92,6 +92,7 @@
    $fsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
    $fsLimit = str_replace(",", "", $fsLimit)."MB";
    $fsUsage = 0;
+   $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $fileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
@@ -100,78 +101,82 @@
    }
    $fsUsage = number_format(round($fsUsage / 1000));
    $fsUsage = str_replace(",", "", $fsUsage);
-   if(!empty($id) || $new == 1) {
-    $t = ($data["UN"] == $you) ? $y : $this->core->Member($data["UN"]);
-    $fileSystem = $this->core->Data("Get", [
-     "fs",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
-    $tun = base64_encode($t["Login"]["Username"]);
-    $alb = $fileSystem["Albums"][$id] ?? [];
-    $blockID = base64_encode($t["Login"]["Username"]."-$id");
+   if(!empty($id) && !empty($username)) {
+    $blockID = base64_encode("$username-$id");
     $bl = $this->core->CheckBlocked([$y, "Albums", $blockID]);
-    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-    $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
-    $ck2 = $y["subscr"]["XFS"]["A"] ?? 0;
-    $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
-    $coverPhoto = $alb["ICO"] ?? $this->core->PlainText([
-     "Data" => "[Media:CP]",
-     "Display" => 1
+    $_Album = $this->core->GetContentData([
+     "Blacklisted" => $bl,
+     "ID" => base64_encode("Album;$username;$id"),
+     "Owner" => $username
     ]);
-    $coverPhoto = $this->core->GetSourceFromExtension([
-     $t["Login"]["Username"],
-     $coverPhoto
-    ]);
-    $actions = ($ck == 0) ? $this->core->Element([
-     "button", $blockCommand, [
-      "class" => "Small UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($blockID)."&List=".base64_encode("Albums"))
-     ]
-    ]) : "";
-    if($ck == 1) {
-     $accessCode = "Accepted";
-     $actions .= ($id != md5("unsorted")) ? $this->core->Element([
-      "button", "Delete", [
-       "class" => "CloseCard OpenDialog Small v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteAlbum")."&AID=$id&UN=$tun")
+    if($_Album["Empty"] == 0) {
+     $album = $_Album["DataModel"];
+     $t = ($username == $you) ? $y : $this->core->Member($username);
+     $secureUsername = base64_encode($t["Login"]["Username"]);
+     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
+     $ck2 = $y["subscr"]["XFS"]["A"] ?? 0;
+     $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
+     $actions = ($ck == 0) ? $this->core->Element([
+      "button", $blockCommand, [
+       "class" => "Small UpdateButton v2",
+       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($blockID)."&List=".base64_encode("Albums"))
       ]
      ]) : "";
-     $actions .= $this->core->Element(["button", "Edit", [
-      "class" => "OpenCard Small v2 v2w",
-      "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$id&UN=$tun")
-     ]]);
+     if($ck == 1) {
+      $accessCode = "Accepted";
+      $actions .= ($id != md5("unsorted")) ? $this->core->Element([
+       "button", "Delete", [
+        "class" => "CloseCard OpenDialog Small v2 v2w",
+        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteAlbum")."&AID=$id&UN=$secureUsername")
+       ]
+      ]) : "";
+      $actions .= $this->core->Element(["button", "Edit", [
+       "class" => "OpenCard Small v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$id&UN=$secureUsername")
+      ]]);
+     }
+     $actions = ($this->core->ID != $you) ? $actions : "";
+     $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
+     $actions .= ($share == 1) ? $this->core->Element([
+      "button", "Share", [
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Album")."&Username=$secureUsername")
+      ]
+     ]) : "";
+     $actions .= ($ck == 1 && $ck2 == 1) ? $this->core->Element([
+      "button", "Upload", [
+       "class" => "OpenCard Small v2",
+       "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=$username")
+      ]
+     ]) : "";
+     $media = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
+     $coverPhoto = $this->core->PlainText([
+      "Data" => "[Media:CP]",
+      "Display" => 1
+     ]);
+     $coverPhotoList = explode(".", $album["ICO"]);
+     if(!empty($album["ICO"]) && $coverPhotoList[0] != "thumbnail") {
+      $coverPhoto = "$username/";
+      $coverPhoto .= $media["Files"][$coverPhotoList[0]]["Name"];
+     }
+     $options = $_Album["ListItem"]["Options"];
+     $r = [
+      "Front" => $this->core->Change([[
+       "[Album.Actions]" => $actions,
+       "[Album.CoverPhoto]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
+       "[Album.Created]" => $this->core->TimeAgo($album["Created"]),
+       "[Album.Description]" => $album["Description"],
+       "[Album.ID]" => $id,
+       "[Album.Modified]" => $this->core->TimeAgo($album["Modified"]),
+       "[Album.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Album;$username;$id")),
+       "[Album.Owner]" => $t["Personal"]["DisplayName"],
+       "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$secureUsername"),
+       "[Album.Title]" => $_Album["ListItem"]["Title"],
+       "[Album.Votes]" => $options["Vote"]
+      ], $this->core->Extension("91c56e0ee2a632b493451aa044c32515")])
+     ];
     }
-    $actions = ($this->core->ID != $you) ? $actions : "";
-    $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
-    $actions .= ($share == 1) ? $this->core->Element([
-     "button", "Share", [
-      "class" => "OpenCard Small v2",
-      "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Album")."&Username=$tun")
-     ]
-    ]) : "";
-    $actions .= ($ck == 1 && $ck2 == 1) ? $this->core->Element([
-     "button", "Upload", [
-      "class" => "OpenCard Small v2",
-      "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=".$t["Login"]["Username"])
-     ]
-    ]) : "";
-    $votes = ($ck == 0) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-    $r = $this->core->Change([[
-     "[Album.Actions]" => $actions,
-     "[Album.CoverPhoto]" => $coverPhoto,
-     "[Album.Created]" => $this->core->TimeAgo($alb["Created"]),
-     "[Album.Description]" => $alb["Description"],
-     "[Album.ID]" => $id,
-     "[Album.Modified]" => $this->core->TimeAgo($alb["Modified"]),
-     "[Album.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Album;".$t["Login"]["Username"].";$id")),
-     "[Album.Owner]" => $t["Personal"]["DisplayName"],
-     "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$tun"),
-     "[Album.Title]" => $alb["Title"],
-     "[Album.Votes]" => base64_encode("v=$votes&ID=$id&Type=4")
-    ], $this->core->Extension("91c56e0ee2a632b493451aa044c32515")]);
-    $r = [
-     "Front" => $r
-    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

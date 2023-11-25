@@ -194,7 +194,8 @@
      ]) ?? [];
      $listItem = $content["ListItem"] ?? [];
      $description = $listItem["Description"] ?? "";
-     $embedCode = "[Embed:".base64_encode("$username-$contentID")."]";
+     $embed = base64_encode("$username-$contentID");
+     $embedCode = "[Embed:$embed]";
      $preview = $content["Preview"] ?? [];
      $preview = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
      $title = $listItem["Title"] ?? "";
@@ -213,7 +214,7 @@
        "[Share.Chat]" => base64_encode("v=".base64_encode("Share:Chat")."&Body=$body&ID=".base64_encode($id)),
        "[Share.Chat.Group]" => base64_encode("v=".base64_encode("Share:GroupChat")."&Body=$body&ID=".base64_encode($id)),
        "[Share.Chat.Recent]" => base64_encode("v=".base64_encode("Share:RecentChats")."&Body=$body&ID=".base64_encode($id)),
-       "[Share.Code]" => $embedCode,
+       "[Share.Code]" => $embed,
        "[Share.ID]" => $id,
        "[Share.Link]" => "",
        "[Share.Preview]" => $preview,

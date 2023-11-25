@@ -535,6 +535,7 @@
    return explode(";", $r);
   }
   function GetAttachmentPreview(array $a) {
+   $disableButtons = $a["DisableButtons"] ?? 0;
    $type = $a["DLL"]["Type"] ?? "";
    $r = $this->Element(["div", $this->Element([
     "h4", "No Preview Available"
@@ -560,15 +561,16 @@
      # F.A.B. Source: $this->Element(["source", NULL, ["src" => "[App.Base]:8000/listen", "type" => "audio/aac"]]);
     } elseif($type == "Document") {
      $source = $this->efs."D.jpg";
-     $r = $this->Element(["h3", $a["DLL"]["Title"], [
-      "class" => "CenterText CoverPhotoCard PreviewDocument",
-      "style" => "background:url('$source') no-repeat center center;background-size:cover"
-     ]]);
+     if($disableButtons == 0) {
+      $r = $this->Element(["h3", $a["DLL"]["Title"], [
+       "class" => "CenterText CoverPhotoCard PreviewDocument",
+       "style" => "background:url('$source') no-repeat center center;background-size:cover"
+      ]]);
+     }
     } elseif($type == "Photo") {
-     // MAKE NoPreview.jpg TO REPLACE D.jpg IN THIS CASE
      $r = "<img src=\"$source\" style=\"width:100%\"/>\r\n";
     } elseif($type == "Video") {
-     $r = $this->eElement(["video", $this->Element(["source", NULL, [
+     $r = $this->Element(["video", $this->Element(["source", NULL, [
       "src" => $source,
       "type" => $a["DLL"]["MIME"]
      ]])]);
@@ -607,10 +609,19 @@
     $additionalContentID = $id[2] ?? "";
     if($type == "Album" && !empty($additionalContentID)) {
      $data = $this->Data("Get", ["fs", md5($contentID)]) ?? [];
-     $album = $data["Albums"][$additionalContentID] ?? [];
-     $description = $album["Description"] ?? "";
-     $empty = (empty($album)) ? 1 : 0;
-     $options["View"] = base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContentID&UN=".$contentID));
+     $data = $data["Albums"][$additionalContentID] ?? [];
+     $coverPhoto = $data["ICO"] ?? $coverPhoto;
+     $coverPhoto = $this->GetSourceFromExtension([
+      $contentID,
+      $coverPhoto
+     ]);
+     $description = $data["Description"] ?? "";
+     $empty = (empty($data)) ? 1 : 0;
+     $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+     $options = [
+      "View" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContentID&UN=".$contentID)),
+      "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
+     ];
     } elseif($type == "Blog") {
      $data = $this->Data("Get", ["blg", $contentID]) ?? [];
      $description = $data["Description"] ?? "";
@@ -693,6 +704,7 @@
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      $attachments = $this->GetAttachmentPreview([
+      "DisableButtons" => 1,
       "DLL" => $data,
       "T" => $contentID,
       "Y" => $you
@@ -1178,6 +1190,7 @@
    } if($a["Display"] == 1) {
     $extensionCard = base64_encode("Page:Card");
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
+    $r = preg_replace_callback("/\[Embed:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
     $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
     $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
@@ -1531,44 +1544,76 @@
    return $r;
   }
   public static function GetArticle($a = NULL) {
-   $x = New Core;
+   $oh = New Core;
    if(!empty($a)) {
-    $r = $x->Article($a[1]);
-    $x->__destruct();
+    $r = $oh->Article($a[1]);
+    $oh->__destruct();
+    return $r;
+   }
+  }
+  public static function GetEmbeddedLink($a = NULL) {
+   $oh = New Core;
+   $r = "";
+   if(!empty($a)) {
+    $data = explode("-", base64_decode($a[1]));
+    $contentID = $data[1] ?? "";
+    $username = $data[0] ?? "";
+    if(!empty($contentID) && !empty($username)) {
+     $content = $oh->GetContentData([
+      "Blacklisted" => 0,
+      "ID" => $contentID,
+      "Owner" => $username
+     ]);
+     $preview = $content["Preview"] ?? [];
+     $r = $preview["Empty"];
+     if($content["Empty"] == 0) {
+      $options = $content["ListItem"]["Options"] ?? [];
+      $r = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
+      $r = (!empty($options["View"])) ? $oh->Element(["button", $oh->Element([
+       "div", $r, ["class" => "NONAME"]
+      ]).$oh->Element([
+       "p", "View in Full", ["class" => "CenterText"]
+      ]), [
+       "class" => "K4i OpenCard",
+       "data-view" => $options["View"]
+      ]]) : $r;
+     }
+    }
+    $oh->__destruct();
     return $r;
    }
   }
   public static function GetExtension($a = NULL) {
-   $x = New Core;
+   $oh = New Core;
    if(!empty($a)) {
-    $r = $x->Extension($a[1]);
-    $x->__destruct();
+    $r = $oh->Extension($a[1]);
+    $oh->__destruct();
     return $r;
    }
   }
   public static function LanguagesTranslation($a = NULL) {
-   $x = New Core;
+   $oh = New Core;
    if(!empty($a[1])) {
     $l = explode("-", $a[1]);
-    $lt = $x->Data("Get", ["local", $l[0]]) ?? [];
+    $lt = $oh->Data("Get", ["local", $l[0]]) ?? [];
     $r = $lt[$l[1]]["en_US"] ?? "";
-    $r = $lt[$l[1]][$x->language] ?? $r;
-    $r = (!empty($r)) ? $x-PlainText([
+    $r = $lt[$l[1]][$oh->language] ?? $r;
+    $r = (!empty($r)) ? $oh-PlainText([
      "BBCodes" => 1,
      "Data" => $r,
      "Decode" => 1,
      "Display" => 1,
      "HTMLDecode" => 1
-    ]) : $x->Element(["p", "No Translations Found"]);
-    $x->__destruct();
+    ]) : $oh->Element(["p", "No Translations Found"]);
+    $oh->__destruct();
     return $r;
    }
   }
   public static function Media($a = NULL) {
-   $x = New Core;
+   $oh = New Core;
    if(!empty($a)) {
-    $r = $x->efs.$x->ID."/".$x->config["Media"][$a[1]];
-    $x->__destruct();
+    $r = $oh->efs.$oh->ID."/".$oh->config["Media"][$a[1]];
+    $oh->__destruct();
     return $r;
    }
   }
