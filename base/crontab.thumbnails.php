@@ -1,7 +1,7 @@
 <?php
  # Thumbnail Assurance Cron Job
- require_once("/home/mike/public_html/base/Core.php");
- $oh = New Core();
+ require_once("/home/mike/public_html/base/Bootloader.php");
+ $oh = New OH();
  $images = $oh->config["XFS"]["FT"]["P"] ?? [];
  echo "Initializing Outer Haven Thumbnail Assurance...\r\n";
  echo "SKIP means non-image tested.\r\n";
@@ -9,7 +9,7 @@
  echo "Let's begin...\r\n";
  sleep(3);
  echo "Working on the System Library...\r\n";
- $_FileSystem = $oh->Data("Get", ["x", "fs"]) ?? [];
+ $_FileSystem = $oh->Data("Get", ["app", "fs"]) ?? [];
  foreach($_FileSystem as $key => $info) {
   $_File = $info["Name"];
   $extension = explode(".", $_File)[1];
@@ -31,9 +31,7 @@
  foreach($db as $key => $library) {
   $library = str_replace("c.oh.fs.", "", $library);
   $member = $oh->Data("Get", ["mbr", $library]) ?? [];
-  $username = $member["Login"] ?? [];
-  $username = $username["Username"] ?? "";
-  if(!empty($username)) {
+  if(!empty($member["Login"])) {
    echo "Opening Library $library:\r\n";
    $library = $oh->Data("Get", ["fs", $library]) ?? [];
    $library = $library["Files"] ?? [];
