@@ -97,8 +97,6 @@
     $newCategory = ($category == "ArticleTemplate") ? "Article Template" : $newCategory;
     $newCategory = ($category == "BlogTemplate") ? "Blog Template" : $newCategory;
     $created = $extension["Created"] ?? $now;
-    $modifiedBy = $extension["ModifiedBy"] ?? [];
-    $modifiedBy[$now] = $you;
     $extension = [
      "Body" => base64_encode($this->core->PlainText([
       "Data" => $body,
@@ -107,7 +105,6 @@
      "Category" => base64_encode($category),
      "Created" => base64_encode($created),
      "Description" => base64_encode($data["Description"]),
-     "ModifiedBy" => $modifiedBy,
      "Title" => base64_encode($title),
      "UN" => base64_encode($author)
     ];

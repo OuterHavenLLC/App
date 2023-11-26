@@ -481,7 +481,6 @@
   }
   function Lists(array $a) {
    $base = $this->core->base;
-   $blu = base64_encode("Common:SaveBlacklist");
    $data = $a["Data"] ?? [];
    $b2 = $data["b2"] ?? "Search";
    $i = 0;
@@ -489,10 +488,9 @@
    $na = "No Results";
    $st = $data["st"] ?? "";
    $lpg = $data["lPG"] ?? $st;
-   $query = $data["query"] ?? "";
-   $query = (!empty($query)) ? base64_decode($query) : "";
+   $query = $data["query"] ?? base64_encode("");
+   $query = base64_decode($query);
    $na .= (!empty($data["query"])) ? " for $query" : "";
-   $query = (!empty($query)) ? "%$query%" : "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
@@ -500,15 +498,17 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
-     $extensions = $this->core->Extensions();
-     array_push($msg, [
-      "[Extension.Category]" => $value["Category"],
-      "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$key")),
-      "[Extension.Description]" => $value["Description"],
-      "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($key))),
-      "[Extension.ID]" => base64_encode($key),
-      "[Extension.Title]" => $value["Title"]
-     ]);
+     $extensions = $this->core->Extensions() ?? [];
+     foreach($extensions as $key => $value) {
+      array_push($msg, [
+       "[Extension.Category]" => $value["Category"],
+       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$key")),
+       "[Extension.Description]" => $value["Description"],
+       "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($key))),
+       "[Extension.ID]" => base64_encode($key),
+       "[Extension.Title]" => $value["Title"]
+      ]);
+     }
     }
    } elseif($st == "ADM-MassMail") {
     $accessCode = "Accepted";
@@ -2509,7 +2509,7 @@
    $query = $data["query"] ?? base64_encode("");
    $query = base64_decode(htmlentities($query));
    $search = $this->lists;
-   $secureQuery = base64_encode("%$query%");
+   $secureQuery = base64_encode($query);
    $r = $this->core->Change([[
     "[ReSearch.GoHome]" => $goHome
    ], $this->core->Extension("df4f7bc99b9355c34b571946e76b8481")]);
