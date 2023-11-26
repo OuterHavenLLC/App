@@ -1,10 +1,10 @@
 <?php
  require_once(__DIR__."/Cypher.php");
  Class Core {
-  protected function __construct() {
+  function __construct() {
    try {
     $this->cypher = New Cypher;
-    $this->DocumentRoot = $_SERVER["DOCUMENT_ROOT"] ?? "/home/mike/public_html";
+    $this->DocumentRoot = "/home/mike/public_html";
     $this->ID = "App";
     $this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
     $this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
@@ -45,7 +45,7 @@
    $r = "";
    if(!empty($action) && (empty($data) || is_array($data))) {
     if($action == "Get") {
-     $headers = apache_request_headers();
+     $headers = (function_exists('apache_request_headers') ) ? apache_request_headers() : [];
      $r = $this->ID;
      $token = $headers["Token"] ?? base64_encode("");
      $token = base64_decode($token);
@@ -267,13 +267,6 @@
       "Subscription" => 400
      ]
     ],
-    "SQL" => [
-     "ReSearch" => [
-      "Key" => base64_encode("ReSearch^2022@OH.nyc"),
-      "Password" => "V2VCZVNlYXJjaGluQE9ILm55Y14yMDIy",
-      "Username" => "research"
-     ]
-    ],
     "Statistics" => [
      "FS" => "Feedback Submissions",
      "LI" => "Logins",
@@ -341,7 +334,7 @@
     "minAge" => 18,
     "minRegAge" => 13
    ];
-   $this->Data("Save", ["app", md5("config"), $r]);
+   #$this->Data("Save", ["app", md5("config"), $r]);
    return $r;
   }
   function ConfigureBaseURL($a = NULL) {
@@ -1399,39 +1392,6 @@
     $random[$key] = $list[$key]; 
    }
    return $random; 
-  }
-  function SQL(string $database, string $query, array $values) {
-   try {
-    $config = $this->config["SQL"][$database] ?? [];
-    $sql = "mysql:host=localhost;dbname=ReSearch";
-    $sql = new PDO($sql, $config["Username"], base64_decode($config["Password"]), [
-     PDO::ATTR_PERSISTENT => true,
-     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    ]);
-    $r = $sql->prepare($query);
-    if(!empty($values)) {
-     foreach($values as $key => $value) {
-      switch(true) {
-       case is_int($value):
-        $type = PDO::PARAM_INT;
-        break;
-       case is_bool($value):
-        $type = PDO::PARAM_BOOL;
-        break;
-       case is_null($value):
-        $type = PDO::PARAM_NULL;
-        break;
-       default:
-        $type = PDO::PARAM_STR;
-      }
-      $r->bindValue($key, $value, $type);
-     }
-    }
-    $r->execute();
-   } catch(PDOException $error) {
-    $r = $error->getMessage();
-   }
-   return $r;
   }
   function Statistic($a) {
    $m = date("m");

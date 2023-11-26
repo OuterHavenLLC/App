@@ -483,7 +483,6 @@
    $base = $this->core->base;
    $blu = base64_encode("Common:SaveBlacklist");
    $data = $a["Data"] ?? [];
-   $key = $this->core->config["SQL"]["ReSearch"]["Key"];
    $b2 = $data["b2"] ?? "Search";
    $i = 0;
    $msg = [];
@@ -785,24 +784,9 @@
     }
    } elseif($st == "CA" || $st == "PR") {
     $accessCode = "Accepted";
-    $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
     $articles = $this->core->DatabaseSet("PG") ?? [];
-    /*$articles = $this->core->SQL("ReSearch", SELECT CAST(AES_DECRYPT(Body, :key) AS CHAR(8000)) AS Body,
-    CAST(AES_DECRYPT(Description, :key) AS CHAR(8000)) AS Description,
-    CAST(AES_DECRYPT(ID, :key) AS CHAR(8000)) AS ID,
-    CAST(AES_DECRYPT(Title, :key) AS CHAR(8000)) AS Title
-FROM Pages
-HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
-      CONVERT(AES_DECRYPT(Description, :key) USING utf8mb4) LIKE :search OR
-      CONVERT(AES_DECRYPT(ID, :key) USING utf8mb4) LIKE :search OR
-      CONVERT(AES_DECRYPT(Title, :key) USING utf8mb4) LIKE :search", [
-     ":key" => base64_decode($key),
-     ":search" => $query
-    ]);
-    die($query.var_dump($Pages->fetchAll(PDO::FETCH_ASSOC)));
-    while($article = $articles->fetchAll(PDO::FETCH_ASSOC)) {*/
+    $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
     foreach($articles as $key => $value) {
-     #$na.=" ".$query.json_encode($article, true);//TEMP
      $value = str_replace("c.oh.pg.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
      $_Article = $this->core->GetContentData([
@@ -813,6 +797,7 @@ HAVING CONVERT(AES_DECRYPT(Body, :key) USING utf8mb4) LIKE :search OR
      ]);
      if($_Article["Empty"] == 0) {
       $article = $_Article["DataModel"];
+      $i++;
       $nsfw = $article["NSFW"] ?? 0;
       $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
       $cat = $article["Category"] ?? "";
