@@ -28,7 +28,7 @@
      "data-form" => ".EditExtension$id",
      "data-processor" => base64_encode("v=".base64_encode("Extension:Save"))
     ]]);
-    $extension = $this->core->Extensions();
+    $extension = $this->core->Extensions("Get");
     $extension = $extension[$id] ?? [];
     $body = $extension["Body"] ?? "";
     $categories = [
@@ -71,7 +71,6 @@
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $new = $data["New"] ?? 0;
    $r = [
     "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
@@ -85,12 +84,10 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $actionTaken = ($new == 1) ? "posted" : "updated";
     $body = $data["Body"] ?? "";
     $category = $data["Category"] ?? "Extension";
-    $extensions = $this->core->Extensions();
+    $extensions = $this->core->Extensions("Get");
     $extension = $extensions[$id] ?? [];
-    $author = $extension["UN"] ?? $you;
     $now = $this->core->timestamp;
     $title = $data["Title"] ?? "";
     $newCategory = "Extension";
@@ -106,13 +103,15 @@
      "Created" => base64_encode($created),
      "Description" => base64_encode($data["Description"]),
      "Title" => base64_encode($title),
-     "UN" => base64_encode($author)
+     "UN" => base64_encode($you)
     ];
     $extensions[$id] = $extension;
-    file_put_contents($this->core->DocumentRoot."/data/c.oh.app.".md5("Extensions"), json_encode($extensions, true));
+    #$this->core->Extensions("Save", $extensions);
+    $extension["Body"] = "";//TEMP
     $r = [
-     "Body" => "The $newCategory has been $actionTaken!",
-     "Header" => "Done"
+     "Body" => "The $newCategory has been saved!",
+     "Header" => "Done",
+     "Scrollable" => json_encode($extension, true)
     ];
    }
    return $this->core->JSONResponse([
@@ -148,7 +147,7 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $extensions = $this->core->Extensions();
+    $extensions = $this->core->Extensions("Get");
     $newExtensions = [];
     foreach($extensions as $key => $extension) {
      if($id != $key) {
@@ -156,7 +155,7 @@
      }
     }
     $newExtensions = json_encode($newExtensions, true);
-    file_put_contents($this->core->DocumentRoot."/data/c.oh.app.".md5("Extensions"), $newExtensions);
+    $this->core->Extensions("Save", $newExtensions);
     $r = [
      "Body" => "The App Extension was deleted.",
      "Header" => "Done"

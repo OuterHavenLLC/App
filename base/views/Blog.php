@@ -127,7 +127,7 @@
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
     $template = $blog["TPL"] ?? "";
-    $templateOptions = $this->core->Extensions();
+    $templateOptions = $this->core->Extensions("Get");
     $templates = [];
     $title = $blog["Title"] ?? "";
     foreach($templateOptions as $key => $value) {

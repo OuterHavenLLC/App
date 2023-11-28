@@ -258,11 +258,7 @@
        }
        $manifest = $newManifest;
       }
-      $this->core->Data("Save", [
-       "pfmanifest",
-       $sonsOfLiberty,
-       $manifest
-      ]);
+      $this->core->Data("Save", ["pfmanifest", $sonsOfLiberty, $manifest]);
      }
     }
     $y["Personal"]["Language"] = $language;

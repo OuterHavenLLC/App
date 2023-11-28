@@ -498,7 +498,7 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
-     $extensions = $this->core->Extensions() ?? [];
+     $extensions = $this->core->Extensions("Get");
      foreach($extensions as $key => $value) {
       array_push($msg, [
        "[Extension.Category]" => $value["Category"],

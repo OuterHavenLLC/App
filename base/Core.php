@@ -395,13 +395,33 @@
      }
     } elseif($action == "Save") {
      $data[2] = $data[2] ?? [];
-     $r = fopen($r, "w+");
      if(!empty($data[2])) {
+      $r = fopen($r, "w+");
       fwrite($r, $this->Encrypt(json_encode($data[2], true)));
       fclose($r);
      }
     }
    }
+  }
+  function DataModel(array $data) {
+   $r = $this->Element(["h3", "Debug Data"]);
+   if(empty($data)) {
+    $r .= $this->Element(["p", "The data file was empty or does not exist."]);
+   } else {
+    foreach($data as $key => $value) {
+     $r .= $this->Element(["div", $this->Element([
+      "p", $key
+     ]), ["class" => "Desktop20"]]);
+     if(!is_array($value)) {
+      $r .= $this->Element(["div", $this->Element([
+       "p", $value
+      ]), ["class" => "Desktop80"]]);
+     } else {
+      $r .= $this->DataModel($value);
+     }
+    }
+   }
+   return $r;
   }
   function DatabaseSet($a = NULL) {
    $r = array_diff(scandir($this->DocumentRoot."/data/"), [
@@ -491,7 +511,7 @@
    return $excerpt;
   }
   function Extension(string $id) {
-   $extension = $this->Extensions();
+   $extension = $this->Extensions("Get", []);
    $extension = $extension[$id] ?? [];
    $r = "";
    if(empty($extension)) {
@@ -510,14 +530,23 @@
    }
    return $r;
   }
-  function Extensions() {
-   $extensions = $this->DocumentRoot."/data/c.oh.app.".md5("Extensions");
-   if(!file_exists($extensions)) {
-    $extensions = json_encode([]);
-   } else {
-    $extensions = file_get_contents($extensions);
+  function Extensions(string $action, $data = NULL) {
+   $r = $this->DocumentRoot."/data/c.oh.app.".md5("Extensions");
+   if($action == "Get") {
+    if(!file_exists($r)) {
+     $r = json_encode([]);
+    } else {
+     $r = file_get_contents($r);
+     $r = $r ?? json_encode([]);
+    }
+    return json_decode($r, true);
+   } elseif($action == "Save") {
+    if(!empty($data) && is_array($data)) {
+     $r = fopen($r, "w+");
+     fwrite($r, json_encode($data, true));
+     fclose($r);
+    }
    }
-   return json_decode($extensions, true);
   }
   function FixMissing(array $a, array $b) {
    foreach($b as $b) {

@@ -329,7 +329,7 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $dialogID = "Delete$id";
-    $extension = $this->core->Extensions();
+    $extension = $this->core->Extensions("Get", []);
     $extension = $extension[$id] ?? [];
     $title = base64_decode($extension["Title"]);
     $r = [
