@@ -84,16 +84,15 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $body = $data["Body"] ?? "";
-    $category = $data["Category"] ?? "Extension";
     $extensions = $this->core->Extensions("Get");
     $extension = $extensions[$id] ?? [];
-    $now = $this->core->timestamp;
-    $title = $data["Title"] ?? "";
+    $body = $data["Body"] ?? "";
+    $category = $data["Category"] ?? "Extension";
+    $created = $extension["Created"] ?? $this->core->timestamp;
     $newCategory = "Extension";
     $newCategory = ($category == "ArticleTemplate") ? "Article Template" : $newCategory;
     $newCategory = ($category == "BlogTemplate") ? "Blog Template" : $newCategory;
-    $created = $extension["Created"] ?? $now;
+    $title = $data["Title"] ?? "";
     $extension = [
      "Body" => base64_encode($this->core->PlainText([
       "Data" => $body,
@@ -120,6 +119,7 @@
      "JSON" => "",
      "Web" => $r
     ],
+    "ResponseType" => "Dialog",
     "Success" => "CloseCard"
    ]);
   }
