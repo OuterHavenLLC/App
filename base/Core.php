@@ -379,7 +379,7 @@
   }
   function Data(string $action, array $data) {
    if(!empty($data)) {
-    $r = $this->DocumentRoot."/data/c.oh.".$data[0];
+    $r = $this->DocumentRoot."/data/nyc.outerhaven.".$data[0];
     $r .= (!empty($data[1])) ? ".".$data[1] : "";
     if($action == "Get") {
      if(!file_exists($r)) {
@@ -424,43 +424,49 @@
    return $r;
   }
   function DatabaseSet($a = NULL) {
-   $r = array_diff(scandir($this->DocumentRoot."/data/"), [
-    ".", "..", "index.php"
+   $domain = "nyc.outerhaven";
+   $list = array_diff(scandir($this->DocumentRoot."/data/"), [
+    ".",
+    "..",
+    "index.html",
+    "index.php"
    ]);
-   foreach($r as $k => $v) {
+   foreach($list as $key => $value) {
     if(!empty($a)) {
      if($a == "BLG") {
-      $a = "c.oh.blg.";
+      $a = "$domain.blg.";
      } elseif($a == "BlogPosts") {
-      $a = "c.oh.bp.";
+      $a = "$domain.bp.";
      } elseif($a == "Chat") {
-      $a = "c.oh.chat.";
+      $a = "$domain.chat.";
+     } elseif($a == "Extensions") {
+      $a = "$domain.extension.";
      } elseif($a == "Files") {
-      $a = "c.oh.fs.";
+      $a = "$domain.fs.";
      } elseif($a == "KB") {
-      $a = "c.oh.knowledge.";
+      $a = "$domain.knowledge.";
      } elseif($a == "MBR") {
-      $a = "c.oh.mbr.";
+      $a = "$domain.mbr.";
      } elseif($a == "PF") {
-      $a = "c.oh.pf.";
+      $a = "$domain.pf.";
      } elseif($a == "PG") {
-      $a = "c.oh.pg.";
+      $a = "$domain.pg.";
      } elseif($a == "Polls") {
-      $a = "c.oh.poll.";
+      $a = "$domain.poll.";
      } elseif($a == "Shop") {
-      $a = "c.oh.shop.";
+      $a = "$domain.shop.";
      } elseif($a == "SU") {
-      $a = "c.oh.su.";
-     } if(strpos($v, $a) !== false) { 
-      $r[$k] = $v;
+      $a = "$domain.su.";
+     } if(strpos($value, $a) !== false) { 
+      $list[$key] = $value;
      } else {
-      unset($r[$k]);
+      unset($list[$key]);
      }
     } else {
-     $r[$k] = $v;
+     $list[$key] = $value;
     }
    }
-   return $r;
+   return $list;
   }
   function DecodeBridgeData(array $data) {
    foreach($data as $key => $value)  {
@@ -511,8 +517,7 @@
    return $excerpt;
   }
   function Extension(string $id) {
-   $extension = $this->Extensions("Get", []);
-   $extension = $extension[$id] ?? [];
+   $extension = $this->Data("Get", ["extension", $id]) ?? [];
    $r = "";
    if(empty($extension)) {
     $r = $this->Change([[
@@ -521,32 +526,14 @@
      "[Error.Message]" => "The Extension <em>$id</em> could not be found."
     ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
    } else {
-    $extension = $extension["Body"] ?? base64_encode("");
+    $body = $extension["Body"] ?? "";
     $r = $this->PlainText([
-     "Data" => base64_decode($extension),
+     "Data" => $body,
      "Display" => 1,
      "HTMLDecode" => 1
     ]);
    }
    return $r;
-  }
-  function Extensions(string $action, $data = NULL) {
-   $r = $this->DocumentRoot."/data/c.oh.app.".md5("Extensions");
-   if($action == "Get") {
-    if(!file_exists($r)) {
-     $r = json_encode([]);
-    } else {
-     $r = file_get_contents($r);
-     $r = $r ?? json_encode([]);
-    }
-    return json_decode($r, true);
-   } elseif($action == "Save") {
-    if(!empty($data) && is_array($data)) {
-     $r = fopen($r, "w+");
-     fwrite($r, json_encode($data, true));
-     fclose($r);
-    }
-   }
   }
   function FixMissing(array $a, array $b) {
    foreach($b as $b) {
@@ -1377,14 +1364,14 @@
   }
   function Setup(string $a) {
    $documentRoot = $this->DocumentRoot;
-   $template = "";
+   $extension = "";
    if(!empty($a)) {
     if($a == "App") {
      $a = "$documentRoot/.htaccess";
-     $template = "97291f4b155f663aa79cc8b624323c5b";
+     $extension = "97291f4b155f663aa79cc8b624323c5b";
     }
     $d = fopen($a, "w+");
-    fwrite($d, $this->Extension($template));
+    fwrite($d, $this->Extension($extension));
     fclose($d);
     chmod($a, 0755);
    }

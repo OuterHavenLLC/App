@@ -3,9 +3,13 @@
  require_once("/home/mike/public_html/base/Bootloader.php");
  $oh = New OH();
  $images = $oh->core->config["XFS"]["FT"]["P"] ?? [];
- $r = $oh->core->Element(["h1", "<em>".$oh->core->config["App"]["Name"]."</em> Thumbnail Assurance"]);
- $r .= $oh->core->Element(["p", "<em>SKIP</em> means non-image tested. <em>OK</em> means thumbnail created or already exists."]);
- $r .= $oh->core->Element(["p", "Working on the System Library..."]);
+ $r = $oh->core->Element([
+  "h1", "<em>".$oh->core->config["App"]["Name"]."</em> Thumbnail Assurance"
+ ]).$oh->core->Element([
+  "p", "<em>SKIP</em> means non-image tested. <em>OK</em> means thumbnail created or already exists."
+ ]).$oh->core->Element([
+  "p", "Working on the System Library..."
+ ]);
  $_FileSystem = $oh->core->Data("Get", ["app", "fs"]) ?? [];
  foreach($_FileSystem as $key => $info) {
   $_File = $info["Name"];
@@ -25,7 +29,7 @@
  $r .= $oh->core->Element(["p", "Working on the Member Libraries..."]);
  $db = $oh->core->DatabaseSet("Files") ?? [];
  foreach($db as $key => $library) {
-  $library = str_replace("c.oh.fs.", "", $library);
+  $library = str_replace("nyc.outerhaven.fs.", "", $library);
   $member = $oh->core->Data("Get", ["mbr", $library]) ?? [];
   if(!empty($member["Login"])) {
    $r .= $oh->core->Element(["p", "Opening Library $library:"]);
@@ -48,7 +52,7 @@
     }
    }
   }
-  $r .= $oh->core->Elemnt(["p", "Next Library..."]);
+  $r .= $oh->core->Element(["p", "Next Library..."]);
  }
  $r = $oh->core->Element([
   "html", $oh->core->Element([

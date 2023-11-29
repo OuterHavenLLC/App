@@ -497,16 +497,18 @@
    if($st == "ADM-LLP") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
-    if($notAnon == 1) {
-     $extensions = $this->core->Extensions("Get");
+    if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
+     $extensions = $this->core->DatabaseSet("Extensions") ?? [];
      foreach($extensions as $key => $value) {
+      $value = str_replace("nyc.outerhaven.extension.", "", $value);
+      $info = $this->core->Data("Get", ["extension", $value]) ?? [];
       array_push($msg, [
-       "[Extension.Category]" => $value["Category"],
-       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$key")),
-       "[Extension.Description]" => $value["Description"],
-       "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($key))),
-       "[Extension.ID]" => base64_encode($key),
-       "[Extension.Title]" => $value["Title"]
+       "[Extension.Category]" => base64_encode($info["Category"]),
+       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$value")),
+       "[Extension.Description]" => base64_encode($info["Description"]),
+       "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($value))),
+       "[Extension.ID]" => base64_encode($value),
+       "[Extension.Title]" => base64_encode($info["Title"])
       ]);
      }
     }
@@ -514,7 +516,7 @@
     $accessCode = "Accepted";
     $preSets = $this->core->Data("Get", ["app", md5("MassMail")]) ?? [];
     $extension = $this->core->Extension("3536f06229e7b9d9684f8ca1bb08a968");
-    if($notAnon == 1) {
+    if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
      foreach($preSets as $key => $preSet) {
       if($key != "NextSend") {
        array_push($msg, [
@@ -722,7 +724,7 @@
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     foreach($blogs as $key => $value) {
-     $value = str_replace("c.oh.blg.", "", $value);
+     $value = str_replace("nyc.outerhaven.blg.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
      $_Blog = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -787,7 +789,7 @@
     $articles = $this->core->DatabaseSet("PG") ?? [];
     $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
     foreach($articles as $key => $value) {
-     $value = str_replace("c.oh.pg.", "", $value);
+     $value = str_replace("nyc.outerhaven.pg.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
      $_Article = $this->core->GetContentData([
       "BackTo" => $b2,
@@ -870,7 +872,7 @@
      $extension = $this->core->Extension($extension);
      $groups = $this->core->DatabaseSet("Chat") ?? [];
      foreach($groups as $key => $group) {
-      $group = str_replace("c.oh.chat.", "", $group);
+      $group = str_replace("nyc.outerhaven.chat.", "", $group);
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -1366,7 +1368,7 @@
     $x = $this->core->DatabaseSet("KB") ?? [];
     $extension = $this->core->Extension("e7c4e4ed0a59537ffd00a2b452694750");
     foreach($x as $key => $value) {
-     $value = str_replace("c.oh.knowledge.", "", $value);
+     $value = str_replace("nyc.outerhaven.knowledge.", "", $value);
      $feedback = $this->core->Data("Get", ["knowledge", $value]) ?? [];
      $mesasge = $feedback["Thread"] ?? [];
      $mesasge = $feedback["Thread"][0] ?? [];
@@ -1400,7 +1402,7 @@
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $forums = $this->core->DatabaseSet("PF") ?? [];
     foreach($forums as $key => $value) {
-     $value = str_replace("c.oh.pf.", "", $value);
+     $value = str_replace("nyc.outerhaven.pf.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Forums", $value]);
      $_Forum = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -1574,7 +1576,7 @@
     $extension = $this->core->Extension("#");
     $x = $this->core->DatabaseSet("KB");
     foreach($x as $k => $v) {
-     $v = str_replace("c.oh.kb.", "", $v);
+     $v = str_replace("nyc.outerhaven.kb.", "", $v);
     }
    } elseif($st == "Mainstream") {
     $accessCode = "Accepted";
@@ -1641,7 +1643,7 @@
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     $x = $this->core->DatabaseSet("MBR") ?? [];
     foreach($x as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Members", $value]);
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -1814,7 +1816,7 @@
       foreach($groups as $key => $group) {
        $active = 0;
        $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
-       $group = str_replace("c.oh.chat.", "", $group);
+       $group = str_replace("nyc.outerhaven.chat.", "", $group);
        $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
        $contributors = $chat["Contributors"] ?? [];
        foreach($contributors as $member => $role) {
@@ -2131,7 +2133,7 @@
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
     $polls = $this->core->DatabaseSet("Polls") ?? [];
     foreach($polls as $key => $value) {
-     $value = str_replace("c.oh.poll.", "", $value);
+     $value = str_replace("nyc.outerhaven.poll.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Polls", $value]);
      $_Poll = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2200,7 +2202,7 @@
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $members = $this->core->DatabaseSet("MBR") ?? [];
     foreach($members as $key => $value) {
-     $value = $this->core->Data("Get", ["mbr", str_replace("c.oh.mbr.", "", $value)]) ?? [];
+     $value = $this->core->Data("Get", ["mbr", str_replace("nyc.outerhaven.mbr.", "", $value)]) ?? [];
      if(!empty($value["Login"])) {
       $them = $value["Login"]["Username"];
       if($notAnon == 1) {
@@ -2256,7 +2258,7 @@
      $card = base64_encode("Shop:Home");
      $shops = $this->core->DatabaseSet("Shop") ?? [];
      foreach($shops as $key => $value) {
-      $value = str_replace("c.oh.shop.", "", $value);
+      $value = str_replace("nyc.outerhaven.shop.", "", $value);
       $t = (md5($you) == $value) ? $y : $this->core->Data("Get", ["mbr", $value]);
       $them = $t["Login"]["Username"];
       $bl = $this->core->CheckBlocked([$y, "Members", $them]);
@@ -2367,7 +2369,7 @@
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
     $x = $this->core->DatabaseSet("SU") ?? [];
     foreach($x as $k => $v) {
-     $v = str_replace("c.oh.su.", "", $v);
+     $v = str_replace("nyc.outerhaven.su.", "", $v);
      $update = $this->core->Data("Get", ["su", $v]) ?? [];
      $from = $update["From"] ?? "";
      $ck = (!empty($from)) ? 1 : 0;

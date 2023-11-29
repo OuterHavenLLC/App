@@ -1027,7 +1027,7 @@
          $check = 0;
          $members = $this->core->DatabaseSet("MBR");
          foreach($members as $key => $value) {
-          $value = str_replace("c.oh.mbr.", "", $value);
+          $value = str_replace("nyc.outerhaven.mbr.", "", $value);
           if($check == 0) {
            $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
            if($member == $t["Login"]["Username"]) {
@@ -1103,7 +1103,7 @@
         "Body" => "We could not find the Member <strong>$member</strong>."
        ];
        foreach($members as $key => $value) {
-        $value = str_replace("c.oh.mbr.", "", $value);
+        $value = str_replace("nyc.outerhaven.mbr.", "", $value);
         if($check == 0) {
          $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
          if($member == $t["Login"]["Username"]) {

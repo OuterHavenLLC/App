@@ -1045,7 +1045,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    foreach($members as $key => $value) {
-    $value = str_replace("c.oh.mbr.", "", $value);
+    $value = str_replace("nyc.outerhaven.mbr.", "", $value);
     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
     $ck = ($member["Login"]["Username"] != $you) ? 1 : 0;
     $ck2 = ($email == $member["Personal"]["Email"]) ? 1 : 0;
@@ -1251,7 +1251,7 @@
    } else {
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
      $member = $member["Login"]["Username"] ?? "";
      if($username == $member) {
@@ -1320,7 +1320,7 @@
    $r = "Internal Error";
    $username = $this->core->CallSign($data["Username"]);
    foreach($members as $key => $value) {
-    $value = str_replace("c.oh.mbr.", "", $value);
+    $value = str_replace("nyc.outerhaven.mbr.", "", $value);
     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
     if($i == 0 && $member["Login"]["Username"] == $username) {
      $i++;

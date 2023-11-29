@@ -57,7 +57,7 @@
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Profile"];
     $search = base64_encode("Search:Containers");
     $template = $post["TPL"] ?? "";
-    $templateOptions = $this->core->Extensions("Get");
+    $templateOptions = $this->core->DatabaseSet("Extensions") ?? [];
     $templates = [];
     foreach($templateOptions as $key => $value) {
      if($value["Category"] == "BlogTemplate") {

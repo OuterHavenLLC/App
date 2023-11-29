@@ -439,7 +439,7 @@
    if($pub == 1) {
     $shops = $this->core->DatabaseSet("SHOP") ?? [];
     foreach($shops as $key => $value) {
-     $shop = str_replace("c.oh.shop.", "", $value);
+     $shop = str_replace("nyc.outerhaven.shop.", "", $value);
      $shop = $this->core->Data("Get", ["shop", $shop]) ?? [];
      $t = $this->core->Data("Get", ["mbr", $shop]) ?? [];
      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($shop["Title"])) ? 1 : 0;
@@ -1545,7 +1545,7 @@
     $title = $data["Title"] ?? "";
     $i = 0;
     foreach($shops as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $shop = $this->core->Data("Get", ["shop", $value]) ?? [];
      $ttl = $shop["Title"] ?? "";
      if($id != $value && $title == $ttl) {
@@ -1816,7 +1816,7 @@
     $i = 0;
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if(md5($username) == $value) {
       $i++;
      }

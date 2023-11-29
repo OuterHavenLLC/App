@@ -329,9 +329,8 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $dialogID = "Delete$id";
-    $extension = $this->core->Extensions("Get", []);
-    $extension = $extension[$id] ?? [];
-    $title = base64_decode($extension["Title"]);
+    $extension = $this->core->Data("Get", ["extension", $id]) ?? [];
+    $title = $extension["Title"] ?? "";
     $r = [
      "Body" => "You are about to permanently delete $title.",
      "Header" => "Delete",

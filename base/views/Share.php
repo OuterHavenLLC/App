@@ -90,7 +90,7 @@
      $id = base64_decode($id);
      $r = "";
      foreach($groups as $key => $group) {
-      $group = str_replace("c.oh.chat.", "", $group);
+      $group = str_replace("nyc.outerhaven.chat.", "", $group);
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,

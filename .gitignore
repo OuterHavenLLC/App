@@ -1,6 +1,6 @@
 .DS_*
 */.DS_*
 base/Cypher.php
-data/c.oh.*
+data/*
 efs/*/
 efs/*/*

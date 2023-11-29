@@ -428,7 +428,7 @@
     $accessCode = "Accepted";
     $forums = $this->core->DatabaseSet("PF") ?? [];
     foreach($forums as $key => $value) {
-     $forum = str_replace("c.oh.pf.", "", $value);
+     $forum = str_replace("nyc.outerhaven.pf.", "", $value);
      $forum = $this->core->Data("Get", ["pf", $forum]) ?? [];
      $forumCallSign = $this->core->CallSign($forum["Title"]);
      if($callSign == $forumCallSign || $id == $forum["ID"]) {
@@ -694,7 +694,7 @@
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if($i == 0) {
       $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
       if($mbr == $t["Login"]["Username"]) {

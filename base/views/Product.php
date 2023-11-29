@@ -192,7 +192,7 @@
     $accessCode = "Accepted";
     $products = $this->core->DatabaseSet("PROD") ?? [];
     foreach($products as $key => $value) {
-     $product = str_replace("c.oh.product.", "", $value);
+     $product = str_replace("nyc.outerhaven.product.", "", $value);
      $product = $this->core->Data("Get", ["shop", $product]) ?? [];
      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
@@ -368,7 +368,7 @@
      $products = $this->core->DatabaseSet("PROD") ?? [];
      $title = $data["Title"] ?? "New Product";
      foreach($products as $key => $value) {
-      $product = str_replace("c.oh.product.", "", $value);
+      $product = str_replace("nyc.outerhaven.product.", "", $value);
       $product = $this->core->Data("Get", ["product", $product]) ?? [];
       $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
       $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;

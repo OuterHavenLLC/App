@@ -28,29 +28,28 @@
      "data-form" => ".EditExtension$id",
      "data-processor" => base64_encode("v=".base64_encode("Extension:Save"))
     ]]);
-    $extension = $this->core->Extensions("Get");
-    $extension = $extension[$id] ?? [];
+    $extension = $this->core->Data("Get", ["extension", $id]) ?? [];
     $body = $extension["Body"] ?? "";
     $categories = [
      "ArticleTemplate" => "Article Template",
      "BlogTemplate" => "Blog Template",
      "Extension" => "Extension"
     ];
-    $category = $extension["Category"] ?? base64_encode("Extension");
+    $category = $extension["Category"] ?? "Extension";
     $description = $extension["Description"] ?? "";
     $title = $extension["Title"] ?? "";
-    $header = ($new == 1) ? "New Extension" : "Edit ".base64_decode($title);
+    $header = ($new == 1) ? "New Extension" : "Edit $title";
     $r = $this->core->Change([[
      "[Extension.Body]" => base64_encode($this->core->PlainText([
-      "Data" => base64_decode($body)
+      "Data" => $body
      ])),
      "[Extension.Categories]" => json_encode($categories, true),
-     "[Extension.Category]" => base64_decode($category),
-     "[Extension.Description]" => $description,
+     "[Extension.Category]" => $category,
+     "[Extension.Description]" => base64_encode($description),
      "[Extension.Header]" => $header,
      "[Extension.ID]" => $id,
      "[Extension.New]" => $new,
-     "[Extension.Title]" => $title
+     "[Extension.Title]" => base64_encode($title)
     ], $this->core->Extension("5f7686825eb763cda93b62656a96a05f")]);
     $r = [
      "Action" => $action,
@@ -84,33 +83,28 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $extensions = $this->core->Extensions("Get");
-    $extension = $extensions[$id] ?? [];
     $body = $data["Body"] ?? "";
     $category = $data["Category"] ?? "Extension";
-    $created = $extension["Created"] ?? $this->core->timestamp;
+    $description = $data["Description"] ?? "";
     $newCategory = "Extension";
     $newCategory = ($category == "ArticleTemplate") ? "Article Template" : $newCategory;
     $newCategory = ($category == "BlogTemplate") ? "Blog Template" : $newCategory;
     $title = $data["Title"] ?? "";
     $extension = [
-     "Body" => base64_encode($this->core->PlainText([
+     "Body" => $this->core->PlainText([
       "Data" => $body,
       "HTMLEncode" => 1
-     ])),
-     "Category" => base64_encode($category),
-     "Created" => base64_encode($created),
-     "Description" => base64_encode($data["Description"]),
-     "Title" => base64_encode($title),
-     "UN" => base64_encode($you)
+     ]),
+     "Category" => $category,
+     "Description" => $description,
+     "Title" => $title,
+     "UN" => $you
     ];
-    $extensions[$id] = $extension;
-    #$this->core->Extensions("Save", $extensions);
-    $extension["Body"] = "";//TEMP
+    #$this->core->Data("Save", ["extension", $id, $extension]);
     $r = [
      "Body" => "The $newCategory has been saved!",
      "Header" => "Done",
-     "Scrollable" => json_encode($extension, true)
+     "Scrollable" => $extension
     ];
    }
    return $this->core->JSONResponse([
@@ -147,15 +141,7 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $extensions = $this->core->Extensions("Get");
-    $newExtensions = [];
-    foreach($extensions as $key => $extension) {
-     if($id != $key) {
-      $newExtensions[$key] = $extension;
-     }
-    }
-    $newExtensions = json_encode($newExtensions, true);
-    $this->core->Extensions("Save", $newExtensions);
+    $this->core->Data("Purge", ["extension", $id]);
     $r = [
      "Body" => "The App Extension was deleted.",
      "Header" => "Done"

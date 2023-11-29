@@ -127,7 +127,7 @@
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
     $template = $blog["TPL"] ?? "";
-    $templateOptions = $this->core->Extensions("Get");
+    $templateOptions = $this->core->DatabaseSet("Extensions") ?? [];
     $templates = [];
     $title = $blog["Title"] ?? "";
     foreach($templateOptions as $key => $value) {
@@ -205,7 +205,7 @@
     $accessCode = "Accepted";
     $blogs = $this->core->DatabaseSet("BLG") ?? [];
     foreach($blogs as $key => $value) {
-     $value = str_replace("c.oh.blg.", "", $value);
+     $value = str_replace("nyc.outerhaven.blg.", "", $value);
      $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($blog["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
@@ -396,7 +396,7 @@
     $now = $this->core->timestamp;
     $title = $data["Title"] ?? "";
     foreach($blogs as $key => $value) {
-     $value = str_replace("c.oh.blg.", "", $value);
+     $value = str_replace("nyc.outerhaven.blg.", "", $value);
      $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
      if($id != $blog["ID"] && $title == $blog["Title"]) {
       $i++;
@@ -619,7 +619,7 @@
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if($i == 0) {
       $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
       if($mbr == $t["Login"]["Username"]) {

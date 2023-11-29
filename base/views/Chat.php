@@ -566,7 +566,7 @@
     $accessCode = "Accepted";
     $chats = $this->core->DatabaseSet("Chat") ?? [];
     foreach($chats as $key => $value) {
-     $value = str_replace("c.oh.chat.", "", $value);
+     $value = str_replace("nyc.outerhaven.chat.", "", $value);
      $chat = $this->core->Data("Get", ["chat", $value]) ?? [];
      $chatCallSign = $this->core->CallSign($chat["Title"]);
      if($callSign == $chatCallSign || $id == $value) {

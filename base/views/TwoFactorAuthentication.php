@@ -28,7 +28,7 @@
     ];
     $members = $this->core->DatabaseSet("MBR") ?? [];
     foreach($members as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
      if($email == $member["Personal"]["Email"]) {
       $emailIsRegistered++;
@@ -177,7 +177,7 @@
      ];
      $members = $this->core->DatabaseSet("MBR") ?? [];
      foreach($members as $key => $value) {
-      $value = str_replace("c.oh.mbr.", "", $value);
+      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
       $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
       if($email == $member["Personal"]["Email"]) {
        $emailIsRegistered++;

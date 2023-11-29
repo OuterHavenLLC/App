@@ -448,7 +448,7 @@
     $articles = $this->core->DatabaseSet("PG");
     $title = $data["Title"] ?? "";
     foreach($articles as $key => $value) {
-     $article = str_replace("c.oh.pg.", "", $value);
+     $article = str_replace("nyc.outerhaven.pg.", "", $value);
      $article = $this->core->Data("Get", ["pg", $article]) ?? [];
      if($id != $article["ID"] && $article["Title"] == $title) {
       $i++;
@@ -722,7 +722,7 @@
     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $value) {
-     $value = str_replace("c.oh.mbr.", "", $value);
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if($i == 0) {
       $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
       if($mbr == $t["Login"]["Username"]) {
