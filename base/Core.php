@@ -148,32 +148,36 @@
    return $r;
   }
   function CheckPrivacy(array $a) {
-   $ck = (!empty($a["Contacts"])) ? 1 : 0;
-   $ck2 = (!empty($a["Privacy"])) ? 1 : 0;
-   $ck3 = (!empty($a["Y"])) ? 1 : 0;
+   $check = (!empty($a["Contacts"])) ? 1 : 0;
+   $check2 = (!empty($a["Privacy"])) ? 1 : 0;
+   $check3 = (!empty($a["Y"])) ? 1 : 0;
    $r = 0;
-   if($ck == 1 || ($ck2 == 1 && $ck3 == 1)) {
-    $pri = $a["Privacy"] ?? md5("Private");
-    $pri2 = md5("Public");
-    $aci = 0;
-    $cfi = 0;
-    $fi = 0;
-    $fl = [md5("Acquaintances"), md5("Close Contacts"), md5("Contacts")];
-    $x = $a["Contacts"] ?? [];
-    foreach($x as $k => $v) {
-     $ls = $v["List"] ?? md5("Public");
-     $fl2 = ($k == $a["Y"] && $ls == $fl[0]) ? 1 : 0;
-     $fl3 = ($k == $a["Y"] && $ls == $fl[1]) ? 1 : 0;
-     $fl4 = ($k == $a["Y"] && $ls == $fl[2]) ? 1 : 0;
-     $aci = ($fl2 == 1) ? $aci++ : $aci;
-     $cfi = ($fl2 == 1 || $fl3 == 1) ? $cfi++ : $cfi;
-     $fi = ($fl2 == 1 || $fl3 == 1 || $fl4 == 1) ? $fi++ : $fi;
+   if($check == 1 || ($check2 == 1 && $check3 == 1)) {
+    $privacy = $a["Privacy"] ?? md5("Private");
+    $privacy2 = md5("Public");
+    $acquaintancesCheck = 0;
+    $contactsCheck = 0;
+    $closeContactsCheck = 0;
+    $lists = [
+     "Acquaintances" => md5("Acquaintances"),
+     "Close Contacts" => md5("Close Contacts"),
+     "Contacts" => md5("Contacts")
+    ];
+    $contacts = $a["Contacts"] ?? [];
+    foreach($contacts as $member => $info) {
+     $list = $info["List"] ?? md5("Public");
+     $acquaintances = ($member == $a["Y"] && $list == $lists["Acquaintances"]) ? 1 : 0;
+     $contacts = ($member == $a["Y"] && $list == $lists["Contacts"]) ? 1 : 0;
+     $closeContacts = ($member == $a["Y"] && $list == $lists["Close Contacts"]) ? 1 : 0;
+     $acquaintancesCheck = ($acquaintances == 1) ? $acquaintancesCheck++ : $acquaintancesCheck;
+     $closeContactsCheck = ($acquaintances == 1 || $closeContacts == 1 || $contacts == 1) ? $closeContactsCheck++ : $closeContactsCheck;
+     $contactsCheck = ($closeContacts == 1 || $contacts == 1) ? $contactsCheck++ : $contactsCheck;
     }
-    $f = ($pri == $pri2) ? 1 : 0;
-    $f2 = ($pri == $fl[0] && $aci > 0) ? 1 : 0;
-    $f3 = ($pri == $fl[1] && $cfi > 0) ? 1 : 0;
-    $f4 = ($pri == $fl[2] && $fi > 0) ? 1 : 0;
-    $r = ($f == 1 || $f2 == 1 || $f3 == 1 || $f4 == 1) ? 1 : 0;
+    $check = ($privacy == $privacy2) ? 1 : 0;
+    $check2 = ($privacy == $lists["Acquaintances"] && $acquaintancesCheck > 0) ? 1 : 0;
+    $check3 = ($privacy == $lists["Close Contacts"] && $closeContactsCheck > 0) ? 1 : 0;
+    $check4 = ($privacy == $lists["Contacts"] && $contactsCheck > 0) ? 1 : 0;
+    $r = ($check == 1 || $check2 == 1 || $check3 == 1 || $check4 == 1) ? 1 : 0;
     $r = ($a["UN"] == $a["Y"] || $r == 1) ? 1 : 0;
    }
    return $r;
