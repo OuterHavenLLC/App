@@ -403,8 +403,8 @@
     }
    }
   }
-  function DataModel(array $data) {
-   $r = $this->Element(["h3", "Debug Data"]);
+  function DataModel(array $data, $nested = 0) {
+   $r = ($nested == 0) ? $this->Element(["h3", "Data Model"]) : "";
    if(empty($data)) {
     $r .= $this->Element(["p", "The data file was empty or does not exist."]);
    } else {
@@ -417,7 +417,7 @@
        "p", $value
       ]), ["class" => "Desktop80"]]);
      } else {
-      $r .= $this->DataModel($value);
+      $r .= $this->DataModel($value, 1);
      }
     }
    }

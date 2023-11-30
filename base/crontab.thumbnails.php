@@ -54,7 +54,7 @@
   }
   $r .= $oh->core->Element(["p", "Next Library..."]);
  }
- $r = $oh->core->Element([
+ echo $oh->core->Element([
   "html", $oh->core->Element([
    "head", $oh->core->Element([
     "style", $oh->core->Extension("669ae04b308fc630f8e06317313d9efe")
