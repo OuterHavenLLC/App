@@ -46,7 +46,7 @@
      $oh->core->Thumbnail([
       "CronJob" => 1,
       "File" => $_File,
-      "Username" => $username
+      "Username" => $member["Login"]["Username"]
      ]);
      $r .= "OK</p>\r\n";
     }

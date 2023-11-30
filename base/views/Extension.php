@@ -100,11 +100,10 @@
      "Title" => $title,
      "UN" => $you
     ];
-    #$this->core->Data("Save", ["extension", $id, $extension]);
+    $this->core->Data("Save", ["extension", $id, $extension]);
     $r = [
      "Body" => "The $newCategory has been saved!",
-     "Header" => "Done",
-     "Scrollable" => $extension
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
