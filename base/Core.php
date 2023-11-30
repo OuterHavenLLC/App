@@ -223,6 +223,7 @@
       "MBR-Polls",
       "MBR-SU",
       "MBR-XFS",
+      "Media",
       "Polls",
       "PR",
       "Products",
@@ -1271,6 +1272,11 @@
     $r = preg_replace($key, $value, $r);
    }
    return $r;
+  }
+  function RenderSearchIndex(string $index) {
+   $indexs = $this->Data("Get", ["app", md5("Re:Search")]) ?? [];
+   $index = $indexs[$index] ?? [];
+   return $index;
   }
   function RenderView(string $data) {
    $r = json_decode($data, true);
