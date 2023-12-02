@@ -4,7 +4,7 @@
   function __construct() {
    try {
     $this->cypher = New Cypher;
-    $this->DocumentRoot = "/home/mike/public_html";
+    $this->DocumentRoot = "/var/www/html";
     $this->ID = "App";
     $this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
     $this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
@@ -401,9 +401,9 @@
     } elseif($action == "Save") {
      $data[2] = $data[2] ?? [];
      if(!empty($data[2])) {
-      $r = fopen($r, "w+");
+      /*--$r = fopen($r, "w+");
       fwrite($r, $this->Encrypt(json_encode($data[2], true)));
-      fclose($r);
+      fclose($r);--*/
      }
     }
    }

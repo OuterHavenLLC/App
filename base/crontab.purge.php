@@ -1,6 +1,6 @@
 <?php
  # Content Purge
- require_once("/home/mike/public_html/base/Bootloader.php");
+ require_once("/var/www/html/base/Bootloader.php");
  $oh = New OH();
  $images = $oh->core->config["XFS"]["FT"]["P"] ?? [];
  $r = $oh->core->Element([

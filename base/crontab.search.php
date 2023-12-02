@@ -1,6 +1,6 @@
 <?php
  # Re:Search Index
- require_once("/home/mike/public_html/base/Bootloader.php");
+ require_once("/var/www/html/base/Bootloader.php");
  $oh = New OH();
  $databases = $oh->core->DatabaseSet() ?? [];
  $excludeTypes = [
