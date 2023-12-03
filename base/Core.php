@@ -401,32 +401,12 @@
     } elseif($action == "Save") {
      $data[2] = $data[2] ?? [];
      if(!empty($data[2])) {
-      /*--$r = fopen($r, "w+");
+      $r = fopen($r, "w+");
       fwrite($r, $this->Encrypt(json_encode($data[2], true)));
-      fclose($r);--*/
+      fclose($r);
      }
     }
    }
-  }
-  function DataModel(array $data, $nested = 0) {
-   $r = ($nested == 0) ? $this->Element(["h3", "Data Model"]) : "";
-   if(empty($data)) {
-    $r .= $this->Element(["p", "The data file was empty or does not exist."]);
-   } else {
-    foreach($data as $key => $value) {
-     $r .= $this->Element(["div", $this->Element([
-      "p", $key
-     ]), ["class" => "Desktop20"]]);
-     if(!is_array($value)) {
-      $r .= $this->Element(["div", $this->Element([
-       "p", $value
-      ]), ["class" => "Desktop80"]]);
-     } else {
-      $r .= $this->DataModel($value, 1);
-     }
-    }
-   }
-   return $r;
   }
   function DatabaseSet($a = NULL) {
    $domain = "nyc.outerhaven";

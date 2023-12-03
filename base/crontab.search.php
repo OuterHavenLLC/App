@@ -31,15 +31,10 @@
   "Shop" => [],
   "StatusUpdate" => []
  ];
- $r = $oh->core->Element([
-  "h1", "<em>".$oh->core->config["App"]["Name"]."</em> Re:Search Index"
- ]).$oh->core->Element([
-  "p", "This tool maintains the Re:Search index file."
- ]).$oh->core->Element([
-  "p", "Fetching source database list..."
- ]).$oh->core->Element([
-  "p", $oh->core->DataModel($databases)
- ]);
+ echo $oh->core->config["App"]["Name"]."</em> Re:Search Index\r\n";
+ echo "This tool maintains the Re:Search index file.\r\n";
+ echo "Fetching source database list...\r\n";
+ echo var_dump($databases)."\r\n";
  foreach($databases as $key => $database) {
   $database = explode(".", $database);
   $type = $database[2] ?? "";
@@ -60,7 +55,7 @@
     $isGroup = $chat["Group"] ?? 0;
     if($isGroup == 1) {
      array_push($indexes[$index], $database[3]);
-     $r .= $oh->core->Element(["p", "Indexed ".implode(".", $database)."..."]);
+     echo "Indexed ".implode(".", $database)."...\r\n";
     }
    } elseif($type == "fs") {
     $fileSystem = $oh->core->Data("Get", ["fs", $database[3]]) ?? [];
@@ -70,37 +65,23 @@
       $id = $database[3].";$file";
       $index = "Media";
       array_push($indexes[$index], $id);
-      $r .= $oh->core->Element(["p", "Indexed Media #$id..."]);
+      echo "Indexed Media #$id...\r\n";
      }
     }
    } else {
     if(empty($index)) {
-     $r .= $oh->core->Element(["p", "Skipped ".implode(".", $database)."..."]);
+     echo "Skipped ".implode(".", $database)."...\r\n";
     } else {
      array_push($indexes[$index], $database[3]);
-     $r .= $oh->core->Element(["p", "Indexed ".implode(".", $database)."..."]);
+     echo "Indexed ".implode(".", $database)."...\r\n";
     }
    }
   }
  }
- $r .= $oh->core->Element([
-  "p", "Saving consolidated Re:Search index..."
- ]);
+ echo "Saving consolidated Re:Search index...\r\n";
  $oh->core->Data("Save", ["app", md5("Re:Search"), $indexes]);
- $r .= $oh->core->Element([
-  "p", "Re:Search indexing complete!"
- ]).$oh->core->Element([
-  "p", "Here is the consolidated Re:Search Index:"
- ]).$oh->core->Element([
-  "p", $oh->core->DataModel($indexes)
- ]);
- echo $oh->core->Element([
-  "html", $oh->core->Element([
-   "head", $oh->core->Element([
-    "style", $oh->core->Extension("669ae04b308fc630f8e06317313d9efe")
-   ])
-  ]).$oh->core->Element([
-   "body", $r
-  ])
- ]);
+ echo "Re:Search indexing complete!\r\n";
+ echo "Here is the consolidated Re:Search Index:\r\n";
+ echo var_dump($indexes)."\r\n";
+ echo "Done";
 ?>

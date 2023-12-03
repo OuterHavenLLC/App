@@ -234,7 +234,6 @@
     if($feedback["Username"] != $you) {
      $this->core->SendEmail([
       "Message" => $this->core->Change([[
-       "[Email.Header]" => "{email_header}",
        "[Email.Message]" => $this->core->PlainText([
         "Data" => $data["Message"],
         "Display" => 1
