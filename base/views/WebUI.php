@@ -93,6 +93,7 @@
     "[Admin.Feedback]" => base64_encode("v=$search&st=Feedback"),
     "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
     "[Admin.MassMail]" => base64_encode("v=$search&st=ADM-MassMail"),
+    "[Admin.Mail]" => "W('https://mail.outerhaven.nyc/iredadmin/', '_blank');",
     "[Admin.Pages]" => base64_encode("v=$search&st=ADM-LLP"),
     "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
     "[Admin.Server]" => "https://www.digitalocean.com/"
