@@ -1425,7 +1425,7 @@
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
         # V.I.P. Subscription
         foreach($y["Subscriptions"] as $sk => $sv) {
-         if($sk == "Artist") {
+         if(in_array($sk, ["Artist", "Blogger", "XFS"])) {
           $y["Subscriptions"][$sk] = [
            "A" => 1,
            "B" => $now,
