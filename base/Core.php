@@ -189,6 +189,7 @@
      "Description" => "The Wild-West of the Internet.",
      "Illegal" => 777,
      "Keywords" => "Outer Haven, social entertainment, artist tools, social media, social discovery, creative community, hidden, deep web, private network, empowering expression, connect to the world, videos, music, share, playlists, mixes, profiles, discovery, discover, join the world with privatized social networking, NSA-free",
+     "LiveEvent" => 0,
      "Name" => "Outer Haven",
      "SearchIDs" => [
       "ADM-LLP",

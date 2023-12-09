@@ -1,7 +1,7 @@
 <?php
  # Re:Search Index
  require_once("/var/www/html/base/Bootloader.php");
- $oh = New OH();
+ $oh = New OH;
  $databases = $oh->core->DatabaseSet() ?? [];
  $excludeTypes = [
   "app",
@@ -31,10 +31,15 @@
   "Shop" => [],
   "StatusUpdate" => []
  ];
- echo $oh->core->config["App"]["Name"]."</em> Re:Search Index\r\n";
- echo "This tool maintains the Re:Search index file.\r\n";
- echo "Fetching source database list...\r\n";
- echo var_dump($databases)."\r\n";
+ $r = $oh->core->Element([
+  "h1", $oh->core->config["App"]["Name"]."</em> Re:Search Index"
+ ]).$oh->core->Element([
+  "p", "This tool maintains the Re:Search index file."
+ ]).$oh->core->Element([
+  "p", "Fetching source database list..."
+ ]).$oh->core->Element([
+  "p", json_encode($databases, true)
+ ]);
  foreach($databases as $key => $database) {
   $database = explode(".", $database);
   $type = $database[2] ?? "";
@@ -55,7 +60,7 @@
     $isGroup = $chat["Group"] ?? 0;
     if($isGroup == 1) {
      array_push($indexes[$index], $database[3]);
-     echo "Indexed ".implode(".", $database)."...\r\n";
+     $r .= $oh->core->Element(["p", "Indexed ".implode(".", $database)."..."]);
     }
    } elseif($type == "fs") {
     $fileSystem = $oh->core->Data("Get", ["fs", $database[3]]) ?? [];
@@ -65,23 +70,31 @@
       $id = $database[3].";$file";
       $index = "Media";
       array_push($indexes[$index], $id);
-      echo "Indexed Media #$id...\r\n";
+      $r .= $oh->core->Element(["p", "Indexed Media #$id..."]);
      }
     }
    } else {
     if(empty($index)) {
-     echo "Skipped ".implode(".", $database)."...\r\n";
+     $r .= $oh->core->Element(["p", "Skipped ".implode(".", $database)."..."]);
     } else {
      array_push($indexes[$index], $database[3]);
-     echo "Indexed ".implode(".", $database)."...\r\n";
+     $r .= $oh->core->Element(["p", "Indexed ".implode(".", $database)."..."]);
     }
    }
   }
  }
- echo "Saving consolidated Re:Search index...\r\n";
+ $r .= $oh->core->Element([
+  "p", "Saving consolidated Re:Search index..."
+ ]);
  $oh->core->Data("Save", ["app", md5("Re:Search"), $indexes]);
- echo "Re:Search indexing complete!\r\n";
- echo "Here is the consolidated Re:Search Index:\r\n";
- echo var_dump($indexes)."\r\n";
- echo "Done";
+ $r .= $oh->core->Element([
+  "p", "Re:Search indexing complete!"
+ ]).$oh->core->Element([
+  "p", "Here is the consolidated Re:Search Index:"
+ ]).$oh->core->Element([
+  "p", json_encode($indexes, true)
+ ]).$oh->core->Element([
+  "p", "Done"
+ ]);
+ // SEND AS EMAIL
 ?>

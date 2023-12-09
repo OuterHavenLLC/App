@@ -900,14 +900,12 @@
        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
        $member = $invoice["ChargeTo"] ?? "";
        $name = $member ?? $invoice["Email"];
-       $chargeData = $data["ChargeTitle"] ?? 0;
+       $chargeData = $data["ChargeTitle"] ?? [];
        $charges = $invoice["Charges"] ?? [];
        $readyForPayment = $data["ReadyForPayment"] ?? 0;
        $status = $invoice["Status"] ?? "Closed";
        $total = 0;
-       if($readyForPayment == 1) {
-        $invoice["Status"] = "ReadyForPayment";
-       } for($i = 0; $i < count($chargeData); $i++) {
+       for($i = 0; $i < count($chargeData); $i++) {
         $description = $data["ChargeDescription"][$i] ?? "Unknown";
         $paid = $data["ChargePaid"][$i] ?? 0;
         $title = $data["ChargeTitle"][$i] ?? "Unknown";
@@ -932,7 +930,11 @@
           ["class" => "DesktopRightText"]
          ])
         ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
-       }
+       } if($readyForPayment == 1) {
+        $invoice["PaidInFull"] = ($total == 0) ? 1 : 0;
+        $status = ($total > 0) ? "ReadyForPayment" : "Closed";
+        $invoice["Status"] = $status;
+       } 
        $total = $this->view(base64_encode("Invoice:Home"), [
         "Data" => [
          "Dependency" => "Total",
