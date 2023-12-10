@@ -1350,18 +1350,18 @@
      ]);
      $mail->isSMTP();
      $mail->SMTPAuth = true;
-     $mail->SMTPDebug = SMTP::DEBUG_SERVER;
      $mail->Host = $email["Host"];
-     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-     $mail->Port = 587;
      $mail->Username = base64_decode($email["Username"]);
      $mail->Password = base64_decode($email["Password"]);
-     $mail->AltBody = htmlentities($a["Message"]);
-     $mail->Body    = $message;
-     $mail->Subject = $a["Title"];
+     $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+     $mail->Port = 587;
+     $mail->setFrom("noreply@outerhaven.nyc", "Do Not Reply");
      $mail->addAddress($a["To"]);
      $mail->isHTML(true);
-     $mail->setFrom("noreply@outerhaven.nyc", "Do Not Reply");
+     $mail->Subject = $a["Title"];
+     $mail->Body    = $message;
+     $mail->AltBody = htmlentities($a["Message"]);
      $mail->send();
     } catch(Exception $error) {
      return $this->Element([
