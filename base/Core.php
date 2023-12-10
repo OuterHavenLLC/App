@@ -16,9 +16,9 @@
     $this->language = $header["Language"] ?? "en_US";
     $this->timestamp = date("Y-m-d h:i:sA");
     $this->you = $this->Member($this->Authenticate("Get"));
-   } catch(PDOException $e) {
+   } catch(PDOException $error) {
     return $this->Element([
-     "p", "Failed to initialize GW... ".$e->getMessage()
+     "p", "Failed to initialize GW... ".$error->getMessage()
     ]);
    }
   }
@@ -1334,23 +1334,40 @@
      $i++;
     }
    } if(count($keys) == $i) {
-    $headers = [
-     "Content-Type" => "text/html; charset=UTF-8",
-     "From" => "noreply@outerhaven.nyc",
-     "MINE-version" => "5.0",
-     "color-scheme" => "dark light",
-     "supported-color-schemes" => "dark light",
-    ];
-    $message = $this->Element([
-     "html", $this->Element([
-      "head", $this->Element([
-       "style", $this->Extension("669ae04b308fc630f8e06317313d9efe")
+    require_once(__DIR__."/mail/src/PHPMailer.php");
+    require_once(__DIR__."/mail/src/SMTP.php");
+    $mail = new PHPMailer(true);
+    try {
+     $email = $this->cypher->MailCredentials() ?? [];
+     $message = $this->Element([
+      "html", $this->Element([
+       "head", $this->Element([
+        "style", $this->Extension("669ae04b308fc630f8e06317313d9efe")
+       ])
+      ]).$this->Element([
+       "body", $a["Message"]
       ])
-     ]).$this->Element([
-      "body", $a["Message"]
-     ])
-    ]);
-    mail($a["To"], $a["Title"], $message, $headers);
+     ]);
+     $mail->isSMTP();
+     $mail->SMTPAuth = true;
+     $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+     $mail->Host = $email["Host"];
+     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+     $mail->Port = 587;
+     $mail->Username = base64_decode($email["Username"]);
+     $mail->Password = base64_decode($email["Password"]);
+     $mail->AltBody = htmlentities($a["Message"]);
+     $mail->Body    = $message;
+     $mail->Subject = $a["Title"];
+     $mail->addAddress($a["To"]);
+     $mail->isHTML(true);
+     $mail->setFrom("noreply@outerhaven.nyc", "Do Not Reply");
+     $mail->send();
+    } catch(Exception $error) {
+     return $this->Element([
+      "p", "Failed to initialize GW... ".$error->getMessage()
+     ]);
+    }
    }
   }
   function Setup(string $a) {
