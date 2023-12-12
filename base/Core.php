@@ -1338,7 +1338,7 @@
     require_once(__DIR__."/mail/src/SMTP.php");
     $mail = new PHPMailer(true);
     try {
-     $email = $this->cypher->MailCredentials() ?? [];
+     $email = $this->cypher->MailCredentials();
      $message = $this->Element([
       "html", $this->Element([
        "head", $this->Element([
@@ -1348,24 +1348,33 @@
        "body", $a["Message"]
       ])
      ]);
+     $mail->SMTPDebug = SMTP::DEBUG_SERVER;
      $mail->isSMTP();
-     $mail->SMTPAuth = true;
      $mail->Host = $email["Host"];
      $mail->Username = base64_decode($email["Username"]);
      $mail->Password = base64_decode($email["Password"]);
-     $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+     $mail->SMTPAuth = true;
+     $mail->SMTPOptions = [
+      "ssl" => [
+        "verify_peer" => false,
+        "verify_peer_name" => false,
+        "allow_self_signed" => true
+      ]
+     ];
+     #$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
      $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
      $mail->Port = 587;
-     $mail->setFrom("noreply@outerhaven.nyc", "Do Not Reply");
+     $mail->setFrom(base64_decode($email["Username"]), "Do Not Reply");
      $mail->addAddress($a["To"]);
+     $mail->addReplyTo(base64_decode($email["Username"]), "Do Not Reply");
      $mail->isHTML(true);
      $mail->Subject = $a["Title"];
-     $mail->Body    = $message;
-     $mail->AltBody = htmlentities($a["Message"]);
+     $mail->Body  = $message;
+     $mail->AltBody = htmlentities($message);
      $mail->send();
     } catch(Exception $error) {
      return $this->Element([
-      "p", "Failed to initialize GW... ".$error->getMessage()
+      "p", "Failed to send mail: ".$error->getMessage()
      ]);
     }
    }

@@ -326,7 +326,7 @@ class PHPMailer
      *
      * @var bool
      */
-    public $SMTPAuth = true;
+    public $SMTPAuth = false;
 
     /**
      * Options array passed to stream_context_create when connecting via SMTP.

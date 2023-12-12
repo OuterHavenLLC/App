@@ -981,7 +981,6 @@
        $email = $data["Email"] ?? "";
        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
        $member = $data["Username"] ?? "";
-       $name = $data["Username"] ?? $email;
        $r = [
         "Body" => "An e-mail address or username are required."
        ];
@@ -1017,13 +1016,13 @@
            "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
            "[Email.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
            "[Email.Invoice]" => $chargeList.$total,
-           "[Email.Name]" => $name,
+           "[Email.Name]" => $email,
            "[Email.Link]" => $this->core->base."/invoice/$id",
            "[Email.Shop.Name]" => $shop["Title"],
            "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
           ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
           "Title" => $shop["Title"].": Invoice $id",
-          "To" => $data["Email"]
+          "To" => $email
          ]);
         } if(!empty($member)) {
          $check = 0;
@@ -1049,7 +1048,7 @@
          $bulletin = "<em>$member</em> will receive a Bulletin shortly.";
         }
         $r = [
-         "Body" => "The Invoice has been forwarded to $name.$bulletin",
+         "Body" => "The Invoice has been forwarded to $email.$bulletin",
          "Header" => "Forwarded"
         ];
        }

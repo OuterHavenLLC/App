@@ -18,19 +18,8 @@
   <div class="OHTB">
    <button class="Home" onclick="window.location='http://outerhaven.nyc';"></button>
   </div>
-  <div class="OHCC">
-   <div class="Desktop75 MobileFull">
-    <h1 class="CenterText UpperCase">Free America Broadcasting</h1>
-    <p class="CenterText">There are currently no public events ongoing. Please click the button below to return to <em>Outer Haven</em>.</p>
-    <div class="Desktop25 MobileFull">&nbsp;</div>
-    <div class="Desktop25 MobileFull">
-     <button class="Center v2 v2w">Chat</button>
-    </div>
-    <div class="Desktop25 MobileFull">
-     <button class="Center v2 v2w">Listen</button>
-    </div>
-    <div class="Desktop25 MobileFull">&nbsp;</div>
-   </div>
+  <div class="OHCC scr">
+   [App.Content]
   </div>
  </body>
 </html>
