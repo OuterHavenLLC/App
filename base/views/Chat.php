@@ -248,9 +248,13 @@
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
        $bookmarkCommand .= "Bookmark";
-       $delete = ($chat["UN"] == $you && $id != "6cb00ab5e20c385b2c8d56e58ab03f97") ? 1 : 0;
+       $doNotShare = [
+        "5ec1e051bf732d19e09ea9673cd7986b",
+        "7216072bbd437563e692cc7ff69cdb69"
+       ];
+       $delete = (!in_array($id, $doNotShare) && $chat["UN"] == $you) ? 1 : 0;
        $privacy = ($chat["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"]) && $chat["Privacy"] != md5("Private")) ? 1 : 0;
-       $share = (($chat["UN"] == $you || $active == 1) && $id != "6cb00ab5e20c385b2c8d56e58ab03f97") ? 1 : 0;
+       $share = (!in_array($id, $doNotShare) && ($chat["UN"] == $you || $active == 1)) ? 1 : 0;
        $actions = ($chat["UN"] != $you) ? $this->core->Element([
         "button", $blockCommand, [
          "class" => "Small UpdateButton v2",

@@ -4,7 +4,10 @@
  $event = $oh->core->config["App"]["LiveEvent"] ?? 0;
  $extension = ($event == 1) ? "1870885288027c3d4bc0a29bdf5f7579" : "c0f79632dc2313352f92b41819fe4739";
  echo $oh->core->Change([[
-  "[App.Content]" => $oh->core->Extension($extension),
+  "[App.Content]" => $oh->core->Change([[
+   "[FAB.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=7216072bbd437563e692cc7ff69cdb69"),
+   "[FAB.Listen]" => "http://fab.outerhaven.nyc:1776/stream.m3u"
+  ], $oh->core->Extension($extension)]),
   "[App.Description]" => $oh->core->config["App"]["Description"],
   "[App.Keywords]" => $oh->core->config["App"]["Keywords"],
   "[App.Owner]" => $oh->core->ShopID,

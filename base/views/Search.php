@@ -1859,6 +1859,7 @@
        if($_Member["Empty"] == 0) {
         $view = "v=".base64_encode("Chat:Home")."&1on1=1&Username=".base64_encode($member);
         $view .= ($integrated == 1) ? "&Card=1" : "";
+        $t = $_Member["DataModel"];
         $online = $t["Activity"]["OnlineStatus"] ?? 0;
         $online = ($online == 1) ? $this->core->Element([
          "span",

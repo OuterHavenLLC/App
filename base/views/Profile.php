@@ -4,6 +4,55 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
+  function AddContent() {
+   $accessCode = "Denied";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to create content."
+    ];
+   } else {
+    $accessCode = "Accepted";
+    $r = $this->core->Element([
+     "h1", "Create Content", ["class" => "CenterText UpperCase"]
+    ]).$this->core->Element([
+     "p", "Your central hub of content creation."
+    ]).$this->core->Element([
+     "p", "{content_types_list}"
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function AddContentCheck() {
+   $plus = "<img src=\"".$this->core->PlainText([
+    "Data" => "[Media:PLUS]",
+    "Display" => 1
+   ])."\" style=\"width:3em\"/>\r\n";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   $accessCode = ($this->core->ID != $you) ? "Accepted" : "Denied";
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $this->core->Element([
+      "button", $plus, [
+       "class" => "AddContent OpenFirSTEPTool c2 h",
+       "data-fst" => base64_encode("v=".base64_encode("Profile:AddContent"))
+      ]
+     ])
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function Blacklist(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];

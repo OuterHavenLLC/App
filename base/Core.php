@@ -1363,7 +1363,7 @@
      ];
      #$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
      $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-     $mail->Port = 587;
+     $mail->Port = 25;
      $mail->setFrom(base64_decode($email["Username"]), "Do Not Reply");
      $mail->addAddress($a["To"]);
      $mail->addReplyTo(base64_decode($email["Username"]), "Do Not Reply");

@@ -190,6 +190,7 @@
      $content = $this->core->GetContentData([
       "BackTo" => "",
       "ID" => $contentID,
+      "Integrated" => 1,
       "Owner" => $username
      ]) ?? [];
      $listItem = $content["ListItem"] ?? [];
