@@ -131,6 +131,8 @@
     $templates = [];
     $title = $blog["Title"] ?? "";
     foreach($templateOptions as $key => $value) {
+     $value = str_replace("nyc.outerhaven.extension.", "", $value);
+     $value = $this->core->Data("Get", ["extension", $value]) ?? [];
      if($value["Category"] == "BlogTemplate") {
       $templates[$key] = $value["Title"];
      }

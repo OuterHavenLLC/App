@@ -639,11 +639,7 @@
   function Upload(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "AID",
-    "UN"
-   ]);
-   $albumID = $data["AID"];
+   $albumID = $data["AID"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {

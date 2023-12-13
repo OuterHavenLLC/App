@@ -28,20 +28,20 @@
      "class" => "LI OpenCard v2 v2w",
      "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
     ]]);
-    $r .= ($isArtist == 1 || $isBlogger == 1 || $isVIP == 1) ? $this->core->Element(["button", "Article", [
+    $r .= ($isArtist == 1 || $isBlogger == 1 || $isVIP == 1) ? $this->core->Element(["button", "Blog", [
      "class" => "LI OpenCard v2 v2w",
-     "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&new=1")
+     "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&Member=".base64_encode($you)."&new=1")
     ]]) : "";
     $r .= $this->core->Element(["button", "Group Chat", [
      "class" => "LI OpenCard v2 v2w",
-     "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."GenerateID=1&new=1")
+     "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you))
     ]]).$this->core->Element(["button", "Media", [
      "class" => "LI OpenCard v2 v2w",
-     "data-view" => base64_encode("v=".base64_encode("File:Upload"))
+     "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=".md5("unsorted"))
     ]]);
     $r .= ($isArtist == 1 || $isVIP == 1) ? $this->core->Element(["button", "Product or Service", [
      "class" => "LI OpenCard v2 v2w",
-     "data-view" => base64_encode("v=".base64_encode("Prodsuct:Edit"))
+     "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1")
     ]]) : "";
     $r .= $this->core->Element(["button", "Status Update", [
      "class" => "LI OpenCard v2 v2w",

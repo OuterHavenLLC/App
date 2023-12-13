@@ -15,7 +15,7 @@
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $shop = $data["Shop"] ?? "";
+   $shop = $data["Shop"] ?? md5($you);
    $template = "00f3b49a6e3b39944e3efbcc98b4948d";
    $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
    $r = [
