@@ -14,13 +14,39 @@
     ];
    } else {
     $accessCode = "Accepted";
+    $isArtist = $y["Subscriptions"]["Artist"]["A"] ?? 0;
+    $isBlogger = $y["Subscriptions"]["Blogger"]["A"] ?? 0;
+    $isVIP = $y["Subscriptions"]["VIP"]["A"] ?? 0;
     $r = $this->core->Element([
      "h1", "Create Content", ["class" => "CenterText UpperCase"]
     ]).$this->core->Element([
      "p", "Your central hub of content creation."
-    ]).$this->core->Element([
-     "p", "{content_types_list}"
-    ]);
+    ]).$this->core->Element(["button", "Album", [
+     "class" => "LI OpenCard v2 v2w",
+     "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&new=1")
+    ]]).$this->core->Element(["button", "Article", [
+     "class" => "LI OpenCard v2 v2w",
+     "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
+    ]]);
+    $r .= ($isArtist == 1 || $isBlogger == 1 || $isVIP == 1) ? $this->core->Element(["button", "Article", [
+     "class" => "LI OpenCard v2 v2w",
+     "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&new=1")
+    ]]) : "";
+    $r .= $this->core->Element(["button", "Group Chat", [
+     "class" => "LI OpenCard v2 v2w",
+     "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."GenerateID=1&new=1")
+    ]]).$this->core->Element(["button", "Media", [
+     "class" => "LI OpenCard v2 v2w",
+     "data-view" => base64_encode("v=".base64_encode("File:Upload"))
+    ]]);
+    $r .= ($isArtist == 1 || $isVIP == 1) ? $this->core->Element(["button", "Product or Service", [
+     "class" => "LI OpenCard v2 v2w",
+     "data-view" => base64_encode("v=".base64_encode("Prodsuct:Edit"))
+    ]]) : "";
+    $r .= $this->core->Element(["button", "Status Update", [
+     "class" => "LI OpenCard v2 v2w",
+     "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1")
+    ]]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

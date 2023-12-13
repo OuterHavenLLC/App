@@ -803,6 +803,14 @@
               "ID" => $key,
               "Quantity" => $quantity
              ]);
+             foreach($bundle as $bundleID => $bundledProductID) {
+              $bundledProductID = explode("-", base64_decode($bundledProductID));
+              $bundledProductID = $bundledProductID[1] ?? "";
+              array_push($history, [
+               "ID" => $bundledProductID,
+               "Quantity" => 1
+              ]);
+             }
              $cartOrder = $this->ProcessCartOrder([
               "Bundled" => $bundle,
               "PayPalOrderID" => $orderID,

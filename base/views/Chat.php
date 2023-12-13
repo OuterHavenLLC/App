@@ -138,7 +138,7 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $generateID = $data["GenerateID"] ?? "";
+   $generateID = $data["GenerateID"] ?? 0;
    $id = $data["ID"] ?? base64_encode("");
    $username = $data["Username"] ?? base64_encode("");
    $r = [
