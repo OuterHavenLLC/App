@@ -2346,84 +2346,75 @@
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
     $statusUpdates = $this->core->RenderSearchIndex("StatusUpdate");
     foreach($statusUpdates as $key => $value) {
-     $update = $this->core->Data("Get", ["su", $value]) ?? [];
-     $from = $update["From"] ?? "";
-     $ck = (!empty($from)) ? 1 : 0;
-     $illegal = $update["Illegal"] ?? 0;
-     $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     if($ck == 1 && $illegal == 0) {
-      $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
-      $from = $from ?? $this->core->ID;
-      if($bl == 0 || $from == $you) {
-       $attachments = "";
-       if(!empty($update["Attachments"])) {
-        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
-         "Data" => [
-          "ID" => base64_encode(implode(";", $update["Attachments"])),
-          "Type" => base64_encode("DLC")
-         ]
-        ]);
-        $attachments = $this->core->RenderView($attachments);
-       }
-       $op = ($from == $you) ? $y : $this->core->Member($from);
-       $cms = $this->core->Data("Get", ["cms", md5($op["Login"]["Username"])]) ?? [];
-       $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
-       $ck2 = $this->core->CheckPrivacy([
-        "Contacts" => $cms["Contacts"],
-        "Privacy" => $op["Privacy"]["Posts"],
-        "UN" => $from,
-        "Y" => $you
-       ]);
-       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
+     $_StatusUpdate = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("StatusUpdate;$value")
+     ]);
+     if($_StatusUpdate["Empty"] == 0) {
+      $update = $_StatusUpdate["DataModel"];
+      $from = $update["From"] ?? "";
+      $check = ($from == $you) ? 1 : 0;
+      $illegal = $update["Illegal"] ?? 0;
+      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+      if($check == 1 || ($bl == 0 && $illegal == 0)) {
+       $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
+       $from = $from ?? $this->core->ID;
+       if($bl == 0 || $from == $you) {
         $attachments = "";
         if(!empty($update["Attachments"])) {
-         $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-          "ID" => base64_encode(implode(";", $update["Attachments"])),
-          "Type" => base64_encode("DLC")
-         ]]);
+         $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
+          "Data" => [
+           "ID" => base64_encode(implode(";", $update["Attachments"])),
+           "Type" => base64_encode("DLC")
+          ]
+         ]);
          $attachments = $this->core->RenderView($attachments);
         }
-        $bdy = base64_decode($update["Body"]);
-        $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
-        $edit = ($from == $you) ? $this->core->Element([
-         "button", "Delete", [
-          "class" => "InnerMargin OpenDialog",
-          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($value))
-         ]
-        ]).$this->core->Element([
-         "button", "Edit", [
-          "class" => "InnerMargin OpenCard",
-          "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$value"))
-         ]
-        ]) : "";
-        $modified = $update["Modified"] ?? "";
-        if(empty($modified)) {
-         $modified = "";
-        } else {
-         $_Time = $this->core->TimeAgo($modified);
-         $modified = " &bull; Modified ".$_Time;
-         $modified = $this->core->Element(["em", $modified]);
-        }
-        $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-        $votes = base64_encode("v=$votes&ID=$value&Type=1");
-        array_push($msg, [
-         "[StatusUpdate.Attachments]" => base64_encode($attachments),
-         "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
-          "BBCodes" => 1,
-          "Data" => $update["Body"],
-          "Display" => 1,
-          "HTMLDecode" => 1
-         ])),
-         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
-         "[StatusUpdate.DT]" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=".$update["ID"])),
-         "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($value),
-         "[StatusUpdate.Modified]" => base64_encode($modified),
-         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
-         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.VoteID]" => base64_encode($value),
-         "[StatusUpdate.Votes]" => base64_encode($votes)
+        $op = ($from == $you) ? $y : $this->core->Member($from);
+        $cms = $this->core->Data("Get", ["cms", md5($op["Login"]["Username"])]) ?? [];
+        $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
+        $ck2 = $this->core->CheckPrivacy([
+         "Contacts" => $cms["Contacts"],
+         "Privacy" => $op["Privacy"]["Posts"],
+         "UN" => $from,
+         "Y" => $you
         ]);
+        if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
+         $attachments = "";
+         if(!empty($update["Attachments"])) {
+          $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
+           "ID" => base64_encode(implode(";", $update["Attachments"])),
+           "Type" => base64_encode("DLC")
+          ]]);
+          $attachments = $this->core->RenderView($attachments);
+         }
+         $bdy = base64_decode($update["Body"]);
+         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+         $edit = ($from == $you) ? $this->core->Element([
+          "button", "Delete", [
+           "class" => "InnerMargin OpenDialog",
+           "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($value))
+          ]
+         ]).$this->core->Element([
+          "button", "Edit", [
+           "class" => "InnerMargin OpenCard",
+           "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$value"))
+          ]
+         ]) : "";
+         array_push($msg, [
+          "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
+          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
+          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
+          "[StatusUpdate.DT]" => base64_encode($options["View"]),
+          "[StatusUpdate.Edit]" => base64_encode($edit),
+          "[StatusUpdate.ID]" => base64_encode($id),
+          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
+          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
+          "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
+          "[StatusUpdate.VoteID]" => base64_encode($id),
+          "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
+         ]);
+        }
        }
       }
      }

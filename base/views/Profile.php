@@ -22,35 +22,35 @@
     ]).$this->core->Element([
      "p", "Your central hub of content creation.", ["class" => "CenterText"]
     ]).$this->core->Element(["button", "Album", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&new=1")
     ]]).$this->core->Element(["button", "Article", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
     ]]);
     $r .= ($isArtist == 1 || $isBlogger == 1 || $isVIP == 1) ? $this->core->Element(["button", "Blog", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&Member=".base64_encode($you)."&new=1")
     ]]) : "";
     $r .= $this->core->Element(["button", "Forum", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Forum:Edit")."&new=1")
     ]]).$this->core->Element(["button", "Group Chat", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you))
     ]]).$this->core->Element(["button", "Media", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=".md5("unsorted"))
     ]]).$this->core->Element(["button", "Poll", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
     ]]);
     $r .= ($isArtist == 1 || $isVIP == 1) ? $this->core->Element(["button", "Product or Service", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1")
     ]]) : "";
     $r .= $this->core->Element(["button", "Status Update", [
-     "class" => "LI OpenCard v2",
+     "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1")
     ]]);
    }
@@ -64,10 +64,6 @@
    ]);
   }
   function AddContentCheck() {
-   $plus = "<img src=\"".$this->core->PlainText([
-    "Data" => "[Media:PLUS]",
-    "Display" => 1
-   ])."\" style=\"width:3em\"/>\r\n";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $accessCode = ($this->core->ID != $you) ? "Accepted" : "Denied";
@@ -75,12 +71,10 @@
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
-     "Web" => $this->core->Element([
-      "button", $plus, [
-       "class" => "AddContent OpenFirSTEPTool c2 h",
-       "data-fst" => base64_encode("v=".base64_encode("Profile:AddContent"))
-      ]
-     ])
+     "Web" => $this->core->Element(["button", NULL, [
+      "class" => "AddContent OpenFirSTEPTool c2 h",
+      "data-fst" => base64_encode("v=".base64_encode("Profile:AddContent"))
+     ]])
     ],
     "ResponseType" => "View"
    ]);
