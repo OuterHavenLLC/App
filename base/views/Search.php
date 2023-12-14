@@ -219,24 +219,12 @@
      $b2 = urlencode($b2);
      $li .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$lpg";
      $lis = "Search Albums";
-     $lo = ($ck == 1 && $notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$ae&new=1")
-      ]
-     ]) : "";
     } elseif($st == "MBR-BLG") {
      $bd = base64_encode("Authentication:DeleteBlogs");
      $be = base64_encode("Blog:Edit");
      $h = "Your Blogs";
      $li .= "&b2=Blogs&lPG=$lpg";
      $lis = "Search your Blogs";
-     if($y["Subscriptions"]["Blogger"]["A"] == 1 && $notAnon == 1) {
-      $lo .= $this->core->Element(["button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$be&new=1")
-      ]]);
-     }
     } elseif($st == "MBR-CA") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
@@ -253,17 +241,9 @@
      $lis = "Search $h";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "MBR-Forums") {
-     $fd = base64_encode("Authentication:DeleteForum");
-     $fe = base64_encode("Forum:Edit");
      $h = "Your Forums";
      $li .= "&lPG=$lpg";
      $lis = "Search Your Private and Public Forums";
-     $lo = ($notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$fe&new=1")
-      ]
-     ]) : "";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "MBR-JE") {
      $t = $this->core->Member(base64_decode($data["UN"]));
@@ -275,21 +255,9 @@
      $h = "Your Articles";
      $li .= "&b2=$b2&lPG=$lpg";
      $lis = "Search Articles";
-     $lo = ($notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
-      ]
-     ]) : "";
     } elseif($st == "MBR-Polls") {
      $h = "Your Polls";
      $lis = "Search Polls";
-     $lo = ($notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
-      ]
-     ]) : "";
     } elseif($st == "MBR-SU") {
      $t = base64_decode($data["UN"]);
      $t = ($t != $you) ? $this->core->Member($t) : $y;
@@ -360,23 +328,11 @@
     } elseif($st == "Polls") {
      $h = "Polls";
      $lis = "Search Polls";
-     $lo = ($notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
-      ]
-     ]) : "";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "PR") {
      $h = "Press Releases";
      $li .= "&b2=".urlencode("Press Releases")."&lPG=$lpg";
      $lis = "Search Articles";
-     $lo = ($y["Rank"] == md5("High Command") && $notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
-      ]
-     ]) : "";
     } elseif($st == "Products") {
      $h = "Products";
      $li .= "&lPG=$lpg&st=$st";
@@ -720,12 +676,11 @@
      }
     }
    } elseif($st == "BLG") {
-    $blogs = $this->core->DatabaseSet("BLG") ?? [];
+    $blogs = $this->core->RenderSearchIndex("Blog");
     $accessCode = "Accepted";
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     foreach($blogs as $key => $value) {
-     $value = str_replace("nyc.outerhaven.blg.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
      $_Blog = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -787,10 +742,9 @@
     }
    } elseif($st == "CA" || $st == "PR") {
     $accessCode = "Accepted";
-    $articles = $this->core->DatabaseSet("PG") ?? [];
+    $articles = $this->core->RenderSearchIndex("Article");
     $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
     foreach($articles as $key => $value) {
-     $value = str_replace("nyc.outerhaven.pg.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
      $_Article = $this->core->GetContentData([
       "BackTo" => $b2,
@@ -871,9 +825,8 @@
      $extension = "343f78d13872e3b4e2ac0ba587ff2910";
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
      $extension = $this->core->Extension($extension);
-     $groups = $this->core->DatabaseSet("Chat") ?? [];
+     $groups = $this->core->RenderSearchIndex("Chat");
      foreach($groups as $key => $group) {
-      $group = str_replace("nyc.outerhaven.chat.", "", $group);
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -951,7 +904,7 @@
      $options = "";
      $title = "";
      foreach($content as $key => $id) {
-      if(strpos($id, "c.oh") === 0) {
+      if(strpos($id, "nyc.outerhaven") === 0) {
        $id = explode(".", $id);
        if(!in_array($id[2], $exclude)) {
         $type = "Unspecified";
@@ -1366,10 +1319,9 @@
    } elseif($st == "Feedback") {
     $accessCode = "Accepted";
     $now = $this->core->timestamp;
-    $x = $this->core->DatabaseSet("KB") ?? [];
+    $feedback = $this->core->RenderSearchIndex("Feedback");
     $extension = $this->core->Extension("e7c4e4ed0a59537ffd00a2b452694750");
-    foreach($x as $key => $value) {
-     $value = str_replace("nyc.outerhaven.knowledge.", "", $value);
+    foreach($feedback as $key => $value) {
      $feedback = $this->core->Data("Get", ["knowledge", $value]) ?? [];
      $mesasge = $feedback["Thread"] ?? [];
      $mesasge = $feedback["Thread"][0] ?? [];
@@ -1401,9 +1353,8 @@
    } elseif($st == "Forums") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    $forums = $this->core->DatabaseSet("PF") ?? [];
+    $forums = $this->core->RenderSearchIndex("Forum");
     foreach($forums as $key => $value) {
-     $value = str_replace("nyc.outerhaven.pf.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Forums", $value]);
      $_Forum = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -1572,13 +1523,6 @@
       }
      }
     }
-   } elseif($st == "Knowledge") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("#");
-    $x = $this->core->DatabaseSet("KB");
-    foreach($x as $k => $v) {
-     $v = str_replace("nyc.outerhaven.kb.", "", $v);
-    }
    } elseif($st == "Mainstream") {
     $accessCode = "Accepted";
     $edit = base64_encode("StatusUpdate:Edit");
@@ -1642,9 +1586,8 @@
     $accessCode = "Accepted";
     $home = base64_encode("Profile:Home");
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
-    $x = $this->core->DatabaseSet("MBR") ?? [];
-    foreach($x as $key => $value) {
-     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
+    $members = $this->core->RenderSearchIndex("Member");
+    foreach($members as $key => $value) {
      $bl = $this->core->CheckBlocked([$y, "Members", $value]);
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2130,9 +2073,8 @@
    } elseif($st == "Polls") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
-    $polls = $this->core->DatabaseSet("Polls") ?? [];
+    $polls = $this->core->RenderSearchIndex("Poll");
     foreach($polls as $key => $value) {
-     $value = str_replace("nyc.outerhaven.poll.", "", $value);
      $bl = $this->core->CheckBlocked([$y, "Polls", $value]);
      $_Poll = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2199,9 +2141,9 @@
    } elseif($st == "Products") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    $members = $this->core->DatabaseSet("MBR") ?? [];
+    $members = $this->core->RenderSearchIndex("Member");
     foreach($members as $key => $value) {
-     $value = $this->core->Data("Get", ["mbr", str_replace("nyc.outerhaven.mbr.", "", $value)]) ?? [];
+     $value = $this->core->Data("Get", ["mbr", $value]) ?? [];
      if(!empty($value["Login"])) {
       $them = $value["Login"]["Username"];
       if($notAnon == 1) {
@@ -2255,9 +2197,8 @@
     if($notAnon == 1) {
      $b2 = $b2 ?? "Artists";
      $card = base64_encode("Shop:Home");
-     $shops = $this->core->DatabaseSet("Shop") ?? [];
+     $shops = $this->core->RenderSearchIndex("Shop");
      foreach($shops as $key => $value) {
-      $value = str_replace("nyc.outerhaven.shop.", "", $value);
       $t = (md5($you) == $value) ? $y : $this->core->Data("Get", ["mbr", $value]);
       $them = $t["Login"]["Username"];
       $bl = $this->core->CheckBlocked([$y, "Members", $them]);
@@ -2403,16 +2344,15 @@
    } elseif($st == "StatusUpdates") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
-    $x = $this->core->DatabaseSet("SU") ?? [];
-    foreach($x as $k => $v) {
-     $v = str_replace("nyc.outerhaven.su.", "", $v);
-     $update = $this->core->Data("Get", ["su", $v]) ?? [];
+    $statusUpdates = $this->core->RenderSearchIndex("StatusUpdate");
+    foreach($statusUpdates as $key => $value) {
+     $update = $this->core->Data("Get", ["su", $value]) ?? [];
      $from = $update["From"] ?? "";
      $ck = (!empty($from)) ? 1 : 0;
      $illegal = $update["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($ck == 1 && $illegal == 0) {
-      $bl = $this->core->CheckBlocked([$y, "Status Updates", $v]);
+      $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
       $from = $from ?? $this->core->ID;
       if($bl == 0 || $from == $you) {
        $attachments = "";
@@ -2426,10 +2366,7 @@
         $attachments = $this->core->RenderView($attachments);
        }
        $op = ($from == $you) ? $y : $this->core->Member($from);
-       $cms = $this->core->Data("Get", [
-        "cms",
-        md5($op["Login"]["Username"])
-       ]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($op["Login"]["Username"])]) ?? [];
        $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
        $ck2 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
@@ -2451,12 +2388,12 @@
         $edit = ($from == $you) ? $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
-          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($v))
+          "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($value))
          ]
         ]).$this->core->Element([
          "button", "Edit", [
           "class" => "InnerMargin OpenCard",
-          "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$v"))
+          "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$value"))
          ]
         ]) : "";
         $modified = $update["Modified"] ?? "";
@@ -2468,7 +2405,7 @@
          $modified = $this->core->Element(["em", $modified]);
         }
         $votes = ($op["Login"]["Username"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-        $votes = base64_encode("v=$votes&ID=$v&Type=1");
+        $votes = base64_encode("v=$votes&ID=$value&Type=1");
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($attachments),
          "[StatusUpdate.Body]" => base64_encode($this->core->PlainText([
@@ -2480,11 +2417,11 @@
          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
          "[StatusUpdate.DT]" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=".$update["ID"])),
          "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($v),
+         "[StatusUpdate.ID]" => base64_encode($value),
          "[StatusUpdate.Modified]" => base64_encode($modified),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.VoteID]" => base64_encode($v),
+         "[StatusUpdate.VoteID]" => base64_encode($value),
          "[StatusUpdate.Votes]" => base64_encode($votes)
         ]);
        }

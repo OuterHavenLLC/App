@@ -17,20 +17,19 @@
   "stream",
   "votes"
  ];
- $indexes = [
-  "Article" => [],
-  "Blog" => [],
-  "BlogPost" => [],
-  "Chat" => [],
-  "Forum" => [],
-  "ForumPost" => [],
-  "Media" => [],
-  "Member" => [],
-  "Poll" => [],
-  "Product" => [],
-  "Shop" => [],
-  "StatusUpdate" => []
- ];
+ $indexes["Article"] = $indexes["Article"] ?? [];
+ $indexes["Blog"] = $indexes["Blog"] ?? [];
+ $indexes["BlogPost"] = $indexes["BlogPost"] ?? [];
+ $indexes["Chat"] = $indexes["Chat"] ?? [];
+ $indexes["Feedback"] = $indexes["Feedback"] ?? [];
+ $indexes["Forum"] = $indexes["Forum"] ?? [];
+ $indexes["ForumPost"] = $indexes["ForumPost"] ?? [];
+ $indexes["Media"] = $indexes["Media"] ?? [];
+ $indexes["Member"] = $indexes["Member"] ?? [];
+ $indexes["Poll"] = $indexes["Poll"] ?? [];
+ $indexes["Product"] = $indexes["Product"] ?? [];
+ $indexes["Shop"] = $indexes["Shop"] ?? [];
+ $indexes["StatusUpdate"] = $indexes["StatusUpdate"] ?? [];
  $r = $oh->core->Element([
   "h1", $oh->core->config["App"]["Name"]."</em> Re:Search Index"
  ]).$oh->core->Element([
@@ -47,6 +46,7 @@
    $index = "";
    $index = ($type == "blg") ? "Blog" : $index;
    $index = ($type == "bp") ? "BlogPost" : $index;
+   $index = ($type == "knowledge") ? "Feedback" : $isndex;
    $index = ($type == "mbr") ? "Member" : $index;
    $index = ($type == "pf") ? "Forum" : $index;
    $index = ($type == "pg") ? "Article" : $index;
@@ -58,7 +58,7 @@
     $chat = $oh->core->Data("Get", [$database[2], $database[2]]) ?? [];
     $index = "Chat";
     $isGroup = $chat["Group"] ?? 0;
-    if($isGroup == 1) {
+    if(!in_array($database[3], $indexes[$index]) && $isGroup == 1) {
      array_push($indexes[$index], $database[3]);
      $r .= $oh->core->Element(["p", "Indexed ".implode(".", $database)."..."]);
     }
@@ -69,16 +69,20 @@
      foreach($fileSystem as $file => $info) {
       $id = $database[3].";$file";
       $index = "Media";
-      array_push($indexes[$index], $id);
-      $r .= $oh->core->Element(["p", "Indexed Media #$id..."]);
+      if(!in_array($id, $indexes[$index])) {
+       array_push($indexes[$index], $id);
+       $r .= $oh->core->Element(["p", "Indexed Media #$id..."]);
+      }
      }
     }
    } else {
     if(empty($index)) {
      $r .= $oh->core->Element(["p", "Skipped ".implode(".", $database)."..."]);
     } else {
-     array_push($indexes[$index], $database[3]);
-     $r .= $oh->core->Element(["p", "Indexed ".implode(".", $database)."..."]);
+     if(!in_array($database[3], $indexes[$index])) {
+      array_push($indexes[$index], $database[3]);
+      $r .= $oh->core->Element(["p", "Indexed ".implode(".", $database)."..."]);
+     }
     }
    }
   }
