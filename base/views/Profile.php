@@ -18,7 +18,7 @@
     $isBlogger = $y["Subscriptions"]["Blogger"]["A"] ?? 0;
     $isVIP = $y["Subscriptions"]["VIP"]["A"] ?? 0;
     $r = $this->core->Element([
-     "h1", "Create Content", ["class" => "CenterText UpperCase"]
+     "h1", "Create Content", ["class" => "UpperCase"]
     ]).$this->core->Element([
      "p", "Your central hub of content creation."
     ]).$this->core->Element(["button", "Album", [

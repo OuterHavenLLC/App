@@ -4,7 +4,7 @@ App Documentation is in the works...
 # Change Log
 ## 1.3: Re:Search
 ### Release Notes
-This release focuses on search—both inside and outside the platform, as well as quality of life improvements. (comming soon...)
+This release focuses on search—both inside and outside the platform, content creation, and quality of life improvements. (comming soon...)
 
 ### Re:Search
 * Refined content visibility across the platform.
@@ -18,6 +18,7 @@ This release focuses on search—both inside and outside the platform, as well a
 * Download buttons now support simultanious media downloads.
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
+* A new content creation tool (represented by a ( + ) button at the bottom-right when signed in) creates a central hub where many of the common content types may be created from.
 
 ## 1.2: Democracy
 ### Release Notes

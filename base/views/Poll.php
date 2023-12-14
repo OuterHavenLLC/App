@@ -145,9 +145,9 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif($optionCount == 1) {
+   } elseif($optionCount < 2) {
     $r = [
-     "Body" => "Please add more options to continue."
+     "Body" => "Please add more options to your poll."
     ];
    } elseif($optionCount == $max) {
     $r = [
