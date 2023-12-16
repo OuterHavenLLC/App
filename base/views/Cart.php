@@ -140,7 +140,7 @@
     $accessCode = "Accepted";
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $id = md5($t["Login"]["Username"]);
-    $points = 10000;
+    $points = 100000;
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
     $shop = $this->core->FixMissing($shop, ["Title"]);
     $creditExchange = $this->Element([

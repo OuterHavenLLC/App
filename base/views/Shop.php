@@ -364,7 +364,7 @@
         $subscriptions = $this->core->config["Subscriptions"] ?? [];
         $sub = ($id == $subscriptions["Artist"]["ID"]) ? "Artist" : "";
         $sub = ($id == $subscriptions["Blogger"]["ID"]) ? "Developer" : $subscription;
-        $sub = ($id == $subscriptions["Developer"]["ID"]) ? "S-Blogger" : $subscription;
+        $sub = ($id == $subscriptions["Developer"]["ID"]) ? "Blogger" : $subscription;
         $sub = ($id == $subscriptions["VIP"]["ID"]) ? "VIP" : $subscription;
         $sub = ($id == $subscriptions["XFS"]["ID"]) ? "XFS" : $subscription;
         $opt = $this->core->Element(["button", "Go to ".$subscriptions[$sub]["Title"], [

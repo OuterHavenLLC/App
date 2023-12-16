@@ -121,6 +121,27 @@
     $extension = "73859ffa637c369b9fa88399a27b5598";
    } else {
     $accessCode = "Accepted";
+    $i = 0;
+    $subscriptionsList = "";
+    foreach($y["Subscriptions"] as $key => $value) {
+     $subscription = $this->core->config["Subscriptions"][$key] ?? [];
+     if(!empty($subscription)) {
+      $i++;
+      $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
+       "class" => "LI OpenCard",
+       "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
+      ]]);
+     }
+    } if($i > 0) {
+     $subscriptions = $this->core->Element([
+      "h3", "Subscriptions"
+     ]);
+     $subscriptions .= $subscriptionsList;
+     $subscriptions .= $this->core->Element(["h3", NULL, [
+      "class" => "NONAME",
+      "style" => "height:2em"
+     ]]);
+    }
     $changeData = [
      "[Menu.Administration]" => $admin,
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
@@ -148,7 +169,6 @@
      "[Menu.Member.Library]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
      "[Menu.Member.Preferences]" => base64_encode("v=".base64_encode("Profile:Preferences")),
      "[Menu.Member.Profile]" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($you)),
-     "[Menu.Member.Subscriptions]" => base64_encode("v=".base64_encode("Subscription:Index")),
      "[Menu.Member.Username]" => $you,
      "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
      "[Menu.MiNY.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=".md5($this->core->ShopID)),
@@ -161,7 +181,8 @@
      "[Menu.Search.Forums]" => base64_encode("v=$search&lPG=Forums&st=Forums"),
      "[Menu.Search.Polls]" => base64_encode("v=$search&lPG=Products&st=Polls"),
      "[Menu.Search.Products]" => base64_encode("v=$search&lPG=Products&st=Products"),
-     "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
+     "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages")),
+     "[Menu.Subscriptions]" => $subscriptions
     ];
     $extension = "d14e3045df35f4d9784d45ac2c0fe73b";
    }

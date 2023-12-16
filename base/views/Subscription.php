@@ -16,49 +16,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function Index(array $a) {
-   $accessCode = "Accepted";
-   $active = "";
-   $ai = 0;
-   $base = $this->core->base;
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   foreach($y["Subscriptions"] as $key => $value) {
-    $subscription = $this->core->config["Subscriptions"][$key] ?? [];
-    if(!empty($subscription)) {
-     $subscription = $this->core->Element([
-      "button", $this->core->Element([
-       "h4", $subscription["Title"]
-      ]).$this->core->Element([
-       "p", $subscription["Description"]
-      ]), [
-       "class" => "K4i OpenCard",
-       "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
-      ]
-     ]);
-     if($value["A"] == 1) {
-      $active .= $subscription;
-      $ai++;
-     }
-    }
-   } if($ai == 0 || $this->core->ID == $you) {
-    $active = $this->core->Element([
-     "h4", "No Active Subscriptions",
-     ["class" => "CenterText InnerMargin UpperCase"]
-    ]);
-   }
-   $r = $this->core->Change([[
-    "[Subscriptions.Active]" => $active
-   ], $this->core->Extension("81c6e3ce434e1b052240cf71ec7b1bc3")]);
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -128,6 +85,7 @@
        "[Blogger.Stream]" => base64_encode("v=$search&UN=".base64_encode($you)."&st=MBR-BLG"),
        "[Blogger.Title]" => $sub["Title"]
       ], $this->core->Extension("566f9967f00f97350e54b0ee14faef36")]);
+     } elseif($s == "Developer") {
      } elseif($s == "VIP") {
       $r = $this->core->Change([[
        "[VIP.CoverPhoto]" => $this->core->PlainText([
