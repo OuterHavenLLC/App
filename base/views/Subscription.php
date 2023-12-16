@@ -4,6 +4,18 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
+  function FABPlayer() {
+   return $this->core->JSONResponse([
+    "AccessCode" => "Accepted",
+    "Response" => [
+     "JSON" => "",
+     "Web" => $this->core->Change([[
+      "[Player.Title]" => "Free America Broadcasting"
+     ], $this->core->Extension("Player")])
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function Index(array $a) {
    $accessCode = "Accepted";
    $active = "";
@@ -123,6 +135,7 @@
         "Display" => 1
        ]),
        "[VIP.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=5ec1e051bf732d19e09ea9673cd7986b"),
+       "[VIP.FAB]" => base64_encode("v=".base64_encode("Subscription:FABPlayer")),
        "[VIP.Forum]" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=cb3e432f76b38eaa66c7269d658bd7ea"),
        "[VIP.Mail]" => "W('https://mail.outerhaven.nyc/mail/', '_blank');"
       ], $this->core->Extension("89d36f051962ca4bbfbcb1dc2bd41f60")]);
@@ -158,6 +171,7 @@
     "Body" => "You do not have permission to access this view."
    ];
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if($y["Rank"] == md5("High Command")) {
     $accessCode = "Accepted";
     foreach($y["Subscriptions"] as $key => $value) {
@@ -167,7 +181,7 @@
       "E" => $this->TimePlus($this->core->timestamp, 1, "year")
      ];
     }
-    $this->core->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [
      "Body" => "Your subscriptions have been renewed!",
      "Header" => "Done"

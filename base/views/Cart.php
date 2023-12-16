@@ -98,16 +98,16 @@
         "h4", "Already Subscribed",
         ["class" => "UpperCase CenterText"]
        ]);
-       if($id == "355fd2f096bdb49883590b8eeef72b9c") {
-        $r = ($y["Subscriptions"]["VIP"]["A"] == 1) ? $sub : $r;
-       } elseif($id == "39d05985f0667a69f3a725d5afd1265c") {
+       if($id == "e4302295d2812e4f374ef1035891c4d1") {
         $r = ($y["Subscriptions"]["Developer"]["A"] == 1) ? $sub : $r;
-       } elseif($id == "5bfb3f44cdb9d3f2cd969a23f0e37093") {
-        $r = ($y["Subscriptions"]["XFS"]["A"] == 1) ? $sub : $r;
        } elseif($id == "c7054e9c7955203b721d142dedc9e540") {
         $r = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $sub : $r;
-        } elseif($id == "cc84143175d6ae2051058ee0079bd6b8") {
+       } elseif($id == "cc84143175d6ae2051058ee0079bd6b8") {
         $r = ($y["Subscriptions"]["Blogger"]["A"] == 1) ? $sub : $r;
+       } elseif($id == "355fd2f096bdb49883590b8eeef72b9c") {
+        $r = ($y["Subscriptions"]["VIP"]["A"] == 1) ? $sub : $r;
+       } elseif($id == "5bfb3f44cdb9d3f2cd969a23f0e37093") {
+        $r = ($y["Subscriptions"]["XFS"]["A"] == 1) ? $sub : $r;
        }
       }
      } else {
@@ -290,13 +290,14 @@
    $you = $y["Login"]["Username"];
    $username = $data["UN"];
    $username = (!empty($username)) ? base64_decode($username) : $you;
-   $cart = $y["Shopping"]["Cart"][md5($username)]["Products"] ?? [];
+   $shopID = md5($username);
+   $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
    $cartCount = count($cart);
-   $credits = $y["Shopping"]["Cart"][md5($username)]["Credits"] ?? 0;
+   $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
    $credits = number_format($credits, 2);
-   $discountCode = $y["Shopping"]["Cart"][md5($username)]["DiscountCode"] ?? 0;
+   $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
    $now = $this->core->timestamp;
-   $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
+   $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
    $subtotal = 0;
    $total = 0;
    foreach($cart as $key => $value) {
@@ -334,8 +335,8 @@
    $mayContinue = ($cartCount > 0 && $subtotal > 0) ? 1 : 0;
    $continue = ($mayContinue == 1) ? $this->core->Element([
     "button", "Continue", [
-     "class" => "BBB OpenFirSTEPTool v2 v2w",
-     "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($username)."&Type=Checkout")
+     "class" => "BBB GoToView v2 v2w",
+     "data-type" => "Checkout;".base64_encode("v=".base64_encode("Shop:Pay")."&Shop=$shopID&Type=Checkout&ViewPairID=Checkout")
     ]
    ]) : "";
    $r = $this->core->Change([[

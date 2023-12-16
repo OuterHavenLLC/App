@@ -348,6 +348,7 @@
     ];
    } elseif(!empty($data["ID"]) && !empty($shopID)) {
     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    $check = 0;
     $contributors = $shop["Contributors"] ?? [];
     $isAdmin  = ($shopID == md5($you)) ? 1 : 0;
     $isContributor = 0;

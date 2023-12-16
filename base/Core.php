@@ -307,6 +307,12 @@
        "Title" => "Blogger",
        "Term" => [1, "month"]
       ],
+      "Developer" => [
+       "Description" => "Create your own web app or platform using our tried and tested source code and documentation, exclusively available to developers.",
+       "ID" => "e4302295d2812e4f374ef1035891c4d1",
+       "Title" => "Developer",
+       "Term" => [1, "year"]
+      ],
       "VIP" => [
        "Description" => "Enjoy access to all subscriptions, and exclusive content.",
        "ID" => "355fd2f096bdb49883590b8eeef72b9c",
@@ -1156,6 +1162,11 @@
       "A" => 1,
       "B" => $now,
       "E" => $this->TimePlus($now, 1, "month")
+     ],
+     "Developer" => [
+      "A" => 1,
+      "B" => $now,
+      "E" => $now
      ],
      "VIP" => [
       "A" => 0,

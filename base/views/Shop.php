@@ -787,7 +787,6 @@
            $product = $this->core->Data("Get", ["product", $key]) ?? [];
            if(!empty($product)) {
             $bundle = $value["Bundled"] ?? [];
-            $bundle = (!empty($bundle)) ? 1 : 0;
             $isActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
             $isInStock = $product["Quantity"] ?? 0;
             $isInStock = ($isInStock != 0) ? 1 : 0;
@@ -831,14 +830,16 @@
           $y["Shopping"]["Cart"][$shopID]["Products"] = [];
           $y["Shopping"]["History"][$shopID] = $history;
           $y["Verified"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
+          $message .= $this->core->Element(["p", json_encode($y, true)]);//TEMP
+          #$this->core->Data("Save", ["mbr", md5($you), $y]);
+          #$this->core->Data("Save", ["po", $shopID, $physicalOrders]);
          }
         }
        } else {
         $message = $this->core->Element([
          "p", "You are about to complete your purchase with <em>".$shop["Title"]."</em>. Please verify that the total listed below is accurate."
         ]);
+        $viewPairID = $data["ViewPairID"] ?? "";
        }
       } elseif($type == "Commission") {
        $changeData = [
@@ -1195,6 +1196,7 @@
           $message = $this->core->Element([
            "p", "Please click or tap <em>Back to hat</em> until you're back home, your Message will be pinned to the top of the Group Chat once you send it."
           ]);
+          $title = "Confirm Payment";
          }
         }
        } else {
@@ -1226,11 +1228,12 @@
        $extension = "83d6fedaa3fa042d53722ec0a757e910";
        $extension = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $extension;
       } else {
+       $title = $title ?? $shop["Title"];
        $changeData = [
         "[Payment.Message]" => $message,
         "[Payment.PayPal.ClientID]" => base64_decode($paypal["ClientID"]),
         "[Payment.Processor]" => base64_encode($processor),
-        "[Payment.Region]" => $this->core->region,
+        "[Payment.Region]" => $this->core->language,
         "[Payment.Shop]" => $shopID,
         "[Payment.Title]" => $shop["Title"],
         "[Payment.Token]" => $token,
@@ -1243,7 +1246,6 @@
         $extension = ($type == "PaidMessage") ? "cef54994324e1b9ba4f902791ecc3ee5" : $extension;
        } elseif($paymentProcessor == "PayPal") {
         $extension = "7c0f626e2bbb9bd8c04291565f84414a";
-        $extension = ($type == "PaidMessage") ? "2befd0118795807cec2b764febaeb06c" : $extension;
        }
       }
       $r = $this->core->Change([
@@ -1433,7 +1435,7 @@
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
         # V.I.P. Subscription
         foreach($y["Subscriptions"] as $sk => $sv) {
-         if(in_array($sk, ["Artist", "Blogger", "XFS"])) {
+         if($sk != "Developer") {
           $y["Subscriptions"][$sk] = [
            "A" => 1,
            "B" => $now,
@@ -1441,12 +1443,6 @@
           ];
          }
         }
-       } elseif($id == "5bfb3f44cdb9d3f2cd969a23f0e37093") {
-        $y["Subscriptions"]["XFS"] = [
-         "A" => 1,
-         "B" => $now,
-         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
-        ];
        } elseif($id == "c7054e9c7955203b721d142dedc9e540") {
         $y["Subscriptions"]["Artist"] = [
          "A" => 1,
@@ -1455,6 +1451,18 @@
         ];
        } elseif($id == "cc84143175d6ae2051058ee0079bd6b8") {
         $y["Subscriptions"]["Blogger"] = [
+         "A" => 1,
+         "B" => $now,
+         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
+        ];
+       } elseif($id == "e4302295d2812e4f374ef1035891c4d1") {
+        $y["Subscriptions"]["Developer"] = [
+         "A" => 1,
+         "B" => $now,
+         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
+        ];
+       } elseif($id == "5bfb3f44cdb9d3f2cd969a23f0e37093") {
+        $y["Subscriptions"]["XFS"] = [
          "A" => 1,
          "B" => $now,
          "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
