@@ -11,7 +11,7 @@
      "JSON" => "",
      "Web" => $this->core->Change([[
       "[Player.Title]" => "Free America Broadcasting"
-     ], $this->core->Extension("Player")])
+     ], $this->core->Extension("d17b1f6a69e6c27b7e0760099d99e2ca")])
     ],
     "ResponseType" => "View"
    ]);
