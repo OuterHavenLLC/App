@@ -350,6 +350,7 @@
        $newHistory[$key] = $value;
        $i++;
        $id = $product["ID"];
+       $orderID = $value["OrderID"] ?? "N/A";
        $media = $product["DLC"] ?? [];
        $pts = $this->core->config["PTS"]["Products"];
        if($category == "Architecture") {
@@ -381,6 +382,7 @@
         "[Product.ICO]" => $_Product["ListItem"]["CoverPhoto"],
         "[Product.Description]" => $_Product["ListItem"]["Description"],
         "[Product.Options]" => $opt,
+        "[Product.OrderID]" => $orderID,
         "[Product.Quantity]" => $quantity,
         "[Product.Title]" => $_Product["ListItem"]["Title"]
        ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
