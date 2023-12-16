@@ -140,7 +140,7 @@
     $accessCode = "Accepted";
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $id = md5($t["Login"]["Username"]);
-    $points = 1000;
+    $points = 10000;
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
     $shop = $this->core->FixMissing($shop, ["Title"]);
     $creditExchange = $this->Element([
@@ -155,11 +155,11 @@
       "[CreditExchange.YourPoints]" => $y["Points"]
      ], $this->core->Extension("b9c61e4806cf07c0068f1721678bef1e")]);
     }
-    $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? 0;
-    $discountCodes = ($discountCodes == 0) ? $this->core->Change([
+    $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? "";
+    $discountCodes = (empty($discountCodes)) ? $this->core->Change([
      [
       "[DiscountCodes.ID]" => $id,
-      "[DiscountCodes.Points]" => $points,
+      "[DiscountCodes.Points]" => base64_encode($discountCodes),
       "[DiscountCodes.Processor]" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
       "[DiscountCodes.Shop.Title]" => $shop["Title"]
      ], $this->core->Extension("0511fae6fcc6f9c583dfe7669b0217cc")

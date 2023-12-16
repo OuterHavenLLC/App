@@ -328,6 +328,7 @@
     $accessCode = "Accepted";
     $history = $y["Shopping"]["History"] ?? [];
     $history = $history[$id] ?? [];
+    $illegalContent = $this->core->config["App"]["Illegal"] ?? 777;
     $newHistory = [];
     $r = "";
     foreach(array_reverse($history) as $key => $value) {
@@ -341,13 +342,10 @@
      if($_Product["Empty"] == 0) {
       $opt = "";
       $product = $_Product["DataModel"];
-      $exp = $product["Expires"] ?? [
-       "Created" => $product["Created"],
-       "Quantity" => 1,
-       "TimeSpan" => "year"
-      ];
-      $ck = ($this->core->timestamp < $this->core->TimePlus($product["Created"], $exp["Quantity"], $exp["TimeSpan"])) ? 1 : 0;
-      if($ck == 1) {
+      $ck = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $illegal = $product["Illegal"] ?? 0;
+      $illegal = ($illegal >= $illegalContent) ? 1 : 0;
+      if($id == $this->core->ShopID || ($bl == 0 && $ck == 1 && $illegal == 0)) {
        $category = $product["Category"];
        $newHistory[$key] = $value;
        $i++;
@@ -365,7 +363,8 @@
        } elseif($category == "Subscription") {
         $subscriptions = $this->core->config["Subscriptions"] ?? [];
         $sub = ($id == $subscriptions["Artist"]["ID"]) ? "Artist" : "";
-        $sub = ($id == $subscriptions["Blogger"]["ID"]) ? "S-Blogger" : $subscription;
+        $sub = ($id == $subscriptions["Blogger"]["ID"]) ? "Developer" : $subscription;
+        $sub = ($id == $subscriptions["Developer"]["ID"]) ? "S-Blogger" : $subscription;
         $sub = ($id == $subscriptions["VIP"]["ID"]) ? "VIP" : $subscription;
         $sub = ($id == $subscriptions["XFS"]["ID"]) ? "XFS" : $subscription;
         $opt = $this->core->Element(["button", "Go to ".$subscriptions[$sub]["Title"], [
@@ -379,17 +378,11 @@
         "data-view" => base64_encode("v=".base64_encode("File:Download"))
        ]]) : "";
        $r .= $this->core->Change([[
-        "[Product.Added]" => $this->core->TimeAgo($v["Timestamp"]),
-        "[Product.ICO]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
-        "[Product.Description]" => $this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $product["Description"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ]),
+        "[Product.ICO]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Product.Description]" => $_Product["ListItem"]["Description"],
         "[Product.Options]" => $opt,
         "[Product.Quantity]" => $quantity,
-        "[Product.Title]" => $product["Title"]
+        "[Product.Title]" => $_Product["ListItem"]["Title"]
        ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       }
      }
@@ -800,6 +793,7 @@
             } else {
              array_push($history, [
               "ID" => $key,
+              "OrderID" => $orderID,
               "Quantity" => $quantity
              ]);
              foreach($bundle as $bundleID => $bundledProductID) {
@@ -831,8 +825,8 @@
           $y["Shopping"]["History"][$shopID] = $history;
           $y["Verified"] = 1;
           $message .= $this->core->Element(["p", json_encode($y, true)]);//TEMP
-          #$this->core->Data("Save", ["mbr", md5($you), $y]);
-          #$this->core->Data("Save", ["po", $shopID, $physicalOrders]);
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
          }
         }
        } else {
