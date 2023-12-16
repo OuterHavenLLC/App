@@ -196,7 +196,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $body = $data["Body"] ?? "";
+   $body = $data["Body"] ?? base64_encode("");
    $card = $data["Card"] ?? 0;
    $chatID = $data["ID"] ?? "";
    $chatID = $data["Username"] ?? $chatID;
@@ -402,6 +402,7 @@
        "[Chat.1on1]" => $oneOnOne,
        "[Chat.ActivityStatus]" => $active,
        "[Chat.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$atinput&ID="),
+       "[Chat.Body]" => $body,
        "[Chat.Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&AddTo=$at&Added=$at2&CARD=1&UN=".base64_encode($you)."&st=XFS"),
        "[Chat.Files.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
        "[Chat.DisplayName]" => $displayName,
