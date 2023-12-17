@@ -137,7 +137,7 @@
       "h3", "Subscriptions"
      ]);
      $subscriptions .= $subscriptionsList;
-     $subscriptions .= $this->core->Element(["h3", NULL, [
+     $subscriptions .= $this->core->Element(["div", NULL, [
       "class" => "NONAME",
       "style" => "height:2em"
      ]]);
