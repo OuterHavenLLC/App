@@ -6,7 +6,7 @@
  echo $oh->core->Change([[
   "[App.Content]" => $oh->core->Change([[
    "[FAB.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=7216072bbd437563e692cc7ff69cdb69"),
-   "[FAB.Listen]" => "http://fab.outerhaven.nyc:1776/stream.m3u"
+   "[FAB.Listen]" => base64_encode("v=".base64_encode("Subscription:FABPlayer"))
   ], $oh->core->Extension($extension)]),
   "[App.Description]" => $oh->core->config["App"]["Description"],
   "[App.Keywords]" => $oh->core->config["App"]["Keywords"],
