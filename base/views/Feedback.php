@@ -20,7 +20,7 @@
       "data-form" => ".FeedbackEditor$id",
       "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
      ]]);
-     $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
+     $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
      $title = $feedback["Subject"] ?? "New Feedback";
      if($feedback["UseParaphrasedQuestion"] == 1) {
@@ -58,7 +58,7 @@
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
     ]);
     if(!empty($id)) {
-     $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
+     $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
      $title = $feedback["Subject"] ?? "New Feedback";
      if($feedback["UseParaphrasedQuestion"] == 1) {
@@ -172,8 +172,8 @@
      "Sent" => $now
     ]);
     $this->core->Data("Save", [
-     "knowledge",
-     md5("KnowledgeBase-$now-".uniqid()),
+     "feedback",
+     md5("FeedbackBase-$now-".uniqid()),
      $feedback
     ]);
     $this->core->Statistic("FS");
@@ -212,7 +212,7 @@
    $you = $y["Login"]["Username"];
    if(!empty($data["Message"]) && !empty($id)) {
     $accessCode = "Accepted";
-    $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
+    $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
     if(!empty($data["ParaphrasedQuestion"])) {
      $feedback["ParaphrasedQuestion"] = $data["ParaphrasedQuestion"];
     } if(!empty($data["Priority"])) {
@@ -245,7 +245,7 @@
       "To" => $feedback["Email"]
      ]);
     }
-    $this->core->Data("Save", ["knowledge", $id, $feedback]);
+    $this->core->Data("Save", ["feedback", $id, $feedback]);
     $r = [
      "Body" => "Your response has been sent.",
      "Header" => "Done"
@@ -271,7 +271,7 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $accessCode = "Accepted";
-    $feedback = $this->core->Data("Get", ["knowledge", $id]) ?? [];
+    $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
     $r = "";
     $thread = $feedback["Thread"] ?? [];
     $tpl = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");

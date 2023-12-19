@@ -432,7 +432,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($pub == 1) {
-    $shops = $this->core->DatabaseSet("SHOP") ?? [];
+    $shops = $this->core->DatabaseSet("Shop");
     foreach($shops as $key => $value) {
      $shop = str_replace("nyc.outerhaven.shop.", "", $value);
      $shop = $this->core->Data("Get", ["shop", $shop]) ?? [];
@@ -1553,7 +1553,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $shops = $this->core->DatabaseSet("MBR");
+    $shops = $this->core->DatabaseSet("Member");
     $title = $data["Title"] ?? "";
     $i = 0;
     foreach($shops as $key => $value) {
@@ -1826,7 +1826,7 @@
     ];
    } elseif(!empty($username)) {
     $i = 0;
-    $members = $this->core->DatabaseSet("MBR");
+    $members = $this->core->DatabaseSet("Member");
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if(md5($username) == $value) {

@@ -156,7 +156,7 @@
      ], $this->core->Extension("b9c61e4806cf07c0068f1721678bef1e")]);
     }
     $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? "";
-    $discountCodes = (empty($discountCodes)) ? $this->core->Change([
+    $discountCodes = (empty($discountCodes) && $discountCodes != 0) ? $this->core->Change([
      [
       "[DiscountCodes.ID]" => $id,
       "[DiscountCodes.Points]" => base64_encode($discountCodes),

@@ -455,7 +455,7 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
-     $extensions = $this->core->DatabaseSet("Extensions") ?? [];
+     $extensions = $this->core->DatabaseSet("Extensions");
      foreach($extensions as $key => $value) {
       $value = str_replace("nyc.outerhaven.extension.", "", $value);
       $info = $this->core->Data("Get", ["extension", $value]) ?? [];
@@ -898,7 +898,7 @@
       $senators++;
      }
     } if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
-     $content = $this->core->DatabaseSet() ?? [];
+     $content = $this->core->DatabaseSet();
      $description = "";
      $illegalThreshold = $this->core->config["App"]["Illegal"] ?? 777;
      $options = "";

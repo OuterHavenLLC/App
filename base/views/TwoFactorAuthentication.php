@@ -26,7 +26,7 @@
      "Body" => "The email <strong>$email</strong> is not registered to any Member.",
      "[2FA.Error.ViewPairID]" => $data["ViewPairID"]
     ];
-    $members = $this->core->DatabaseSet("MBR") ?? [];
+    $members = $this->core->DatabaseSet("Member");
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
@@ -175,7 +175,7 @@
      $r = [
       "Body" => "The email <strong>$email</strong> is already in use."
      ];
-     $members = $this->core->DatabaseSet("MBR") ?? [];
+     $members = $this->core->DatabaseSet("Member");
      foreach($members as $key => $value) {
       $value = str_replace("nyc.outerhaven.mbr.", "", $value);
       $member = $this->core->Data("Get", ["mbr", $value]) ?? [];

@@ -445,7 +445,7 @@
     $i = 0;
     $isPublic = (in_array($category, ["CA", "JE"])) ? 1 : 0;
     $now = $this->core->timestamp;
-    $articles = $this->core->DatabaseSet("PG");
+    $articles = $this->core->DatabaseSet("Article");
     $title = $data["Title"] ?? "";
     foreach($articles as $key => $value) {
      $article = str_replace("nyc.outerhaven.pg.", "", $value);
@@ -720,7 +720,7 @@
    $y = $this->you;
    if(!empty($id) && !empty($mbr)) {
     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
-    $members = $this->core->DatabaseSet("MBR");
+    $members = $this->core->DatabaseSet("Member");
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if($i == 0) {

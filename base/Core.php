@@ -415,6 +415,26 @@
     }
    }
   }
+  function DataIndex(string $action, string $index, $data = []) {
+   if(!empty($action) && !empty($index)) {
+    $r = $this->DocumentRoot."/data/nyc.outerhaven.app.search-".strtolower($index);
+    if($action == "Get") {
+     if(!file_exists($r)) {
+      $r = json_encode([]);
+     } else {
+      $r = file_get_contents($r) ?? json_encode([]);
+     }
+     return json_decode($r, true);
+    } elseif($action == "Save") {
+     $data = $data ?? [];
+     if(!empty($data)) {
+      $r = fopen($r, "w+");
+      fwrite($r, json_encode($data, true));
+      fclose($r);
+     }
+    }
+   }
+  }
   function DatabaseSet($a = NULL) {
    $domain = "nyc.outerhaven";
    $list = array_diff(scandir($this->DocumentRoot."/data/"), [
@@ -422,32 +442,36 @@
     "..",
     "index.html",
     "index.php"
-   ]);
+   ]) ?? [];
    foreach($list as $key => $value) {
     if(!empty($a)) {
-     if($a == "BLG") {
+     if($a == "Article") {
+      $a = "$domain.pg.";
+     } elseif($a == "Blog") {
       $a = "$domain.blg.";
-     } elseif($a == "BlogPosts") {
+     } elseif($a == "BlogPost") {
       $a = "$domain.bp.";
      } elseif($a == "Chat") {
       $a = "$domain.chat.";
      } elseif($a == "Extensions") {
       $a = "$domain.extension.";
+     } elseif($a == "Feedback") {
+      $a = "$domain.feedback.";
      } elseif($a == "Files") {
       $a = "$domain.fs.";
-     } elseif($a == "KB") {
-      $a = "$domain.knowledge.";
+     } elseif($a == "Forum") {
+      $a = "$domain.pf.";
      } elseif($a == "MBR") {
       $a = "$domain.mbr.";
-     } elseif($a == "PF") {
-      $a = "$domain.pf.";
-     } elseif($a == "PG") {
-      $a = "$domain.pg.";
-     } elseif($a == "Polls") {
+     } elseif($a == "Member") {
+      $a = "$domain.mbr.";
+     } elseif($a == "Poll") {
       $a = "$domain.poll.";
+     } elseif($a == "Product") {
+      $a = "$domain.product.";
      } elseif($a == "Shop") {
       $a = "$domain.shop.";
-     } elseif($a == "SU") {
+     } elseif($a == "StatusUpdate") {
       $a = "$domain.su.";
      } if(strpos($value, $a) !== false) { 
       $list[$key] = $value;
@@ -1270,8 +1294,11 @@
    return $r;
   }
   function RenderSearchIndex(string $index) {
-   $indexs = $this->Data("Get", ["app", md5("Re:Search")]) ?? [];
-   $index = $indexs[$index] ?? [];
+   if(empty($index)) {
+    $index = [];
+   } else {
+    $index = $this->DataIndex("Get", $index);
+   }
    return $index;
   }
   function RenderView(string $data) {

@@ -426,7 +426,7 @@
    $you = $y["Login"]["Username"];
    if(!empty($callSign) || !empty($id)) {
     $accessCode = "Accepted";
-    $forums = $this->core->DatabaseSet("PF") ?? [];
+    $forums = $this->core->DatabaseSet("Forum");
     foreach($forums as $key => $value) {
      $forum = str_replace("nyc.outerhaven.pf.", "", $value);
      $forum = $this->core->Data("Get", ["pf", $forum]) ?? [];
@@ -692,7 +692,7 @@
     ];
    } elseif(!empty($id) && !empty($mbr)) {
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-    $members = $this->core->DatabaseSet("MBR");
+    $members = $this->core->DatabaseSet("Member");
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if($i == 0) {

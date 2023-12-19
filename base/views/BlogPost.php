@@ -57,7 +57,7 @@
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Profile"];
     $search = base64_encode("Search:Containers");
     $template = $post["TPL"] ?? "";
-    $templateOptions = $this->core->DatabaseSet("Extensions") ?? [];
+    $templateOptions = $this->core->DatabaseSet("Extensions");
     $templates = [];
     foreach($templateOptions as $key => $value) {
      if($value["Category"] == "BlogTemplate") {
@@ -132,7 +132,7 @@
    $you = $y["Login"]["Username"];
    if($pub == 1) {
     $accessCode = "Accepted";
-    $blogPosts = $this->core->DatabaseSet("BlogPosts");
+    $blogPosts = $this->core->DatabaseSet("BlogPost");
     foreach($blogPosts as $key => $value) {
      $blogPost = $this->core->Data("Get", ["bp", $value]) ?? [];
      if(($blogPost["ID"] == $postID || $callSignsMatch == 1) && $i == 0) {

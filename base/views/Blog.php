@@ -127,7 +127,7 @@
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
     $template = $blog["TPL"] ?? "";
-    $templateOptions = $this->core->DatabaseSet("Extensions") ?? [];
+    $templateOptions = $this->core->DatabaseSet("Extensions");
     $templates = [];
     $title = $blog["Title"] ?? "";
     foreach($templateOptions as $key => $value) {
@@ -205,7 +205,7 @@
    $you = $y["Login"]["Username"];
    if($pub == 1) {
     $accessCode = "Accepted";
-    $blogs = $this->core->DatabaseSet("BLG") ?? [];
+    $blogs = $this->core->DatabaseSet("Blog");
     foreach($blogs as $key => $value) {
      $value = str_replace("nyc.outerhaven.blg.", "", $value);
      $blog = $this->core->Data("Get", ["blg", $value]) ?? [];
@@ -391,7 +391,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $blogs = $this->core->DatabaseSet("BLG");
+    $blogs = $this->core->DatabaseSet("Blog");
     $coverPhoto = "";
     $coverPhotoSource = "";
     $i = 0;
@@ -619,7 +619,7 @@
     ];
    } elseif(!empty($id) && !empty($mbr)) {
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
-    $members = $this->core->DatabaseSet("MBR");
+    $members = $this->core->DatabaseSet("Member");
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if($i == 0) {
