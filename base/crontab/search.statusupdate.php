@@ -25,7 +25,6 @@
      $r .= $oh->core->Element(["p", implode(".", $database)."... OK"]);
     }
    }
-   }
   }
  }
  $r .= $oh->core->Element([
