@@ -18,7 +18,7 @@
   <div class="OHTB">
    <button class="Home" onclick="window.location='http://outerhaven.nyc';"></button>
   </div>
-  <div class="OHCC scr">
+  <div class="ContentFull scr">
    [App.Content]
   </div>
  </body>
