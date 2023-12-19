@@ -19,15 +19,11 @@
   $database = explode(".", $database);
   if(!empty($database[3]) && $database[3] != "cb3e432f76b38eaa66c7269d658bd7ea") {
    $data = $oh->core->Data("Get", [$database[2], $database[3]]) ?? [];
-   $info = [
-    "ID" => $database[3],
-    "Description" => $data["Description"],
-    "Keywords" => "",
-    "Title" => $data["Title"]
-   ];
-   if(!in_array($info, $index)) {
-    array_push($index, $info);
-    $r .= $oh->core->Element(["p", implode(".", $database)."... OK"]);
+   if(!empty($data)) {
+    if(!in_array($database[3], $index)) {
+     array_push($index, $database[3]);
+     $r .= $oh->core->Element(["p", implode(".", $database)."... OK"]);
+    }
    }
   }
  }

@@ -23,16 +23,12 @@
   if(!empty($database[3])) {
    $chat = $oh->core->Data("Get", [$database[2], $database[3]]) ?? [];
    $isGroup = $chat["Group"] ?? 0;
-   if(!in_array($database[3], $exclude) && $isGroup == 1) {
-    $info = [
-     "ID" => $database[3],
-     "Description" => $chat["Description"],
-     "Keywords" => "",
-     "Title" => $chat["Title"]
-    ];
-    if(!in_array($info, $index)) {
-     array_push($index, $info);
-     $r .= $oh->core->Element(["p", implode(".", $database)."... OK"]);
+   if(!empty($data)) {
+    if(!in_array($database[3], $exclude) && $isGroup == 1) {
+     if(!in_array($database[3], $index)) {
+      array_push($index, $database[3]);
+      $r .= $oh->core->Element(["p", implode(".", $database)."... OK"]);
+     }
     }
    }
   }

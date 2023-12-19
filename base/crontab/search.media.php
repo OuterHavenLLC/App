@@ -23,15 +23,11 @@
    if(!empty($fileSystem)) {
     foreach($fileSystem as $file => $info) {
      $id = $database[3].";$file";
-     $info = [
-      "ID" => $id,
-      "Description" => $info["Description"],
-      "Keywords" => "",
-      "Title" => $info["Name"]
-     ];
-     if(!in_array($info, $index)) {
-      array_push($index, $info);
-      $r .= $oh->core->Element(["p", "$id... OK"]);
+     if(!empty($data)) {
+      if(!in_array($id, $index)) {
+       array_push($index, $id);
+       $r .= $oh->core->Element(["p", "$id... OK"]);
+      }
      }
     }
    }

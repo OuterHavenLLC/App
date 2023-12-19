@@ -19,19 +19,12 @@
   $database = explode(".", $database);
   if(!empty($database[3])) {
    $data = $oh->core->Data("Get", [$database[2], $database[3]]) ?? [];
-   $body = $data["Body"] ?? "";
-   if(!empty($body)) {
-    $body = htmlentities($body);
-    $info = [
-     "ID" => $database[3],
-     "Description" => $body,
-     "Keywords" => "",
-     "Title" => $oh->core->Excerpt($body, 180)
-    ];
-    if(!in_array($info, $index)) {
-     array_push($index, $info);
+   if(!empty($data)) {
+    if(!in_array($database[3], $index)) {
+     array_push($index, $database[3]);
      $r .= $oh->core->Element(["p", implode(".", $database)."... OK"]);
     }
+   }
    }
   }
  }
