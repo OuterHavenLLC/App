@@ -284,8 +284,8 @@
      $xfsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
      $xfsLimit = $xfsLimit."MB";
      $xfsUsage = 0;
-     foreach($fs["Files"] as $key => $value) {
-      $xfsUsage = $xfsUsage + $value["Size"];
+     foreach($fs["Files"] as $key => $info) {
+      $xfsUsage = $xfsUsage + $info["Size"];
      }
      $xfsUsage = $this->core->ByteNotation($xfsUsage)."MB";
      $limit = $this->core->Change([["MB" => "", "," => ""], $xfsLimit]);
@@ -681,10 +681,10 @@
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     foreach($blogs as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
+     $bl = $this->core->CheckBlocked([$y, "Blogs", $value["ID"]]);
      $_Blog = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Blog;$value")
+      "ID" => base64_encode("Blog;".$value["ID"])
      ]);
      if($_Blog["Empty"] == 0) {
       $blog = $_Blog["DataModel"];
@@ -722,22 +722,20 @@
      if($_Member["Empty"] == 0) {
       $member = $_Member["DataModel"];
       $value["ID"] = $key;
-      if(!empty($member["Login"])) {
-       $message = $this->view(base64_encode("Profile:BulletinMessage"), [
-        "Data" => $value
-       ]);
-       $options = $this->view(base64_encode("Profile:BulletinOptions"), ["Data" => [
-        "Bulletin" => base64_encode(json_encode($value, true))
-       ]]);
-       array_push($msg, [
-        "[Bulletin.Date]" => base64_encode($this->core->TimeAgo($value["Sent"])),
-        "[Bulletin.From]" => base64_encode($_Member["ListItem"]["Title"]),
-        "[Bulletin.ID]" => base64_encode($key),
-        "[Bulletin.Message]" => base64_encode($this->core->RenderView($message)),
-        "[Bulletin.Options]" => base64_encode($this->core->RenderView($options)),
-        "[Bulletin.Picture]" => base64_encode($_Member["ListItem"]["Options"]["ProfilePicture"])
-       ]);
-      }
+      $message = $this->view(base64_encode("Profile:BulletinMessage"), [
+       "Data" => $value
+      ]);
+      $options = $this->view(base64_encode("Profile:BulletinOptions"), ["Data" => [
+       "Bulletin" => base64_encode(json_encode($value, true))
+      ]]);
+      array_push($msg, [
+       "[Bulletin.Date]" => base64_encode($this->core->TimeAgo($value["Sent"])),
+       "[Bulletin.From]" => base64_encode($_Member["ListItem"]["Title"]),
+       "[Bulletin.ID]" => base64_encode($key),
+       "[Bulletin.Message]" => base64_encode($this->core->RenderView($message)),
+       "[Bulletin.Options]" => base64_encode($this->core->RenderView($options)),
+       "[Bulletin.Picture]" => base64_encode($_Member["ListItem"]["Options"]["ProfilePicture"])
+      ]);
      }
     }
    } elseif($st == "CA" || $st == "PR") {
@@ -745,11 +743,11 @@
     $articles = $this->core->RenderSearchIndex("Article");
     $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
     foreach($articles as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
+     $bl = $this->core->CheckBlocked([$y, "Pages", $value["ID"]]);
      $_Article = $this->core->GetContentData([
       "BackTo" => $b2,
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Page;$value"),
+      "ID" => base64_encode("Page;".$value["ID"]),
       "ParentPage" => $lpg
      ]);
      if($_Article["Empty"] == 0) {
@@ -827,10 +825,10 @@
      $extension = $this->core->Extension($extension);
      $groups = $this->core->RenderSearchIndex("Chat");
      foreach($groups as $key => $group) {
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
+      $bl = $this->core->CheckBlocked([$y, "Group Chats", $group["ID"]]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Chat;$group"),
+       "ID" => base64_encode("Chat;".$group["ID"]),
        "Integrated" => $integrated
       ]);
       if($_Chat["Empty"] == 0) {
@@ -1322,7 +1320,7 @@
     $feedback = $this->core->RenderSearchIndex("Feedback");
     $extension = $this->core->Extension("e7c4e4ed0a59537ffd00a2b452694750");
     foreach($feedback as $key => $value) {
-     $feedback = $this->core->Data("Get", ["knowledge", $value]) ?? [];
+     $feedback = $this->core->Data("Get", ["feedback", $value["ID"]]) ?? [];
      $mesasge = $feedback["Thread"] ?? [];
      $mesasge = $feedback["Thread"][0] ?? [];
      $message = $feedback["Thread"][0]["Body"] ?? "";
@@ -1342,8 +1340,8 @@
       $title = $feedback["ParaphrasedQuestion"];
      }
      array_push($msg, [
-      "[Feedback.ID]" => base64_encode($value),
-      "[Feedback.Home]" => base64_encode(base64_encode("v=".base64_encode("Feedback:Home")."&ID=".$value)),
+      "[Feedback.ID]" => base64_encode($value["ID"]),
+      "[Feedback.Home]" => base64_encode(base64_encode("v=".base64_encode("Feedback:Home")."&ID=".$value["ID"])),
       "[Feedback.Message]" => base64_encode($message),
       "[Feedback.Modified]" => base64_encode($modified),
       "[Feedback.Resolved]" => base64_encode($resolved),
@@ -1355,15 +1353,15 @@
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $forums = $this->core->RenderSearchIndex("Forum");
     foreach($forums as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Forums", $value]);
+     $bl = $this->core->CheckBlocked([$y, "Forums", $value["ID"]]);
      $_Forum = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Forum;$value")
+      "ID" => base64_encode("Forum;".$value["ID"])
      ]);
      if($_Forum["Empty"] == 0) {
       $active = 0;
       $forum = $_Forum["DataModel"];
-      $manifest = $this->core->Data("Get", ["pfmanifest", $value]) ?? [];
+      $manifest = $this->core->Data("Get", ["pfmanifest", $value["ID"]]) ?? [];
       $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
       $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
       $ck = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
@@ -1588,10 +1586,10 @@
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     $members = $this->core->RenderSearchIndex("Member");
     foreach($members as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Members", $value]);
+     $bl = $this->core->CheckBlocked([$y, "Members", $value["ID"]]);
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Member;$value")
+      "ID" => base64_encode("Member;".$value["ID"])
      ]);
      $member = $_Member["DataModel"];
      if($_Member["Empty"] == 0) {
@@ -1630,10 +1628,7 @@
      $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
      $albums = $fs["Albums"] ?? [];
      foreach($albums as $key => $value) {
-      $cms = $this->core->Data("Get", [
-       "cms",
-       md5($t["Login"]["Username"])
-      ]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
       $tP = $t["Privacy"];
       $nsfw = $value["NSFW"] ?? $t["Privacy"]["NSFW"];
       $privacy = $value["Privacy"] ?? $t["Privacy"]["Albums"];
@@ -2025,10 +2020,7 @@
      $illegal = $value["Illegal"] ?? 0;
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      if($albumID == $value["AID"] && $bl == 0 && $illegal == 0) {
-      $source = $this->core->GetSourceFromExtension([
-       $t["Login"]["Username"],
-       $value
-      ]);
+      $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $value]);
       array_push($msg, [
        "[File.CoverPhoto]" => base64_encode($source),
        "[File.Title]" => base64_encode($value["Title"]),
@@ -2041,7 +2033,7 @@
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $index = $this->core->RenderSearchIndex("Media");
     foreach($index as $key => $value) {
-     $value = explode(";", $value);
+     $value = explode(";", $value["ID"]);
      $bl = $this->core->CheckBlocked([$y, "Members", $value[0]]);;
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2075,17 +2067,19 @@
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
     $polls = $this->core->RenderSearchIndex("Poll");
     foreach($polls as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Polls", $value]);
+     $bl = $this->core->CheckBlocked([$y, "Polls", $value["ID"]]);
      $_Poll = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Poll;$value")
+      "ID" => base64_encode("Poll;".$value["ID"])
      ]);
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
       $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-       $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
+       $extension = $this->core->Element([
+        "div", $extension, ["class" => "K4i Poll".$value["ID"]]
+       ]);
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", $blockCommand, [
@@ -2121,8 +2115,8 @@
         if($notAnon == 0 || $youVoted == 0) {
          $option = $this->core->Element(["button", $option, [
           "class" => "LI UpdateContent",
-          "data-container" => ".Poll$value",
-          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($value))
+          "data-container" => ".Poll".$value["ID"],
+          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($value["ID"]))
          ]]);
         }
         $vote .= $option;
@@ -2130,7 +2124,7 @@
        array_push($msg, [
         "[Poll.BlockOrDelete]" => base64_encode($blockOrDelete),
         "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
-        "[Poll.ID]" => base64_encode($value),
+        "[Poll.ID]" => base64_encode($value["ID"]),
         "[Poll.Share]" => base64_encode($options["Share"]),
         "[Poll.Title]" => base64_encode($_Poll["ListItem"]["Title"]),
         "[Poll.Vote]" => base64_encode($vote)
@@ -2143,7 +2137,7 @@
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $members = $this->core->RenderSearchIndex("Member");
     foreach($members as $key => $value) {
-     $value = $this->core->Data("Get", ["mbr", $value]) ?? [];
+     $value = $this->core->Data("Get", ["mbr", $value["ID"]]) ?? [];
      if(!empty($value["Login"])) {
       $them = $value["Login"]["Username"];
       if($notAnon == 1) {
@@ -2199,12 +2193,12 @@
      $card = base64_encode("Shop:Home");
      $shops = $this->core->RenderSearchIndex("Shop");
      foreach($shops as $key => $value) {
-      $t = (md5($you) == $value) ? $y : $this->core->Data("Get", ["mbr", $value]);
+      $t = (md5($you) == $value["ID"]) ? $y : $this->core->Data("Get", ["mbr", $value["ID"]]);
       $them = $t["Login"]["Username"];
       $bl = $this->core->CheckBlocked([$y, "Members", $them]);
       $_Shop = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Shop;$value"),
+       "ID" => base64_encode("Shop;".$value["ID"]),
        "Owner" => $them
       ]);
       if($_Shop["Empty"] == 0) {
@@ -2233,16 +2227,10 @@
    } elseif($st == "SHOP-InvoicePresets") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
-    $shop = $this->core->Data("Get", [
-     "shop",
-     $data["Shop"]
-    ]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     foreach($invoicePresets as $key => $value) {
-     $preset = $this->core->Data("Get", [
-      "invoice-preset",
-      $value
-     ]) ?? [];
+     $preset = $this->core->Data("Get", ["invoice-preset", $value]) ?? [];
      $options = $this->core->Element(["button", "Delete", [
       "class" => "A OpenDialog v2",
       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteService")."&ID=$value&Shop=".$data["Shop"])
@@ -2257,17 +2245,11 @@
     }
    } elseif($st == "SHOP-Invoices") {
     $accessCode = "Accepted";
-    $shop = $this->core->Data("Get", [
-     "shop",
-     $data["Shop"]
-    ]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
     $invoices = $shop["Invoices"] ?? [];
     $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
     foreach($invoices as $key => $value) {
-     $invoice = $this->core->Data("Get", [
-      "invoice",
-      $value
-     ]) ?? [];
+     $invoice = $this->core->Data("Get", ["invoice", $value]) ?? [];
      if(!empty($invoice)) {
       $options = $this->core->Element(["button", "Forward", [
        "class" => "OpenCard v2",
@@ -2348,7 +2330,7 @@
     foreach($statusUpdates as $key => $value) {
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("StatusUpdate;$value")
+      "ID" => base64_encode("StatusUpdate;".$value["ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
       $update = $_StatusUpdate["DataModel"];
@@ -2357,7 +2339,7 @@
       $illegal = $update["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($check == 1 || ($bl == 0 && $illegal == 0)) {
-       $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
+       $bl = $this->core->CheckBlocked([$y, "Status Updates", $value["ID"]]);
        $from = $from ?? $this->core->ID;
        if($bl == 0 || $from == $you) {
         $attachments = "";
@@ -2393,12 +2375,12 @@
          $edit = ($from == $you) ? $this->core->Element([
           "button", "Delete", [
            "class" => "InnerMargin OpenDialog",
-           "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($value))
+           "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($value["ID"]))
           ]
          ]).$this->core->Element([
           "button", "Edit", [
            "class" => "InnerMargin OpenCard",
-           "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$value"))
+           "data-view" => base64_encode(base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=".$value["ID"]))
           ]
          ]) : "";
          array_push($msg, [
