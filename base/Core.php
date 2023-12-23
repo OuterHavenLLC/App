@@ -391,24 +391,25 @@
   }
   function Data(string $action, array $data) {
    if(!empty($data)) {
-    $r = $this->DocumentRoot."/data/nyc.outerhaven.".$data[0];
-    $r .= (!empty($data[1])) ? ".".$data[1] : "";
+    $dataFile = $this->DocumentRoot."/data/nyc.outerhaven.".$data[0];
+    $dataFile .= (!empty($data[1])) ? ".".$data[1] : "";
     if($action == "Get") {
-     if(!file_exists($r)) {
+     if(!file_exists($dataFile)) {
       $r = json_encode([]);
      } else {
-      $r = file_get_contents($r);
+      $r = fopen($dataFile, "r");
+      $r = fread($r, filesize($dataFile));
       $r = $this->Decrypt($r) ?? json_encode([]);
      }
      return json_decode($r, true);
     } elseif($action == "Purge") {
-     if(file_exists($r)) {
-      unlink($r);
+     if(file_exists($dataFile)) {
+      unlink($dataFile);
      }
     } elseif($action == "Save") {
      $data[2] = $data[2] ?? [];
      if(!empty($data[2])) {
-      $r = fopen($r, "w+");
+      $r = fopen($dataFile, "w+");
       fwrite($r, $this->Encrypt(json_encode($data[2], true)));
       fclose($r);
      }
@@ -417,18 +418,19 @@
   }
   function DataIndex(string $action, string $index, $data = []) {
    if(!empty($action) && !empty($index)) {
-    $r = $this->DocumentRoot."/data/nyc.outerhaven.app.search-".strtolower($index);
+    $dataFile = $this->DocumentRoot."/data/nyc.outerhaven.app.search-".strtolower($index);
     if($action == "Get") {
-     if(!file_exists($r)) {
+     if(!file_exists($dataFile)) {
       $r = json_encode([]);
      } else {
-      $r = file_get_contents($r) ?? json_encode([]);
+      $r = fopen($dataFile, "r");
+      $r = fread($r, filesize($dataFile))?? json_encode([]);
      }
      return json_decode($r, true);
     } elseif($action == "Save") {
      $data = $data ?? [];
      if(!empty($data)) {
-      $r = fopen($r, "w+");
+      $r = fopen($dataFile, "w+");
       fwrite($r, json_encode($data, true));
       fclose($r);
      }
@@ -1400,9 +1402,6 @@
      $i++;
     }
    } if(count($keys) == $i) {
-    require_once(__DIR__."/mail/src/PHPMailer.php");
-    require_once(__DIR__."/mail/src/SMTP.php");
-    $mail = new PHPMailer(true);
     try {
      $email = $this->cypher->MailCredentials();
      $message = $this->Element([
@@ -1414,30 +1413,18 @@
        "body", $a["Message"]
       ])
      ]);
-     $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-     $mail->isSMTP();
-     $mail->Host = $email["Host"];
-     $mail->Username = base64_decode($email["Username"]);
-     $mail->Password = base64_decode($email["Password"]);
-     $mail->SMTPAuth = true;
-     $mail->SMTPOptions = [
-      "ssl" => [
-        "verify_peer" => false,
-        "verify_peer_name" => false,
-        "allow_self_signed" => true
-      ]
-     ];
-     #$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-     $mail->Port = 25;
-     $mail->setFrom(base64_decode($email["Username"]), "Do Not Reply");
-     $mail->addAddress($a["To"]);
-     $mail->addReplyTo(base64_decode($email["Username"]), "Do Not Reply");
-     $mail->isHTML(true);
-     $mail->Subject = $a["Title"];
-     $mail->Body  = $message;
-     $mail->AltBody = htmlentities($message);
-     $mail->send();
+     $email = json_encode([
+      "Message" => base64_encode($message),
+      "Password" => $email["Password"],
+      "Title" => $a["Title"],
+      "To" => $a["To"]
+     ], true);
+     $cURL = curl_init("https://mail.outerhaven.nyc/send.php");
+     curl_setopt($cURL, CURLOPT_POSTFIELDS, $email);
+     curl_setopt($cURL, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
+     curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+     return curl_exec($cURL);
+     curl_close($cURL);
     } catch(Exception $error) {
      return $this->Element([
       "p", "Failed to send mail: ".$error->getMessage()
