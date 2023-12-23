@@ -40,6 +40,9 @@
  ]).$oh->core->Element([
   "p", "Done"
  ]);
- echo $r;//TEMP
- // SEND AS EMAIL
+ $oh->core->SendEmail([
+  "Message" => $r,
+  "Title" => $oh->core->config["App"]["Name"]." $categiry Re:Search Index",
+  "To" => "mike@outerhaven.nyc"
+ ]);
 ?>

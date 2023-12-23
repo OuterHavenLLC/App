@@ -1403,7 +1403,6 @@
     }
    } if(count($keys) == $i) {
     try {
-     $email = $this->cypher->MailCredentials();
      $message = $this->Element([
       "html", $this->Element([
        "head", $this->Element([
@@ -1413,13 +1412,14 @@
        "body", $a["Message"]
       ])
      ]);
+     $email = $this->cypher->MailCredentials();
      $email = base64_encode(json_encode([
       "Message" => base64_encode($message),
       "Password" => $email["Password"],
       "Title" => $a["Title"],
       "To" => $a["To"],
       "Username" => $email["Username"]
-     ], true));
+     ]));
      $cURL = curl_init("https://mail.outerhaven.nyc/send.php");
      curl_setopt($cURL, CURLOPT_POSTFIELDS, $email);
      curl_setopt($cURL, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
