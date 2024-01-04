@@ -100,4 +100,24 @@ Outer Haven is a fully-Constitutional social media platform where every Member i
 * Subscriptions (Artist, Blogger, Developer, File Uploads, VIP)
 * We've got much more in the works!
 
+# Cron Tab
+Below is the cron tab configuration we have set up to efficiently maintain the server and (re-)establish Re:Search indexes.
+
+## Example
+MAILTO=""
+@daily /bin/bash /home/mike/Upkeep.sh
+@hourly /usr/bin/php /var/www/html/base/crontab/purge.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.blog.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.chat.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.feedback.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.forum.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.media.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.member.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.poll.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.product.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.shop.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.statusupdate.php
+@hourly /usr/bin/php /var/www/html/base/crontab/thumbnails.php
+@reboot /bin/bash /home/mike/Upkeep.sh
+
 We welcome your feedback regarding bugs and general suggestions via the Company Feedback form.

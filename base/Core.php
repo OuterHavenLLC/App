@@ -1421,7 +1421,7 @@
       "Username" => $email["Username"]
      ]));
      $cURL = curl_init("https://mail.outerhaven.nyc/send.php");
-     curl_setopt($cURL, CURLOPT_POSTFIELDS, $email);
+     curl_setopt($cURL, CURLOPT_POSTFIELDS, ["RequiredData" => $email]);
      curl_setopt($cURL, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
      curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
      return curl_exec($cURL);
