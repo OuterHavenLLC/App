@@ -30,6 +30,7 @@
    $mail->Host = base64_decode($requiredData["Host"]);
    $mail->Port = 587;
    $mail->SMTPAuth = true;
+   $mail->SMTPSecure = SMTP::STARTTLS;
    $mail->Username = base64_decode($requiredData["Username"]);
    $mail->Password = base64_decode($requiredData["Password"]);
    $mail->setFrom(base64_decode($requiredData["Username"]), "Do Not Reply");
