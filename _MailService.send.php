@@ -11,10 +11,8 @@
   "To",
   "Username"
  ];
- $requiredData = $data["RequiredData"] ?? base64_encode(json_encode([]));
- $requiredData = json_decode(base64_decode($requiredData));
  foreach($required as $key) {
-  if(empty($requiredData[$key])) {
+  if(empty($data[$key])) {
    $i++;
    $missingInputs .= "$key, ";
   }
@@ -27,17 +25,17 @@
    $mail = new PHPMailer();
    $mail->isSMTP();
    $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-   $mail->Host = base64_decode($requiredData["Host"]);
+   $mail->Host = base64_decode($data["Host"]);
    $mail->Port = 587;
    $mail->SMTPAuth = true;
    $mail->SMTPSecure = SMTP::STARTTLS;
-   $mail->Username = base64_decode($requiredData["Username"]);
-   $mail->Password = base64_decode($requiredData["Password"]);
-   $mail->setFrom(base64_decode($requiredData["Username"]), "Do Not Reply");
-   $mail->addAddress(base64_decode($requiredData["To"]));
-   $mail->Subject = base64_decode($requiredData["Title"]);
-   $mail->msgHTML(base64_decode($requiredData["Message"]));
-   $mail->AltBody = htmlentities(base64_decode($requiredData["Message"]));
+   $mail->Username = base64_decode($data["Username"]);
+   $mail->Password = base64_decode($data["Password"]);
+   $mail->setFrom(base64_decode($data["Username"]), "Do Not Reply");
+   $mail->addAddress(base64_decode($data["To"]));
+   $mail->Subject = base64_decode($data["Title"]);
+   $mail->msgHTML(base64_decode($data["Message"]));
+   $mail->AltBody = htmlentities(base64_decode($data["Message"]));
    if(!$mail->send()) {
     echo "<p>Could not send mail: ".$mail->ErrorInfo."</p>";
    }

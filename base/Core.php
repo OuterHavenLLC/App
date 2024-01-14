@@ -1412,20 +1412,21 @@
        "body", $a["Message"]
       ])
      ]);
-     $email = $this->cypher->MailCredentials();
-     $email = base64_encode(json_encode([
-      "Host" => $email["Host"],
+     $data = $this->cypher->MailCredentials();
+     $data = [
+      "Host" => $data["Host"],
       "Message" => base64_encode($message),
-      "Password" => $email["Password"],
-      "Title" => $a["Title"],
-      "To" => $a["To"],
-      "Username" => $email["Username"]
-     ], true));
+      "Password" => $data["Password"],
+      "Title" => base64_encode($a["Title"]),
+      "To" => base64_encode($a["To"]),
+      "Username" => $data["Username"]
+     ];
      $cURL = curl_init("https://mail.outerhaven.nyc/send.php");
-     curl_setopt($cURL, CURLOPT_POSTFIELDS, ["RequiredData" => $email]);
-     curl_setopt($cURL, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
+     curl_setopt($cURL, CURLOPT_HTTPHEADER, ["Content-Type: multipart/form-data"]);
+     curl_setopt($cURL, CURLOPT_POSTFIELDS, $data);
      curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
-     return curl_exec($cURL);
+     die(curl_exec($cURL));//TEMP
+     #curl_exec($cURL);
      curl_close($cURL);
     } catch(Exception $error) {
      return $this->Element([
