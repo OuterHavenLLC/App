@@ -28,7 +28,7 @@
    $mail->Host = base64_decode($data["Host"]);
    $mail->Port = 587;
    $mail->SMTPAuth = true;
-   $mail->SMTPSecure = SMTP::STARTTLS;
+   $mail->SMTPSecure = "tls";
    $mail->Username = base64_decode($data["Username"]);
    $mail->Password = base64_decode($data["Password"]);
    $mail->setFrom(base64_decode($data["Username"]), "Do Not Reply");
@@ -37,10 +37,10 @@
    $mail->msgHTML(base64_decode($data["Message"]));
    $mail->AltBody = htmlentities(base64_decode($data["Message"]));
    if(!$mail->send()) {
-    echo "<p>Could not send mail: ".$mail->ErrorInfo."</p>";
+    die("<p>Could not send mail: ".$mail->ErrorInfo."</p>");
    }
   } catch(Exception $error) {
-   echo "<p>Could not send mail: ".$error->getMessage()."</p>";
+   die("<p>Could not send mail: ".$error->getMessage()."</p>");
   }
  }
 ?>

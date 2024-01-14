@@ -1425,8 +1425,7 @@
      curl_setopt($cURL, CURLOPT_HTTPHEADER, ["Content-Type: multipart/form-data"]);
      curl_setopt($cURL, CURLOPT_POSTFIELDS, $data);
      curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
-     die(curl_exec($cURL));//TEMP
-     #curl_exec($cURL);
+     curl_exec($cURL);
      curl_close($cURL);
     } catch(Exception $error) {
      return $this->Element([
