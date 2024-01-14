@@ -1414,6 +1414,7 @@
      ]);
      $email = $this->cypher->MailCredentials();
      $email = base64_encode(json_encode([
+      "Host" => $email["Host"],
       "Message" => base64_encode($message),
       "Password" => $email["Password"],
       "Title" => $a["Title"],

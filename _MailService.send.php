@@ -4,6 +4,7 @@
  $i = 0;
  $missingInputs = "";
  $required = [
+  "Host",
   "Message",
   "Password",
   "Title",
