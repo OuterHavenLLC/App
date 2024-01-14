@@ -21,14 +21,12 @@
   die("<p>The following data is missing: ".substr($missingInputs, 0, -2).".</p>");
  } else {
   try {
-   //use PHPMailer\PHPMailer\PHPMailer;
-   //use PHPMailer\PHPMailer\SMTP;
    require_once("/var/www/html/_send/src/PHPMailer.php");
    require_once("/var/www/html/_send/src/SMTP.php");
    $mail = new PHPMailer();
    $mail->isSMTP();
    $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-   $mail->Host = "mail.outerhaven.nyc";
+   $mail->Host = base64_decode($requiredData["Host"]);
    $mail->Port = 587;
    $mail->SMTPAuth = true;
    $mail->Username = base64_decode($requiredData["Username"]);
