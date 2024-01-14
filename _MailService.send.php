@@ -10,21 +10,21 @@
   "To",
   "Username"
  ];
- $requiredData = $data["RequiredData"] ?? json_encode([]);
+ $requiredData = $data["RequiredData"] ?? base64_encode(json_encode([]));
+ $requiredData = json_decode(base64_decode($requiredData));
  foreach($required as $key) {
   if(empty($requiredData[$key])) {
    $i++;
-   $missingInputs.= "$key, ";
+   $missingInputs .= "$key, ";
   }
  } if($i > 0) {
-  echo "<p>The following data is missing: ".substr($missingInputs, 0, -2).".</p>";
+  die("<p>The following data is missing: ".substr($missingInputs, 0, -2).".</p>");
  } else {
-  $requiredData = json_decode($requiredData);
   try {
-   use PHPMailer\PHPMailer\PHPMailer;
-   use PHPMailer\PHPMailer\SMTP;
-   require_once(__DIR__."/_send/src/PHPMailer.php");
-   require_once(__DIR__."/_send/src/SMTP.php");
+   //use PHPMailer\PHPMailer\PHPMailer;
+   //use PHPMailer\PHPMailer\SMTP;
+   require_once("/var/www/html/_send/src/PHPMailer.php");
+   require_once("/var/www/html/_send/src/SMTP.php");
    $mail = new PHPMailer();
    $mail->isSMTP();
    $mail->SMTPDebug = SMTP::DEBUG_SERVER;

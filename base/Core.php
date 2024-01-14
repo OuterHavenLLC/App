@@ -1419,7 +1419,7 @@
       "Title" => $a["Title"],
       "To" => $a["To"],
       "Username" => $email["Username"]
-     ]));
+     ], true));
      $cURL = curl_init("https://mail.outerhaven.nyc/send.php");
      curl_setopt($cURL, CURLOPT_POSTFIELDS, ["RequiredData" => $email]);
      curl_setopt($cURL, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
