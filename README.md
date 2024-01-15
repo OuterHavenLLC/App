@@ -118,6 +118,7 @@ MAILTO=""
 @hourly /usr/bin/php /var/www/html/base/crontab/search.shop.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.statusupdate.php
 @hourly /usr/bin/php /var/www/html/base/crontab/thumbnails.php
+@hourly /usr/bin/php /var/www/html/base/crontab/crontab.php
 @reboot /bin/bash /home/mike/Upkeep.sh
 
 We welcome your feedback regarding bugs and general suggestions via the Company Feedback form.

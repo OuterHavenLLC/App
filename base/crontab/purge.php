@@ -8,9 +8,5 @@
  ]).$oh->core->Element([
   "p", "Eliminates primary databases marked for purging, and deletes associated files for media marked for purging."]);
  $r .= $oh->core->Element(["p", "Done"]);
- $oh->core->SendEmail([
-  "Message" => $r,
-  "Title" => $oh->core->config["App"]["Name"]." Content Purge",
-  "To" => "mike@outerhaven.nyc"
- ]);
+ echo $r;
 ?>

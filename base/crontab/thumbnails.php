@@ -57,9 +57,5 @@
   }
  }
  $r .= $oh->core->Element(["p", "Done"]);
- $oh->core->SendEmail([
-  "Message" => $r,
-  "Title" => $oh->core->config["App"]["Name"]." Thumbnail Assurance",
-  "To" => "mike@outerhaven.nyc"
- ]);
+ echo $r;
 ?>
