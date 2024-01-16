@@ -35,6 +35,6 @@
  ]);
  $oh->core->SendEmail([
   "Message" => $r,
-  "Title" => $oh->core->config["App"]["Name"]." Thumbnail Assurance",
+  "Title" => "Cron Jobs Executed!",
   "To" => "mike@outerhaven.nyc"
  ]);
