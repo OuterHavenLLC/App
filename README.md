@@ -8,14 +8,17 @@ This release focuses on search—both inside and outside the platform, content c
 
 ### Re:Search
 * Refined content visibility across the platform.
-* Streamlined and built upon the search experience.
-* Added the ability to submit and index external sites.
-* More, TBA
+* Streamlined and built upon the Re:Search experience.
+* Added the ability to submit and index external sites. (TBA)
 
 ### Shops
 * Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
 * The Shopping History is now properly documented in real-time.
 * The Checkout and Paid Messages workflow via PayPal have been streamlined, and now use the Parent-View structure.
+
+### Status Updates (working on it...)
+* Members of Congress may now contribute Congressional Notes to add context.
+* Congressional Notes may be voted upon, and the one with the highest vote rank will be attached to the Status Update until another overtakes it.
 
 ### Platform Improvements
 * A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job.
@@ -23,6 +26,7 @@ This release focuses on search—both inside and outside the platform, content c
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
 * A new content creation tool (represented by a ( + ) button at the bottom-right when signed in) creates a central hub where many of the common content types may be created from.
+* The Mail Service is now integrated and fully operational.
 
 ## 1.2: Democracy
 ### Release Notes

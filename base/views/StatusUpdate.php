@@ -296,6 +296,7 @@
      "Data" => ["ID" => $id]
     ]);
     $this->core->Data("Purge", ["local", $id]);
+    $this->core->Data("Purge", ["notes", $id]);
     $this->core->Data("Purge", ["votes", $id]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["stream", md5($you), $stream]);
