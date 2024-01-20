@@ -19,6 +19,8 @@
  ]).$oh->core->Element([
   "p", "&bull; Forum Index"
  ]).$oh->core->Element([
+  "p", "&bull; Links Index (coming soon...)"
+ ]).$oh->core->Element([
   "p", "&bull; Media Index"
  ]).$oh->core->Element([
   "p", "&bull; Member Index"

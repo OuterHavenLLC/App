@@ -197,6 +197,10 @@
      $h = "Knowledge Base";
      $lis = "Search Q&As";
      $extension = "8568ac7727dae51ee4d96334fa891395";
+    } elseif($st == "Links") {
+     $h = "Links";
+     $lis = "Search Links";
+     $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($st == "Mainstream") {
      $h = "The ".$st;
      $lis = "Search the Mainstream";
@@ -423,6 +427,49 @@
      "Data" => ["Content" => $r]
     ]);
     $r = $this->core->RenderView($r);
+   }
+   $r = ($card == 1) ? [
+    "Front" => $r
+   ] : $r;
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function Links(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $add = $data["Add"] ?? "";
+   $preview = $data["Preview"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($add)) {
+    $data = $this->core->DecodeBridgeData($data);
+    $link = $data["Link"] ?? "";
+    if(!empty($link)) {
+     // Get DOM data from Link if the format is correct.
+    }
+   } elseif($preview == 1) {
+    $accessCode = "Accepted";
+    $r = $this->core->Element(["h4", "Preview", [
+     "class" => "CenterText UpperCase"
+    ]]).$this->core->Element([
+     "p", "Please enter a web address in the input to get a preview of how it will be listed via the Discover menu or Re:Search.",
+     ["class" => "CenterText"]
+    ]);
+   } else {
+    $accessCode = "Accepted";
+    $r = $this->core->Element(["h1", "Add a Link"]);
+    // Add a Link Card
    }
    $r = ($card == 1) ? [
     "Front" => $r
@@ -1521,6 +1568,8 @@
       }
      }
     }
+   } elseif($st == "Links") {
+    $accessCode = "Accepted";
    } elseif($st == "Mainstream") {
     $accessCode = "Accepted";
     $edit = base64_encode("StatusUpdate:Edit");

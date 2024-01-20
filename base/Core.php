@@ -215,6 +215,7 @@
       "Forums-Admin",
       "Forums-Posts",
       "Knowledge",
+      "Links",
       "Mainstream",
       "MBR",
       "MBR-ALB",
