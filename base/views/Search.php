@@ -1570,6 +1570,7 @@
     }
    } elseif($st == "Links") {
     $accessCode = "Accepted";
+    $extension = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
    } elseif($st == "Mainstream") {
     $accessCode = "Accepted";
     $edit = base64_encode("StatusUpdate:Edit");
