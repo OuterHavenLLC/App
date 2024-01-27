@@ -38,6 +38,9 @@
     ]]).$this->core->Element(["button", "Group Chat", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you))
+    ]]).$this->core->Element(["button", "Link", [
+     "class" => "LI OpenFirSTEPTool",
+     "data-fst" => base64_encode("v=".base64_encode("Search:Links"))
     ]]).$this->core->Element(["button", "Media", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=".md5("unsorted"))
