@@ -198,17 +198,21 @@
      $lis = "Search Q&As";
      $extension = "8568ac7727dae51ee4d96334fa891395";
     } elseif($st == "Links") {
+     $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $h = "Links";
      $lis = "Search Links";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $lo = $this->core->Element(["button", "+", [
+      "class" => "OpenFirSTEPTool v2",
+      "data-fst" => base64_encode("v=".base64_encode("Search:Links"))
+     ]]);
     } elseif($st == "Mainstream") {
+     $extension = "f2513ac8d0389416b680c75ed5667774";
      $h = "The ".$st;
      $lis = "Search the Mainstream";
      $lo = $this->core->Element(["button", "Say Something", [
       "class" => "BBB MobileFull OpenCard v2 v2w",
-      "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($y["Login"]["Username"]))
+      "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
      ]]);
-     $extension = "f2513ac8d0389416b680c75ed5667774";
     } elseif($st == "MBR") {
      $h = "Members";
      $lis = "Search Members";
@@ -471,9 +475,6 @@
     $r = $this->core->Element(["h1", "Add a Link"]);
     // Add a Link Card
    }
-   $r = ($card == 1) ? [
-    "Front" => $r
-   ] : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -2515,6 +2516,7 @@
      "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
      "[ReSearch.Chat]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
      "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
+     "[ReSearch.Links]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Links"),
      "[ReSearch.Media]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Media"),
      "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
      "[ReSearch.Query]" => $query,
