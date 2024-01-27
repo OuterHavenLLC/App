@@ -460,20 +460,22 @@
     $data = $this->core->DecodeBridgeData($data);
     $link = $data["Link"] ?? "";
     if(!empty($link)) {
-     // Get DOM data from Link if the format is correct.
+     // Validate Link, get DOM data from source if the format is correct, add to Links index.
     }
    } elseif($preview == 1) {
     $accessCode = "Accepted";
-    $r = $this->core->Element(["h4", "Preview", [
-     "class" => "CenterText UpperCase"
-    ]]).$this->core->Element([
-     "p", "Please enter a web address in the input to get a preview of how it will be listed via the Discover menu or Re:Search.",
-     ["class" => "CenterText"]
-    ]);
+    $r = $this->core->Extension("e057199ee0c4a5f556a30cb990521485");
+    if(!empty($link)) {
+     // VALIDATE LINK AND RENDER PREVIEW
+     $r = $this->core->Change([[
+     ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
+    }
    } else {
     $accessCode = "Accepted";
-    $r = $this->core->Element(["h1", "Add a Link"]);
-    // Add a Link Card
+    $r = $this->core->Change([[
+     "[Link.Preview]" => base64_encode("v=".base64_encode("Search:Links")."&Preview=1"),
+     "[Link.Save]" => base64_encode("v=".base64_encode("Search:Links"))
+    ], $this->core->Extension("f5b2784b0bcc291432a3d2dafa33849a")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

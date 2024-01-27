@@ -216,7 +216,7 @@
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
-     "Web" => $r
+     "Web" => $this->you["Login"]["Username"].": ".md5("Mike").$r
     ],
     "ResponseType" => "View"
    ]);
@@ -282,10 +282,10 @@
       $this->core->Data("Save", ["pfmanifest", $sonsOfLiberty, $manifest]);
      }
     }
+    $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
     $y["Personal"]["Language"] = $language;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["shop", md5($you), $shop]);
-    $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
    }
    $r = $this->core->Change([[
     "[App.Content]" => $content,
