@@ -216,7 +216,7 @@
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
-     "Web" => $this->you["Login"]["Username"].": ".md5("Mike").$r
+     "Web" => $r
     ],
     "ResponseType" => "View"
    ]);
