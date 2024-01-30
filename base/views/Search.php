@@ -739,7 +739,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forums") {
-       $forum = $this->core->Data("Get", ["pf", $v]) ?? [];
+       $forum = $this->core->Data("Get", ["pf", $value]) ?? [];
        $de = $forum["Description"];
        $h = "<em>".$forum["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $h", [
@@ -755,11 +755,11 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Links") {
-       $de = "{link_description}";
-       $h = "<em>{link_name}</em>";
-       $vi = $this->core->Element(["button", "View $h's Profile", [
-        "class" => "BB v2 v2w",
-        "data-type" => base64_encode("#")
+       $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
+       $de = $links[$value]["Description"] ?? "";
+       $vi = $this->core->Element(["button", "Visit <em>$value</em>", [
+        "class" => "v2 v2w",
+        "onclick" => "W('$value', '_blank');"
        ]]);
       } elseif($bl == "Members") {
        $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
@@ -1661,6 +1661,25 @@
    } elseif($st == "Links") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
+    $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
+    foreach($links as $link => $info) {
+     $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
+     $icon = trim($icon, "/");
+     $icon = "$icon/apple-touch-icon.png";
+     $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
+     $icon = ($iconExists == 0) ? "" : $this->core->Element([
+      "div", "<img src=\"$icon\" width=\"100%\"/>\r\n", [
+       "class" => "K4i",
+       "style" => "margin:5%"
+      ]
+     ]);
+     array_push($msg, [
+      "[Link.Description]" => base64_encode($info["Description"]),
+      "[Link.Keywords]" => base64_encode($info["Keywords"]),
+      "[Link.Icon]" => base64_encode($info["Description"]),
+      "[Link.Title]" => base64_encode($info["Title"])
+     ]);
+    }
    } elseif($st == "Mainstream") {
     $accessCode = "Accepted";
     $edit = base64_encode("StatusUpdate:Edit");
