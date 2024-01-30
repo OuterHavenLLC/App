@@ -480,10 +480,16 @@
      $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
      if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
       // Get DOM data from source and render preview
-      $dom = new DOMDocument();
-      $dom->loadHTML($link);
+      $curl = curl_init($link);
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
+      $linkData = curl_exec($curl);
+      curl_close($curl);
+      #$dom = new DOMDocument();
+      #$dom->loadHTML($linkData);
       $r = $this->core->Change([[
-       "[Link.Description]" => "".json_encode($dom->saveHTML(), true),
+       "[Link.Description]" => "".json_encode($linkData, true),
+       #"[Link.Description]" => "".json_encode($dom->saveHTML(), true),
        "[Link.Icon]" => "",
        "[Link.Title]" => ""
       ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
