@@ -460,21 +460,30 @@
     $data = $this->core->DecodeBridgeData($data);
     $link = $data["Link"] ?? "";
     if(!empty($link)) {
-     // Validate Link, get DOM data from source if the format is correct, add to Links index.
+     // Validate Link, get DOM data from source if the format is correct, add to Links index
     }
    } elseif($preview == 1) {
     $accessCode = "Accepted";
+    $link = $data["Link"] ?? "";
     $r = $this->core->Extension("e057199ee0c4a5f556a30cb990521485");
     if(!empty($link)) {
-     // VALIDATE LINK AND RENDER PREVIEW
+     // Validate Link, get DOM data from source if the format is correct, render preview
      $r = $this->core->Change([[
+      "[Link.Description]" => "",
+      "[Link.Icon]" => "",
+      "[Link.Title]" => ""
      ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
+     $r .= $this->core->Element(["button", "Save", [
+      "class" => "v2 v2w",
+      #"class" => "SendData v2 v2w",
+      "data-form" => ".AddLink",
+      "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
+     ]]);
     }
    } else {
     $accessCode = "Accepted";
     $r = $this->core->Change([[
-     "[Link.Preview]" => base64_encode("v=".base64_encode("Search:Links")."&Preview=1"),
-     "[Link.Save]" => base64_encode("v=".base64_encode("Search:Links"))
+     "[Link.Preview]" => base64_encode("v=".base64_encode("Search:Links")."&Preview=1")
     ], $this->core->Extension("f5b2784b0bcc291432a3d2dafa33849a")]);
    }
    return $this->core->JSONResponse([
