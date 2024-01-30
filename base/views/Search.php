@@ -459,26 +459,39 @@
    } elseif(!empty($add)) {
     $data = $this->core->DecodeBridgeData($data);
     $link = $data["Link"] ?? "";
-    if(!empty($link) && filter_var($link, FILTER_VALIDATE_URL)) {
-     // Validate Link, get DOM data from source if the format is correct, add to Links index
+    if(!empty($link)) {
+     $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
+     $check2 = (strpos($link, "ftp") === false) ? 1 : 0;
+     $check3 = (strpos($link, "mailto") === false) ? 1 : 0;
+     $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
+     if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
+      // Validate Link, get DOM data from source if the format is correct, add to Links index
+     }
     }
    } elseif($preview == 1) {
     $accessCode = "Accepted";
-    $link = $data["Link"] ?? "";
+    $link = $data["Link"] ?? base64_encode("");
+    $link = base64_decode($link);
     $r = $this->core->Extension("e057199ee0c4a5f556a30cb990521485");
-    if(!empty($link) && filter_var($link, FILTER_VALIDATE_URL)) {
-     // Validate Link, get DOM data from source if the format is correct, render preview
-     $r = $this->core->Change([[
-      "[Link.Description]" => "",
-      "[Link.Icon]" => "",
-      "[Link.Title]" => ""
-     ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
-     $r .= $this->core->Element(["button", "Save", [
-      "class" => "v2 v2w",
-      #"class" => "SendData v2 v2w",
-      "data-form" => ".AddLink",
-      "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
-     ]]);
+    if(!empty($link)) {
+     $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
+     $check2 = (strpos($link, "ftp") === false) ? 1 : 0;
+     $check3 = (strpos($link, "mailto") === false) ? 1 : 0;
+     $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
+     if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
+      // Validate Link, get DOM data from source if the format is correct, render preview
+      $r = $this->core->Change([[
+       "[Link.Description]" => "",
+       "[Link.Icon]" => "",
+       "[Link.Title]" => ""
+      ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
+      $r .= $this->core->Element(["button", "Save", [
+       "class" => "v2 v2w",
+       #"class" => "SendData v2 v2w",
+       "data-form" => ".AddLink",
+       "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
+      ]]);
+     }
     }
    } else {
     $accessCode = "Accepted";
