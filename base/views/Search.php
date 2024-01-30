@@ -465,7 +465,7 @@
      $check3 = (strpos($link, "mailto") === false) ? 1 : 0;
      $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
      if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
-      // Validate Link, get DOM data from source if the format is correct, add to Links index
+      // Get DOM data from source and add to Links index
      }
     }
    } elseif($preview == 1) {
@@ -479,9 +479,11 @@
      $check3 = (strpos($link, "mailto") === false) ? 1 : 0;
      $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
      if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
-      // Validate Link, get DOM data from source if the format is correct, render preview
+      // Get DOM data from source and render preview
+      $dom = new DOMDocument();
+      $dom->loadHTML($link);
       $r = $this->core->Change([[
-       "[Link.Description]" => "",
+       "[Link.Description]" => "".json_encode($dom->saveHTML(), true),
        "[Link.Icon]" => "",
        "[Link.Title]" => ""
       ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
