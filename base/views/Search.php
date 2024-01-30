@@ -484,36 +484,38 @@
       curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
       $linkData = curl_exec($curl);
       curl_close($curl);
-      $dom = new DOMDocument();
-      libxml_use_internal_errors(true);
-      $dom->loadHTML($linkData);
-      libxml_use_internal_errors(false);
-      $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
-      $icon = trim($icon, "/");
-      $icon = "$icon/apple-touch-icon.png";
-      $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
-      $icon = ($iconExists == 0) ? "" : $this->core->Element([
-       "div", "<img src=\"$icon\" width=\"100%\"/>\r\n", [
-        "class" => "K4i",
-        "style" => "margin:5%"
-       ]
-      ]);
-      $tags = get_meta_tags($link);
-      $description = $tags["description"] ?? "No Description";
-      $keywords = $tags["keywords"] ?? "No Keywords";
-      $title = $dom->getElementsByTagName("title")->item(0)->nodeValue;
-      $r = $this->core->Change([[
-       "[Link.Description]" => $description,
-       "[Link.Keywords]" => $keywords,
-       "[Link.Icon]" => $icon,
-       "[Link.Title]" => $title
-      ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
-      $r .= $this->core->Element(["button", "Save", [
-       "class" => "v2 v2w",
-       #"class" => "SendData v2 v2w",
-       "data-form" => ".AddLink",
-       "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
-      ]]);
+      if(!empty($linkData)) {
+       $dom = new DOMDocument();
+       libxml_use_internal_errors(true);
+       $dom->loadHTML($linkData);
+       libxml_use_internal_errors(false);
+       $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
+       $icon = trim($icon, "/");
+       $icon = "$icon/apple-touch-icon.png";
+       $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
+       $icon = ($iconExists == 0) ? "" : $this->core->Element([
+        "div", "<img src=\"$icon\" width=\"100%\"/>\r\n", [
+         "class" => "K4i",
+         "style" => "margin:5%"
+        ]
+       ]);
+       $tags = get_meta_tags($link) ?? [];
+       $description = $tags["description"] ?? "No Description";
+       $keywords = $tags["keywords"] ?? "No Keywords";
+       $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "No Title";
+       $r = $this->core->Change([[
+        "[Link.Description]" => $description,
+        "[Link.Keywords]" => $keywords,
+        "[Link.Icon]" => $icon,
+        "[Link.Title]" => $title
+       ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
+       $r .= $this->core->Element(["button", "Save", [
+        "class" => "v2 v2w",
+        #"class" => "SendData v2 v2w",
+        "data-form" => ".AddLink",
+        "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
+       ]]);
+      }
      }
     }
    } else {
