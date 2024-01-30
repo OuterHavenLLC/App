@@ -449,6 +449,7 @@
    $data = $a["Data"] ?? [];
    $add = $data["Add"] ?? "";
    $preview = $data["Preview"] ?? "";
+   $responseType = "View";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -458,14 +459,54 @@
     ];
    } elseif(!empty($add)) {
     $data = $this->core->DecodeBridgeData($data);
+    $add = $data["Add"] ?? 0;
     $link = $data["Link"] ?? "";
-    if(!empty($link)) {
+    if(!empty($link) && $add == 1) {
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
      $check2 = (strpos($link, "ftp") === false) ? 1 : 0;
      $check3 = (strpos($link, "mailto") === false) ? 1 : 0;
      $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
+     $r = [
+      "Body" => "An invalid URL was supplied."
+     ];
      if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
-      // Get DOM data from source and add to Links index
+      $curl = curl_init($link);
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
+      $linkData = curl_exec($curl);
+      curl_close($curl);
+      $r = [
+       "Body" => "No data was found."
+      ];
+      if(!empty($linkData)) {
+       $accessCode = "Accepted";
+       $dom = new DOMDocument();
+       libxml_use_internal_errors(true);
+       $dom->loadHTML($linkData);
+       libxml_use_internal_errors(false);
+       $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
+       $icon = trim($icon, "/");
+       $icon = "$icon/apple-touch-icon.png";
+       $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
+       $tags = get_meta_tags($link) ?? [];
+       $description = $tags["description"] ?? "No Description";
+       $keywords = $tags["keywords"] ?? "No Keywords";
+       $responseType = "ReplaceContent";
+       $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "No Title";
+       $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
+       $links[$link] = [
+        "Description" => $description,
+        "Keywords" => $keywords,
+        "IconExsists" => $iconExists,
+        "Title" => $title
+       ];
+       $this->core->Data("Save", ["app", md5("Links"), $links]);
+       $r = $this->core->Element([
+        "h1", "Done", ["class" => "CenterText"]
+       ]).$this->core->Element([
+        "p", "Your Link <em>$link</em> is now listed!", ["class" => "CenterText"]
+       ]);
+      }
      }
     }
    } elseif($preview == 1) {
@@ -510,8 +551,7 @@
         "[Link.Title]" => $title
        ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
        $r .= $this->core->Element(["button", "Save", [
-        "class" => "v2 v2w",
-        #"class" => "SendData v2 v2w",
+        "class" => "SendData v2 v2w",
         "data-form" => ".AddLink",
         "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
        ]]);
@@ -530,7 +570,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => $responseType
    ]);
   }
   function Lists(array $a) {
