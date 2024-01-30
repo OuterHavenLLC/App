@@ -459,14 +459,14 @@
    } elseif(!empty($add)) {
     $data = $this->core->DecodeBridgeData($data);
     $link = $data["Link"] ?? "";
-    if(!empty($link)) {
+    if(!empty($link) && filter_var($link, FILTER_VALIDATE_URL)) {
      // Validate Link, get DOM data from source if the format is correct, add to Links index
     }
    } elseif($preview == 1) {
     $accessCode = "Accepted";
     $link = $data["Link"] ?? "";
     $r = $this->core->Extension("e057199ee0c4a5f556a30cb990521485");
-    if(!empty($link)) {
+    if(!empty($link) && filter_var($link, FILTER_VALIDATE_URL)) {
      // Validate Link, get DOM data from source if the format is correct, render preview
      $r = $this->core->Change([[
       "[Link.Description]" => "",
