@@ -1324,6 +1324,14 @@
    }
    return $r;
   }
+  function RenderHTTPResponse(string $url) {
+   $url = curl_init($url);
+   curl_setopt($url, CURLOPT_NOBODY, true);
+   curl_exec($url);
+   $r = curl_getinfo($url, CURLINFO_HTTP_CODE);
+   curl_close($url);
+   return $r;
+  }
   function RenderSearchIndex(string $index) {
    if(empty($index)) {
     $index = [];

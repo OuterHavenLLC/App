@@ -176,12 +176,8 @@
      $setAsProfileImage = "";
      if($nsfw == 0 && $fileCheck == 1) {
       $_Source = $options["Source"];
-      $readEFS = curl_init($_Source);
-      curl_setopt($readEFS, CURLOPT_NOBODY, true);
-      curl_exec($readEFS);
-      $efsResponse = curl_getinfo($readEFS, CURLINFO_HTTP_CODE);
-      curl_close($readEFS);
-      if($efsResponse != 200) {
+      $httpResponse = $this->core->RenderHTTPResponse($_Source);
+      if($httpResponse != 200) {
        $_Source = $this->core->efs."D.jpg";
       }
       list($height, $width) = getimagesize($_Source);
