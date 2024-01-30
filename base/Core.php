@@ -1,6 +1,6 @@
 <?php
  require_once(__DIR__."/Cypher.php");
- require_once(__DIR__."/DOM.php");
+ #require_once(__DIR__."/DOM.php");
  Class Core {
   function __construct() {
    try {
