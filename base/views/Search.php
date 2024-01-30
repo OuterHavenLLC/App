@@ -757,7 +757,8 @@
       } elseif($bl == "Links") {
        $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
        $de = $links[$value]["Description"] ?? "";
-       $vi = $this->core->Element(["button", "Visit <em>$value</em>", [
+       $title = $links[$value]["Title"] ?? "Link";
+       $vi = $this->core->Element(["button", "Visit <em>$title</em>", [
         "class" => "v2 v2w",
         "onclick" => "W('$value', '_blank');"
        ]]);
