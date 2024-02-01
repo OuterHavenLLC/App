@@ -194,11 +194,10 @@
      $li .= "&ID=$id";
      $lis = "Search Posts from ".$f["Title"];
     } elseif($st == "Knowledge") {
+     $extension = "8568ac7727dae51ee4d96334fa891395";
      $h = "Knowledge Base";
      $lis = "Search Q&As";
-     $extension = "8568ac7727dae51ee4d96334fa891395";
     } elseif($st == "Links") {
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $h = "Links";
      $lis = "Search Links";
      $lo = $this->core->Element(["button", "+", [
@@ -532,12 +531,7 @@
        $icon = trim($icon, "/");
        $icon = "$icon/apple-touch-icon.png";
        $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
-       $icon = ($iconExists == 0) ? "" : $this->core->Element([
-        "div", "<img src=\"$icon\" width=\"100%\"/>\r\n", [
-         "class" => "K4i",
-         "style" => "margin:5%"
-        ]
-       ]);
+       $icon = ($iconExists == 0) ? $this->core->base."/apple-touch-icon.png" : $icon;
        $tags = get_meta_tags($link) ?? [];
        $description = $tags["description"] ?? "No Description";
        $keywords = $tags["keywords"] ?? "No Keywords";
@@ -545,7 +539,11 @@
        $r = $this->core->Change([[
         "[Link.Description]" => $description,
         "[Link.Keywords]" => $keywords,
-        "[Link.Icon]" => $icon,
+        "[Link.Icon]" => $this->core->Element([
+         "div", "<img src=\"$icon\" style=\"max-width:24em\" width=\"90%\"/>\r\n", [
+          "class" => "InnerMargin"
+         ]
+        ]),
         "[Link.Title]" => $title
        ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
        $r .= $this->core->Element(["button", "Save", [
@@ -1660,22 +1658,22 @@
    } elseif($st == "Links") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
+    $extension = $this->core->Element(["div", $extension, ["class" => "K4i"]]);
     $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
     foreach($links as $link => $info) {
      $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
      $icon = trim($icon, "/");
      $icon = "$icon/apple-touch-icon.png";
      $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
-     $icon = ($iconExists == 0) ? "" : $this->core->Element([
-      "div", "<img src=\"$icon\" width=\"100%\"/>\r\n", [
-       "class" => "K4i",
-       "style" => "margin:5%"
-      ]
-     ]);
+     $icon = ($iconExists == 0) ? $this->core->base."/apple-touch-icon.png" : $icon;
      array_push($msg, [
       "[Link.Description]" => base64_encode($info["Description"]),
       "[Link.Keywords]" => base64_encode($info["Keywords"]),
-      "[Link.Icon]" => base64_encode($info["Description"]),
+      "[Link.Icon]" => base64_encode($this->core->Element([
+       "div", "<img src=\"$icon\" style=\"max-width:24em\" width=\"90%\"/>\r\n", [
+        "class" => "InnerMargin"
+       ]
+      ])),
       "[Link.Title]" => base64_encode($info["Title"])
      ]);
     }
