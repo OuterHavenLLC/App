@@ -463,8 +463,8 @@
     $link = $data["Link"] ?? "";
     if(!empty($link) && $add == 1) {
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
-     $check2 = (strpos($link, "http") === true) ? 1 : 0;
-     $check3 = (strpos($link, "https") === true) ? 1 : 0;
+     $check2 = (strpos($link, "http") !== false) ? 1 : 0;
+     $check3 = (strpos($link, "https") !== false) ? 1 : 0;
      $r = [
       "Body" => "An invalid URL was supplied."
      ];
@@ -515,8 +515,8 @@
     $r = $this->core->Extension("e057199ee0c4a5f556a30cb990521485");
     if(!empty($link)) {
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
-     $check2 = (strpos($link, "http") === true) ? 1 : 0;
-     $check3 = (strpos($link, "https") === true) ? 1 : 0;
+     $check2 = (strpos($link, "http") !== false) ? 1 : 0;
+     $check3 = (strpos($link, "https") !== false) ? 1 : 0;
      if($check == 1 && ($check2 == 1 || $check3 == 1)) {
       $curl = curl_init($link);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

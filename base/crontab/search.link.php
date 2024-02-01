@@ -1,7 +1,6 @@
 <?php
  # Re:Search Index
  require_once("/var/www/html/base/Bootloader.php");
- //require_once("/var/www/html/base/DOM.php"); // Or a new Core DOM object
  $category = "Link";
  $oh = New OH;
  $index = $oh->core->Data("Get", ["app", md5("Links")]) ?? [];
@@ -32,8 +31,7 @@
   $description = $tags["description"] ?? "No Description";
   $keywords = $tags["keywords"] ?? "No Keywords";
   $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "No Title";
-  $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
-  $links[$link] = [
+  $index[$link] = [
    "Description" => $description,
    "Keywords" => $keywords,
    "IconExsists" => $iconExists,
