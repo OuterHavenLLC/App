@@ -1031,10 +1031,6 @@
    } elseif($ck == 1 && $ck2 == 1) {
     $accessCode = "Accepted";
     $id = md5($you);
-    $action = $this->core->Element(["button", "Save", [
-     "class" => "CardButton OpenDialog",
-     "data-view" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".Preferences$id")."&ID=$id&Processor=".base64_encode("v=".base64_encode("Profile:Save"))."&Text=".base64_encode("Are you sure you want to update your preferences?"))
-    ]]);
     $birthMonths = [];
     $birthYears = [];
     $chooseElectable = $y["Personal"]["Electable"] ?? 0;
@@ -1096,13 +1092,13 @@
      "[Preferences.Privacy.Registered]" => $y["Privacy"]["Registered"],
      "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
      "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
-     "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"]
+     "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
+     "[Preferences.Save]" => $this->core->Element(["button", "Save", [
+      "class" => "BBB OpenDialog v2 v2w",
+      "data-view" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".Preferences$id")."&ID=$id&Processor=".base64_encode("v=".base64_encode("Profile:Save"))."&Text=".base64_encode("Are you sure you want to update your preferences?"))
+     ]])
     ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
-   $r = [
-    "Action" => $action,
-    "Front" => $r
-   ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -1199,8 +1195,7 @@
       "Header" => $header
      ]
     ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    "ResponseType" => "Dialog"
    ]);
   }
   function SavePassword(array $a) {
