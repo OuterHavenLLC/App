@@ -468,7 +468,7 @@
      $r = [
       "Body" => "An invalid URL was supplied."
      ];
-     if($check == 1 && $check2 == 1 && $check3 == 1) {
+     if($check == 1 && ($check2 == 1 || $check3 == 1)) {
       $curl = curl_init($link);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
@@ -517,7 +517,7 @@
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
      $check2 = (strpos($link, "http") === true) ? 1 : 0;
      $check3 = (strpos($link, "https") === true) ? 1 : 0;
-     if($check == 1 && $check2 == 1 && $check3 == 1) {
+     if($check == 1 && ($check2 == 1 || $check3 == 1)) {
       $curl = curl_init($link);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
