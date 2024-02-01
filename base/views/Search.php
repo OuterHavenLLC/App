@@ -463,13 +463,12 @@
     $link = $data["Link"] ?? "";
     if(!empty($link) && $add == 1) {
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
-     $check2 = (strpos($link, "ftp") === false) ? 1 : 0;
-     $check3 = (strpos($link, "mailto") === false) ? 1 : 0;
-     $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
+     $check2 = (strpos($link, "http") === true) ? 1 : 0;
+     $check3 = (strpos($link, "https") === true) ? 1 : 0;
      $r = [
       "Body" => "An invalid URL was supplied."
      ];
-     if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
+     if($check == 1 && $check2 == 1 && $check3 == 1) {
       $curl = curl_init($link);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
@@ -516,10 +515,9 @@
     $r = $this->core->Extension("e057199ee0c4a5f556a30cb990521485");
     if(!empty($link)) {
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
-     $check2 = (strpos($link, "ftp") === false) ? 1 : 0;
-     $check3 = (strpos($link, "mailto") === false) ? 1 : 0;
-     $check4 = (strpos($link, "ssh") === false) ? 1 : 0;
-     if($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) {
+     $check2 = (strpos($link, "http") === true) ? 1 : 0;
+     $check3 = (strpos($link, "https") === true) ? 1 : 0;
+     if($check == 1 && $check2 == 1 && $check3 == 1) {
       $curl = curl_init($link);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);

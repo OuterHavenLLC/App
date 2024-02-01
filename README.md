@@ -115,6 +115,7 @@ MAILTO=""
 @hourly /usr/bin/php /var/www/html/base/crontab/search.chat.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.feedback.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.forum.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.link.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.media.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.member.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.poll.php

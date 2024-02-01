@@ -15,7 +15,30 @@
   "p", json_encode($index, true)
  ]);
  foreach($index as $link => $info) {
-  // Update Link Data
+  $curl = curl_init($link);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
+  $linkData = curl_exec($curl);
+  curl_close($curl);
+  $dom = new DOMDocument();
+  libxml_use_internal_errors(true);
+  $dom->loadHTML($linkData);
+  libxml_use_internal_errors(false);
+  $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
+  $icon = trim($icon, "/");
+  $icon = "$icon/apple-touch-icon.png";
+  $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
+  $tags = get_meta_tags($link) ?? [];
+  $description = $tags["description"] ?? "No Description";
+  $keywords = $tags["keywords"] ?? "No Keywords";
+  $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "No Title";
+  $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
+  $links[$link] = [
+   "Description" => $description,
+   "Keywords" => $keywords,
+   "IconExsists" => $iconExists,
+   "Title" => $title
+  ];
  }
  $r .= $oh->core->Element([
   "p", "Saving..."
