@@ -326,6 +326,95 @@
     "ResponseType" => $responseType
    ]);
   }
+  function Notes(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $databaseID = $data["dbID"] ?? "";
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Content or Database Identifier is missing."
+   ];
+   $responseType = "Dialog";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($databaseID) && !empty($id)) {
+    $_Congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+    $accessCode = "Accepted";
+    $congressmen = $_Congress["Members"] ?? [];
+    $databaseID = base64_decode($databaseID);
+    $id = base64_decode($id);
+    $notesSourceContent = $this->core->Data("Get", [$databaseID, $id]) ?? [];
+    $notes = $notesSourceContent["Notes"] ?? [];
+    $r = $this->core->Element([
+     "div", NULL, ["class" => "NONAME"]
+    ]);
+    $responseType = "View";
+    if(empty($congressmen[$you]) && !empty($notes)) {
+     $r = $this->core->Element([
+      "h4", "Congressional Notes", ["class" => "UpperCase"]
+     ]).$this->core->Element([
+      "p", "Render the most Upvoted Note."
+     ]);
+    } elseif(!empty($congressmen[$you])) {
+     $add = $data["Add"] ?? 0;
+     $save = $data["Save"] ?? 0;
+     if($add == 1) {
+      $r = [
+       "Action" => $this->core->Element(["button", "Add", [
+        "class" => "CardButton",
+        "data-form" => ".AddNote",
+        "data-processor" => base64_encode("v=".base64_encode("Congress:Notes")."&Save=1")
+       ]]),
+       "Front" => $this->core->Change([[
+        "[Note.DatabaseID]" => $databaseID,
+        "[Note.ID]" => $id
+       ], $this->core->Extension("AddNote")])
+      ];
+      $responseType = "Card";
+     } elseif($save == 1) {
+      $data = $this->core->DecodeBridgeData($data);
+      $responseType = "Dialog";
+      $r = [
+       "Body" => "Note Saving coming soon...",
+       "Header" => "Done"
+      ];
+     } else {
+      if(!empty($notes)) {
+       $r = $this->core->Element([
+        "h4", "Congressional Notes", ["class" => "UpperCase"]
+       ]).$this->core->Element([
+        "p", "Notes List coming soon..."
+       ]);
+      } else {
+       // BEGIN TPL
+       $r = $this->core->Element([
+        "h4", "Congressional Notes", ["class" => "CenterText UpperCase"]
+       ]).$this->core->Element([
+        "p", "No Notes have been contrbuted yet...", ["class" => "CenterText"]
+       ]);
+       // 33% spacer | NEW NOTE | 33% spacer
+       // END TPL
+       /*--
+       $this->core->Change([[
+        "[Notes.Add]" => $this->core->Element(["button", "New Note", [
+         "class" => "OpenCard v2 v2w",
+         "data-view" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1")
+        ]])
+       ], $this->core->Extension("NoNotes")]);
+       --*/
+      }
+     }
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => $responseType
+   ]);
+  }
   function Report(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];

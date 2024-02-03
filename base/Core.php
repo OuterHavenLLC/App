@@ -944,6 +944,7 @@
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Status Updates")),
        "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteStatusUpdate")."&ID=".base64_encode($contentID)),
        "Edit" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
+       "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
        "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=$contentID"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")

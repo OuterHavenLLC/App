@@ -1727,9 +1727,9 @@
          "[StatusUpdate.Edit]" => base64_encode($edit),
          "[StatusUpdate.ID]" => base64_encode($value),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
+         "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.VoteID]" => base64_encode($value),
          "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
         ]);
        }
@@ -2147,9 +2147,9 @@
          "[StatusUpdate.Edit]" => base64_encode($edit),
          "[StatusUpdate.ID]" => base64_encode($id),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
+         "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.VoteID]" => base64_encode($id),
          "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
         ]);
        }
@@ -2544,9 +2544,9 @@
           "[StatusUpdate.Edit]" => base64_encode($edit),
           "[StatusUpdate.ID]" => base64_encode($value),
           "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
+          "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
           "[StatusUpdate.OriginalPoster]" => base64_encode($display),
           "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-          "[StatusUpdate.VoteID]" => base64_encode($value),
           "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
          ]);
         }
