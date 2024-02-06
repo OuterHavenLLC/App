@@ -9,7 +9,7 @@ This release focuses on search—both inside and outside the platform, content c
 ### Re:Search
 * Refined content visibility across the platform.
 * Streamlined and built upon the Re:Search experience.
-* Added the ability to submit and index external sites. (TBA)
+* Added the ability to submit and index external sites.
 
 ### Shops
 * Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
@@ -21,12 +21,14 @@ This release focuses on search—both inside and outside the platform, content c
 * Congressional Notes may be voted upon, and the one with the highest vote rank will be attached to the Status Update until another overtakes it.
 
 ### Platform Improvements
-* A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job.
+* A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job. (coming soon...)
 * Download buttons now support simultanious media downloads.
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
-* A new content creation tool (represented by a ( + ) button at the bottom-right when signed in) creates a central hub where many of the common content types may be created from.
+* A new content creation tool (represented by a ( + ) button at the bottom-right corner when signed in) creates a central hub where many of the common content types may be created from.
 * The Mail Service is now integrated and fully operational.
+* Administrators now have a Card to configure  the app's core attributes. (coming soon...)
+* Developers now have a Card for viewing app documentation, guides, downloads, and accessing the Developer Group Chat. (coming soon...)
 
 ## 1.2: Democracy
 ### Release Notes

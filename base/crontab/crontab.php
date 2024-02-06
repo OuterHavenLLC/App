@@ -5,7 +5,7 @@
  $oh = New OH;
  $images = $oh->core->config["XFS"]["FT"]["P"] ?? [];
  $r = $oh->core->Element([
-  "h1", $oh->core->config["App"]["Name"]."</em> Cron Tab"
+  "h1", "Cron Tasks Executed!"
  ]).$oh->core->Element([
   "p", "The following crob jobs have been executed:"
  ]).$oh->core->Element([
@@ -37,6 +37,6 @@
  ]);
  $oh->core->SendEmail([
   "Message" => $r,
-  "Title" => "Cron Jobs Executed!",
+  "Title" => "Cron Tasks Executed!",
   "To" => "mike@outerhaven.nyc"
  ]);
