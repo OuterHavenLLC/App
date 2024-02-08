@@ -94,12 +94,13 @@
     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
     $profit = $product["Profit"] ?? 0.00;
     $quantities = [];
+    $quantities["-1"] = "Unlimited";
     $quantity = $product["Quantity"] ?? "-1";
     $search = base64_encode("Search:Containers");
     $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
     for($i = 1; $i <= 100; $i++) {
      $expirationQuantities[$i] = $i;
-    } for($i = -1; $i <= 100; $i++) {
+    } for($i = 0; $i <= 100; $i++) {
      $quantities[$i] = $i;
     } if(!empty($product["Attachments"])) {
      $attachments = base64_encode(implode(";", $product["Attachments"]));

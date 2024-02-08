@@ -27,9 +27,11 @@
     } else {
      $product = $this->core->Data("Get", ["product", $id]) ?? [];
      $category = $product["Category"] ?? "";
+     $cost = $product["Cost"] ?? 0;
      $hasInstructions = $product["Instructions"] ?? "";
      $productQuantity = $product["Quantity"] ?? 0;
      $id = $product["ID"] ?? "";
+     $profit = $product["Profit"] ?? 0;
      $quantities = [];
      $quantity = $product["Quantity"] ?? 0;
      $ck = (!empty($id)) ? 1 : 0;
@@ -54,7 +56,7 @@
        "p", "This is selling fast, act soon before it's sold out!",
        ["class" => "CenterText"]
       ]) : "";
-      $price = $product["Cost"] + $product["Profit"];
+      $price = str_replace(",", "", $cost) + str_replace(",", "", $profit);
       $quantity = ($category == "Product" && $quantity > 0) ? [
        "Attributes" => [],
        "OptionGroup" => $quantities,
@@ -75,19 +77,19 @@
        "Type" => "Text",
        "Value" => 1
       ];
-      $quantity = json_encode([
-       $quantity
-      ], true);
-      $r = $this->core->Change([[
+      $r = json_encode($product, true);//TEMP
+      /*--$r = $this->core->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
        "[AddToCart.Product.ID]" => $id,
        "[AddToCart.Product.Instructions]" => $instructions,
        "[AddToCart.Product.LowStock]" => $lowStock,
        "[AddToCart.Product.Price]" => number_format($price, 2),
-       "[AddToCart.Product.Quantity]" => $quantity,
+       "[AddToCart.Product.Quantity]" => json_encode([
+        $quantity
+       ], true),
        "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
        "[AddToCart.Shop.Owner]" => $t["Login"]["Username"]
-      ], $this->core->Extension("624bcc664e9bff0002e01583e7706d83")]);
+      ], $this->core->Extension("624bcc664e9bff0002e01583e7706d83")]);--*/
       if(($category == "Product") && $t["Login"]["Username"] == $you) {
        $r = $this->core->Element([
         "p", "Physical orders are disabled as you own this shop.",

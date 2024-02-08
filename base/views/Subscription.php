@@ -31,8 +31,9 @@
    $ysub = $y["Subscriptions"][$s] ?? [];
    if(!empty($s)) {
     $accessCode = "Accepted";
+    $changeData = [];
     if($ysub["A"] == 0) {
-     $r = $this->core->Extension("ffdcc2a6f8e1265543c190fef8e7982f");
+     $extension = "ffdcc2a6f8e1265543c190fef8e7982f";
     } else {
      if($s == "Artist") {
       $_LastMonth = $this->core->LastMonth()["LastMonth"];
@@ -57,12 +58,13 @@
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop["Open"] = 0;
        $this->core->Data("Save", ["shop", md5($you), $shop]);
-       $r = $this->core->Change([[
+       $changeData = [
         "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
         "[Commission.Total]" => $commission
-       ], $this->core->Extension("f844c17ae6ce15c373c2bd2a691d0a9a")]);
+       ];
+       $extension = "f844c17ae6ce15c373c2bd2a691d0a9a";
       } else {
-       $r = $this->core->Change([[
+       $changeData = [
         "[Artist.Charts]" => "",
         "[Artist.Contributors]" => base64_encode("v=$search&ID=".base64_encode(md5($you))."&Type=".base64_encode("Shop")."&st=Contributors"),
         "[Artist.CoverPhoto]" => $this->core->PlainText([
@@ -74,20 +76,29 @@
         "[Artist.ID]" => md5($you),
         "[Artist.Payroll]" => base64_encode("v=".base64_encode("Shop:Payroll")),
         "[Artist.Revenue]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($you))
-       ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]);
+       ];
+       $extension = "20820f4afd96c9e32440beabed381d36";
       }
      } elseif($s == "Blogger") {
-      $r = $this->core->Change([[
+      $changeData = [
        "[Blogger.CoverPhoto]" => $this->core->PlainText([
         "Data" => "[Media:CP]",
         "Display" => 1
        ]),
        "[Blogger.Stream]" => base64_encode("v=$search&UN=".base64_encode($you)."&st=MBR-BLG"),
        "[Blogger.Title]" => $sub["Title"]
-      ], $this->core->Extension("566f9967f00f97350e54b0ee14faef36")]);
+      ];
+      $extension = "566f9967f00f97350e54b0ee14faef36";
      } elseif($s == "Developer") {
+      $changeData = [
+       "[Developer.CoverPhoto]" => $this->core->PlainText([
+        "Data" => "[Media:CP]",
+        "Display" => 1
+       ])
+      ];
+      $extension = "9070936bf7decfbd767391176bc0acdb";
      } elseif($s == "VIP") {
-      $r = $this->core->Change([[
+      $changeData = [
        "[VIP.CoverPhoto]" => $this->core->PlainText([
         "Data" => "[Media:CP]",
         "Display" => 1
@@ -96,22 +107,27 @@
        "[VIP.FAB]" => base64_encode("v=".base64_encode("Subscription:FABPlayer")),
        "[VIP.Forum]" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=cb3e432f76b38eaa66c7269d658bd7ea"),
        "[VIP.Mail]" => "W('https://mail.outerhaven.nyc/mail/', '_blank');"
-      ], $this->core->Extension("89d36f051962ca4bbfbcb1dc2bd41f60")]);
+      ];
+      $extension = "89d36f051962ca4bbfbcb1dc2bd41f60";
      } elseif($s == "XFS") {
-      $r = $this->core->Change([[
+      $changeData = [
        "[XFS.CoverPhoto]" => $this->core->PlainText([
         "Data" => "[Media:CP]",
         "Display" => 1
        ])
-      ], $this->core->Extension("dad7bf9214d25c12fa8a4543bbdb9d23")]);
+      ];
+      $extension = "dad7bf9214d25c12fa8a4543bbdb9d23";
      } if(strtotime($this->core->timestamp) > $y["Subscriptions"][$s]["E"]) {
       $y["Subscriptions"][$s]["A"] = 0;
       $this->core->Data("Save", ["mbr", md5($you), $y]);
-      $r = $this->core->Extension("a0891fc91ad185b6a99f1ba501b3c9be");
+      $extension = "a0891fc91ad185b6a99f1ba501b3c9be";
      }
     }
     $r = [
-     "Front" => $r
+     "Front" => $this->core->Change([
+      $changeData,
+      $this->core->Extension($extension)
+     ])
     ];
    }
    return $this->core->JSONResponse([

@@ -2428,7 +2428,7 @@
     foreach($purchaseOrders as $key => $value) {
      $member = $this->core->Member($value["UN"]);
      if(!empty($member["Login"])) {
-      $ccomplete = ($value["Complete"] == 0) ? $this->core->Element(["button", "Mark as Complete", [
+      $complete = ($value["Complete"] == 0) ? $this->core->Element(["button", "Mark as Complete", [
        "class" => "BBB CompleteOrder v2 v2w",
        "data-u" => base64_encode("v=".base64_encode("Shop:CompleteOrder")."&ID=".base64_encode($key))
       ]]) : "";
@@ -2436,7 +2436,7 @@
        "[X.LI.Order.Complete]" => base64_encode($complete),
        "[X.LI.Order.Instructions]" => $value["Instructions"],
        "[X.LI.Order.ProductID]" => base64_encode($value["ProductID"]),
-       "[X.LI.Order.ProfilePicture]" => base64_encode($t),
+       "[X.LI.Order.ProfilePicture]" => base64_encode($this->core->ProfilePicture($member, "margin:5%;width:90%")),
        "[X.LI.Order.Quantity]" => base64_encode($value["QTY"]),
        "[X.LI.Order.UN]" => base64_encode($value["UN"])
       ]);
