@@ -398,20 +398,23 @@
        "Product",
        "Subscription"
       ];
-      $cost = $data["Cost"] ?? 0.00;
-      $created = $product["Created"] ?? $now;
+      $cost = $data["Cost"] ?? 0;
+      $cost = ($cost > 0) ? number_format(str_replace(",", "", $cost), 2) : $cost;
       $coverPhoto = "";
       $coverPhotoSource = "";
+      $created = $product["Created"] ?? $now;
       $dlc = [];
       $expirationQuantity = $data["ExpirationQuantity"] ?? 1;
       $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
       $illegal = $product["Illegal"] ?? 0;
       $instructions = $data["Instructions"] ?? 0;
+      $instructions = ($category == "Product") ? 1 : $instructions;
       $modifiedBy = $product["ModifiedBy"] ?? [];
       $modifiedBy[$now] = $you;
       $newProducts = $shop["Products"] ?? [];
       $points = $this->core->config["PTS"];
-      $profit = $data["Profit"] ?? 0.00;
+      $profit = $data["Profit"] ?? 0;
+      $profit = ($profit > 0) ? number_format(str_replace(",", "", $profit), 2) : $profit;
       $quantity = $data["Quantity"] ?? "-1";
       $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
       $username = $product["UN"] ?? $you;
@@ -480,7 +483,7 @@
        ]),
        "Bundled" => $bundle,
        "Category" => $category,
-       "Cost" => number_format($cost, 2),
+       "Cost" => $cost,
        "Created" => $created,
        "Description" => htmlentities($data["Description"]),
        "Disclaimer" => $data["Disclaimer"],
@@ -495,7 +498,7 @@
        "NSFW" => $data["nsfw"],
        "Points" => $points,
        "Privacy" => $data["Privacy"],
-       "Profit" => number_format($profit, 2),
+       "Profit" => $profit,
        "Quantity" => $quantity,
        "Role" => $data["Role"],
        "SubscriptionTerm" => $data["SubscriptionTerm"],

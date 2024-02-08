@@ -2301,7 +2301,7 @@
        $_Shop = $this->core->GetContentData([
         "Blacklisted" => $bl,
         "ID" => base64_encode("Shop;".md5($them)),
-        "Owner" => $them
+        "Owner" => base64_encode($them)
        ]);
        if($_Shop["Empty"] == 0) {
         $b2 = $b2 ?? "Products";
@@ -2355,7 +2355,7 @@
       $_Shop = $this->core->GetContentData([
        "Blacklisted" => $bl,
        "ID" => base64_encode("Shop;$value"),
-       "Owner" => $them
+       "Owner" => base64_encode($them)
       ]);
       if($_Shop["Empty"] == 0) {
        $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];

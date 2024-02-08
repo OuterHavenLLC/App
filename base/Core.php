@@ -902,7 +902,7 @@
        "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteProduct")."&ID=$contentID"),
        "Edit" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".$data["UN"]),
-       "View" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$contentID&UN=".$data["UN"]),
+       "View" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$contentID&UN=".base64_encode($data["UN"])),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
      }
