@@ -362,11 +362,12 @@
      $vote = $data["Vote"] ?? 0;
      if($add == 1) {
       $new = $data["New"] ?? 0;
+      $action = ($new == 1) ? "Add" : "Update";
       $header = ($new == 1) ? "New" : "Edit";
       $noteID = $data["NoteID"] ?? "";
       $noteID = ($new == 1) ? md5($you.$this->core->timestamp.uniqid()) : $noteID;
       $r = [
-       "Action" => $this->core->Element(["button", "Add", [
+       "Action" => $this->core->Element(["button", $action, [
         "class" => "CardButton",
         "data-form" => ".CongressionalNote$noteID",
         "data-processor" => base64_encode("v=".base64_encode("Congress:Notes")."&Save=1")
@@ -423,7 +424,7 @@
       ]);
      } else {
       $r = $this->core->Change([[
-       "[Notes.Add]" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&New=1&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID))
+       "[Notes.Add]" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=".base64_encode($id)."&New=1&dbID=".base64_encode($databaseID))
       ], $this->core->Extension("583691b6bd614b1e3e6f3f9ebc60cd69")]);
      }
     }
