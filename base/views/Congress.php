@@ -359,6 +359,7 @@
      $add = $data["Add"] ?? 0;
      $save = $data["Save"] ?? 0;
      $view = $data["View"] ?? 0;
+     $vote = $data["Vote"] ?? 0;
      if($add == 1) {
       $new = $data["New"] ?? 0;
       $header = ($new == 1) ? "New" : "Edit";
@@ -380,7 +381,7 @@
       $responseType = "Card";
      } elseif(!empty($save)) {
       $data = $this->core->DecodeBridgeData($data);
-     $responseType = "Dialog";
+      $responseType = "Dialog";
       $r = [
        "Body" => "An invalid value was set for the Save command."
       ];
@@ -392,11 +393,28 @@
        ];
       }
      } elseif($view == 1) {
+      $noteID = $data["NoteID"] ?? "";
+      $responseType = "Dialog";
       $r = [
-       "Front" => $this->core->Change([[
-       ], $this->core->Extension("ViewNote")])
+       "Body" => "The Note IDentifier is missing."
       ];
-      $responseType = "Card";
+      if(!empty($noteID)) {
+       $r = [
+        "Front" => $this->core->Change([[
+        ], $this->core->Extension("ViewNote")])
+       ];
+       $responseType = "Card";
+      }
+     } elseif($vote == 1) {
+      $noteID = $data["NoteID"] ?? "";
+      $responseType = "Dialog";
+      $responseType = "Dialog";
+      $r = [
+       "Body" => "The Note IDentifier is missing."
+      ];
+      if(!empty($noteID)) {
+       $responseType = "UpdateContent";
+      }
      } elseif(!empty($notes)) {
       $r = $this->core->Element([
        "h4", "Congressional Notes"
