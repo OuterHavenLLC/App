@@ -366,9 +366,9 @@
       $noteID = md5($you.$this->core->timestamp);
       $r = [
        "Action" => $this->core->Element(["button", "Add", [
-        "class" => "CardButton",
-        "data-form" => ".CongressionalNote$noteID",
-        "data-processor" => base64_encode("v=".base64_encode("Congress:Notes")."&Save=1")
+        "class" => "CardButton SendData",
+        "data-form" => ".EditCongressionalNote$noteID",
+        "data-processor" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&Save=1&dbID=".base64_encode($databaseID))
        ]]),
        "Front" => $this->core->Change([[
         "[Notes.DatabaseID]" => $databaseID,
@@ -377,19 +377,16 @@
        ], $this->core->Extension("8a016ee410595abcc9a119f63ca21a26")])
       ];
       $responseType = "Card";
-     } elseif(!empty($save)) {
+     } elseif($save == 1) {
       $data = $this->core->DecodeBridgeData($data);
       $responseType = "Dialog";
       $r = [
        "Body" => "An invalid value was set for the Save command."
       ];
-      if($data["Save"] == 1) {
-       # SAVE NOTE TO CONTENT DATABASE
-       $r = [
-        "Body" => "Note Saving coming soon...",
-        "Header" => "Done"
-       ];
-      }
+      $r = [
+       "Body" => "Note Saving coming soon...".$data["SecureDatabaseID"].": ".$data["SecureID"].": ".json_encode($data["Body"], true).".",
+       "Header" => "Done"
+      ];
      } elseif($view == 1) {
       $noteID = $data["NoteID"] ?? "";
       $responseType = "Dialog";
@@ -432,7 +429,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => $responseType
+    "ResponseType" => $responseType,
+    "Success" => "CloseCard"
    ]);
   }
   function Report(array $a) {
