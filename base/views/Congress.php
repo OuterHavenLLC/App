@@ -332,7 +332,7 @@
    $databaseID = $data["dbID"] ?? "";
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Content or Database Identifier is missing."
+    "Body" => "The Content or Database Identifier are missing."
    ];
    $responseType = "Dialog";
    $y = $this->you;
@@ -386,22 +386,9 @@
         "p", "Notes List coming soon..."
        ]);
       } else {
-       // BEGIN TPL
-       $r = $this->core->Element([
-        "h4", "Congressional Notes", ["class" => "CenterText UpperCase"]
-       ]).$this->core->Element([
-        "p", "No Notes have been contrbuted yet...", ["class" => "CenterText"]
-       ]);
-       // 33% spacer | NEW NOTE | 33% spacer
-       // END TPL
-       /*--
-       $this->core->Change([[
-        "[Notes.Add]" => $this->core->Element(["button", "New Note", [
-         "class" => "OpenCard v2 v2w",
-         "data-view" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1")
-        ]])
-       ], $this->core->Extension("NoNotes")]);
-       --*/
+       $r = $this->core->Change([[
+        "[Notes.Add]" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID))
+       ], $this->core->Extension("583691b6bd614b1e3e6f3f9ebc60cd69")]);
       }
      }
     }
