@@ -399,6 +399,7 @@
        "Subscription"
       ];
       $cost = $data["Cost"] ?? 0;
+      $cost = ($cost == "") ? 0 : $cost;
       $cost = ($cost > 0) ? number_format(str_replace(",", "", $cost), 2) : $cost;
       $coverPhoto = "";
       $coverPhotoSource = "";
@@ -414,6 +415,7 @@
       $newProducts = $shop["Products"] ?? [];
       $points = $this->core->config["PTS"];
       $profit = $data["Profit"] ?? 0;
+      $profit = ($profit == "") ? 0 : $profit;
       $profit = ($profit > 0) ? number_format(str_replace(",", "", $profit), 2) : $profit;
       $quantity = $data["Quantity"] ?? "-1";
       $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
@@ -483,7 +485,7 @@
        ]),
        "Bundled" => $bundle,
        "Category" => $category,
-       "Cost" => $cost,
+       "Cost" => str_replace(",", "", $cost),
        "Created" => $created,
        "Description" => htmlentities($data["Description"]),
        "Disclaimer" => $data["Disclaimer"],
@@ -498,7 +500,7 @@
        "NSFW" => $data["nsfw"],
        "Points" => $points,
        "Privacy" => $data["Privacy"],
-       "Profit" => $profit,
+       "Profit" => str_replace(",", "", $profit),
        "Quantity" => $quantity,
        "Role" => $data["Role"],
        "SubscriptionTerm" => $data["SubscriptionTerm"],

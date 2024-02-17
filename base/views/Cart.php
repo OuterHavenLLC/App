@@ -43,10 +43,6 @@
       $quantities[$i] = $i;
      } if($ck == 1 || ($t["Login"]["Username"] == $this->core->ShopID && $quantity != 0)) {
       $instructions = ($category == "Product" && $hasInstructions == 1) ? $this->core->Element([
-       "p", "Please add your shipping address.",
-       ["class" => "CenterText"]
-      ]) : "";
-      $instructions .= ($hasInstructions == 1) ? $this->core->Element([
        "textarea", NULL, [
         "name" => "Instructions",
         "placeholder" => "Write your instructions here..."
@@ -79,12 +75,11 @@
        "Type" => "Text",
        "Value" => 1
       ];
-      if($category != "Product" || $t["Login"]["Username"] == $you) {//TEMP
       $r = $this->core->Change([[
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
        "[AddToCart.Product.ID]" => $id,
        "[AddToCart.Product.Instructions]" => $instructions,
-       "[AddToCart.Product.LowStock]" => $lowStock,
+       "[AddToCart.Product.LowStock]" => $lowStock.$cost.$profit,
        "[AddToCart.Product.Price]" => number_format($price, 2),
        "[AddToCart.Product.Quantity]" => json_encode([
         $quantity
@@ -92,7 +87,6 @@
        "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
        "[AddToCart.Shop.Owner]" => $t["Login"]["Username"]
       ], $this->core->Extension("624bcc664e9bff0002e01583e7706d83")]);
-  }//TEMP
       if(($category == "Product") && $t["Login"]["Username"] == $you) {
        $r = $this->core->Element([
         "p", "Deliverable Products are disabled as you own this shop.$r",
