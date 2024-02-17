@@ -79,7 +79,7 @@
        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
        "[AddToCart.Product.ID]" => $id,
        "[AddToCart.Product.Instructions]" => $instructions,
-       "[AddToCart.Product.LowStock]" => $lowStock.$cost.$profit,
+       "[AddToCart.Product.LowStock]" => $lowStock,
        "[AddToCart.Product.Price]" => number_format($price, 2),
        "[AddToCart.Product.Quantity]" => json_encode([
         $quantity
