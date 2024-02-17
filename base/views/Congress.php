@@ -338,6 +338,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($databaseID) && !empty($id)) {
+    $_AddNote = base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
     $_Congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
     $accessCode = "Accepted";
     $congressmen = $_Congress["Members"] ?? [];
@@ -362,19 +363,15 @@
      $vote = $data["Vote"] ?? 0;
      if($add == 1) {
       $new = $data["New"] ?? 0;
-      $action = ($new == 1) ? "Add" : "Update";
-      $header = ($new == 1) ? "New" : "Edit";
-      $noteID = $data["NoteID"] ?? "";
-      $noteID = ($new == 1) ? md5($you.$this->core->timestamp.uniqid()) : $noteID;
+      $noteID = md5($you.$this->core->timestamp);
       $r = [
-       "Action" => $this->core->Element(["button", $action, [
+       "Action" => $this->core->Element(["button", "Add", [
         "class" => "CardButton",
         "data-form" => ".CongressionalNote$noteID",
         "data-processor" => base64_encode("v=".base64_encode("Congress:Notes")."&Save=1")
        ]]),
        "Front" => $this->core->Change([[
         "[Notes.DatabaseID]" => $databaseID,
-        "[Notes.Header]" => $header,
         "[Notes.ID]" => $id,
         "[Notes.NoteID]" => $noteID
        ], $this->core->Extension("8a016ee410595abcc9a119f63ca21a26")])
@@ -424,7 +421,7 @@
       ]);
      } else {
       $r = $this->core->Change([[
-       "[Notes.Add]" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=".base64_encode($id)."&New=1&dbID=".base64_encode($databaseID))
+       "[Notes.Add]" => $_AddNote
       ], $this->core->Extension("583691b6bd614b1e3e6f3f9ebc60cd69")]);
      }
     }
