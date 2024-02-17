@@ -358,6 +358,7 @@
     } elseif(!empty($congressmen[$you])) {
      $add = $data["Add"] ?? 0;
      $save = $data["Save"] ?? 0;
+     $view = $data["View"] ?? 0;
      if($add == 1) {
       $r = [
        "Action" => $this->core->Element(["button", "Add", [
@@ -366,30 +367,40 @@
         "data-processor" => base64_encode("v=".base64_encode("Congress:Notes")."&Save=1")
        ]]),
        "Front" => $this->core->Change([[
-        "[Note.DatabaseID]" => $databaseID,
-        "[Note.ID]" => $id
+        "[Notes.DatabaseID]" => $databaseID,
+        "[Notes.ID]" => $id
        ], $this->core->Extension("AddNote")])
       ];
       $responseType = "Card";
-     } elseif($save == 1) {
+     } elseif(!empty($save)) {
       $data = $this->core->DecodeBridgeData($data);
-      $responseType = "Dialog";
+     $responseType = "Dialog";
       $r = [
-       "Body" => "Note Saving coming soon...",
-       "Header" => "Done"
+       "Body" => "An invalid value was set for the Save command."
       ];
-     } else {
-      if(!empty($notes)) {
-       $r = $this->core->Element([
-        "h4", "Congressional Notes", ["class" => "UpperCase"]
-       ]).$this->core->Element([
-        "p", "Notes List coming soon..."
-       ]);
-      } else {
-       $r = $this->core->Change([[
-        "[Notes.Add]" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID))
-       ], $this->core->Extension("583691b6bd614b1e3e6f3f9ebc60cd69")]);
+      if($data["Save"] == 1) {
+       # SAVE NOTE TO CONTENT DATABASE
+       $r = [
+        "Body" => "Note Saving coming soon...",
+        "Header" => "Done"
+       ];
       }
+     } elseif($view == 1) {
+      $r = [
+       "Front" => $this->core->Change([[
+       ], $this->core->Extension("ViewNote")])
+      ];
+      $responseType = "Card";
+     } elseif(!empty($notes)) {
+      $r = $this->core->Element([
+       "h4", "Congressional Notes", ["class" => "UpperCase"]
+      ]).$this->core->Element([
+       "p", "Notes List coming soon..."
+      ]);
+     } else {
+      $r = $this->core->Change([[
+       "[Notes.Add]" => base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID))
+      ], $this->core->Extension("583691b6bd614b1e3e6f3f9ebc60cd69")]);
      }
     }
    }
