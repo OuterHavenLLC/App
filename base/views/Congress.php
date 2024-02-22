@@ -379,14 +379,33 @@
       $responseType = "Card";
      } elseif($save == 1) {
       $data = $this->core->DecodeBridgeData($data);
+      $contentID - $data["SecureID"] ?? "";
+      $databaseID - $data["SecureDatabaseID"] ?? "";
+      $content = $this->core->Data("Get", [$databaseID, $contentID]) ?? [];
       $responseType = "Dialog";
-      $r = [
-       "Body" => "An invalid value was set for the Save command."
-      ];
-      $r = [
-       "Body" => "Note Saving coming soon...".$data["SecureDatabaseID"].": ".$data["SecureID"].": ".json_encode($data["Body"], true).".",
-       "Header" => "Done"
-      ];
+      if(empty($contentID)) {
+       $r = [
+        "Body" => "The Content Identifier is missing."
+       ];
+      } elseif(empty($databaseID)) {
+       $r = [
+        "Body" => "The Database Identifier is missing."
+       ];
+      } elseif(!empty($content)) {
+       $noteList = $content["Notes"] ?? [];
+       array_push($noteList, [
+        "Created" => $this->core->timestamp,
+        "Note" => htmlentities($data["Body"]),
+        "UN" => $you,
+        "Votes" => []
+       ]);
+       #$this->core->Data("Save", [$databaseID, $contentID, $content]);
+       $r = [
+        "Body" => "Your Note has been added!",
+        "Header" => "Done",
+        "Scrollable" => json_encode($content, true)
+       ];
+      }
      } elseif($view == 1) {
       $noteID = $data["NoteID"] ?? "";
       $responseType = "Dialog";
