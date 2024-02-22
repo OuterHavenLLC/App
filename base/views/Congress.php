@@ -400,11 +400,10 @@
         "Votes" => []
        ]);
        $content["Notes"] = $noteList;
-       #$this->core->Data("Save", [$databaseID, $contentID, $content]);
+       $this->core->Data("Save", [$databaseID, $contentID, $content]);
        $r = [
         "Body" => "Your Note has been added!",
-        "Header" => "Done",
-        "Scrollable" => json_encode($content, true)
+        "Header" => "Done"
        ];
       }
      } elseif($view == 1) {
@@ -431,11 +430,15 @@
        $responseType = "UpdateContent";
       }
      } elseif(!empty($notes)) {
-      $r = $this->core->Element([
-       "h4", "Congressional Notes"
-      ]).$this->core->Element([
-       "p", "Notes List coming soon..."
-      ]);
+      $noteList = "";
+      $notes = $content["Notes"] ?? [];
+      foreach($notes as $note => $info) {
+       # RENDER NOTES LIST AND CONDITIONAL VOTING OPTIONS
+      }
+      $r = $this->core->Change([[
+       "[Notes.Add]" => $_AddNote,
+       "[Notes.List]" => $noteList
+      ], $this->core->Extension("d6531d7ef40646ecdefbff5b496cec79")]);
      } else {
       $r = $this->core->Change([[
        "[Notes.Add]" => $_AddNote
