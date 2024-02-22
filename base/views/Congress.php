@@ -379,8 +379,8 @@
       $responseType = "Card";
      } elseif($save == 1) {
       $data = $this->core->DecodeBridgeData($data);
-      $contentID - $data["SecureID"] ?? "";
-      $databaseID - $data["SecureDatabaseID"] ?? "";
+      $contentID = $data["SecureID"] ?? "";
+      $databaseID = $data["SecureDatabaseID"] ?? "";
       $content = $this->core->Data("Get", [$databaseID, $contentID]) ?? [];
       $responseType = "Dialog";
       if(empty($contentID)) {
@@ -399,6 +399,7 @@
         "UN" => $you,
         "Votes" => []
        ]);
+       $content["Notes"] = $noteList;
        #$this->core->Data("Save", [$databaseID, $contentID, $content]);
        $r = [
         "Body" => "Your Note has been added!",
