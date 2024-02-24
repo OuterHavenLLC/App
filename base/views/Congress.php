@@ -347,6 +347,7 @@
     $id = base64_decode($id);
     $notesSourceContent = $this->core->Data("Get", [$databaseID, $id]) ?? [];
     $notes = $notesSourceContent["Notes"] ?? [];
+    $notes = array_reverse($notes);
     $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
     $responseType = "View";
     if(empty($congressmen[$you]) && !empty($notes)) {
