@@ -340,22 +340,33 @@
    if(!empty($databaseID) && !empty($id)) {
     $_AddNote = base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
     $_Congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+    $_Vote = "v=".base64_encode("Congress:Notes")."&Vote=1&ID=$id&dbID=$databaseID";
     $accessCode = "Accepted";
     $congressmen = $_Congress["Members"] ?? [];
     $databaseID = base64_decode($databaseID);
+    $extension = $this->core->Extension("bdd25e7c79eeafb218f1c2c76a49067b");
     $id = base64_decode($id);
     $notesSourceContent = $this->core->Data("Get", [$databaseID, $id]) ?? [];
     $notes = $notesSourceContent["Notes"] ?? [];
-    $r = $this->core->Element([
-     "div", NULL, ["class" => "NONAME"]
-    ]);
+    $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
     $responseType = "View";
     if(empty($congressmen[$you]) && !empty($notes)) {
-     $r = $this->core->Element([
-      "h4", "Congressional Notes", ["class" => "UpperCase"]
-     ]).$this->core->Element([
-      "p", "Render the most Upvoted Note."
-     ]);
+     $r = $this->core->Element(["h4", "Congressional Notes"]);
+     if(count($notes) > 1) {
+      # RENDER HIGHEST RATED NOTE
+     } else {
+      foreach($notes as $note => $info) {
+       $author = $this->core->Member($info["UN"]);
+       $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
+       $r .= $this->core->Change([[
+        "[Notes.Body]" => $info["Note"],
+        "[Notes.Created]" => $info["Created"],
+        "[Notes.DisplayName]" => $displayName,
+        "[Notes.Vote]" => base64_encode("$_Vote&NoteID=$note")
+       ], $extension]);
+      }
+     }
+     $r = $this->core->Element(["div", $r, ["class" => "K4i"]]);
     } elseif(!empty($congressmen[$you])) {
      $add = $data["Add"] ?? 0;
      $save = $data["Save"] ?? 0;
@@ -430,17 +441,15 @@
        $responseType = "UpdateContent";
       }
      } elseif(!empty($notes)) {
-      $extension = $this->core->Extension("bdd25e7c79eeafb218f1c2c76a49067b");
       $noteList = "";
-      $notes = $content["Notes"] ?? [];
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
        $noteList .= $this->core->Change([[
-        "[Notes.Body]" => $info["Body"],
+        "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
-        "[Notes.Vote]" => base64_encode("v=".base64_encode("Congress:Notes"))
+        "[Notes.Vote]" => base64_encode("$_Vote&NoteID=$note")
        ], $extension]);
       }
       $r = $this->core->Change([[
