@@ -370,7 +370,6 @@
     } elseif(!empty($congressmen[$you])) {
      $add = $data["Add"] ?? 0;
      $save = $data["Save"] ?? 0;
-     $view = $data["View"] ?? 0;
      $vote = $data["Vote"] ?? 0;
      if($add == 1) {
       $new = $data["New"] ?? 0;
@@ -416,19 +415,6 @@
         "Body" => "Your Note has been added!",
         "Header" => "Done"
        ];
-      }
-     } elseif($view == 1) {
-      $noteID = $data["NoteID"] ?? "";
-      $responseType = "Dialog";
-      $r = [
-       "Body" => "The Note IDentifier is missing."
-      ];
-      if(!empty($noteID)) {
-       $r = [
-        "Front" => $this->core->Change([[
-        ], $this->core->Extension("ViewNote")])
-       ];
-       $responseType = "Card";
       }
      } elseif($vote == 1) {
       $noteID = $data["NoteID"] ?? "";
