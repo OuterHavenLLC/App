@@ -340,7 +340,6 @@
    if(!empty($databaseID) && !empty($id)) {
     $_AddNote = base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
     $_Congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
-    $_Vote = "v=".base64_encode("Congress:Notes")."&Vote=1&ID=$id&dbID=$databaseID";
     $accessCode = "Accepted";
     $congressmen = $_Congress["Members"] ?? [];
     $databaseID = base64_decode($databaseID);
@@ -362,7 +361,13 @@
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
-        "[Notes.Vote]" => base64_encode("$_Vote&NoteID=$note")
+        "[Notes.NoteID]" => $note,
+        "[Notes.Vote]" => $this->view(base64_encode("Congress:Notes"), [
+         "ID" => base64_encode($id)
+         "NoteID" => $note,
+         "Vote" => 1,
+         "dbID" => base64_encode($databaseID)
+        ])
        ], $extension]);
       }
      }
@@ -427,6 +432,7 @@
       ];
       if(!empty($noteID)) {
        $responseType = "UpdateContent";
+       $r = $this->core->Element(["p", "Voting coming soon..."]);
       }
      } elseif(!empty($notes)) {
       $noteList = "";
@@ -437,7 +443,13 @@
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
-        "[Notes.Vote]" => base64_encode("$_Vote&NoteID=$note")
+        "[Notes.NoteID]" => $note,
+        "[Notes.Vote]" => $this->view(base64_encode("Congress:Notes"), [
+         "ID" => base64_encode($id)
+         "NoteID" => $note,
+         "Vote" => 1,
+         "dbID" => base64_encode($databaseID)
+        ])
        ], $extension]);
       }
       $r = $this->core->Change([[
