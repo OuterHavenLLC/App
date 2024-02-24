@@ -430,10 +430,18 @@
        $responseType = "UpdateContent";
       }
      } elseif(!empty($notes)) {
+      $extension = $this->core->Extension("bdd25e7c79eeafb218f1c2c76a49067b");
       $noteList = "";
       $notes = $content["Notes"] ?? [];
       foreach($notes as $note => $info) {
-       # RENDER NOTES LIST AND CONDITIONAL VOTING OPTIONS
+       $author = $this->core->Member($info["UN"]);
+       $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
+       $noteList .= $this->core->Change([[
+        "[Notes.Body]" => $info["Body"],
+        "[Notes.Created]" => $info["Created"],
+        "[Notes.DisplayName]" => $displayName,
+        "[Notes.Vote]" => base64_encode("v=".base64_encode("Congress:Notes"))
+       ], $extension]);
       }
       $r = $this->core->Change([[
        "[Notes.Add]" => $_AddNote,
