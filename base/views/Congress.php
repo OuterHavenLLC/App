@@ -370,6 +370,7 @@
     } elseif(!empty($congressmen[$you])) {
      $add = $data["Add"] ?? 0;
      $save = $data["Save"] ?? 0;
+     $saveVote = $data["SaveVote"] ?? 0;
      $vote = $data["Vote"] ?? 0;
      if($add == 1) {
       $new = $data["New"] ?? 0;
@@ -416,9 +417,10 @@
         "Header" => "Done"
        ];
       }
+     } elseif($saveVote == 1) {
+      # RECORD NOTE VOTES
      } elseif($vote == 1) {
       $noteID = $data["NoteID"] ?? "";
-      $responseType = "Dialog";
       $responseType = "Dialog";
       $r = [
        "Body" => "The Note IDentifier is missing."
