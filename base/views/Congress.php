@@ -357,17 +357,18 @@
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
-       $r .= $this->core->Change([[
+       $vote = $this->view(base64_encode("Congress:Notes"), [
+        "ID" => base64_encode($id)
+        "NoteID" => $note,
+        "Vote" => 1,
+        "dbID" => base64_encode($databaseID)
+       ]);
+       $noteList .= $this->core->Change([[
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
         "[Notes.NoteID]" => $note,
-        "[Notes.Vote]" => $this->view(base64_encode("Congress:Notes"), [
-         "ID" => base64_encode($id)
-         "NoteID" => $note,
-         "Vote" => 1,
-         "dbID" => base64_encode($databaseID)
-        ])
+        "[Notes.Vote]" => $this->core->RenderView($vote)
        ], $extension]);
       }
      }
@@ -439,17 +440,18 @@
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
+       $vote = $this->view(base64_encode("Congress:Notes"), [
+        "ID" => base64_encode($id)
+        "NoteID" => $note,
+        "Vote" => 1,
+        "dbID" => base64_encode($databaseID)
+       ]);
        $noteList .= $this->core->Change([[
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
         "[Notes.NoteID]" => $note,
-        "[Notes.Vote]" => $this->view(base64_encode("Congress:Notes"), [
-         "ID" => base64_encode($id)
-         "NoteID" => $note,
-         "Vote" => 1,
-         "dbID" => base64_encode($databaseID)
-        ])
+        "[Notes.Vote]" => $this->core->RenderView($vote)
        ], $extension]);
       }
       $r = $this->core->Change([[
