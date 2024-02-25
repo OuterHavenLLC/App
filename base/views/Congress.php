@@ -353,6 +353,7 @@
     if(empty($congressmen[$you]) && !empty($notes)) {
      $r = $this->core->Element(["h4", "Congressional Notes"]);
      if(count($notes) > 1) {
+      $rankedNotes = [];
       # RENDER HIGHEST RATED NOTE
      } else {
       foreach($notes as $note => $info) {
@@ -444,14 +445,20 @@
        ];
       } else {
        $noteID = base64_decode($noteID);
+       for($i = 0; $i <= count($notes); $i++) {
+        if(!empty($notes[$i]["Votes"][$you])) {
+         unset($notes[$i]["Votes"][$you]);
+        }
+       }
        $votes = $notes[$noteID]["Votes"] ?? [];
        $votes[$you] = $voteID;
        $notes[$noteID]["Votes"] = $votes;
        $notesSourceContent["Notes"] = $notes;
-       $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
+       #$this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $r = [
-        "Body" => "Your vote has been cast!",
-        "Header" => "Done"
+        "Body" => "Your vote has been cast! (Note ID: $noteID)",
+        "Header" => "Done",
+        "Scrollable" => json_encode($notesSourceContent, true)
        ];
       }
      } elseif($vote == 1) {
