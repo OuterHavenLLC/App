@@ -365,7 +365,7 @@
         "[Notes.NoteID]" => $note,
         "[Notes.Vote]" => $this->core->RenderView($this->view(base64_encode("Congress:Notes"), ["Data" => [
          "ID" => base64_encode($id),
-         "NoteID" => $note,
+         "NoteID" => base64_encode($note),
          "Vote" => 1,
          "dbID" => base64_encode($databaseID)
         ]]))
@@ -427,18 +427,24 @@
       $noteID = $data["NoteID"] ?? "";
       $voteID = $data["VoteID"] ?? "";
       $responseType = "Dialog";
-       $r = [
-        "Body" => "Unknown error. Debug: $databaseID $id $noteID $voteID"
-       ];
-      if(empty($noteID) && $noteID !== 0) {
+      $r = [
+       "Body" => "Unknown error."
+      ];
+      if(empty($noteID)) {
        $r = [
         "Body" => "The Note Identifier is missing."
        ];
-      } elseif(empty($noteID)) {
+      } elseif(empty($voteID)) {
        $r = [
         "Body" => "The Vote Identifier is missing."
        ];
+      } elseif(!in_array($voteID, ["Down", "Up"])) {
+       $r = [
+        "Body" => "An invalid Vote Identifier was supplied."
+       ];
       } else {
+       $noteID = base64_decode($noteID);
+       $notes[$noteID]["Votes"][$you] = $voteID;
        $r = [
         "Body" => "Your vote has been cast!",
         "Header" => "Done",
@@ -447,16 +453,16 @@
       }
      } elseif($vote == 1) {
       $noteID = $data["NoteID"] ?? "";
-      if(!empty($noteID) || $noteID == 0) {
+      if(!empty($noteID)) {
        $check = 0;
-       $noteID = $data["NoteID"] ?? "";
+       $noteID = base64_decode($noteID);
        $votes = $notesSourceContent["Notes"][$noteID]["Votes"] ?? [];
        foreach($votes as $member => $role) {
         if($member == $you) {
          $check = 1;
         }
        } if($check == 0) {
-        $_Vote = "v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID)."&NoteID=$noteID&Vote=1&VoteID=";
+        $_Vote = "v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID)."&NoteID=".base64_encode($noteID)."&SaveVote=1&VoteID=";
         $r = $this->core->Change([[
          "[Notes.Helpful]" => base64_encode($_Vote."Up"),
          "[Notes.NoteID]" => $noteID,
@@ -476,7 +482,7 @@
         "[Notes.NoteID]" => $note,
         "[Notes.Vote]" => $this->core->RenderView($this->view(base64_encode("Congress:Notes"), ["Data" => [
          "ID" => base64_encode($id),
-         "NoteID" => $note,
+         "NoteID" => base64_encode($note),
          "Vote" => 1,
          "dbID" => base64_encode($databaseID)
         ]]))
