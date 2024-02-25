@@ -424,11 +424,26 @@
        ];
       }
      } elseif($saveVote == 1) {
-      # RECORD NOTE VOTES
-      $responseType = "DeleteContent";
+      $noteID = $data["NoteID"] ?? "";
+      $voteID = $data["VoteID"] ?? "";
+      $responseType = "Dialog";
+      if(empty($noteID)) {
+       $r = [
+        "Body" => "The Note Identifier is missing."
+       ];
+      } elseif(empty($noteID) && $noteID !== 0) {
+       $r = [
+        "Body" => "The Note Identifier is missing."
+       ];
+      } else {
+       $r = [
+        "Body" => "Your vote has been cast!",
+        "Header" => "Done",
+        "Scrollable" => json_encode($notesSourceContent, true)
+       ];
+      }
      } elseif($vote == 1) {
       $noteID = $data["NoteID"] ?? "";
-      $r = $this->core->Element(["p", "Note ID: ".$noteID]);
       if(!empty($noteID) || $noteID == 0) {
        $check = 0;
        $noteID = $data["NoteID"] ?? "";
@@ -438,10 +453,11 @@
          $check = 1;
         }
        } if($check == 0) {
+        $_Vote = "v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID)."&NoteID=$noteID&Vote=1&VoteID="
         $r = $this->core->Change([[
-         "[Notes.Helpful]" => "HELPFUL",
+         "[Notes.Helpful]" => base64_encode($_Vote."Up"),
          "[Notes.NoteID]" => $noteID,
-         "[Notes.NotHelpful]" => "NOTHELPFUL"
+         "[Notes.NotHelpful]" => base64_encode($_Vote."Down")
         ], $this->core->Extension("77de16b56ee1c9f80e89ef8eed97662b")]);
        }
       }
