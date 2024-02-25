@@ -452,8 +452,7 @@
        $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $r = [
         "Body" => "Your vote has been cast!",
-        "Header" => "Done",
-        "Scrollable" => json_encode($notesSourceContent, true)
+        "Header" => "Done"
        ];
       }
      } elseif($vote == 1) {
@@ -462,7 +461,7 @@
        $check = 0;
        $noteID = base64_decode($noteID);
        $votes = $notesSourceContent["Notes"][$noteID]["Votes"] ?? [];
-       foreach($votes as $member => $role) {
+       foreach($votes as $member => $vote) {
         if($member == $you) {
          $check = 1;
         }
