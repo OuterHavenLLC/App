@@ -427,19 +427,22 @@
       $noteID = $data["NoteID"] ?? "";
       $voteID = $data["VoteID"] ?? "";
       $responseType = "Dialog";
-      if(empty($noteID)) {
+       $r = [
+        "Body" => "Unknown error. Debug: $databaseID $id $noteID $voteID"
+       ];
+      if(empty($noteID) && $noteID !== 0) {
        $r = [
         "Body" => "The Note Identifier is missing."
        ];
-      } elseif(empty($noteID) && $noteID !== 0) {
+      } elseif(empty($noteID)) {
        $r = [
-        "Body" => "The Note Identifier is missing."
+        "Body" => "The Vote Identifier is missing."
        ];
       } else {
        $r = [
         "Body" => "Your vote has been cast!",
         "Header" => "Done",
-        "Scrollable" => json_encode($notesSourceContent, true)
+        "Scrollable" => json_encode($notes[$noteID], true)
        ];
       }
      } elseif($vote == 1) {
@@ -453,7 +456,7 @@
          $check = 1;
         }
        } if($check == 0) {
-        $_Vote = "v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID)."&NoteID=$noteID&Vote=1&VoteID="
+        $_Vote = "v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID)."&NoteID=$noteID&Vote=1&VoteID=";
         $r = $this->core->Change([[
          "[Notes.Helpful]" => base64_encode($_Vote."Up"),
          "[Notes.NoteID]" => $noteID,
