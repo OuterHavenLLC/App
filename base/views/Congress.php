@@ -347,10 +347,10 @@
     $id = base64_decode($id);
     $notesSourceContent = $this->core->Data("Get", [$databaseID, $id]) ?? [];
     $notes = $notesSourceContent["Notes"] ?? [];
-    $notes = array_reverse($notes);
     $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
     $responseType = "View";
     if(empty($congressmen[$you]) && !empty($notes)) {
+     $notes = array_reverse($notes);
      $r = $this->core->Element(["h4", "Congressional Notes"]);
      if(count($notes) > 1) {
       $rankedNotes = [];
@@ -454,7 +454,7 @@
        $votes[$you] = $voteID;
        $notes[$noteID]["Votes"] = $votes;
        $notesSourceContent["Notes"] = $notes;
-       #$this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
+       $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $r = [
         "Body" => "Your vote has been cast! (Note ID: $noteID)",
         "Header" => "Done",
@@ -482,6 +482,7 @@
       }
      } elseif(!empty($notes)) {
       $noteList = "";
+      $notes = array_reverse($notes);
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
