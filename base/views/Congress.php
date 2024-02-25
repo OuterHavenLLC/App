@@ -359,7 +359,7 @@
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
        $vote = $this->view(base64_encode("Congress:Notes"), [
-        "ID" => base64_encode($id)
+        "ID" => base64_encode($id),
         "NoteID" => $note,
         "Vote" => 1,
         "dbID" => base64_encode($databaseID)
@@ -426,15 +426,20 @@
       }
      } elseif($saveVote == 1) {
       # RECORD NOTE VOTES
+      $responseType = "DeleteContent";
      } elseif($vote == 1) {
       $noteID = $data["NoteID"] ?? "";
-      $responseType = "Dialog";
-      $r = [
-       "Body" => "The Note IDentifier is missing."
-      ];
+      $responseType = "View";
       if(!empty($noteID)) {
-       $responseType = "UpdateContent";
-       $r = $this->core->Element(["p", "Voting coming soon..."]);
+       $noteID = $data["NoteID"] ?? "";
+       $votes = $notesSourceContent["Notes"][$noteID]["Votes"] ?? [];
+       if(!in_array($you, $votes)) {
+        $r = $this->core->Change([[
+         "[Notes.Helpful]" => "HELPFUL",
+         "[Notes.NoteID]" => $noteID,
+         "[Notes.NotHelpful]" => "NOTHELPFUL"
+        ], $this->core->Extension("77de16b56ee1c9f80e89ef8eed97662b")]);
+       }
       }
      } elseif(!empty($notes)) {
       $noteList = "";
@@ -442,7 +447,7 @@
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
        $vote = $this->view(base64_encode("Congress:Notes"), [
-        "ID" => base64_encode($id)
+        "ID" => base64_encode($id),
         "NoteID" => $note,
         "Vote" => 1,
         "dbID" => base64_encode($databaseID)
