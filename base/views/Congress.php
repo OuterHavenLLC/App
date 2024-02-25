@@ -444,11 +444,14 @@
        ];
       } else {
        $noteID = base64_decode($noteID);
-       $notes[$noteID]["Votes"][$you] = $voteID;
+       $votes = $notes[$noteID]["Votes"] ?? [];
+       $votes[$you] = $voteID;
+       $notes[$noteID]["Votes"] = $votes;
+       $notesSourceContent["Notes"] = $notes;
+       $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $r = [
         "Body" => "Your vote has been cast!",
-        "Header" => "Done",
-        "Scrollable" => json_encode($notes[$noteID], true)
+        "Header" => "Done"
        ];
       }
      } elseif($vote == 1) {
