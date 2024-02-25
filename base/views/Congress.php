@@ -363,13 +363,8 @@
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
-        "[Notes.NoteID]" => $note,
-        "[Notes.Vote]" => $this->core->RenderView($this->view(base64_encode("Congress:Notes"), ["Data" => [
-         "ID" => base64_encode($id),
-         "NoteID" => base64_encode($note),
-         "Vote" => 1,
-         "dbID" => base64_encode($databaseID)
-        ]]))
+        "[Notes.NoteID]" => "",
+        "[Notes.Vote]" => ""
        ], $extension]);
       }
      }
@@ -456,7 +451,7 @@
        $notesSourceContent["Notes"] = $notes;
        $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $r = [
-        "Body" => "Your vote has been cast! (Note ID: $noteID)",
+        "Body" => "Your vote has been cast!",
         "Header" => "Done",
         "Scrollable" => json_encode($notesSourceContent, true)
        ];
