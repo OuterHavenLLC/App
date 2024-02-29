@@ -349,7 +349,8 @@
     $notes = $notesSourceContent["Notes"] ?? [];
     $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
     $responseType = "View";
-    if(empty($congressmen[$you]) && !empty($notes)) {
+    if((1==1 || empty($congressmen[$you])) && !empty($notes)) {//TEMP
+    #if(empty($congressmen[$you]) && !empty($notes)) {
      if(count($notes) > 1) {
       $rank = 0;
       foreach($notes as $note => $info) {
@@ -364,7 +365,7 @@
         }
        }
        $noteRank = $helpful - $notHelpful;
-       if($noteRank > $rank) {
+       if($noteRank >= $rank) {
         $rank = $noteRank;
         $author = $this->core->Member($info["UN"]);
         $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
@@ -473,11 +474,10 @@
        $votes[$you] = $voteID;
        $notes[$noteID]["Votes"] = $votes;
        $notesSourceContent["Notes"] = $notes;
-       #$this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
+       $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $r = [
         "Body" => "Your vote has been cast!",
-        "Header" => "Done",
-        "Scrollable" => json_encode([$noteID, $voteID, $notes], true)
+        "Header" => "Done"
        ];
       }
      } elseif($vote == 1) {
@@ -486,11 +486,16 @@
        $check = 0;
        $noteID = base64_decode($noteID);
        $votes = $notesSourceContent["Notes"][$noteID]["Votes"] ?? [];
+       $yourVote = "";
        foreach($votes as $member => $vote) {
         if($member == $you) {
          $check = 1;
+         $vote = ($vote == "Up") ? "Helpful" : "Not Helpful";
+         $yourVote = $vote;
         }
-       } if($check == 0) {
+       } if($check == 1) {
+        $r = $this->core->Element(["p", "You voted this Note <em>$yourVote</em>."]);
+       } else {
         $_Vote = "v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID)."&NoteID=".base64_encode($noteID)."&SaveVote=1&VoteID=";
         $r = $this->core->Change([[
          "[Notes.Helpful]" => base64_encode($_Vote."Up"),
@@ -500,12 +505,12 @@
        }
       }
      } elseif(!empty($notes)) {
-      $noteList = "";
-      $notes = array_reverse($notes);
+      $noteList = [];
+      $r = "";
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
-       $noteList .= $this->core->Change([[
+       array_push($noteList, $this->core->Change([[
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
@@ -516,11 +521,15 @@
          "Vote" => 1,
          "dbID" => base64_encode($databaseID)
         ]]))
-       ], $extension]);
+       ], $extension]));
+      }
+      $noteList = array_reverse($noteList);
+      foreach($noteList as $note) {
+       $r .= $note;
       }
       $r = $this->core->Change([[
        "[Notes.Add]" => $_AddNote,
-       "[Notes.List]" => $noteList
+       "[Notes.List]" => $r
       ], $this->core->Extension("d6531d7ef40646ecdefbff5b496cec79")]);
      } else {
       $r = $this->core->Change([[
