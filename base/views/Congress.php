@@ -349,31 +349,36 @@
     $notes = $notesSourceContent["Notes"] ?? [];
     $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
     $responseType = "View";
-    if(!empty($congressmen[$you]) && !empty($notes)) {//TEMP
-    #if(empty($congressmen[$you]) && !empty($notes)) {
-     $notes = array_reverse($notes);
-     $r = $this->core->Element(["h4", "Congressional Notes"]);
+    if(empty($congressmen[$you]) && !empty($notes)) {
      if(count($notes) > 1) {
       $rank = 0;
-      $ranked = [];
       foreach($notes as $note => $info) {
        $helpful = 0;
        $notHelpful = 0;
        $votes = $info["Votes"] ?? [];
        foreach($votes as $member => $vote) {
-        if($vote == "Helpful") {
-         $helpful++;
-        } elseif($vote == "NotHelpful") {
+        if($vote == "Down") {
          $notHelpful++;
+        } elseif($vote == "Up") {
+         $helpful++;
         }
        }
        $noteRank = $helpful - $notHelpful;
-       $rank = ($noteRank > $rank) ? $noteRank : $rank;
-       $ranked[$noteRank] = $info;
+       if($noteRank > $rank) {
+        $rank = $noteRank;
+        $author = $this->core->Member($info["UN"]);
+        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
+        $r = $this->core->Element([
+         "h4", "Congressional Notes"
+        ]).$this->core->Change([[
+         "[Notes.Body]" => $info["Note"],
+         "[Notes.Created]" => $info["Created"],
+         "[Notes.DisplayName]" => $displayName,
+         "[Notes.NoteID]" => "",
+         "[Notes.Vote]" => ""
+        ], $extension]);
+       }
       }
-      $ranked = ksort($ranked);
-      $ranked = end($ranked);
-      $r = $this->core->Element(["p", json_encode($ranked, true)]);
      } else {
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
@@ -468,10 +473,11 @@
        $votes[$you] = $voteID;
        $notes[$noteID]["Votes"] = $votes;
        $notesSourceContent["Notes"] = $notes;
-       $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
+       #$this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $r = [
         "Body" => "Your vote has been cast!",
-        "Header" => "Done"
+        "Header" => "Done",
+        "Scrollable" => json_encode([$noteID, $voteID, $notes], true)
        ];
       }
      } elseif($vote == 1) {
