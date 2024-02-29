@@ -288,31 +288,32 @@
     } else {
      $member = base64_decode($member);
      $member = ($member == $you) ? $y : $this->core->Member($member);
-     $electionTime = $congress["NextElection"] ?? strtotime($this->core->timestamp);
-     $electionTime = (strtotime($this->core->timestamp) >= $electionTime) ? 1 : 0;
-     $isElectable = $member["Personal"]["Electable"] ?? 0;
-     $isElectable = ($electionTime == 1 && $isElectable == 1) ? 1 : 0;
-     $isElectable = ($electionTime == 1) ? 1 : 0;//TEMP
-     $them = $member["Login"]["Username"];
-     $diaplayName = $member["Personal"]["DisplayName"] ?? $them;
-     if($isElectable == 1 && $them != $this->core->ID && $them != $you) {
-      $isNominated = 0;
-      $isOnStaff = 0;
-      foreach($ballot as $nominee => $info) {
-       if($nominee == $them) {
-        $isNominated++;
+     if(!empty($member["Login"])) {
+      $electionTime = $congress["NextElection"] ?? strtotime($this->core->timestamp);
+      $electionTime = (strtotime($this->core->timestamp) >= $electionTime) ? 1 : 0;
+      $isElectable = $member["Personal"]["Electable"] ?? 0;
+      $isElectable = ($electionTime == 1 && $isElectable == 1) ? 1 : 0;
+      $them = $member["Login"]["Username"];
+      $diaplayName = $member["Personal"]["DisplayName"] ?? $them;
+      if($isElectable == 1 && $them != $this->core->ID && $them != $you) {
+       $isNominated = 0;
+       $isOnStaff = 0;
+       foreach($ballot as $nominee => $info) {
+        if($nominee == $them) {
+         $isNominated++;
+        }
+       } foreach($congressionalStaff as $staff => $role) {
+        if($staff == $them) {
+         $isOnStaff++;
+        }
+       } if($isNominated == 0 && $isOnStaff == 0) {
+        $r = $this->core->Change([[
+         "[Nomination.DisplayName]" => $diaplayName,
+         "[Nomination.ID]" => md5($them),
+         "[Nomination.Save]" => base64_encode("v=".base64_encode("Congress:Nominate")),
+         "[Nomination.Username]" => $them
+        ], $this->core->Extension("f10284649796c26dd863d3872379e7d9")]);
        }
-      } foreach($congressionalStaff as $staff => $role) {
-       if($staff == $them) {
-        $isOnStaff++;
-       }
-      } if($isNominated == 0 && $isOnStaff == 0) {
-       $r = $this->core->Change([[
-        "[Nomination.DisplayName]" => $diaplayName,
-        "[Nomination.ID]" => md5($them),
-        "[Nomination.Save]" => base64_encode("v=".base64_encode("Congress:Nominate")),
-        "[Nomination.Username]" => $them
-       ], $this->core->Extension("f10284649796c26dd863d3872379e7d9")]);
       }
      }
     }
@@ -349,8 +350,7 @@
     $notes = $notesSourceContent["Notes"] ?? [];
     $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
     $responseType = "View";
-    if((1==1 || empty($congressmen[$you])) && !empty($notes)) {//TEMP
-    #if(empty($congressmen[$you]) && !empty($notes)) {
+    if(empty($congressmen[$you]) && !empty($notes)) {
      if(count($notes) > 1) {
       $rank = 0;
       foreach($notes as $note => $info) {
