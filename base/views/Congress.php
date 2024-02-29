@@ -349,12 +349,31 @@
     $notes = $notesSourceContent["Notes"] ?? [];
     $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
     $responseType = "View";
-    if(empty($congressmen[$you]) && !empty($notes)) {
+    if(!empty($congressmen[$you]) && !empty($notes)) {//TEMP
+    #if(empty($congressmen[$you]) && !empty($notes)) {
      $notes = array_reverse($notes);
      $r = $this->core->Element(["h4", "Congressional Notes"]);
      if(count($notes) > 1) {
-      $rankedNotes = [];
-      # RENDER HIGHEST RATED NOTE
+      $rank = 0;
+      $ranked = [];
+      foreach($notes as $note => $info) {
+       $helpful = 0;
+       $notHelpful = 0;
+       $votes = $info["Votes"] ?? [];
+       foreach($votes as $member => $vote) {
+        if($vote == "Helpful") {
+         $helpful++;
+        } elseif($vote == "NotHelpful") {
+         $notHelpful++;
+        }
+       }
+       $noteRank = $helpful - $notHelpful;
+       $rank = ($noteRank > $rank) ? $noteRank : $rank;
+       $ranked[$noteRank] = $info;
+      }
+      $ranked = ksort($ranked);
+      $ranked = end($ranked);
+      $r = $this->core->Element(["p", json_encode($ranked, true)]);
      } else {
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
