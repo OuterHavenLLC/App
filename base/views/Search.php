@@ -1165,7 +1165,7 @@
       $check = ($chamber == "House" && $role == "HouseRepresentative") ? 1 : 0;
       $check2 = ($chamber == "Senate" && $role == "Senator") ? 1 : 0;
       if($check == 1 || $check2 == 1) {
-       $t = ($key == $you) ? $y : $this->core->Member($member);
+       $t = ($member == $you) ? $y : $this->core->Member($member);
        if(!empty($t["Login"])) {
         array_push($msg, [
          "[ListItem.Button]" => base64_encode($this->core->Element([
