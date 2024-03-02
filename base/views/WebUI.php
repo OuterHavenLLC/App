@@ -88,16 +88,12 @@
    $search = base64_encode("Search:Containers");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $admin = ($y["Rank"] == md5("High Command")) ? $this->core->Change([[
-    "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
-    "[Admin.Feedback]" => base64_encode("v=$search&st=Feedback"),
-    "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
-    "[Admin.MassMail]" => base64_encode("v=$search&st=ADM-MassMail"),
-    "[Admin.Mail]" => "https://mail.outerhaven.nyc/iredadmin/",
-    "[Admin.Pages]" => base64_encode("v=$search&st=ADM-LLP"),
-    "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
-    "[Admin.Server]" => "https://www.digitalocean.com/"
-   ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]) : "";
+   $admin = ($y["Rank"] == md5("High Command")) ? $this->core->Element([
+    "button", "Control Panel", [
+     "class" => "CloseNetMap LI UpdateContent"
+     "data-view" => base64_encode("v=".base64_encode("ControlPanel:Home"))
+    ]
+   ]) : "";
    $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->core->Element([
     "button", "Shop", [
      "class" => "CloseNetMap LI UpdateContent",
