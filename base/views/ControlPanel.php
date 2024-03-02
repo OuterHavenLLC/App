@@ -21,6 +21,7 @@
    } elseif($y["Rank"] == md5("High Command")) {
     $accessCode = "Accepted";
     $config = $this->core->Configuration() ?? [];
+    $search = base64_encode("Search:Containers");
     $r = $this->core->Change([[
      "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
      "[Admin.Feedback]" => base64_encode("v=$search&st=Feedback"),
