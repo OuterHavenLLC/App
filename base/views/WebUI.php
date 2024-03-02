@@ -90,7 +90,7 @@
    $you = $y["Login"]["Username"];
    $admin = ($y["Rank"] == md5("High Command")) ? $this->core->Element([
     "button", "Control Panel", [
-     "class" => "CloseNetMap LI UpdateContent"
+     "class" => "CloseNetMap LI UpdateContent",
      "data-view" => base64_encode("v=".base64_encode("ControlPanel:Home"))
     ]
    ]) : "";
