@@ -191,6 +191,198 @@
      "Keywords" => "Outer Haven, social entertainment, artist tools, social media, social discovery, creative community, hidden, deep web, private network, empowering expression, connect to the world, videos, music, share, playlists, mixes, profiles, discovery, discover, join the world with privatized social networking, NSA-free",
      "LiveEvent" => 0,
      "Name" => "Outer Haven",
+     "Search" => [
+      "ADM-LLP" => [
+       "Description" => "Client-side templates for all views on the platform.",
+       "Title" => "App Extensions"
+      ],
+      "ADM-MassMail" => [
+       "Description" => "Pre-sets saved for re-use in Mass Mail.",
+       "Title" => "Mass Mail"
+      ],
+      "BGP" => [
+       "Description" => "Posts contributed to [Blog.Name].",
+       "Title" => "Blog Posts"
+      ],
+      "BL" => [
+       "Description" => "Content which you have blocked will appear here.",
+       "Title" => "[Blacklist.Name] Blacklist"
+      ],
+      "BLG" => [
+       "Description" => "A platform-wide list of Blogs.",
+       "Title" => "Blogs"
+      ],
+      "Bulletins" => [
+       "Description" => "All Bulletins which have been sent to you.",
+       "Title" => "Bulletins"
+      ],
+      "CA" => [
+       "Description" => "Articles contributed by all Members of the platform.",
+       "Title" => "Community Archive"
+      ],
+      "CART" => [
+       "Description" => "Your [Shop.Name] Shopping Cart.",
+       "Title" => "Shopping Cart"
+      ],
+      "Chat" => [
+       "Description" => "A list of available Group Chats.",
+       "Title" => "Group Chat"
+      ],
+      "Congress" => [
+       "Description" => "Set the record straight for content reported by other Members.",
+       "Title" => "Content Moderation"
+      ],
+      "CongressionalBallot" => [
+       "Description" => "Members nominated to join Congress.",
+       "Title" => "Congressional Ballot"
+      ],
+      "CongressionalStaffHouse" => [
+       "Description" => "Members enrolled in the Congressional House of Representatives.",
+       "Title" => "House Representatives"
+      ],
+      "CongressionalStaffSenate" => [
+       "Description" => "Members enrolled in the Congressional Senate.",
+       "Title" => "Senators"
+      ],
+      "Contacts" => [
+       "Description" => "Your active Contacts will appear here.",
+       "Title" => "Contacts"
+      ],
+      "ContactsProfileList" => [
+       "Description" => "Members who [Member.DisplayName] has connected with.",
+       "Title" => "[Member.DisplayName]'s Contacts"
+      ],
+      "ContactsRequests" => [
+       "Description" => "Members who have sent you a Contact Request will appear here.",
+       "Title" => "Contact Requests"
+      ],
+      "Contributors" => [
+       "Description" => "Members who are contributing to [PrimaryContent.Name].",
+       "Title" => "Contributors"
+      ],
+      "DC" => [
+       "Description" => "Discounts and promotional codes available at your Shop.",
+       "Title" => "Discount Codes"
+      ],
+      "Feedback" => [
+       "Description" => "A list of Feedback threads.",
+       "Title" => "Feedback"
+      ],
+      "Forums" => [
+       "Description" => "A platform-wide list of Forums.",
+       "Title" => "Forums"
+      ],
+      "Forums-Admin" => [
+       "Description" => "A list of Forum Administrators.",
+       "Title" => "Administrators"
+      ],
+      "Forums-Posts" => [
+       "Description" => "A list of threads created by Forum Members.",
+       "Title" => "Forum Posts"
+      ],
+      "Knowledge" => [
+       "Description" => "Frequently Asked Questions.",
+       "Title" => "Knowledge"
+      ],
+      "Links" => [
+       "Description" => "A platform-wide list of Member-contributed links.",
+       "Title" => "Links"
+      ],
+      "Mainstream" => [
+       "Description" => "Join the global conversation!",
+       "Title" => "The Mainstream"
+      ],
+      "MBR" => [
+       "Description" => "A platform-wide list of active Members.",
+       "Title" => "Members"
+      ],
+      "MBR-ALB" => [
+       "Description" => "A list of [Member.DisplayName]'s albums.",
+       "Title" => "[Member.DisplayName]'s Media Albums"
+      ],
+      "MBR-BLG" => [
+       "Description" => "A list of [Member.DisplayName]'s blogs.",
+       "Title" => "[Member.DisplayName]'s Blogs"
+      ],
+      "MBR-CA" => [
+       "Description" => "A list of [Member.DisplayName]'s Community Archive articles.",
+       "Title" => "[Member.DisplayName]'s Archive Contributions"
+      ],
+      "MBR-Chat" => [
+       "Description" => "A list of active 1:1 Chats.",
+       "Title" => "1:1 Chat"
+      ],
+      "MBR-GroupChat" => [
+       "Description" => "A list of [Member.DisplayName]'s Group Chats.",
+       "Title" => "[Member.DisplayName]'s Group Chats"
+      ],
+      "MBR-Forums" => [
+       "Description" => "A list of [Member.DisplayName]'s Public Forums.",
+       "Title" => "[Member.DisplayName]'s Forums"
+      ],
+      "MBR-JE" => [
+       "Description" => "A list of [Member.DisplayName]'s Journal Entries.",
+       "Title" => "[Member.DisplayName]'s Journal"
+      ],
+      "MBR-LLP" => [
+       "Description" => "A list of your Community Archive contributions.",
+       "Title" => "Your Articles"
+      ],
+      "MBR-Polls" => [
+       "Description" => "A list of Polls posted by [Member.DisplayName].",
+       "Title" => "[Member.DisplayName]'s Polls"
+      ],
+      "MBR-SU" => [
+       "Description" => "A list of Status Updates posted by or for [Member.DisplayName].",
+       "Title" => "[Member.DisplayName]'s Stream"
+      ],
+      "MBR-XFS" => [
+       "Description" => "All media uploaded by [Member.DisplayName].",
+       "Title" => "[Member.DisplayName]'s Media Library"
+      ],
+      "Media",
+      "Polls" => [
+       "Description" => "An open platform to voice your opinion of any given topic.",
+       "Title" => "Polls"
+      ],
+      "PR" => [
+       "Description" => "Platform and community news.",
+       "Title" => "Press Releases"
+      ],
+      "Products" => [
+       "Description" => "Every available product for sale by all active Shops.",
+       "Title" => "Products"
+      ],
+      "SHOP" => [
+       "Description" => "A list of all active Shops.",
+       "Title" => "Shops"
+      ],
+      "SHOP-InvoicePresets" => [
+       "Description" => "A list of pre-sets available for future Invoices.",
+       "Title" => "Invoice Pre-sets"
+      ],
+      "SHOP-Invoices" => [
+       "Description" => "A list of Invoices.",
+       "Title" => "Invoices"
+      ],
+      "SHOP-Orders" => [
+       "Description" => "A list of orders for physical products or those which require instructions.",
+       "Title" => "Purchase Orders"
+      ],
+      "SHOP-Products" => [
+       "Description" => "A list of Products available at [Shop.Name].",
+       "Title" => "Products"
+      ],
+      "StatusUpdates" => [
+       "Description" => "A platform-wide list of Status Updates.",
+       "Title" => "Status Updates"
+      ],
+      "StatusUpdates",
+      "XFS" => [
+       "Description" => "The core file system.",
+       "Title" => "App Media Library"
+      ]
+     ],
      "SearchIDs" => [
       "ADM-LLP",
       "ADM-MassMail",

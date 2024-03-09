@@ -30,7 +30,8 @@
      "[Admin.Mail]" => "https://mail.outerhaven.nyc/iredadmin/",
      "[Admin.Pages]" => base64_encode("v=$search&CARD=1&st=ADM-LLP"),
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
-     "[Admin.Server]" => "https://www.digitalocean.com/"
+     "[Admin.Server]" => "https://www.digitalocean.com/",
+     "[App.Configuration.Model]" => json_encode($config, true)
     ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
    }
    return $this->core->JSONResponse([

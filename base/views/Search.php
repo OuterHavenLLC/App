@@ -13,14 +13,14 @@
    $card = $data["CARD"] ?? 0;
    $h = "";
    $i = 0;
-   $st = $data["st"] ?? "";
-   $lpg = $data["lPG"] ?? $st;
    $pub = $data["pub"] ?? 0;
+   $searchType = $data["st"] ?? "";
+   $lpg = $data["lPG"] ?? $searchType;
+   $searchLists = $this->core->config["App"]["Search"];
    $query = $data["query"] ?? "";
-   $sta = $this->core->config["App"]["SearchIDs"];
-   $ck = (!empty($st) && in_array($st, $sta)) ? 1 : 0;
-   $li = "v=".$this->lists."&query=$query&st=$st";
-   $lit = md5($st.$this->core->timestamp.rand(0, 1776));
+   $ck = (!empty($searchType) && in_array($searchType, $searchLists)) ? 1 : 0;
+   $li = "v=".$this->lists."&query=$query&st=$searchType";
+   $lit = md5($searchType.$this->core->timestamp.rand(0, 1776));
    $lo = "";
    $r = [
     "Body" => "The List Type is missing.",
@@ -30,9 +30,13 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
-   if($ck == 1) {
+   foreach($searchLists as $key => $list) {
+    if($key == $searchType) {
+     $ck++;
+    }
+   } if($ck == 1) {
     $accessCode = "Accepted";
-    if($st == "ADM-LLP") {
+    if($searchType == "ADM-LLP") {
      $h = "App Extensions";
      $lis = "Search Extensions";
      $lo =  ($notAnon == 1) ? $this->core->Element([
@@ -41,7 +45,7 @@
        "data-view" => base64_encode("v=".base64_encode("Extension:Edit")."&New=1")
       ]
      ]) : "";
-    } elseif($st == "ADM-MassMail") {
+    } elseif($searchType == "ADM-MassMail") {
      $h = "Mass Mail";
      $lis = "Search Pre-Sets";
      $lo =  ($notAnon == 1) ? $this->core->Element([
@@ -50,64 +54,64 @@
        "data-view" => base64_encode("v=".base64_encode("Company:MassMail")."&new=1")
       ]
      ]) : "";
-    } elseif($st == "BGP") {
+    } elseif($searchType == "BGP") {
      $data = $this->core->FixMissing($data, ["BLG"]);
      $h = "Blog Posts";
      $li .= "&ID=".$data["ID"];
      $lis = "Search Posts";
-    } elseif($st == "BL") {
+    } elseif($searchType == "BL") {
      $bl = base64_decode($data["BL"]);
      $h = "$bl Blacklist";
      $li .= "&BL=".$data["BL"];
      $lis = "Search $bl Blacklist";
      $extension = "6dc4eecde24bf5f5e70da253aaac2b68";
-    } elseif($st == "BLG") {
+    } elseif($searchType == "BLG") {
      $h = "Blogs";
-     $li .= "&b2=Blogs&lPG=$st";
+     $li .= "&b2=Blogs&lPG=$searchType";
      $lis = "Search Blogs";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "Bulletins") {
+    } elseif($searchType == "Bulletins") {
      $h = "Bulletins";
      $lis = "Search Bulletins";
-    } elseif($st == "CA") {
+    } elseif($searchType == "CA") {
      $h = "Community Archive";
      $li .= "&b2=".urlencode("the Archive")."&lPG=$lpg";
      $lis = "Search Articles";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "CART") {
+    } elseif($searchType == "CART") {
      $extension = "e58b4fc5070b14c01c88c28050547285";
      $username = $data["Username"] ?? $you;
      $shopID = md5($username);
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
      $li .= "&ID=$shopID&Username=".base64_encode($username);
      $lis = "Search ".$shop["Title"];
-    } elseif($st == "Chat") {
+    } elseif($searchType == "Chat") {
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $h = "Group Chats";
      $integrated = $data["Integrated"] ?? 0;
      $li .= "&Integrated=$integrated";
      $lis = "Search $h";
-    } elseif($st == "Congress") {
+    } elseif($searchType == "Congress") {
      $chamber = $data["Chamber"] ?? "";
      $extension = "8568ac7727dae51ee4d96334fa891395";
      $h = "Content Moderation";
      $li .= "&Chamber=$chamber";
      $lis = "Search Content";
-    } elseif($st == "CongressionalBallot") {
+    } elseif($searchType == "CongressionalBallot") {
      $chamber = $data["Chamber"] ?? "";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $h = "Congressional Ballot";
      $li .= "&Chamber=$chamber";
      $lis = "Search Candidates";
-    } elseif($st == "CongressionalStaffHouse" || $st == "CongressionalStaffSenate") {
+    } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
      $chamber = $data["Chamber"] ?? "";
      $extension = "e58b4fc5070b14c01c88c28050547285";
      $li .= "&Chamber=$chamber";
      $lis = "Search  $chamber Staff";
-    } elseif($st == "Contacts") {
+    } elseif($searchType == "Contacts") {
      $h = "Contact Manager";
      $lis = "Search Contacts";
-    } elseif($st == "ContactsProfileList") {
+    } elseif($searchType == "ContactsProfileList") {
      $data = $this->core->FixMissing($data, ["UN"]);
      $username = base64_decode($data["UN"]);
      $ck = ($username == $y["Login"]["Username"]) ? 1 : 0;
@@ -115,10 +119,10 @@
      $h = ($ck == 1) ? "Your Contacts" : $t["Personal"]["DisplayName"]."'s Contacts";
      $li .= "&b2=$b2&lPG=$lpg&UN=".$data["UN"];
      $lis = "Search Contacts";
-    } elseif($st == "ContactsRequests") {
+    } elseif($searchType == "ContactsRequests") {
      $h = "Contact Requests";
      $lis = "Search Contact Requests";
-    } elseif($st == "Contributors") {
+    } elseif($searchType == "Contributors") {
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $id = $data["ID"] ?? "";
      $li .= "&ID=$id&Type=".$data["Type"];
@@ -162,7 +166,7 @@
       $h = "Contributors";
       $lis = "Search Contributors";
      }
-    } elseif($st == "DC") {
+    } elseif($searchType == "DC") {
      $dce = base64_encode("DiscountCode:Edit");
      $h = "Discount Codes";
      $lis = "Search Codes";
@@ -172,51 +176,51 @@
        "data-view" => base64_encode("v=$dce&new=1")
       ]
      ]) : "";
-    } elseif($st == "Feedback") {
+    } elseif($searchType == "Feedback") {
      $h = "Feedback";
      $li .= "&lPG=$lpg";
      $lis = "Search Feedback";
-    } elseif($st == "Forums") {
+    } elseif($searchType == "Forums") {
      $h = "Forums";
      $li .= "&lPG=$lpg";
      $lis = "Search Private and Public Forums";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "Forums-Admin") {
+    } elseif($searchType == "Forums-Admin") {
      $h = "Administrators";
      $li .= "&ID=".$data["ID"];
      $lis = "Search Administrators";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "Forums-Posts") {
+    } elseif($searchType == "Forums-Posts") {
      $id = $data["ID"] ?? "";
      $id = base64_decode($id);
      $f = $this->core->Data("Get", ["pf", $id]) ?? [];
      $h = "Forum Posts";
      $li .= "&ID=$id";
      $lis = "Search Posts from ".$f["Title"];
-    } elseif($st == "Knowledge") {
+    } elseif($searchType == "Knowledge") {
      $extension = "8568ac7727dae51ee4d96334fa891395";
      $h = "Knowledge Base";
      $lis = "Search Q&As";
-    } elseif($st == "Links") {
+    } elseif($searchType == "Links") {
      $h = "Links";
      $lis = "Search Links";
      $lo = $this->core->Element(["button", "+", [
       "class" => "OpenFirSTEPTool v2",
       "data-fst" => base64_encode("v=".base64_encode("Search:Links"))
      ]]);
-    } elseif($st == "Mainstream") {
+    } elseif($searchType == "Mainstream") {
      $extension = "f2513ac8d0389416b680c75ed5667774";
-     $h = "The ".$st;
+     $h = "The ".$searchType;
      $lis = "Search the Mainstream";
      $lo = $this->core->Element(["button", "Say Something", [
       "class" => "BBB MobileFull OpenCard v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
      ]]);
-    } elseif($st == "MBR") {
+    } elseif($searchType == "MBR") {
      $h = "Members";
      $lis = "Search Members";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "MBR-ALB") {
+    } elseif($searchType == "MBR-ALB") {
      $ae = base64_encode("Album:Edit");
      $username = base64_decode($data["UN"]);
      $t = ($username == $you) ? $y : $this->core->Member($username);
@@ -226,19 +230,19 @@
      $b2 = urlencode($b2);
      $li .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$lpg";
      $lis = "Search Albums";
-    } elseif($st == "MBR-BLG") {
+    } elseif($searchType == "MBR-BLG") {
      $bd = base64_encode("Authentication:DeleteBlogs");
      $be = base64_encode("Blog:Edit");
      $h = "Your Blogs";
      $li .= "&b2=Blogs&lPG=$lpg";
      $lis = "Search your Blogs";
-    } elseif($st == "MBR-CA") {
+    } elseif($searchType == "MBR-CA") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $h = ($ck == 1) ? "Your Contributions" : $t["Personal"]["DisplayName"]."'s Contributions";
      $li .= "&b2=$b2&lPG=$lpg&UN=".$data["UN"];
      $lis = "Search the Archive";
-    } elseif($st == "MBR-Chat" || $st == "MBR-GroupChat") {
+    } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
      $group = $data["Group"] ?? 0;
      $integrated = $data["Integrated"] ?? 0;
      $oneOnOne = $data["1on1"] ?? 0;
@@ -247,25 +251,25 @@
      $li .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
      $lis = "Search $h";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "MBR-Forums") {
+    } elseif($searchType == "MBR-Forums") {
      $h = "Your Forums";
      $li .= "&lPG=$lpg";
      $lis = "Search Your Private and Public Forums";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "MBR-JE") {
+    } elseif($searchType == "MBR-JE") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $h = ($ck == 1) ? "Your Journal" : $t["Personal"]["DisplayName"]."'s Journal";
      $li .= "&b2=$b2&lPG=$lpg";
      $lis = "Search Entries";
-    } elseif($st == "MBR-LLP") {
+    } elseif($searchType == "MBR-LLP") {
      $h = "Your Articles";
      $li .= "&b2=$b2&lPG=$lpg";
      $lis = "Search Articles";
-    } elseif($st == "MBR-Polls") {
+    } elseif($searchType == "MBR-Polls") {
      $h = "Your Polls";
      $lis = "Search Polls";
-    } elseif($st == "MBR-SU") {
+    } elseif($searchType == "MBR-SU") {
      $t = base64_decode($data["UN"]);
      $t = ($t != $you) ? $this->core->Member($t) : $y;
      $bl = $this->core->CheckBlocked([$t, "Members", $you]);
@@ -285,7 +289,7 @@
       ]
      ]) : "";
      $extension = "8568ac7727dae51ee4d96334fa891395";
-    } elseif($st == "MBR-XFS") {
+    } elseif($searchType == "MBR-XFS") {
      $aid = $data["AID"] ?? md5("unsorted");
      $fs = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
      $xfsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
@@ -328,42 +332,42 @@
       ], $this->core->Extension("af26c6866abb335fb69327ed3963a182")]);
      }
      $extension = "46ef1d0890a2a5639f67bfda1634ca82";
-    } elseif($st == "Media") {
+    } elseif($searchType == "Media") {
      $h = "Media";
      $lis = "Search Files";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "Polls") {
+    } elseif($searchType == "Polls") {
      $h = "Polls";
      $lis = "Search Polls";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "PR") {
+    } elseif($searchType == "PR") {
      $h = "Press Releases";
      $li .= "&b2=".urlencode("Press Releases")."&lPG=$lpg";
      $lis = "Search Articles";
-    } elseif($st == "Products") {
+    } elseif($searchType == "Products") {
      $h = "Products";
-     $li .= "&lPG=$lpg&st=$st";
+     $li .= "&lPG=$lpg&st=$searchType";
      $lis = "Search Products";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "SHOP") {
+    } elseif($searchType == "SHOP") {
      $h = "Artists";
-     $li .= "&lPG=$lpg&st=$st";
+     $li .= "&lPG=$lpg&st=$searchType";
      $lis = "Search Shops";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "SHOP-InvoicePresets") {
+    } elseif($searchType == "SHOP-InvoicePresets") {
      $h = "Services";
      $shop = $data["Shop"] ?? "";
-     $li .= "&Shop=$shop&st=$st";
+     $li .= "&Shop=$shop&st=$searchType";
      $lis = "Search Services";
-    } elseif($st == "SHOP-Invoices") {
+    } elseif($searchType == "SHOP-Invoices") {
      $h = "Invoices";
      $shop = $data["Shop"] ?? "";
-     $li .= "&Shop=$shop&st=$st";
+     $li .= "&Shop=$shop&st=$searchType";
      $lis = "Search Invoices";
-    } elseif($st == "SHOP-Products") {
+    } elseif($searchType == "SHOP-Products") {
      $h = "Products";
      $username = $data["UN"] ?? base64_encode($you);
-     $li .= "&UN=$username&b2=$b2&lPG=$lpg&pub=$pub&st=$st";
+     $li .= "&UN=$username&b2=$b2&lPG=$lpg&pub=$pub&st=$searchType";
      $lis = "Search $b2";
      $t = base64_decode($data["UN"]);
      $t = $this->core->Member($t);
@@ -395,14 +399,14 @@
       ]
      ]) : "";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-    } elseif($st == "SHOP-Orders") {
+    } elseif($searchType == "SHOP-Orders") {
      $lis = "Search Orders";
      $extension = "e58b4fc5070b14c01c88c28050547285";
-    } elseif($st == "XFS") {
+    } elseif($searchType == "XFS") {
      $_AddTo = $data["AddTo"] ?? "";
      $_Added = $data["Added"] ?? "";
      $h = "Files";
-     $lPG = $data["lPG"] ?? $st;
+     $lPG = $data["lPG"] ?? $searchType;
      $li .= "&AddTo=".$_AddTo."&Added=".$_Added."&UN=".$data["UN"]."&lPG=$lpg";
      $li .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
      $lis = "Search Files";
@@ -417,7 +421,7 @@
      "[Search.ParentPage]" => $lpg,
      "[Search.Text]" => $lis
     ], $this->core->Extension($extension)]);
-   } if(in_array($st, [
+   } if(in_array($searchType, [
      "DC",
      "SHOP-InvoicePresets",
      "SHOP-Invoices"
@@ -576,15 +580,15 @@
    $i = 0;
    $msg = [];
    $na = "No Results";
-   $st = $data["st"] ?? "";
-   $lpg = $data["lPG"] ?? $st;
+   $searchType = $data["st"] ?? "";
+   $lpg = $data["lPG"] ?? $searchType;
    $query = $data["query"] ?? base64_encode("");
    $query = base64_decode($query);
    $na .= (!empty($data["query"])) ? " for $query" : "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
-   if($st == "ADM-LLP") {
+   if($searchType == "ADM-LLP") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
@@ -602,7 +606,7 @@
       ]);
      }
     }
-   } elseif($st == "ADM-MassMail") {
+   } elseif($searchType == "ADM-MassMail") {
     $accessCode = "Accepted";
     $preSets = $this->core->Data("Get", ["app", md5("MassMail")]) ?? [];
     $extension = $this->core->Extension("3536f06229e7b9d9684f8ca1bb08a968");
@@ -617,7 +621,7 @@
       }
      }
     }
-   } elseif($st == "BGP") {
+   } elseif($searchType == "BGP") {
     $accessCode = "Accepted";
     $blog = $this->core->Data("Get", ["blg", base64_decode($data["ID"])]) ?? [];
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
@@ -689,7 +693,7 @@
       }
      }
     }
-   } elseif($st == "BL") {
+   } elseif($searchType == "BL") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e05bae15ffea315dc49405d6c93f9b2c");
     if($notAnon == 1) {
@@ -809,7 +813,7 @@
       ]);
      }
     }
-   } elseif($st == "BLG") {
+   } elseif($searchType == "BLG") {
     $blogs = $this->core->RenderSearchIndex("Blog");
     $accessCode = "Accepted";
     $home = base64_encode("Blog:Home");
@@ -843,7 +847,7 @@
       }
      }
     }
-   } elseif($st == "Bulletins") {
+   } elseif($searchType == "Bulletins") {
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]) ?? [];
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
@@ -872,7 +876,7 @@
       ]);
      }
     }
-   } elseif($st == "CA" || $st == "PR") {
+   } elseif($searchType == "CA" || $searchType == "PR") {
     $accessCode = "Accepted";
     $articles = $this->core->RenderSearchIndex("Article");
     $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
@@ -891,9 +895,9 @@
       $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
       $cat = $article["Category"] ?? "";
       $cms = $this->core->Data("Get", ["cms", md5($article["UN"])]) ?? [];
-      $ck = ($article["Category"] == $st) ? 1 : 0;
+      $ck = ($article["Category"] == $searchType) ? 1 : 0;
       $ck2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck3 = (($st == "CA" && $article["Category"] == "CA") || ($st == "PR" && $article["Category"] == "PR")) ? 1 : 0;
+      $ck3 = (($searchType == "CA" && $article["Category"] == "CA") || ($searchType == "PR" && $article["Category"] == "PR")) ? 1 : 0;
       $ck4 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $article["Privacy"],
@@ -914,7 +918,7 @@
      }
      #$na.=" ".$query.json_encode($extensions, true);//TEMP
     }
-   } elseif($st == "CART") {
+   } elseif($searchType == "CART") {
     $accessCode = "Accepted";
     $newCartList = [];
     $now = $this->core->timestamp;
@@ -949,7 +953,7 @@
     }
     $y["Shopping"]["Cart"][$shop]["Products"] = $newCartList;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-   } elseif($st == "Chat") {
+   } elseif($searchType == "Chat") {
     $accessCode = "Accepted";
     $integrated = $data["Integrated"] ?? 0;
     $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
@@ -995,7 +999,7 @@
       }
      }
     }
-   } elseif($st == "Congress") {
+   } elseif($searchType == "Congress") {
     $accessCode = "Accepted";
     $chamber = $data["Chamber"] ?? "";
     $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
@@ -1142,7 +1146,7 @@
       }
      }
     }
-   } elseif($st == "CongressionalBallot") {
+   } elseif($searchType == "CongressionalBallot") {
     $accessCode = "Accepted";
     $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
     $chamber = $data["Chamber"] ?? "";
@@ -1151,7 +1155,7 @@
     if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
      // CONGRESSIONAL BALLOT
     }
-   } elseif($st == "CongressionalStaffHouse" || $st == "CongressionalStaffSenate") {
+   } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
     $accessCode = "Accepted";
     $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
     $congress = $congress["Members"] ?? [];
@@ -1181,7 +1185,7 @@
       }
      }
     }
-   } elseif($st == "Contacts") {
+   } elseif($searchType == "Contacts") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ccba635d8c7eca7b0b6af5b22d60eb55");
     if($notAnon == 1) {
@@ -1206,7 +1210,7 @@
       ]);
      }
     }
-   } elseif($st == "ContactsProfileList") {
+   } elseif($searchType == "ContactsProfileList") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     $x = $this->core->Data("Get", [
@@ -1245,7 +1249,7 @@
       ]);
      }
     }
-   } elseif($st == "ContactsRequests") {
+   } elseif($searchType == "ContactsRequests") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("8b6ac25587a4524c00b311c184f6c69b");
     if($notAnon == 1) {
@@ -1273,7 +1277,7 @@
       ]);
      }
     }
-   } elseif($st == "Contributors") {
+   } elseif($searchType == "Contributors") {
     $accessCode = "Accepted";
     $admin = 0;
     $contributors = [];
@@ -1414,7 +1418,7 @@
       }
      }
     }
-   } elseif($st == "CS1") {
+   } elseif($searchType == "CS1") {
     $accessCode = "Accepted";
     $msg = [
      [1, "Monday"],
@@ -1425,7 +1429,7 @@
      [6, "Saturday"],
      [7, "Sunday"]
     ];
-   } elseif($st == "DC") {
+   } elseif($searchType == "DC") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
     if($notAnon == 1) {
@@ -1448,7 +1452,7 @@
       ]);
      }
     }
-   } elseif($st == "Feedback") {
+   } elseif($searchType == "Feedback") {
     $accessCode = "Accepted";
     $now = $this->core->timestamp;
     $feedback = $this->core->RenderSearchIndex("Feedback");
@@ -1482,7 +1486,7 @@
       "[Feedback.Title]" => base64_encode($title)
      ]);
     }
-   } elseif($st == "Forums") {
+   } elseif($searchType == "Forums") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $forums = $this->core->RenderSearchIndex("Forum");
@@ -1522,7 +1526,7 @@
       }
      }
     }
-   } elseif($st == "Forums-Admin") {
+   } elseif($searchType == "Forums-Admin") {
     $admin = $data["Admin"] ?? base64_encode("");
     $accessCode = "Accepted";
     $id = $data["ID"] ?? "";
@@ -1563,7 +1567,7 @@
       }
      }
     }
-   } elseif($st == "Forums-Posts") {
+   } elseif($searchType == "Forums-Posts") {
     $accessCode = "Accepted";
     $active = 0;
     $admin = 0;
@@ -1655,7 +1659,7 @@
       }
      }
     }
-   } elseif($st == "Links") {
+   } elseif($searchType == "Links") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
     $extension = $this->core->Element(["div", $extension, ["class" => "K4i"]]);
@@ -1677,7 +1681,7 @@
       "[Link.Title]" => base64_encode($info["Title"])
      ]);
     }
-   } elseif($st == "Mainstream") {
+   } elseif($searchType == "Mainstream") {
     $accessCode = "Accepted";
     $edit = base64_encode("StatusUpdate:Edit");
     $attlv = base64_encode("LiveView:InlineMossaic");
@@ -1736,7 +1740,7 @@
       }
      }
     }
-   } elseif($st == "MBR") {
+   } elseif($searchType == "MBR") {
     $accessCode = "Accepted";
     $home = base64_encode("Profile:Home");
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
@@ -1775,7 +1779,7 @@
       }
      }
     }
-   } elseif($st == "MBR-ALB") {
+   } elseif($searchType == "MBR-ALB") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("b6728e167b401a5314ba47dd6e4a55fd");
     if($notAnon == 1) {
@@ -1818,7 +1822,7 @@
       }
      }
     }
-   } elseif($st == "MBR-BLG") {
+   } elseif($searchType == "MBR-BLG") {
     $accessCode = "Accepted";
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
@@ -1848,7 +1852,7 @@
       }
      }
     }
-   } elseif($st == "MBR-CA" || $st == "MBR-JE") {
+   } elseif($searchType == "MBR-CA" || $searchType == "MBR-JE") {
     $accessCode = "Accepted";
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
@@ -1857,7 +1861,7 @@
     foreach($t["Pages"] as $key => $value) {
      $article = $this->core->Data("Get", ["pg", $value]) ?? [];
      if(!empty($article)) {
-     $st = str_replace("MBR-", "", $st);
+     $searchType = str_replace("MBR-", "", $searchType);
      $t = $this->core->Member($article["UN"]);
      $cms = $this->core->Data("Get", [
       "cms",
@@ -1869,8 +1873,8 @@
      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
      $theirPrivacy = $t["Privacy"];
      $privacy = $theirPrivacy["Profile"];
-     $privacy = ($st == "CA") ? $theirPrivacy["Contributions"] : $privacy;
-     $privacy = ($st == "JE") ? $theirPrivacy["Journal"] : $privacy;
+     $privacy = ($searchType == "CA") ? $theirPrivacy["Contributions"] : $privacy;
+     $privacy = ($searchType == "JE") ? $theirPrivacy["Journal"] : $privacy;
      $ck = ($article["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
      $ck2 = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
@@ -1878,7 +1882,7 @@
       "UN" => $article["UN"],
       "Y" => $you
      ]);
-     $ck3 = ($illegal == 0 && $article["Category"] == $st) ? 1 : 0;
+     $ck3 = ($illegal == 0 && $article["Category"] == $searchType) ? 1 : 0;
      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
      $ck2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
      if($ck == 1 && $ck2 == 1) {
@@ -1896,7 +1900,7 @@
      }
      }
     }
-   } elseif($st == "MBR-Chat" || $st == "MBR-GroupChat") {
+   } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
     $accessCode = "Accepted";
     $group = $data["Group"] ?? 0;
     $integrated = $data["Integrated"] ?? 0;
@@ -1970,7 +1974,7 @@
       }
      }
     }
-   } elseif($st == "MBR-Forums") {
+   } elseif($searchType == "MBR-Forums") {
     $accessCode = "Accepted";
     $home = base64_encode("Forum:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
@@ -1997,7 +2001,7 @@
       }
      }
     }
-   } elseif($st == "MBR-LLP") {
+   } elseif($searchType == "MBR-LLP") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1) {
@@ -2024,7 +2028,7 @@
       }
      }
     }
-   } elseif($st == "MBR-Polls") {
+   } elseif($searchType == "MBR-Polls") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
     $polls = $y["Polls"] ?? [];
@@ -2092,7 +2096,7 @@
       }
      }
     }
-   } elseif($st == "MBR-SU") {
+   } elseif($searchType == "MBR-SU") {
     $accessCode = "Accepted";
     $attlv = base64_encode("LiveView:InlineMossaic");
     $edit = base64_encode("StatusUpdate:Edit");
@@ -2156,7 +2160,7 @@
       }
      }
     }
-   } elseif($st == "MBR-XFS") {
+   } elseif($searchType == "MBR-XFS") {
     $accessCode = "Accepted";
     $albumID = $data["AID"] ?? md5("unsorted");
     $t = $data["UN"] ?? base64_encode($you);
@@ -2184,7 +2188,7 @@
       ]);
      }
     }
-   } elseif($st == "Media") {
+   } elseif($searchType == "Media") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $index = $this->core->RenderSearchIndex("Media");
@@ -2218,7 +2222,7 @@
       }
      }
     }
-   } elseif($st == "Polls") {
+   } elseif($searchType == "Polls") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
     $polls = $this->core->RenderSearchIndex("Poll");
@@ -2288,7 +2292,7 @@
       }
      }
     }
-   } elseif($st == "Products") {
+   } elseif($searchType == "Products") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $members = $this->core->RenderSearchIndex("Member");
@@ -2341,7 +2345,7 @@
       }
      }
     }
-   } elseif($st == "SHOP") {
+   } elseif($searchType == "SHOP") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("6d8aedce27f06e675566fd1d553c5d92");
     if($notAnon == 1) {
@@ -2380,7 +2384,7 @@
       }
      }
     }
-   } elseif($st == "SHOP-InvoicePresets") {
+   } elseif($searchType == "SHOP-InvoicePresets") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
@@ -2399,7 +2403,7 @@
       ]);
      }
     }
-   } elseif($st == "SHOP-Invoices") {
+   } elseif($searchType == "SHOP-Invoices") {
     $accessCode = "Accepted";
     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
     $invoices = $shop["Invoices"] ?? [];
@@ -2421,7 +2425,7 @@
       ]);
      }
     }
-   } elseif($st == "SHOP-Orders") {
+   } elseif($searchType == "SHOP-Orders") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("504e2a25db677d0b782d977f7b36ff30");
     $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]) ?? [];
@@ -2442,7 +2446,7 @@
       ]);
      }
     }
-   } elseif($st == "SHOP-Products") {
+   } elseif($searchType == "SHOP-Products") {
     $accessCode = "Accepted";
     $home = base64_encode("Product:Home");
     $username = $data["UN"] ?? base64_encode($you);
@@ -2479,7 +2483,7 @@
       }
      }
     }
-   } elseif($st == "StatusUpdates") {
+   } elseif($searchType == "StatusUpdates") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
     $statusUpdates = $this->core->RenderSearchIndex("StatusUpdate");
@@ -2554,7 +2558,7 @@
       }
      }
     }
-   } elseif($st == "XFS") {
+   } elseif($searchType == "XFS") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $username = base64_decode($data["UN"]);
@@ -2573,7 +2577,7 @@
      ]);
      $dlc = [
       "[File.CoverPhoto]" => base64_encode($source),
-      "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&AddTo=".$data["AddTo"]."&Added=".$data["Added"]."&ID=".$v["ID"]."&UN=$username&back=1&b2=Files&lPG=$st")),
+      "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&AddTo=".$data["AddTo"]."&Added=".$data["Added"]."&ID=".$v["ID"]."&UN=$username&back=1&b2=Files&lPG=$searchType")),
       "[File.Title]" => base64_encode($v["Title"])
      ];
      if($bl == 0 && $illegal == 0) {
