@@ -467,6 +467,28 @@
       "Subscription" => 400
      ]
     ],
+    "PublicEvents" => [
+     "Launch" => [
+      "Active" => 0,
+      "BannerText" => "After many years of hard work, we are proud to announce the official launch of Outer Haven! We have a long road ahead, but together, we can do anything.",
+      "EnablePublicBroadcastView" => 0,
+      "CoverPhoto" => "",
+      "Description" => "Celebrating the official launch of our platform.",
+      "Link" => "https://fab.outerhaven.nyc/",
+      "LinkText" => "Listen to our Inaugural Broadcast!",
+      "Title" => "Launch Day"
+     ],
+     "July4th" => [
+      "Active" => 0,
+      "BannerText" => "Text to be displayed on the top of the Gateway and Mainstream views.",
+      "EnablePublicBroadcastView" => 0,
+      "CoverPhoto" => "",
+      "Description" => "Celebrating the founding of our great nation.",
+      "Link" => "https://fab.outerhaven.nyc/",
+      "LinkText" => "Listen to our Live Broadcast!",
+      "Title" => "Independence Day"
+     ]
+    ],
     "Statistics" => [
      "FS" => "Feedback Submissions",
      "LI" => "Logins",
@@ -540,8 +562,9 @@
     "minAge" => 18,
     "minRegAge" => 13
    ];
-   #$this->Data("Save", ["app", md5("config"), $r]);
+   $this->Data("Save", ["app", md5("config"), $r]);
    return $r;
+   #return $this->Data("Get", ["app", md5("config")]) ?? [];
   }
   function ConfigureBaseURL($a = NULL) {
    $base = $_SERVER["HTTP_HOST"] ?? "outerhaven.nyc";
