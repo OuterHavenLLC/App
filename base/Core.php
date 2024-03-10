@@ -340,7 +340,10 @@
        "Description" => "All media uploaded by [Member.DisplayName].",
        "Title" => "[Member.DisplayName]'s Media Library"
       ],
-      "Media",
+      "Media" => [
+       "Description" => "Your Media Library, unsorted.",
+       "Title" => "Media"
+      ],
       "Polls" => [
        "Description" => "An open platform to voice your opinion of any given topic.",
        "Title" => "Polls"
@@ -377,7 +380,6 @@
        "Description" => "A platform-wide list of Status Updates.",
        "Title" => "Status Updates"
       ],
-      "StatusUpdates",
       "XFS" => [
        "Description" => "The core file system.",
        "Title" => "App Media Library"
