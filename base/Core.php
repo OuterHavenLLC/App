@@ -383,75 +383,76 @@
        "Title" => "App Media Library"
       ]
      ],
-     "SearchIDs" => [
-      "ADM-LLP",
-      "ADM-MassMail",
-      "BGP",
-      "BL",
-      "BLG",
-      "Bulletins",
-      "CA",
-      "CART",
-      "Chat",
-      "Congress",
-      "CongressionalBallot",
-      "CongressionalStaffHouse",
-      "CongressionalStaffSenate",
-      "Contacts",
-      "ContactsProfileList",
-      "ContactsRequests",
-      "Contributors",
-      "DC",
-      "Feedback",
-      "Forums",
-      "Forums-Admin",
-      "Forums-Posts",
-      "Knowledge",
-      "Links",
-      "Mainstream",
-      "MBR",
-      "MBR-ALB",
-      "MBR-BLG",
-      "MBR-CA",
-      "MBR-Chat",
-      "MBR-GroupChat",
-      "MBR-Forums",
-      "MBR-JE",
-      "MBR-LLP",
-      "MBR-Polls",
-      "MBR-SU",
-      "MBR-XFS",
-      "Media",
-      "Polls",
-      "PR",
-      "Products",
-      "SHOP",
-      "SHOP-InvoicePresets",
-      "SHOP-Invoices",
-      "SHOP-Orders",
-      "SHOP-Products",
-      "StatusUpdates",
-      "XFS"
-     ]
     ],
     "Media" => [
-     "CHECK" => "875be5c73e0671200587f26139501a8c.png",
-     "CODE" => "78569ee93f82cf2cd9415e7c4ca5e65b.png",
-     "Congress" => "a1b9837369061a7b3db741e532b40b9d.jpg",
-     "CP" => "1c48161334e41522f112494baf2c8a60.jpg",
-     "DOC" => "0dc477cf7c6d1210b9312c1f579f8a1d.png",
-     "FAB" => "8806a28fa51a9cf0ecbec012f1e4fd66.png",
-     "KEY" => "db8d8212e57138b737870366f46b368d.png",
-     "LOGO" => "04ca5194af02b1f4e50ed4135fe6c39a.png",
-     "LOGO-D" => "11b1bd06816a4cc429d25626731f6458.png",
-     "MSG" => "b3a19746167389a973c51f5ffced827b.png",
-     "MiNY" => "444936471454a369761338d1896f5091.png",
-     "PADLOCK" => "2b07788693ef89d6bf7ee6b96f92c3f0.png",
-     "PLUS" => "701d70ba025a96a6af69528d89ac6ef3.png",
-     "PROFILE" => "4736cb9bbb2b28ecb1fbab93a49d2571.png",
-     "REGSEL" => "7fd8af13e99bdb762e2c68acd11c0a71.png",
-     "VVA" => "b3f36e7638e6961eda52b62016aa1b50.png",
-     "VVA-CP" => ""
+     "CHECK" => [
+      "File" => "875be5c73e0671200587f26139501a8c.png",
+      "Name" => "Success"
+     ],
+     "CODE" => [
+      "File" => "78569ee93f82cf2cd9415e7c4ca5e65b.png",
+      "Name" => "Code"
+     ],
+     "Congress" => [
+      "File" => "a1b9837369061a7b3db741e532b40b9d.jpg",
+      "Name" => "Congress"
+     ],
+     "CP" => [
+      "File" => "1c48161334e41522f112494baf2c8a60.jpg",
+      "Name" => "Cover Photo"
+     ],
+     "DOC" => [
+      "File" => "0dc477cf7c6d1210b9312c1f579f8a1d.png",
+      "Name" => "Document"
+     ],
+     "FAB" => [
+      "File" => "8806a28fa51a9cf0ecbec012f1e4fd66.png",
+      "Name" => "Free America Broadcasting"
+     ],
+     "KEY" => [
+      "File" => "db8d8212e57138b737870366f46b368d.png",
+      "Name" => "Key"
+     ],
+     "LOGO" => [
+      "File" => "04ca5194af02b1f4e50ed4135fe6c39a.png",
+      "Name" => "Logo"
+     ],
+     "LOGO-D" => [
+      "File" => "11b1bd06816a4cc429d25626731f6458.png",
+      "Name" => "Logo (Light Mode)"
+     ],
+     "MSG" => [
+      "File" => "b3a19746167389a973c51f5ffced827b.png",
+      "Name" => "Message"
+     ],
+     "MiNY" => [
+      "File" => "444936471454a369761338d1896f5091.png",
+      "Name" => "Made in New York"
+     ],
+     "PADLOCK" => [
+      "File" => "2b07788693ef89d6bf7ee6b96f92c3f0.png",
+      "Name" => "Pad Lock"
+     ],
+     "PLUS" => [
+      "File" => "701d70ba025a96a6af69528d89ac6ef3.png",
+      "Name" => "Plus"
+     ],
+     "PROFILE" => [
+      "File" => "4736cb9bbb2b28ecb1fbab93a49d2571.png",
+      "Name" => "Profile"
+     ],
+     "REGSEL" => [
+      "File" => "7fd8af13e99bdb762e2c68acd11c0a71.png",
+      "Name" => "Regions"
+     ],
+     "VVA" => [
+      "File" => "b3f36e7638e6961eda52b62016aa1b50.png",
+      "Name" => "Visual Vanguard Architecture"
+     ],
+     "VVA-CP" => [
+      "File" => "",
+      "Name" => "Visual Vanguard Architecture Cover Photo"
+     ]
     ],
     "PTS" => [
      "Default" => 10,
@@ -1868,7 +1869,7 @@
   public static function Media($a = NULL) {
    $oh = New Core;
    if(!empty($a)) {
-    $r = $oh->efs.$oh->ID."/".$oh->config["Media"][$a[1]];
+    $r = $oh->efs.$oh->ID."/".$oh->config["Media"][$a[1]]["File"];
     $oh->__destruct();
     return $r;
    }
