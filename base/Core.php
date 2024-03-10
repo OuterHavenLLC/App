@@ -564,9 +564,10 @@
     "minAge" => 18,
     "minRegAge" => 13
    ];
-   $this->Data("Save", ["app", md5("config"), $r]);
-   return $r;
-   #return $this->Data("Get", ["app", md5("config")]) ?? [];
+   #$this->Data("Save", ["app", md5("config"), $r]);//TEMP
+   #return $r;//TEMP
+   $configurationData = $this->Data("Get", ["app", md5("config")]) ?? [];
+   return $configurationData;
   }
   function ConfigureBaseURL($a = NULL) {
    $base = $_SERVER["HTTP_HOST"] ?? "outerhaven.nyc";
@@ -626,12 +627,12 @@
       unlink($dataFile);
      }
     } elseif($action == "Save") {
-     $data[2] = $data[2] ?? [];
+     /*--$data[2] = $data[2] ?? [];
      if(!empty($data[2])) {
       $r = fopen($dataFile, "w+");
       fwrite($r, $this->Encrypt(json_encode($data[2], true)));
       fclose($r);
-     }
+     }--*/
     }
    }
   }
