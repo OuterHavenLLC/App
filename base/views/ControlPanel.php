@@ -60,6 +60,7 @@
     foreach($eventsList as $event => $info) {
      $events .= $this->core->Change([[
       "[Event.BannerText]" => $info["BannerText"],
+      "[Event.CoverPhoto]" => "",
       "[Event.Description]" => $info["Description"],
       "[Event.ID]" => $event,
       "[Event.Link]" => $info["Link"],
@@ -76,12 +77,12 @@
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
      "[Admin.Server]" => "https://www.digitalocean.com/",
      "[App.Configuration.Model.App]" => json_encode($config["App"], true),
-     "[App.Configuration.Model.Events]" => json_encode($config["PublicEvents"], true),
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
      "[App.Configuration.Model.Search]" => json_encode($config["App"]["Search"], true),
      "[Configuration.Events]" => $events,
      "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
       "[Event.BannerText]" => "",
+      "[Event.CoverPhoto]" => "",
       "[Event.Description]" => "",
       "[Event.ID]" => "",
       "[Event.Link]" => "",
