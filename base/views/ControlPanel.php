@@ -66,7 +66,7 @@
      "[App.Configuration.Model.App]" => json_encode($config["App"], true),
      "[App.Configuration.Model.Events]" => json_encode($config["PublicEvents"], true),
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
-     "[App.Configuration.Model.Search]" => json_encode($config["Search"], true)
+     "[App.Configuration.Model.Search]" => json_encode($config["App"]["Search"], true)
     ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
    }
    return $this->core->JSONResponse([
