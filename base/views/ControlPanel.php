@@ -53,6 +53,7 @@
    } elseif($y["Rank"] == md5("High Command")) {
     $accessCode = "Accepted";
     $config = $this->core->config ?? [];
+    $responseType = "View";
     $search = base64_encode("Search:Containers");
     $r = $this->core->Change([[
      "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
