@@ -154,21 +154,21 @@
       "[CreditExchange.YourPoints]" => $y["Points"]
      ], $this->core->Extension("b9c61e4806cf07c0068f1721678bef1e")]);
     }
-    $discountCodes = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? "";
-    $discountCodes = (empty($discountCodes) && $discountCodes != 0) ? $this->core->Change([
+    $discountCode = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? "";
+    $discountCode = (empty($discountCode) && $discountCode != 0) ? $this->core->Change([
      [
       "[DiscountCodes.ID]" => $id,
-      "[DiscountCodes.Points]" => base64_encode($discountCodes),
+      "[DiscountCodes.Points]" => base64_encode($discountCode),
       "[DiscountCodes.Processor]" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
       "[DiscountCodes.Shop.Title]" => $shop["Title"]
      ], $this->core->Extension("0511fae6fcc6f9c583dfe7669b0217cc")
     ]) : $this->core->Element([
-     "p", "<em>".base64_decode($discountCodes["Code"])."</em> was applied to your order!",
+     "p", "<em>".base64_decode($discountCode)."</em> was applied to your order!",
      ["class" => "CenterText"]
     ]);
     $r = $this->core->Change([[
      "[Cart.CreditExchange]" => $creditExchange,
-     "[Cart.DiscountCodes]" => $discountCodes,
+     "[Cart.DiscountCodes]" => $discountCode,
      "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&Username=".$t["Login"]["Username"]."&st=CART"),
      "[Cart.Shop.ID]" => $id,
      "[Cart.Shop.Title]" => $shop["Title"],

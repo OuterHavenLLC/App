@@ -945,6 +945,7 @@
        array_push($msg, [
         "[Product.CoverPhoto]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
         "[Product.Description]" => base64_encode($_Product["ListItem"]["Description"]),
+        "[Product.ID]" => base64_encode($key),
         "[Product.Title]" => base64_encode($_Product["ListItem"]["Title"]),
         "[Product.Remove]" => base64_encode(base64_encode("v=".base64_encode("Cart:SaveRemove")."&Product=$key&Shop=$shop"))
        ]);
