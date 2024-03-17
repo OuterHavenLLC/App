@@ -22,7 +22,7 @@
     // LOGIC
     #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
-     "Body" => "You must be signed in to continue.",
+     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done",
      "Scrollable" => json_encode($config, true)
     ];
@@ -63,7 +63,10 @@
      "[Admin.Pages]" => base64_encode("v=$search&CARD=1&st=ADM-LLP"),
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
      "[Admin.Server]" => "https://www.digitalocean.com/",
-     "[App.Configuration.Model]" => json_encode($config, true)
+     "[App.Configuration.Model.App]" => json_encode($config["App"], true),
+     "[App.Configuration.Model.Events]" => json_encode($config["PublicEvents"], true),
+     "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
+     "[App.Configuration.Model.Search]" => json_encode($config["Search"], true)
     ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
    }
    return $this->core->JSONResponse([
