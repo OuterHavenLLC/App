@@ -4,6 +4,38 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
+  function __SampleProcessorModel(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "You do not have permission to access this resource.",
+    "Header" => "Unauthorized"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($y["Rank"] == md5("High Command")) {
+    $config = $this->core->config ?? [];
+    // LOGIC
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Done",
+     "Scrollable" => json_encode($config, true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
