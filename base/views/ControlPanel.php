@@ -53,8 +53,17 @@
    } elseif($y["Rank"] == md5("High Command")) {
     $accessCode = "Accepted";
     $config = $this->core->config ?? [];
+    $events = "";
+    $eventsList = $config["PublicEvents"] ?? [];
     $responseType = "View";
     $search = base64_encode("Search:Containers");
+    foreach($eventsList as $event => $info) {
+     $events .= $this->core->Change([[
+      "[Event.Description]" => $info["Description"],
+      "[Event.ID]" => $event,
+      "[Event.Title]" => $info["Title"]
+     ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]);
+    }
     $r = $this->core->Change([[
      "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
      "[Admin.Feedback]" => base64_encode("v=$search&st=Feedback"),
@@ -67,7 +76,13 @@
      "[App.Configuration.Model.App]" => json_encode($config["App"], true),
      "[App.Configuration.Model.Events]" => json_encode($config["PublicEvents"], true),
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
-     "[App.Configuration.Model.Search]" => json_encode($config["App"]["Search"], true)
+     "[App.Configuration.Model.Search]" => json_encode($config["App"]["Search"], true),
+     "[Configuration.Events]" => $events,
+     "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
+      "[Event.Description]" => "",
+      "[Event.ID]" => "",
+      "[Event.Title]" => ""
+     ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]))
     ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
    }
    return $this->core->JSONResponse([
