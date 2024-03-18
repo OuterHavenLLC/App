@@ -77,6 +77,7 @@
       "[List.Title]" => $info["Title"]
      ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]);
     }
+    $config["App"]["Maintenance"] = 0;//TEMP
     $r = $this->core->Change([[
      "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
      "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
@@ -86,8 +87,10 @@
      "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
      "[Admin.Server]" => "https://www.digitalocean.com/",
-     "[App.Configuration.Model.App]" => json_encode($config["App"], true),
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
+     "[Configuration.App.Description]" => $config["App"]["Description"],
+     "[Configuration.App.Maintenance]" => $config["App"]["Maintenance"],
+     "[Configuration.App.Name]" => $config["App"]["Name"],
      "[Configuration.Events]" => $events,
      "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
       "[Event.BannerText]" => "",
