@@ -18,7 +18,7 @@
     ]]),
     "Front" => $this->core->Change([[
      "[Poll.ID]" => $id,
-     "[Poll.Option]" => $option,
+     "[Poll.Option]" => str_replace("[Clone.ID]", "DefaultOption", $option),
      "[Poll.OptionClone]" => base64_encode($option),
      "[Poll.Visibility.NSFW]" => $y["Privacy"]["NSFW"],
      "[Poll.Visibility.Privacy]" => $y["Privacy"]["Posts"]
