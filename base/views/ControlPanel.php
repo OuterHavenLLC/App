@@ -56,10 +56,19 @@
     $config = $this->core->config ?? [];
     $events = "";
     $eventsList = $config["PublicEvents"] ?? [];
+    $media = "";
+    $mediaList = $config["Media"] ?? [];
     $responseType = "View";
     $search = "";
     $searchLists = $config["App"]["Search"] ?? [];
-    foreach($eventsList as $event => $info) {
+    foreach($mediaList as $key => $info) {
+     $media .= $this->core->Change([[
+      "[Clone.ID]" => $key,
+      "[Media.File]" => $info["File"],
+      "[Media.ID]" => $key,
+      "[Media.Name]" => $info["Name"]
+     ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
+    } foreach($eventsList as $event => $info) {
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
@@ -100,6 +109,12 @@
       "[Event.Link]" => "",
       "[Event.Title]" => ""
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
+     "[Configuration.Media]" => $media,
+     "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
+      "[Media.File]" => "",
+      "[Media.ID]" => "",
+      "[Media.Name]" => ""
+     ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
      "[Configuration.Search]" => $search,
      "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
       "[Event.Description]" => "",
