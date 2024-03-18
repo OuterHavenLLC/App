@@ -51,12 +51,14 @@
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
+    $_Search = base64_encode("Search:Containers");
     $accessCode = "Accepted";
     $config = $this->core->config ?? [];
     $events = "";
     $eventsList = $config["PublicEvents"] ?? [];
     $responseType = "View";
-    $search = base64_encode("Search:Containers");
+    $search = "";
+    $searchLists = $config["App"]["Search"] ?? [];
     foreach($eventsList as $event => $info) {
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
@@ -67,14 +69,21 @@
       "[Event.Link]" => $info["Link"],
       "[Event.Title]" => $info["Title"]
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]);
+    } foreach($searchLists as $list => $info) {
+     $search .= $this->core->Change([[
+      "[Clone.ID]" => $list,
+      "[List.Description]" => $info["Description"],
+      "[List.ID]" => $list,
+      "[List.Title]" => $info["Title"]
+     ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]);
     }
     $r = $this->core->Change([[
      "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
-     "[Admin.Feedback]" => base64_encode("v=$search&st=Feedback"),
+     "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
      "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
-     "[Admin.MassMail]" => base64_encode("v=$search&st=ADM-MassMail"),
+     "[Admin.MassMail]" => base64_encode("v=$_Search&st=ADM-MassMail"),
      "[Admin.Mail]" => "https://mail.outerhaven.nyc/iredadmin/",
-     "[Admin.Pages]" => base64_encode("v=$search&CARD=1&st=ADM-LLP"),
+     "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
      "[Admin.Server]" => "https://www.digitalocean.com/",
      "[App.Configuration.Model.App]" => json_encode($config["App"], true),
@@ -88,7 +97,13 @@
       "[Event.ID]" => "",
       "[Event.Link]" => "",
       "[Event.Title]" => ""
-     ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]))
+     ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
+     "[Configuration.Search]" => $search,
+     "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
+      "[Event.Description]" => "",
+      "[Event.ID]" => "",
+      "[Event.Title]" => ""
+     ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]))
     ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
    }
    return $this->core->JSONResponse([
