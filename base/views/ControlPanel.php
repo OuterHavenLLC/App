@@ -88,7 +88,7 @@
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
      "[Admin.Server]" => "https://www.digitalocean.com/",
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
-     "[Configuration.App.Description]" => $config["App"]["Description"],
+     "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
      "[Configuration.App.Maintenance]" => $config["App"]["Maintenance"],
      "[Configuration.App.Name]" => $config["App"]["Name"],
      "[Configuration.Events]" => $events,
