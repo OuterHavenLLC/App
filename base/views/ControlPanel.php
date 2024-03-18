@@ -90,7 +90,7 @@
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
      "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
      "[Configuration.App.Maintenance]" => $config["App"]["Maintenance"],
-     "[Configuration.App.Name]" => $config["App"]["Name"],
+     "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
      "[Configuration.Events]" => $events,
      "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
       "[Event.BannerText]" => "",
