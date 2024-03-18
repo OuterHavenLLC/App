@@ -37,7 +37,6 @@
    "HTMLDecode" => 1
   ])]);
  } elseif($api == "Maintenance") {
-  # MAINTANANCE STATUS
   $r = $oh->core->config["Maintenance"] ?? 0;
  } elseif($api == "Web") {
   if($view == base64_encode("File:SaveUpload")) {
