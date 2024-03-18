@@ -88,7 +88,6 @@
      "[Admin.Server]" => "https://www.digitalocean.com/",
      "[App.Configuration.Model.App]" => json_encode($config["App"], true),
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
-     "[App.Configuration.Model.Search]" => json_encode($config["App"]["Search"], true),
      "[Configuration.Events]" => $events,
      "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
       "[Event.BannerText]" => "",
