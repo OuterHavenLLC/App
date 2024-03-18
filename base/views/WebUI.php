@@ -93,11 +93,6 @@
      "class" => "CloseNetMap LI UpdateContent",
      "data-view" => base64_encode("v=".base64_encode("ControlPanel:Home"))
     ]
-   ]).$this->core->Element([
-    "button", "Extensions (tmp)", [
-     "class" => "CloseNetMap LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=ADM-LLP")
-    ]
    ]) : "";
    $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->core->Element([
     "button", "Shop", [
