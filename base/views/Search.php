@@ -928,7 +928,7 @@
     $products = $y["Shopping"]["Cart"][$shop] ?? [];
     $products = $products["Products"] ?? [];
     foreach($products as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Products", $value]);;
+     $bl = $this->core->CheckBlocked([$y, "Products", $key]);;
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
       "ID" => base64_encode("Product;$key"),

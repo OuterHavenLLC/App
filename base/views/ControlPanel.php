@@ -59,6 +59,7 @@
     $search = base64_encode("Search:Containers");
     foreach($eventsList as $event => $info) {
      $events .= $this->core->Change([[
+      "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
       "[Event.CoverPhoto]" => "",
       "[Event.Description]" => $info["Description"],
