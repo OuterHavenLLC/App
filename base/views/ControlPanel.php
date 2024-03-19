@@ -121,7 +121,7 @@
       "[Media.ID]" => "",
       "[Media.Name]" => ""
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
-     "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveAppAttributes")),
+     "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveApp")),
      "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
      "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveCoreMedia")),
      "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearchLists")),
@@ -142,7 +142,7 @@
     "ResponseType" => $responseType
    ]);
   }
-  function SaveAppAttributes(array $a) {
+  function SaveApp(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $r = [
@@ -157,7 +157,20 @@
     ];
    } elseif($y["Rank"] == md5("High Command")) {
     $config = $this->core->config ?? [];
-    // LOGIC
+    $app = $config["App"] ?? [];
+    $search = $app["Search"] ?? [];
+    $description = $data["Description"] ?? $app["Description"];
+    $keywords = $data["Keywords"] ?? $app["Keywords"];
+    $maintenance = $data["Maintenance"] ?? 0;
+    $name = $data["Name"] ?? $app["Name"];
+    $app = [
+     "Description" => $description,
+     "Keywords" => $keywords,
+     "Maintenance" => $maintenance,
+     "Name" => $name,
+     "Search" => $search
+    ];
+    $config["App"] = $app;
     #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
