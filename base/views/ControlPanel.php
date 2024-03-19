@@ -120,6 +120,10 @@
       "[Media.ID]" => "",
       "[Media.Name]" => ""
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
+     "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveAppAttributes")),
+     "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
+     "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveCoreMedia")),
+     "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearchLists")),
      "[Configuration.Search]" => $search,
      "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
       "[List.Description]" => "",
@@ -135,6 +139,134 @@
      "Web" => $r
     ],
     "ResponseType" => $responseType
+   ]);
+  }
+  function SaveAppAttributes(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "You do not have permission to access this resource.",
+    "Header" => "Unauthorized"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($y["Rank"] == md5("High Command")) {
+    $config = $this->core->config ?? [];
+    // LOGIC
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $r = [
+     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+     "Header" => "Done",
+     "Scrollable" => json_encode($config, true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function SaveEvents(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "You do not have permission to access this resource.",
+    "Header" => "Unauthorized"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($y["Rank"] == md5("High Command")) {
+    $config = $this->core->config ?? [];
+    // LOGIC
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $r = [
+     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+     "Header" => "Done",
+     "Scrollable" => json_encode($config, true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function SaveMedia(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "You do not have permission to access this resource.",
+    "Header" => "Unauthorized"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($y["Rank"] == md5("High Command")) {
+    $config = $this->core->config ?? [];
+    // LOGIC
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $r = [
+     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+     "Header" => "Done",
+     "Scrollable" => json_encode($config, true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function SaveSearch(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "You do not have permission to access this resource.",
+    "Header" => "Unauthorized"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($y["Rank"] == md5("High Command")) {
+    $config = $this->core->config ?? [];
+    // LOGIC
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $r = [
+     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+     "Header" => "Done",
+     "Scrollable" => json_encode($config, true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
    ]);
   }
   function __destruct() {
