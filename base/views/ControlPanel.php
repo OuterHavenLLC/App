@@ -61,7 +61,7 @@
       "[List.Title]" => $info["Title"]
      ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]);
     } foreach($statisticsList as $stat => $name) {
-     $search .= $this->core->Change([[
+     $statistics .= $this->core->Change([[
       "[Clone.ID]" => $stat,
       "[Statistic.ID]" => $stat,
       "[Statistic.Name]" => $name
@@ -107,7 +107,7 @@
       "[List.ID]" => "",
       "[List.Title]" => ""
      ], $this->core->Extension("3777f71aa914041840ead48e3a259866")])),
-     "[Configuration.Statistics]" => "",
+     "[Configuration.Statistics]" => $statistics,
      "[Configuration.Statistics.Clone]" => base64_encode($this->core->Change([[
       "[Statistic.ID]" => "",
       "[Statistic.Name]" => ""
