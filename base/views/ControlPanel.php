@@ -99,7 +99,7 @@
      "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveApp")),
      "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
      "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveCoreMedia")),
-     "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearchLists")),
+     "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearch")),
      "[Configuration.Save.Statistics]" => base64_encode("v=".base64_encode("ControlPanel:SaveStatistics")),
      "[Configuration.Search]" => $search,
      "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
@@ -250,12 +250,22 @@
     ];
    } elseif($y["Rank"] == md5("High Command")) {
     $config = $this->core->config ?? [];
-    // LOGIC
+    $app = $config["App"] ?? [];
+    $newSearch = [];
+    $search = $app["Search"] ?? [];
+    for($i = 0; $i < count($data["ListID"]); $i++) {
+     $newStatistics[$data["ListID"][$i]] = [
+      "Description" => $data["ListDescription"][$i],
+      "Title" => $data["ListTitle"][$i]
+     ];
+    }
+    $app["Search"] = $newSearch;
+    $config["App"] = $app;
     #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done",
-     "Scrollable" => json_encode($config, true)
+     "Scrollable" => json_encode($config["App"]["Search"], true)
     ];
    }
    return $this->core->JSONResponse([
