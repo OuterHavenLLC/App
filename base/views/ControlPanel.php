@@ -117,9 +117,9 @@
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
      "[Configuration.Search]" => $search,
      "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
-      "[Event.Description]" => "",
-      "[Event.ID]" => "",
-      "[Event.Title]" => ""
+      "[List.Description]" => "",
+      "[List.ID]" => "",
+      "[List.Title]" => ""
      ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]))
     ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
    }
