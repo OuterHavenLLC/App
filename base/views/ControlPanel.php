@@ -70,12 +70,14 @@
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
     } foreach($eventsList as $event => $info) {
      $coverPhoto = $this->core->Element(["div", $this->core->Element([
-      "p", "Cover Photo UI and inputs coming soon..."
+      "h4", "Cover Photo", ["class" => "UpperCase"]
+     ]).$this->core->Element([
+      "p", "UI and inputs coming soon..."
      ]), ["class" => "Medium"]]);
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
-      "[Event.CoverPhoto]" => "",
+      "[Event.CoverPhoto]" => $coverPhoto,
       "[Event.Description]" => $info["Description"],
       "[Event.ID]" => $event,
       "[Event.Link]" => $info["Link"],
