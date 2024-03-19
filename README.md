@@ -28,7 +28,7 @@ This release focuses on search—both inside and outside the platform, content c
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
 * A new content creation tool (represented by a ( + ) button at the bottom-right corner when signed in) creates a central hub where many of the common content types may be created from.
 * The Mail Service is now integrated and fully operational.
-* Administrators now have a Control Panel the app's core attributes. (working on it...)
+* Administrators now have a Control Panel to configure the app's core attributes, public events, core media variables, and search lists. (working on it...)
 * Developers now have a Card for viewing app documentation, guides, downloads, and accessing the Developer Group Chat. (coming soon...)
 
 ## 1.2: Democracy
