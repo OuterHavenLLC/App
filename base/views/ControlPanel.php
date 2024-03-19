@@ -103,6 +103,7 @@
      "[Admin.Server]" => "https://www.digitalocean.com/",
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
      "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
+     "[Configuration.App.Keywords]" => base64_encode($config["App"]["Keywords"]),
      "[Configuration.App.Maintenance]" => $config["App"]["Maintenance"],
      "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
      "[Configuration.Events]" => $events,
