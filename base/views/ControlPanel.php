@@ -98,7 +98,7 @@
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
      "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveApp")),
      "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
-     "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveCoreMedia")),
+     "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveMedia")),
      "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearch")),
      "[Configuration.Save.Statistics]" => base64_encode("v=".base64_encode("ControlPanel:SaveStatistics")),
      "[Configuration.Search]" => $search,
@@ -225,11 +225,10 @@
      ];
     }
     $config["Media"] = $newMedia;
-    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($config["Media"], true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
