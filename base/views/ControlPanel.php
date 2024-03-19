@@ -29,6 +29,8 @@
     $responseType = "View";
     $search = "";
     $searchLists = $config["App"]["Search"] ?? [];
+    $statistics = "";
+    $statisticsList = $config["Statistics"] ?? [];
     foreach($mediaList as $key => $info) {
      $media .= $this->core->Change([[
       "[Clone.ID]" => $key,
@@ -58,8 +60,13 @@
       "[List.ID]" => $list,
       "[List.Title]" => $info["Title"]
      ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]);
+    } foreach($statisticsList as $stat => $name) {
+     $search .= $this->core->Change([[
+      "[Clone.ID]" => $stat,
+      "[Statistic.ID]" => $stat,
+      "[Statistic.Name]" => $name
+     ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")]);
     }
-    $config["App"]["Maintenance"] = 0;//TEMP
     $r = $this->core->Change([[
      "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
      "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
@@ -93,12 +100,18 @@
      "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
      "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveCoreMedia")),
      "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearchLists")),
+     "[Configuration.Save.Statistics]" => base64_encode("v=".base64_encode("ControlPanel:SaveStatistics")),
      "[Configuration.Search]" => $search,
      "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
       "[List.Description]" => "",
       "[List.ID]" => "",
       "[List.Title]" => ""
-     ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]))
+     ], $this->core->Extension("3777f71aa914041840ead48e3a259866")])),
+     "[Configuration.Statistics]" => "",
+     "[Configuration.Statistics.Clone]" => base64_encode($this->core->Change([[
+      "[Statistic.ID]" => "",
+      "[Statistic.Name]" => ""
+     ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")]))
     ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
    }
    return $this->core->JSONResponse([
@@ -140,11 +153,10 @@
      "Search" => $search
     ];
     $config["App"] = $app;
-    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($config, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
@@ -223,6 +235,39 @@
    ]);
   }
   function SaveSearch(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $r = [
+    "Body" => "You do not have permission to access this resource.",
+    "Header" => "Unauthorized"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($y["Rank"] == md5("High Command")) {
+    $config = $this->core->config ?? [];
+    // LOGIC
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $r = [
+     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+     "Header" => "Done",
+     "Scrollable" => json_encode($config, true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function SaveStatistics(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
