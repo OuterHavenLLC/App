@@ -79,7 +79,7 @@
      "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
      "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
      "[Configuration.App.Keywords]" => base64_encode($config["App"]["Keywords"]),
-     "[Configuration.App.Maintenance]" => $config["App"]["Maintenance"],
+     "[Configuration.App.Maintenance]" => $config["Maintenance"],
      "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
      "[Configuration.Events]" => $events,
      "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
@@ -143,16 +143,15 @@
     $search = $app["Search"] ?? [];
     $description = $data["Description"] ?? $app["Description"];
     $keywords = $data["Keywords"] ?? $app["Keywords"];
-    $maintenance = $data["Maintenance"] ?? 0;
     $name = $data["Name"] ?? $app["Name"];
     $app = [
      "Description" => $description,
      "Keywords" => $keywords,
-     "Maintenance" => $maintenance,
      "Name" => $name,
      "Search" => $search
     ];
     $config["App"] = $app;
+    $config["Maintenance"] = $data["Maintenance"] ?? 0;
     $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
@@ -254,18 +253,17 @@
     $newSearch = [];
     $search = $app["Search"] ?? [];
     for($i = 0; $i < count($data["ListID"]); $i++) {
-     $newStatistics[$data["ListID"][$i]] = [
+     $newSearch[$data["ListID"][$i]] = [
       "Description" => $data["ListDescription"][$i],
       "Title" => $data["ListTitle"][$i]
      ];
     }
     $app["Search"] = $newSearch;
     $config["App"] = $app;
-    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($config["App"]["Search"], true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
