@@ -216,12 +216,20 @@
     ];
    } elseif($y["Rank"] == md5("High Command")) {
     $config = $this->core->config ?? [];
-    // LOGIC
+    $media = $config["Media"] ?? [];
+    $newMedia = [];
+    for($i = 0; $i < count($data["MediaID"]); $i++) {
+     $newMedia[$data["MediaID"][$i]] = [
+      "File" => $data["MediaFile"][$i],
+      "Name" => $data["MediaName"][$i]
+     ];
+    }
+    $config["Media"] = $newMedia;
     #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done",
-     "Scrollable" => json_encode($config, true)
+     "Scrollable" => json_encode($config["Media"], true)
     ];
    }
    return $this->core->JSONResponse([
