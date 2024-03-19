@@ -184,6 +184,8 @@
    } elseif($y["Rank"] == md5("High Command")) {
     $config = $this->core->config ?? [];
     // LOGIC
+    // ONLY ONE EVENT MAY BE ACTIVE AT ONCE
+    // ONLY ONE EVENT MAY HAVE THE PUBLIC BROADCAST VIEW ENABLED AT ONCE
     #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
