@@ -283,12 +283,17 @@
     ];
    } elseif($y["Rank"] == md5("High Command")) {
     $config = $this->core->config ?? [];
-    // LOGIC
+    $newStatistics = [];
+    $statistics = $config["Statistics"] ?? [];
+    for($i = 0; $i <= count($data["StatisticID"]); $i++) {
+     $newStatistics[$data["StatisticID"][$i]] = $data["StatisticName"][$i];
+    }
+    $config["Statistics"] = $newStatistics;
     #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done",
-     "Scrollable" => json_encode($config, true)
+     "Scrollable" => json_encode($config["Statistics"], true)
     ];
    }
    return $this->core->JSONResponse([
