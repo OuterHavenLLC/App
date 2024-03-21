@@ -99,7 +99,6 @@
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
      "[Configuration.Media]" => $media,
      "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
-      "[Media.File]" => ""
       "[Media.File]" => "",
       "[Media.File.Quantity]" => "Single",
       "[Media.Input]" => "CoverPhoto[]",
