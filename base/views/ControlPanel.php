@@ -19,6 +19,7 @@
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
+    $_LiveView = base64_encode("LiveView:CoreMedia");
     $_Search = base64_encode("Search:Containers");
     $accessCode = "Accepted";
     $config = $this->core->config ?? [];
@@ -35,17 +36,26 @@
      $media .= $this->core->Change([[
       "[Clone.ID]" => $key,
       "[Media.File]" => $info["File"],
+      "[Media.File.Quantity]" => "Single",
       "[Media.ID]" => $key,
+      "[Media.Input]" => "File[]",
+      "[Media.Input.LiveView]" => $_LiveView,
       "[Media.Name]" => $info["Name"]
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
     } foreach($eventsList as $event => $info) {
+     $coverPhoto = $info["CoverPhoto"] ?? "";//TEMP
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
       "[Event.Description]" => $info["Description"],
       "[Event.ID]" => $event,
       "[Event.Link]" => $info["Link"],
-      "[Event.Title]" => $info["Title"]
+      "[Event.Title]" => $info["Title"],
+      "[Media.File]" => $coverPhoto,//TEMP
+      #"[Media.File]" => $info["CoverPhoto"],
+      "[Media.File.Quantity]" => "Single",
+      "[Media.Input]" => "CoverPhoto[]",
+      "[Media.Input.LiveView]" => $_LiveView
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]);
     } foreach($searchLists as $list => $info) {
      $search .= $this->core->Change([[
@@ -81,11 +91,19 @@
       "[Event.Description]" => "",
       "[Event.ID]" => "",
       "[Event.Link]" => "",
-      "[Event.Title]" => ""
+      "[Event.Title]" => "",
+      "[Media.File]" => "",
+      "[Media.File.Quantity]" => "Single",
+      "[Media.Input]" => "CoverPhoto[]",
+      "[Media.Input.LiveView]" => $_LiveView
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
      "[Configuration.Media]" => $media,
      "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
+      "[Media.File]" => ""
       "[Media.File]" => "",
+      "[Media.File.Quantity]" => "Single",
+      "[Media.Input]" => "CoverPhoto[]",
+      "[Media.Input.LiveView]" => $_LiveView,
       "[Media.ID]" => "",
       "[Media.Name]" => ""
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
