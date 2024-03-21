@@ -38,7 +38,7 @@
       "[Media.File]" => $info["File"],
       "[Media.File.Quantity]" => "Single",
       "[Media.ID]" => $key,
-      "[Media.Input]" => "File[]",
+      "[Media.Input]" => "MediaFile[]",
       "[Media.Input.LiveView]" => $_LiveView,
       "[Media.Name]" => $info["Name"]
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
@@ -101,7 +101,7 @@
      "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
       "[Media.File]" => "",
       "[Media.File.Quantity]" => "Single",
-      "[Media.Input]" => "CoverPhoto[]",
+      "[Media.Input]" => "MediaFile[]",
       "[Media.Input.LiveView]" => $_LiveView,
       "[Media.ID]" => "",
       "[Media.Name]" => ""
