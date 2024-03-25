@@ -7,7 +7,7 @@
  $r = $oh->core->Element([
   "h1", "Cron Tasks Executed!"
  ]).$oh->core->Element([
-  "p", "The following crob jobs have been executed:"
+  "p", "The following crob jobs have been executed (".$oh->core->timestamp.""):"
  ]).$oh->core->Element([
   "p", "&bull; Content Purging"
  ]).$oh->core->Element([

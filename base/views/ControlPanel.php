@@ -54,7 +54,7 @@
       "[Media.File]" => $coverPhoto,//TEMP
       #"[Media.File]" => $info["CoverPhoto"],
       "[Media.File.Quantity]" => "Single",
-      "[Media.Input]" => "CoverPhoto[]",
+      "[Media.Input]" => "EventCoverPhoto[]",
       "[Media.Input.LiveView]" => $_LiveView
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]);
     } foreach($searchLists as $list => $info) {
@@ -94,7 +94,7 @@
       "[Event.Title]" => "",
       "[Media.File]" => "",
       "[Media.File.Quantity]" => "Single",
-      "[Media.Input]" => "CoverPhoto[]",
+      "[Media.Input]" => "EventCoverPhoto[]",
       "[Media.Input.LiveView]" => $_LiveView
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
      "[Configuration.Media]" => $media,
@@ -192,16 +192,43 @@
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
+    $activeEventInfo = [];
+    $activeEvents = 0;
     $config = $this->core->config ?? [];
-    // LOGIC
-    // ONLY ONE EVENT MAY BE ACTIVE AT ONCE
-    // ONLY ONE EVENT MAY HAVE THE PUBLIC BROADCAST VIEW ENABLED AT ONCE
-    #$this->core->Data("Save", ["app", md5("config"), $config]);
-    $r = [
-     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($config, true)
-    ];
+    $events = $config["PublicEvents"] ?? [];
+    $newEvents = [];
+    for($i = 0; $i < count($data["EventActive"]); $i++) {
+     $check = $data["EventActive"][$i] ?? 0;
+     if($activeEvents > 1 && $check == 1) {
+      break;
+     } else {
+      $newEvents[$data["EventID"][$i]] = [
+       "Active" => $data["EventActive"][$i],
+       "BannerText" => $data["EventBannerText"][$i],
+       "CoverPhoto" => $data["EventCoverPhoto"][$i],
+       "Description" => $data["EventDescription"][$i],
+       "EnablePublicBroadcast" => $data["EventEnablePublicBroadcast"][$i],
+       "Link" => $data["EventLink"][$i],
+       "Title" => $data["EventTitle"][$i]
+      ];
+      if($check == 1) {
+       $activeEvents++;
+       # PURGE PUBLIC EVENT CHAT MESSAGES AND UPDATE INFO USING THE CURRENTLY SELECTED EVENT ID
+      }
+     }
+    }
+    $config["PublicEvents"] = $newEvents;
+    if($activeEvents > 1) {
+     $r = [
+      "Body" => "There are currently $activeEvents active events. Please make sure only one is active, and try again."
+     ];
+    } else {
+     $this->core->Data("Save", ["app", md5("config"), $config]);
+     $r = [
+      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+      "Header" => "Done"
+     ];
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
