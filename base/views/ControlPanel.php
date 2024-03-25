@@ -212,8 +212,8 @@
        "Title" => $data["EventTitle"][$i]
       ];
       if($check == 1) {
+       $activeEvent = $newEvents[$data["EventID"][$i]];
        $activeEvents++;
-       # PURGE PUBLIC EVENT CHAT MESSAGES AND UPDATE INFO USING THE CURRENTLY SELECTED EVENT ID
       }
      }
     }
@@ -223,6 +223,13 @@
       "Body" => "There are currently $activeEvents active events. Please make sure only one is active, and try again."
      ];
     } else {
+     $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
+     $now = $this->core->timestamp;
+     $chat["Description"] = $activeEvent["Description"];
+     $chat["Modified"] = $now;
+     $chat["ModifiedBy"][$now] = $you;
+     $chat["Title"] = $activeEvent["Title"];
+     $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
      $this->core->Data("Save", ["app", md5("config"), $config]);
      $r = [
       "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",

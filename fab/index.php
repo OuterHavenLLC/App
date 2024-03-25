@@ -2,6 +2,7 @@
  require_once("/var/www/html/base/Bootloader.php");
  $oh = New OH;
  $event = $oh->core->config["App"]["LiveEvent"] ?? 0;
+ # LOOP THROUGH EVENTS AND CHECK FOR AN ACTIVE EVENT
  $extension = ($event == 1) ? "1870885288027c3d4bc0a29bdf5f7579" : "c0f79632dc2313352f92b41819fe4739";
  echo $oh->core->Change([[
   "[App.Content]" => $oh->core->Change([[
