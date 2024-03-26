@@ -43,7 +43,6 @@
       "[Media.Name]" => $info["Name"]
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
     } foreach($eventsList as $event => $info) {
-     $coverPhoto = $info["CoverPhoto"] ?? "";//TEMP
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
@@ -51,8 +50,7 @@
       "[Event.ID]" => $event,
       "[Event.Link]" => $info["Link"],
       "[Event.Title]" => $info["Title"],
-      "[Media.File]" => $coverPhoto,//TEMP
-      #"[Media.File]" => $info["CoverPhoto"],
+      "[Media.File]" => $info["CoverPhoto"],
       "[Media.File.Quantity]" => "Single",
       "[Media.Input]" => "EventCoverPhoto[]",
       "[Media.Input.LiveView]" => $_LiveView
@@ -223,13 +221,15 @@
       "Body" => "There are currently $activeEvents active events. Please make sure only one is active, and try again."
      ];
     } else {
-     $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
-     $now = $this->core->timestamp;
-     $chat["Description"] = $activeEvent["Description"];
-     $chat["Modified"] = $now;
-     $chat["ModifiedBy"][$now] = $you;
-     $chat["Title"] = $activeEvent["Title"];
-     $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
+     if($activeEvents == 1) {
+      $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
+      $now = $this->core->timestamp;
+      $chat["Description"] = $activeEvent["Description"];
+      $chat["Modified"] = $now;
+      $chat["ModifiedBy"][$now] = $you;
+      $chat["Title"] = $activeEvent["Title"];
+      $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
+     }
      $this->core->Data("Save", ["app", md5("config"), $config]);
      $r = [
       "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
