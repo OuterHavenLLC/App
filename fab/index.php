@@ -10,8 +10,9 @@
  foreach($events as $event => $info) {
   if($info["Active"] == 1) {
    $activeEvent = 1;
-   $broadcastViewEnabled = $info["EnablePublicBroadcast"]
+   $broadcastViewEnabled = $info["EnablePublicBroadcast"];
    $selectedEvent = $info;
+   break;
   }
  } if($broadcastViewEnabled == 1) {
   $description = $selectedEvent["Description"] ?? $description;

@@ -198,8 +198,18 @@
   }
   function OptIn(array $a) {
    $accessCode = "Accepted";
+   $activeEvent = 0;
+   $events = $this->core->config["App"]["PublicEvents"] ?? [];
+   foreach($events as $event => $info) {
+    if($info["Active"] == 1) {
+     $activeEvent = 1;
+     $banner = $this->core->Element(["p", $info["BannerText"]]);
+     break;
+    }
+   }
    $r = $this->core->Change([[
     "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
+    "[Gateway.CoverPhoto]" => $banner,
     "[Gateway.CoverPhoto]" => $this->core->PlainText([
      "BBCodes" => 1,
      "Data" => "[Media:CP]"
