@@ -199,21 +199,23 @@
   function OptIn(array $a) {
    $accessCode = "Accepted";
    $activeEvent = 0;
+   $coverPhoto = $this->core->PlainText([
+    "BBCodes" => 1,
+    "Data" => "[Media:CP]"
+   ]);
    $events = $this->core->config["App"]["PublicEvents"] ?? [];
    foreach($events as $event => $info) {
     if($info["Active"] == 1) {
      $activeEvent = 1;
      $banner = $this->core->Element(["p", $info["BannerText"]]);
+     $coverPhoto = $this->efs."/".$this->core->ID."/".$info["CoverPhoto"];
      break;
     }
    }
    $r = $this->core->Change([[
     "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
-    "[Gateway.CoverPhoto]" => $banner,
-    "[Gateway.CoverPhoto]" => $this->core->PlainText([
-     "BBCodes" => 1,
-     "Data" => "[Media:CP]"
-    ]),
+    "[Gateway.Banner]" => $banner,
+    "[Gateway.CoverPhoto]" => $coverPhoto,
     "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($this->core->ShopID)),
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
     "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
