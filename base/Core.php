@@ -1162,7 +1162,6 @@
    return $r;
   }
   function RenderEventMedia() {
-   $activeEvent = 0;
    $events = $this->core->config["App"]["PublicEvents"] ?? [];
    $r = [
     "Banner" => "",
@@ -1173,7 +1172,6 @@
    ];
    foreach($events as $event => $info) {
     if($info["Active"] == 1) {
-     $activeEvent = 1;
      $r["Banner"] = $this->Element(["p", $info["BannerText"]]);
      if(!empty($info["CoverPhoto"])) {
       $r["CoverPhoto"] = $this->efs."/".$this->ID."/".$info["CoverPhoto"];
