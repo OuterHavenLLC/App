@@ -208,7 +208,9 @@
     if($info["Active"] == 1) {
      $activeEvent = 1;
      $banner = $this->core->Element(["p", $info["BannerText"]]);
-     $coverPhoto = $this->efs."/".$this->core->ID."/".$info["CoverPhoto"];
+     if(!empty($info["CoverPhoto"])) {
+      $coverPhoto = $this->efs."/".$this->core->ID."/".$info["CoverPhoto"];
+     }
      break;
     }
    }
