@@ -1162,10 +1162,10 @@
    return $r;
   }
   function RenderEventMedia() {
-   $events = $this->core->config["App"]["PublicEvents"] ?? [];
+   $events = $this->config["App"]["PublicEvents"] ?? [];
    $r = [
     "Banner" => "",
-    "CoverPhoto" => $this->core->PlainText([
+    "CoverPhoto" => $this->PlainText([
      "BBCodes" => 1,
      "Data" => "[Media:CP]"
     ])
