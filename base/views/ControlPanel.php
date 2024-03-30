@@ -34,7 +34,7 @@
     $statistics = "";
     $statisticsList = $config["Statistics"] ?? [];
     foreach($mediaList as $key => $info) {
-     $addTo = base64_encode("Link to ".$info["Title"].":.AddTo$key");
+     $addTo = base64_encode("Link to ".$info["Name"].":.AddTo$key");
      $added = base64_encode("Added! Feel free to close this card.");
      $media .= $this->core->Change([[
       "[Clone.ID]" => $key,
