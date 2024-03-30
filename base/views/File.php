@@ -121,10 +121,6 @@
      "ID" => base64_encode("File;$username;$id")
     ]);
     if($_File["Empty"] == 0) {
-     $dm = base64_encode(json_encode([
-      "t" => $username,
-      "y" => $you
-     ]));
      $file = $_File["DataModel"];
      $options = $_File["ListItem"]["Options"];
      $r = [
@@ -137,15 +133,22 @@
        "data-processor" => $options["Block"]
       ]
      ]) : "";
-     $addTo = $data["AddTo"] ?? "";
-     $addTo = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-     $addTo = (!empty($addTo[1])) ? $this->core->Element([
-      "button", $addTo[0], [
+     $addToData = $data["AddTo"] ?? "";
+     $addToData = (!empty($addToData)) ? explode(":", base64_decode($addToData)) : [];
+     $addTo = (!empty($addToData[1])) ? $this->core->Element([//TO BE DISPATCHED
+      "button", $addToData[0], [
        "class" => "AddTo v2",
        "data-a" => $attachmentID,
        "data-c" => $data["Added"],
-       "data-f" => base64_encode($addTo[1]),
-       "data-m" => $dm
+       "data-f" => base64_encode($addToData[1])
+      ]
+     ]) : "";
+     $addTo .= (!empty($addToData[1])) ? $this->core->Element([
+      "button", $addToData[0], [
+       "class" => "AddToV2 v2",
+       "data-added" => $data["Added"],
+       "data-dlc" => $file["Name"],
+       "data-input" => base64_encode($addToData[1])
       ]
      ]) : "";
      $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;

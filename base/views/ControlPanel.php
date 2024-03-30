@@ -28,13 +28,16 @@
     $media = "";
     $mediaList = $config["Media"] ?? [];
     $responseType = "View";
+    $saveFirst = base64_encode("v=".base64_encode("ControlPanel:SaveFirst"));
     $search = "";
     $searchLists = $config["App"]["Search"] ?? [];
     $statistics = "";
     $statisticsList = $config["Statistics"] ?? [];
     foreach($mediaList as $key => $info) {
+     #base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$addTo&Added=$addTo2&UN=".base64_encode($this->core->ID))
      $media .= $this->core->Change([[
       "[Clone.ID]" => $key,
+      "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=AddTo&Added=AddTo&UN=".base64_encode($this->core->ID)),
       "[Media.File]" => $info["File"],
       "[Media.File.Quantity]" => "Single",
       "[Media.ID]" => $key,
@@ -43,6 +46,8 @@
       "[Media.Name]" => $info["Name"]
      ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
     } foreach($eventsList as $event => $info) {
+     $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
+     $added = base64_encode("Added! Feel free to close this card.");
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
@@ -50,6 +55,7 @@
       "[Event.ID]" => $event,
       "[Event.Link]" => $info["Link"],
       "[Event.Title]" => $info["Title"],
+      "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&Added=$added&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($this->core->ID)),
       "[Media.File]" => $info["CoverPhoto"],
       "[Media.File.Quantity]" => "Single",
       "[Media.Input]" => "EventCoverPhoto[]",
@@ -90,6 +96,7 @@
       "[Event.ID]" => "",
       "[Event.Link]" => "",
       "[Event.Title]" => "",
+      "[Media.Add]" => $saveFirst,
       "[Media.File]" => "",
       "[Media.File.Quantity]" => "Single",
       "[Media.Input]" => "EventCoverPhoto[]",
@@ -97,6 +104,7 @@
      ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
      "[Configuration.Media]" => $media,
      "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
+      "[Media.Add]" => $saveFirst,
       "[Media.File]" => "",
       "[Media.File.Quantity]" => "Single",
       "[Media.Input]" => "MediaFile[]",
@@ -242,6 +250,18 @@
     "Response" => [
      "JSON" => "",
      "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function SaveFirst() {
+   return $this->core->JSONResponse([
+    "AccessCode" => "Denied",
+    "Response" => [
+     "JSON" => "",
+     "Web" => [
+      "Body" => "Please save the configuration and re-load the Control Panel to continue."
+     ]
     ],
     "ResponseType" => "Dialog"
    ]);
