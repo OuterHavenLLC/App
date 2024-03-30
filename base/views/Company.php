@@ -41,10 +41,13 @@
    $_ViewTitle = "About ".$this->core->config["App"]["Name"];
    $accessCode = "Accepted";
    $b2 = urlencode($this->core->config["App"]["Name"]);
+   $eventMedia = $this->core->RenderEventMedia() ?? [];
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $shopID = base64_encode($this->core->ShopID);
    $r = $this->core->Change([[
+    "[App.Banner]" => $eventMedia["Banner"],
+    "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
     "[App.Earnings]" => base64_encode("v=".base64_encode("Common:Income")."&UN=$shopID"),
     "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
     "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
