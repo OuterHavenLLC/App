@@ -7,6 +7,27 @@
    ]]);
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
+  function CoreMedia(array $a) {
+   $accessCode = "Accepted";
+   $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
+   $dlc = $data["DLC"] ?? "";
+   $quantity = $data["PreviewQuantity"] ?? "Single";
+   $i = 0;
+   $r = "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   // LOGIC
+   $r = ($i == 0) ? $this->NoResults : $r;
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function EditorSingle(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
