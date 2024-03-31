@@ -135,10 +135,11 @@
      ]) : "";
      $addToData = $data["AddTo"] ?? "";
      $addToData = (!empty($addToData)) ? explode(":", base64_decode($addToData)) : [];
+     $addToMedia = ($this->core->ID == $username) ? $file["Name"] : $attachmentID;
      $addTo = (!empty($addToData[1])) ? $this->core->Element([//TO BE DISPATCHED
       "button", $addToData[0], [
        "class" => "AddTo v2",
-       "data-a" => $attachmentID,
+       "data-a" => $addToMedia,
        "data-c" => $data["Added"],
        "data-f" => base64_encode($addToData[1])
       ]
@@ -147,7 +148,7 @@
       "button", $addToData[0], [
        "class" => "AddToV2 v2",
        "data-added" => $data["Added"],
-       "data-dlc" => $file["Name"],
+       "data-dlc" => $addToMedia,
        "data-input" => base64_encode($addToData[1])
       ]
      ]) : "";
