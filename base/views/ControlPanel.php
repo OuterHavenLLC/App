@@ -19,7 +19,7 @@
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
-    $_LiveView = base64_encode("v=".("LiveView:CoreMedia")."&DLC=");
+    $_LiveView = base64_encode("v=".base64_encode("LiveView:CoreMedia")."&DLC=");
     $_Search = base64_encode("Search:Containers");
     $accessCode = "Accepted";
     $config = $this->core->config ?? [];
@@ -40,7 +40,7 @@
      $media .= $this->core->Change([[
       "[Clone.ID]" => $key,
       "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
-      "[Media.File]" => $info["File"],
+      "[Media.File]" => base64_encode($info["File"].";"),
       "[Media.File.Quantity]" => $previewQuantity,
       "[Media.ID]" => $key,
       "[Media.Input]" => "MediaFile[]",

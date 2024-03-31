@@ -2,7 +2,7 @@
  Class LiveView extends OH {
   function __construct() {
    parent::__construct();
-   $this->NoResults = $this->core->Element(["h3", "No Attachments", [
+   $this->NoMedia = $this->core->Element(["h3", "Add Media to get a Preview", [
     "class" => "CenterText InnerMargin UpperCase"
    ]]);
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
@@ -10,15 +10,37 @@
   function CoreMedia(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $addTo = $data["AddTo"] ?? "";
    $dlc = $data["DLC"] ?? "";
-   $quantity = $data["PreviewQuantity"] ?? "Single";
    $i = 0;
    $r = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   // LOGIC
-   $r = ($i == 0) ? $this->NoResults : $r;
+   if(!empty($dlc)) {
+    $dlc = base64_decode($dlc);
+    $dlc = (str_ends_with($dlc, ";")) ? rtrim($dlc, ";") : $dlc;
+    $dlc = explode(";", $dlc);
+    $quantity = $data["PreviewQuantity"] ?? base64_encode("Single");
+    $quantity = base64_decode($quantity);
+    $username = $this->core->ID;
+    if($quantity == "Single") {
+     $i++;
+     $r = $this->core->GetAttachmentPreview([
+      "DLL" => $dlc,
+      "T" => $username,
+      "Y" => $you
+     ]);
+    } elseif($quantity == "Multiple") {
+     foreach($dlc as $key => $value) {
+      $i++;
+      $r = $this->core->GetAttachmentPreview([
+       "DLL" => $dlc,
+       "T" => $username,
+       "Y" => $you
+      ]);
+     }
+    }
+   }
+   $r = ($i == 0) ? $this->NoMedia : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -60,7 +82,7 @@
      }
     }
    }
-   $r = ($i == 0) ? $this->NoResults : $r;
+   $r = ($i == 0) ? $this->NoMedia : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -105,7 +127,7 @@
      }
     }
    }
-   $r = ($i2 == 0) ? $this->NoResults : $r;
+   $r = ($i2 == 0) ? $this->NoMedia : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -149,7 +171,7 @@
      }
     }
    }
-   $r = ($i2 == 0) ? $this->NoResults : $r;
+   $r = ($i2 == 0) ? $this->NoMedia : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
