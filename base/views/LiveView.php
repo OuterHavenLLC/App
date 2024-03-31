@@ -19,24 +19,33 @@
     $dlc = base64_decode($dlc);
     $dlc = (str_ends_with($dlc, ";")) ? rtrim($dlc, ";") : $dlc;
     $dlc = explode(";", $dlc);
+    $fileSystem = $this->core->Data("Get", ["app", "fs"]) ?? [];
     $quantity = $data["PreviewQuantity"] ?? base64_encode("Single");
     $quantity = base64_decode($quantity);
     $username = $this->core->ID;
     if($quantity == "Single") {
-     $i++;
-     $r = $this->core->GetAttachmentPreview([
-      "DLL" => $dlc,
-      "T" => $username,
-      "Y" => $you
-     ]);
-    } elseif($quantity == "Multiple") {
-     foreach($dlc as $key => $value) {
+     $dlc = explode(".", end($dlc));
+     $dlc = $fileSystem[$dlc[0]] ?? [];
+     if(!empty($dlc)) {
       $i++;
       $r = $this->core->GetAttachmentPreview([
        "DLL" => $dlc,
        "T" => $username,
        "Y" => $you
       ]);
+     }
+    } elseif($quantity == "Multiple") {
+     foreach($dlc as $dlc) {
+      $dlc = explode(".", end($dlc));
+      $dlc = $fileSystem[$dlc[0]] ?? [];
+      if(!empty($dlc)) {
+       $i++;
+       $r = $this->core->GetAttachmentPreview([
+        "DLL" => $dlc,
+        "T" => $username,
+        "Y" => $you
+       ]);
+      }
      }
     }
    }
