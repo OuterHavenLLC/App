@@ -1177,7 +1177,7 @@
       "[Banner.Text]" => $info["BannerText"],
      ], $this->Extension("af8e6cb7d85b8131980d9e6b69fc5a1f")]);
      if(!empty($info["CoverPhoto"])) {
-      $r["CoverPhoto"] = $this->efs."/".$this->ID."/".base64_decode($info["CoverPhoto"]);
+      $r["CoverPhoto"] = $this->efs."/".$this->ID."/".$info["CoverPhoto"];
      }
      break;
     }
