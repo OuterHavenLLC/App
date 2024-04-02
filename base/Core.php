@@ -1172,11 +1172,12 @@
    ];
    foreach($events as $event => $info) {
     if($info["Active"] == 1) {
-     $r["Banner"] = $this->Element(["div", $this->Element(["p", $info["BannerText"]]), [
-      "class" => "A K4i"
-     ]]);
+     $r["Banner"] = $this->Change([[
+      "[Banner.Link]" => $info["BannerLink"],
+      "[Banner.Text]" => $info["BannerText"],
+     ], $this->Extension("af8e6cb7d85b8131980d9e6b69fc5a1f")]);
      if(!empty($info["CoverPhoto"])) {
-      $r["CoverPhoto"] = $this->efs."/".$this->ID."/".$info["CoverPhoto"];
+      $r["CoverPhoto"] = $this->efs."/".$this->ID."/".base64_decode($info["CoverPhoto"]);
      }
      break;
     }
