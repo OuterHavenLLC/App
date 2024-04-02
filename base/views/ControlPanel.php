@@ -37,10 +37,11 @@
     foreach($mediaList as $key => $info) {
      $addTo = base64_encode("Link to ".$info["Name"].":.AddTo$key");
      $added = base64_encode("Added! Feel free to close this card.");
+     $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
      $media .= $this->core->Change([[
       "[Clone.ID]" => $key,
       "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
-      "[Media.File]" => base64_encode($info["File"].";"),
+      "[Media.File]" => $file,
       "[Media.File.Quantity]" => $previewQuantity,
       "[Media.ID]" => $key,
       "[Media.Input]" => "MediaFile[]",
@@ -50,6 +51,7 @@
     } foreach($eventsList as $event => $info) {
      $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
      $added = base64_encode("Added! Feel free to close this card.");
+     $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
@@ -58,7 +60,7 @@
       "[Event.Link]" => $info["Link"],
       "[Event.Title]" => $info["Title"],
       "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&Added=$added&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($this->core->ID)),
-      "[Media.File]" => $info["CoverPhoto"],
+      "[Media.File]" => $coverPhoto,
       "[Media.File.Quantity]" => $previewQuantity,
       "[Media.Input]" => "EventCoverPhoto[]",
       "[Media.Input.LiveView]" => $_LiveView
@@ -210,10 +212,14 @@
      if($activeEvents > 1 && $check == 1) {
       break;
      } else {
+      $coverPhoto = $data["EventCoverPhoto"][$i] ?? base64_encode("");
+      $coverPhoto = base64_decode($coverPhoto);
+      $coverPhoto = (str_ends_with($coverPhoto, ";")) ? rtrim($coverPhoto, ";") : $coverPhoto;
+      $coverPhoto = explode(";", $coverPhoto);
       $newEvents[$data["EventID"][$i]] = [
        "Active" => $data["EventActive"][$i],
        "BannerText" => $data["EventBannerText"][$i],
-       "CoverPhoto" => $data["EventCoverPhoto"][$i],
+       "CoverPhoto" => end($coverPhoto),
        "Description" => $data["EventDescription"][$i],
        "EnablePublicBroadcast" => $data["EventEnablePublicBroadcast"][$i],
        "Link" => $data["EventLink"][$i],
@@ -231,7 +237,6 @@
       "Body" => "There are currently $activeEvents active events. Please make sure only one is active, and try again."
      ];
     } else {
-     $tmp = "";//TEMP
      if($activeEvents == 1) {
       $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
       $now = $this->core->timestamp;
@@ -239,14 +244,12 @@
       $chat["Modified"] = $now;
       $chat["ModifiedBy"][$now] = $you;
       $chat["Title"] = $activeEvent["Title"];
-      #$this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
-      $tmp = "Chat.enabled";//TEMP
+      $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
      }
-     #$this->core->Data("Save", ["app", md5("config"), $config]);
+     $this->core->Data("Save", ["app", md5("config"), $config]);
      $r = [
-      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!$tmp",
-      "Header" => "Done",
-      "Scrollable" => json_encode($config["PublicEvents"], true)
+      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+      "Header" => "Done"
      ];
     }
    }
@@ -290,16 +293,21 @@
     $media = $config["Media"] ?? [];
     $newMedia = [];
     for($i = 0; $i < count($data["MediaID"]); $i++) {
+     $file = $data["MediaFile"][$i] ?? base64_encode("");
+     $file = base64_decode($file);
+     $file = (str_ends_with($file, ";")) ? rtrim($file, ";") : $file;
+     $file = explode(";", $file);
      $newMedia[$data["MediaID"][$i]] = [
-      "File" => $data["MediaFile"][$i],
+      "File" => end($file),
       "Name" => $data["MediaName"][$i]
      ];
     }
     $config["Media"] = $newMedia;
-    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($config["Media"], true)
     ];
    }
    return $this->core->JSONResponse([
