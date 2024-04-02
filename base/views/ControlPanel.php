@@ -231,6 +231,7 @@
       "Body" => "There are currently $activeEvents active events. Please make sure only one is active, and try again."
      ];
     } else {
+     $tmp = "";//TEMP
      if($activeEvents == 1) {
       $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
       $now = $this->core->timestamp;
@@ -238,12 +239,14 @@
       $chat["Modified"] = $now;
       $chat["ModifiedBy"][$now] = $you;
       $chat["Title"] = $activeEvent["Title"];
-      $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
+      #$this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
+      $tmp = "Chat.enabled";//TEMP
      }
-     $this->core->Data("Save", ["app", md5("config"), $config]);
+     #$this->core->Data("Save", ["app", md5("config"), $config]);
      $r = [
-      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-      "Header" => "Done"
+      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!$tmp",
+      "Header" => "Done",
+      "Scrollable" => json_encode($config["PublicEvents"], true)
      ];
     }
    }
@@ -293,7 +296,7 @@
      ];
     }
     $config["Media"] = $newMedia;
-    $this->core->Data("Save", ["app", md5("config"), $config]);
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done"

@@ -1172,7 +1172,9 @@
    ];
    foreach($events as $event => $info) {
     if($info["Active"] == 1) {
-     $r["Banner"] = $this->Element(["p", $info["BannerText"]]);
+     $r["Banner"] = $this->Element(["div", $this->Element(["p", $info["BannerText"]]), [
+      "class" => "A K4i"
+     ]]);
      if(!empty($info["CoverPhoto"])) {
       $r["CoverPhoto"] = $this->efs."/".$this->ID."/".$info["CoverPhoto"];
      }
