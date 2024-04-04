@@ -13,10 +13,10 @@
     $this->base = $this->ConfigureBaseURL();
     $this->config = $this->Configuration();
     $this->efs = $this->ConfigureBaseURL("efs");
-    $this->ghost = $this->RenderGhostMember();
     $this->language = $header["Language"] ?? "en_US";
     $this->timestamp = date("Y-m-d h:i:sA");
     $this->you = $this->Member($this->Authenticate("Get"));
+    $this->yourGhost = $this->RenderGhostMember();
    } catch(PDOException $error) {
     return $this->Element([
      "p", "Failed to initialize GW... ".$error->getMessage()
@@ -1163,7 +1163,7 @@
    return $r;
   }
   function RenderGhostMember() {
-   $ghost = $this->NewMember(uniqid("Ghost_"));
+   $ghost = $this->Member(uniqid("Ghost_"));
    $ghost["Personal"]["DisplayName"] = "Anonymous";
    return $ghost;
   }

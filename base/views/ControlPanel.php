@@ -206,10 +206,15 @@
     $activeEvents = 0;
     $config = $this->core->config ?? [];
     $events = $config["PublicEvents"] ?? [];
+    $missingBannerInfo = 0;
     $newEvents = [];
     for($i = 0; $i < count($data["EventActive"]); $i++) {
      $check = $data["EventActive"][$i] ?? 0;
+     $check2 = (!empty($data["EventBannerText"][$i]) && !empty($data["EventLink"][$i])) ? 1 : 0;
      if($activeEvents > 1 && $check == 1) {
+      break;
+     } elseif($check == 1 && $check2 == 0) {
+      $missingBannerInfo = 1;
       break;
      } else {
       $coverPhoto = $data["EventCoverPhoto"][$i] ?? base64_encode("");
@@ -236,6 +241,10 @@
      $r = [
       "Body" => "There are currently $activeEvents active events. Please make sure only one is active, and try again."
      ];
+    } elseif($missingBannerInfo == 1) {
+     $r = [
+      "Body" => "Active events require both Banner Text and Link to be populated."
+     ];
     } else {
      if($activeEvents == 1) {
       $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
@@ -249,7 +258,8 @@
      $this->core->Data("Save", ["app", md5("config"), $config]);
      $r = [
       "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-      "Header" => "Done"
+      "Header" => "Done",
+      "Scrollable" => json_encode($config["PublicEvents"], true)
      ];
     }
    }
