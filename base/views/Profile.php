@@ -615,7 +615,11 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($_Member["Empty"] == 0) {
+   if(strpos(base64_decode($member), "Ghost_")) {
+    $r = [
+     "Body" => "You cannot talk to ghosts."
+    ];
+   } elseif($_Member["Empty"] == 0) {
     $id = $member["Login"]["Username"];
     $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]) ?? [];
     $_TheyBlockedYou = $this->core->CheckBlocked([$id, "Members", $you]);
@@ -1412,6 +1416,8 @@
     $r = "Your PINs must match.";
    } elseif(empty($data["Username"])) {
     $r = "A Username is required.";
+   } elseif(strpos($data["Username"], "Ghost_")) {
+    $r = "You cannot be a ghost.";
    } elseif($data["Username"] == $this->core->ID) {
     $r = $this->core->ID." is the system profile and cannot be used.";
    } elseif($ck == 0) {
