@@ -49,10 +49,17 @@
    ]);
   }
   function RenderClone() {
-   $_Regions = $this->core->Extension("5f6ea04c169f32041a39e16d20f95a05");
-   $_Translations = $this->core->Extension("63dde5af1a1ec0968ccb006248b55f48");
-   $clone = "{TRANSLATIONS_CLONE}";
-   return $clone;
+   $translations = "";
+   foreach($this->core->Languages() as $region => $Language) {
+    $translations .= $this->core->Element([
+     "h4", $language
+    ]).$this->core->Element(["textarea", "[Translate.Clone.Translations.$region]", [
+     "name" => $region."[]"
+    ]]);
+   }
+   return $this->core->Change([[
+    "[Translate.Clone.Translations]" => $translations
+   ], $this->core->Extension("63dde5af1a1ec0968ccb006248b55f48")]);
   }
   function Save(array $a) {
    $accessCode = "Denied";

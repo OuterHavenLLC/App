@@ -217,23 +217,21 @@
    ]);
   }
   function SwitchLanguages() {
-   $accessCode = "Accepted";
-   $languages = $this->core->Languages() ?? [];
    $options = "";
-   foreach($languages as $key => $value) {
+   foreach($this->core->Languages() as $region => $language) {
     if($key == "en_US") {//TEMP
-     $options .= $this->core->Element(["button", $value, [
+     $options .= $this->core->Element(["button", $language, [
       "class" => "LI Reg v2 v2w",
-      "data-type" => $key,
+      "data-type" => $region,
       "onclick" => "CloseFirSTEPTool();"
      ]]);
     }//TEMP
    }
    $r = $this->core->Change([[
-    "[LanguageSwitch.Options]" => $options
+    "[Translate.Options]" => $options
    ], $this->core->Extension("350d1d8dfa7ce14e12bd62f5f5f27d30")]);
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
      "Web" => $r
