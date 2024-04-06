@@ -25,6 +25,10 @@
      "h1", "Translate"
     ]).$this->core->Element([
      "p", "Translate is disabled for this experience."
+    ]).$this->core->Element(["button", "Back", [
+     "class" => "LI PS",
+     "data-type" => ".MainCardContent;.CardNavigation;.Editor"
+    ]
     ]);
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
