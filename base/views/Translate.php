@@ -7,6 +7,8 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $disabled = $data["Disabled"] ?? base64_encode(0);
+   $disabled = base64_decode($disabled);
    $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Translation Package Identifier is missing."
@@ -17,9 +19,16 @@
     $r = [
      "Body" => "You must sign in to continue."
     ];
+   } elseif($disabled == 1) {
+    $accessCode = "Accepted";
+    $r = $this->core->Element([
+     "h1", "Translate"
+    ]).$this->core->Element([
+     "p", "Translate is disabled for this experience."
+    ]);
    } elseif(!empty($id)) {
-    $_Locals = $this->core->Extension("63dde5af1a1ec0968ccb006248b55f48");
     $_Regions = $this->core->Extension("5f6ea04c169f32041a39e16d20f95a05");
+    $_Translations = $this->core->Extension("63dde5af1a1ec0968ccb006248b55f48");
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $locals = "";
@@ -42,11 +51,11 @@
        "[Region.Text]" => $t
       ], $_Regions]);
      }
-     $locals .= $this->core->Change([[
+     $translations .= $this->core->Change([[
       "[Local.Code]" => $code,
       "[Local.ID]" => $k,
       "[Local.Regions]" => $regions
-     ], $_Locals]);
+     ], $_Translations]);
     } else {
      foreach($lt as $k => $v) {
       $code = "&#91;Languages:$id-$k&#93;";
@@ -64,11 +73,11 @@
         "[Region.Text]" => $t
        ], $_Regions]);
       }
-      $locals .= $this->core->Change([[
+      $translations .= $this->core->Change([[
        "[Local.Code]" => $code,
        "[Local.ID]" => $k,
        "[Local.Regions]" => $regions
-      ], $_Locals]);
+      ], $_Translations]);
      }
     } foreach($this->core->Languages() as $re => $la) {
      $regions .= $this->core->Change([[
@@ -78,12 +87,12 @@
       "[Region.Text]" => ""
      ], $_Regions]);
     }
-    $_Locals = $this->core->PlainText([
+    $_Trsnalations = $this->core->PlainText([
      "Data" => $this->core->Change([[
       "[Local.Code]" => "LocalCode",
       "[Local.ID]" => "LocalID",
       "[Local.Regions]" => $regions
-     ], $_Locals]),
+     ], $_Translations]),
      "HTMLEncode" => 1
     ]);
     $r = $this->core->Change([[
@@ -91,9 +100,9 @@
       "LocalCode" => htmlentities("[Languages:$id-LocalID]"),
       "LocalID" => "GenerateUniqueID"
      ])),
-     "[Languages.CloneTPL]" => $_Locals,
+     "[Languages.CloneTPL]" => $_Translations,
      "[Languages.ID]" => $id,
-     "[Languages.Locals]" => $locals,
+     "[Languages.Locals]" => $translations,
      "[Languages.Processor]" => base64_encode("v=".base64_encode("Translate:Save")),
     ], $this->core->Extension("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
    }
