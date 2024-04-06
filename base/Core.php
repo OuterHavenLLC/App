@@ -1525,7 +1525,13 @@
    if(!empty($a[1])) {
     $translationID = explode("-", $a[1]);
     $translations = $oh->Data("Get", ["translate", $translationID[0]]) ?? [];
-    $r = $translations[$translationID[1]]["en_US"] ?? "";
+    foreach($oh->Languages() as $region => $language) {
+     $translation = $translations[$translationID[1]][$language]  ?? "";
+     $r = $translation ?? "";
+     if(!empty($translation)) {
+      break;
+     }
+    }
     $r = $translations[$translationID[1]][$oh->language] ?? $r;
     $r = (!empty($r)) ? $oh-PlainText([
      "BBCodes" => 1,

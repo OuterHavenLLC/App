@@ -104,7 +104,7 @@
     }
     #$this->core->Data("Save", ["translate", $id, $translations]);
     $r = [
-     "Body" => "The Localization was saved.",
+     "Body" => "The Translations were saved.",
      "Header" => "Done",
      "Scrollable" => json_encode($translations, true)
     ];
