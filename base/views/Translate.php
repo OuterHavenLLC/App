@@ -38,10 +38,10 @@
     $translationsList = "";
     foreach($translations as $translationID => $package) {
      $packageClone = $clone;
-     str_replace("[Translate.Clone.PackageID]", $translationID, $packageClone);
+     $packageClone = str_replace("[Translate.Clone.PackageID]", $translationID, $packageClone);
      foreach($this->core->Languages() as $region => $language) {
-      $packageRegion = $package[$region] ?? "";
-      str_replace("[Translate.Clone.$region]", $packageRegion, $packageClone);
+      $translation = $package[$region] ?? "";
+      $packageClone = str_replace("[Translate.Clone.$region]", $translation, $packageClone);
      }
      $translationsList .= $packageClone;
     } foreach($this->core->Languages() as $region => $language) {
