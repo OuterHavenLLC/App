@@ -34,17 +34,21 @@
     $translationsList = "";
     foreach($translations as $translationID => $package) {
      $packageClone = $clone;
-     str_replace("[Translate.Clone.PackageID]", $translationID, $clone);
+     str_replace("[Translate.Clone.PackageID]", $translationID, $packageClone);
      foreach($this->core->Languages() as $region => $language) {
       $packageRegion = $package[$region] ?? "";
-      str_replace("[Translate.Clone.$ragion]", $packageRegion, $clone);
+      str_replace("[Translate.Clone.$region]", $packageRegion, $packageClone);
      }
      $translationsList .= $packageClone;
+    } foreach($this->core->Languages() as $region => $language) {
+     $clone = str_replace("[Translate.Clone.$region]", "", $clone);
     }
+    $clone = str_replace("[Translate.Clone.PackageID]", "", $clone);
+    $translationsList = (empty($translationsList)) ? str_replace("[Clone.ID]", uniqid("Clone"), $clone) : $translationsList;
     $r = $this->core->Change([[
      "[Trsnalate.Clone]" => base64_encode($clone),
      "[Trsnalate.ID]" => $id,
-     "[Trsnalate.Translations]" => json_encode($translationsList, true),
+     "[Trsnalate.Translations]" => $translationsList,
      "[Trsnalate.Save]" => base64_encode("v=".base64_encode("Translate:Save")),
     ], $this->core->Extension("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
    }
@@ -59,12 +63,12 @@
   }
   function RenderClone() {
    $translations = "";
-   foreach($this->core->Languages() as $region => $Language) {
-    $translations .= $this->core->Element([
+   foreach($this->core->Languages() as $region => $language) {
+    $translations .= $this->core->Element(["div", $this->core->Element([
      "h4", $language
-    ]).$this->core->Element(["textarea", "[Translate.Clone.Translations.$region]", [
+    ]).$this->core->Element(["textarea", "[Translate.Clone.$region]", [
      "name" => $region."[]"
-    ]]);
+    ]]), ["class" => "Medium"]]);
    }
    return $this->core->Change([[
     "[Translate.Clone.Translations]" => $translations
