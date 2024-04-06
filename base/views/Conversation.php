@@ -50,7 +50,7 @@
        "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
        "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&UN=$you"),
        "[Extras.ID]" => $conversationID,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Language:Edit")."&ID=".base64_encode($conversationID))
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($conversationID))
       ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
      ]),
      "[Conversation.Attachments]" => $attachments,

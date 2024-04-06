@@ -1097,8 +1097,8 @@
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
     $r = preg_replace_callback("/\[Embed:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
-    $r = preg_replace_callback("/\[Languages:(.*?)\]/i", array(&$this, "LanguagesTranslation"), $r);
     $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
+    $r = preg_replace_callback("/\[Translate:(.*?)\]/i", array(&$this, "Translate"), $r);
     $r = $this->Change([[
      "[App.Base]" => $this->base,
      "[App.BillOfRights]" => base64_encode("v=$extensionCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
@@ -1520,20 +1520,20 @@
     return $r;
    }
   }
-  public static function LanguagesTranslation($a = NULL) {
+  public static function Translate($a = NULL) {
    $oh = New Core;
    if(!empty($a[1])) {
-    $l = explode("-", $a[1]);
-    $lt = $oh->Data("Get", ["local", $l[0]]) ?? [];
-    $r = $lt[$l[1]]["en_US"] ?? "";
-    $r = $lt[$l[1]][$oh->language] ?? $r;
+    $translationID = explode("-", $a[1]);
+    $translations = $oh->Data("Get", ["translate", $translationID[0]]) ?? [];
+    $r = $translations[$translationID[1]]["en_US"] ?? "";
+    $r = $translations[$translationID[1]][$oh->language] ?? $r;
     $r = (!empty($r)) ? $oh-PlainText([
      "BBCodes" => 1,
      "Data" => $r,
      "Decode" => 1,
      "Display" => 1,
      "HTMLDecode" => 1
-    ]) : $oh->Element(["p", "No Translations Found"]);
+    ]) : "No Translations Found for <em>".$translationID[0]."-".$translationID[1]."</em>.";
     $oh->__destruct();
     return $r;
    }

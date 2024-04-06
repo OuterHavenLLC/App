@@ -1,5 +1,5 @@
 <?php
- Class Language extends OH {
+ Class Translate extends OH {
   function __construct() {
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
@@ -9,7 +9,7 @@
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Languages Package Identifier is missing.<br/>ID: $id"
+    "Body" => "The Translation Package Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -23,7 +23,7 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $locals = "";
-    $lt = $this->core->Data("Get", ["local", $id]) ?? [];
+    $lt = $this->core->Data("Get", ["translate", $id]) ?? [];
     $regions = "";
     if(empty($lt)) {
      $k = md5($you."_Local_".$this->core->timestamp);
@@ -94,7 +94,7 @@
      "[Languages.CloneTPL]" => $_Locals,
      "[Languages.ID]" => $id,
      "[Languages.Locals]" => $locals,
-     "[Languages.Processor]" => base64_encode("v=".base64_encode("Language:Save")),
+     "[Languages.Processor]" => base64_encode("v=".base64_encode("Translate:Save")),
     ], $this->core->Extension("d4ccf0731cd5ee5c10c04a9193bd61d5")]);
    }
    return $this->core->JSONResponse([
@@ -112,7 +112,7 @@
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, ["ID"]);
    $r = [
-    "Body" => "The Languages Package Identirifer is missing."
+    "Body" => "The Translation Package Identirifer is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -123,7 +123,7 @@
     ];
    } elseif(!empty($data["ID"])) {
     $accessCode = "Accepted";
-    $lt = $this->core->Data("Get", ["local", $data["ID"]]);
+    $lt = $this->core->Data("Get", ["translate", $data["ID"]]);
     $lt = $lt ?? [];
     foreach($d as $k => $v) {
      if(strpos($k, "Locals_") !== false) {
@@ -142,7 +142,7 @@
      "Body" => "The Localization was saved.",
      "Header" => "Done"
     ];
-    #$this->core->Data("Save", ["local", $data["ID"], $lt]);
+    #$this->core->Data("Save", ["translate", $data["ID"], $lt]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
