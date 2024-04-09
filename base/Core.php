@@ -1535,10 +1535,7 @@
     $r = $translations[$translationID[1]][$oh->language] ?? $r;
     $r = (!empty($r)) ? $oh->PlainText([
      "BBCodes" => 1,
-     "Data" => $r,
-     "Decode" => 1,
-     "Display" => 1,
-     "HTMLDecode" => 1
+     "Data" => $r
     ]) : "No Translations were found for <em>".$translationID[0]."-".$translationID[1]."</em>.";
     $oh->__destruct();
     return $r;
