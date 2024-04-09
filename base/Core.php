@@ -1533,7 +1533,7 @@
      }
     }
     $r = $translations[$translationID[1]][$oh->language] ?? $r;
-    $r = (!empty($r)) ? $oh-PlainText([
+    $r = (!empty($r)) ? $oh->PlainText([
      "BBCodes" => 1,
      "Data" => $r,
      "Decode" => 1,
