@@ -900,9 +900,9 @@
   function Languages() {
    return [
     "en_US" => "English",
-    "de_DU" => "German",
-    "ja_JP" => "Japanese",
-    "es_SP" => "Spanish"
+    "de_DU" => "Deutsch",
+    "ja_JP" => "日本語",
+    "es_SP" => "Español"
    ];
   }
   function LastMonth() {
@@ -1539,7 +1539,7 @@
      "Decode" => 1,
      "Display" => 1,
      "HTMLDecode" => 1
-    ]) : "No Translations Found for <em>".$translationID[0]."-".$translationID[1]."</em>.";
+    ]) : "No Translations were found for <em>".$translationID[0]."-".$translationID[1]."</em>.";
     $oh->__destruct();
     return $r;
    }

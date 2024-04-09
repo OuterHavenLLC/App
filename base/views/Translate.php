@@ -97,16 +97,14 @@
     $accessCode = "Accepted";
     $translations = [];
     for($i = 0; $i < count($data["TranslatePackageID"]); $i++) {
-     #$translations[$data["TranslatePackageID"][$i]] = [];
      foreach($this->core->Languages() as $region => $language) {
       $translations[$data["TranslatePackageID"][$i]][$region] = $data[$region][$i] ?? "";
      }
     }
-    #$this->core->Data("Save", ["translate", $id, $translations]);
+    $this->core->Data("Save", ["translate", $id, $translations]);
     $r = [
      "Body" => "The Translations were saved.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($translations, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
