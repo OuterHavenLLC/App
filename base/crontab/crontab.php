@@ -7,7 +7,7 @@
  $r = $oh->core->Element([
   "h1", "Cron Tasks Executed!"
  ]).$oh->core->Element([
-  "p", "The following crob jobs have been executed on ".$oh->core->timestamp.":"
+  "p", "The following cron jobs have been executed on ".$oh->core->timestamp.":"
  ]).$oh->core->Element([
   "p", "&bull; Content Purging"
  ]).$oh->core->Element([
@@ -37,6 +37,6 @@
  ]);
  $oh->core->SendEmail([
   "Message" => $r,
-  "Title" => "Cron Tasks Executed!",
+  "Title" => "Cron Tab Notification",
   "To" => "mike@outerhaven.nyc"
  ]);
