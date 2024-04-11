@@ -16,8 +16,7 @@
   <script src="/base/jq.js" type="text/javascript"></script>
   <script src="/base/jq-UI.js" type="text/javascript"></script>
   <script src="/?_API=JS&v=Cypher" type="text/javascript"></script>
-  <script src="/?_API=JS&v=Functions" type="text/javascript"></script>
-  <script src="/?_API=JS&v=GUI" type="text/javascript"></script>
+  <script src="/?_API=JS&v=Client" type="text/javascript"></script>
   <script src="https://js.braintreegateway.com/web/dropin/1.33.5/js/dropin.js"></script>
  </head>
  <body>

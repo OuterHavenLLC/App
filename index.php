@@ -18,10 +18,8 @@
   header("content-type: application/x-javascript");
   if($view == "Cypher") {
    $r = $oh->core->Extension("06dfe9b3d6b9fdab588c1eabfce275fd");
-  } elseif($view == "Functions") {
-   $r = $oh->core->Extension("9899b8bb388bf8520c3b5cee4ef6778b");
-  } elseif($view == "GUI") {
-   $r = $oh->core->Extension("a62f482184a8b2eefa006a37890666d7");
+  } elseif($view == "Client") {
+   $r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
   }
   $r = $oh->core->Change([[
    "[App.AddContent]" => base64_encode("v=".base64_encode("Profile:AddContentCheck")),
