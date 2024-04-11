@@ -49,7 +49,7 @@
     $additionalContent = $this->core->Change([
      [
       "[Extras.ContentType]" => "Product",
-      "[Extras.BundledProducts]" => base64_encode("#"),
+      "[Extras.BundledProducts]" => base64_encode("#"),# CREATE PASS-THROUGH DATA FOR PRODUCTS, BASED ON EXISTING MEDIA LIBRARY CONNECTION
       "[Extras.BundledProducts.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=".base64_encode($at5input)."&ID="),
       "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
       "[Extras.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=".base64_encode($at2input)."&ID="),
