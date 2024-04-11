@@ -37,27 +37,29 @@
     $_DesignViewEditor = "EditProduct$id";
     $action = ($new == 1) ? "Post" : "Update";
     $at = base64_encode("Added to Product!");
-    $at2input = ".ATTI$id";
+    $at2input = ".CoverPhoto$id";
     $at2 = base64_encode("Set as Product Cover Photo:$at2input");
-    $at2input = "$at2input .rATT";
-    $at3input = ".ATTDLC$id";
+    $at3input = ".DLC$id";
     $at3 = base64_encode("Add Downloadable Content to Product:$at3input");
-    $at3input = "$at3input .rATT";
-    $at4input = ".ATTF$id";
+    $at4input = ".DemoFiles$id";
     $at4 = base64_encode("Add to the Product's Demo Files:$at4input");
-    $at4input = "$at4input .rATT";
-    $at5input = ".ATTP$id";
-    $at5 = base64_encode("Add to Product Bundle:.ATTP$id");
-    $at5input = "$at4input .rATT";
+    $at5input = ".Products$id";
+    $at5 = base64_encode("Add to Product Bundle:$at5input");
     $attachments = "";
     $additionalContent = $this->core->Change([
      [
       "[Extras.ContentType]" => "Product",
-      "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
+      "[Extras.BundledProducts]" => base64_encode("#"),
+      "[Extras.BundledProducts.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=".base64_encode($at5input)."&ID="),
+      "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
+      "[Extras.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=".base64_encode($at2input)."&ID="),
+      "[Extras.DemoFiles]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at4&Added=$at&UN=".base64_encode($you)),
+      "[Extras.DemoFiles.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=".base64_encode($at4input)."&ID="),
+      "[Extras.DLC]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at&UN=".base64_encode($you)),
+      "[Extras.DLC.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=".base64_encode($at3input)."&ID="),
       "[Extras.DesignView.Origin]" => $_DesignViewEditor,
       "[Extras.DesignView.Destination]" => "UIV$id",
       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-      "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
       "[Extras.ID]" => $id,
       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")

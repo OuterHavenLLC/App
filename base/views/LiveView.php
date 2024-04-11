@@ -62,15 +62,17 @@
   function EditorSingle(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["AddTo", "ID"]);
+   $addTo = $data["AddTo"] ?? base64_encode("");
+   $addTo = base64_decode($addTo);
    $i = 0;
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $r = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $attachments = array_filter(explode(";", base64_decode($id)));
-    $attachments = array_reverse($attachments);
+    $attachments = base64_decode($id);
+    $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
+    $attachments = explode(";", $attachments);
     foreach($attachments as $dlc) {
      if(!empty($dlc) && $i == 0) {
       $f = explode("-", base64_decode($dlc));
@@ -80,7 +82,7 @@
        $r = $this->core->Change([[
         "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=$dlc&Type=ATT",
         "[Attachment.ID]" => $f[1],
-        "[Attachment.Input]" => $data["AddTo"],
+        "[Attachment.Input]" => $addTo,
         "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
          "DLL" => $efs[$f[1]],
          "T" => $f[0],
@@ -104,13 +106,17 @@
   function EditorMossaic(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["AddTo", "ID"]);
+   $addTo = $data["AddTo"] ?? base64_encode("");
+   $addTo = base64_decode($addTo);
    $i2 = 0;
+   $id = $data["ID"] ?? "";
    $r = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["ID"])) {
-    $attachments = explode(";", base64_decode($data["ID"]));
+   if(!empty($id)) {
+    $attachments = base64_decode($id);
+    $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
+    $attachments = explode(";", $attachments);
     $count = count($attachments);
     $r = "";
     for($i = 0; $i < $count; $i++) {
