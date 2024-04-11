@@ -64,6 +64,8 @@
    $data = $a["Data"] ?? [];
    $addTo = $data["AddTo"] ?? base64_encode("");
    $addTo = base64_decode($addTo);
+   $mediaType = $data["MediaType"] ?? base64_encode("");
+   $mediaType = base64_decode($mediaType);
    $i = 0;
    $id = $data["ID"] ?? "";
    $r = "";
@@ -73,41 +75,49 @@
     $attachments = base64_decode($id);
     $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
     $attachments = explode(";", $attachments);
-    if($quantity == "Single") {
-     if(!empty($attachments)) {
-      $attachment = explode("-", base64_decode(end($attachments)));
-      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
-      $i++;
-      $r = $this->core->Change([[
-       "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=$dlc&Type=ATT",
-       "[Attachment.ID]" => $attachment[1],
-       "[Attachment.Input]" => $addTo,
-       "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
-        "DLL" => $efs[$attachment[1]],
-        "T" => $attachment[0],
-        "Y" => $you
-       ])
-      ], $this->core->Extension("8d25bf64ec06d4600180aa5881215a73")]);
+    if(!empty($attachments)) {
+     if($quantity == "Single") {
+      if($mediaType == "Files") {
+       $attachment = explode("-", base64_decode(end($attachments)));
+       $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
+       $i++;
+       $r = $this->core->Change([[
+        "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=$dlc&Type=ATT",
+        "[Attachment.ID]" => $attachment[1],
+        "[Attachment.Input]" => $addTo,
+        "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
+         "DLL" => $efs[$attachment[1]],
+         "T" => $attachment[0],
+         "Y" => $you
+        ])
+       ], $this->core->Extension("8d25bf64ec06d4600180aa5881215a73")]);
+      } elseif($mediaType == "Products") {
+       $r = $this->core->Element(["p", "Product"]);
+      }
      }
     } elseif($quantity == "Multiple") {
-     foreach($attachments as $dlc) {
-      if(!empty($dlc) && $i == 0) {
-       $dlc = explode("-", base64_decode($dlc));
-       if(!empty($f[0]) && !empty($f[1])) {
-        $efs = $this->core->Data("Get", ["fs", md5($dlc[0])])["Files"] ?? [];
-        $i++;
-        $r = $this->core->Change([[
-         "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=$dlc&Type=ATT",
-         "[Attachment.ID]" => $dlc[1],
-         "[Attachment.Input]" => $addTo,
-         "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
-          "DLL" => $efs[$dlc[1]],
-          "T" => $dlc[0],
-          "Y" => $you
-         ])
-        ], $this->core->Extension("8d25bf64ec06d4600180aa5881215a73")]);
+     if($mediaType == "Files") {
+      foreach($attachments as $dlc) {
+       if(!empty($dlc) && $i == 0) {
+        $dlc = explode("-", base64_decode($dlc));
+        if(!empty($f[0]) && !empty($f[1])) {
+         $efs = $this->core->Data("Get", ["fs", md5($dlc[0])])["Files"] ?? [];
+         $i++;
+         $r = $this->core->Change([[
+          "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=$dlc&Type=ATT",
+          "[Attachment.ID]" => $dlc[1],
+          "[Attachment.Input]" => $addTo,
+          "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
+           "DLL" => $efs[$dlc[1]],
+           "T" => $dlc[0],
+           "Y" => $you
+          ])
+         ], $this->core->Extension("8d25bf64ec06d4600180aa5881215a73")]);
+        }
        }
       }
+     } elseif($mediaType == "Products") {
+      $r = $this->core->Element(["p", "Product"]);
      }
     }
    }
