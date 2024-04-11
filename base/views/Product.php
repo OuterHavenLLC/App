@@ -50,13 +50,13 @@
      [
       "[Extras.ContentType]" => "Product",
       "[Extras.BundledProducts]" => base64_encode("#"),# CREATE PASS-THROUGH DATA FOR PRODUCTS, BASED ON EXISTING MEDIA LIBRARY CONNECTION
-      "[Extras.BundledProducts.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=".base64_encode($at5input)."&ID="),
+      "[Extras.BundledProducts.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at5input)."&ID="),
       "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-      "[Extras.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=".base64_encode($at2input)."&ID="),
+      "[Extras.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at2input)."&ID="),
       "[Extras.DemoFiles]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at4&Added=$at&UN=".base64_encode($you)),
-      "[Extras.DemoFiles.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=".base64_encode($at4input)."&ID="),
+      "[Extras.DemoFiles.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at4input)."&ID="),
       "[Extras.DLC]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at&UN=".base64_encode($you)),
-      "[Extras.DLC.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=".base64_encode($at3input)."&ID="),
+      "[Extras.DLC.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at3input)."&ID="),
       "[Extras.DesignView.Origin]" => $_DesignViewEditor,
       "[Extras.DesignView.Destination]" => "UIV$id",
       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
