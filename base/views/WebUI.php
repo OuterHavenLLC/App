@@ -189,7 +189,7 @@
     $changeData = [
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
-     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Shop:Income")."&UN=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
@@ -226,7 +226,7 @@
      "[Menu.Administration]" => $admin,
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
-     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Shop:Income")."&UN=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
@@ -291,6 +291,60 @@
     "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
     "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
    ], $this->core->Extension("db69f503c7c6c1470bd9620b79ab00d7")]);
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function SubscribeSection(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Content Identifier or Type are missing."
+   ];
+   $type = $data["Type"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id) && !empty($type)) {
+    $accessCode = "Accepted";
+    $check = 0;
+    $processor = "";
+    $r = "";
+    $subscribers = [];
+    if($type == "Article") {
+     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
+     $check = ($article["UN"] != $you) ? 1 : 0;
+     $processor = base64_encode("v=".base64_encode("Page:Subscribe"));
+     $subscribers = $article["Subscribers"] ?? [];
+     $title = $article["Title"];
+    } elseif($type == "Blog") {
+     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+     $check = ($blog["UN"] != $you) ? 1 : 0;
+     $processor = base64_encode("v=".base64_encode("Blog:Subscribe"));
+     $subscribers = $shop["Subscribers"] ?? [];
+     $title = $blog["Title"];
+    } elseif($type == "Shop") {
+     $check = (md5($you) != $id) ? 1 : 0;
+     $processor = base64_encode("v=".base64_encode("Shop:Subscribe"));
+     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+     $subscribers = $shop["Subscribers"] ?? [];
+     $title = $shop["Title"];
+    } if($check == 1 && $this->core->ID != $you) {
+     $text = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
+     $r = $this->core->Change([[
+      "[Subscribe.ContentID]" => $id,
+      "[Subscribe.ID]" => $id,
+      "[Subscribe.Processor]" => $processor,
+      "[Subscribe.Text]" => $text,
+      "[Subscribe.Title]" => $title
+     ], $this->core->Extension("489a64595f3ec2ec39d1c568cd8a8597")]);
+    }
+   }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

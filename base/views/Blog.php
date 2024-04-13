@@ -289,7 +289,7 @@
       "[Blog.Description]" => $_Blog["ListItem"]["Description"],
       "[Blog.ID]" => $id,
       "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),
-      "[Blog.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Blog"),
+      "[Blog.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Blog"),
       "[Blog.Title]" => $_Blog["ListItem"]["Title"],
       "[Blog.Votes]" => $options["Vote"]
      ], $this->core->Extension($extension)]);

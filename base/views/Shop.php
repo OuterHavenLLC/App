@@ -533,7 +533,7 @@
         "[Shop.Payroll]" => $payroll,
         "[Shop.Share]" => $share,
         "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
-        "[Shop.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Shop"),
+        "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
         "[Shop.Title]" => $_Shop["ListItem"]["Title"],
         "[Shop.Welcome]" => $this->core->PlainText([
          "Data" => $shop["Welcome"],
@@ -549,6 +549,116 @@
     "Front" => $r
    ] : $r;
    if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->core->RenderView($r);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function Income(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $pub = $data["pub"] ?? 0;
+   $r = [
+    "Body" => "The requested Income Disclosure could not be found.",
+    "Header" => "Not Found"
+   ];
+   $username = $data["UN"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($username)) {
+    $accessCode = "Accepted";
+    $_Day = $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84");
+    $_Month = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
+    $_Partner = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
+    $_Sale = $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe");
+    $_Year = $this->core->Extension("676193c49001e041751a458c0392191f");
+    $username = base64_decode($username);
+    $income = $this->core->Data("Get", ["id", md5($username)]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
+    $t = ($username == $you) ? $y : $this->core->Member($username);
+    $yearTable = "";
+    foreach($income as $year => $yearData) {
+     if(is_array($yearData)) {
+      $monthTable = "";
+      if($year != "UN") {
+       foreach($yearData as $month => $monthData) {
+        $dayTable = "";
+        $partnerTable = "";
+        $partners = $monthData["Partners"] ?? [];
+        $sales = $monthData["Sales"] ?? [];
+        $subtotal = 0;
+        $tax = 0;
+        $total = 0;
+        foreach($partners as $partner => $info) {
+         $partnerTable .= $this->core->Change([[
+          "[IncomeDisclosure.Partner.Company]" => $info["Company"],
+          "[IncomeDisclosure.Partner.Description]" => $info["Description"],
+          "[IncomeDisclosure.Partner.DisplayName]" => $partner,
+          "[IncomeDisclosure.Partner.Hired]" => $this->core->TimeAgo($info["Hired"]),
+          "[IncomeDisclosure.Partner.Title]" => $info["Title"]
+         ], $_Partner]);
+        } foreach($sales as $day => $salesGroup) {
+         $saleTable = "";
+         foreach($salesGroup as $daySales => $daySale) {
+          foreach($daySale as $sale => $product) {
+           $price = str_replace(",", "", $product["Cost"]);
+           $price = $price + str_replace(",", "", $product["Profit"]);
+           $price = $price * $product["Quantity"];
+           $subtotal = $subtotal + $price;
+           $saleTable .= $this->core->Change([[
+            "[IncomeDisclosure.Sale.Price]" => number_format($price, 2),
+            "[IncomeDisclosure.Sale.Title]" => $product["Title"]
+           ], $_Sale]);
+          }
+         }
+         $dayTable .= $this->core->Change([[
+          "[IncomeDisclosure.Day]" => $day,
+          "[IncomeDisclosure.Day.Sales]" => $saleTable
+         ], $_Day]);
+        }
+        $subtotal = str_replace(",", "", $subtotal);
+        $commission = number_format($subtotal * (5.00 / 100), 2);
+        $tax = $shop["Tax"] ?? 10.00;
+        $tax = number_format($subtotal * ($tax / 100), 2);
+        $total = number_format($subtotal - $commission - $tax, 2);
+        $monthTable .= $this->core->Change([[
+         "[IncomeDisclosure.Table.Month]" => $this->ConvertCalendarMonths($month),
+         "[IncomeDisclosure.Table.Month.Commission]" => $commission,
+         "[IncomeDisclosure.Table.Month.Partners]" => $partnerTable,
+         "[IncomeDisclosure.Table.Month.Sales]" => $dayTable,
+         "[IncomeDisclosure.Table.Month.Subtotal]" => number_format($subtotal, 2),
+         "[IncomeDisclosure.Table.Month.Tax]" => $tax,
+         "[IncomeDisclosure.Table.Month.Total]" => $total
+        ], $_Month]);
+       }
+       $yearTable .= $this->core->Change([[
+        "[IncomeDisclosure.Table.Year]" => $year,
+        "[IncomeDisclosure.Table.Year.Lists]" => $monthTable
+       ], $_Year]);
+      }
+     }
+    }
+    $yearTable = (!empty($income)) ? $yearTable : $this->core->Element([
+     "h3", "No earnings to report...", [
+      "class" => "CenterText",
+      "style" => "margin:0.5em"
+     ]
+    ]);
+    $r = $this->core->Change([[
+     "[IncomeDisclosure.DisplayName]" => $t["Personal"]["DisplayName"],
+     "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
+     "[IncomeDisclosure.Table]" => $yearTable
+    ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
+   } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
@@ -586,7 +696,7 @@
     "[MadeInNY.Back]" => $back,
     "[MadeInNY.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
     "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
-    "[MadeInNY.Subscribe]" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$id&Type=Shop"),
+    "[MadeInNY.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
     "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
    ], $this->core->Extension("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
    if($pub == 1) {

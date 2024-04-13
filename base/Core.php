@@ -697,7 +697,7 @@
        "Edit" => base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($contentID)),
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;".$contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "Subscribe" => base64_encode("v=".base64_encode("Common:SubscribeSection")."&ID=$contentID&Type=Article"),
+       "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Article"),
        "View" => $view,
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
       ];

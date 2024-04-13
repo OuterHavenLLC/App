@@ -109,7 +109,7 @@
    $content = "v=".base64_encode("Invoice:Hire")."&ID=".md5($oh->core->ShopID)."&pub=1";
   } elseif($command[0] == "income") {
    # INCOME DISCLOSURES
-   $content = "v=".base64_encode("Common:Income")."&UN=".base64_encode($command[1])."&pub=1";
+   $content = "v=".base64_encode("Shop:Income")."&UN=".base64_encode($command[1])."&pub=1";
   } elseif($command[0] == "invoice") {
    # INVOICE
    $content = "v=".base64_encode("WebUI:Containers");
