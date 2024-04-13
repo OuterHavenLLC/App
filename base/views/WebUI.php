@@ -4,6 +4,62 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
+  function AdditionalContent(array $a) {
+   $id = $a["ID"] ?? "";
+   $r = [
+    "Extension" => $this->core->Element(["p", "The Content Identifier is missing."]),
+    "LiveView" => [
+     "CoverPhoto" => "",
+     "DemoFiles" => "",
+     "DLC" => "",
+     "Products" => ""
+    ]
+   ];
+   $y =- $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($id)) {
+    $at = base64_encode("Added to Product!");
+    $at2input = ".CoverPhoto$id";
+    $at2 = base64_encode("Set as Product Cover Photo:$at2input");
+    $at3input = ".DLC$id";
+    $at3 = base64_encode("Add Downloadable Content to Product:$at3input");
+    $at4input = ".DemoFiles$id";
+    $at4 = base64_encode("Add to the Product's Demo Files:$at4input");
+    $at5input = ".Products$id";
+    $at5 = base64_encode("Add to Product Bundle:$at5input");
+    $coverPhoto = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at2input)."&MediaType=".base64_encode("Files")."&ID=");
+    $demoFiles = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at4input)."&MediaType=".base64_encode("Files")."&ID=");
+    $dlc = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at3input)."&MediaType=".base64_encode("Files")."&ID=");
+    $products = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at5input)."&MediaType=".base64_encode("Products")."&ID=");
+    $r = [
+     "Extension" => $this->core->Change([
+      [
+       "[Extras.ContentType]" => "Product",
+       "[Extras.BundledProducts]" => base64_encode("#"),# CREATE PASS-THROUGH DATA FOR PRODUCTS, BASED ON EXISTING MEDIA LIBRARY CONNECTION
+       "[Extras.BundledProducts.LiveView]" => $products,
+       "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
+       "[Extras.CoverPhoto.LiveView]" => $coverPhoto,
+       "[Extras.DemoFiles]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at4&Added=$at&UN=".base64_encode($you)),
+       "[Extras.DemoFiles.LiveView]" => $demoFiles,
+       "[Extras.DLC]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at&UN=".base64_encode($you)),
+       "[Extras.DLC.LiveView]" => $dlc,
+       "[Extras.DesignView.Origin]" => "Edit$id",
+       "[Extras.DesignView.Destination]" => "UIV$id",
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.ID]" => $id,
+       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
+      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
+     ]),
+     "LiveView" => [
+      "CoverPhoto" => $coverPhoto,
+      "DemoFiles" => $demoFiles,
+      "DLC" => $dlc,
+      "Products" => $products
+     ]
+    ];
+   }
+   return $r;
+  }
   function Containers(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];

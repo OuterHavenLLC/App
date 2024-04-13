@@ -34,36 +34,12 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($editor)) {
-    $_DesignViewEditor = "EditProduct$id";
     $action = ($new == 1) ? "Post" : "Update";
-    $at = base64_encode("Added to Product!");
-    $at2input = ".CoverPhoto$id";
-    $at2 = base64_encode("Set as Product Cover Photo:$at2input");
-    $at3input = ".DLC$id";
-    $at3 = base64_encode("Add Downloadable Content to Product:$at3input");
-    $at4input = ".DemoFiles$id";
-    $at4 = base64_encode("Add to the Product's Demo Files:$at4input");
-    $at5input = ".Products$id";
-    $at5 = base64_encode("Add to Product Bundle:$at5input");
     $attachments = "";
-    $additionalContent = $this->core->Change([
-     [
-      "[Extras.ContentType]" => "Product",
-      "[Extras.BundledProducts]" => base64_encode("#"),# CREATE PASS-THROUGH DATA FOR PRODUCTS, BASED ON EXISTING MEDIA LIBRARY CONNECTION
-      "[Extras.BundledProducts.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at5input)."&MediaType=".base64_encode("Products")."&ID="),
-      "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-      "[Extras.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at2input)."&MediaType=".base64_encode("Files")."&ID="),
-      "[Extras.DemoFiles]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at4&Added=$at&UN=".base64_encode($you)),
-      "[Extras.DemoFiles.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at4input)."&MediaType=".base64_encode("Files")."&ID="),
-      "[Extras.DLC]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at&UN=".base64_encode($you)),
-      "[Extras.DLC.LiveView]" => base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at3input)."&MediaType=".base64_encode("Files")."&ID="),
-      "[Extras.DesignView.Origin]" => $_DesignViewEditor,
-      "[Extras.DesignView.Destination]" => "UIV$id",
-      "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-      "[Extras.ID]" => $id,
-      "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-     ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
     ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
      "data-type" => "ProductEditors"
@@ -113,26 +89,26 @@
     }
     $changeData = [
      "[Product.Action]" => $action,
-     "[Product.AdditionalContent]" => $additionalContent,
+     "[Product.AdditionalContent]" => $additionalContent["Extension"],
      "[Product.Attachments]" => $attachments,
-     "[Product.Attachments.View]" => base64_encode("v=$editorLiveView&AddTo=$at4input&ID="),
+     "[Product.Attachments.View]" => $additionalContent["LiveView"]["DemoFiles"],
      "[Product.Back]" => $back,
      "[Product.Body]" => base64_encode($this->core->PlainText([
       "Data" => $product["Body"],
       "Decode" => 1
      ])),
      "[Product.BundledProducts]" => $bundledProducts,
-     "[Product.BundledProducts.View]" => base64_encode("v=$editorLiveView&AddTo=$at5input&ID="),
+     "[Product.BundledProducts.View]" => $additionalContent["LiveView"]["Products"],
      "[Product.Category]" => $category,
      "[Product.Cost]" => base64_encode($cost),
      "[Product.CoverPhoto]" => $coverPhoto,
-     "[Product.CoverPhoto.View]" => base64_encode("v=$editorLiveView&AddTo=$at2input&ID="),
+     "[Product.CoverPhoto.View]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Product.Created]" => $created,
      "[Product.Description]" => base64_encode($product["Description"]),
-     "[Product.DesignView]" => $_DesignViewEditor,
+     "[Product.DesignView]" => "Edit$id",
      "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
      "[Product.Downloads]" => $dlc,
-     "[Product.Downloads.View]" => base64_encode("v=$editorLiveView&AddTo=$at3input&ID="),
+     "[Product.Downloads.View]" => $additionalContent["LiveView"]["DLC"],
      "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
      "[Product.Header]" => $header,
      "[Product.ID]" => $id,
