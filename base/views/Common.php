@@ -4,28 +4,6 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function DesignView(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $dv = $data["DV"] ?? "";
-   $r = (!empty($dv)) ? $this->core->PlainText([
-    "BBCodes" => 1,
-    "Data" => $dv,
-    "Decode" => 1,
-    "Display" => 1,
-    "HTMLDecode" => 1
-   ]) : $this->core->Element([
-    "p", "Add content to reveal its design...", ["class" => "CenterText"]
-   ]);
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function Income(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];

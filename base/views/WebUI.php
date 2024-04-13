@@ -44,7 +44,7 @@
        "[Extras.DLC.LiveView]" => $dlc,
        "[Extras.DesignView.Origin]" => "Edit$id",
        "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
+       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("WebUI:DesignView")."&DV="),
        "[Extras.ID]" => $id,
        "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
       ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
@@ -86,6 +86,28 @@
      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
     ], $this->core->Extension("937560239a386533aecf5017371f4d34")]);
    }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function DesignView(array $a) {
+   $accessCode = "Accepted";
+   $data = $a["Data"] ?? [];
+   $dv = $data["DV"] ?? "";
+   $r = (!empty($dv)) ? $this->core->PlainText([
+    "BBCodes" => 1,
+    "Data" => $dv,
+    "Decode" => 1,
+    "Display" => 1,
+    "HTMLDecode" => 1
+   ]) : $this->core->Element([
+    "p", "Add content to reveal its design...", ["class" => "CenterText"]
+   ]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
