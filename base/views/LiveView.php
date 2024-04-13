@@ -104,15 +104,19 @@
          $efs = $this->core->Data("Get", ["fs", md5($dlc[0])])["Files"] ?? [];
          $i++;
          $r = $this->core->Change([[
-          "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=$dlc&Type=ATT",
-          "[Attachment.ID]" => $dlc[1],
-          "[Attachment.Input]" => $addTo,
+          "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=".$attachments[$i]."&Type=ATT",
+          "[Attachment.Description]" => $efs[$f[1]]["Description"],
+          "[Attachment.DN]" => $t["Personal"]["DisplayName"],
+          "[Attachment.ID]" => $attachments[$i],
+          "[Attachment.Input]" => $data["AddTo"],
           "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
-           "DLL" => $efs[$dlc[1]],
-           "T" => $dlc[0],
+           "DLL" => $efs[$f[1]],
+           "T" => $f[0],
            "Y" => $you
-          ])
-         ], $this->core->Extension("8d25bf64ec06d4600180aa5881215a73")]);
+          ]),
+          "[Attachment.Title]" => $efs[$f[1]]["Title"],
+          "[Attachment.View]" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
+         ], $this->core->Extension("63668c4c623066fa275830696fda5b4a")]);
         }
        }
       }
@@ -122,143 +126,6 @@
     }
    }
    $r = ($i == 0) ? $this->NoMedia : $r;
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function EditorSingle(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $addTo = $data["AddTo"] ?? base64_encode("");
-   $addTo = base64_decode($addTo);
-   $i = 0;
-   $id = $data["ID"] ?? "";
-   $r = "";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(!empty($id)) {
-    $attachments = base64_decode($id);
-    $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
-    $attachments = explode(";", $attachments);
-    foreach($attachments as $dlc) {
-     if(!empty($dlc) && $i == 0) {
-      $f = explode("-", base64_decode($dlc));
-      if(!empty($f[0]) && !empty($f[1])) {
-       $efs = $this->core->Data("Get", ["fs", md5($f[0])])["Files"] ?? [];
-       $i++;
-       $r = $this->core->Change([[
-        "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=$dlc&Type=ATT",
-        "[Attachment.ID]" => $f[1],
-        "[Attachment.Input]" => $addTo,
-        "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
-         "DLL" => $efs[$f[1]],
-         "T" => $f[0],
-         "Y" => $you
-        ])
-       ], $this->core->Extension("8d25bf64ec06d4600180aa5881215a73")]);
-      }
-     }
-    }
-   }
-   $r = ($i == 0) ? $this->NoMedia : $r;
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function EditorMossaic(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $addTo = $data["AddTo"] ?? base64_encode("");
-   $addTo = base64_decode($addTo);
-   $i2 = 0;
-   $id = $data["ID"] ?? "";
-   $r = "";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(!empty($id)) {
-    $attachments = base64_decode($id);
-    $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
-    $attachments = explode(";", $attachments);
-    $count = count($attachments);
-    $r = "";
-    for($i = 0; $i < $count; $i++) {
-     if(!empty($attachments[$i])) {
-      $f = explode("-", base64_decode($attachments[$i]));
-      $t = $this->core->Member($f[0]);
-      $efs = $this->core->Data("Get", ["fs", md5($f[0])])["Files"] ?? [];
-      $r .= $this->core->Change([[
-       "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=".$attachments[$i]."&Type=ATT",
-       "[Attachment.Description]" => $efs[$f[1]]["Description"],
-       "[Attachment.DN]" => $t["Personal"]["DisplayName"],
-       "[Attachment.ID]" => $attachments[$i],
-       "[Attachment.Input]" => $data["AddTo"],
-       "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
-        "DLL" => $efs[$f[1]],
-        "T" => $f[0],
-        "Y" => $you
-       ]),
-       "[Attachment.Title]" => $efs[$f[1]]["Title"],
-       "[Attachment.View]" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
-      ], $this->core->Extension("63668c4c623066fa275830696fda5b4a")]);
-      $i2++;
-     }
-    }
-   }
-   $r = ($i2 == 0) ? $this->NoMedia : $r;
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function EditorProducts(array $a) {
-   $accessCode = "Accepted";
-   $coverPhoto = $this->core->PlainText([
-    "Data" => "[Media:MiNY]",
-    "Display" => 1
-   ]);
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["AddTo", "BNDL"]);
-   $i2 = 0;
-   $bundle = explode(";", base64_decode($data["BNDL"]));
-   $r = "";
-   if(!empty($data["BNDL"])) {
-    for($i = 0; $i < count($bundle); $i++) {
-     if(!empty($bundle[$i])) {
-      $p = explode("-", base64_decode($bundle[$i]));
-      if(!empty($p[0]) && !empty($p[1])) {
-       $p = $this->core->Data("Get", ["miny", $p[1]]) ?? [];
-       $coverPhoto = $p["ICO"] ?? $coverPhoto;
-       $coverPhoto = base64_encode($coverPhoto);
-       $r .= $this->core->Change([[
-        "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=".$attachments[$i]."&Type=Product",
-        "[Attachment.Description]" => $p["Description"],
-        "[Attachment.DN]" => $t["Personal"]["DisplayName"],
-        "[Attachment.ID]" => $bundle[$i],
-        "[Attachment.Input]" => $data["AddTo"],
-        "[Attachment.Preview]" => $this->core->CoverPhoto($coverPhoto),
-        "[Attachment.Title]" => $p["Title"],
-        "[Attachment.View]" => base64_encode("v=".base64_encode("Product:Home")."&ID=".$p["ID"])
-       ], $this->core->Extension("63668c4c623066fa275830696fda5b4a")]);
-       $i2++;
-      }
-     }
-    }
-   }
-   $r = ($i2 == 0) ? $this->NoMedia : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
