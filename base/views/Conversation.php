@@ -24,6 +24,10 @@
     $commentID = ($new == 1) ? md5($you."CR".$this->core->timestamp) : $commentID;
     $conversationID = base64_decode($conversationID);
     $action = ($new == 1) ? "Post" : "Update";
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
+    ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
     $level = base64_decode($level);
     $commentType = ($level == 1) ? "Comment" : "Reply";
     $conversation = $this->core->Data("Get", ["conversation", $conversationID]) ?? [];
@@ -34,27 +38,14 @@
     $body = $data["Body"] ?? base64_encode("");
     $body = $conversation["Body"] ?? $body;
     $body = base64_decode($body);
-    $at = base64_encode("Added to $commentType!");
-    $at2 = base64_encode("Add Media to $commentType:.EditComment$conversationID");
     $header = ($new == 1) ? "New $commentType" : "Edit $commentType";
     $nsfw = $conversation["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $conversation["Privacy"] ?? $y["Privacy"]["Comments"];
     $replyingTo = base64_decode($replyingTo);
     $r = $this->core->Change([[
-     "[Conversation.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => $commentType,
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&ftype=".base64_encode(json_encode(["Photo"]))."&UN=$you"),
-       "[Extras.DesignView.Origin]" => "NA",
-       "[Extras.DesignView.Destination]" => "NA",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&UN=$you"),
-       "[Extras.ID]" => $conversationID,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&Disabled=".base64_encode(1)."&ID=".base64_encode($conversationID))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[Conversation.AdditionalContent]" => $additionalContent["Extension"],
      "[Conversation.Attachments]" => $attachments,
-     "[Conversation.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
+     "[Conversation.Attachments.LiveView]" => $additionalContent["LiveView"]["DLC"],
      "[Conversation.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body,
       "Decode" => 1,

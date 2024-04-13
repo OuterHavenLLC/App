@@ -8,14 +8,13 @@
    $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN", "SU", "new"]);
-   $id = $data["SU"];
+   $id = $data["SU"] ?? "";
    $new = $data["new"] ?? 0;
    $now = $this->core->timestamp;
    $r = [
     "Body" => "The Post Identifier is missing."
    ];
-   $to = $data["UN"];
+   $to = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -31,43 +30,31 @@
      "data-form" => ".EditStatusUpdate$id",
      "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
     ]]);
-    $at2 = base64_encode("All done! Feel free to close this card.");
-    $at3input = ".StatusUpdate$id-ATTF";
-    $at3 = base64_encode("Attach to your Post.:$at3input");
-    $at3input = "$at3input .rATT";
-    $att = "";
-    $designViewEditor = "UIE$id";
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
+    ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
+    $attachments = "";
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->core->Data("Get", ["su", $id]) ?? [];
     $body = $update["Body"] ?? "";
     $body = (!empty($data["Body"])) ? base64_decode($data["Body"]) : $body;
     if(!empty($update["Attachments"])) {
-     $att = base64_encode(implode(";", $update["Attachments"]));
+     $attachments = base64_encode(implode(";", $update["Attachments"]));
     }
     $nsfw = $update["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $update["Privacy"] ?? $y["Privacy"]["Posts"];
     $to = (!empty($to)) ? base64_decode($to) : $to;
     $r = $this->core->Change([[
-     "[Update.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => "Status Update",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-       "[Extras.DesignView.Origin]" => $designViewEditor,
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[Update.AdditionalContent]" => $additionalContent["Extension"],
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
      "[Update.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body,
      ])),
-     "[Update.DesignView]" => $designViewEditor,
-     "[Update.Downloads]" => $att,
-     "[Update.Downloads.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
+     "[Update.DesignView]" => "Edit$id",
+     "[Update.Downloads]" => $attachments,
+     "[Update.Downloads.LiveView]" => $additionalContent["LiveView"]["DLC"],
      "[Update.From]" => $you,
      "[Update.ID]" => $id,
      "[Update.New]" => $new,

@@ -104,13 +104,13 @@
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($y["Login"]["Username"]."_FORUM_".$now) : $id;
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
+    ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $about = $forum["About"] ?? "";
     $author = $forum["UN"] ?? $you;
-    $atinput = ".Forum$id-ATTI";
-    $at = base64_encode("Set as the Forum's Cover Photo:$atinput");
-    $atinput = "$atinput .rATT";
-    $at2 = base64_encode("All done! Feel free to close this card.");
     $ca = base64_encode("Chat:Attachments");
     $coverPhoto = $forum["ICO-SRC"] ?? "";
     $created = $forum["Created"] ?? $now;
@@ -124,22 +124,11 @@
     $type = $forum["Type"] ?? $y["Privacy"]["ForumsType"];
     $r = $this->core->Change([[
      "[Forum.About]" => $about,
-     "[Forum.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => "Forum",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-       "[Extras.DesignView.Origin]" => "NA",
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=".base64_encode($you)),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[Forum.AdditionalContent]" => $additionalContent["Extension"],
      "[Forum.About]" => base64_encode($about),
      "[Forum.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
      "[Forum.CoverPhoto]" => $coverPhoto,
-     "[Forum.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+     "[Forum.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Forum.Created]" => $created,
      "[Forum.Description]" => base64_encode($description),
      "[Forum.Header]" => $header,

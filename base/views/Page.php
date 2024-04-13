@@ -158,6 +158,10 @@
      "ICO-SRC",
      "Title"
     ]);
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
+    ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
     $attachments = "";
     $author = $article["UN"] ?? $you;
     $designViewEditor = "ArticleEditor$id".md5($time);
@@ -168,16 +172,6 @@
     } if(!empty($article["Products"])) {
      $products = base64_encode(implode(";", $article["Products"]));
     }
-    $atinput = ".EditPage$id-ATTI";
-    $at = base64_encode("Set as the Article's Cover Photo:$atinput");
-    $atinput = "$atinput .rATT";
-    $at2 = base64_encode("All done! Feel free to close this card.");
-    $at3input = ".EditPage$id-ATTF";
-    $at3 = base64_encode("Attach to the Article.:$at3input");
-    $at3input = "$at3input .rATT";
-    $at4input = ".EditPage$id-ATTP";
-    $at4 = base64_encode("Attach to the Article.:$at4input");
-    $at4input = "$at4input .rATT";
     $categories = ($y["Rank"] == md5("High Command")) ? [
      "CA" => "Article",
      "JE" => "Journal Entry",
@@ -194,18 +188,7 @@
     $privacy = $article["Privacy"] ?? $y["Privacy"]["Posts"];
     $sc = base64_encode("Search:Containers");
     $r = $this->core->Change([[
-     "[Article.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => "Page",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-       "[Extras.DesignView.Origin]" => $designViewEditor,
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[Article.AdditionalContent]" => $additionalContent["Extension"],
      "[Article.Body]" => base64_encode($this->core->PlainText([
       "Data" => $article["Body"],
       "Decode" => 1
@@ -213,17 +196,17 @@
      "[Article.Categories]" => json_encode($categories, true),
      "[Article.Category]" => $category,
      "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
-     "[Article.CoverPhoto.LiveView]" => base64_encode("v=$es&AddTo=$atinput&ID="),
      "[Article.CoverPhoto]" => $article["ICO-SRC"],
+     "[Article.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Article.Description]" => base64_encode($article["Description"]),
      "[Article.DesignView]" => $designViewEditor,
      "[Article.Downloads]" => $attachments,
-     "[Article.Downloads.LiveView]" => base64_encode("v=$em&AddTo=$at3input&ID="),
+     "[Article.Downloads.LiveView]" => $additionalContent["LiveView"]["DLC"],
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,
      "[Article.New]" => $new,
      "[Article.Products]" => $products,
-     "[Article.Products.LiveView]" => base64_encode("v=$ep&AddTo=$at4input&BNDL="),
+     "[Article.Products.LiveView]" => $additionalContent["LiveView"]["Products"],
      "[Article.Title]" => base64_encode($article["Title"]),
      "[Article.Visibility.NSFW]" => $nsfw,
      "[Article.Visibility.Privacy]" => $privacy

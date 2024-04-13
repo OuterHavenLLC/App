@@ -28,8 +28,12 @@
      "data-form" => ".ForumPost$id",
      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
     ]]);
-    $attachments = "";
     $id = ($new == 1) ? md5($you."_Post_".$this->core->timestamp) : $id;
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
+    ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
+    $attachments = "";
     $dv = base64_encode("Common:DesignView");
     $em = base64_encode("LiveView:EditorMossaic");
     $sc = base64_encode("Search:Containers");
@@ -40,29 +44,14 @@
     if(!empty($post["Attachments"])) {
      $attachments = base64_encode(implode(";", $post["Attachments"]));
     }
-    $at2 = base64_encode("All done! Feel free to close this card.");
-    $atinput = ".ForumPost$id-ATTF";
-    $at3 = base64_encode("Attach to your Post.:$atinput");
-    $atinput = "$atinput .rATT";
     $designViewEditor = "UIE$id";
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Posts"];
     $title = $post["Title"] ?? "";
     $r = $this->core->Change([[
-     "[ForumPost.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => "Forum Post",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-       "[Extras.DesignView.Origin]" => $designViewEditor,
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[ForumPost.AdditionalContent]" => $additionalContent["Extension"],
      "[ForumPost.Attachments]" => $attachments,
-     "[ForumPost.Attachments.LiveView]" => base64_encode("v=$em&AddTo=$atinput&ID="),
+     "[ForumPost.Attachments.LiveView]" => $additionalContent["LiveView"]["DLC"],
      "[ForumPost.Body]" => base64_encode($this->core->PlainText([
       "Data" => $post["Body"]
      ])),

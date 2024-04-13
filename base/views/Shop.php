@@ -79,8 +79,7 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -89,6 +88,10 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
+    ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
     $owner = $shop["Contributors"] ?? [];
     $owner = array_key_first($owner);
@@ -99,10 +102,6 @@
      "Title",
      "Welcome"
     ]);
-    $atinput = ".Shop$id-CoverPhoto";
-    $at = base64_encode("Set as the Shop's Cover Photo:$atinput");
-    $at2 = base64_encode("All done! Feel free to close this card.");
-    $atinput = "$atinput .rATT";
     $action = $this->core->Element(["button", "Update", [
      "class" => "CardButton SendData",
      "data-form" => ".Shop$id",
@@ -134,18 +133,7 @@
     $search = base64_encode("Search:Containers");
     $tax = $shop["Tax"] ?? 10.00;
     $r = $this->core->Change([[
-     "[Shop.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => "Shop",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-       "[Extras.DesignView.Origin]" => $designViewEditor,
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=".base64_encode($you)),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[Shop.AdditionalContent]" => $additionalContent["Extension"],
      "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
      "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
      "[Shop.Braintree.Live.PublicKey]" => $processing["BraintreePublicKeyLive"],
@@ -156,7 +144,7 @@
      "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
      "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
      "[Shop.CoverPhoto]" => $coverPhoto,
-     "[Shop.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+     "[Shop.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Shop.Description]" => base64_encode($shop["Description"]),
      "[Shop.DesignView]" => $designViewEditor,
      "[Shop.EnableHireSection]" => $enableHireSection,

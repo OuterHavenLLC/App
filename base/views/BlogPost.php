@@ -29,6 +29,10 @@
    } elseif((!empty($blog) && !empty($post)) || $new == 1) {
     $accessCode = "Accepted";
     $id = ($new == 1) ? md5($you."_BP_".uniqid()) : $post;
+    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
+     "ID" => $id
+    ]);
+    $additionalContent = $this->core->RenderView($additionalContent);
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
@@ -38,13 +42,6 @@
     $attachments = "";
     $blog = $this->core->Data("Get", ["blg", $blog]) ?? [];
     $post = $this->core->Data("Get", ["bp", $id]) ?? [];
-    $atinput = ".EditBlogPost$id-ATTI";
-    $at = base64_encode("Set as the Blog Post's Cover Photo:$atinput");
-    $atinput = "$atinput .rATT";
-    $at2 = base64_encode("All done! Feel free to close this card.");
-    $at3input = ".EditBlogPost$id-ATTF";
-    $at3 = base64_encode("Attach to the Blog Post.:$at3input");
-    $at3input = "$at3input .rATT";
     if(!empty($post["Attachments"])) {
      $attachments = base64_encode(implode(";", $post["Attachments"]));
     }
@@ -67,26 +64,15 @@
     $title = $post["Title"] ?? "";
     $r = $this->core->Change([[
      "[Blog.ID]" => $blog["ID"],
-     "[BlogPost.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => "Blog Post",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at&Added=$at2&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-       "[Extras.DesignView.Origin]" => $designViewEditor,
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at3&Added=$at2&UN=".base64_encode($you)),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
+     "[BlogPost.AdditionalContent]" => $additionalContent["Extension"],
      "[BlogPost.Attachments]" => $attachments,
-     "[BlogPost.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$at3input&ID="),
+     "[BlogPost.Attachments.LiveView]" => $additionalContent["LiveView"]["DLC"],
      "[BlogPost.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body,
       "Decode" => 1
      ])),
      "[BlogPost.CoverPhoto]" => $coverPhoto,
-     "[BlogPost.CoverPhoto.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorSingle")."&AddTo=$atinput&ID="),
+     "[BlogPost.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[BlogPost.Description]" => base64_encode($description),
      "[BlogPost.DesignView]" => $header,
      "[BlogPost.Header]" => $header,
