@@ -1093,7 +1093,7 @@
    } if($a["HTMLDecode"] == 1) {
     $r = html_entity_decode($r);
    } if($a["Display"] == 1) {
-    $extensionCard = base64_encode("Page:Card");
+    $articleCard = base64_encode("Page:Card");
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
     $r = preg_replace_callback("/\[Embed:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
@@ -1101,8 +1101,8 @@
     $r = preg_replace_callback("/\[Translate:(.*?)\]/i", array(&$this, "Translate"), $r);
     $r = $this->Change([[
      "[App.Base]" => $this->base,
-     "[App.BillOfRights]" => base64_encode("v=$extensionCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
-     "[App.Constitution]" => base64_encode("v=$extensionCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
+     "[App.BillOfRights]" => base64_encode("v=$articleCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
+     "[App.Constitution]" => base64_encode("v=$articleCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
      "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
      "[App.CurrentYear]" => date("Y"),
      "[App.Name]" => $this->config["App"]["Name"],

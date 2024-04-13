@@ -15,16 +15,16 @@
      "Products" => ""
     ]
    ];
-   $y =- $this->you;
+   $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $at = base64_encode("Added to Product!");
+    $at = base64_encode("Added!");
     $at2input = ".CoverPhoto$id";
-    $at2 = base64_encode("Set as Product Cover Photo:$at2input");
+    $at2 = base64_encode("Set as Cover Photo:$at2input");
     $at3input = ".DLC$id";
-    $at3 = base64_encode("Add Downloadable Content to Product:$at3input");
+    $at3 = base64_encode("Add Downloadable Content:$at3input");
     $at4input = ".DemoFiles$id";
-    $at4 = base64_encode("Add to the Product's Demo Files:$at4input");
+    $at4 = base64_encode("Add to Demo Files:$at4input");
     $at5input = ".Products$id";
     $at5 = base64_encode("Add to Product Bundle:$at5input");
     $coverPhoto = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at2input)."&MediaType=".base64_encode("Files")."&ID=");
@@ -34,7 +34,6 @@
     $r = [
      "Extension" => $this->core->Change([
       [
-       "[Extras.ContentType]" => "Product",
        "[Extras.BundledProducts]" => base64_encode("#"),# CREATE PASS-THROUGH DATA FOR PRODUCTS, BASED ON EXISTING MEDIA LIBRARY CONNECTION
        "[Extras.BundledProducts.LiveView]" => $products,
        "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
@@ -58,7 +57,14 @@
      ]
     ];
    }
-   return $r;
+   return $this->core->JSONResponse([
+    "AccessCode" => "Accepted",
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
   }
   function Containers(array $a) {
    $accessCode = "Accepted";
