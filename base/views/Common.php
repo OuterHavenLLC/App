@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Income(array $a) {
+  function Income(array $a) { // MOVE TO Shop VIEW GROUP
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
@@ -114,7 +114,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function SubscribeSection(array $a) {
+  function SubscribeSection(array $a) { // MOVE TO WebUI VIEW GROUP
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
