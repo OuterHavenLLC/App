@@ -400,8 +400,7 @@
      $saveVote = $data["SaveVote"] ?? 0;
      $vote = $data["Vote"] ?? 0;
      if($add == 1) {
-      $_Type = ($databaseID == "bp") ? "BlogPost" : "";
-      $_Type = ($databaseID == "post") ? "ForumPost" : $_Type;
+      $_Type = ($databaseID == "pg") ? "Page" : "";
       $_Type = ($databaseID == "su") ? "StatusUpdate" : $_Type;
       $contentDataModel = $this->core->GetContentData([
        "BackTo" => "",
