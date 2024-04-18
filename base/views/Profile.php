@@ -615,7 +615,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(strpos(base64_decode($member), "Ghost_")) {
+   if(strpos(base64_decode($data["UN"]), "Ghost_")) {
     $r = [
      "Body" => "You cannot talk to ghosts."
     ];

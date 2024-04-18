@@ -402,12 +402,14 @@
      if($add == 1) {
       $_Type = ($databaseID == "pg") ? "Page" : "";
       $_Type = ($databaseID == "su") ? "StatusUpdate" : $_Type;
-      $contentDataModel = $this->core->GetContentData([
+      $dataModel = $this->core->GetContentData([
        "BackTo" => "",
        "Blacklisted" => 0,
-       "ID" => base64_encode("$_Type;$id")
+       "ID" => base64_encode($_Type.";$id")
       ]);
-      $noteID = md5($you.$this->core->timestamp);
+      $noteID = md5($you.uniqid().rand(1, 999));
+      $preview = $dataModel["Preview"];
+      $preview = ($dataModel["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
       $r = [
        "Action" => $this->core->Element(["button", "Add", [
         "class" => "CardButton SendData",
@@ -418,7 +420,7 @@
         "[Notes.DatabaseID]" => $databaseID,
         "[Notes.ID]" => $id,
         "[Notes.NoteID]" => $noteID,
-        "[Notes.Preview]" => $contentDataModel["Preview"]
+        "[Notes.Preview]" => $preview
        ], $this->core->Extension("8a016ee410595abcc9a119f63ca21a26")])
       ];
       $responseType = "Card";
