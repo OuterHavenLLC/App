@@ -178,6 +178,7 @@
       "[Article.CoverPhoto]" => $_BlogPost["ListItem"]["CoverPhoto"],
       "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
       "[Article.Description]" => $_BlogPost["ListItem"]["Description"],
+      "[Article.ID]" => $postID,
       "[Article.Modified]" => $_BlogPost["ListItem"]["Modified"],
       "[Article.Notes]" => $options["Notes"],
       "[Article.Report]" => $options["Report"],
