@@ -179,6 +179,7 @@
       "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
       "[Article.Description]" => $_BlogPost["ListItem"]["Description"],
       "[Article.Modified]" => $_BlogPost["ListItem"]["Modified"],
+      "[Article.Notes]" => $options["Notes"],
       "[Article.Report]" => $options["Report"],
       "[Article.Share]" => $share,
       "[Article.Subscribe]" => "",

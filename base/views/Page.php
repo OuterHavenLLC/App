@@ -331,6 +331,7 @@
        "[Article.Description]" => $_Article["ListItem"]["Description"],
        "[Article.ID]" => $id,
        "[Article.Modified]" => $_Article["ListItem"]["Modified"],
+       "[Article.Notes]" => $options["Notes"],
        "[Article.Report]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;$id")),
        "[Article.Share]" => $share,
        "[Article.Subscribe]" => $options["Subscribe"],

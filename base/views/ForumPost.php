@@ -170,6 +170,7 @@
        "[ForumPost.Illegal]" => $options["Report"],
        "[ForumPost.MemberRole]" => $memberRole,
        "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
+       "[ForumPost.Notes]" => $options["Notes"],
        "[ForumPost.OriginalPoster]" => $display,
        "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
        "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],

@@ -420,12 +420,11 @@
       $contentID = $data["SecureID"] ?? "";
       $databaseID = $data["SecureDatabaseID"] ?? "";
       $content = $this->core->Data("Get", [$databaseID, $contentID]) ?? [];
+      $r = [
+       "Body" => "The Content Identifier is missing."
+      ];
       $responseType = "Dialog";
-      if(empty($contentID)) {
-       $r = [
-        "Body" => "The Content Identifier is missing."
-       ];
-      } elseif(empty($databaseID)) {
+      if(empty($databaseID)) {
        $r = [
         "Body" => "The Database Identifier is missing."
        ];
