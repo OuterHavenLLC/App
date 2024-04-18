@@ -400,7 +400,14 @@
      $saveVote = $data["SaveVote"] ?? 0;
      $vote = $data["Vote"] ?? 0;
      if($add == 1) {
-      $new = $data["New"] ?? 0;
+      $_Type = ($databaseID == "bp") ? "BlogPost" : "";
+      $_Type = ($databaseID == "post") ? "ForumPost" : $_Type;
+      $_Type = ($databaseID == "su") ? "StatusUpdate" : $_Type;
+      $contentDataModel = $this->core->GetContentData([
+       "BackTo" => "",
+       "Blacklisted" => 0,
+       "ID" => base64_encode("$_Type;$id")
+      ]);
       $noteID = md5($you.$this->core->timestamp);
       $r = [
        "Action" => $this->core->Element(["button", "Add", [
@@ -411,7 +418,8 @@
        "Front" => $this->core->Change([[
         "[Notes.DatabaseID]" => $databaseID,
         "[Notes.ID]" => $id,
-        "[Notes.NoteID]" => $noteID
+        "[Notes.NoteID]" => $noteID,
+        "[Notes.Preview]" => $contentDataModel["Preview"]
        ], $this->core->Extension("8a016ee410595abcc9a119f63ca21a26")])
       ];
       $responseType = "Card";
