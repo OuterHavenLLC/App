@@ -680,7 +680,6 @@
      if($empty == 0) {
       $attachments = $data["Attachments"] ?? [];
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
-      $attachments = $this->RenderView($attachments);
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,

@@ -25,7 +25,7 @@
     $conversationID = base64_decode($conversationID);
     $action = ($new == 1) ? "Post" : "Update";
     $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
+     "ID" => $conversationID
     ]);
     $additionalContent = $this->core->RenderView($additionalContent);
     $level = base64_decode($level);

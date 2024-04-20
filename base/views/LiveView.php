@@ -141,15 +141,15 @@
   function InlineMossaic(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Type"]);
-   $id = $data["ID"];
+   $i = 0;
+   $id = $data["ID"] ?? base64_encode("");
    $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
    $type = $data["Type"] ?? base64_encode("DLC");
    $type = base64_decode($type);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $attachments = explode(";", base64_decode($id));
+    $attachments = explode(";", $id);
     $count = count($attachments);
     $r = "";
     if($type == "Artist") {
@@ -178,6 +178,7 @@
        $f = explode("-", base64_decode($dlc));
        if(!empty($f[0]) && !empty($f[1])) {
         $efs = $this->core->Data("Get", ["fs", md5($f[0])])["Files"] ?? [];
+        $i++;
         $r .= $this->core->Element([
          "button", $this->core->GetAttachmentPreview([
           "DLL" => $efs[$f[1]],
@@ -190,12 +191,13 @@
         ]);
        }
       }
+     } if($i > 0) {
+      $r = $this->core->Element([
+       "h4", "Attachments", ["class" => "UpperCase"]
+      ]).$this->core->Element([
+       "div", $r, ["class" => "SideScroll"]
+      ]);
      }
-     $r = $this->core->Element([
-      "h4", "Attachments", ["class" => "UpperCase"]
-     ]).$this->core->Element([
-      "div", $r, ["class" => "SideScroll"]
-     ]);
     } elseif($type == "Product") {
      $coverPhoto = $this->core->PlainText([
       "Data" => "[Media:MiNY]",
