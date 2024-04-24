@@ -188,18 +188,12 @@
      "data-view" => base64_encode("v=".base64_encode("ControlPanel:Home"))
     ]
    ]) : "";
-   $shop = ($y["Subscriptions"]["Artist"]["A"] == 1) ? $this->core->Element([
-    "button", "Shop", [
-     "class" => "CloseNetMap LI UpdateContent",
-     "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&UN=".base64_encode($you))
-    ]
-   ]) : "";
    if($this->core->ID == $you) {
     $accessCode = "Accepted";
     $changeData = [
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
-     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Shop:Income")."&UN=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
@@ -217,10 +211,17 @@
      $subscription = $this->core->config["Subscriptions"][$key] ?? [];
      if(!empty($subscription)) {
       $i++;
-      $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
-       "class" => "LI OpenCard",
-       "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
-      ]]);
+      if($key == "Artist") {
+       $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
+        "class" => "LI OpenCard",
+        "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($you))
+       ]]);
+      } else {
+       $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
+        "class" => "LI OpenCard",
+        "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
+       ]]);
+      }
      }
     } if($i > 0) {
      $subscriptions = $this->core->Element([
@@ -236,7 +237,7 @@
      "[Menu.Administration]" => $admin,
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
-     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Shop:Income")."&UN=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
@@ -255,7 +256,6 @@
      "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
      "[Menu.Member.Polls]" => base64_encode("v=$search&st=MBR-Polls"),
      "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:2em 30% 0em 30%;width:40%"),
-     "[Menu.Member.Shop]" => $shop,
      "[Menu.Member.Library]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
      "[Menu.Member.Preferences]" => base64_encode("v=".base64_encode("Profile:Preferences")),
      "[Menu.Member.Profile]" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($you)),

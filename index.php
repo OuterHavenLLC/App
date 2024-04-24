@@ -107,9 +107,6 @@
   } elseif($command[0] == "hire") {
    # HIRE
    $content = "v=".base64_encode("Invoice:Hire")."&ID=".md5($oh->core->ShopID)."&pub=1";
-  } elseif($command[0] == "income") {
-   # INCOME DISCLOSURES
-   $content = "v=".base64_encode("Shop:Income")."&UN=".base64_encode($command[1])."&pub=1";
   } elseif($command[0] == "invoice") {
    # INVOICE
    $content = "v=".base64_encode("WebUI:Containers");
@@ -122,6 +119,9 @@
    if(!empty($command[1])) {
     $content = "v=".base64_encode("Poll:Home")."&ID=".$command[1]."&pub=1";
    }
+  } elseif($command[0] == "revenue") {
+   # REVENUE DISCLOSURES
+   $content = "v=".base64_encode("Revenue:Home")."&UN=".base64_encode($command[1])."&pub=1";
   } elseif($command[0] == "search") {
    # SEARCH
    $content = "v=".base64_encode("Search:ReSearch")."&pub=1";

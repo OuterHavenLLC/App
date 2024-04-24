@@ -35,51 +35,7 @@
     if($ysub["A"] == 0) {
      $extension = "ffdcc2a6f8e1265543c190fef8e7982f";
     } else {
-     if($s == "Artist") {
-      $_LastMonth = $this->core->LastMonth()["LastMonth"];
-      $_LastMonth = explode("-", $_LastMonth);
-      $commission = 0;
-      $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
-      $income = $income[$_LastMonth[0]] ?? [];
-      $income = $income[$_LastMonth[1]] ?? [];
-      $paidCommission = $income["PaidCommission"] ?? 0;
-      $sales = $income["Sales"] ?? [];
-      foreach($sales as $day => $salesGroup) {
-       foreach($salesGroup as $daySales => $daySale) {
-        foreach($daySale as $id => $product) {
-         $price = $product["Cost"] + $product["Profit"];
-         $price = $price * $product["Quantity"];
-         $price = number_format($price, 2);
-         $commission = $commission + $price;
-        }
-       }
-      } if($commission > 0 && $paidCommission == 0) {
-       $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
-       $commission = number_format($commission * (5.00 / 100), 2);
-       $shop["Open"] = 0;
-       $this->core->Data("Save", ["shop", md5($you), $shop]);
-       $changeData = [
-        "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
-        "[Commission.Total]" => $commission
-       ];
-       $extension = "f844c17ae6ce15c373c2bd2a691d0a9a";
-      } else {
-       $changeData = [
-        "[Artist.Charts]" => "",
-        "[Artist.Contributors]" => base64_encode("v=$search&ID=".base64_encode(md5($you))."&Type=".base64_encode("Shop")."&st=Contributors"),
-        "[Artist.CoverPhoto]" => $this->core->PlainText([
-         "Data" => "[Media:CP]",
-         "Display" => 1
-        ]),
-        "[Artist.Hire]" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1"),
-        "[Artist.Orders]" => base64_encode("v=$search&st=SHOP-Orders"),
-        "[Artist.ID]" => md5($you),
-        "[Artist.Payroll]" => base64_encode("v=".base64_encode("Shop:Payroll")),
-        "[Artist.Revenue]" => base64_encode("v=".base64_encode("Common:Income")."&UN=".base64_encode($you))
-       ];
-       $extension = "20820f4afd96c9e32440beabed381d36";
-      }
-     } elseif($s == "Blogger") {
+     if($s == "Blogger") {
       $changeData = [
        "[Blogger.CoverPhoto]" => $this->core->PlainText([
         "Data" => "[Media:CP]",

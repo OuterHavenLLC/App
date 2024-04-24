@@ -480,6 +480,12 @@
        }
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $ck = ($active == 1 || $username == $you) ? 1 : 0;
+       $adminView = ($active == 1 || $username == $you) ? $this->core->Element([
+        "button", "Partner Chat", [
+         "class" => "PS Small v2",
+         "data-type" => ".MainCardContent;.CardNavigation;.Dashboard"
+        ]
+       ]) : "";
        $block = ($ck == 0) ? $this->core->Element([
         "button", $blockCommand, [
          "class" => "Small UpdateButton v2",
@@ -492,17 +498,23 @@
          "data-view" => $options["Chat"]
         ]
        ]) : "";
+       $hire = ($username == $you) ? $this->core->Element([
+        "button", "Hire", [
+         "class" => "OpenCard Small v2",
+         "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1")
+        ]
+       ]) : "";
+       $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
+        "[Dashboard.Charts]" => "",
+        "[Dashboard.Contributors]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
+        "[Dashboard.Hire]" => $hire,
+        "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders")
+       ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
        $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
        $edit = ($ck == 1) ? $this->core->Element([
         "button", "Edit", [
          "class" => "OpenCard Small v2",
          "data-view" => $options["Edit"]
-        ]
-       ]) : "";
-       $payroll = ($id == md5($you)) ? $this->core->Element([
-        "button", "Payroll", [
-         "class" => "OpenCard Small v2",
-         "data-view" => $options["Payroll"]
         ]
        ]) : "";
        $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
@@ -512,7 +524,42 @@
          "data-view" => $options["Share"]
         ]
        ]) : "";
+      /*--
+      // BEGIN COMMISSION CHECK
+      // SHOW AS BANNER IF YOU OWN THE SHOP AND COMMISSION IS DUE
+      // DE-ACTIVATE ARTIST SUBSCRIPTION AND CLOSE SHOP IF THE ABOVE IS TRUE
+      $_LastMonth = $this->core->LastMonth()["LastMonth"];
+      $_LastMonth = explode("-", $_LastMonth);
+      $commission = 0;
+      $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
+      $income = $income[$_LastMonth[0]] ?? [];
+      $income = $income[$_LastMonth[1]] ?? [];
+      $paidCommission = $income["PaidCommission"] ?? 0;
+      $sales = $income["Sales"] ?? [];
+      foreach($sales as $day => $salesGroup) {
+       foreach($salesGroup as $daySales => $daySale) {
+        foreach($daySale as $id => $product) {
+         $price = $product["Cost"] + $product["Profit"];
+         $price = $price * $product["Quantity"];
+         $price = number_format($price, 2);
+         $commission = $commission + $price;
+        }
+       }
+      } if($commission > 0 && $paidCommission == 0) {
+       $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+       $commission = number_format($commission * (5.00 / 100), 2);
+       $shop["Open"] = 0;
+       $this->core->Data("Save", ["shop", md5($you), $shop]);
+       $changeData = [
+        "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
+        "[Commission.Total]" => $commission
+       ];
+       $extension = "f844c17ae6ce15c373c2bd2a691d0a9a";
+      }
+      // END COMMISSION CHECK
+      --*/
        $r = $this->core->Change([[
+        "[Shop.Administration]" => $adminView,
         "[Shop.Back]" => $back,
         "[Shop.Block]" => $block,
         "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]),
@@ -523,6 +570,7 @@
          "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
         ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
         "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
+        "[Shop.Dashboard]" => $dashboard,
         "[Shop.Disclaimer]" => $disclaimer,
         "[Shop.Edit]" => $edit,
         "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
@@ -530,7 +578,7 @@
         "[Shop.ID]" => $id,
         "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
         "[Shop.PartnerChat]" => $chat,
-        "[Shop.Payroll]" => $payroll,
+        "[Shop.Revenue]" => $options["Revenue"],
         "[Shop.Share]" => $share,
         "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
         "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),

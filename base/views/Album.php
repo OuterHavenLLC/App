@@ -8,8 +8,7 @@
    $accessCode = "Denied";
    $button = "";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["AID", "new"]);
-   $id = $data["AID"];
+   $id = $data["AID"] ?? "";
    $new = $data["new"] ?? 0;
    $r = [
     "Body" => "The Album Identifier is missing."
