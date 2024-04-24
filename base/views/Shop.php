@@ -559,7 +559,6 @@
       // END COMMISSION CHECK
       --*/
        $r = $this->core->Change([[
-        "[Shop.Administration]" => $adminView,
         "[Shop.Back]" => $back,
         "[Shop.Block]" => $block,
         "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]),
@@ -571,6 +570,7 @@
         ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
         "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
         "[Shop.Dashboard]" => $dashboard,
+        "[Shop.DashboardView]" => $adminView,
         "[Shop.Disclaimer]" => $disclaimer,
         "[Shop.Edit]" => $edit,
         "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
