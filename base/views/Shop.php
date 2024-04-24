@@ -601,7 +601,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Revenue(array $a) {
+  function Revenue(array $a) {// TO BE DISPTACHED
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
@@ -1397,7 +1397,7 @@
     "Success" => $success
    ]);
   }
-  function Payroll(array $a) {
+  function Payroll(array $a) {// TO BE DISPATCHED
    $accessCode = "Denied";
    $_Day = $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84");
    $_Month = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
