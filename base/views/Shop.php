@@ -524,7 +524,6 @@
        ]) : "";
        $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
         "[Dashboard.Charts]" => "",
-        "[Dashboard.Contributors]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
         "[Dashboard.Hire]" => $hire,
         "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders")
        ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
