@@ -757,7 +757,7 @@
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Shops")),
        "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
        "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)),
-       "Revenue" => base64_encode("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($contentID)),
+       "Revenue" => base64_encode("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($content["Owner"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($content["Owner"])),
        "View" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($content["Owner"])),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
