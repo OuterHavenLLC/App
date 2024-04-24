@@ -448,17 +448,7 @@
      $commission = $shop["Commission"] ?? 0;
      $ck = ($username == $you) ? 1 : 0;
      $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-     $ck3 = ($ck2 == 0 && $commission > 0) ? 1 : 0;
-     if(($bl == 0 || $ck == 1) && $ck3 == 1) {
-      $payCommission = $this->view(base64_encode("Pay:Commission"), ["Data" => [
-       "ID" => $id,
-       "T" => $username
-      ]]);
-      $payCommission = $this->core->RenderView($payCommission);
-      $r = $this->core->Change([[
-       "[Commission.AddToCart]" => $payCommission
-      ], $this->core->Extension("f844c17ae6ce15c373c2bd2a691d0a9a")]);
-     } elseif($ck == 1 || $ck2 == 1) {
+     if($ck == 1 || $ck2 == 1) {
       $_Search = base64_encode("Search:Containers");
       $cms = $this->core->Data("Get", ["cms", $id]) ?? [];
       $ck2 = $this->core->CheckPrivacy([
@@ -528,7 +518,7 @@
       --*/
        $hire = ($username == $you) ? $this->core->Element([
         "button", "Hire", [
-         "class" => "OpenCard Small v2",
+         "class" => "OpenCard Medium v2",
          "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1")
         ]
        ]) : "";
