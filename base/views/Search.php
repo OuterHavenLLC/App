@@ -2306,7 +2306,7 @@
        $_Shop = $this->core->GetContentData([
         "Blacklisted" => $bl,
         "ID" => base64_encode("Shop;".md5($them)),
-        "Owner" => base64_encode($them)
+        "Owner" => $them
        ]);
        if($_Shop["Empty"] == 0) {
         $b2 = $b2 ?? "Products";
@@ -2318,7 +2318,7 @@
           "BackTo" => $b2,
           "Blacklisted" => $bl,
           "ID" => base64_encode("Product;$product"),
-          "Owner" => base64_encode($them)
+          "Owner" => $them
          ]);
          if($_Product["Empty"] == 0) {
           $product = $_Product["DataModel"];
@@ -2360,7 +2360,7 @@
       $_Shop = $this->core->GetContentData([
        "Blacklisted" => $bl,
        "ID" => base64_encode("Shop;$value"),
-       "Owner" => base64_encode($them)
+       "Owner" => $them
       ]);
       if($_Shop["Empty"] == 0) {
        $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
@@ -2375,11 +2375,11 @@
        $ck2 = $shop["Open"] ?? 0;
        if(($bl == 0 && $ck == 1 && $ck2 == 1) || $them == $you) {
         array_push($msg, [
-         "[X.LI.CoverPhoto]" => base64_encode($_Shop["ListItem"]["CoverPhoto"]),
-         "[X.LI.Description]" => base64_encode($_Shop["ListItem"]["Description"]),
-         "[X.LI.Lobby]" => base64_encode($_Shop["ListItem"]["Options"]["View"]),
-         "[X.LI.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%")),
-         "[X.LI.Title]" => base64_encode($_Shop["ListItem"]["Title"])
+         "[Shop.CoverPhoto]" => base64_encode($_Shop["ListItem"]["CoverPhoto"]),
+         "[Shop.Description]" => base64_encode($_Shop["ListItem"]["Description"]),
+         "[Shop.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%")),
+         "[Shop.Title]" => base64_encode($_Shop["ListItem"]["Title"]),
+         "[Shop.View]" => base64_encode($_Shop["ListItem"]["Options"]["View"]),
         ]);
        }
       }
@@ -2461,7 +2461,7 @@
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
       "ID" => base64_encode("Product;$value"),
-      "Owner" => base64_encode($username)
+      "Owner" => $username
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];

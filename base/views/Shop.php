@@ -415,6 +415,7 @@
    $i = 0;
    $pub = $data["pub"] ?? 0;
    $r = $this->MadeInNewYork(["back" => $back]);
+   $r = $this->core->RenderView($r);
    $username = $data["UN"] ?? base64_encode("");
    $username = base64_decode($username);
    $y = $this->you;
@@ -429,6 +430,7 @@
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
       $id = $value;
+      break;
      }
     }
    } if(!empty($username) || $i > 0) {

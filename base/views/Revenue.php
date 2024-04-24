@@ -31,8 +31,8 @@
      "Owner" => $shop
     ]);
     $r = $this->core->Change([[
-     "[Revenue.Shop.Owner.DisplayName]" => $_Owner["DataModel"]["Personal"]["DisplayName"],
-     "[Revenue.Shop.Title]" => $_Shop["DataModel"]["Title"],
+     "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
+     "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
      "[Revenue.Shop]" => $shop,
      "[Revenue.Years]" => base64_encode("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
     ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);

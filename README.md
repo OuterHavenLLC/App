@@ -6,6 +6,10 @@ App Documentation is in the works...
 ### Release Notes
 This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, and quality of life improvements. (comming soon...)
 
+### Congressional Notes
+* Members of Congress may now contribute Congressional Notes to add context.
+* Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Articles and Status Updates until another overtakes it.
+
 ### Re:Search
 * Refined content visibility across the platform.
 * Streamlined and built upon the Re:Search experience.
@@ -15,11 +19,6 @@ This release focuses on search—both inside and outside the platform, content c
 * Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
 * The Shopping History is now properly documented in real-time.
 * The Checkout and Paid Messages workflow via PayPal have been streamlined, and now use the Parent-View structure.
-
-### Status Updates
-* Members of Congress may now contribute Congressional Notes to add context.
-* Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Primary Content until another overtakes it.
-* Primary Content for Congressional Notes are defined as: Articles, Blog Posts, Forum Posts, and Status Updates. (active so far on statuses, the rest to follow...)
 
 ### Platform Improvements
 * A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job. (coming soon...)
