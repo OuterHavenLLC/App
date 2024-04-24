@@ -10,6 +10,7 @@
    $data = $a["Data"] ?? [];
    $card = $a["Card"] ?? 0;
    $id = $a["ID"] ?? "";
+   $pub = $a["pub"] ?? 0;
    $r = $this->core->Element(["h1", "Revenue"]);
    $r = ($card == 1) ? [
     "Front" => $r

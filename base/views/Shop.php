@@ -480,12 +480,6 @@
        }
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $ck = ($active == 1 || $username == $you) ? 1 : 0;
-       $adminView = ($active == 1 || $username == $you) ? $this->core->Element([
-        "button", "Partner Chat", [
-         "class" => "PS Small v2",
-         "data-type" => ".MainCardContent;.CardNavigation;.Dashboard"
-        ]
-       ]) : "";
        $block = ($ck == 0) ? $this->core->Element([
         "button", $blockCommand, [
          "class" => "Small UpdateButton v2",
@@ -498,6 +492,40 @@
          "data-view" => $options["Chat"]
         ]
        ]) : "";
+       $commissionDue = "";
+      /*--
+       // BEGIN COMMISSION CHECK
+       // SHOW AS BANNER IF YOU OWN THE SHOP AND COMMISSION IS DUE
+       // DE-ACTIVATE ARTIST SUBSCRIPTION AND CLOSE SHOP IF THE ABOVE IS TRUE
+       $_LastMonth = $this->core->LastMonth()["LastMonth"];
+       $_LastMonth = explode("-", $_LastMonth);
+       $commission = 0;
+       $revenueYear = (date("m") == 1) ? date("Y") - 1 : date("Y");
+       $revenue = $this->core->Data("Get", ["revenue", $revenueYear."-".md5($you)]) ?? [];
+       $revenue = $revenue[$_LastMonth[0]] ?? [];
+       $revenue = $revenue[$_LastMonth[1]] ?? [];
+       $paidCommission = $revenue["PaidCommission"] ?? 0;
+       $sales = $revenue["Sales"] ?? [];
+       foreach($sales as $day => $salesGroup) {
+        foreach($salesGroup as $daySales => $daySale) {
+         foreach($daySale as $id => $product) {
+          $price = $product["Cost"] + $product["Profit"];
+          $price = $price * $product["Quantity"];
+          $price = number_format($price, 2);
+          $commission = $commission + $price;
+         }
+        }
+       } if($commission > 0 && $paidCommission == 0) {
+        $commission = number_format($commission * (5.00 / 100), 2);
+        $shop["Open"] = 0;
+        #$this->core->Data("Save", ["shop", md5($you), $shop]);
+        $commissionDue = $this->core->Change([[
+         "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
+         "[Commission.Total]" => $commission
+        ], $this->core->Extension("f844c17ae6ce15c373c2bd2a691d0a9a")]);
+       }
+       // END COMMISSION CHECK
+      --*/
        $hire = ($username == $you) ? $this->core->Element([
         "button", "Hire", [
          "class" => "OpenCard Small v2",
@@ -510,6 +538,12 @@
         "[Dashboard.Hire]" => $hire,
         "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders")
        ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
+       $dashboardView = ($active == 1 || $username == $you) ? $this->core->Element([
+        "button", "Dashboard", [
+         "class" => "PS Small v2",
+         "data-type" => ".Shop$id;.ShopNavigation;.Dashboard"
+        ]
+       ]) : "";
        $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
        $edit = ($ck == 1) ? $this->core->Element([
         "button", "Edit", [
@@ -524,44 +558,11 @@
          "data-view" => $options["Share"]
         ]
        ]) : "";
-      /*--
-      // BEGIN COMMISSION CHECK
-      // SHOW AS BANNER IF YOU OWN THE SHOP AND COMMISSION IS DUE
-      // DE-ACTIVATE ARTIST SUBSCRIPTION AND CLOSE SHOP IF THE ABOVE IS TRUE
-      $_LastMonth = $this->core->LastMonth()["LastMonth"];
-      $_LastMonth = explode("-", $_LastMonth);
-      $commission = 0;
-      $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
-      $income = $income[$_LastMonth[0]] ?? [];
-      $income = $income[$_LastMonth[1]] ?? [];
-      $paidCommission = $income["PaidCommission"] ?? 0;
-      $sales = $income["Sales"] ?? [];
-      foreach($sales as $day => $salesGroup) {
-       foreach($salesGroup as $daySales => $daySale) {
-        foreach($daySale as $id => $product) {
-         $price = $product["Cost"] + $product["Profit"];
-         $price = $price * $product["Quantity"];
-         $price = number_format($price, 2);
-         $commission = $commission + $price;
-        }
-       }
-      } if($commission > 0 && $paidCommission == 0) {
-       $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
-       $commission = number_format($commission * (5.00 / 100), 2);
-       $shop["Open"] = 0;
-       $this->core->Data("Save", ["shop", md5($you), $shop]);
-       $changeData = [
-        "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
-        "[Commission.Total]" => $commission
-       ];
-       $extension = "f844c17ae6ce15c373c2bd2a691d0a9a";
-      }
-      // END COMMISSION CHECK
-      --*/
        $r = $this->core->Change([[
         "[Shop.Back]" => $back,
         "[Shop.Block]" => $block,
         "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]),
+        "[Shop.CommissionDue]" => $commissionDue,
         "[Shop.Conversation]" => $this->core->Change([[
          "[Conversation.CRID]" => $id,
          "[Conversation.CRIDE]" => base64_encode($id),
@@ -570,7 +571,7 @@
         ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
         "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
         "[Shop.Dashboard]" => $dashboard,
-        "[Shop.DashboardView]" => $adminView,
+        "[Shop.DashboardView]" => $dashboardView,
         "[Shop.Disclaimer]" => $disclaimer,
         "[Shop.Edit]" => $edit,
         "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
@@ -611,12 +612,12 @@
     "ResponseType" => "View"
    ]);
   }
-  function Income(array $a) {
+  function Revenue(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $r = [
-    "Body" => "The requested Income Disclosure could not be found.",
+    "Body" => "The requested Revenue Disclosure could not be found.",
     "Header" => "Not Found"
    ];
    $username = $data["UN"] ?? "";
@@ -630,11 +631,11 @@
     $_Sale = $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe");
     $_Year = $this->core->Extension("676193c49001e041751a458c0392191f");
     $username = base64_decode($username);
-    $income = $this->core->Data("Get", ["id", md5($username)]) ?? [];
+    $revenue = $this->core->Data("Get", ["id", md5($username)]) ?? [];
     $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $yearTable = "";
-    foreach($income as $year => $yearData) {
+    foreach($revenue as $year => $yearData) {
      if(is_array($yearData)) {
       $monthTable = "";
       if($year != "UN") {
@@ -648,11 +649,11 @@
         $total = 0;
         foreach($partners as $partner => $info) {
          $partnerTable .= $this->core->Change([[
-          "[IncomeDisclosure.Partner.Company]" => $info["Company"],
-          "[IncomeDisclosure.Partner.Description]" => $info["Description"],
-          "[IncomeDisclosure.Partner.DisplayName]" => $partner,
-          "[IncomeDisclosure.Partner.Hired]" => $this->core->TimeAgo($info["Hired"]),
-          "[IncomeDisclosure.Partner.Title]" => $info["Title"]
+          "[RevenueDisclosure.Partner.Company]" => $info["Company"],
+          "[RevenueDisclosure.Partner.Description]" => $info["Description"],
+          "[RevenueDisclosure.Partner.DisplayName]" => $partner,
+          "[RevenueDisclosure.Partner.Hired]" => $this->core->TimeAgo($info["Hired"]),
+          "[RevenueDisclosure.Partner.Title]" => $info["Title"]
          ], $_Partner]);
         } foreach($sales as $day => $salesGroup) {
          $saleTable = "";
@@ -663,14 +664,14 @@
            $price = $price * $product["Quantity"];
            $subtotal = $subtotal + $price;
            $saleTable .= $this->core->Change([[
-            "[IncomeDisclosure.Sale.Price]" => number_format($price, 2),
-            "[IncomeDisclosure.Sale.Title]" => $product["Title"]
+            "[RevenueDisclosure.Sale.Price]" => number_format($price, 2),
+            "[RevenueDisclosure.Sale.Title]" => $product["Title"]
            ], $_Sale]);
           }
          }
          $dayTable .= $this->core->Change([[
-          "[IncomeDisclosure.Day]" => $day,
-          "[IncomeDisclosure.Day.Sales]" => $saleTable
+          "[RevenueDisclosure.Day]" => $day,
+          "[RevenueDisclosure.Day.Sales]" => $saleTable
          ], $_Day]);
         }
         $subtotal = str_replace(",", "", $subtotal);
@@ -679,32 +680,32 @@
         $tax = number_format($subtotal * ($tax / 100), 2);
         $total = number_format($subtotal - $commission - $tax, 2);
         $monthTable .= $this->core->Change([[
-         "[IncomeDisclosure.Table.Month]" => $this->ConvertCalendarMonths($month),
-         "[IncomeDisclosure.Table.Month.Commission]" => $commission,
-         "[IncomeDisclosure.Table.Month.Partners]" => $partnerTable,
-         "[IncomeDisclosure.Table.Month.Sales]" => $dayTable,
-         "[IncomeDisclosure.Table.Month.Subtotal]" => number_format($subtotal, 2),
-         "[IncomeDisclosure.Table.Month.Tax]" => $tax,
-         "[IncomeDisclosure.Table.Month.Total]" => $total
+         "[RevenueDisclosure.Table.Month]" => $this->ConvertCalendarMonths($month),
+         "[RevenueDisclosure.Table.Month.Commission]" => $commission,
+         "[RevenueDisclosure.Table.Month.Partners]" => $partnerTable,
+         "[RevenueDisclosure.Table.Month.Sales]" => $dayTable,
+         "[RevenueDisclosure.Table.Month.Subtotal]" => number_format($subtotal, 2),
+         "[RevenueDisclosure.Table.Month.Tax]" => $tax,
+         "[RevenueDisclosure.Table.Month.Total]" => $total
         ], $_Month]);
        }
        $yearTable .= $this->core->Change([[
-        "[IncomeDisclosure.Table.Year]" => $year,
-        "[IncomeDisclosure.Table.Year.Lists]" => $monthTable
+        "[RevenueDisclosure.Table.Year]" => $year,
+        "[RevenueDisclosure.Table.Year.Lists]" => $monthTable
        ], $_Year]);
       }
      }
     }
-    $yearTable = (!empty($income)) ? $yearTable : $this->core->Element([
+    $yearTable = (!empty($revenue)) ? $yearTable : $this->core->Element([
      "h3", "No earnings to report...", [
       "class" => "CenterText",
       "style" => "margin:0.5em"
      ]
     ]);
     $r = $this->core->Change([[
-     "[IncomeDisclosure.DisplayName]" => $t["Personal"]["DisplayName"],
-     "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
-     "[IncomeDisclosure.Table]" => $yearTable
+     "[RevenueDisclosure.DisplayName]" => $t["Personal"]["DisplayName"],
+     "[RevenueDisclosure.Gallery.Title]" => $shop["Title"],
+     "[RevenueDisclosure.Table]" => $yearTable
     ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
@@ -1021,8 +1022,8 @@
          } if($check == 1) {
           $_LastMonth = $this->core->LastMonth()["LastMonth"];
           $_LastMonth = explode("-", $_LastMonth);
-          $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
-          $income[$_LastMonth[0]][$_LastMonth[1]]["PaidCommission"] = 1;
+          $revenue = $this->core->Data("Get", ["id", md5($you)]) ?? [];
+          $revenue[$_LastMonth[0]][$_LastMonth[1]]["PaidCommission"] = 1;
           $points = $strippedTotal * 1000;
           $y["Points"] = $y["Points"] + $points;
           $y["Subscriptions"]["Artist"] = [
@@ -1094,7 +1095,7 @@
           $orderID = base64_decode($orderID);
          } if($check == 1) {
           $disbursementID = "DISBURSEMENTS*$partner";
-          $income = $this->core->Data("Get", ["id", md5($you)]) ?? [];
+          $revenue = $this->core->Data("Get", ["id", md5($you)]) ?? [];
           $partnerShop = $this->core->Data("Get", [
            "shop",
            md5($partner)
@@ -1115,8 +1116,8 @@
            "Quantity" => 1,
            "Title" => $disbursementID
           ]]);
-          $income[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
-          $this->core->Data("Save", ["id", md5($you), $income]);
+          $revenue[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
+          $this->core->Data("Save", ["id", md5($you), $revenue]);
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
           $message = $this->core->Element([
@@ -1416,7 +1417,7 @@
    $_Year = $this->core->Extension("676193c49001e041751a458c0392191f");
    $data = $a["Data"] ?? [];
    $r = [
-    "Body" => "You have not earned any income yet...",
+    "Body" => "You have not earned any revenue yet...",
     "Header" => "No Data"
    ];
    $y = $this->you;
@@ -1447,14 +1448,14 @@
           $price = $price * $product["Quantity"];
           $subtotal = $subtotal + $price;
           $saleTable .= $this->core->Change([[
-           "[IncomeDisclosure.Sale.Price]" => number_format($price, 2),
-           "[IncomeDisclosure.Sale.Title]" => $product["Title"]
+           "[RevenueDisclosure.Sale.Price]" => number_format($price, 2),
+           "[RevenueDisclosure.Sale.Title]" => $product["Title"]
           ], $_Sale]);
          }
         }
         $dayTable .= $this->core->Change([[
-         "[IncomeDisclosure.Day]" => $day,
-         "[IncomeDisclosure.Day.Sales]" => $saleTable
+         "[RevenueDisclosure.Day]" => $day,
+         "[RevenueDisclosure.Day.Sales]" => $saleTable
         ], $_Day]);
        }
        $subtotal = str_replace(",", "", $subtotal);
@@ -1482,18 +1483,18 @@
         ], $_Partner]);
        }
        $monthTable .= $this->core->Change([[
-        "[IncomeDisclosure.Table.Month]" => $this->ConvertCalendarMonths($month),
-        "[IncomeDisclosure.Table.Month.Commission]" => $commission,
-        "[IncomeDisclosure.Table.Month.Partners]" => $partnerTable,
-        "[IncomeDisclosure.Table.Month.Sales]" => $dayTable,
-        "[IncomeDisclosure.Table.Month.Subtotal]" => number_format($subtotal, 2),
-        "[IncomeDisclosure.Table.Month.Tax]" => $tax,
-        "[IncomeDisclosure.Table.Month.Total]" => $total
+        "[RevenueDisclosure.Table.Month]" => $this->ConvertCalendarMonths($month),
+        "[RevenueDisclosure.Table.Month.Commission]" => $commission,
+        "[RevenueDisclosure.Table.Month.Partners]" => $partnerTable,
+        "[RevenueDisclosure.Table.Month.Sales]" => $dayTable,
+        "[RevenueDisclosure.Table.Month.Subtotal]" => number_format($subtotal, 2),
+        "[RevenueDisclosure.Table.Month.Tax]" => $tax,
+        "[RevenueDisclosure.Table.Month.Total]" => $total
        ], $_Month]);
       }
       $yearTable .= $this->core->Change([[
-       "[IncomeDisclosure.Table.Year]" => $year,
-       "[IncomeDisclosure.Table.Year.Lists]" => $monthTable
+       "[RevenueDisclosure.Table.Year]" => $year,
+       "[RevenueDisclosure.Table.Year.Lists]" => $monthTable
       ], $_Year]);
      }
     }
@@ -1504,9 +1505,9 @@
      ]
     ]);
     $r = $this->core->Change([[
-     "[IncomeDisclosure.DisplayName]" => $y["Personal"]["DisplayName"],
-     "[IncomeDisclosure.Gallery.Title]" => $shop["Title"],
-     "[IncomeDisclosure.Table]" => $yearTable
+     "[RevenueDisclosure.DisplayName]" => $y["Personal"]["DisplayName"],
+     "[RevenueDisclosure.Gallery.Title]" => $shop["Title"],
+     "[RevenueDisclosure.Table]" => $yearTable
     ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
     $r = [
      "Front" => $r
