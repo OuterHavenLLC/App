@@ -126,7 +126,8 @@
      "Owner" => $shop
     ]);
     $yearData = $this->core->Data("Get", ["revenue", "$year-$shop"]) ?? [];
-    #if(!empty($yearData)) {
+    $transactions = $yearData["Transactions"] ?? [];
+    #if(!empty($transactions)) {
      #if(!empty($yearData["Transactions"])) {
       $payPeriodExtension = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
       $payPeriods = "";
@@ -192,7 +193,8 @@
     $r = "";
     for($year = date("Y"); $year >= 2017; $year--) {
      $yearData = $this->core->Data("Get", ["revenue", "$year-$shop"]) ?? [];
-     #if(!empty($yearData)) {
+     $transactions = $yearData["Transactions"] ?? [];
+     #if(!empty($transactions)) {
       $i++;
       $r .= $this->core->Change([[
        "[Shop.ID]" => $shop,
