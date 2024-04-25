@@ -6,14 +6,18 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Home(array $a) {
-   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $pub = $data["pub"] ?? 0;
    $shop = $data["Shop"] ?? "";
-   $r = [
-    "Body" => "The Shop Identifier is missing."
-   ];
+   // BEGIN TEMP
+   $r = $this->core->Element([
+    "h1", "Revenue"
+   ]).$this->core->Element([
+    "p", "Default view"
+   ])
+   // END TEMP
+   #$r = $this->core->Extension("Default");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
@@ -51,7 +55,7 @@
     $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
      "Web" => $r
