@@ -1,54 +1,45 @@
 <?php
  Class Revenue extends OH {
-  // ALL INCOME AND PAYROLL FUNCTIONS WILL BE CONSOLIDATED HERE
   function __construct() {
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Home(array $a) {
+   $_ViewTitle = "Revenue @ ".$this->core->config["App"]["Name"];
    $data = $a["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $pub = $data["pub"] ?? 0;
    $shop = $data["Shop"] ?? "";
-   // BEGIN TEMP
-   $r = $this->core->Element([
-    "h1", "Revenue"
-   ]).$this->core->Element([
-    "p", "Default view"
-   ])
-   // END TEMP
-   #$r = $this->core->Extension("Default");
+   $r = $this->core->Extension("d98a89321f5067f73c63a4702dad32d4");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
-    $accessCode = "Accepted";
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
-    $_Owner = $this->core->GetContentData([
-     "Blacklisted" => $bl,
-     "ID" => base64_encode("Member;".md5($shop))
-    ]);
-    $_Owner = ($_Owner["Empty"] == 0) ? $_Owner : $this->core->RenderGhostMember();
     $_Shop = $this->core->GetContentData([
      "Blacklisted" => $bl,
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    $r = $this->core->Change([[
-     "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
-     "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
-     "[Revenue.Shop]" => $shop,
-     "[Revenue.Years]" => base64_encode("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
-    ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
+    if($_Shop["Empty"] == 0) {
+     $_Owner = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Member;".md5($shop))
+     ]);
+     $_Owner = ($_Owner["Empty"] == 0) ? $_Owner : $this->core->RenderGhostMember();
+     $_ViewTitle = "Revenue for ".$_Shop["ListItem"]["Title"];
+     $r = $this->core->Change([[
+      "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
+      "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
+      "[Revenue.Shop]" => $shop,
+      "[Revenue.Years]" => base64_encode("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
+     ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
+    }
    }
    $r = ($card == 1) ? [
     "Front" => $r
    ] : $r;
    if($pub == 1) {
-    if($this->core->ID == $you) {
-     $r = $this->view(base64_encode("WebUI:OptIn"), []);
-     $r = $this->core->RenderView($r);
-    }
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
@@ -60,7 +51,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => $_ViewTitle
    ]);
   }
   function PayPeriod(array $a) {
@@ -104,6 +96,40 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
+   ]);
+  }
+  function SaveTransaction(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $shop = $data["Shop"] ?? "";
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $responseType = "Dialog";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($shop)) {
+    $_Shop = $this->core->GetContentData([
+     "Blacklisted" => $bl,
+     "ID" => base64_encode("Shop;".md5($shop)),
+     "Owner" => $shop
+    ]);
+    $r = [
+     "Body" => "The Shop does not exist."
+    ];
+    if($_Shop["Empty"] == 0) {
+     $accessCode = "Accepted";
+     $responseType = "View";
+     // SAVE TRANSACTION
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => $responseType
    ]);
   }
   function Year(array $a) {

@@ -48,7 +48,6 @@
    $r = $oh->view($view, ["Data" => $data]);
   }
  } else {
-  $_ViewTitle = $oh->core->config["App"]["Name"];
   $command = $data["_cmd"] ?? "";
   $command = (!empty($command)) ? explode("/", urldecode($command)) : [$command];
   $command = $oh->core->FixMissing($command, [0, 1, 2, 3]);
@@ -91,7 +90,6 @@
    if(!empty($command[1])) {
     $content = "v=".base64_encode("Chat:PublicHome")."&ID=".base64_encode($command[1]);
    }
-   $_ViewTitle = "Chat";
   } elseif($command[0] == "congress") {
    # CONGRESS
    $content = "v=".base64_encode("Congress:Home")."&pub=1";
@@ -121,7 +119,7 @@
    }
   } elseif($command[0] == "revenue") {
    # REVENUE DISCLOSURES
-   $content = "v=".base64_encode("Revenue:Home")."&UN=".base64_encode($command[1])."&pub=1";
+   $content = "v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($command[1])."&pub=1";
   } elseif($command[0] == "search") {
    # SEARCH
    $content = "v=".base64_encode("Search:ReSearch")."&pub=1";
@@ -143,7 +141,7 @@
    "[App.Description]" => $oh->core->config["App"]["Description"],
    "[App.Keywords]" => $oh->core->config["App"]["Keywords"],
    "[App.Owner]" => $oh->core->ShopID,
-   "[App.Title]" => $_ViewTitle
+   "[App.Title]" => $oh->core->config["App"]["Name"]
   ], $oh->core->PlainText([
    "BBCodes" => 1,
    "Data" => file_get_contents("./index.txt"),
