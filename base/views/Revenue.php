@@ -101,6 +101,11 @@
   function SaveTransaction(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $cost = $data["Cost"] ?? base64_encode(0);
+   $cost = str_replace(",", "", base64_decode($cost));
+   $orderID = $data["OrderID"] ?? base64_encode("");
+   $profit = $data["Profit"] ?? base64_encode(0);
+   $profit = str_replace(",", "", base64_decode($profit));
    $shop = $data["Shop"] ?? "";
    $r = [
     "Body" => "The Shop Identifier is missing."
@@ -119,9 +124,48 @@
     ];
     if($_Shop["Empty"] == 0) {
      $accessCode = "Accepted";
+     $now = $this->core->timestamp,;
      $responseType = "View";
      $yearData = $this->core->Data("Get", ["revenue", date("Y")."-".md5($shop)]) ?? [];
-     // SAVE TRANSACTION
+     $owner = $yearData["Owner"] ?? $shop;
+     $payroll = $yearData["Payroll"] ?? [];
+     if(empty($payroll)) {
+      for($payPeriod = 1; $payPeriod <= 24; $payPeriod++) {
+       $month = 1;
+       $month = (in_array($payPeriod, [3, 4])) ? 2 : $month;
+       $month = (in_array($payPeriod, [5, 6])) ? 3 : $month;
+       $month = (in_array($payPeriod, [7, 8])) ? 4 : $month;
+       $month = (in_array($payPeriod, [9, 10])) ? 5 : $month;
+       $month = (in_array($payPeriod, [11, 12])) ? 6 : $month;
+       $month = (in_array($payPeriod, [13, 14])) ? 7 : $month;
+       $month = (in_array($payPeriod, [15, 16])) ? 8 : $month;
+       $month = (in_array($payPeriod, [17, 18])) ? 9 : $month;
+       $month = (in_array($payPeriod, [19, 20])) ? 10 : $month;
+       $month = (in_array($payPeriod, [21, 22])) ? 11 : $month;
+       $month = (in_array($payPeriod, [23, 24])) ? 12 : $month;
+       $begins = $this->core->timestamp;
+       $ends = $this->core->timestamp;
+       $payroll[$payPeriod] = [
+        "Begins" => $begins,
+        "Begins_UNIX" => time($begins),
+        "Ends" => $ends,
+        "Ends_UNIX" => time($ends),
+        "Partners" => []
+       ];
+      }
+     }
+     $transactions = $yearData["Transactions"] ?? [];
+     // UPDATE CURRENT PAY PERIOD'S PARTNERS IF EMPTY
+     array_push($transactions, [
+      "Cost" => $cost,
+      "OrderID" => base64_decode($orderID),
+      "Profit" => $profit,
+      "Purchaser" => $you,
+      "Timestamp" => $now,
+      "Timestamp_UNIX" => strtotime($now),
+      "Type" => "{Transaction_Type:Donation|Disbursement|Refund|Sale}"
+     ]);
+     #$this->core->Data("Get", ["revenue", date("Y")."-".md5($shop), $yearData]);
     }
    }
    return $this->core->JSONResponse([
@@ -156,7 +200,7 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    $yearData = $this->core->Data("Get", ["revenue", "$year-$shop"]) ?? [];
+    $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
     $transactions = $yearData["Transactions"] ?? [];
     if(!empty($transactions)) {
      $payPeriodData = $yearData["Payroll"] ?? [];
@@ -224,7 +268,7 @@
     ]);
     $r = "";
     for($year = date("Y"); $year >= 2017; $year--) {
-     $yearData = $this->core->Data("Get", ["revenue", "$year-$shop"]) ?? [];
+     $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
      $transactions = $yearData["Transactions"] ?? [];
      if(!empty($transactions)) {
       $i++;
