@@ -158,28 +158,29 @@
     $yearData = $this->core->Data("Get", ["revenue", "$year-$shop"]) ?? [];
     $transactions = $yearData["Transactions"] ?? [];
     #if(!empty($transactions)) {
-     #if(!empty($yearData["Transactions"])) {
-      $payPeriodExtension = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
-      $payPeriods = "";
-      // LOOP THROUGH PAY PERIODS
-      // -> LOOP THROIUGH TRANSACTIONS TO GET PAY PERIOD TOTALS
-      // -> ADD PAY PERIOD TOTALS TO YEAR TOTALS
-      /*--
-      $view = $this->core->Element(["button", "View", [
-       "class" => "OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=$payPeriodNumber&Shop=".$data["Shop"]."&Year=$yesr")
-      ]]);
-      --*/
-      $payPeriods .= $this->core->Change([[
-       "[PayPeriod.Gross]" => "",
-       "[PayPeriod.Expenses]" => "",
-       "[PayPeriod.Net]" => "",
-       "[PayPeriod.Number]" => "",
-       "[PayPeriod.Taxes]" => "",
-       "[PayPeriod.View]" => ""//TEMP
-       #"[PayPeriod.View]" => $view
-      ], $this->core->Extension("2044776cf5f8b7307b3c4f4771589111")]);//TEMP
-     #}
+     $payPeriodData = $yearData["Payroll"] ?? [];
+     $payPeriodExtension = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
+     $payPeriodTotals_Gross = 0;
+     $payPeriodTotals_Expenses = 0;
+     $payPeriodTotals_Net = 0;
+     $payPeriodTotals_Taxes = 0;
+     $payPeriods = "";
+     // LOOP THROUGH PAY PERIODS
+     // -> LOOP THROIUGH TRANSACTIONS TO GET PAY PERIOD TOTALS
+     // -> ADD PAY PERIOD TOTALS TO YEAR TOTALS
+     $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
+      "class" => "OpenCard v2 v2w",
+      "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=1&Shop=".$data["Shop"]."&Year=$yesr")//TEMP
+      #"data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=$payPeriodNumber&Shop=".$data["Shop"]."&Year=$yesr")
+     ]]) : "";
+     $payPeriods .= $this->core->Change([[
+      "[PayPeriod.Gross]" => "",
+      "[PayPeriod.Expenses]" => "",
+      "[PayPeriod.Net]" => "",
+      "[PayPeriod.Number]" => "",
+      "[PayPeriod.Taxes]" => "",
+      "[PayPeriod.View]" => $view
+     ], $this->core->Extension("2044776cf5f8b7307b3c4f4771589111")]);//TEMP
      $payPeriods = $payPeriods ?? $this->core->Element(["h4", "No Transactions", [
       "class" => "CenterText"
      ]]);
@@ -190,7 +191,7 @@
       "[Year.PayPeriods]" => $payPeriods,
       "[Year.Taxes]" => ""
      ], $this->core->Extension("676193c49001e041751a458c0392191f")]);
-    #}
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
