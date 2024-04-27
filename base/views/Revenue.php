@@ -120,6 +120,7 @@
     if($_Shop["Empty"] == 0) {
      $accessCode = "Accepted";
      $responseType = "View";
+     $yearData = $this->core->Data("Get", ["revenue", date("Y")."-".md5($shop)]) ?? [];
      // SAVE TRANSACTION
     }
    }
@@ -157,7 +158,7 @@
     ]);
     $yearData = $this->core->Data("Get", ["revenue", "$year-$shop"]) ?? [];
     $transactions = $yearData["Transactions"] ?? [];
-    #if(!empty($transactions)) {
+    if(!empty($transactions)) {
      $payPeriodData = $yearData["Payroll"] ?? [];
      $payPeriodExtension = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
      $payPeriodTotals_Gross = 0;
@@ -180,7 +181,7 @@
       "[PayPeriod.Number]" => "",
       "[PayPeriod.Taxes]" => "",
       "[PayPeriod.View]" => $view
-     ], $this->core->Extension("2044776cf5f8b7307b3c4f4771589111")]);//TEMP
+     ], $this->core->Extension("2044776cf5f8b7307b3c4f4771589111")]);
      $payPeriods = $payPeriods ?? $this->core->Element(["h4", "No Transactions", [
       "class" => "CenterText"
      ]]);
@@ -225,14 +226,14 @@
     for($year = date("Y"); $year >= 2017; $year--) {
      $yearData = $this->core->Data("Get", ["revenue", "$year-$shop"]) ?? [];
      $transactions = $yearData["Transactions"] ?? [];
-     #if(!empty($transactions)) {
+     if(!empty($transactions)) {
       $i++;
       $r .= $this->core->Change([[
        "[Shop.ID]" => $shop,
        "[Year]" => $year,
        "[Year.View]" => base64_encode("v=".base64_encode("Revenue:Year")."&Shop=".$data["Shop"]."&Year=$year")
       ], $this->core->Extension("4c7848ac49eafc9fbd14c20213398e14")]);
-     #}
+     }
     }
     $r = ($i > 0) ? $r : $this->core->Element([
      "h4", "No Revenue Recorded for ".$_Shop["ListItem"]["Title"], [
