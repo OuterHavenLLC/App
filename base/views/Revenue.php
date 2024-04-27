@@ -106,11 +106,12 @@
    $orderID = $data["OrderID"] ?? base64_encode("");
    $profit = $data["Profit"] ?? base64_encode(0);
    $profit = str_replace(",", "", base64_decode($profit));
-   $shop = $data["Shop"] ?? "";
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
    $responseType = "Dialog";
+   $shop = $data["Shop"] ?? "";
+   $type = $data["Type"] ?? base64_encode("");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
@@ -156,15 +157,38 @@
      }
      $transactions = $yearData["Transactions"] ?? [];
      // UPDATE CURRENT PAY PERIOD'S PARTNERS IF EMPTY
+     $payPeriodID = "";
+     foreach($payroll as $id => $payPeriod) {
+      $check = (strtotime($now) >= $payPeriod["Begins_UNIX"]) ? 1 : 0;
+      $check2 = (strtotime($now) <= $payPeriod["Ends_UNIX"]) ? 1 : 0;
+      if($check == 1 && $check2 == 1) {
+       $payPeriodID = $id;
+       break;
+      }
+     } if(empty($payroll[$payPeriodID]["Partners"])) {
+      #$payroll[$payPeriodID]["Partners"] = $_Shop["DataModel"]["Contributors"] ?? [];
+     }
      array_push($transactions, [
+      "Client" => $you,
       "Cost" => $cost,
       "OrderID" => base64_decode($orderID),
       "Profit" => $profit,
-      "Purchaser" => $you,
       "Timestamp" => $now,
       "Timestamp_UNIX" => strtotime($now),
-      "Type" => "{Transaction_Type:Donation|Disbursement|Refund|Sale}"
+      "Type" => base64_decode($type) # Donation | Disbursement | Refund | Sale
      ]);
+     $yearData = [
+      "Owner" => $owner,
+      "Payroll" => $payroll,
+      "Transactions" => $transactions
+     ];
+     // BEGIN TEMP
+     $r = $this->core->Element([
+      "h4", "Debug Data"
+     ]).$this->core->Element([
+      "p", json_encode($yearData, true)
+     ]);
+     // END TEMP
      #$this->core->Data("Get", ["revenue", date("Y")."-".md5($shop), $yearData]);
     }
    }
