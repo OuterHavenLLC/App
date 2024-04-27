@@ -79,7 +79,7 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
+   $id = $data["Shop"] ?? "";
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -836,7 +836,7 @@
              }
              $cartOrder = $this->ProcessCartOrder([
               "Bundled" => $bundle,
-              "PayPalOrderID" => $orderID,
+              "OrderID" => $orderID,
               "PhysicalOrders" => $physicalOrders,
               "Product" => $value,
               "UN" => $shopOwner["Login"]["Username"],
@@ -854,7 +854,6 @@
           $y["Shopping"]["Cart"][$shopID]["Products"] = [];
           $y["Shopping"]["History"][$shopID] = $history;
           $y["Verified"] = 1;
-          $message .= $this->core->Element(["p", json_encode($y, true)]);//TEMP
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
          }
@@ -920,13 +919,14 @@
           $yourShop["Open"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["shop", md5($you), $yourShop]);
-          $this->core->Revenue([$shopOwner["Login"]["Username"], [
+          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
-           "ID" => "COMMISSION*".$shop["Title"],
-           "Partners" => $shop["Contributors"],
+           "OrderID" => $orderID,
            "Profit" => $total,
            "Quantity" => 1,
-           "Title" => "COMMISSION*".$shop["Title"]
+           "Shop" => $shopOwner["Login"]["Username"],
+           "Title" => "Commission from ".$yourShop["Title"],
+           "Type" => "Disbursement"
           ]]);
           $message = $this->core->Element([
            "p", "We appreciate your commission payment of $$total to <em>".$shop["Title"]."</em>, as well as your continued business with us! As a token of gratitude, we are also giving you $points which you may redeem for Credits at any shop within our network.<br/>"
@@ -976,29 +976,31 @@
           $orderID = base64_decode($orderID);
          } if($check == 1) {
           $disbursementID = "DISBURSEMENTS*$partner";
-          $revenue = $this->core->Data("Get", ["id", md5($you)]) ?? [];
+          #$revenue = $this->core->Data("Get", ["id", md5($you)]) ?? [];
           $partnerShop = $this->core->Data("Get", [
            "shop",
            md5($partner)
           ]) ?? [];
-          $this->core->Revenue([$partner, [
+          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
-           "ID" => $disbursementID,
-           "Partners" => $partnerShop["Contributors"],
+           "OrderID" => $orderID,
            "Profit" => $total,
            "Quantity" => 1,
-           "Title" => $disbursementID
+           "Shop" => $partner,
+           "Title" => $disbursementID,
+           "Type" => "Credit"
           ]]);
-          $this->core->Revenue([$you, [
+          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => $total,
-           "ID" => $disbursementID,
-           "Partners" => $shop["Contributors"],
+           "OrderID" => $orderID,
            "Profit" => 0,
            "Quantity" => 1,
-           "Title" => $disbursementID
+           "Shop" => $you,
+           "Title" => $disbursementID,
+           "Type" => "Disbursement"
           ]]);
-          $revenue[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
-          $this->core->Data("Save", ["id", md5($you), $revenue]);
+          #$revenue[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
+          #$this->core->Data("Save", ["id", md5($you), $revenue]);
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
           $message = $this->core->Element([
@@ -1053,13 +1055,14 @@
           $y["Points"] = $y["Points"] + $points;
           $y["Verified"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $this->core->Revenue([$shopOwner["Login"]["Username"], [
+          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
-           "ID" => "DONATION*".$shop["Title"],
-           "Partners" => $shop["Contributors"],
+           "OrderID" => $orderID,
            "Profit" => $total,
            "Quantity" => 1,
-           "Title" => "DONATION*".$shop["Title"]
+           "Shop" => $shopOwner["Login"]["Username"],
+           "Title" => "Donation to ".$shop["Title"],
+           "Type" => "Donation"
           ]]);
           $message = $this->core->Element([
            "p", "We appreciate your donation of $$total to <em>".$shop["Title"]."</em>! This will help fund our continuing effort to preserve free speech on the internet. We are also giving you $points towards Credits which you may use for future purchases if you are currently signed in."
@@ -1153,13 +1156,14 @@
            $invoiceID,
            $invoice
           ]);
-          $this->core->Revenue([$shopOwner["Login"]["Username"], [
+          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
-           "ID" => "INVOICE*$invoiceID",
-           "Partners" => $shop["Contributors"],
+           "OrderID" => $orderID,
            "Profit" => $total,
            "Quantity" => 1,
-           "Title" => "INVOICE*".$invoiceID
+           "Shop" => $shopOwner["Login"]["Username"],
+           "Title" =>  "Payment for Invoice #$invoiceID",
+           "Type" => "Credit"
           ]]);
           $message = $this->core->Element([
            "p", "Thank you for your payment towards Invoice $invoiceID!"
@@ -1209,13 +1213,14 @@
           $y["Points"] = $y["Points"] + $points;
           $y["Verified"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $this->core->Revenue([$shopOwner["Login"]["Username"], [
+          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
-           "ID" => "CHAT*".$shop["Title"],
-           "Partners" => $shop["Contributors"],
+           "OrderID" => $orderID,
            "Profit" => $total,
            "Quantity" => 1,
-           "Title" => "CHAT*".$shop["Title"]
+           "Shop" => $shopOwner["Login"]["Username"],
+           "Title" => "Paid Chat via ".$shop["Title"],
+           "Type" => "Sale"
           ]]);
           $message = $this->core->Element([
            "p", "Please click or tap <em>Back to hat</em> until you're back home, your Message will be pinned to the top of the Group Chat once you send it."
@@ -1405,8 +1410,8 @@
   }
   function ProcessCartOrder(array $a) {
    $accessCode = "Accepted";
-   $bundle = $a["Bundled"] ?? 0;
-   $orderID = $a["PayPalOrderID"] ?? "N/A";
+   $bundle = $a["Bundled"] ?? "";
+   $orderID = $a["OrderID"] ?? "N/A";
    $physicalOrders = $a["PhysicalOrders"] ?? [];
    $purchaseQuantity = $a["Product"]["Quantity"] ?? 1;
    $r = "";
@@ -1514,14 +1519,15 @@
       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
-      if($bundle == 0) {
-       $this->core->Revenue([$shopOwner, [
+      if(empty($bundle)) {
+       $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
         "Cost" => $product["Cost"],
-        "ID" => $id,
-        "Partners" => $contributors,
+        "OrderID" => $orderID,
         "Profit" => $product["Profit"],
         "Quantity" => $purchaseQuantity,
-        "Title" => $product["Title"]
+        "Shop" => $shopOwner,
+        "Title" => $product["Title"],
+        "Type" => "Sale"
        ]]);
       } if($product["Quantity"] > 0) {
        $this->core->Data("Save", ["product", $id, $product]);
@@ -1532,7 +1538,7 @@
       $bundledProductShopOwner = $bundled[0] ?? "";
       if(!empty($bundledProduct) && !empty($bundledProductShopOwner)) {
        $cartOrder = $this->ProcessCartOrder([
-        "PayPalOrderID" => $orderID,
+        "OrderID" => $orderID,
         "PhysicalOrders" => $physicalOrders,
         "Product" => [
          "DiscountCode" => 0,

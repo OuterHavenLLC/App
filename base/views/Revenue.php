@@ -66,6 +66,8 @@
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
     $accessCode = "Accepted";
+    $partner = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
+    $transaction = $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe");
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
@@ -73,8 +75,6 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    #$partner = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
-    #$transaction = $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe");
     $r = [
      "Front" => $this->core->Change([[
       "[PayPeriod.Gross]" => "",
@@ -99,64 +99,63 @@
    ]);
   }
   function SaveTransaction(array $a) {
-   $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $cost = $data["Cost"] ?? base64_encode(0);
-   $cost = str_replace(",", "", base64_decode($cost));
-   $orderID = $data["OrderID"] ?? base64_encode("");
-   $profit = $data["Profit"] ?? base64_encode(0);
-   $profit = str_replace(",", "", base64_decode($profit));
-   $r = [
-    "Body" => "The Shop Identifier is missing."
-   ];
+   $cost = $data["Cost"] ?? 0;
+   $cost = str_replace(",", "", $cost);
+   $orderID = $data["OrderID"] ?? "N/A";
+   $profit = $data["Profit"] ?? 0;
+   $profit = str_replace(",", "", $profit);
+   $quantity = $data["Quantity"] ?? 1;
+   $r = $this->core->Element(["p", "The Shop Identifier is missing."]);
    $responseType = "Dialog";
    $shop = $data["Shop"] ?? "";
-   $type = $data["Type"] ?? base64_encode("");
+   $title = $data["Title"] ?? "Unknown";
+   $type = $data["Type"] ?? "Sale";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    $r = [
-     "Body" => "The Shop does not exist."
-    ];
+    $r = $this->core->Element(["p", "Error loading the Revenue data for @$shop."]);
     if($_Shop["Empty"] == 0) {
-     $accessCode = "Accepted";
-     $now = $this->core->timestamp,;
+     $now = $this->core->timestamp;
      $responseType = "View";
      $yearData = $this->core->Data("Get", ["revenue", date("Y")."-".md5($shop)]) ?? [];
      $owner = $yearData["Owner"] ?? $shop;
      $payroll = $yearData["Payroll"] ?? [];
      if(empty($payroll)) {
       for($payPeriod = 1; $payPeriod <= 24; $payPeriod++) {
-       $month = 1;
-       $month = (in_array($payPeriod, [3, 4])) ? 2 : $month;
-       $month = (in_array($payPeriod, [5, 6])) ? 3 : $month;
-       $month = (in_array($payPeriod, [7, 8])) ? 4 : $month;
-       $month = (in_array($payPeriod, [9, 10])) ? 5 : $month;
-       $month = (in_array($payPeriod, [11, 12])) ? 6 : $month;
-       $month = (in_array($payPeriod, [13, 14])) ? 7 : $month;
-       $month = (in_array($payPeriod, [15, 16])) ? 8 : $month;
-       $month = (in_array($payPeriod, [17, 18])) ? 9 : $month;
+       $month = "01";
+       $month = (in_array($payPeriod, [3, 4])) ? "02" : $month;
+       $month = (in_array($payPeriod, [5, 6])) ? "03" : $month;
+       $month = (in_array($payPeriod, [7, 8])) ? "04" : $month;
+       $month = (in_array($payPeriod, [9, 10])) ? "05" : $month;
+       $month = (in_array($payPeriod, [11, 12])) ? "06" : $month;
+       $month = (in_array($payPeriod, [13, 14])) ? "07" : $month;
+       $month = (in_array($payPeriod, [15, 16])) ? "08" : $month;
+       $month = (in_array($payPeriod, [17, 18])) ? "09" : $month;
        $month = (in_array($payPeriod, [19, 20])) ? 10 : $month;
        $month = (in_array($payPeriod, [21, 22])) ? 11 : $month;
        $month = (in_array($payPeriod, [23, 24])) ? 12 : $month;
-       $begins = $this->core->timestamp;
-       $ends = $this->core->timestamp;
+       $monthYear = "-$month-".date("Y");
+       $getLastDayFromMonthYear = (new DateTime("01$monthYear"))->modify("last day of")->format("d");
+       $endDay = ($payPeriod % 2 == 0) ? $getLastDayFromMonthYear : 14;
+       $startDay = ($payPeriod % 2 == 0) ? 15 : 1;
+       $begins = date($startDay.$monthYear);
+       $ends = date($endDay.$monthYear);
        $payroll[$payPeriod] = [
         "Begins" => $begins,
-        "Begins_UNIX" => time($begins),
+        "Begins_UNIX" => strtotime($begins),
         "Ends" => $ends,
-        "Ends_UNIX" => time($ends),
+        "Ends_UNIX" => strtotime($ends),
         "Partners" => []
        ];
       }
      }
      $transactions = $yearData["Transactions"] ?? [];
-     // UPDATE CURRENT PAY PERIOD'S PARTNERS IF EMPTY
      $payPeriodID = "";
      foreach($payroll as $id => $payPeriod) {
       $check = (strtotime($now) >= $payPeriod["Begins_UNIX"]) ? 1 : 0;
@@ -166,39 +165,35 @@
        break;
       }
      } if(empty($payroll[$payPeriodID]["Partners"])) {
-      #$payroll[$payPeriodID]["Partners"] = $_Shop["DataModel"]["Contributors"] ?? [];
+      $payroll[$payPeriodID]["Partners"] = $_Shop["DataModel"]["Contributors"] ?? [];
      }
      array_push($transactions, [
       "Client" => $you,
       "Cost" => $cost,
-      "OrderID" => base64_decode($orderID),
+      "OrderID" => $orderID,
       "Profit" => $profit,
+      "Quantity" => $quantity,
       "Timestamp" => $now,
       "Timestamp_UNIX" => strtotime($now),
-      "Type" => base64_decode($type) # Donation | Disbursement | Refund | Sale
+      "Title" => $title,
+      "Type" => $type
      ]);
      $yearData = [
       "Owner" => $owner,
       "Payroll" => $payroll,
       "Transactions" => $transactions
      ];
-     // BEGIN TEMP
-     $r = $this->core->Element([
-      "h4", "Debug Data"
-     ]).$this->core->Element([
-      "p", json_encode($yearData, true)
-     ]);
-     // END TEMP
-     #$this->core->Data("Get", ["revenue", date("Y")."-".md5($shop), $yearData]);
+     $this->core->Data("Save", ["revenue", date("Y")."-".md5($shop), $yearData]);
+     $r = "OK";
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => $responseType
+    "ResponseType" => "View"
    ]);
   }
   function Year(array $a) {
@@ -206,16 +201,12 @@
    $data = $a["Data"] ?? [];
    $shop = $data["Shop"] ?? "";
    $r = [
-    "Body" => "The Shop Identifier is missing."
+    "Body" => "The Shop Identifier or Year are missing."
    ];
    $y = $this->you;
    $year = $data["Year"] ?? "";
    $you = $y["Login"]["Username"];
-   if(empty($year)) {
-    $r = [
-     "Body" => "The Revenue Year is missing."
-    ];
-   } elseif(!empty($shop)) {
+   if(!empty($shop) && !empty($year)) {
     $accessCode = "Accepted";
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
@@ -224,41 +215,61 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
+    $tax = $_Shop["DataModel"]["Tax"] ?? 10.00;
+    $year = base64_decode($year);
     $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
+    $yearTotals_Gross = 0;
+    $yearTotals_Expenses = 0;
+    $yearTotals_Net = 0;
+    $yearTotals_Taxes = 0;
     $transactions = $yearData["Transactions"] ?? [];
     if(!empty($transactions)) {
      $payPeriodData = $yearData["Payroll"] ?? [];
-     $payPeriodExtension = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
-     $payPeriodTotals_Gross = 0;
-     $payPeriodTotals_Expenses = 0;
-     $payPeriodTotals_Net = 0;
-     $payPeriodTotals_Taxes = 0;
+     $payPeriod = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
      $payPeriods = "";
-     // LOOP THROUGH PAY PERIODS
-     // -> LOOP THROIUGH TRANSACTIONS TO GET PAY PERIOD TOTALS
-     // -> ADD PAY PERIOD TOTALS TO YEAR TOTALS
-     $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
-      "class" => "OpenCard v2 v2w",
-      "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=1&Shop=".$data["Shop"]."&Year=$yesr")//TEMP
-      #"data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=$payPeriodNumber&Shop=".$data["Shop"]."&Year=$yesr")
-     ]]) : "";
-     $payPeriods .= $this->core->Change([[
-      "[PayPeriod.Gross]" => "",
-      "[PayPeriod.Expenses]" => "",
-      "[PayPeriod.Net]" => "",
-      "[PayPeriod.Number]" => "",
-      "[PayPeriod.Taxes]" => "",
-      "[PayPeriod.View]" => $view
-     ], $this->core->Extension("2044776cf5f8b7307b3c4f4771589111")]);
+     foreach($payPeriodData as $id => $payPeriod) {
+      $payPeriodTotals_Gross = 0;
+      $payPeriodTotals_Expenses = 0;
+      $payPeriodTotals_Net = 0;
+      $payPeriodTotals_Taxes = 0;
+      foreach($transactions as $transaction => $info) {
+       $check = ($info["Timestamp_UNIX"] >= $payPeriod["Begins_UNIX"]) ? 1 : 0;
+       $check2 = ($info["Timestamp_UNIX"] <= $payPeriod["Ends_UNIX"]) ? 1 : 0;
+       if($check == 1 && $check2 == 1) {
+        $payPeriodTotals_Gross = $payPeriodTotals_Gross + $info["Profit"];
+        $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
+       }
+      }
+      $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
+       "class" => "OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=$id&Shop=".$data["Shop"]."&Year=".$data["Year"])
+      ]]) : "";
+      $yearTotals_Gross = $yearTotals_Gross + $payPeriodTotals_Gross;
+      $yearTotals_Expenses = $yearTotals_Expenses + $payPeriodTotals_Expenses;
+      $payPeriodTotals_Gross = $payPeriodTotals_Gross + $payPeriodTotals_Expenses;
+      $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
+      $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
+      $payPeriods .= $this->core->Change([[
+       "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
+       "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
+       "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
+       "[PayPeriod.Number]" => $id,
+       "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
+       "[PayPeriod.View]" => $view
+      ], $this->core->Extension($payPeriod)]);
+     }
      $payPeriods = $payPeriods ?? $this->core->Element(["h4", "No Transactions", [
       "class" => "CenterText"
      ]]);
+     $yearTotals_Gross = $yearTotals_Gross + $yearTotals_Expenses;
+     $yearTotals_Taxes = $yearTotals_Gross * ($tax / 100);
+     $yearTotals_Net = $yearTotals_Gross - $yearTotals_Expenses - $yearTotals_Taxes;
      $r = $this->core->Change([[
-      "[Year.Gross]" => "",
-      "[Year.Expenses]" => "",
-      "[Year.Net]" => "",
+      "[Year.Gross]" => number_format($yearTotals_Gross, 2),
+      "[Year.Expenses]" => number_format($yearTotals_Expenses, 2),
+      "[Year.Net]" => number_format($yearTotals_Net, 2),
       "[Year.PayPeriods]" => $payPeriods,
-      "[Year.Taxes]" => ""
+      "[Year.Taxes]" => number_format($yearTotals_Taxes, 2)
      ], $this->core->Extension("676193c49001e041751a458c0392191f")]);
     }
    }
@@ -299,7 +310,7 @@
       $r .= $this->core->Change([[
        "[Shop.ID]" => $shop,
        "[Year]" => $year,
-       "[Year.View]" => base64_encode("v=".base64_encode("Revenue:Year")."&Shop=".$data["Shop"]."&Year=$year")
+       "[Year.View]" => base64_encode("v=".base64_encode("Revenue:Year")."&Shop=".$data["Shop"]."&Year=".base64_encode($year))
       ], $this->core->Extension("4c7848ac49eafc9fbd14c20213398e14")]);
      }
     }

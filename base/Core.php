@@ -1216,39 +1216,6 @@
    ]);
    return $r;
   }
-  function Revenue(array $a) {
-   $data = $a[1] ?? [];
-   $shopOwner = $a[0] ?? "";
-   if(!empty($shopOwner) && is_array($data)) {
-    $cost = $data["Cost"] ?? 0;
-    $cost = str_replace(",", "", $data["Cost"]);
-    $id = $data["ID"] ?? md5($this->timestamp.rand(1776, 9999));
-    $day = date("l")." the ".date("dS");
-    $month = date("m");
-    $profit = $data["Profit"] ?? 0;
-    $profit = str_replace(",", "", $data["Profit"]);
-    $quantity = $data["Quantity"] ?? 1;
-    $revenue = $this->Data("Get", ["revenue", md5($shopOwner)]) ?? [];
-    $title = $data["Title"] ?? "";
-    $year = date("Y");
-    $newRevenue = [];
-    $newRevenue["UN"] = $shopOwner;
-    $newRevenue[$year] = $revenue[$year] ?? [];
-    $newRevenue[$year][$month] = $revenue[$year][$month] ?? [];
-    $newRevenue[$year][$month]["PaidCommission"] = 0;
-    $newRevenue[$year][$month]["Partners"] = $data["Partners"] ?? [];
-    $newRevenue[$year][$month]["Sales"][$day] = $revenue[$year][$month]["Sales"][$day] ?? [];
-    if(!empty($title)) {
-     array_push($newRevenue[$year][$month]["Sales"][$day], [$id => [
-      "Cost" => $cost,
-      "Profit" => $profit,
-      "Quantity" => $quantity,
-      "Title" => $title
-     ]]);
-     $this->Data("Save", ["id", md5($shopOwner), $newRevenue]);
-    }
-   }
-  }
   function SendBulletin(array $a) {
    $data = $a["Data"] ?? "";
    $to = $a["To"] ?? "";
