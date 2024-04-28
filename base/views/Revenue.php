@@ -125,10 +125,11 @@
        "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
        "[PayPeriod.Number]" => $payPeriodID,
        "[PayPeriod.Partners]" => $partnersList,
-       "[PayPeriod.Range.End]" => $payPeriodData["Begins"],
+       "[PayPeriod.Range.End]" => $payPeriodData["Ends"],
        "[PayPeriod.Range.Start]" => $payPeriodData["Begins"],
        "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
-       "[PayPeriod.Transactions]" => $transactionsList
+       "[PayPeriod.Transactions]" => $transactionsList,
+       "[PayPeriod.Year]" => $year
       ], $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84")]);
      }
     }
