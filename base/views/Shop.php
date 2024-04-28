@@ -484,40 +484,6 @@
          "data-view" => $options["Chat"]
         ]
        ]) : "";
-       $commissionDue = "";
-      /*--
-       // BEGIN COMMISSION CHECK
-       // SHOW AS BANNER IF YOU OWN THE SHOP AND COMMISSION IS DUE
-       // DE-ACTIVATE ARTIST SUBSCRIPTION AND CLOSE SHOP IF THE ABOVE IS TRUE
-       $_LastMonth = $this->core->LastMonth()["LastMonth"];
-       $_LastMonth = explode("-", $_LastMonth);
-       $commission = 0;
-       $revenueYear = (date("m") == 1) ? date("Y") - 1 : date("Y");
-       $revenue = $this->core->Data("Get", ["revenue", $revenueYear."-".md5($you)]) ?? [];
-       $revenue = $revenue[$_LastMonth[0]] ?? [];
-       $revenue = $revenue[$_LastMonth[1]] ?? [];
-       $paidCommission = $revenue["PaidCommission"] ?? 0;
-       $sales = $revenue["Sales"] ?? [];
-       foreach($sales as $day => $salesGroup) {
-        foreach($salesGroup as $daySales => $daySale) {
-         foreach($daySale as $id => $product) {
-          $price = $product["Cost"] + $product["Profit"];
-          $price = $price * $product["Quantity"];
-          $price = number_format($price, 2);
-          $commission = $commission + $price;
-         }
-        }
-       } if($commission > 0 && $paidCommission == 0) {
-        $commission = number_format($commission * (5.00 / 100), 2);
-        $shop["Open"] = 0;
-        #$this->core->Data("Save", ["shop", md5($you), $shop]);
-        $commissionDue = $this->core->Change([[
-         "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Type=Commission&Amount=".base64_encode($commission)."&Shop=".md5($this->core->ShopID)),
-         "[Commission.Total]" => $commission
-        ], $this->core->Extension("f844c17ae6ce15c373c2bd2a691d0a9a")]);
-       }
-       // END COMMISSION CHECK
-      --*/
        $hire = ($username == $you) ? $this->core->Element([
         "button", "Hire", [
          "class" => "OpenCard Medium v2",
@@ -553,7 +519,6 @@
         "[Shop.Back]" => $back,
         "[Shop.Block]" => $block,
         "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]),
-        "[Shop.CommissionDue]" => $commissionDue,
         "[Shop.Conversation]" => $this->core->Change([[
          "[Conversation.CRID]" => $id,
          "[Conversation.CRIDE]" => base64_encode($id),
@@ -901,10 +866,8 @@
           $orderID = base64_decode($orderID);
          } if($check == 1) {
           $_LastMonth = $this->core->LastMonth()["LastMonth"];
-          $_LastMonth = explode("-", $_LastMonth);
-          $revenue = $this->core->Data("Get", ["id", md5($you)]) ?? [];
-          $revenue[$_LastMonth[0]][$_LastMonth[1]]["PaidCommission"] = 1;
-          $points = $strippedTotal * 1000;
+          $points = ($strippedTotal * 1000);
+          $y["ArtistCommissionsPaid"][$_LastMonth] = $total;
           $y["Points"] = $y["Points"] + $points;
           $y["Subscriptions"]["Artist"] = [
             "A" => 1,
@@ -912,10 +875,7 @@
             "E" => $this->TimePlus($now, 1, "month")
           ];
           $y["Verified"] = 1;
-          $yourShop = $this->core->Data("Get", [
-           "shop",
-           md5($you)
-          ]) ?? [];
+          $yourShop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
           $yourShop["Open"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["shop", md5($you), $yourShop]);
@@ -925,7 +885,7 @@
            "Profit" => $total,
            "Quantity" => 1,
            "Shop" => $shopOwner["Login"]["Username"],
-           "Title" => "Commission from ".$yourShop["Title"],
+           "Title" => "Commission payment from @$you via ".$yourShop["Title"],
            "Type" => "Disbursement"
           ]]);
           $message = $this->core->Element([
@@ -938,7 +898,8 @@
          "p", "Thank you very much for your commission payment of $$total (includes tax) to <em>".$shop["Title"]."</em>. We hope to continue providing great ways to maximize your business with us."
         ]);
         $subtotal = str_replace(",", "", $subtotal);
-        $processor .= "&Amount=".$data["Amount"];
+        $processor .= "&Amount=".$data["Amount"]."&Month=".$data["Month"]."&Year=".$data["Year"];
+        $viewPairID = "CommissionPayment";
        }
       } elseif($type == "Disbursement") {
        $changeData = [
@@ -975,8 +936,7 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
-          $disbursementID = "DISBURSEMENTS*$partner";
-          #$revenue = $this->core->Data("Get", ["id", md5($you)]) ?? [];
+          #$revenue = $this->core->Data("Get", ["revenue", md5($you)]) ?? [];
           $partnerShop = $this->core->Data("Get", [
            "shop",
            md5($partner)
@@ -987,7 +947,7 @@
            "Profit" => $total,
            "Quantity" => 1,
            "Shop" => $partner,
-           "Title" => $disbursementID,
+           "Title" => "Payment from @$you",
            "Type" => "Credit"
           ]]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
@@ -996,7 +956,7 @@
            "Profit" => 0,
            "Quantity" => 1,
            "Shop" => $you,
-           "Title" => $disbursementID,
+           "Title" => "Payment to @$partner",
            "Type" => "Disbursement"
           ]]);
           #$revenue[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
@@ -1061,7 +1021,7 @@
            "Profit" => $total,
            "Quantity" => 1,
            "Shop" => $shopOwner["Login"]["Username"],
-           "Title" => "Donation to ".$shop["Title"],
+           "Title" => "Paid via ".$shop["Title"],
            "Type" => "Donation"
           ]]);
           $message = $this->core->Element([

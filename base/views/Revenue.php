@@ -213,8 +213,8 @@
        $getLastDayFromMonthYear = (new DateTime("01$monthYear"))->modify("last day of")->format("d");
        $endDay = ($payPeriod % 2 == 0) ? $getLastDayFromMonthYear : 14;
        $startDay = ($payPeriod % 2 == 0) ? 15 : 1;
-       $begins = date($startDay.$monthYear);
-       $ends = date($endDay.$monthYear);
+       $begins = date($startDay.$monthYear." 00:00:00");
+       $ends = date($endDay.$monthYear." 23:59:59");
        $payroll[$payPeriod] = [
         "Begins" => $begins,
         "Begins_UNIX" => strtotime($begins),

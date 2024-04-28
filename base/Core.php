@@ -962,6 +962,7 @@
      "OnlineStatus" => $onlineStatus,
      "Registered" => $registered
     ],
+    "ArtistCommissionsPaid" => [],
     "Blocked" => [
      "Albums" => [],
      "Blogs" => [],

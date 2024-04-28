@@ -211,17 +211,10 @@
      $subscription = $this->core->config["Subscriptions"][$key] ?? [];
      if(!empty($subscription)) {
       $i++;
-      if($key == "Artist") {
-       $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
-        "class" => "LI OpenCard",
-        "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($you))
-       ]]);
-      } else {
-       $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
-        "class" => "LI OpenCard",
-        "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
-       ]]);
-      }
+      $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
+       "class" => "LI OpenCard",
+       "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
+      ]]);
      }
     } if($i > 0) {
      $subscriptions = $this->core->Element([

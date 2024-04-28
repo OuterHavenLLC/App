@@ -35,7 +35,45 @@
     if($ysub["A"] == 0) {
      $extension = "ffdcc2a6f8e1265543c190fef8e7982f";
     } else {
-     if($s == "Blogger") {
+     if($s == "Artist") {
+      $_LastMonth = $this->core->LastMonth()["LastMonth"];
+      $commissions = $y["ArtistCommissionsPaid"] ?? [];
+      $commissions = $commissions[$_LastMonth] ?? [];
+      $_LastMonth = explode("-", $_LastMonth);
+      $commission = 0;
+      $commissionIsDue = 0;
+      $revenueMonth = $_LastMonth[1];
+      $revenueYear = $_LastMonth[0];
+      $monthYear = "-$revenueMonth-$revenueYear";
+      $revenueMonthBegins = strtotime("01$monthYear 00:00:00");
+      $revenueMonthEnds = strtotime((new DateTime("01$monthYear"))->modify("last day of")->format("d")."$monthYear 23:59:59");
+      $revenue = $this->core->Data("Get", ["revenue", "$revenueYear-".md5($you)]) ?? [];
+      $transactions = $revenue["Transactions"] ?? [];
+      foreach($transactions as $transaction => $info) {
+       $check = ($info["Timestamp_UNIX"] >= $revenueMonthBegins) ? 1 : 0;
+       $check2 = ($info["Timestamp_UNIX"] <= $revenueMonthEnds) ? 1 : 0;
+       if($check == 1 && $check2 == 1) {
+        $commission = $commission + $info["Profit"];
+       }
+      }
+      $commission = $commission * (5.00 / 100);
+      $commissionIsDue = (empty($commissions) && $commission > 0) ? 1 : 0;
+      if($commissionIsDue == 1) {
+       $commission = number_format($commission * (5.00 / 100), 2);
+       $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+       $shop["Open"] = 0;
+       #$this->core->Data("Save", ["shop", md5($you), $shop]);
+       $r = $this->core->Change([[
+        "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($commission)."&Month=".base64_encode($revenueMonth)."&Shop=".md5($this->core->ShopID)."&Type=Commission&Year=".base64_encode($revenueYear)),
+        "[Commission.Total]" => $commission
+       ], $this->core->Extension("f844c17ae6ce15c373c2bd2a691d0a9a")]);
+      } else {
+       $r = $this->view(base64_encode("Shop:Home"), ["Data" => [
+        "UN" => base64_encode($you)
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     } elseif($s == "Blogger") {
       $changeData = [
        "[Blogger.CoverPhoto]" => $this->core->PlainText([
         "Data" => "[Media:CP]",
@@ -80,11 +118,12 @@
       $extension = "a0891fc91ad185b6a99f1ba501b3c9be";
      }
     }
+    $r = ($s != "Artist") ? $this->core->Change([
+     $changeData,
+     $this->core->Extension($extension)
+    ]) : $r;
     $r = [
-     "Front" => $this->core->Change([
-      $changeData,
-      $this->core->Extension($extension)
-     ])
+     "Front" => $r
     ];
    }
    return $this->core->JSONResponse([
