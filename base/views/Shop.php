@@ -936,11 +936,11 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
-          #$revenue = $this->core->Data("Get", ["revenue", md5($you)]) ?? [];
-          $partnerShop = $this->core->Data("Get", [
-           "shop",
-           md5($partner)
-          ]) ?? [];
+          $_LastMonth = $this->core->LastMonth()["LastMonth"];
+          $_LastMonth = explode("-", $_LastMonth);
+          $partnerShop = $this->core->Data("Get", ["shop", md5($partner)]) ?? [];
+          #$revenue = $this->core->Data("Get", ["revenue", $_LastMonth[0].md5($you)]) ?? [];
+          $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
            "OrderID" => $orderID,
@@ -960,9 +960,8 @@
            "Type" => "Disbursement"
           ]]);
           #$revenue[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
-          #$this->core->Data("Save", ["id", md5($you), $revenue]);
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
+          #$this->core->Data("Save", ["revenue", $_LastMonth[0].md5($you), $revenue]);
+          #$this->core->Data("Save", ["mbr", md5($you), $y]);
           $message = $this->core->Element([
            "p", "We appreciate you for recognizing $partner's work with your $$total payment."
           ]);

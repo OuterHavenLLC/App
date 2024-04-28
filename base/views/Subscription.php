@@ -62,7 +62,7 @@
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
        $shop["Open"] = 0;
-       #$this->core->Data("Save", ["shop", md5($you), $shop]);
+       $this->core->Data("Save", ["shop", md5($you), $shop]);
        $r = $this->core->Change([[
         "[Commission.Pay]" => base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($commission)."&Month=".base64_encode($revenueMonth)."&Shop=".md5($this->core->ShopID)."&Type=Commission&Year=".base64_encode($revenueYear)),
         "[Commission.Total]" => $commission
