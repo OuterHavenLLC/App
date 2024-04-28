@@ -906,7 +906,7 @@
         "[Checkout.Data]" => json_encode($data, true)
        ];
        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
-       $partner = base64_decode($data["PayTo"]);
+       $partner = base64_decode($data["Partner"]);
        $subtotal = $data["Amount"] ?? base64_encode(0);
        $subtotal = base64_decode($subtotal);
        $total = number_format($subtotal, 2);
@@ -936,10 +936,12 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
-          $_LastMonth = $this->core->LastMonth()["LastMonth"];
-          $_LastMonth = explode("-", $_LastMonth);
+          $_PayPeriod = $data["PayPeriod"] ?? base64_encode("");
+          $_PayPeriod = base64_decode($_PayPeriod);
+          $_Year = $data["Year"] ?? base64_encode("");
+          $_Year = base64_decode($_Year);
           $partnerShop = $this->core->Data("Get", ["shop", md5($partner)]) ?? [];
-          #$revenue = $this->core->Data("Get", ["revenue", $_LastMonth[0].md5($you)]) ?? [];
+          $revenue = $this->core->Data("Get", ["revenue", "$_Year-".md5($you)]) ?? [];
           $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
@@ -959,20 +961,24 @@
            "Title" => "Payment to @$partner",
            "Type" => "Disbursement"
           ]]);
-          #$revenue[$data["Year"]][$data["Month"]]["Partners"][$partner]["Paid"] = 1;
-          #$this->core->Data("Save", ["revenue", $_LastMonth[0].md5($you), $revenue]);
+          $revenue["Payroll"][$_PayPeriod]["Partners"][$partner]["Paid"] = 1;
           #$this->core->Data("Save", ["mbr", md5($you), $y]);
+          #$this->core->Data("Save", ["revenue", "$_Year-".md5($you), $revenue]);
+          $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
           $message = $this->core->Element([
-           "p", "We appreciate you for recognizing $partner's work with your $$total payment."
+           "p", "We appreciate you for recognizing ".$partner["Personal"]["DisplayName"]."'s work with your $$total payment."
+          ]).$this->core->Element([
+           "p", json_encode($revenue, true)
           ]);
          }
         }
        } else {
+        $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
         $message = $this->core->Element([
-         "p", "You are about to pay $partner $$total for their previous work."
+         "p", "You are about to pay ".$partner["Personal"]["DisplayName"]." $$total for their previous work."
         ]);
         $subtotal = str_replace(",", "", $subtotal);
-        $processor .= "&Amount=".$data["Amount"]."&Month=".$data["Month"]."&PayTo=".$data["PayTo"]."&Year=".$data["Year"];
+        $processor .= "&Amount=".$data["Amount"]."&PayPeriod=".$data["PayPeriod"]."&Partner=".$data["Partner"]."&Year=".$data["Year"];
        }
       } elseif($type == "Donation") {
        $changeData = [
