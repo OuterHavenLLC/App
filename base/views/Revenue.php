@@ -114,25 +114,22 @@
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
       foreach($partners as $partner => $info) {
-       $isPayable = (strtotime($this->core->timestamp) < $payPeriodData["Ends"]) ? 1 : 0;//TEMP
+       $isPayable = (strtotime($this->core->timestamp) <= $payPeriodData["Ends"]) ? 1 : 0;//TEMP
        #$isPayable = (strtotime($this->core->timestamp) > $payPeriodData["Ends"]) ? 1 : 0;
        $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
-       $payPeriodSplit = $payPeriodTotals_Net / 2;
-       #$payPeriodSplit = $payPeriodSplit / $partnerCount;
        $displayName = $partner["Personal"]["DisplayName"];
-       // BEGIN IMPORTED REVENUE SPLIT LOGIC:
-       # SPLIT REVENUE, WHERE 50% GOES TO SHOP OWNER
-       # AND 50% IS SPLIT BETWEEN PARTNERS
+       $payPeriodSplit = $payPeriodTotals_Net / 2;
+       $payPeriodSplit = $payPeriodSplit / $partnerCount;
        $paid = $info["Paid"] ?? 0;
-       $isPayable = ($isPayable == 1 && $paid == 0 && $partner["Login"]["Username"] != $you) ? 1 : 0;
+       $isPayable = ($isPayable == 1 && $paid == 0) ? 1 : 0;//TEMP
+       #$isPayable = ($isPayable == 1 && $paid == 0 && $partner["Login"]["Username"] != $you) ? 1 : 0;
        $pay = ($isPayable == 1) ? $this->core->Element([
-        "button", "$".number_format($partnerCount, 2), [
-         "class" => "BBB OpenCard v2",
-         "data-view" => base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($partnerCount)."&Partner=".base64_encode($partner)."&PayPeriod=".base64_encode($payPeriodID)."&Shop=".md5($you)."&Type=Disbursement&Year=$year")
+        "button", "$".number_format($payPeriodSplit, 2), [
+         "class" => "BBB GoToView v2",
+         "data-type" => "PartnerPayment;".base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($payPeriodSplit)."&Partner=".base64_encode($partner["Login"]["Username"])."&PayPeriod=".base64_encode($payPeriodID)."&Shop=".md5($you)."&Type=Disbursement&Year=$year")
         ]
        ]) : $this->core->Element(["p", "No Action Needed"]);
        #$pay = ($shop == $you) ? $pay : "";
-       $pay .= $this->core->Element(["p", "50% of $payPeriodTotals_Net is $_payPeriodSplit, and the final split is ".($payPeriodSplit / $partnerCount)]);//TEMP
        $partnersList .= $this->core->Change([[
         "[Partner.Company]" => $info["Company"],
         "[Partner.Description]" => $info["Description"],
@@ -298,6 +295,8 @@
      $payPeriodData = $yearData["Payroll"] ?? [];
      $payPeriods = "";
      foreach($payPeriodData as $id => $payPeriod) {
+      $partnerPaymentsOwed = 0;
+      $partners = $payPeriod["Partners"] ?? [];
       $payPeriodTotals_Gross = 0;
       $payPeriodTotals_Expenses = 0;
       $payPeriodTotals_Net = 0;
@@ -309,6 +308,9 @@
         $payPeriodTotals_Gross = $payPeriodTotals_Gross + $info["Profit"];
         $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
        }
+      } foreach($partners as $partner => $info) {
+       $paid = $info["Paid"] ?? 0;
+       $partnerPaymentsOwed = $partnerPaymentsOwed + $paid;
       }
       $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
        "class" => "OpenCard v2 v2w",
@@ -316,6 +318,9 @@
       ]]) : "";
       $yearTotals_Gross = $yearTotals_Gross + $payPeriodTotals_Gross;
       $yearTotals_Expenses = $yearTotals_Expenses + $payPeriodTotals_Expenses;
+      $partnerPaymentsOwed = (strtotime($this->core->timestamp) > $payPeriod["Ends_UNIX"] && $partnerPaymentsOwed > 0) ? $this->core->Element([
+       "p", "Partner Payments Due"
+      ]) : "";
       $payPeriodTotals_Gross = $payPeriodTotals_Gross + $payPeriodTotals_Expenses;
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
@@ -324,6 +329,7 @@
        "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
        "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
        "[PayPeriod.Number]" => $id,
+       "[PayPeriod.PartnerPaymentsOwed]" => $partnerPaymentsOwed,
        "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
        "[PayPeriod.View]" => $view
       ], $this->core->Extension("2044776cf5f8b7307b3c4f4771589111")]);

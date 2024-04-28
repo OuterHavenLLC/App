@@ -447,7 +447,6 @@
      $enableHireSection = $shop["EnableHireSection"] ?? 0;
      $partners = $shop["Contributors"] ?? [];
      $t = ($username == $you) ? $y : $this->core->Member($username);
-     $commission = $shop["Commission"] ?? 0;
      $ck = ($username == $you) ? 1 : 0;
      $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      if($ck == 1 || $ck2 == 1) {
@@ -840,6 +839,7 @@
        $tax = number_format($subtotal * ($tax / 100), 2);
        $total = number_format(($subtotal + $tax), 2);
        $strippedTotal = str_replace(",", "", $total);
+       $viewPairID = "CommissionPayment";
        if($step == 2) {
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
@@ -899,7 +899,6 @@
         ]);
         $subtotal = str_replace(",", "", $subtotal);
         $processor .= "&Amount=".$data["Amount"]."&Month=".$data["Month"]."&Year=".$data["Year"];
-        $viewPairID = "CommissionPayment";
        }
       } elseif($type == "Disbursement") {
        $changeData = [
@@ -911,6 +910,7 @@
        $subtotal = base64_decode($subtotal);
        $total = number_format($subtotal, 2);
        $strippedTotal = str_replace(",", "", $total);
+       $viewPairID = "PartnerPayment";
        if($step == 2) {
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
