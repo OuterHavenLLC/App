@@ -96,11 +96,32 @@
       $transactions = $revenue["Transactions"] ?? [];
       $transactionsList = "";
       foreach($partners as $partner => $info) {
+       $isPayable = (strtotime($this->core->timestamp) < $payPeriodData["Ends"]) ? 1 : 0;//TEMP
+       #$isPayable = (strtotime($this->core->timestamp) > $payPeriodData["Ends"]) ? 1 : 0;
        $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
+       $displayName = $partner["Personal"]["DisplayName"];
+       /*--
+       // BEGIN IMPORTED REVENUE SPLIT LOGIC:
+       # SPLIT REVENUE, WHERE 50% GOES TO SHOP OWNER
+       # AND 50% IS SPLIT BETWEEN PARTNERS
+       $paid = $info["Paid"] ?? 0;
+       $isPayable = ($isPayable == 1 && $paid == 0 && $["Login"]["Username"] != $you) ? 1 : 0;
+       $pay = ($isPayable == 1) ? $this->core->Element([
+        "button", "$".number_format($revenueSplit, 2), [
+         "class" => "BBB OpenCard v2",
+         "data-view" => base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($revenueSplit)."&Month=$month&PayTo=".base64_encode($partner)."&Shop=".md5($you)."&Type=Disbursement&Year=$year")
+        ]
+       ]) : $this->core->Element(["p", "No Action Needed"]);
+       // END IMPORTED REVENUE SPLIT LOGIC
+       --*/
+       $pay = $this->core->Element(["button", "Pay $displayName", [
+        "class" => "v2"
+       ]]);//TEMP
        $partnersList .= $this->core->Change([[
         "[Partner.Company]" => $info["Company"],
         "[Partner.Description]" => $info["Description"],
-        "[Partner.DisplayName]" => $partner["Personal"]["DisplayName"],
+        "[Partner.DisplayName]" => $displayName,
+        "[Partner.Pay]" => $pay,
         "[Partner.Title]" => $info["Title"]
        ], $this->core->Extension("a10a03f2d169f34450792c146c40d96d")]);
       } foreach($transactions as $transaction => $info) {
