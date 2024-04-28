@@ -91,10 +91,19 @@
      ]);
      if(!empty($payPeriodData)) {
       $tax = $_Shop["DataModel"]["Tax"] ?? 10.00;
+      $partners = $payPeriodData["Partners"] ?? [];
+      $partnersList = "";
       $transactions = $revenue["Transactions"] ?? [];
       $transactionsList = "";
-      #$partner = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
-      foreach($transactions as $transaction => $info) {
+      foreach($partners as $partner => $info) {
+       $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
+       $partnersList .= $this->core->Change([[
+        "[Partner.Company]" => $info["Company"],
+        "[Partner.Description]" => $info["Description"],
+        "[Partner.DisplayName]" => $partner["Personal"]["DisplayName"],
+        "[Partner.Title]" => $info["Title"]
+       ], $this->core->Extension("a10a03f2d169f34450792c146c40d96d")]);
+      } foreach($transactions as $transaction => $info) {
        $check = ($info["Timestamp_UNIX"] >= $payPeriodData["Begins_UNIX"]) ? 1 : 0;
        $check2 = ($info["Timestamp_UNIX"] <= $payPeriodData["Ends_UNIX"]) ? 1 : 0;
        if($check == 1 && $check2 == 1) {
@@ -115,7 +124,7 @@
        "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
        "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
        "[PayPeriod.Number]" => $payPeriodID,
-       "[PayPeriod.Partners]" => "",
+       "[PayPeriod.Partners]" => $partnersList,
        "[PayPeriod.Range.End]" => $payPeriodData["Begins"],
        "[PayPeriod.Range.Start]" => $payPeriodData["Begins"],
        "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
