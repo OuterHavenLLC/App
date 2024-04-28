@@ -102,7 +102,9 @@
        $check2 = ($info["Timestamp_UNIX"] <= $payPeriodData["Ends_UNIX"]) ? 1 : 0;
        if($check == 1 && $check2 == 1) {
         $payPeriodTotals_Gross = $payPeriodTotals_Gross + $info["Profit"];
-        $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
+        if($info["Type"] != "Disbursement") {
+         $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
+        }
         $transactionsList .= $this->core->Change([[
          "[Transaction.Price]" => number_format($info["Cost"] + $info["Profit"], 2),
          "[Transaction.Title]" => $info["Title"],
@@ -114,22 +116,20 @@
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
       foreach($partners as $partner => $info) {
-       $isPayable = (strtotime($this->core->timestamp) <= $payPeriodData["Ends"]) ? 1 : 0;//TEMP
-       #$isPayable = (strtotime($this->core->timestamp) > $payPeriodData["Ends"]) ? 1 : 0;
+       $isPayable = (strtotime($this->core->timestamp) > $payPeriodData["Ends"]) ? 1 : 0;
        $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
        $displayName = $partner["Personal"]["DisplayName"];
        $payPeriodSplit = $payPeriodTotals_Net / 2;
        $payPeriodSplit = $payPeriodSplit / $partnerCount;
        $paid = $info["Paid"] ?? 0;
-       $isPayable = ($isPayable == 1 && $paid == 0) ? 1 : 0;//TEMP
-       #$isPayable = ($isPayable == 1 && $paid == 0 && $partner["Login"]["Username"] != $you) ? 1 : 0;
+       $isPayable = ($isPayable == 1 && $paid == 0 && $partner["Login"]["Username"] != $you) ? 1 : 0;
        $pay = ($isPayable == 1) ? $this->core->Element([
         "button", "$".number_format($payPeriodSplit, 2), [
          "class" => "BBB GoToView v2",
-         "data-type" => "PartnerPayment;".base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($payPeriodSplit)."&Partner=".base64_encode($partner["Login"]["Username"])."&PayPeriod=".base64_encode($payPeriodID)."&Shop=".md5($you)."&Type=Disbursement&Year=$year")
+         "data-type" => "PartnerPayment;".base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($payPeriodSplit)."&Partner=".base64_encode($partner["Login"]["Username"])."&PayPeriod=".base64_encode($payPeriodID)."&Shop=".md5($you)."&Type=Disbursement&Year=".base64_encode($year))
         ]
        ]) : $this->core->Element(["p", "No Action Needed"]);
-       #$pay = ($shop == $you) ? $pay : "";
+       $pay = ($shop == $you) ? $pay : "";
        $partnersList .= $this->core->Change([[
         "[Partner.Company]" => $info["Company"],
         "[Partner.Description]" => $info["Description"],
@@ -306,7 +306,9 @@
        $check2 = ($info["Timestamp_UNIX"] <= $payPeriod["Ends_UNIX"]) ? 1 : 0;
        if($check == 1 && $check2 == 1) {
         $payPeriodTotals_Gross = $payPeriodTotals_Gross + $info["Profit"];
-        $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
+        if($info["Type"] != "Disbursement") {
+         $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
+        }
        }
       } foreach($partners as $partner => $info) {
        $paid = $info["Paid"] ?? 0;

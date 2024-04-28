@@ -962,13 +962,11 @@
            "Type" => "Disbursement"
           ]]);
           $revenue["Payroll"][$_PayPeriod]["Partners"][$partner]["Paid"] = 1;
-          #$this->core->Data("Save", ["mbr", md5($you), $y]);
-          #$this->core->Data("Save", ["revenue", "$_Year-".md5($you), $revenue]);
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Data("Save", ["revenue", "$_Year-".md5($you), $revenue]);
           $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
           $message = $this->core->Element([
            "p", "We appreciate you for recognizing ".$partner["Personal"]["DisplayName"]."'s work with your $$total payment."
-          ]).$this->core->Element([
-           "p", json_encode($revenue, true)
           ]);
          }
         }
