@@ -58,16 +58,21 @@
   function PayPeriod(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $payPeriodID = $data["PayPeriod"] ?? "";
    $shop = $data["Shop"] ?? "";
    $r = [
-    "Body" => "The Shop Identifier is missing."
+    "Body" => "The Pay Period, Revenue Year, or Shop Identifiers are missing."
    ];
    $y = $this->you;
+   $year = $data["Year"] ?? "";
    $you = $y["Login"]["Username"];
-   if(!empty($shop)) {
+   if(!empty($payPeriodID) && !empty($shop)) {
     $accessCode = "Accepted";
-    $partner = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
-    $transaction = $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe");
+    $payPeriodID = base64_decode($payPeriodID);
+    $payPeriodTotals_Gross = 0;
+    $payPeriodTotals_Expenses = 0;
+    $payPeriodTotals_Net = 0;
+    $payPeriodTotals_Taxes = 0;
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
@@ -75,18 +80,51 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
+    $r = $this->core->Element(["p", "Error loading the Revenue data for @$shop."]);
+    $year = base64_decode($year);
+    if($_Shop["Empty"] == 0) {
+     $revenue =$this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
+     $payroll = $revenue["Payroll"] ?? [];
+     $payPeriodData = $payroll[$payPeriodID] ?? [];
+     $r = $this->core->Element([
+      "p", "Error loading the Revenue data for Pay Period $year-$payPeriodID."
+     ]);
+     if(!empty($payPeriodData)) {
+      $tax = $_Shop["DataModel"]["Tax"] ?? 10.00;
+      $transactions = $revenue["Transactions"] ?? [];
+      $transactionsList = "";
+      #$partner = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
+      foreach($transactions as $transaction => $info) {
+       $check = ($info["Timestamp_UNIX"] >= $payPeriodData["Begins_UNIX"]) ? 1 : 0;
+       $check2 = ($info["Timestamp_UNIX"] <= $payPeriodData["Ends_UNIX"]) ? 1 : 0;
+       if($check == 1 && $check2 == 1) {
+        $payPeriodTotals_Gross = $payPeriodTotals_Gross + $info["Profit"];
+        $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
+        $transactionsList .= $this->core->Change([[
+         "[Transaction.Price]" => number_format($info["Cost"] + $info["Profit"], 2),
+         "[Transaction.Title]" => $info["Title"],
+         "[Transaction.Type]" => $info["Type"]
+        ], $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe")]);
+       }
+      }
+      $payPeriodTotals_Gross = $payPeriodTotals_Gross + $payPeriodTotals_Expenses;
+      $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
+      $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
+      $r = $this->core->Change([[
+       "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
+       "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
+       "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
+       "[PayPeriod.Number]" => $payPeriodID,
+       "[PayPeriod.Partners]" => "",
+       "[PayPeriod.Range.End]" => $payPeriodData["Begins"],
+       "[PayPeriod.Range.Start]" => $payPeriodData["Begins"],
+       "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
+       "[PayPeriod.Transactions]" => $transactionsList
+      ], $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84")]);
+     }
+    }
     $r = [
-     "Front" => $this->core->Change([[
-      "[PayPeriod.Gross]" => "",
-      "[PayPeriod.Expenses]" => "",
-      "[PayPeriod.Net]" => "",
-      "[PayPeriod.Number]" => "",
-      "[PayPeriod.Partners]" => "",
-      "[PayPeriod.Range.End]" => "",
-      "[PayPeriod.Range.Start]" => "",
-      "[PayPeriod.Taxes]" => "",
-      "[PayPeriod.Transactions]" => ""
-     ], $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84")])
+     "Front" => $r
     ];
    }
    return $this->core->JSONResponse([
@@ -225,7 +263,6 @@
     $transactions = $yearData["Transactions"] ?? [];
     if(!empty($transactions)) {
      $payPeriodData = $yearData["Payroll"] ?? [];
-     $payPeriod = $this->core->Extension("2044776cf5f8b7307b3c4f4771589111");
      $payPeriods = "";
      foreach($payPeriodData as $id => $payPeriod) {
       $payPeriodTotals_Gross = 0;
@@ -242,7 +279,7 @@
       }
       $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
        "class" => "OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=$id&Shop=".$data["Shop"]."&Year=".$data["Year"])
+       "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=".base64_encode($id)."&Shop=".$data["Shop"]."&Year=".$data["Year"])
       ]]) : "";
       $yearTotals_Gross = $yearTotals_Gross + $payPeriodTotals_Gross;
       $yearTotals_Expenses = $yearTotals_Expenses + $payPeriodTotals_Expenses;
@@ -256,7 +293,7 @@
        "[PayPeriod.Number]" => $id,
        "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
        "[PayPeriod.View]" => $view
-      ], $this->core->Extension($payPeriod)]);
+      ], $this->core->Extension("2044776cf5f8b7307b3c4f4771589111")]);
      }
      $payPeriods = $payPeriods ?? $this->core->Element(["h4", "No Transactions", [
       "class" => "CenterText"
