@@ -1172,6 +1172,7 @@
     }
     $newMember["Activity"]["OnlineStatus"] = $data["OnlineStatus"];
     $newMember["Activity"]["Registered"] = $y["Activity"]["Registered"];
+    $newMember["ArtistCommissionsPaid"] = $y["ArtistCommissionsPaid"] ?? [];
     $newMember["Blogs"] = $y["Blogs"] ?? [];
     $newMember["Forums"] = $y["Forums"] ?? [];
     $newMember["Pages"] = $y["Pages"] ?? [];
@@ -1187,6 +1188,7 @@
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
+    $newMember["Verified"] = $y["Verified"] ?? 0;
     $this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!";
    }

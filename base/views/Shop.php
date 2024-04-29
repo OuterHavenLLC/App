@@ -884,8 +884,17 @@
            "OrderID" => $orderID,
            "Profit" => $total,
            "Quantity" => 1,
-           "Shop" => $shopOwner["Login"]["Username"],
+           "Shop" => $this->core->ShopID,
            "Title" => "Commission payment from @$you via ".$yourShop["Title"],
+           "Type" => "Credit"
+          ]]);
+          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+           "Cost" => $total,
+           "OrderID" => $orderID,
+           "Profit" => 0,
+           "Quantity" => 1,
+           "Shop" => $you,
+           "Title" => "Monthly Commission Payment",
            "Type" => "Disbursement"
           ]]);
           $message = $this->core->Element([
@@ -940,6 +949,7 @@
           $_PayPeriod = base64_decode($_PayPeriod);
           $_Year = $data["Year"] ?? base64_encode("");
           $_Year = base64_decode($_Year);
+          $forPayPeriod = "for Revenue Pay Period $_Year-$_PayPeriod";
           $partnerShop = $this->core->Data("Get", ["shop", md5($partner)]) ?? [];
           $revenue = $this->core->Data("Get", ["revenue", "$_Year-".md5($you)]) ?? [];
           $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
@@ -949,7 +959,7 @@
            "Profit" => $total,
            "Quantity" => 1,
            "Shop" => $partner,
-           "Title" => "Payment from @$you",
+           "Title" => "Payment from @$you $forPayPeriod",
            "Type" => "Credit"
           ]]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
@@ -958,7 +968,7 @@
            "Profit" => 0,
            "Quantity" => 1,
            "Shop" => $you,
-           "Title" => "Payment to @$partner",
+           "Title" => "Payment to @$partner $forPayPeriod",
            "Type" => "Disbursement"
           ]]);
           $revenue["Payroll"][$_PayPeriod]["Partners"][$partner]["Paid"] = 1;
