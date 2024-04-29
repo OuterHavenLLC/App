@@ -58,7 +58,7 @@
       }
       $commission = $commission * (5.00 / 100);
       $commissionIsDue = (empty($commissions) && $commission > 0) ? 1 : 0;
-      if($commissionIsDue == 1) {
+      if($commissionIsDue == 1 && $this->core->ShopID != $you) {
        $commission = number_format($commission * (5.00 / 100), 2);
        $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
        $shop["Open"] = 0;
