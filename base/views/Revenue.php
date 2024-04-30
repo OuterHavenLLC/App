@@ -206,9 +206,9 @@
        $month = (in_array($payPeriod, [13, 14])) ? "07" : $month;
        $month = (in_array($payPeriod, [15, 16])) ? "08" : $month;
        $month = (in_array($payPeriod, [17, 18])) ? "09" : $month;
-       $month = (in_array($payPeriod, [19, 20])) ? 10 : $month;
-       $month = (in_array($payPeriod, [21, 22])) ? 11 : $month;
-       $month = (in_array($payPeriod, [23, 24])) ? 12 : $month;
+       $month = (in_array($payPeriod, [19, 20])) ? "10" : $month;
+       $month = (in_array($payPeriod, [21, 22])) ? "11" : $month;
+       $month = (in_array($payPeriod, [23, 24])) ? "12" : $month;
        $monthYear = "-$month-".date("Y");
        $getLastDayFromMonthYear = (new DateTime("01$monthYear"))->modify("last day of")->format("d");
        $endDay = ($payPeriod % 2 == 0) ? $getLastDayFromMonthYear : 14;

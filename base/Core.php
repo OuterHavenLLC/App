@@ -201,21 +201,6 @@
    $r = (!empty($r) && $r == "on") ? "https" : "http";
    return "$r://";
   }
-  function ConvertCalendarMonths(int $a) {
-   $r = ($a == "01") ? "January" : $a;
-   $r = ($a == "02") ? "February" : $r;
-   $r = ($a == "03") ? "March" : $r;
-   $r = ($a == "04") ? "April" : $r;
-   $r = ($a == "05") ? "May" : $r;
-   $r = ($a == "06") ? "June" : $r;
-   $r = ($a == "07") ? "July" : $r;
-   $r = ($a == "08") ? "August" : $r;
-   $r = ($a == "09") ? "September" : $r;
-   $r = ($a == 10) ? "October" : $r;
-   $r = ($a == 11) ? "November" : $r;
-   $r = ($a == 12) ? "December" : $r;
-   return $r;
-  }
   function CoverPhoto(string $a) {
    $efs = $this->efs;
    $r = $this->PlainText([
@@ -864,6 +849,21 @@
     "p", "<em>We the People power this Bastion of Freedom.</em>",
     ["class" => "CenterText"]
    ]);
+  }
+  function GetMonthConversion(int $month) {
+   $r = ($month == "01") ? "January" : $a;
+   $r = ($month == "02") ? "February" : $r;
+   $r = ($month == "03") ? "March" : $r;
+   $r = ($month == "04") ? "April" : $r;
+   $r = ($month == "05") ? "May" : $r;
+   $r = ($month == "06") ? "June" : $r;
+   $r = ($month == "07") ? "July" : $r;
+   $r = ($month == "08") ? "August" : $r;
+   $r = ($month == "09") ? "September" : $r;
+   $r = ($month == "10") ? "October" : $r;
+   $r = ($month == "11") ? "November" : $r;
+   $r = ($month == "12") ? "December" : $r;
+   return $r;
   }
   function GetSourceFromExtension(array $a) {
    $_ALL = $this->config["XFS"]["FT"] ?? [];

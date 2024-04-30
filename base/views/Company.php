@@ -235,10 +235,11 @@
    ]);
   }
   function Statistics(array $a) {
-   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
-   $r = "";
+   $r = $this->core->Change([[
+    "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Years"))
+   ], $this->core->Extension("0ba6b9256b4c686505aa66d23bec6b5c")]);
    $month = $data["Month"] ?? base64_encode("");
    $month = base64_decode($month);
    $statistics = $this->core->Data("Get", ["app", md5("stats")]) ?? [];
@@ -248,18 +249,27 @@
    $year = $data["Year"] ?? base64_encode("");
    $year = base64_decode($year);
    if($view == "Month") {
+    $dayTotals = [];
+    $days = "";
     $monthData = $statistics[$year][$month] ?? [];
     $monthTotals = "";
     foreach($monthData as $month => $day) {
      if(!empty($day)) {
       foreach($day as $number => $statistic) {
        $i++;
+       $dayTotals[$statistic] = $dayTotals[$statistic] ?? 0;
+       $dayTotals[$statistic] = $dayTotals[$statistic]++;
       }
+      $days .= $this->core->Change([[
+       "[Tile.Header]" => $day,
+       "[Tile.Data]" => "",# TOTALS
+       "[Tile.View]" => ""
+      ], $tile]);
      }
     }
     $r = ($i > 0) ? $this->core->Change([
      [
-      "[Month.Days]" => $r,
+      "[Month.Days]" => $days,
       "[Month.Totals]" => $monthTotals
      ], $this->core->Extension("a936651004efc98932b63c2d684715f8")
     ]) : $this->core->Element([
@@ -267,12 +277,21 @@
     ]);
    } elseif($view == "Year") {
     $i = 0;
+    $months = "";
     $yearData = $statistics[$year] ?? [];
     foreach($yearData as $year => $data) {
      if(!empty($data)) {
       foreach($data as $month => $monthData) {
        $i++;
-       # Month View: base64_encode("v=".base64_encode("Company:statistics")."&Month=".base64_encode($month)."&View=".base64_encode("Month")."&Year=".base64_encode($year))
+       $monthName = $this->core->GetMonthConversion($month);
+       $months .= $this->core->Change([[
+        "[Tile.Header]" => $monthName,
+        "[Tile.Data]" => "",# TOTALS
+        "[Tile.View]" => $this->core->Element(["button", "View", [
+         "class" => "GoToView v2 v2w",
+         "data-type" => "Statistics;".base64_encode("v=".base64_encode("Company:Statistics")."&Month=".base64_encode($month)."&View=".base64_encode("Month")."&Year=".base64_encode($year))
+        ]])
+       ], $tile]);
       }
      }
     }
@@ -286,14 +305,10 @@
    } elseif($view == "Years") {
     foreach($statistics as $year => $data) {
      $r .= $this->core->Change([[
-      "[Year]" => $key,
-      "[Year.View]" => base64_encode("v=".base64_encode("Company:statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
+      "[Year]" => $year,
+      "[Year.View]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
      ], $this->core->Extension("823daad2deeb06a561481fae9b88b1f3")]);
     }
-   } else {
-    $r = $this->core->Change([[
-     "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:statistics")."&View=".base64_encode("Years"))
-    ], $this->core->Extension("0ba6b9256b4c686505aa66d23bec6b5c")]);
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
@@ -301,7 +316,7 @@
     $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
      "Web" => $r
