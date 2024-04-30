@@ -248,66 +248,72 @@
    $view = base64_decode($view);
    $year = $data["Year"] ?? base64_encode("");
    $year = base64_decode($year);
-   if($view == "Month") {
-    $dayTotals = [];
-    $days = "";
-    $monthData = $statistics[$year][$month] ?? [];
-    $monthTotals = "";
-    foreach($monthData as $month => $day) {
-     if(!empty($day)) {
-      foreach($day as $number => $statistic) {
-       $i++;
-       $dayTotals[$statistic] = $dayTotals[$statistic] ?? 0;
-       $dayTotals[$statistic] = $dayTotals[$statistic]++;
-      }
-      $days .= $this->core->Change([[
-       "[Tile.Header]" => $day,
-       "[Tile.Data]" => "",# TOTALS
-       "[Tile.View]" => ""
-      ], $tile]);
-     }
-    }
-    $r = ($i > 0) ? $this->core->Change([
-     [
-      "[Month.Days]" => $days,
-      "[Month.Totals]" => $monthTotals
-     ], $this->core->Extension("a936651004efc98932b63c2d684715f8")
-    ]) : $this->core->Element([
-     "h4", "No Statistics Recorded for year $year", ["class" => "CenterText UpperCase"]
-    ]);
-   } elseif($view == "Year") {
-    $i = 0;
-    $months = "";
-    $yearData = $statistics[$year] ?? [];
-    foreach($yearData as $year => $data) {
-     if(!empty($data)) {
-      foreach($data as $month => $monthData) {
-       $i++;
-       $monthName = $this->core->GetMonthConversion($month);
-       $months .= $this->core->Change([[
-        "[Tile.Header]" => $monthName,
+   if(!empty($view)) {
+    $r = "";
+    if($view == "Month") {
+     $dayTotals = [];
+     $days = "";
+     $monthData = $statistics[$year][$month] ?? [];
+     $monthTotals = "";
+     foreach($monthData as $month => $day) {
+      if(!empty($day)) {
+       foreach($day as $number => $statistic) {
+        $i++;
+        $dayTotals[$statistic] = $dayTotals[$statistic] ?? 0;
+        $dayTotals[$statistic] = $dayTotals[$statistic]++;
+       }
+       $days .= $this->core->Change([[
+        "[Tile.Header]" => $day,
         "[Tile.Data]" => "",# TOTALS
-        "[Tile.View]" => $this->core->Element(["button", "View", [
-         "class" => "GoToView v2 v2w",
-         "data-type" => "Statistics;".base64_encode("v=".base64_encode("Company:Statistics")."&Month=".base64_encode($month)."&View=".base64_encode("Month")."&Year=".base64_encode($year))
-        ]])
+        "[Tile.View]" => ""
        ], $tile]);
       }
      }
-    }
-    $r = ($i > 0) ? $this->core->Change([
-     [
-      "[Year.Months]" => $r
-     ], $this->core->Extension("64ae7d51379d924fc223df7aa6364f4c")
-    ]) : $this->core->Element([
-     "h4", "No Statistics Recorded for year $year", ["class" => "CenterText UpperCase"]
-    ]);
-   } elseif($view == "Years") {
-    foreach($statistics as $year => $data) {
-     $r .= $this->core->Change([[
-      "[Year]" => $year,
-      "[Year.View]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
-     ], $this->core->Extension("823daad2deeb06a561481fae9b88b1f3")]);
+     $r = ($i > 0) ? $this->core->Change([
+      [
+       "[Month.Days]" => $days,
+       "[Month.Totals]" => $monthTotals
+      ], $this->core->Extension("a936651004efc98932b63c2d684715f8")
+     ]) : $this->core->Element([
+      "h4", "No Statistics Recorded for year $year", ["class" => "CenterText UpperCase"]
+     ]);
+    } elseif($view == "Year") {
+     $i = 0;
+     $months = "";
+     $yearData = $statistics[$year] ?? [];
+     foreach($yearData as $year => $data) {
+      if(!empty($data)) {
+       foreach($data as $month => $monthData) {
+        $i++;
+        $monthName = $this->core->GetMonthConversion($month);
+        $months .= $this->core->Element(["div", $this->core->Change([[
+         "[Tile.Header]" => $monthName,
+         "[Tile.Data]" => "",# TOTALS
+         "[Tile.View]" => $this->core->Element(["button", "View", [
+          "class" => "GoToView v2 v2w",
+          "data-type" => "Statistics;".base64_encode("v=".base64_encode("Company:Statistics")."&Month=".base64_encode($month)."&View=".base64_encode("Month")."&Year=".base64_encode($year))
+         ]])
+        ], $tile]), [
+         "class" => "Medium"
+        ]]);
+       }
+      }
+     }
+     $r = ($i > 0) ? $this->core->Change([
+      [
+       "[Year.Months]" => $months,
+       "[Year.Totals]" => ""# TOTALS
+      ], $this->core->Extension("64ae7d51379d924fc223df7aa6364f4c")
+     ]) : $this->core->Element([
+      "h4", "No Statistics Recorded for year $year", ["class" => "CenterText UpperCase"]
+     ]);
+    } elseif($view == "Years") {
+     foreach($statistics as $year => $data) {
+      $r .= $this->core->Change([[
+       "[Year]" => $year,
+       "[Year.View]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
+      ], $this->core->Extension("823daad2deeb06a561481fae9b88b1f3")]);
+     }
     }
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [

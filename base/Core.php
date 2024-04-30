@@ -851,7 +851,7 @@
    ]);
   }
   function GetMonthConversion(int $month) {
-   $r = ($month == "01") ? "January" : $a;
+   $r = ($month == "01") ? "January" : $month;
    $r = ($month == "02") ? "February" : $r;
    $r = ($month == "03") ? "March" : $r;
    $r = ($month == "04") ? "April" : $r;
