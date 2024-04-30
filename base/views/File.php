@@ -288,7 +288,7 @@
      $fileSystem["Files"] = $files;
      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
     }
-    $this->core->Statistic("ULu");
+    $this->core->Statistic("Edit Media");
     $r = [
      "Body" => "The file <em>".$file["Title"]."</em> was updated.<br/>",
      "Header" => "Done"
@@ -619,7 +619,7 @@
      "Failed" => $_Failed,
      "Passed" => $_Passed
     ];
-    $this->core->Statistic("UL");
+    $this->core->Statistic("Upload");
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

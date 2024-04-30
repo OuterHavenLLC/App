@@ -1180,7 +1180,7 @@
            "Type" => "Invoice"
           ]);
          }
-         $this->core->Statistic("NewInvoice");
+         $this->core->Statistic("New Invoice");
          $this->core->Data("Save", ["invoice", $id, $invoice]);
          $this->core->Data("Save", ["shop", $shopID, $shop]);
          $r = [

@@ -321,7 +321,7 @@
       "Header" => "Done"
      ];
      if($new == 1) {
-      $this->core->Statistic("BGP");
+      $this->core->Statistic("Save Blog Post");
       foreach($subscribers as $key => $value) {
        $this->core->SendBulletin([
         "Data" => [
@@ -333,7 +333,7 @@
        ]);
       }
      } else {
-      $this->core->Statistic("BGPu");
+      $this->core->Statistic("Update Blog Post");
      }
     }
    }

@@ -458,9 +458,9 @@
       "Header" => "Done"
      ];
      if($new == 1) {
-      $this->core->Statistic("BLG");
+      $this->core->Statistic("Save Blog");
      } else {
-      $this->core->Statistic("BLGu");
+      $this->core->Statistic("Update Blog");
      }
     }
    }

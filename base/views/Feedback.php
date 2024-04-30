@@ -176,7 +176,7 @@
      md5("FeedbackBase-$now-".uniqid()),
      $feedback
     ]);
-    $this->core->Statistic("FS");
+    $this->core->Statistic("New Feedback");
     $r = [
      "Body" => "We will be in touch as soon as possible!",
      "Header" => "Thank you"

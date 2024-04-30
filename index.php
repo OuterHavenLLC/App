@@ -126,6 +126,9 @@
    if(!empty($command[1])) {
     $content = "v=".base64_encode("Search:ReSearch")."&pub=1&q=".base64_encode($command[1]);
    }
+  } elseif($command[0] == "statistics") {
+   # STATISTICS
+   $content = "v=".base64_encode("Company:Statistics")."&pub=1";
   } elseif($command[0] == "topics") {
    # TOPICS
    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&q=".base64_encode("#FreedomAlwaysWins");

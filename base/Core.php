@@ -1326,15 +1326,11 @@
    }
    return $random; 
   }
-  function Statistic($a) {
-   $m = date("m");
-   $x = $this->Data("Get", ["app", md5("stats")]) ?? [];
-   $y = date("Y");
-   $x[$y] = $x[$y] ?? [];
-   $x[$y][$m] = $x[$y][$m] ?? [];
-   $x[$y][$m][$a] = $x[$y][$m][$a] ?? 0;
-   $x[$y][$m][$a]++;
-   $this->Data("Save", ["app", md5("stats"), $x]);
+  function Statistic(string $statistic) {
+   $statistics = $this->Data("Get", ["app", md5("stats")]) ?? [];
+   $statistic = $statistics[date("Y")][date("m")][date("d")][$statistic] ?? 0;
+   $statistics[date("Y")][date("m")][date("d")][$statistic] = $statistic++;
+   $this->Data("Save", ["app", md5("stats"), $statistics]);
   }
   function TimeAgo($datetime, $full = false) {
    $now = new DateTime;

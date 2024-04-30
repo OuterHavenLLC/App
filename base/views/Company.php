@@ -236,44 +236,78 @@
   }
   function Statistics(array $a) {
    $accessCode = "Accepted";
-   $st = "";
-   $statistics = $this->core->Data("Get", ["app", "stats"]) ?? [];
-   $tpl = $this->core->Extension("676193c49001e041751a458c0392191f");
-   $tpl2 = $this->core->Extension("a936651004efc98932b63c2d684715f8");
-   $tpl3 = $this->core->Extension("d019a2b62accac6e883e04b358953f3f");
-   foreach($statistics as $key => $value) {
-    $stk = "";
-    foreach($value as $key2 => $value2) {
-     $ks = "";
-     foreach($value2 as $key3 => $value3) {
-      $stat = $this->core->config["Statistics"][$key3] ?? $key3;
-      $ks .= $this->core->Change([[
-       "[Statistics.Statistic]" => $this->core->Change([[
-        $key3 => $stat
-       ], $key3]),
-       "[Statistics.Statistic.Value]" => $value3
-      ], $tpl3]);
+   $data = $a["Data"] ?? [];
+   $pub = $data["pub"] ?? 0;
+   $r = "";
+   $month = $data["Month"] ?? base64_encode("");
+   $month = base64_decode($month);
+   $statistics = $this->core->Data("Get", ["app", md5("stats")]) ?? [];
+   $tile = $this->core->Extension("633ddf914ed8a2e2aa7e023471ec83b2");
+   $view = $data["View"] ?? base64_encode("");
+   $view = base64_decode($view);
+   $year = $data["Year"] ?? base64_encode("");
+   $year = base64_decode($year);
+   if($view == "Month") {
+    $monthData = $statistics[$year][$month] ?? [];
+    $monthTotals = "";
+    foreach($monthData as $month => $day) {
+     if(!empty($day)) {
+      foreach($day as $number => $statistic) {
+       $i++;
+      }
      }
-     $stk .= $this->core->Change([[
-      "[Statistics.Table.Month]" => $this->ConvertCalendarMonths($key2),
-      "[Statistics.Table.Month.Statistics]" => $ks
-     ], $tpl2]);
     }
-    $st .= $this->core->Change([[
-     "[IncomeDisclosure.Table.Year]" => $key,
-     "[IncomeDisclosure.Table.Year.Lists]" => $stk
-    ], $tpl]);
+    $r = ($i > 0) ? $this->core->Change([
+     [
+      "[Month.Days]" => $r,
+      "[Month.Totals]" => $monthTotals
+     ], $this->core->Extension("a936651004efc98932b63c2d684715f8")
+    ]) : $this->core->Element([
+     "h4", "No Statistics Recorded for year $year", ["class" => "CenterText UpperCase"]
+    ]);
+   } elseif($view == "Year") {
+    $i = 0;
+    $yearData = $statistics[$year] ?? [];
+    foreach($yearData as $year => $data) {
+     if(!empty($data)) {
+      foreach($data as $month => $monthData) {
+       $i++;
+       # Month View: base64_encode("v=".base64_encode("Company:statistics")."&Month=".base64_encode($month)."&View=".base64_encode("Month")."&Year=".base64_encode($year))
+      }
+     }
+    }
+    $r = ($i > 0) ? $this->core->Change([
+     [
+      "[Year.Months]" => $r
+     ], $this->core->Extension("64ae7d51379d924fc223df7aa6364f4c")
+    ]) : $this->core->Element([
+     "h4", "No Statistics Recorded for year $year", ["class" => "CenterText UpperCase"]
+    ]);
+   } elseif($view == "Years") {
+    foreach($statistics as $year => $data) {
+     $r .= $this->core->Change([[
+      "[Year]" => $key,
+      "[Year.View]" => base64_encode("v=".base64_encode("Company:statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
+     ], $this->core->Extension("823daad2deeb06a561481fae9b88b1f3")]);
+    }
+   } else {
+    $r = $this->core->Change([[
+     "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:statistics")."&View=".base64_encode("Years"))
+    ], $this->core->Extension("0ba6b9256b4c686505aa66d23bec6b5c")]);
+   } if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), [
+     "Data" => ["Content" => $r]
+    ]);
+    $r = $this->core->RenderView($r);
    }
-   $r = $this->core->Change([[
-    "[Statistics.Table]" => $st
-   ], $this->core->Extension("0ba6b9256b4c686505aa66d23bec6b5c")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => "Statistics @ ".$this->core->config["App"]["Name"]
    ]);
   }
   function VVA(array $a) {

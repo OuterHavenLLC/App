@@ -226,9 +226,9 @@
      "Header" => "Done"
     ];
     if($new == 1) {
-     $this->core->Statistic("SU");
+     $this->core->Statistic("New Status Update");
     } else {
-     $this->core->Statistic("SUu");
+     $this->core->Statistic("Update Status Update");
     }
    }
    return $this->core->JSONResponse([

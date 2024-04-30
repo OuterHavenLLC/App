@@ -550,9 +550,9 @@
       "Header" => "Done"
      ];
      if($new == 1) {
-      $this->core->Statistic("PG");
+      $this->core->Statistic("Save Article");
      } else {
-      $this->core->Statistic("PGu");
+      $this->core->Statistic("Update Article");
       if($isPublic == 1) {
        foreach($subscribers as $key => $value) {
         $this->core->SendBulletin([

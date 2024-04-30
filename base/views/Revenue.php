@@ -31,7 +31,7 @@
      $r = $this->core->Change([[
       "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
       "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
-      "[Revenue.Shop]" => $shop,
+      "[Revenue.Shop]" => md5($shop),
       "[Revenue.Years]" => base64_encode("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
      ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
     }
@@ -147,6 +147,7 @@
        "[PayPeriod.Partners]" => $partnersList,
        "[PayPeriod.Range.End]" => $payPeriodData["Ends"],
        "[PayPeriod.Range.Start]" => $payPeriodData["Begins"],
+       "[PayPeriod.Shop]" => md5($shop),
        "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
        "[PayPeriod.Transactions]" => $transactionsList,
        "[PayPeriod.Year]" => $year

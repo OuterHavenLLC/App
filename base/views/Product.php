@@ -505,9 +505,9 @@
          "Type" => "NewProduct"
         ]);
        }
-       $this->core->Statistic("PROD");
+       $this->core->Statistic("Save Product");
       } else {
-       $this->core->Statistic("PRODu");
+       $this->core->Statistic("Update Product");
       }
      }
     }

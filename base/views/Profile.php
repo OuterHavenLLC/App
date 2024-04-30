@@ -1342,7 +1342,7 @@
      if($password == $member["Login"]["Password"]) {
       $accessCode = "Accepted";
       $responseType = "SignIn";
-      $this->core->Statistic("LI");
+      $this->core->Statistic("Sign In");
       $r = $this->core->Authenticate("Save", [
        "Password" => $member["Login"]["Password"],
        "Username" => $member["Login"]["Username"]
@@ -1510,7 +1510,7 @@
       "To" => $data["Email"]
      ]);
     }
-    $this->core->Statistic("MBR");
+    $this->core->Statistic("New Member");
     $r = $this->core->Change([[
      "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
      "[Success.Username]" => $username
