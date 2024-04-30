@@ -296,6 +296,7 @@
      $monthTotals = [];
      $months = "";
      $yearData = $statistics[$year] ?? [];
+     $yearLineItems = "";
      foreach($yearData as $year => $data) {
       if(!empty($data)) {
        foreach($data as $month => $monthData) {
@@ -304,6 +305,8 @@
         foreach($monthData as $day => $statistic) {
          $monthTotals[$statistic] = $day[$statistic] ?? 0;
          $monthTotals[$statistic] = $monthTotals[$statistic]++;
+         $yearTotals[$statistic] = $day[$statistic] ?? 0;
+         $yearTotals[$statistic] = $yearTotals[$statistic]++;
         } foreach($monthTotals as $key => $value) {
          $monthLineItems .= $this->core->Change([[
           "[Statistic.Name]" => $key,
@@ -323,6 +326,11 @@
         ]]);
        }
       }
+     } foreach($yearTotals as $key => $value) {
+      $yearLineItems .= $this->core->Change([[
+       "[Statistic.Name]" => $key,
+       "[Statistic.Value]" => $value
+      ], $lineItem]);
      }
      $r = ($i > 0) ? $this->core->Change([
       [
