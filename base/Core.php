@@ -1329,7 +1329,7 @@
   function Statistic(string $statistic) {
    $statistics = $this->Data("Get", ["app", md5("stats")]) ?? [];
    $stat = $statistics[date("Y")][date("m")][date("d")][$statistic] ?? 0;
-   $statistics[date("Y")][date("m")][date("d")][$statistic] = $stat++;
+   $statistics[date("Y")][date("m")][date("d")][$statistic] = $stat + 1;
    $this->Data("Save", ["app", md5("stats"), $statistics]);
   }
   function TimeAgo($datetime, $full = false) {
