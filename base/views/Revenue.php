@@ -4,6 +4,32 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
+  function AddTransaction(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $responseType = "Dialog";
+   $shop = $data["Shop"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($shop)) {
+    $accessCode = "Accepted";
+    $r = [
+     "Front" => $this->core->Element(["p", "Coming soon..."])
+    ];
+    $responseType = "Card";
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => $responseType
+   ]);
+  }
   function Home(array $a) {
    $_ViewTitle = "Revenue @ ".$this->core->config["App"]["Name"];
    $data = $a["Data"] ?? [];
@@ -102,7 +128,7 @@
        $check2 = ($info["Timestamp_UNIX"] <= $payPeriodData["Ends_UNIX"]) ? 1 : 0;
        if($check == 1 && $check2 == 1) {
         $payPeriodTotals_Gross = $payPeriodTotals_Gross + $info["Profit"];
-        if($info["Type"] != "Disbursement") {
+        if(!in_array($info["Type"], ["Disbursement", "Refund"])) {
          $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
         }
         $transactionsList .= $this->core->Change([[
@@ -165,6 +191,32 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
+   ]);
+  }
+  function SaveManualTransaction(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $shop = $data["Shop"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(!empty($shop)) {
+    $accessCode = "Accepted";
+    $r = [
+     "Body" => $this->core->Element(["p", "Coming soon..."]),
+     "Header" => "Done"
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Title" => $_ViewTitle
    ]);
   }
   function SaveTransaction(array $a) {
@@ -307,7 +359,7 @@
        $check2 = ($info["Timestamp_UNIX"] <= $payPeriod["Ends_UNIX"]) ? 1 : 0;
        if($check == 1 && $check2 == 1) {
         $payPeriodTotals_Gross = $payPeriodTotals_Gross + $info["Profit"];
-        if($info["Type"] != "Disbursement") {
+        if(!in_array($info["Type"], ["Disbursement", "Refund"])) {
          $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
         }
        }
