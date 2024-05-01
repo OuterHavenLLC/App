@@ -1327,15 +1327,9 @@
    return $random; 
   }
   function Statistic(string $statistic) {
-   $_Day = date("d");
-   $_Month = date("m");
-   $_Year = date("Y");
    $statistics = $this->Data("Get", ["app", md5("stats")]) ?? [];
-   $statistics[$_Year] = $statistics[$_Year] ?? [];
-   $statistics[$_Year][$_Month] = $statistics[$_Year][$_Month] ?? [];
-   $statistics[$_Year][$_Month][$_Day] = $statistics[$_Year][$_Month][$_Day] ?? [];
-   $statistics[$_Year][$_Month][$_Day][$statistic] = $statistics[$_Year][$_Month][$_Day][$statistic] ?? 0;
-   $statistics[$_Year][$_Month][$_Day][$statistic] = $statistics[$_Year][$_Month][$_Day][$statistic]++;
+   $stat = $statistics[date("Y")][date("m")][date("d")][$statistic] ?? 0;
+   $statistics[date("Y")][date("m")][date("d")][$statistic] = $stat++;
    $this->Data("Save", ["app", md5("stats"), $statistics]);
   }
   function TimeAgo($datetime, $full = false) {
