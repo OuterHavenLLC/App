@@ -11,7 +11,7 @@ This release focuses on search—both inside and outside the platform, content c
 * The Shopping History is now properly documented in real-time.
 * The Checkout and Paid Messages workflow via PayPal have been streamlined, and now use the Parent-View structure.
 * The Artist Dashboard is now integrated into the Shop.
-* We've entirely re-built and consolidated the Revenue and Payroll system.
+* We've entirely re-built and consolidated the Revenue and Payroll system. Bi-weekly pay periods are now standard, and Artists may now add external gains and losses—such as refunds and shipping—to be accounted for.
 
 ### Congressional Notes
 * Members of Congress may now contribute Congressional Notes to add context.
@@ -30,6 +30,7 @@ This release focuses on search—both inside and outside the platform, content c
 * A new content creation tool (represented by a + button at the bottom-right corner when signed in) creates a central hub where many of the common content types may be created from.
 * The Mail Service is now integrated and fully operational.
 * Administrators now have a Control Panel to configure the app's core attributes, public events, core media variables, and search lists.
+* App Statistics have been revamped, and are now more granular than ever with new daily, monthly, and annual totals now taken into account.
 * Developers now have a Card for viewing app documentation, guides, downloads, and accessing the Developer Group Chat. (coming soon...)
 
 ## 1.2: Democracy
