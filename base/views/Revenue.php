@@ -24,7 +24,10 @@
       "data-form" => ".ManualTransaction$shopID",
       "data-processor" => base64_encode("v=".base64_encode("Revenue:SaveManualTransaction"))
      ]]),
-     "Front" => $this->core->Element(["p", "Coming soon..."])
+     "Front" => $this->core->Change([[
+      "[Shop.ID]" => $shopID,
+      "[Shop.Owner]" => $shop
+     ], $this->core->Extension("1de8727b9004824edc701907efc32f8c")])
     ];
     $responseType = "Card";
    }
