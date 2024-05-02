@@ -212,21 +212,33 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
+   $cost = $data["Cost"] ?? 0;
+   $cost = ($cost == "") ? 0 : $cost;
+   $orderID = $data["OrderID"] ?? "";
+   $profit = $data["Profit"] ?? 0;
+   $profit = ($profit == "") ? 0 : $profit;
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
    $shop = $data["Shop"] ?? "";
+   $title = $data["Title"] ?? "";
+   $type = $data["Type"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($shop)) {
+   if(empty($orderID)) {
+    $r = [
+     "Body" => "The Order Identifier is missing."
+    ];
+   } elseif(empty($title)) {
+    $r = [
+     "Body" => "The Transaction Title is missing."
+    ];
+   } elseif(empty($type)) {
+    $r = [
+     "Body" => "The Transaction Type is missing."
+    ];
+   } elseif(!empty($shop)) {
     $accessCode = "Accepted";
-    $cost = $data["Cost"] ?? 0;
-    $cost = ($cost == "") ? 0 : $cost;
-    $orderID = $data["OrderID"] ?? "";
-    $profit = $data["Profit"] ?? 0;
-    $profit = ($cost == "") ? 0 : $profit;
-    $title = $data["Title"] ?? "";
-    $type = $data["Type"] ?? "";
     /*--
     $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
      "Cost" => $cost,
@@ -258,7 +270,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog"
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
    ]);
   }
   function SaveTransaction(array $a) {
