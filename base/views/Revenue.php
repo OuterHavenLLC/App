@@ -231,15 +231,14 @@
     ];
    } elseif(empty($title)) {
     $r = [
-     "Body" => "The Transaction Title is missing."
+     "Body" => "The Title is missing."
     ];
    } elseif(empty($type)) {
     $r = [
-     "Body" => "The Transaction Type is missing."
+     "Body" => "The Type is missing."
     ];
    } elseif(!empty($shop)) {
     $accessCode = "Accepted";
-    /*--
     $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
      "Cost" => $cost,
      "OrderID" => $orderID,
@@ -249,19 +248,9 @@
      "Title" => $title,
      "Type" => $type
     ]]);
-    --*/
     $r = [
      "Body" => "The transaction was recorded in the current pay period.",
-     "Header" => "Done",
-     "Scrollable" => $this->core->Element(["p", json_encode([
-      "Cost" => $cost,
-      "OrderID" => $orderID,
-      "Profit" => $profit,
-      "Quantity" => 1,
-      "Shop" => $shop,
-      "Title" => $title,
-      "Type" => $type
-     ], true)])
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
