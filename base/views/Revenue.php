@@ -24,7 +24,7 @@
       "data-form" => ".ManualTransaction$shopID",
       "data-processor" => base64_encode("v=".base64_encode("Revenue:SaveManualTransaction"))
      ]]),
-     "Front" => "Coming soon..."
+     "Front" => $this->core->Element(["p", "Coming soon..."])
     ];
     $responseType = "Card";
    }
@@ -62,7 +62,7 @@
      $_Owner = ($_Owner["Empty"] == 0) ? $_Owner : $this->core->RenderGhostMember();
      $_ViewTitle = "Revenue for ".$_Shop["ListItem"]["Title"];
      $addTransaction = ($shop == $you) ? $this->core->Element(["button", "Add Transaction", [
-      "class" => "DesktopCenter OpenDialog v1",
+      "class" => "OpenCard v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("Revenue:AddTransaction")."&Shop=".$data["Shop"])
      ]]) : "";
      $r = $this->core->Change([[
@@ -255,8 +255,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    "Title" => $_ViewTitle
+    "ResponseType" => "Dialog"
    ]);
   }
   function SaveTransaction(array $a) {
