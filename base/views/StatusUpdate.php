@@ -228,7 +228,7 @@
     if($new == 1) {
      $this->core->Statistic("New Status Update");
     } else {
-     $this->core->Statistic("Update Status Update");
+     $this->core->Statistic("Edit Status Update");
     }
    }
    return $this->core->JSONResponse([

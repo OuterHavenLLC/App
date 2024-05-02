@@ -309,7 +309,6 @@
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
-    "ID",
     "SubscriptionTerm",
     "Title",
     "new"
@@ -505,9 +504,9 @@
          "Type" => "NewProduct"
         ]);
        }
-       $this->core->Statistic("Save Product");
+       $this->core->Statistic("New Product");
       } else {
-       $this->core->Statistic("Update Product");
+       $this->core->Statistic("Edit Product");
       }
      }
     }

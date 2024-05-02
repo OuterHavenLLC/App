@@ -16,8 +16,15 @@
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
     $accessCode = "Accepted";
+    $shop = base64_decode($shop);
+    $shopID = md5($shop);
     $r = [
-     "Front" => $this->core->Element(["p", "Coming soon..."])
+     "Action" => $this->core->Element(["button", "Save", [
+      "class" => "CardButton SendData",
+      "data-form" => ".ManualTransaction$shopID",
+      "data-processor" => base64_encode("v=".base64_encode("Revenue:SaveManualTransaction"))
+     ]]),
+     "Front" => "Coming soon..."
     ];
     $responseType = "Card";
    }
@@ -54,7 +61,12 @@
      ]);
      $_Owner = ($_Owner["Empty"] == 0) ? $_Owner : $this->core->RenderGhostMember();
      $_ViewTitle = "Revenue for ".$_Shop["ListItem"]["Title"];
+     $addTransaction = ($shop == $you) ? $this->core->Element(["button", "Add Transaction", [
+      "class" => "DesktopCenter OpenDialog v1",
+      "data-view" => base64_encode("v=".base64_encode("Revenue:AddTransaction")."&Shop=".$data["Shop"])
+     ]]) : "";
      $r = $this->core->Change([[
+      "[Revenue.AddTransaction]" => $addTransaction,
       "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
       "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
       "[Revenue.Shop]" => md5($shop),
@@ -196,6 +208,7 @@
   function SaveManualTransaction(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -204,9 +217,36 @@
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
     $accessCode = "Accepted";
+    $cost = $data["Cost"] ?? 0;
+    $cost = ($cost == "") ? 0 : $cost;
+    $orderID = $data["OrderID"] ?? "";
+    $profit = $data["Profit"] ?? 0;
+    $profit = ($cost == "") ? 0 : $profit;
+    $title = $data["Title"] ?? "";
+    $type = $data["Type"] ?? "";
+    /*--
+    $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+     "Cost" => $cost,
+     "OrderID" => $orderID,
+     "Profit" => $profit,
+     "Quantity" => 1,
+     "Shop" => $shop,
+     "Title" => $title,
+     "Type" => $type
+    ]]);
+    --*/
     $r = [
-     "Body" => $this->core->Element(["p", "Coming soon..."]),
-     "Header" => "Done"
+     "Body" => "The transaction was recorded in the current pay period.",
+     "Header" => "Done",
+     "Scrollable" => $this->core->Element(["p", json_encode([
+      "Cost" => $cost,
+      "OrderID" => $orderID,
+      "Profit" => $profit,
+      "Quantity" => 1,
+      "Shop" => $shop,
+      "Title" => $title,
+      "Type" => $type
+     ], true)])
     ];
    }
    return $this->core->JSONResponse([

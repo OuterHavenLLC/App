@@ -118,7 +118,7 @@
     $content = "v=".base64_encode("Poll:Home")."&ID=".$command[1]."&pub=1";
    }
   } elseif($command[0] == "revenue") {
-   # REVENUE DISCLOSURES
+   # REVENUE
    $content = "v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($command[1])."&pub=1";
   } elseif($command[0] == "search") {
    # SEARCH
