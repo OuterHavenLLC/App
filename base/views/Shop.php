@@ -688,7 +688,7 @@
       $message = "";
       $orderID = $data["OrderID"] ?? "";
       $paymentNonce = $data["payment_method_nonce"] ?? "";
-      $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type";
+      $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type&ViewPairID=".$data["ViewPairID"];
       $subtotal = 0;
       $tax = 0;
       $total = 0;
@@ -1211,7 +1211,7 @@
         $message = $this->core->Element([
          "p", "You are about to pay $$total (includes taxes) for your Paid Message"
         ]);
-        $processor .= "&Amount=".base64_encode($data["Amount"])."&Form=".base64_encode($data["Form"])."&ViewPairID=".base64_encode($data["ViewPairID"]);
+        $processor .= "&Amount=".base64_encode($data["Amount"])."&Form=".base64_encode($data["Form"]);
         $responseType = "GoToView";
         $viewPairID = $data["ViewPairID"] ?? "";
        }
