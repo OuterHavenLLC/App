@@ -818,15 +818,14 @@
           $y["Shopping"]["Cart"][$shopID]["Products"] = [];
           $y["Shopping"]["History"][$shopID] = $history;
           $y["Verified"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
+          #$this->core->Data("Save", ["mbr", md5($you), $y]);
+          #$this->core->Data("Save", ["po", $shopID, $physicalOrders]);
          }
         }
        } else {
         $message = $this->core->Element([
          "p", "You are about to complete your purchase with <em>".$shop["Title"]."</em>. Please verify that the total listed below is accurate."
         ]);
-        $viewPairID = $data["ViewPairID"] ?? "";
        }
       } elseif($type == "Commission") {
        $changeData = [
@@ -877,9 +876,9 @@
           $y["Verified"] = 1;
           $yourShop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
           $yourShop["Open"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $this->core->Data("Save", ["shop", md5($you), $yourShop]);
-          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+          #$this->core->Data("Save", ["mbr", md5($you), $y]);
+          #$this->core->Data("Save", ["shop", md5($you), $yourShop]);
+          /*--$this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
            "OrderID" => $orderID,
            "Profit" => $total,
@@ -896,7 +895,7 @@
            "Shop" => $you,
            "Title" => "Monthly Commission Payment",
            "Type" => "Disbursement"
-          ]]);
+          ]]);--*/
           $message = $this->core->Element([
            "p", "We appreciate your commission payment of $$total to <em>".$shop["Title"]."</em>, as well as your continued business with us! As a token of gratitude, we are also giving you $points which you may redeem for Credits at any shop within our network.<br/>"
           ]);
@@ -953,7 +952,7 @@
           $partnerShop = $this->core->Data("Get", ["shop", md5($partner)]) ?? [];
           $revenue = $this->core->Data("Get", ["revenue", "$_Year-".md5($you)]) ?? [];
           $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
-          $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+          /*--$this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
            "OrderID" => $orderID,
            "Profit" => $total,
@@ -970,10 +969,8 @@
            "Shop" => $you,
            "Title" => "Payment to @$partner $forPayPeriod",
            "Type" => "Disbursement"
-          ]]);
-          $revenue["Payroll"][$_PayPeriod]["Partners"][$partner]["Paid"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $this->core->Data("Save", ["revenue", "$_Year-".md5($you), $revenue]);
+          ]]);--*/
+          #$this->core->Data("Save", ["mbr", md5($you), $y]);
           $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
           $message = $this->core->Element([
            "p", "We appreciate you for recognizing ".$partner["Personal"]["DisplayName"]."'s work with your $$total payment."
@@ -1027,7 +1024,7 @@
           $points = $strippedTotal * 1000;
           $y["Points"] = $y["Points"] + $points;
           $y["Verified"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          /*--$this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
            "OrderID" => $orderID,
@@ -1036,7 +1033,7 @@
            "Shop" => $shopOwner["Login"]["Username"],
            "Title" => "Paid via ".$shop["Title"],
            "Type" => "Donation"
-          ]]);
+          ]]);--*/
           $message = $this->core->Element([
            "p", "We appreciate your donation of $$total to <em>".$shop["Title"]."</em>! This will help fund our continuing effort to preserve free speech on the internet. We are also giving you $points towards Credits which you may use for future purchases if you are currently signed in."
           ]);
@@ -1123,7 +1120,7 @@
           }
           $points = $subtotal + ($subtotal * 10000);
           $y["Points"] = $points;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          /*--$this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", [
            "invoice",
            $invoiceID,
@@ -1137,7 +1134,7 @@
            "Shop" => $shopOwner["Login"]["Username"],
            "Title" =>  "Payment for Invoice #$invoiceID",
            "Type" => "Credit"
-          ]]);
+          ]]);--*/
           $message = $this->core->Element([
            "p", "Thank you for your payment towards Invoice $invoiceID!"
           ]);
@@ -1185,7 +1182,7 @@
           $points = $strippedTotal * 1000;
           $y["Points"] = $y["Points"] + $points;
           $y["Verified"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          /*--$this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
            "OrderID" => $orderID,
@@ -1194,7 +1191,7 @@
            "Shop" => $shopOwner["Login"]["Username"],
            "Title" => "Paid Chat via ".$shop["Title"],
            "Type" => "Sale"
-          ]]);
+          ]]);--*/
           $message = $this->core->Element([
            "p", "Please click or tap <em>Back to hat</em> until you're back home, your Message will be pinned to the top of the Group Chat once you send it."
           ]);
@@ -1377,7 +1374,7 @@
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
       if(empty($bundle)) {
-       $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+       /*--$this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
         "Cost" => $product["Cost"],
         "OrderID" => $orderID,
         "Profit" => $product["Profit"],
@@ -1385,9 +1382,9 @@
         "Shop" => $shopOwner,
         "Title" => $product["Title"],
         "Type" => "Sale"
-       ]]);
+       ]]);--*/
       } if($product["Quantity"] > 0) {
-       $this->core->Data("Save", ["product", $id, $product]);
+       #$this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $bundled = explode("-", base64_decode($bundled));
