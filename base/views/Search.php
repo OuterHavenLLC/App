@@ -676,10 +676,12 @@
         $op = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
         $display = ($post["UN"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $memberRole = ($blog["UN"] == $post["UN"]) ? "Owner" : $contributors[$author];
+        $verified = $op["Verified"] ?? 0;
+        $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
         array_push($msg, [
          "[BlogPost.Actions]" => base64_encode($actions),
          "[BlogPost.Attachments]" => base64_encode($_BlogPost["ListItem"]["Attachments"]),
-         "[BlogPost.Author]" => base64_encode($display),
+         "[BlogPost.Author]" => base64_encode($display.$verified),
          "[BlogPost.Description]" => base64_encode($_BlogPost["ListItem"]["Description"]),
          "[BlogPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
          "[BlogPost.ID]" => base64_encode($post["ID"]),
@@ -866,9 +868,11 @@
       $options = $this->view(base64_encode("Profile:BulletinOptions"), ["Data" => [
        "Bulletin" => base64_encode(json_encode($value, true))
       ]]);
+      $verified = $member["Verified"] ?? 0;
+      $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
       array_push($msg, [
        "[Bulletin.Date]" => base64_encode($this->core->TimeAgo($value["Sent"])),
-       "[Bulletin.From]" => base64_encode($_Member["ListItem"]["Title"]),
+       "[Bulletin.From]" => base64_encode($_Member["ListItem"]["Title"].$verified),
        "[Bulletin.ID]" => base64_encode($key),
        "[Bulletin.Message]" => base64_encode($this->core->RenderView($message)),
        "[Bulletin.Options]" => base64_encode($this->core->RenderView($options)),
@@ -1642,6 +1646,8 @@
         ]) : "";
         $display = ($post["From"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
+        $verified = $op["Verified"] ?? 0;
+        $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
         array_push($msg, [
          "[ForumPost.Actions]" => base64_encode($actions),
          "[ForumPost.Attachments]" => base64_encode($_ForumPost["ListItem"]["Attachments"]),
@@ -1651,7 +1657,7 @@
          "[ForumPost.ID]" => base64_encode($value),
          "[ForumPost.MemberRole]" => base64_encode($memberRole),
          "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
-         "[ForumPost.OriginalPoster]" => base64_encode($display),
+         "[ForumPost.OriginalPoster]" => base64_encode($display.$verified),
          "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
          "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),
          "[ForumPost.Votes]" => base64_encode($options["Vote"])
@@ -1724,6 +1730,8 @@
           "data-view" => $options["Edit"]
          ]
         ]) : "";
+       $verified = $op["Verified"] ?? 0;
+       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
@@ -1733,7 +1741,7 @@
          "[StatusUpdate.ID]" => base64_encode($value),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
          "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
-         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
+         "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
          "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
         ]);
@@ -2146,6 +2154,8 @@
           "data-view" => $options["Edit"]
          ]
         ]) : "";
+       $verified = $op["Verified"] ?? 0;
+       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
@@ -2155,7 +2165,7 @@
          "[StatusUpdate.ID]" => base64_encode($id),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
          "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
-         "[StatusUpdate.OriginalPoster]" => base64_encode($display),
+         "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
          "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
          "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
         ]);
@@ -2543,6 +2553,8 @@
            "data-view" => $options["Edit"]
           ]
          ]) : "";
+         $verified = $op["Verified"] ?? 0;
+         $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
          array_push($msg, [
           "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
           "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"].$value),
@@ -2552,7 +2564,7 @@
           "[StatusUpdate.ID]" => base64_encode($value),
           "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
           "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
-          "[StatusUpdate.OriginalPoster]" => base64_encode($display),
+          "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
           "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
           "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
          ]);
