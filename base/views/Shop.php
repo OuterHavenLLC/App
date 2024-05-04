@@ -517,7 +517,7 @@
        $r = $this->core->Change([[
         "[Shop.Back]" => $back,
         "[Shop.Block]" => $block,
-        "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]),
+        "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
         "[Shop.Conversation]" => $this->core->Change([[
          "[Conversation.CRID]" => $id,
          "[Conversation.CRIDE]" => base64_encode($id),
@@ -1218,8 +1218,6 @@
       } if($step == 2) {
        $form = $data["Form"] ?? base64_encode("");
        $form = base64_decode($form);
-       $viewPairID = $data["ViewPairID"] ?? base64_encode("");
-       $viewPairID = base64_decode($viewPairID);
        $changeData = [
         "[Payment.Form]" => $form,
         "[Payment.Message]" => $message,

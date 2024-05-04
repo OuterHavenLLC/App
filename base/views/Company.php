@@ -7,7 +7,7 @@
   function Donate(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $donate = "v=".base64_encode("Shop:Pay")."&Shop=".md5($this->core->ShopID)."&Type=Donation&Amount=";
+   $donate = "v=".base64_encode("Shop:Pay")."&Shop=".md5($this->core->ShopID)."&Type=Donation&ViewPairID=".base64_encode("CompanyDonations")."&Amount=";
    $pub = $data["pub"] ?? 0;
    $r = $this->core->Change([[
     "[Donate.5]" => base64_encode($donate.base64_encode(5)),
@@ -34,7 +34,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => "Donate to ".$this->core->config["App"]["Name"]
    ]);
   }
   function Home(array $a) {
