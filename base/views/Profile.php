@@ -835,6 +835,8 @@
        "data-view" => $options["Share"]
       ]
      ]) : "";
+     $verified = $member["Verified"]  ?? 0;
+     $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
      $r = $this->core->Change([[
       "[Member.Actions]" => $actions,
       "[Member.AddContact]" => $addContact,
@@ -852,7 +854,7 @@
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
       "[Member.Description]" => $_Member["ListItem"]["Description"],
-      "[Member.DisplayName]" => $displayName,
+      "[Member.DisplayName]" => $displayName.$verified,
       "[Member.Footer]" => $this->core->Extension("a095e689f81ac28068b4bf426b871f71"),
       "[Member.ID]" => md5($id),
       "[Member.Journal]" => $journal,

@@ -1768,8 +1768,10 @@
       $youBlockedThem = $this->core->CheckBlocked([$y, "Members", $them]);
       if($theyBlockedYou == 0 && $youBlockedThem == 0 && $check == 1 && $lookMeUp == 1) {
        $options = $_Member["ListItem"]["Options"];
+       $verified = $member["Verified"]  ?? 0;
+       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
        array_push($msg, [
-        "[X.LI.DisplayName]" => base64_encode($_Member["ListItem"]["Title"]),
+        "[X.LI.DisplayName]" => base64_encode($_Member["ListItem"]["Title"].$verified),
         "[X.LI.Description]" => base64_encode($_Member["ListItem"]["Description"]),
         "[X.LI.Options]" => base64_encode($this->core->Element(["button", "View Profile", [
          "class" => "OpenCard v2",

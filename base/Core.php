@@ -921,10 +921,6 @@
     $response = $this->Data("Get", ["mbr", md5($username)]) ?? [];
    }
    $response["Activity"]["LastActive"] = $this->timestamp;
-   $verified = $response["Verified"] ?? 0;
-   if($verified == 1) {
-    $response["Personal"]["DisplayName"] .= " (Verified)";
-   }
    return $response;
   }
   function NewMember(array $a) {
