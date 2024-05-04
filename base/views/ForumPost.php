@@ -150,6 +150,8 @@
       $op = ($post["From"] == $you) ? $y : $this->core->Member($post["From"]);
       $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
       $memberRole = $manifest[$op["Login"]["Username"]];
+      $verified = $op["Verified"] ?? 0;
+      $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
       $r = $this->core->Change([[
        "[ForumPost.Actions]" => $actions,
        "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
@@ -170,7 +172,7 @@
        "[ForumPost.Illegal]" => $options["Report"],
        "[ForumPost.MemberRole]" => $memberRole,
        "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
-       "[ForumPost.OriginalPoster]" => $display,
+       "[ForumPost.OriginalPoster]" => $display.$verified,
        "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
        "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
        "[ForumPost.Share]" => $share,

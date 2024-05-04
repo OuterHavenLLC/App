@@ -207,6 +207,8 @@
     $accessCode = "Accepted";
     $i = 0;
     $subscriptionsList = "";
+    $verified = $y["Verified"] ?? 0;
+    $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
     foreach($y["Subscriptions"] as $key => $value) {
      $subscription = $this->core->config["Subscriptions"][$key] ?? [];
      if(!empty($subscription)) {
@@ -244,7 +246,7 @@
      "[Menu.Member.Chat]" => base64_encode("v=".base64_encode("Chat:Menu")."&Integrated=1"),
      "[Menu.Member.Contacts]" => base64_encode("v=$search&st=Contacts"),
      "[Menu.Member.CoverPhoto]" => $this->core->CoverPhoto($y["Personal"]["CoverPhoto"]),
-     "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"],
+     "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"].$verified,
      "[Menu.Member.Files]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=Files&st=XFS"),
      "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
      "[Menu.Member.Polls]" => base64_encode("v=$search&st=MBR-Polls"),

@@ -1768,7 +1768,7 @@
       $youBlockedThem = $this->core->CheckBlocked([$y, "Members", $them]);
       if($theyBlockedYou == 0 && $youBlockedThem == 0 && $check == 1 && $lookMeUp == 1) {
        $options = $_Member["ListItem"]["Options"];
-       $verified = $member["Verified"]  ?? 0;
+       $verified = $member["Verified"] ?? 0;
        $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
        array_push($msg, [
         "[X.LI.DisplayName]" => base64_encode($_Member["ListItem"]["Title"].$verified),

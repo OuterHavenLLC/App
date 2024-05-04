@@ -163,6 +163,8 @@
        "class" => "OpenCard Small v2",
        "data-view" => $options["Share"]
      ]]), ["class" => "Desktop33"]]) : "";
+     $verified = $author["Verified"] ?? 0;
+     $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
      $r = $this->core->Change([[
       "[Article.Actions]" => $actions,
       "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
@@ -186,7 +188,7 @@
       "[Article.Subscribe]" => "",
       "[Article.Title]" => $_BlogPost["ListItem"]["Title"],
       "[Article.Votes]" => $options["Vote"],
-      "[Member.DisplayName]" => $author["Personal"]["DisplayName"],
+      "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
       "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
       "[Member.Description]" => $description
      ], $this->core->Extension($extension)]);

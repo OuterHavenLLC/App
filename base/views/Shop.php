@@ -766,9 +766,7 @@
           $orderID = base64_decode($orderID);
          } if($check == 1) {
           $history = $y["Shopping"]["History"][$shopID] ?? [];
-          $message = $this->core->Element([
-           "p", "Thank you for your purchase!"
-          ]);
+          $message = "";
           $points = $y["Points"] ?? 0;
           $physicalOrders = $this->core->Data("Get", ["po", $shopID]) ?? [];
           foreach($cart as $key => $value) {

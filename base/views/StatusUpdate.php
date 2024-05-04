@@ -113,6 +113,8 @@
        "data-view" => $options["Share"]
       ]]), ["class" => "Desktop33"]
      ]) : "";
+     $verified = $op["Verified"] ?? 0;
+     $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
      $r = $this->core->Change([[
       "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
       "[StatusUpdate.Body]" => $this->core->PlainText([
@@ -128,7 +130,7 @@
        "[Conversation.Level]" => base64_encode(1),
        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-      "[StatusUpdate.DisplayName]" => $displayName,
+      "[StatusUpdate.DisplayName]" => $displayName.$verified,
       "[StatusUpdate.ID]" => $update["ID"],
       "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
       "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],

@@ -835,7 +835,7 @@
        "data-view" => $options["Share"]
       ]
      ]) : "";
-     $verified = $member["Verified"]  ?? 0;
+     $verified = $member["Verified"] ?? 0;
      $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
      $r = $this->core->Change([[
       "[Member.Actions]" => $actions,
