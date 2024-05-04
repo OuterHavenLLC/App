@@ -518,10 +518,12 @@
       foreach($notes as $note => $info) {
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
+       $verified = $author["Verified"] ?? 0;
+       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
        array_push($noteList, $this->core->Change([[
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
-        "[Notes.DisplayName]" => $displayName,
+        "[Notes.DisplayName]" => $displayName.$verified,
         "[Notes.NoteID]" => $note,
         "[Notes.Vote]" => $this->core->RenderView($this->view(base64_encode("Congress:Notes"), ["Data" => [
          "ID" => base64_encode($id),
