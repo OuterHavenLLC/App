@@ -1224,6 +1224,7 @@
        ];
        $extension = "83d6fedaa3fa042d53722ec0a757e910";
        $extension = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $extension;
+       #$this->core->Statistic("Transaction");
       } else {
        $title = $title ?? $shop["Title"];
        $changeData = [
