@@ -13,6 +13,7 @@ This release focuses on search—both inside and outside the platform, content c
 * The Artist Dashboard is now integrated into the Shop.
 * We've entirely re-built and consolidated the Revenue and Payroll system. Bi-weekly pay periods are now standard, and Artists may now add external gains and losses—such as refunds and shipping—to be accounted for.
 * The Checkout, Donation, and Paid Message Payment workflows are now streamlined and integrated with their parent content.
+* Members who make purchases of any kind obtain platform verification.
 
 ### Congressional Notes
 * Members of Congress may now contribute Congressional Notes to add context.

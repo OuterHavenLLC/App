@@ -688,6 +688,7 @@
       $message = "";
       $orderID = $data["OrderID"] ?? "";
       $paymentNonce = $data["payment_method_nonce"] ?? "";
+      $data["ViewPairID"] = ($type == "Checkout") ?  base64_encode("Shop$shopID") : $data["ViewPairID"];
       $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type&ViewPairID=".$data["ViewPairID"];
       $subtotal = 0;
       $tax = 0;
