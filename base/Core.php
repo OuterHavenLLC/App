@@ -922,7 +922,7 @@
    }
    $response["Activity"]["LastActive"] = $this->timestamp;
    $verified = $response["Verified"] ?? 0;
-   if($response["Verified"] == 1) {
+   if($verified == 1) {
     $response["Personal"]["DisplayName"] .= " (Verified)";
    }
    return $response;
