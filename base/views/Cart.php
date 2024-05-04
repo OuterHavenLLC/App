@@ -335,7 +335,7 @@
    $continue = ($mayContinue == 1) ? $this->core->Element([
     "button", "Continue", [
      "class" => "BBB GoToView v2 v2w",
-     "data-type" => "Checkout;".base64_encode("v=".base64_encode("Shop:Pay")."&Shop=$shopID&Type=Checkout&ViewPairID=Checkout")
+     "data-type" => "Checkout;".base64_encode("v=".base64_encode("Shop:Pay")."&Shop=$shopID&Type=Checkout&ViewPairID=".base64_encode("Checkout"))
     ]
    ]) : "";
    $r = $this->core->Change([[
