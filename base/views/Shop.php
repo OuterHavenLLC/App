@@ -617,7 +617,7 @@
    ];
    $responseType = "Dialog";
    $shopID = $data["Shop"] ?? "";
-   $title = "";
+   $title = "Payments @ ".$this->core->config["App"]["Name"];
    $type = $data["Type"] ?? "";
    $viewPairID = $data["ViewPairID"] ?? base64_encode("");
    $viewPairID = base64_decode($viewPairID);
@@ -690,12 +690,13 @@
       $paymentNonce = $data["payment_method_nonce"] ?? "";
       $data["ViewPairID"] = ($type == "Checkout") ?  base64_encode("Shop$shopID") : $data["ViewPairID"];
       $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type&ViewPairID=".$data["ViewPairID"];
-      $subtotal = 0;
-      $tax = 0;
-      $total = 0;
       $r = [
        "Body" => "The Payment Processor is missing or unsupportes is missing."
       ];
+      $subtotal = 0;
+      $tax = 0;
+      $title = $shop["Title"] ?? $title;
+      $total = 0;
       if($type == "Checkout") {
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
@@ -1020,10 +1021,10 @@
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
          } if($check == 1) {
-          $points = $strippedTotal * 1000;
+          $points = $strippedTotal * 100;
           $y["Points"] = $y["Points"] + $points;
           $y["Verified"] = 1;
-          /*--$this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
            "OrderID" => $orderID,
@@ -1032,7 +1033,7 @@
            "Shop" => $shopOwner["Login"]["Username"],
            "Title" => "Paid via ".$shop["Title"],
            "Type" => "Donation"
-          ]]);--*/
+          ]]);
           $message = $this->core->Element([
            "p", "We appreciate your donation of $$total to <em>".$shop["Title"]."</em>! This will help fund our continuing effort to preserve free speech on the internet. We are also giving you $points towards Credits which you may use for future purchases if you are currently signed in."
           ]);
@@ -1117,7 +1118,7 @@
             $invoice["Charges"][$key]["Paid"] = 1;
            }
           }
-          $points = $subtotal + ($subtotal * 10000);
+          $points = $subtotal + ($subtotal * 100);
           $y["Points"] = $points;
           $y["Verified"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
@@ -1257,7 +1258,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => $responseType
+    "ResponseType" => $responseType,
+    "Title" => $title
    ]);
   }
   function ProcessCartOrder(array $a) {
