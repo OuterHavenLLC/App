@@ -617,7 +617,7 @@
    ];
    $responseType = "Dialog";
    $shopID = $data["Shop"] ?? "";
-   $success = "CloseCard";
+   $title = "";
    $type = $data["Type"] ?? "";
    $viewPairID = $data["ViewPairID"] ?? base64_encode("");
    $viewPairID = base64_decode($viewPairID);
@@ -1023,7 +1023,7 @@
           $points = $strippedTotal * 1000;
           $y["Points"] = $y["Points"] + $points;
           $y["Verified"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          /*--$this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
            "Cost" => 0,
            "OrderID" => $orderID,
@@ -1032,7 +1032,7 @@
            "Shop" => $shopOwner["Login"]["Username"],
            "Title" => "Paid via ".$shop["Title"],
            "Type" => "Donation"
-          ]]);
+          ]]);--*/
           $message = $this->core->Element([
            "p", "We appreciate your donation of $$total to <em>".$shop["Title"]."</em>! This will help fund our continuing effort to preserve free speech on the internet. We are also giving you $points towards Credits which you may use for future purchases if you are currently signed in."
           ]);
@@ -1147,7 +1147,6 @@
         $processor .= "&Charge=$charge&Invoice=$invoiceID";
        }
       } elseif($type == "PaidMessage") {
-       $success = "";
        if($step == 2) {
         $subtotal = $data["Amount"] ?? base64_encode(5.00);
         $subtotal = base64_decode($subtotal);
@@ -1233,7 +1232,7 @@
         "[Payment.Processor]" => base64_encode($processor),
         "[Payment.Region]" => $this->core->language,
         "[Payment.Shop]" => $shopID,
-        "[Payment.Title]" => $shop["Title"],
+        "[Payment.Title]" => $title,
         "[Payment.Token]" => $token,
         "[Payment.Total]" => $total,
         "[Payment.Total.Stripped]" => str_replace(",", "", $total),
@@ -1241,7 +1240,6 @@
        ];
        if($paymentProcessor == "Braintree") {
         $extension = "a1a7a61b89ce8e2715efc0157aa92383";
-        $extension = ($type == "PaidMessage") ? "cef54994324e1b9ba4f902791ecc3ee5" : $extension;
        } elseif($paymentProcessor == "PayPal") {
         $extension = "7c0f626e2bbb9bd8c04291565f84414a";
        }
@@ -1259,8 +1257,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => $responseType,
-    "Success" => $success
+    "ResponseType" => $responseType
    ]);
   }
   function ProcessCartOrder(array $a) {
