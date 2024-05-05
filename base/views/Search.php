@@ -677,7 +677,7 @@
         $display = ($post["UN"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $memberRole = ($blog["UN"] == $post["UN"]) ? "Owner" : $contributors[$author];
         $verified = $op["Verified"] ?? 0;
-        $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         array_push($msg, [
          "[BlogPost.Actions]" => base64_encode($actions),
          "[BlogPost.Attachments]" => base64_encode($_BlogPost["ListItem"]["Attachments"]),
@@ -869,7 +869,7 @@
        "Bulletin" => base64_encode(json_encode($value, true))
       ]]);
       $verified = $member["Verified"] ?? 0;
-      $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+      $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       array_push($msg, [
        "[Bulletin.Date]" => base64_encode($this->core->TimeAgo($value["Sent"])),
        "[Bulletin.From]" => base64_encode($_Member["ListItem"]["Title"].$verified),
@@ -1647,7 +1647,7 @@
         $display = ($post["From"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
         $verified = $op["Verified"] ?? 0;
-        $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         array_push($msg, [
          "[ForumPost.Actions]" => base64_encode($actions),
          "[ForumPost.Attachments]" => base64_encode($_ForumPost["ListItem"]["Attachments"]),
@@ -1731,7 +1731,7 @@
          ]
         ]) : "";
        $verified = $op["Verified"] ?? 0;
-       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
@@ -1777,7 +1777,7 @@
       if($theyBlockedYou == 0 && $youBlockedThem == 0 && $check == 1 && $lookMeUp == 1) {
        $options = $_Member["ListItem"]["Options"];
        $verified = $member["Verified"] ?? 0;
-       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
        array_push($msg, [
         "[X.LI.DisplayName]" => base64_encode($_Member["ListItem"]["Title"].$verified),
         "[X.LI.Description]" => base64_encode($_Member["ListItem"]["Description"]),
@@ -1941,10 +1941,12 @@
        if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
         $displayName = $chat["Title"] ?? "Group Chat";
         $t = $this->core->Member($this->core->ID);
+        $verified = $t["Verified"] ?? 0;
+        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group)."&Integrated=$integrated";
         $view .= ($integrated == 1) ? "&Card=1" : "";
         array_push($msg, [
-         "[Chat.DisplayName]" => base64_encode($displayName),
+         "[Chat.DisplayName]" => base64_encode($displayName.$verified),
          "[Chat.Online]" => base64_encode(""),
          "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
          "[Chat.View]" => base64_encode(base64_encode($view))
@@ -2155,7 +2157,7 @@
          ]
         ]) : "";
        $verified = $op["Verified"] ?? 0;
-       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
@@ -2554,7 +2556,7 @@
           ]
          ]) : "";
          $verified = $op["Verified"] ?? 0;
-         $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
          array_push($msg, [
           "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
           "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"].$value),

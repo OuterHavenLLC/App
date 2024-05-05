@@ -243,6 +243,7 @@
    $r = $this->core->Change([[
     "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Years"))
    ], $this->core->Extension("0ba6b9256b4c686505aa66d23bec6b5c")]);
+   $references = $this->core->config["Statistics"] ?? [];
    $statistics = $this->core->Data("Get", ["app", md5("stats")]) ?? [];
    $view = $data["View"] ?? base64_encode("");
    $view = base64_decode($view);
@@ -268,6 +269,7 @@
        $monthStat = $monthTotals[$name] ?? 0;
        $monthTotals[$name] = $monthStat + $value;
       } foreach($dayTotals as $key => $value) {
+       $key = $references[$key] ?? $key;
        $dayLineItems .= $this->core->Change([[
         "[Statistic.Name]" => $key,
         "[Statistic.Value]" => $value
@@ -278,9 +280,10 @@
        "[Tile.Data]" => $dayLineItems,
        "[Tile.Header]" => $day
       ], $tile]);
-     } foreach($monthTotals as $key => $value) {
+     } foreach($monthTotals as $name => $value) {
+      $name = $references[$name] ?? $name;
       $monthLineItems .= $this->core->Change([[
-       "[Statistic.Name]" => $key,
+       "[Statistic.Name]" => $name,
        "[Statistic.Value]" => $value
       ], $lineItem]);
      }
@@ -310,6 +313,7 @@
         $yearTotals[$name] = $yearStat + $value;
        }
       } foreach($monthTotals as $name => $value) {
+       $name = $references[$name] ?? $name;
        $monthLineItems .= $this->core->Change([[
         "[Statistic.Name]" => $name,
         "[Statistic.Value]" => $value
@@ -328,6 +332,7 @@
        "class" => "Medium"
       ]]);
      } foreach($yearTotals as $name => $value) {
+      $name = $references[$name] ?? $name;
       $yearLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
        "[Statistic.Value]" => $value

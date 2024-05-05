@@ -208,7 +208,7 @@
     $i = 0;
     $subscriptionsList = "";
     $verified = $y["Verified"] ?? 0;
-    $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+    $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
     foreach($y["Subscriptions"] as $key => $value) {
      $subscription = $this->core->config["Subscriptions"][$key] ?? [];
      if(!empty($subscription)) {

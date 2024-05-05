@@ -314,6 +314,8 @@
        "class" => "OpenCard Small v2",
        "data-view" => $options["Share"]
       ]]) : "";
+      $verified = $author["Verified"] ?? 0;
+      $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $r = $this->core->Change([[
        "[Article.Actions]" => $actions,
        "[Article.Attachments]" => $_Article["ListItem"]["Attachments"],
@@ -337,7 +339,7 @@
        "[Article.Subscribe]" => $options["Subscribe"],
        "[Article.Title]" => $_Article["ListItem"]["Title"],
        "[Article.Votes]" => $options["Vote"],
-       "[Member.DisplayName]" => $author["Personal"]["DisplayName"],
+       "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
        "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
        "[Member.Description]" => $description
       ], $this->core->Extension("b793826c26014b81fdc1f3f94a52c9a6")]);

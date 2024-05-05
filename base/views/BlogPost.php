@@ -164,7 +164,7 @@
        "data-view" => $options["Share"]
      ]]), ["class" => "Desktop33"]]) : "";
      $verified = $author["Verified"] ?? 0;
-     $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+     $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
      $r = $this->core->Change([[
       "[Article.Actions]" => $actions,
       "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],

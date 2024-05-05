@@ -151,7 +151,7 @@
       $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
       $memberRole = $manifest[$op["Login"]["Username"]];
       $verified = $op["Verified"] ?? 0;
-      $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+      $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $r = $this->core->Change([[
        "[ForumPost.Actions]" => $actions,
        "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],

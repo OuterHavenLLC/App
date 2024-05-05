@@ -143,6 +143,8 @@
          "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
+       $verified = $op["Verified"] ?? 0;
+       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
        $commentType .= $this->core->Change([[
         "[Comment.Attachments]" => $attachments,
         "[Comment.Body]" => $this->core->PlainText([
@@ -154,7 +156,7 @@
         "[Comment.Created]" => $this->core->TimeAgo($value["Created"]),
         "[Comment.ID]" => $key,
         "[Comment.Options]" => $opt,
-        "[Comment.OriginalPoster]" => $op,
+        "[Comment.OriginalPoster]" => $op.$verified,
         "[Comment.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
         "[Comment.Replies]" => base64_encode("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(2)),
         "[Comment.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
@@ -203,7 +205,9 @@
          "class" => "InnerMargin OpenDialog",
          "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
-       ]) : "";
+      ]) : "";
+      $verified = $op["Verified"] ?? 0;
+      $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $commentType .= $this->core->Change([[
        "[Reply.Attachments]" => $attachments,
        "[Reply.Body]" => $this->core->PlainText([
@@ -215,7 +219,7 @@
        "[Reply.Created]" => $this->core->TimeAgo($value["Created"]),
        "[Reply.ID]" => $key,
        "[Reply.Options]" => $opt,
-       "[Reply.OriginalPoster]" => $op,
+       "[Reply.OriginalPoster]" => $op.$verified,
        "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
        "[Reply.Replies]" => base64_encode("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(3)),
        "[Reply.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
@@ -266,6 +270,8 @@
          "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
+       $verified = $op["Verified"] ?? 0;
+       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
        $commentType .= $this->core->Change([[
         "[Reply.Attachments]" => $attachments,
         "[Reply.Body]" => $this->core->PlainText([
@@ -277,7 +283,7 @@
         "[Reply.Created]" => $this->core->TimeAgo($value["Created"]),
         "[Reply.ID]" => $key,
         "[Reply.Options]" => $opt,
-        "[Reply.OriginalPoster]" => $op,
+        "[Reply.OriginalPoster]" => $op.$verified,
         "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
         "[Reply.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
        ], $extension]);

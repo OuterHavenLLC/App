@@ -114,7 +114,7 @@
       ]]), ["class" => "Desktop33"]
      ]) : "";
      $verified = $op["Verified"] ?? 0;
-     $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+     $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
      $r = $this->core->Change([[
       "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
       "[StatusUpdate.Body]" => $this->core->PlainText([

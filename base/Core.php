@@ -1438,6 +1438,12 @@
    }
    return $r;
   }
+  function VerificationBadge() {
+   return $this->Element(["span", NULL, [
+    "alt" => "This Member is verified via Purchase.",
+    "class" => "Verified"
+   ]]);
+  }
   public static function GetArticle($a = NULL) {
    $oh = New Core;
    if(!empty($a)) {

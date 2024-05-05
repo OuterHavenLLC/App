@@ -519,7 +519,7 @@
        $author = $this->core->Member($info["UN"]);
        $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
        $verified = $author["Verified"] ?? 0;
-       $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
        array_push($noteList, $this->core->Change([[
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],

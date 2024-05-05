@@ -836,7 +836,7 @@
       ]
      ]) : "";
      $verified = $member["Verified"] ?? 0;
-     $verified = ($verified == 1) ? "<span class=\"Verified\"></span>" : "";
+     $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
      $r = $this->core->Change([[
       "[Member.Actions]" => $actions,
       "[Member.AddContact]" => $addContact,

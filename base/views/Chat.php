@@ -479,8 +479,10 @@
        if($value["From"] != $you) {
         $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
         $profilePicture = $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:calc(100% - 1em)");
+        $verified = $t["Verified"] ?? 0;
+        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         $message = $value["Message"] ?? "";
-        $message = ($value["Paid"] == 1) ? "<strong>@".$value["From"]." Paid ".$value["PaidAmount"]."</strong><br/>$message" : "<strong>@".$value["From"]."</strong><br/>$message";
+        $message = ($value["Paid"] == 1) ? "<strong>@".$value["From"].".$verified Paid ".$value["PaidAmount"]."</strong><br/>$message" : "<strong>@".$value["From"]."$verified</strong><br/>$message";
         $message = (!empty($message)) ? $this->core->Element([
          "p", $message
         ]) : "";
