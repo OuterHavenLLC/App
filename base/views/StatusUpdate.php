@@ -50,7 +50,7 @@
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
      "[Update.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $body,
+      "Data" => $body
      ])),
      "[Update.DesignView]" => "Edit$id",
      "[Update.Downloads]" => $attachments,
