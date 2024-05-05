@@ -49,7 +49,7 @@
    $r = $this->core->Change([[
     "[App.Banner]" => $eventMedia["Banner"],
     "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
-    "[App.Earnings]" => base64_encode("v=".base64_encode("Common:Income")."&UN=$shopID"),
+    "[App.Earnings]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=$shopID"),
     "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
     "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
     "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
