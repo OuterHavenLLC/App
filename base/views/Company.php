@@ -272,7 +272,7 @@
        $key = $references[$key] ?? $key;
        $dayLineItems .= $this->core->Change([[
         "[Statistic.Name]" => $key,
-        "[Statistic.Value]" => $value
+        "[Statistic.Value]" => number_format($value)
        ], $lineItem]);
       }
       $days .= $this->core->Change([[
@@ -284,14 +284,14 @@
       $name = $references[$name] ?? $name;
       $monthLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
-       "[Statistic.Value]" => $value
+       "[Statistic.Value]" => number_format($value)
       ], $lineItem]);
      }
      $monthName = $this->core->GetMonthConversion($month);
      $r = ($i > 0) ? $this->core->Change([
       [
        "[Month.Days]" => $days,
-       "[Month.Name]" => $monthName,
+       "[Month.Name]" => "$monthName, $year",
        "[Month.Totals]" => $monthLineItems
       ], $this->core->Extension("a936651004efc98932b63c2d684715f8")
      ]) : $this->core->Element(["h4", "No Statistics Recorded for Statistics Month $month", [
@@ -316,7 +316,7 @@
        $name = $references[$name] ?? $name;
        $monthLineItems .= $this->core->Change([[
         "[Statistic.Name]" => $name,
-        "[Statistic.Value]" => $value
+        "[Statistic.Value]" => number_format($value)
        ], $lineItem]);
       }
       $i++;
@@ -335,7 +335,7 @@
       $name = $references[$name] ?? $name;
       $yearLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
-       "[Statistic.Value]" => $value
+       "[Statistic.Value]" => number_format($value)
       ], $lineItem]);
      }
      $r = ($i > 0) ? $this->core->Change([
