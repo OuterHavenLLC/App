@@ -33,7 +33,7 @@ This release focuses on search—both inside and outside the platform, content c
 * The Mail Service is now integrated and fully operational.
 * Administrators now have a Control Panel to configure the app's core attributes, public events, core media variables, and search lists.
 * App Statistics have been revamped, and are now more granular than ever with new daily, monthly, and annual totals now taken into account.
-* Developers now have a Card for viewing app documentation, guides, downloads, and accessing the Developer Group Chat. (coming soon...)
+* Developers now have a Card for viewing app documentation, guides, Heath Kit downloads, and submitting feedback.
 
 ## 1.2: Democracy
 ### Release Notes
