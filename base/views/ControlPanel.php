@@ -250,6 +250,7 @@
       $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
       $now = $this->core->timestamp;
       $chat["Description"] = $activeEvent["Description"];
+      $chat["Messages"] = [];
       $chat["Modified"] = $now;
       $chat["ModifiedBy"][$now] = $you;
       $chat["Title"] = $activeEvent["Title"];

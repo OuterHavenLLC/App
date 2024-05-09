@@ -1,10 +1,11 @@
 # Outer Haven Web App
-App Documentation is in the works...
+Here you will find the up-to-date change log for all releases of the platform.
+See SETUP.md (coming soon...) for Heath Kit configuration and installation.
 
 # Change Log
 ## 1.3: Compendium
 ### Release Notes
-This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, and quality of life improvements. (comming soon...)
+This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, revamped revenue and statistics, and quality of life improvements. (comming soon...)
 
 ### Artists
 * Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
