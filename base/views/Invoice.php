@@ -589,13 +589,13 @@
        $paid = $charge["Paid"] ?? 0;
        $title = $charge["Title"] ?? "Unknown";
        $value = $charge["Value"] ?? 0.00;
-       if($invoice["UN"] != $you) {
+       if($invoice["UN"] == $you) {
         $value = $this->core->Element([
          "p", "$".number_format($value, 2),
          ["class" => "DesktopRightText"]
         ]);
        } else {
-        $value = ($paid == 1 || 1==0) ? $this->core->Element([
+        $value = ($paid == 1) ? $this->core->Element([
          "p", "$".number_format($value, 2),
          ["class" => "DesktopRightText"]
         ]) : $this->core->Element([
@@ -687,7 +687,7 @@
       $r = $this->core->Change([[
        "[Invoice.Balance]" => $balance,
        "[Invoice.Subtotal]" => number_format($subtotal, 2),
-       "[Invoice.Taxes]" => $tax
+       "[Invoice.Taxes]" => number_format($tax, 2)
       ], $this->core->Extension("6faa1179113386dad098302e12049b8b")]);
      } else {
       $home = "v=".base64_encode("Invoice:Home")."&ID=$id&Shop=".$invoice["Shop"];

@@ -85,22 +85,17 @@
       $extension = "566f9967f00f97350e54b0ee14faef36";
      } elseif($s == "Developer") {
       $heathKits = [
+       base64_encode("App/FILE_NAME"),
+       base64_encode("App/FILE_NAME"),
        base64_encode("App/FILE_NAME")
       ];
-      /*--
-       $actions .= $this->core->Element([
-        "button", "Download All", [
-         "class" => "Download v2",
-         "data-media" => base64_encode(implode(";", $heathKits)),
-         "data-view" => base64_encode("v=".base64_encode("File:Download"))
-        ]
-       ]);
-      --*/
       $changeData = [
        "[Developer.CoverPhoto]" => $this->core->PlainText([
         "Data" => "[Media:CP]",
         "Display" => 1
-       ])
+       ]),
+       "[Developer.Download]" => base64_encode("v=".base64_encode("File:Download")),
+       "[Developer.Download.All]" => base64_encode(implode(";", $heathKits))
       ];
       $extension = "9070936bf7decfbd767391176bc0acdb";
      } elseif($s == "VIP") {

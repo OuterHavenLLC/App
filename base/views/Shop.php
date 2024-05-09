@@ -1061,6 +1061,7 @@
         $invoiceID
        ]) ?? [];
        $charges = $invoice["Charges"] ?? [];
+       $payInFull = $data["PayInFull"] ?? 0;
        $unpaid = 0;
        foreach($charges as $key => $info) {
         $value = $info["Value"] ?? 0.00;
@@ -1071,7 +1072,6 @@
          }
         }
        }
-       $payInFull = $data["PayInFull"] ?? 0;
        if($subtotal > 0) {
         $tax = $shop["Tax"] ?? 10.00;
         $tax = number_format($subtotal * ($tax / 100), 2);
