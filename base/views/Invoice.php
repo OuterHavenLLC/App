@@ -595,14 +595,14 @@
          ["class" => "DesktopRightText"]
         ]);
        } else {
-        $value = ($paid == 1) ? $this->core->Element([
+        $value = ($paid == 1 || 1==0) ? $this->core->Element([
          "p", "$".number_format($value, 2),
          ["class" => "DesktopRightText"]
         ]) : $this->core->Element([
          "button", "$$value",
          [
-          "class" => "CloseCard DesktopRight OpenFirSTEPTool v2",
-          "data-fst" => base64_encode("v=".base64_encode("Shop:Pay")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice")
+          "class" => "GoToView DesktopRight v2",
+          "data-type" => "InvoicePayments$id;".base64_encode("v=".base64_encode("Shop:Pay")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice&ViewPairID=".base64_encode("InvoicePayments$id"))
          ]
         ]);
        }

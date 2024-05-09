@@ -374,23 +374,6 @@
      $isArtist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $shopID = md5($t["Login"]["Username"]);
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-     $contributors = $shop["Contributors"] ?? [];
-     foreach($contributors as $member => $role) {
-      $ck = ($isArtist == 1 && $member == $you && $notAnon == 1) ? 1 : 0;
-      if($ck == 1 && $i == 0) {
-       $lo .= $this->core->Element(["button", "+", [
-        "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$shopID&new=1")
-       ]]).$this->core->Element(["button", "Invoices", [
-        "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$shopID&st=SHOP-Invoices")
-       ]]).$this->core->Element(["button", "Services", [
-        "class" => "OpenCard v2",
-        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$shopID&st=SHOP-InvoicePresets")
-       ]]);
-       $i++;
-      }
-     }
      $ck = ($t["Login"]["Username"] == $you && $notAnon == 1) ? 1 : 0;
      $lo .= ($isArtist == 1 && $ck == 1) ? $this->core->Element([
       "button", "Discount Codes", [

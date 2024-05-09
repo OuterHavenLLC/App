@@ -492,7 +492,10 @@
        $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
         "[Dashboard.Charts]" => "",
         "[Dashboard.Hire]" => $hire,
-        "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders")
+        "[Dashboard.Invoices]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
+        "[Dashboard.NewProduct]" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
+        "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders"),
+        "[Dashboard.Services]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
        ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
        $dashboardView = ($active == 1 || $username == $you) ? $this->core->Element([
         "button", "Dashboard", [
