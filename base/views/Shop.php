@@ -1267,7 +1267,7 @@
   }
   function ProcessCartOrder(array $a) {
    $accessCode = "Accepted";
-   $bundle = $a["Bundled"] ?? "";
+   $bundled = $a["Bundled"] ?? 0;
    $orderID = $a["OrderID"] ?? "N/A";
    $physicalOrders = $a["PhysicalOrders"] ?? [];
    $purchaseQuantity = $a["Product"]["Quantity"] ?? 1;
@@ -1376,7 +1376,7 @@
       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
-      if(empty($bundle)) {
+      if($bundled == 0) {
        $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
         "Cost" => $product["Cost"],
         "OrderID" => $orderID,
@@ -1395,6 +1395,7 @@
       $bundledProductShopOwner = $bundled[0] ?? "";
       if(!empty($bundledProduct) && !empty($bundledProductShopOwner)) {
        $cartOrder = $this->ProcessCartOrder([
+        "Bundled" => 1,
         "OrderID" => $orderID,
         "PhysicalOrders" => $physicalOrders,
         "Product" => [
