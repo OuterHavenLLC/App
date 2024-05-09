@@ -589,9 +589,9 @@
        $paid = $charge["Paid"] ?? 0;
        $title = $charge["Title"] ?? "Unknown";
        $value = $charge["Value"] ?? 0.00;
-       if($invoice["UN"] == $you) {
+       if($invoice["UN"] != $you) {
         $value = $this->core->Element([
-         "p", "$$value",
+         "p", "$".number_format($value, 2),
          ["class" => "DesktopRightText"]
         ]);
        } else {
@@ -599,7 +599,7 @@
          "p", "$".number_format($value, 2),
          ["class" => "DesktopRightText"]
         ]) : $this->core->Element([
-         "button", "$$value",
+         "button", "$".number_format($value, 2),
          [
           "class" => "GoToView DesktopRight v2",
           "data-type" => "InvoicePayments$id;".base64_encode("v=".base64_encode("Shop:Pay")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Invoice&ViewPairID=".base64_encode("InvoicePayments$id"))
