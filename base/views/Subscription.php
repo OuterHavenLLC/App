@@ -85,9 +85,9 @@
       $extension = "566f9967f00f97350e54b0ee14faef36";
      } elseif($s == "Developer") {
       $heathKits = [
-       base64_encode("App/FILE_NAME"),
-       base64_encode("App/FILE_NAME"),
-       base64_encode("App/FILE_NAME")
+       base64_encode("App/1c48161334e41522f112494baf2c8a60.jpg"),
+       base64_encode("App/a1b9837369061a7b3db741e532b40b9d.jpg"),
+       base64_encode("App/78569ee93f82cf2cd9415e7c4ca5e65b.png")
       ];
       $changeData = [
        "[Developer.CoverPhoto]" => $this->core->PlainText([
