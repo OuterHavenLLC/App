@@ -7,6 +7,17 @@ See SETUP.md (coming soon...) for Heath Kit configuration and installation.
 ### Release Notes
 This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, revamped revenue and statistics, and quality of life improvements. (comming soon...)
 
+### Platform Improvements
+* A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job. (coming soon...)
+* Download buttons now support simultanious media downloads.
+* The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
+* Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
+* A new content creation tool (represented by a + button at the bottom-right corner when signed in) creates a central hub where many of the common content types may be created from.
+* The Mail Service is now integrated and fully operational.
+* Administrators now have a Control Panel to configure the app's core attributes, public events, core media variables, and search lists.
+* App Statistics have been revamped, and are now more granular than ever with new daily, monthly, and annual totals now taken into account.
+* Developers now have a Card for viewing app documentation, guides, Heath Kit downloads, and submitting feedback.
+
 ### Artists
 * Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
 * The Shopping History is now properly documented in real-time.
@@ -25,20 +36,13 @@ This release focuses on search—both inside and outside the platform, content c
 * Streamlined and built upon the Re:Search experience.
 * Added the ability to submit and index external sites.
 
-### Platform Improvements
-* A new PurgeContent() Core object efficiently and permanently purges content and its dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job. (coming soon...)
-* Download buttons now support simultanious media downloads.
-* The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
-* Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
-* A new content creation tool (represented by a + button at the bottom-right corner when signed in) creates a central hub where many of the common content types may be created from.
-* The Mail Service is now integrated and fully operational.
-* Administrators now have a Control Panel to configure the app's core attributes, public events, core media variables, and search lists.
-* App Statistics have been revamped, and are now more granular than ever with new daily, monthly, and annual totals now taken into account.
-* Developers now have a Card for viewing app documentation, guides, Heath Kit downloads, and submitting feedback.
-
 ## 1.2: Democracy
 ### Release Notes
 A new, democratic form of content moderation is here! We are the first to establish a Congressional form of content moderation.
+
+### Platform Improvements
+* Extensions have been consolidated into a single database, and a new Extension manager has been created.
+* We've streamlined the means by which most content is rendered by consolidating functionality under a new GetContentData() Core object.
 
 ### Congress
 * Members may now join Congress if the House has less than 100 members and the Senate has less than 50. After these thresholds are surpassed, future staff must be elected to their Congressional roles.
@@ -51,12 +55,8 @@ A new, democratic form of content moderation is here! We are the first to establ
 * Prejudiced content cannot be reported further, as it is henceforth considered legal.
 
 ### Polls
-* Members may now create, block, share and delete Polls
+* Members may now create, block, share and delete Polls.
 * Members may search for and vote on other Member's Polls.
-
-### Platform Improvements
-* Extensions have been consolidated into a single database, and a new Extension manager has been created.
-* We've streamlined the means by which most content is rendered by consolidating functionality under a new GetContentData() Core object.
 
 ## 1.1.1: Supplemental
 ### Release Notes
@@ -83,7 +83,7 @@ This release includes fundamental changes, stability and security improvements, 
 
 ### Chat
 * We've revamped our Chat experience! You have the option to use the integrated 1:1 and group chats, or go to outerhaven.nyc/chat for a standalone experience.
-* Articles, Blogs, Forums, and SHops now have Group Chat functionality should the author enable it.
+* Articles, Blogs, Forums, and Shops now have Group Chat functionality should the author enable it.
 * Members may now create, update, and purge Group Chats.
 * Paid Messages are possible via Group Chats as a form of content monetization if the owner has enabled payment processing via their shop.
 * Members may bookmark Group Chats, which will appear under the titular list in the Member's personalized Chat experience.
@@ -93,7 +93,7 @@ Lots of minor adjustments and improvements are also included in this release, an
 
 ## 1.0: Foundation
 ### Welcome to Outer Haven
-Outer Haven is a fully-Constitutional social media platform where every Member is afforded the same freedoms and rights as every U.S. citizan, no matter where they are in the world. This release includes the features listed below, among many others:
+Outer Haven is a Constitutional Social Media platform where every Member is afforded the same freedoms and rights as every U.S. citizan, no matter where they are in the world. This release includes the features listed below, among many others:
 
 ### Features
 * Articles
@@ -108,7 +108,7 @@ Outer Haven is a fully-Constitutional social media platform where every Member i
 * Sign Up (secured with 2-Factor Authentication via Email)
 * Shops
 * Status Updates
-* Subscriptions (enables Bulletins to be sent out when the related content is updated)
+* Content Subscriptions (enables Bulletins to be sent out when the related content is updated)
 * Subscriptions (Artist, Blogger, Developer, File Uploads, VIP)
 * We've got much more in the works!
 

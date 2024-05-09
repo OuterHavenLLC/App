@@ -95,7 +95,8 @@
         "Display" => 1
        ]),
        "[Developer.Download]" => base64_encode("v=".base64_encode("File:Download")),
-       "[Developer.Download.All]" => base64_encode(implode(";", $heathKits))
+       "[Developer.Download.All]" => base64_encode(implode(";", $heathKits)),
+       "[Developer.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread"))
       ];
       $extension = "9070936bf7decfbd767391176bc0acdb";
      } elseif($s == "VIP") {
