@@ -256,7 +256,11 @@
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
       $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
        "ParentPage" => $parentPage,
+       "Text" => base64_encode("Please enter the Pass Phrase the Author gave you to access <em>".$_Article["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
         "BackTo" => $backTo,
         "SecureKey" => base64_encode($passPhrase),
@@ -506,6 +510,7 @@
      $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Articles"];
      $products = $article["Products"] ?? [];
+     $purge = $article["Purge"] ?? 0;
      $subscribers = $article["Subscribers"] ?? [];
      if(!empty($data["rATTI"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
@@ -585,6 +590,7 @@
       "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
       "Products" => $products,
+      "Purge" => $purge,
       "Title" => $title,
       "UN" => $author
      ];
@@ -700,22 +706,33 @@
     $accessCode = "Accepted";
     $newArticles = [];
     $articles = $y["Pages"] ?? [];
-    oreach($articles as $key => $value) {
+    foreach($articles as $key => $value) {
      if($id != $value) {
       array_push($newArticles, $value);
      }
     }
     $y["Pages"] = $newArticles;
-    #$this->core->Data("Purge", ["chat", $id]);
-    #$this->core->Data("Purge", ["conversation", $id]);
-    #$this->core->Data("Purge", ["local", $id]);
-    #$this->core->Data("Purge", ["pg", $id]);
+    $article = $this->core->Data("Get", ["pg", $id]);
+    $article["Purge"] = 1;
+    #$this->core->Data("Save", ["pg", $id, $article]);
+    $chat = $this->core->Data("Get", ["chat", $id]);
+    $chat["Purge"] = 1;
+    #$this->core->Data("Save", ["chat", $id, $chat]);
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    $conversation["Purge"] = 1;
+    #$this->core->Data("Save", ["conversation", $id, $conversation]);
+    #$this->core->Data("Purge", ["translate", $id]);
     #$this->core->Data("Purge", ["votes", $id]);
     #$this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = [
-     "Body" => "The Article and dependencies were marked for purging.",
-     "Header" => "Done"
-    ];
+    $r = $this->core->Element([
+     "p", "The Article and dependencies were marked for purging."
+    ]).$this->core->Element([
+     "p", "Debug Data: ".json_encode([
+      $article,
+      $chat,
+      $conversation
+     ], true)
+    ]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

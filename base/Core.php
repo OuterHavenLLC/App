@@ -675,12 +675,18 @@
       ]);
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($contentID),
+       "v" => base64_encode("Page:SaveDelete")
+      ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Pages")),
        "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
        "Contributors" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($contentID)."&Type=".base64_encode("Article")."&st=Contributors"),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$contentID"),
+       #"Delete" => base64_encode("v=".base64_encode("Authentication:DeletePage")."&ID=$contentID"),
+       "Delete" => base64_encode(base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))),
        "Edit" => base64_encode("v=".base64_encode("Page:Edit")."&ID=".base64_encode($contentID)),
        "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("pg")),
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;".$contentID)),

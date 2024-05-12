@@ -649,6 +649,7 @@
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $privacy = $data["Privacy"] ?? $y["Privacy"]["MSG"];
+     $purge = $chat["Purge"] ?? 0;
      $success = "CloseCard";
      $username = $chat["UN"] ?? $username;
      $chat = [
@@ -661,6 +662,7 @@
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $nsfw,
       "Privacy" => $privacy,
+      "Purge" => $purge,
       "Title" => $title,
       "UN" => $username
      ];

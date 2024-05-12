@@ -359,12 +359,11 @@
      "NSFW" => $nsfw,
      "Privacy" => $privacy
     ];
+    $this->core->Data("Save", ["conversation", $id, $conversation]);
     $r = [
      "Body" => "Your $commentType was $actionTaken.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($conversation, true)
+     "Header" => "Done"
     ];
-    $this->core->Data("Save", ["conversation", $id, $conversation]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

@@ -40,44 +40,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function AuthorizeChange(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $form = $data["Form"] ?? "";
-   $id = $data["ID"] ?? "";
-   $processor = $data["Processor"] ?? "";
-   $text = $data["Text"] ?? base64_encode("Do you authorize this Change?");
-   $r = [
-    "Body" => "The Form Identifier or Processor are missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must sign in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($form) && !empty($id) && !empty($processor)) {
-    $accessCode = "Accepted";
-    $r = [
-     "Body" => base64_decode($text),
-     "Header" => "Authorize",
-     "Scrollable" => $this->core->Change([[
-      "[Authorize.Form]" => base64_decode($form),
-      "[Authorize.ID]" => $id,
-      "[Authorize.Processor]" => $processor
-     ], $this->core->Extension("7f6ec4e23b8b7c616bb7d79b2d1d3157")])
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function BlogChangeMemberRole(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -742,7 +704,7 @@
    } else {
     $accessCode = "Accepted";
     $back = (!empty($parentPage)) ? $this->core->Element(["button", "Back", [
-     "class" => "GoToParent LI head",
+     "class" => "GoToParent LI",
      "data-type" => $parentPage
     ]]) : "";
     $closeDialog = ($dialog == 1) ? $this->core->Element([
