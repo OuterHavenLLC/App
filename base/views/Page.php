@@ -700,23 +700,20 @@
     $accessCode = "Accepted";
     $newArticles = [];
     $articles = $y["Pages"] ?? [];
-    if(!empty($this->core->Data("Get", ["conversation", $id]))) {
-     $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => $id]
-     ]);
-    } foreach($articles as $key => $value) {
+    oreach($articles as $key => $value) {
      if($id != $value) {
       array_push($newArticles, $value);
      }
     }
     $y["Pages"] = $newArticles;
-    $this->core->Data("Purge", ["chat", $id]);
-    $this->core->Data("Purge", ["local", $id]);
-    $this->core->Data("Purge", ["pg", $id]);
-    $this->core->Data("Purge", ["votes", $id]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Purge", ["chat", $id]);
+    #$this->core->Data("Purge", ["conversation", $id]);
+    #$this->core->Data("Purge", ["local", $id]);
+    #$this->core->Data("Purge", ["pg", $id]);
+    #$this->core->Data("Purge", ["votes", $id]);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [
-     "Body" => "The Page was deleted.",
+     "Body" => "The Article and dependencies were marked for purging.",
      "Header" => "Done"
     ];
    }
