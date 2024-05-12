@@ -579,8 +579,8 @@
      foreach($extensions as $key => $value) {
       $value = str_replace("nyc.outerhaven.extension.", "", $value);
       $viewData = json_encode([
-       "Key" => $y["Login"]["PIN"],
-       "ID" => $value,
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($value),
        "v" => base64_encode("Extension:SaveDelete")
       ], true);
       $info = $this->core->Data("Get", ["extension", $value]) ?? [];

@@ -722,23 +722,16 @@
   function ProtectedContent(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $back = $data["back"] ?? 0;
-   $parentPage = $data["ParentPage"] ?? "";
-   $back = ($back == 1) ? $this->core->Element(["button", "Back", [
-    "class" => "GoToParent LI head",
-    "data-type" => $parentPage
-   ]]) : "";
    $dialog = $data["Dialog"] ?? 0;
    $header = $data["Header"] ?? base64_encode("");
    $header = base64_decode($header);
+   $parentPage = $data["ParentPage"] ?? "";
    $r = [
     "Body" => "The View Data is missing."
    ];
-   $renderView = $data["RenderView"] ?? 0;
+   $responseType = "Dialog";
    $text = $data["Text"] ?? base64_encode("Please enter your PIN below to continue.");
    $text = base64_decode($text);
-   $viewData = $data["ViewData"] ?? base64_encode(json_encode([], true));
-   $viewData = json_decode(base64_decode($viewData), true);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -746,32 +739,33 @@
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif($renderView == 1) {
+   } else {
     $accessCode = "Accepted";
-    $responseType = "View";
-    $key = $data["Key"] ?? "";
-    $r = $this->Element(["p", "Coming soon... (Debug Key: $key)"]);
-    $viewData = [];
-    foreach($data as $key => $value) {
-     $viewData[$key] = $value;
-    }
-    #$r = $this->RenderView($this->view($view, ["Data" => $viewData]));
-   } elseif(!empty($viewData)) {
-    $accessCode = "Accepted";
-    $viewDataInputs = "";
+    $back = $data["back"] ?? 0;
+    $back = ($back == 1) ? $this->core->Element(["button", "Back", [
+     "class" => "GoToParent LI head",
+     "data-type" => $parentPage
+    ]]) : "";
+    $closeDialog = ($dialog == 1) ? $this->core->Element([
+     "button", "Cancel", ["class" => "CloseDialog v2 v2w"]
+    ]) : "";
+    $view = "";
+    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
+    $viewData = json_decode(base64_decode($viewData), true);
     foreach($viewData as $key => $value) {
-     $viewDataInputs .= "<input name=\"$key\" type=\"text\" value=\"$value\"/>\r\n";
+     $view .= "$key=$value&";
     }
     $r = $this->core->Change([[
      "[ProtectedContent.Back]" => $back,
+     "[ProtectedContent.CloseDialog]" => $closeDialog,
      "[ProtectedContent.Header]" => $header,
      "[ProtectedContent.Text]" => $text,
-     "[ProtectedContent.View]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&RenderView=1"),
-     "[ProtectedContent.ViewData]" => $viewDataInputs,
+     "[ProtectedContent.View]" => base64_encode(rtrim($view, "&"))
     ], $this->core->Extension("a1f9348036f81e1e9b79550e03f825fb")]);
     $r = ($dialog == 1) ? [
      "Body" => $r,
-     "Header" => "Pass Phrase Required"
+     "Header" => "Protected Content",
+     "NoClose" => 1
     ] : $r;
     $responseType = ($dialog == 1) ? "Dialog" : "View";
    }
