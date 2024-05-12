@@ -254,7 +254,7 @@
      $passPhrase = $article["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
-     if(!empty($passPhrase) && $verifyPassPhrase == 0) {
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
       $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "ParentPage" => $parentPage,
        "ViewData" => base64_encode(json_encode([
@@ -271,6 +271,7 @@
       $accessCode = "Denied";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Secure Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
       if(!empty($secureKey)) {
@@ -280,12 +281,11 @@
         $r = $this->core->Element(["p", "The Keys do not match."]);
        } else {
         $accessCode = "Accepted";
-        $r = $this->view(base64_encode("Authenticate:ProtectedContent"), ["Data" => [
+        $r = $this->view(base64_encode("Page:Home"), ["Data" => [
          "BackTo" => $backTo,
          "ID" => $id,
          "ParentPage" => $parentPage,
-         "ViewProtectedContent" => 1,
-         "v" => base64_encode("Page:Home")
+         "ViewProtectedContent" => 1
         ]]);
         $r = $this->core->RenderView($r);
        }
