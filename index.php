@@ -74,7 +74,7 @@
    $content = "v=".base64_encode("Company:Home")."&pub=1";
   } elseif($command[0] == "archive") {
    # COMMUNITY ARCHIVE
-   $content = "v=".base64_encode("Page:Home")."&LLP=".$command[1]."&pub=1";
+   $content = "v=".base64_encode("Page:Home")."&ID=".$command[1]."&pub=1";
   } elseif($command[0] == "blogs") {
    # BLOGS
    $content = "v=".base64_encode("Search:Containers")."&pub=1&st=BLG";

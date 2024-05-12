@@ -181,12 +181,9 @@
      "JE" => "Journal Entry"
     ];
     $category = $article["Category"] ?? "CA";
-    $em = base64_encode("LiveView:EditorMossaic");
-    $ep = base64_encode("LiveView:EditorProducts");
-    $es = base64_encode("LiveView:EditorSingle");
     $nsfw = $article["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $article["PassPhrase"] ?? "";
     $privacy = $article["Privacy"] ?? $y["Privacy"]["Posts"];
-    $sc = base64_encode("Search:Containers");
     $r = $this->core->Change([[
      "[Article.AdditionalContent]" => $additionalContent["Extension"],
      "[Article.Body]" => base64_encode($this->core->PlainText([
@@ -205,6 +202,7 @@
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,
      "[Article.New]" => $new,
+     "[Article.PassPhrase]" => base64_encode($passPhrase),
      "[Article.Products]" => $products,
      "[Article.Products.LiveView]" => $additionalContent["LiveView"]["Products"],
      "[Article.Title]" => base64_encode($article["Title"]),
@@ -228,17 +226,12 @@
   function Home(array $a) {
    $_ViewTitle = $this->core->config["App"]["Name"];
    $accessCode = "Denied";
-   $base = $this->core->efs;
    $data = $a["Data"] ?? [];
-   $lpg = $data["lPG"] ?? "";
-   $b2 = $data["b2"] ?? "the Archive";
-   $back = $data["back"] ?? 0;
-   $back = ($back == 1) ? $this->core->Element(["button", "Back to $b2", [
-    "class" => "GoToParent LI header",
-    "data-type" => $lpg
-   ]]) : "";
+   $backTo = $data["BackTo"] ?? "the Archive";
+   $base = $this->core->efs;
    $card = $data["CARD"] ?? 0;
    $id = $data["ID"];
+   $parentPage = $data["ParentPage"] ?? "";
    $pub = $data["pub"] ?? 0;
    $r = [
     "Body" => "The requested Article could not be found.",
@@ -252,102 +245,147 @@
     $admin = 0;
     $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
     $_Article = $this->core->GetContentData([
-     "BackTo" => "",
+     "BackTo" => $backTo,
      "Blacklisted" => $bl,
      "ID" => base64_encode("Page;$id")
     ]);
     if($_Article["Empty"] == 0) {
      $article = $_Article["DataModel"];
-     $options = $_Article["ListItem"]["Options"];
-     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-     $_ViewTitle = $_Article["ListItem"]["Title"] ?? $_ViewTitle;
-     $contributors = $article["Contributors"] ?? [];
-     $ck = ($article["UN"] == $you) ? 1 : 0;
-     if(in_array($article["Category"], ["CA", "JE"]) && $bl == 0) {
-      foreach($contributors as $member => $role) {
-       if($active == 0 && $member == $you) {
-        $active = 1;
-        if($admin == 0 && $role == "Admin") {
-         $admin = 1;
-        }
+     $passPhrase = $article["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "ParentPage" => $parentPage,
+       "ViewData" => base64_encode(json_encode([
+        "BackTo" => $backTo,
+        "SecureKey" => base64_encode($passPhrase),
+        "ID" => $id,
+        "ParentPage" => $parentPage,
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("Page:Home")
+       ], true))
+      ]]);
+      $r = $this->core->RenderView($r);
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if(!empty($secureKey)) {
+       if(empty($key)) {
+        $r = $this->core->Element(["p", "The Key is missing."]);
+       } elseif($key != $secureKey) {
+        $r = $this->core->Element(["p", "The Keys do not match."]);
+       } else {
+        $accessCode = "Accepted";
+        $r = $this->view(base64_encode("Authenticate:ProtectedContent"), ["Data" => [
+         "BackTo" => $backTo,
+         "ID" => $id,
+         "ParentPage" => $parentPage,
+         "ViewProtectedContent" => 1,
+         "v" => base64_encode("Page:Home")
+        ]]);
+        $r = $this->core->RenderView($r);
        }
       }
-      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-      $actions = ($ck == 0) ? $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => $options["Block"]
-       ]
-      ]) : "";
-      $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
-       "button", "Chat", [
-        "class" => "OpenCard Small v2 v2w",
-        "data-view" => $options["Chat"]
-       ]
-      ]) : "";
-      $actions .= ($admin == 1 || $active == 1 || $ck == 1) ? $this->core->Element([
-       "button", "Edit", [
-        "class" => "OpenCard Small v2",
-        "data-view" => $options["Edit"]
-       ]
-      ]) : "";
-      $actions .= ($admin == 1) ? $this->core->Element([
-       "button", "Contributors", [
-        "class" => "OpenCard Small v2",
-        "data-view" => $options["Contributors"]
-       ]
-      ]) : "";
-      $author = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
-      $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $_ViewTitle = $_Article["ListItem"]["Title"] ?? $_ViewTitle;
+      $options = $_Article["ListItem"]["Options"];
+      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
       $contributors = $article["Contributors"] ?? [];
-      $contributors[$article["UN"]] = "Admin";
-      $description = ($ck == 1) ? "You have not added a Description." : "";
-      $description = ($ck == 0) ? $author["Personal"]["DisplayName"]." has not added a Description." : $description;
-      $description = (!empty($author["Personal"]["Description"])) ? $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $author["Personal"]["Description"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ]) : $description;
-      $share = ($ck == 1 || $article["Privacy"] == md5("Public")) ? 1 : 0;
-      $share = ($share == 1) ? $this->core->Element(["button", "Share", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Share"]
-      ]]) : "";
-      $verified = $author["Verified"] ?? 0;
-      $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-      $r = $this->core->Change([[
-       "[Article.Actions]" => $actions,
-       "[Article.Attachments]" => $_Article["ListItem"]["Attachments"],
-       "[Article.Back]" => $back,
-       "[Article.Body]" => $this->core->PlainText([
-        "Data" => $article["Body"],
-        "Decode" => 1
-       ]),
-       "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
-       "[Article.Conversation]" => $this->core->Change([[
-        "[Conversation.CRID]" => $id,
-        "[Conversation.CRIDE]" => base64_encode($id),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-       "[Article.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
-       "[Article.Created]" => $this->core->TimeAgo($article["Created"]),
-       "[Article.Description]" => $_Article["ListItem"]["Description"],
-       "[Article.ID]" => $id,
-       "[Article.Modified]" => $_Article["ListItem"]["Modified"],
-       "[Article.Notes]" => $options["Notes"],
-       "[Article.Report]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;$id")),
-       "[Article.Share]" => $share,
-       "[Article.Subscribe]" => $options["Subscribe"],
-       "[Article.Title]" => $_Article["ListItem"]["Title"],
-       "[Article.Votes]" => $options["Vote"],
-       "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
-       "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
-       "[Member.Description]" => $description
-      ], $this->core->Extension("b793826c26014b81fdc1f3f94a52c9a6")]);
+      $ck = ($article["UN"] == $you) ? 1 : 0;
+      if(in_array($article["Category"], ["CA", "JE"]) && $bl == 0) {
+       foreach($contributors as $member => $role) {
+        if($active == 0 && $member == $you) {
+         $active = 1;
+         if($admin == 0 && $role == "Admin") {
+          $admin = 1;
+         }
+        }
+       }
+       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+       $actions = ($ck == 0) ? $this->core->Element([
+        "button", $blockCommand, [
+         "class" => "Small UpdateButton v2",
+         "data-processor" => $options["Block"]
+        ]
+       ]) : "";
+       $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
+        "button", "Chat", [
+         "class" => "OpenCard Small v2 v2w",
+         "data-view" => $options["Chat"]
+        ]
+       ]) : "";
+       $actions .= ($admin == 1 || $active == 1 || $ck == 1) ? $this->core->Element([
+        "button", "Edit", [
+         "class" => "OpenCard Small v2",
+         "data-view" => $options["Edit"]
+        ]
+       ]) : "";
+       $actions .= ($admin == 1) ? $this->core->Element([
+        "button", "Contributors", [
+         "class" => "OpenCard Small v2",
+         "data-view" => $options["Contributors"]
+        ]
+       ]) : "";
+       $author = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
+       $back = (!empty($parentPage)) ? $this->core->Element(["button", "Back to $backTo", [
+        "class" => "GoToParent LI header",
+        "data-type" => $parentPage
+       ]]) : "";
+       $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
+       $contributors = $article["Contributors"] ?? [];
+       $contributors[$article["UN"]] = "Admin";
+       $description = ($ck == 1) ? "You have not added a Description." : "";
+       $description = ($ck == 0) ? $author["Personal"]["DisplayName"]." has not added a Description." : $description;
+       $description = (!empty($author["Personal"]["Description"])) ? $this->core->PlainText([
+        "BBCodes" => 1,
+        "Data" => $author["Personal"]["Description"],
+        "Display" => 1,
+        "HTMLDecode" => 1
+       ]) : $description;
+       $share = ($ck == 1 || $article["Privacy"] == md5("Public")) ? 1 : 0;
+       $share = ($share == 1) ? $this->core->Element(["button", "Share", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Share"]
+       ]]) : "";
+       $verified = $author["Verified"] ?? 0;
+       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+       $r = $this->core->Change([[
+        "[Article.Actions]" => $actions,
+        "[Article.Attachments]" => $_Article["ListItem"]["Attachments"],
+        "[Article.Back]" => $back,
+        "[Article.Body]" => $this->core->PlainText([
+         "Data" => $article["Body"],
+         "Decode" => 1
+        ]),
+        "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
+        "[Article.Conversation]" => $this->core->Change([[
+         "[Conversation.CRID]" => $id,
+         "[Conversation.CRIDE]" => base64_encode($id),
+         "[Conversation.Level]" => base64_encode(1),
+         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+        ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+        "[Article.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
+        "[Article.Created]" => $this->core->TimeAgo($article["Created"]),
+        "[Article.Description]" => $_Article["ListItem"]["Description"],
+        "[Article.ID]" => $id,
+        "[Article.Modified]" => $_Article["ListItem"]["Modified"],
+        "[Article.Notes]" => $options["Notes"],
+        "[Article.Report]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;$id")),
+        "[Article.Share]" => $share,
+        "[Article.Subscribe]" => $options["Subscribe"],
+        "[Article.Title]" => $_Article["ListItem"]["Title"],
+        "[Article.Votes]" => $options["Vote"],
+        "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
+        "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
+        "[Member.Description]" => $description
+       ], $this->core->Extension("b793826c26014b81fdc1f3f94a52c9a6")]);
+      }
      } else {
-      $r = $_Article["ListItem"]["Body"];
+      $r = $article["Body"];
      }
     }
    }
@@ -465,6 +503,7 @@
      $modifiedBy = $article["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["Posts"];
+     $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Articles"];
      $products = $article["Products"] ?? [];
      $subscribers = $article["Subscribers"] ?? [];
@@ -543,6 +582,7 @@
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $nsfw,
+      "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
       "Products" => $products,
       "Title" => $title,

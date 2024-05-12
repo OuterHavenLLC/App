@@ -741,8 +741,7 @@
     ];
    } else {
     $accessCode = "Accepted";
-    $back = $data["back"] ?? 0;
-    $back = ($back == 1) ? $this->core->Element(["button", "Back", [
+    $back = (!empty($parentPage)) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent LI head",
      "data-type" => $parentPage
     ]]) : "";

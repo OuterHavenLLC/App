@@ -436,6 +436,7 @@
   }
   function GetContentData(array $content) {
    $attachments = "";
+   $backTo = $content["BackTo"] ?? "";
    $body = "";
    $blockCommand = $content["Blacklisted"] ?? 0;
    $blockCommand = ($blockCommand == 0) ? "Block" : "Unblock";
@@ -449,6 +450,7 @@
    $id = $content["ID"] ?? "";
    $id = explode(";", base64_decode($id));
    $options = [];
+   $parentPage = $content["ParentPage"] ?? "";
    $title = "";
    $type = $id[0] ?? "";
    $vote = "";
@@ -525,7 +527,7 @@
        "Notes" => $congressionalNotes,
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID;$additionalContentID")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=$contentID&Post=$additionalContentID&b2=".$content["BackTo"]."&back=1"),
+       "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=$contentID&Post=$additionalContentID&b2=$backTo&back=1"),
        "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=2")
       ];
      }
@@ -669,11 +671,10 @@
       $body = $this->PlainText([
        "Data" => $body,
        "Decode" => 1,
-       "HTMLDecode" => 1
+       #"HTMLDecode" => 1
       ]);
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
-      $view = (!empty($content["BackTo"]) && !empty($content["ParentPage"])) ? base64_encode("v=".base64_encode("Page:Home")."&b2=".$content["BackTo"]."&back=1&lPG=".$content["ParentPage"]."&ID=$contentID") : base64_encode("v=".base64_encode("Page:Home")."&ID=$contentID");
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Pages")),
@@ -685,7 +686,7 @@
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;".$contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Article"),
-       "View" => $view,
+       "View" => base64_encode("v=".base64_encode("Page:Home")."&BackTo=$backTo&ID=$contentID&ParentPage=$parentPage"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
       ];
      }

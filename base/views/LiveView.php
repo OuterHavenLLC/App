@@ -68,6 +68,8 @@
    $mediaType = base64_decode($mediaType);
    $i = 0;
    $id = $data["ID"] ?? "";
+   $quantity = $data["PreviewQuantity"] ?? base64_encode("Single");
+   $quantity = base64_decode($quantity);
    $r = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];

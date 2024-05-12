@@ -1856,47 +1856,46 @@
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
+    $bl = $this->core->CheckBlocked([$t, "Members", $you]);
     $extension = $this->core->Extension("90bfbfb86908fdc401c79329bedd7df5");
     foreach($t["Pages"] as $key => $value) {
-     $article = $this->core->Data("Get", ["pg", $value]) ?? [];
-     if(!empty($article)) {
-     $searchType = str_replace("MBR-", "", $searchType);
-     $t = $this->core->Member($article["UN"]);
-     $cms = $this->core->Data("Get", [
-      "cms",
-      md5($t["Login"]["Username"])
-     ]) ?? [];
-     $b2 = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
-     $bl = $this->core->CheckBlocked([$t, "Members", $you]);
-     $illegal = $article["Illegal"] ?? 0;
-     $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     $theirPrivacy = $t["Privacy"];
-     $privacy = $theirPrivacy["Profile"];
-     $privacy = ($searchType == "CA") ? $theirPrivacy["Contributions"] : $privacy;
-     $privacy = ($searchType == "JE") ? $theirPrivacy["Journal"] : $privacy;
-     $ck = ($article["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-     $ck2 = $this->core->CheckPrivacy([
-      "Contacts" => $cms["Contacts"],
-      "Privacy" => $privacy,
-      "UN" => $article["UN"],
-      "Y" => $you
+     $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
+     $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
+     $_Article = $this->core->GetContentData([
+      "BackTo" => $backTo,
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Page;$value"),
+      "ParentPage" => $lpg
      ]);
-     $ck3 = ($illegal == 0 && $article["Category"] == $searchType) ? 1 : 0;
-     $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-     $ck2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
-     if($ck == 1 && $ck2 == 1) {
-      array_push($msg, [
-       "[Article.Title]" => base64_encode($article["Title"]),
-       "[Article.Subtitle]" => base64_encode("Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"])."."),
-       "[Article.Description]" => base64_encode($this->core->PlainText([
-        "BBCodes" => 1,
-        "Data" => $article["Description"],
-        "Display" => 1,
-        "HTMLDecode" => 1
-       ])),
-       "[Article.ViewPage]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("Page:Home")."&b2=$b2&back=1&lPG=$lpg&ID=$value"))
+     if($_Article["Empty"] == 0) {
+      $options = $_Article["ListItem"]["Options"];
+      $searchType = str_replace("MBR-", "", $searchType);
+      $article = $_Article["DataModel"];
+      $illegal = $article["Illegal"] ?? 0;
+      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+      $theirPrivacy = $t["Privacy"];
+      $privacy = $theirPrivacy["Profile"];
+      $privacy = ($searchType == "CA") ? $theirPrivacy["Contributions"] : $privacy;
+      $privacy = ($searchType == "JE") ? $theirPrivacy["Journal"] : $privacy;
+      $ck = ($article["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $ck2 = $this->core->CheckPrivacy([
+       "Contacts" => $cms["Contacts"],
+       "Privacy" => $privacy,
+       "UN" => $article["UN"],
+       "Y" => $you
       ]);
-     }
+      $ck3 = ($illegal == 0 && $article["Category"] == $searchType) ? 1 : 0;
+      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
+      $ck2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
+      if($ck == 1 && $ck2 == 1) {
+       array_push($msg, [
+        "[Article.Subtitle]" => base64_encode("Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"])."."),
+        "[Article.Description]" => base64_encode($_Article["ListItem"]["Description"]),
+        "[Article.ParentPage]" => base64_encode($lpg),
+        "[Article.Title]" => base64_encode($_Article["ListItem"]["Title"]),
+        "[Article.ViewPage]" => base64_encode($options["View"])
+       ]);
+      }
      }
     }
    } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
