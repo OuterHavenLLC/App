@@ -406,16 +406,13 @@
   }
   function Bulletins(array $a) {
    $accessCode = "Denied";
+   $extension = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
    $r = [];
-   $tpl = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
     $accessCode = "Accepted";
-    $bulletins = $this->core->Data("Get", [
-     "bulletins",
-     md5($you)
-    ]) ?? [];
+    $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]) ?? [];
     if(!empty($bulletins)) {
      foreach($bulletins as $key => $value) {
       if($value["Seen"] == 0) {
@@ -448,7 +445,7 @@
    return $this->core->JSONResponse([
     $accessCode,
     base64_encode(json_encode($r, true)),
-    base64_encode($tpl)
+    base64_encode($extension)
    ]);
   }
   function ChangeRank(array $a) {
@@ -1018,23 +1015,20 @@
   }
   function Preferences(array $a) {
    $accessCode = "Denied";
-   $action = "";
    $minAge = $this->core->config["minRegAge"] ?? 13;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $ck = ($y["Personal"]["Age"] >= $minAge) ? 1 : 0;
-   $ck2 = ($this->core->ID != $you) ? 1 : 0;
-   if($ck == 0) {
-    $r = [
-     "Body" => "As a security measure, you must be aged $minAge or older in order to take full control of your profile and absolve yourself of your parent account.",
-     "Header" => "Not of Age"
-    ];
-   } elseif($ck2 == 0) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif($ck == 1 && $ck2 == 1) {
+   } elseif($y["Personal"]["Age"] < $minAge) {
+    $r = [
+     "Body" => "As a security measure, you must be aged $minAge or older in order to take full control of your profile and absolve yourself of your parent account.",
+     "Header" => "Not of Age"
+    ];
+   } else {
     $accessCode = "Accepted";
     $id = md5($you);
     $birthMonths = [];
@@ -1071,7 +1065,6 @@
      "[Preferences.Links.NewPIN]" => base64_encode("v=".base64_encode("Profile:NewPIN")),
      "[Preferences.Personal.Electable]" => $chooseElectable,
      "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
-
      "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
      "[Preferences.Privacy.Archive]" => $y["Privacy"]["Archive"],
      "[Preferences.Privacy.Articles]" => $y["Privacy"]["Articles"],
@@ -1099,10 +1092,7 @@
      "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
      "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
      "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
-     "[Preferences.Save]" => $this->core->Element(["button", "Save", [
-      "class" => "BBB OpenDialog v2 v2w",
-      "data-view" => base64_encode("v=".base64_encode("Authentication:AuthorizeChange")."&Form=".base64_encode(".Preferences$id")."&ID=$id&Processor=".base64_encode("v=".base64_encode("Profile:Save"))."&Text=".base64_encode("Are you sure you want to update your preferences?"))
-     ]])
+     "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
     ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
    return $this->core->JSONResponse([

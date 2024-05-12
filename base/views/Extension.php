@@ -131,7 +131,7 @@
   function SaveDelete(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
+   $key = $data["Key"] ?? "";
    $id = $data["ID"] ?? "";
    $pin = $data["PIN"] ?? "";
    $r = [
@@ -152,10 +152,11 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $this->core->Data("Purge", ["extension", $id]);
+    #$this->core->Data("Purge", ["extension", $id]);
     $r = [
      "Body" => "The App Extension was deleted.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => "$key: $id: $pin"
     ];
    }
    return $this->core->JSONResponse([

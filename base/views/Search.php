@@ -578,10 +578,15 @@
      $extensions = $this->core->DatabaseSet("Extensions");
      foreach($extensions as $key => $value) {
       $value = str_replace("nyc.outerhaven.extension.", "", $value);
+      $viewData = json_encode([
+       "Key" => $y["Login"]["PIN"],
+       "ID" => $value,
+       "v" => base64_encode("Extension:SaveDelete")
+      ], true);
       $info = $this->core->Data("Get", ["extension", $value]) ?? [];
       array_push($msg, [
        "[Extension.Category]" => base64_encode($info["Category"]),
-       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:DeleteExtension")."&ID=$value")),
+       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))),
        "[Extension.Description]" => base64_encode($info["Description"]),
        "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($value))),
        "[Extension.ID]" => base64_encode($value),
@@ -2010,17 +2015,15 @@
       ]);
       if($_Article["Empty"] == 0) {
        $article = $_Article["DataModel"];
-       if($article["Category"] != "EXT") {
-        $options = $_Article["ListItem"]["Options"];
-        array_push($msg, [
-         "[Extension.Category]" => base64_encode($article["Category"]),
-         "[Extension.Delete]" => base64_encode($options["Delete"]),
-         "[Extension.Description]" => base64_encode($_Article["ListItem"]["Description"]),
-         "[Extension.Edit]" => base64_encode($options["Edit"]),
-         "[Extension.ID]" => base64_encode($value),
-         "[Extension.Title]" => base64_encode($_Article["ListItem"]["Title"])
-        ]);
-       }
+       $options = $_Article["ListItem"]["Options"];
+       array_push($msg, [
+        "[Extension.Category]" => base64_encode($article["Category"]),
+        "[Extension.Delete]" => base64_encode($options["Delete"]),
+        "[Extension.Description]" => base64_encode($_Article["ListItem"]["Description"]),
+        "[Extension.Edit]" => base64_encode($options["Edit"]),
+        "[Extension.ID]" => base64_encode($value),
+        "[Extension.Title]" => base64_encode($_Article["ListItem"]["Title"])
+       ]);
       }
      }
     }
