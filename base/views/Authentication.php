@@ -447,45 +447,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function DeletePage(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
-   $r = [
-    "Body" => "The Article Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must sign in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($data["ID"])) {
-    $accessCode = "Accepted";
-    $dialogID = "Delete".$data["ID"];
-    $page = $this->core->Data("Get", ["pg", $data["ID"]]) ?? [];
-    $r = [
-     "Body" => "You are about to permanently delete ".$page["Title"].".",
-     "Header" => "Delete",
-     "ID" => $dialogID,
-     "Scrollable" => $this->core->Change([[
-      "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
-      "[Delete.ID]" => $page["ID"],
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Page:SaveDelete")),
-      "[Delete.Title]" => $page["Title"]
-     ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function DeletePoll(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];

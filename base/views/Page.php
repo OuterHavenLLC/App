@@ -683,19 +683,24 @@
   function SaveDelete(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $pin = $data["PIN"] ?? "";
    $r = [
     "Body" => "The Article Identifier is missing.",
     "Header" => "Error"
    ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($pin) != $y["Login"]["PIN"]) {
+   if(empty($key)) {
     $r = [
-     "Body" => "The PINs do not match.",
-     "Header" => "Error"
+     "Body" => "The Key is missing."
+    ];
+   } elseif(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The Keys do not match."
     ];
    } elseif($this->core->ID == $you) {
     $r = [
@@ -704,6 +709,7 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
+    $id = base64_decode($id);
     $newArticles = [];
     $articles = $y["Pages"] ?? [];
     foreach($articles as $key => $value) {
@@ -713,25 +719,27 @@
     }
     $y["Pages"] = $newArticles;
     $article = $this->core->Data("Get", ["pg", $id]);
-    $article["Purge"] = 1;
-    #$this->core->Data("Save", ["pg", $id, $article]);
+    if(!empty($article)) {
+     $article["Purge"] = 1;
+     $this->core->Data("Save", ["pg", $id, $article]);
+    }
     $chat = $this->core->Data("Get", ["chat", $id]);
-    $chat["Purge"] = 1;
-    #$this->core->Data("Save", ["chat", $id, $chat]);
+    if(!empty($chat)) {
+     $chat["Purge"] = 1;
+     $this->core->Data("Save", ["chat", $id, $chat]);
+    }
     $conversation = $this->core->Data("Get", ["conversation", $id]);
-    $conversation["Purge"] = 1;
-    #$this->core->Data("Save", ["conversation", $id, $conversation]);
-    #$this->core->Data("Purge", ["translate", $id]);
-    #$this->core->Data("Purge", ["votes", $id]);
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
+    }
+    $this->core->Data("Purge", ["translate", $id]);
+    $this->core->Data("Purge", ["votes", $id]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
-     "p", "The Article and dependencies were marked for purging."
+     "p", "The Article and dependencies were marked for purging.", ["class" => "CenterText"]
     ]).$this->core->Element([
-     "p", "Debug Data: ".json_encode([
-      $article,
-      $chat,
-      $conversation
-     ], true)
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
    }
    return $this->core->JSONResponse([
