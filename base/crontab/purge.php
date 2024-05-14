@@ -14,26 +14,14 @@
   if(!empty($database[3])) {
    $data = $oh->core->Data("Get", [$database[2], $database[3]]) ?? [];
    $purge = $data["Purge"] ?? 0;
-   if($purge == 1) {
+   if(empty($data) || $purge == 1) {
     $purged++;
     $r .= "<p>Purging ".implode(".", $database)."...";
     $oh->core->Data("Purge", [$database[2], $database[3]]);
-    $chat = $this->core->Data("Get", ["chat", $database[3]]);
-    if(!empty($chat)) {
-     $this->core->Data("Purge", ["chat", $database[3]]);
-    }
-    $conversation = $this->core->Data("Get", ["conversation", $database[3]]);
-    if(!empty($conversation)) {
-     $this->core->Data("Purge", ["conversation", $database[3]]);
-    }
-    $translate = $this->core->Data("Get", ["translate", $database[3]]);
-    if(!empty($translate)) {
-     $this->core->Data("Purge", ["translate", $database[3]]);
-    }
-    $votes = $this->core->Data("Get", ["votes", $database[3]]);
-    if(!empty($votes)) {
-     $this->core->Data("Purge", ["votes", $database[3]]);
-    }
+    $oh->core->Data("Purge", ["chat", $database[3]]);
+    $oh->core->Data("Purge", ["conversation", $database[3]]);
+    $oh->core->Data("Purge", ["translate", $database[3]]);
+    $oh->core->Data("Purge", ["votes", $database[3]]);
     $r .= "OK</p>\r\n";
    }
   }
