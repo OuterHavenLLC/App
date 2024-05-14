@@ -686,7 +686,7 @@
     ], $this->core->Extension("a1f9348036f81e1e9b79550e03f825fb")]);
     $r = ($dialog == 1) ? [
      "Body" => $r,
-     "Header" => "Protected Content",
+     "Header" => "Authentication Required",
      "NoClose" => 1
     ] : $r;
     $responseType = ($dialog == 1) ? "Dialog" : "View";

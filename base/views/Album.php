@@ -283,16 +283,14 @@
      $conversation = $this->core->Data("Get", ["conversation", $id]);
      if(!empty($conversation)) {
       $conversation["Purge"] = 1;
-      #$this->core->Data("Save", ["conversation", $id, $conversation]);
+      $this->core->Data("Save", ["conversation", $id, $conversation]);
      }
-     #$this->core->Data("Purge", ["translate", $id]);
-     #$this->core->Data("Purge", ["votes", $id]);
-     #$this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
+     $this->core->Data("Purge", ["translate", $id]);
+     $this->core->Data("Purge", ["votes", $id]);
+     $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
      $r = $this->core->Element([
       "p", "The Album <em>$title</em> was successfully deleted, and dependencies were marked for purging.",
       ["class" => "CenterText"]
-     ]).$this->core->Element([
-      "p", json_encode([$_FileSystem, $conversation], true)
      ]).$this->core->Element([
       "button", "Okay", ["class" => "CloseDialog v2 v2w"]
      ]);
