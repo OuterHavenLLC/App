@@ -20,16 +20,20 @@
     $oh->core->Data("Purge", [$database[2], $database[3]]);
     $chat = $this->core->Data("Get", ["chat", $database[3]]);
     if(!empty($chat)) {
-     $chat["Purge"] = 1;
-     $this->core->Data("Save", ["chat", $database[3], $chat]);
+     $this->core->Data("Purge", ["chat", $database[3]]);
     }
     $conversation = $this->core->Data("Get", ["conversation", $database[3]]);
     if(!empty($conversation)) {
-     $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
+     $this->core->Data("Purge", ["conversation", $database[3]]);
     }
-    $this->core->Data("Purge", ["translate", $database[3]]);
-    $this->core->Data("Purge", ["votes", $database[3]]);
+    $translate = $this->core->Data("Get", ["translate", $database[3]]);
+    if(!empty($translate)) {
+     $this->core->Data("Purge", ["translate", $database[3]]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $database[3]]);
+    if(!empty($votes)) {
+     $this->core->Data("Purge", ["votes", $database[3]]);
+    }
     $r .= "OK</p>\r\n";
    }
   }
