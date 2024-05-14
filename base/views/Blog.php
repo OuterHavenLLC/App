@@ -174,8 +174,7 @@
     "CallSign",
     "ID",
     "back",
-    "lPG",
-    "pub"
+    "lPG"
    ]);
    $bck = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back to Blogs", [
@@ -202,6 +201,7 @@
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
       $id = $value;
+      break;
      }
     }
    } if(!empty($id) || $i > 0) {
@@ -396,15 +396,15 @@
      $blogPost = $this->core->Data("Get", ["bp", $value]);
      if(!empty($blogPost)) {
       $blogPost["Purge"] = 1;
-      #$this->core->Data("Save", ["bp", $value, $blogPost]);
+      $this->core->Data("Save", ["bp", $value, $blogPost]);
      }
      $conversation = $this->core->Data("Get", ["conversation", $value]);
      if(!empty($conversation)) {
       $conversation["Purge"] = 1;
-      #$this->core->Data("Save", ["conversation", $value, $conversation]);
+      $this->core->Data("Save", ["conversation", $value, $conversation]);
      }
-     #$this->core->Data("Purge", ["translate", $value]);
-     #$this->core->Data("Purge", ["votes", $value]);
+     $this->core->Data("Purge", ["translate", $value]);
+     $this->core->Data("Purge", ["votes", $value]);
     } foreach($blogs as $key => $value) {
      if($id != $value) {
       array_push($newBlogs, $value);
@@ -414,26 +414,24 @@
     $blog = $this->core->Data("Get", ["blg", $id]);
     if(!empty($blog)) {
      $blog["Purge"] = 1;
-     #$this->core->Data("Save", ["chat", $id, $blog]);
+     $this->core->Data("Save", ["chat", $id, $blog]);
     }
     $chat = $this->core->Data("Get", ["chat", $id]);
     if(!empty($chat)) {
      $chat["Purge"] = 1;
-     #$this->core->Data("Save", ["chat", $id, $chat]);
+     $this->core->Data("Save", ["chat", $id, $chat]);
     }
     $conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     #$this->core->Data("Save", ["conversation", $id, $conversation]);
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
     }
-    #$this->core->Data("Purge", ["translate", $id]);
-    #$this->core->Data("Purge", ["votes", $id]);
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Purge", ["translate", $id]);
+    $this->core->Data("Purge", ["votes", $id]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
      "p", "The Blog <em>".$blog["Title"]."</em> was successfully deleted, and dependencies were marked for purging.",
      ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "p", json_encode([$blog, $chat, $conversation], true)
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
@@ -494,6 +492,7 @@
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
+     $purge = $data["Purge"] ?? 0;
      $posts = $blog["Posts"] ?? [];
      if(!empty($data["CoverPhoto"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["CoverPhoto"])));
@@ -533,6 +532,7 @@
       "Description" => htmlentities($data["Description"]),
       "NSFW" => $nsfw,
       "Privacy" => $privacy,
+      "Purge" => $purge,
       "Posts" => $posts,
       "UN" => $author
      ];

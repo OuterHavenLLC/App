@@ -239,6 +239,7 @@
      if($i == 0) {
       if($id != $value["ID"] && $title == $value["Title"]) {
        $i++;
+       break;
       }
      }
     } if($i > 0) {
@@ -259,8 +260,10 @@
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
+     $purge = $data["Purge"] ?? 0;
      if(!empty($data["rATTI"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
+      $i = 0;
       foreach($dlc as $dlc) {
        if(!empty($dlc) && $i == 0) {
         $f = explode("-", base64_decode($dlc));
@@ -305,6 +308,7 @@
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $nsfw,
       "Privacy" => $privacy,
+      "Purge" => $purge,
       "Title" => $title,
       "TPL" => $data["TPL-BLG"],
       "UN" => $author
