@@ -502,11 +502,16 @@
      if($empty == 0) {
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($contentID),
+       "v" => base64_encode("Blog:Purge")
+      ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Blogs")),
        "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlog")."&ID=".base64_encode($contentID)),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("Blog:Edit")."&BLG=$contentID"),
        "Invite" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=".base64_encode($contentID)),
        "Post" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),

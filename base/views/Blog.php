@@ -363,6 +363,86 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $pin = $data["PIN"] ?? "";
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $y["Login"]["PIN"]) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $id = base64_decode($id);
+    $blogs = $y["Blogs"] ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+    $newBlogs = [];
+    foreach($blog["Posts"] as $key => $value) {
+     $conversation = $this->core->Data("Get", ["conversation", $value]);
+     if(!empty($conversation)) {
+      $conversation["Purge"] = 1;
+      #$this->core->Data("Save", ["conversation", $value, $conversation]);
+     }
+     #$this->core->Data("Purge", ["translate", $value]);
+     #$this->core->Data("Purge", ["votes", $value]);
+    } foreach($blogs as $key => $value) {
+     if($id != $value) {
+      array_push($newBlogs, $value);
+     }
+    }
+    $y["Blogs"] = $newBlogs;
+    $blog = $this->core->Data("Get", ["blg", $id]);
+    if(!empty($blog)) {
+     $blog["Purge"] = 1;
+     #$this->core->Data("Save", ["chat", $id, $blog]);
+    }
+    $chat = $this->core->Data("Get", ["chat", $id]);
+    if(!empty($chat)) {
+     $chat["Purge"] = 1;
+     #$this->core->Data("Save", ["chat", $id, $chat]);
+    }
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     #$this->core->Data("Save", ["conversation", $id, $conversation]);
+    }
+    #$this->core->Data("Purge", ["translate", $id]);
+    #$this->core->Data("Purge", ["votes", $id]);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = $this->core->Element([
+     "p", "The Blog <em>".$blog["Title"]."</em> was successfully deleted, and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "p", json_encode([$blog, $chat, $conversation], true)
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -521,67 +601,6 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $id = $data["ID"] ?? "";
-   $pin = $data["PIN"] ?? "";
-   $r = [
-    "Body" => "The Blog Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($pin) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $blogs = $y["Blogs"] ?? [];
-    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
-    $newBlogs = [];
-    foreach($blog["Posts"] as $key => $value) {
-     $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => $value]
-     ]);
-     $this->core->Data("Purge", ["local", $value]);
-     $this->core->Data("Purge", ["post", $value]);
-     $this->core->Data("Purge", ["votes", $value]);
-    } foreach($blogs as $key => $value) {
-     if($id != $value) {
-      array_push($newBlogs, $value);
-     }
-    }
-    $y["Blogs"] = $newBlogs;
-    $this->view(base64_encode("Conversation:SaveDelete"), [
-     "Data" => ["ID" => $id]
-    ]);
-    $this->core->Data("Purge", ["blg", $id]);
-    $this->core->Data("Purge", ["chat", $id]);
-    $this->core->Data("Purge", ["local", $id]);
-    $this->core->Data("Purge", ["react", $id]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = [
-     "Body" => "The Blog <em>".$blog["Title"]."</em> was deleted.",
-     "Header" => "Done"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function SendInvite(array $a) {

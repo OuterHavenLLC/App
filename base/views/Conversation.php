@@ -416,37 +416,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Conversation Identifier is missing."
-   ];
-   if(!empty($id)) {
-    $conversation = $this->core->Data("Get", [
-     "conversation",
-     $id
-    ]) ?? [];
-    foreach($conversation as $key => $value) {
-     $this->core->Data("Purge", ["local", $key]);
-     $this->core->Data("Purge", ["votes", $key]);
-    }
-    $this->core->Data("Purge", ["conversation", $id]);
-    $r = [
-     "Body" => "The Conversation was deleted.",
-     "Header" => "Done"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function __destruct() {
    // DESTROYS THIS CLASS
   }
