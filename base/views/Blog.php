@@ -393,6 +393,11 @@
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $newBlogs = [];
     foreach($blog["Posts"] as $key => $value) {
+     $blogPost = $this->core->Data("Get", ["bp", $value]);
+     if(!empty($blogPost)) {
+      $blogPost["Purge"] = 1;
+      #$this->core->Data("Save", ["bp", $value, $blogPost]);
+     }
      $conversation = $this->core->Data("Get", ["conversation", $value]);
      if(!empty($conversation)) {
       $conversation["Purge"] = 1;
