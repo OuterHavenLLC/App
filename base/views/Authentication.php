@@ -101,7 +101,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $album["ID"],
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Album:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Album:Purge")),
       "[Delete.Title]" => $album["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -117,7 +117,7 @@
   }
   function DeleteBlog(array $a) {
    $accessCode = "Denied";
-   $delete = base64_encode("Blog:SaveDelete");
+   $delete = base64_encode("Blog:Purge");
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $r = [
@@ -142,7 +142,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $blog["ID"],
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Blog:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Blog:Purge")),
       "[Delete.Title]" => $blog["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -182,7 +182,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => base64_decode($data["ID"]),
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("BlogPost:Purge")),
       "[Delete.Title]" => $post["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -222,7 +222,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $id,
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Chat:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Chat:Purge")),
       "[Delete.Title]" => $chat["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -260,7 +260,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $data["ID"],
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("DiscountCode:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("DiscountCode:Purge")),
       "[Delete.Title]" => "this Discount Code"
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -300,7 +300,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $id,
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Extension:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Extension:Purge")),
       "[Delete.Title]" => $title
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -347,7 +347,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => base64_encode("$username-$id"),
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("File:SaveDelete")."&ParentView=".$data["ParentView"]),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("File:Purge")."&ParentView=".$data["ParentView"]),
       "[Delete.Title]" => $file["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -393,7 +393,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $id,
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Forum:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Forum:Purge")),
       "[Delete.Title]" => $title
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -433,7 +433,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => base64_encode("$fid-$id"),
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("ForumPost:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("ForumPost:Purge")),
       "[Delete.Title]" => $post["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -472,7 +472,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $id,
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Poll:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Poll:Purge")),
       "[Delete.Title]" => $poll["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -511,7 +511,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $id,
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("Product:Purge")),
       "[Delete.Title]" => $product["Title"]
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];
@@ -550,7 +550,7 @@
      "Scrollable" => $this->core->Change([[
       "[Delete.AuthorizationID]" => md5($this->core->timestamp.$you),
       "[Delete.ID]" => $id,
-      "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:SaveDelete")),
+      "[Delete.Processor]" => base64_encode("v=".base64_encode("StatusUpdate:Purge")),
       "[Delete.Title]" => "this post"
      ], $this->core->Extension("fca4a243a55cc333f5fa35c8e32dd2a0")])
     ];

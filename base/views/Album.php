@@ -124,10 +124,15 @@
      ]) : "";
      if($ck == 1) {
       $accessCode = "Accepted";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($id),
+       "v" => base64_encode("Album:Purge")
+      ], true);
       $actions .= ($id != md5("unsorted")) ? $this->core->Element([
        "button", "Delete", [
         "class" => "CloseCard OpenDialog Small v2 v2w",
-        "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteAlbum")."&AID=$id&UN=$secureUsername")
+        "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
        ]
       ]) : "";
       $actions .= $this->core->Element(["button", "Edit", [
@@ -228,6 +233,80 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Album Identifier is missing."
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $id = base64_decode($id);
+    $r = [
+     "Body" => "The default Album cannot be deleted."
+    ];
+    if($id != md5("unsorted")) {
+     $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
+     $accessCode = "Accepted";
+     $albums = $_FileSystem["Albums"] ?? [];
+     $files = $_FileSystem["Files"] ?? [];
+     $newAlbums = [];
+     $newFiles = [];
+     $title = $albums[$id]["Title"] ?? "Album";
+     foreach($albums as $key => $value) {
+      if($key != $id && $value["ID"] != $id) {
+       $newAlbums[$key] = $value;
+      }
+     } foreach($files as $key => $value) {
+      if($value["AID"] == $id) {
+       $value["AID"] = md5("unsorted");
+       $newFiles[$key] = $value;
+      }
+     }
+     $_FileSystem["Albums"] = $newAlbums;
+     $_FileSystem["Files"] = $newFiles;
+     $conversation = $this->core->Data("Get", ["conversation", $id]);
+     if(!empty($conversation)) {
+      $conversation["Purge"] = 1;
+      #$this->core->Data("Save", ["conversation", $id, $conversation]);
+     }
+     #$this->core->Data("Purge", ["translate", $id]);
+     #$this->core->Data("Purge", ["votes", $id]);
+     #$this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
+     $r = $this->core->Element([
+      "p", "The Album <em>$title</em> was successfully deleted, and dependencies were marked for purging.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "p", json_encode([$_FileSystem, $conversation], true)
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]);
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -286,71 +365,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Album Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $r = [
-     "Body" => "The default Album cannot be deleted."
-    ];
-    if($id != md5("unsorted")) {
-     $accessCode = "Accepted";
-     $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
-     $albums = $_FileSystem["Albums"] ?? [];
-     $files = $_FileSystem["Files"] ?? [];
-     $newAlbums = [];
-     $newFiles = [];
-     $title = $albums[$id]["Title"] ?? "Album";
-     foreach($albums as $key => $value) {
-      if($key != $id && $value["ID"] != $id) {
-       $newAlbums[$key] = $value;
-      }
-     } foreach($files as $key => $value) {
-      if($value["AID"] == $id) {
-       $value["AID"] = md5("unsorted");
-       $newFiles[$key] = $value;
-      }
-     }
-     $_FileSystem["Albums"] = $newAlbums;
-     $_FileSystem["Files"] = $newFiles;
-     $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => $id]
-     ]);
-     $this->core->Data("Purge", ["local", $id]);
-     $this->core->Data("Purge", ["votes", $id]);
-     $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
-     $r = [
-      "Body" => "The Album <em>$title</em> was successfully deleted.",
-      "Header" => "Done"
-     ];
-    }
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function __destruct() {

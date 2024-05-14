@@ -454,6 +454,79 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Article Identifier is missing.",
+    "Header" => "Error"
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(empty($key)) {
+    $r = [
+     "Body" => "The Key is missing."
+    ];
+   } elseif(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The Keys do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $id = base64_decode($id);
+    $newArticles = [];
+    $articles = $y["Pages"] ?? [];
+    foreach($articles as $key => $value) {
+     if($id != $value) {
+      array_push($newArticles, $value);
+     }
+    }
+    $y["Pages"] = $newArticles;
+    $article = $this->core->Data("Get", ["pg", $id]);
+    if(!empty($article)) {
+     $article["Purge"] = 1;
+     $this->core->Data("Save", ["pg", $id, $article]);
+    }
+    $chat = $this->core->Data("Get", ["chat", $id]);
+    if(!empty($chat)) {
+     $chat["Purge"] = 1;
+     $this->core->Data("Save", ["chat", $id, $chat]);
+    }
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
+    }
+    $this->core->Data("Purge", ["translate", $id]);
+    $this->core->Data("Purge", ["votes", $id]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = $this->core->Element([
+     "p", "The Article and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -678,78 +751,6 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $key = $data["Key"] ?? base64_encode("");
-   $key = base64_decode($key);
-   $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Article Identifier is missing.",
-    "Header" => "Error"
-   ];
-   $secureKey = $data["SecureKey"] ?? base64_encode("");
-   $secureKey = base64_decode($secureKey);
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(empty($key)) {
-    $r = [
-     "Body" => "The Key is missing."
-    ];
-   } elseif(md5($key) != $secureKey) {
-    $r = [
-     "Body" => "The Keys do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $newArticles = [];
-    $articles = $y["Pages"] ?? [];
-    foreach($articles as $key => $value) {
-     if($id != $value) {
-      array_push($newArticles, $value);
-     }
-    }
-    $y["Pages"] = $newArticles;
-    $article = $this->core->Data("Get", ["pg", $id]);
-    if(!empty($article)) {
-     $article["Purge"] = 1;
-     $this->core->Data("Save", ["pg", $id, $article]);
-    }
-    $chat = $this->core->Data("Get", ["chat", $id]);
-    if(!empty($chat)) {
-     $chat["Purge"] = 1;
-     $this->core->Data("Save", ["chat", $id, $chat]);
-    }
-    $conversation = $this->core->Data("Get", ["conversation", $id]);
-    if(!empty($conversation)) {
-     $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
-    }
-    $this->core->Data("Purge", ["translate", $id]);
-    $this->core->Data("Purge", ["votes", $id]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->core->Element([
-     "p", "The Article and dependencies were marked for purging.", ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function SendInvite(array $a) {

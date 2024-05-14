@@ -127,6 +127,57 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Poll Identifier is missing."
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $id = base64_decode($id);
+    $newPolls = [];
+    $polls = $y["Polls"] ?? [];
+    foreach($polls as $key => $poll) {
+     if($id != $poll) {
+      array_push($newPolls, $poll);
+     }
+    }
+    $y["Polls"] = array_unique($newPolls);
+    $this->core->Data("Purge", ["poll", $id]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+     $r = $this->core->Element([
+      "p", "Your Poll was successfully deleted.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -166,6 +217,7 @@
     }
     $options = array_unique($options);
     $privacy = $data["Privacy"] ?? "";
+    $purge = $data["Purge"] ?? 0;
     $title = $data["Title"] ?? "";
     $poll = [
      "Created" => $this->core->timestamp,
@@ -173,6 +225,7 @@
      "NSFW" => $nsfw,
      "Options" => $options,
      "Privacy" => $privacy,
+     "Purge" => $purge,
      "Title" => $title,
      "UN" => $you,
      "Votes" => []
@@ -204,52 +257,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $id = $data["ID"] ?? "";
-   $pin = $data["PIN"] ?? "";
-   $r = [
-    "Body" => "The Poll Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($pin) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $newPolls = [];
-    $polls = $y["Polls"] ?? [];
-    foreach($polls as $key => $poll) {
-     if($id != $poll) {
-      array_push($newPolls, $poll);
-     }
-    }
-    $y["Polls"] = array_unique($newPolls);
-    $this->core->Data("Purge", ["poll", $id]);
-    $r = [
-     "Body" => "Your Poll was deleted.",
-     "Header" => "Done"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function Vote(array $a) {

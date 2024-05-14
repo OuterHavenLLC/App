@@ -678,7 +678,7 @@
       $viewData = json_encode([
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
-       "v" => base64_encode("Page:SaveDelete")
+       "v" => base64_encode("Page:Purge")
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
@@ -704,9 +704,14 @@
       $body = $data["Body"] ?? "";
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($contentID),
+       "v" => base64_encode("Poll:Purge")
+      ], true);
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Polls")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:DeletePoll")."&ID=$contentID"),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "View" => base64_encode("v=".base64_encode("Poll:Home")."&ID=$contentID")
       ];

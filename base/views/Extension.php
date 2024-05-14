@@ -77,6 +77,53 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? base64_encode("");
+   $id = base64_decode($id);
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $r = [
+    "Body" => "The Extension Identifier is missing.",
+    "Header" => "Error"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(empty($key)) {
+    $r = [
+     "Body" => "The Key is missing."
+    ];
+   } elseif(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The Keys do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $this->core->Data("Purge", ["extension", $id]);
+    $r = $this->core->Element([
+     "p", "The App Extension was deleted.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -126,52 +173,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $key = $data["Key"] ?? base64_encode("");
-   $key = base64_decode($key);
-   $id = $data["ID"] ?? base64_encode("");
-   $id = base64_decode($id);
-   $secureKey = $data["SecureKey"] ?? base64_encode("");
-   $secureKey = base64_decode($secureKey);
-   $r = [
-    "Body" => "The Extension Identifier is missing.",
-    "Header" => "Error"
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(empty($key)) {
-    $r = [
-     "Body" => "The Key is missing."
-    ];
-   } elseif(md5($key) != $secureKey) {
-    $r = [
-     "Body" => "The Keys do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $this->core->Data("Purge", ["extension", $id]);
-    $r = $this->core->Element([
-     "p", "The App Extension was deleted.", ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
    ]);
   }
   function __destruct() {

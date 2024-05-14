@@ -581,7 +581,7 @@
       $viewData = json_encode([
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($value),
-       "v" => base64_encode("Extension:SaveDelete")
+       "v" => base64_encode("Extension:Purge")
       ], true);
       $info = $this->core->Data("Get", ["extension", $value]) ?? [];
       array_push($msg, [
