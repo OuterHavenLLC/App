@@ -101,7 +101,6 @@
    $fsUsage = number_format(round($fsUsage / 1000));
    $fsUsage = str_replace(",", "", $fsUsage);
    if(!empty($id) && !empty($username)) {
-    $blockID = base64_encode("$username-$id");
     $bl = $this->core->CheckBlocked([$y, "Albums", $blockID]);
     $_Album = $this->core->GetContentData([
      "Blacklisted" => $bl,
@@ -112,32 +111,26 @@
      $album = $_Album["DataModel"];
      $t = ($username == $you) ? $y : $this->core->Member($username);
      $secureUsername = base64_encode($t["Login"]["Username"]);
-     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
-     $ck2 = $y["subscr"]["XFS"]["A"] ?? 0;
+     $ck2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
      $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
      $actions = ($ck == 0) ? $this->core->Element([
-      "button", $blockCommand, [
+      "button", "Block", [
        "class" => "Small UpdateButton v2",
-       "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($blockID)."&List=".base64_encode("Albums"))
+       "data-processor" => $options["Block"]
       ]
      ]) : "";
      if($ck == 1) {
       $accessCode = "Accepted";
-      $viewData = json_encode([
-       "SecureKey" => base64_encode($y["Login"]["PIN"]),
-       "ID" => base64_encode($id),
-       "v" => base64_encode("Album:Purge")
-      ], true);
       $actions .= ($id != md5("unsorted")) ? $this->core->Element([
        "button", "Delete", [
         "class" => "CloseCard OpenDialog Small v2 v2w",
-        "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
+        "data-view" => $options["Delete"]
        ]
       ]) : "";
       $actions .= $this->core->Element(["button", "Edit", [
        "class" => "OpenCard Small v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$id&UN=$secureUsername")
+       "data-view" => $optionsp["Edit"]
       ]]);
      }
      $actions = ($this->core->ID != $you) ? $actions : "";
@@ -145,13 +138,13 @@
      $actions .= ($share == 1) ? $this->core->Element([
       "button", "Share", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($id)."&Type=".base64_encode("Album")."&Username=$secureUsername")
+       "data-view" => $options["Share"]
       ]
      ]) : "";
      $actions .= ($ck == 1 && $ck2 == 1) ? $this->core->Element([
       "button", "Upload", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=$id&UN=$username")
+       "data-view" => $options["Upload"]
       ]
      ]) : "";
      $media = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
