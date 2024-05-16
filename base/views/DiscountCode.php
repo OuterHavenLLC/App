@@ -57,6 +57,57 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Code Identifier is missing.",
+    "Header" => "Error"
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $y["Login"]["PIN"]) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $id = base64_decode($id);
+    $discounts = $this->core->Data("Get", ["dc", md5($you)]) ?? [];
+    $newDiscounts = [];
+    foreach($discounts as $key => $value) {
+     if($id != $key) {
+      $newDiscounts[$key] = $value;
+     }
+    }
+    $discounts = $newDiscounts;
+    $this->core->Data("Save", ["dc", md5($you), $newDiscounts]);
+    $r = $this->core->Element([
+     "p", "The Discount Code was removed.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -109,47 +160,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID"]);
-   $r = [
-    "Body" => "The Code Identifier is missing.",
-    "Header" => "Error"
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($data["ID"])) {
-    $accessCode = "Accepted";
-    $discount = $this->core->Data("Get", ["dc", md5($you)]) ?? [];
-    $newDiscount = [];
-    foreach($discount as $key => $value) {
-     if($data["ID"] != $key) {
-      $newDiscount[$key] = $value;
-     }
-    }
-    $discount = $newDiscount;
-    $r = [
-     "Body" => "The Code was removed.",
-     "Header" => "Done"
-    ];
-    $this->core->Data("Save", ["dc", md5($you), $discount2]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function __destruct() {

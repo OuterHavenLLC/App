@@ -7,9 +7,8 @@
   function Banish(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Member"]);
-   $id = $data["ID"];
-   $mbr = $data["Member"];
+   $id = $data["ID"] ?? "";
+   $mbr = $data["Member"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
    ];

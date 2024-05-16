@@ -1430,9 +1430,14 @@
       md5($y["Login"]["Username"])
      ]) ?? [];
      foreach($x as $key => $value) {
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($key),
+       "v" => base64_encode("DiscountCode:Purge")
+      ], true);
       $options = $this->core->Element(["button", "Delete", [
        "class" => "A OpenDialog v2",
-       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteDiscountCode")."&ID=$key")
+       "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
       ]]).$this->core->Element(["button", "Edit", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("DiscountCode:Edit")."&ID=$key")

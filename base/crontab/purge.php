@@ -8,7 +8,7 @@
   "h1", $oh->core->config["App"]["Name"]."</em> Content Purge"
  ]).$oh->core->Element([
   "p", "Eliminates primary databases marked for purging, and deletes associated files for media marked for purging."]);
- $r .= $oh->core->Element(["p", "Purging content..."]);
+ $r .= $oh->core->Element(["p", "Checkinf for content to purge..."]);
  foreach($databases as $key => $database) {
   $database = explode(".", $database);
   if(!empty($database[3])) {
@@ -16,7 +16,7 @@
    $purge = $data["Purge"] ?? 0;
    if(empty($data) || $purge == 1) {
     $purged++;
-    $r .= "<p>Purging ".implode(".", $database)."...";
+    $r .= "<p>Purging data for ".implode(".", $database)."...";
     $oh->core->Data("Purge", [$database[2], $database[3]]);
     $oh->core->Data("Purge", ["chat", $database[3]]);
     $oh->core->Data("Purge", ["conversation", $database[3]]);
