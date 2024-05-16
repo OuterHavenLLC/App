@@ -250,21 +250,19 @@
     $blogPost = $this->core->Data("Get", ["bp", $postID]);
     if(!empty($blogPost)) {
      $blogPost["Purge"] = 1;
-     #$this->core->Data("Save", ["bp", $postID, $blogPost]);
+     $this->core->Data("Save", ["bp", $postID, $blogPost]);
     }
     $conversation = $this->core->Data("Get", ["conversation", $postID]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     #$this->core->Data("Save", ["conversation", $postID, $conversation]);
+     $this->core->Data("Save", ["conversation", $postID, $conversation]);
     }
-    #$this->core->Data("Purge", ["translate", $postID]);
-    #$this->core->Data("Purge", ["votes", $postID]);
-    #$this->core->Data("Save", ["blg", $blogID, $blogID]);
+    $this->core->Data("Purge", ["translate", $postID]);
+    $this->core->Data("Purge", ["votes", $postID]);
+    $this->core->Data("Save", ["blg", $blogID, $blogID]);
     $r = $this->core->Element([
      "p", "The Blog Post and dependencies were marked for purging.",
      ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "p", json_encode([$blog, $blogPost, $conversation], true)
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
