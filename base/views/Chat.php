@@ -600,15 +600,17 @@
   function Purge(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
-   $id = $data["ID"];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
    ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
+   if(md5($key) != $y["Login"]["PIN"]) {
     $r = [
      "Body" => "The PINs do not match."
     ];
@@ -619,6 +621,7 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
+    $id = base64_decode($id);
     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
     $chats = $y["GroupChats"] ?? [];
     $newChats = [];
@@ -628,13 +631,21 @@
      }
     }
     $y["GroupChats"] = $newChats;
-    #$this->core->Data("Purge", ["chat", $id]);
+    $chat = $this->core->Data("Get", ["chat", $id]);
+    if(!empty($chat)) {
+     $chat["Purge"] = 1;
+     #$this->core->Data("Save", ["chat", $id, $chat]);
+    }
+    #$this->core->Data("Purge", ["translate", $id, $translate]);
     #$this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = [
-     "Front" => "The Chat <em>".$chat["Title"]."</em> was deleted.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($y["GroupChats"], true)
-    ];
+    $r = $this->core->Element([
+     "p", "The Blog <em>".$chat["Title"]."</em> and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "p", json_encode([$chat, $y["GroupChats"]], true)
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

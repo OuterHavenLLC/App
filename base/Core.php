@@ -569,13 +569,18 @@
       $bookmarkCommand .= "Bookmark";
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($contentID),
+       "v" => base64_encode("Chat:Purge")
+      ], true);
       $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
       $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Group Chats")),
        "Bookmark" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($contentID)),
        "Contributors" => $contributors,
-       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteChat")."&ID=".base64_encode($contentID)),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($contentID)."&Username=".base64_encode($data["UN"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "View" => base64_encode($view)
