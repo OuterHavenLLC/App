@@ -369,7 +369,6 @@
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $pin = $data["PIN"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
    ];
@@ -430,7 +429,7 @@
     $this->core->Data("Purge", ["votes", $id]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
-     "p", "The Blog <em>".$blog["Title"]."</em> was successfully deleted, and dependencies were marked for purging.",
+     "p", "The Blog <em>".$blog["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
@@ -492,7 +491,7 @@
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
-     $purge = $data["Purge"] ?? 0;
+     $purge = $blog["Purge"] ?? 0;
      $posts = $blog["Posts"] ?? [];
      if(!empty($data["CoverPhoto"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["CoverPhoto"])));

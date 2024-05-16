@@ -631,9 +631,8 @@
        $post = $_BlogPost["DataModel"];
        $actions = ($post["UN"] != $you) ? $this->core->Element([
         "button", "Block", [
-         "class" => "BLK InnerMargin",
-         "data-cmd" => base64_encode("B"),
-         "data-u" => $options["Block"]
+         "class" => "InnerMargin UpdateButton v2",
+         "data-processor" => $options["Block"]
         ]
        ]) : "";
        $actions = ($this->core->ID != $you) ? $actions : "";

@@ -208,6 +208,77 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $blogID = $data["BlogID"] ?? base64_encode("");
+   $blogID = base64_decode($blogID);
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $now = $this->core->timestamp;
+   $r = [
+    "Body" => "The Blog or Post Identifier are missing."
+   ];
+   $postID = $data["PostID"] ?? base64_encode("");
+   $postID = base64_decode($postID);
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($blogID) && !empty($postID)) {
+    $accessCode = "Accepted";
+    $blog = $this->core->Data("Get", ["blg", $blogID]) ?? [];
+    $blog["Modified"] = $now;
+    $blog["ModifiedBy"][$now] = $you;
+    $newPosts = [];
+    $posts = $blog["Posts"] ?? [];
+    foreach($posts as $key => $value) {
+     if($postID != $value) {
+      array_push($newPosts, $value);
+     }
+    }
+    $blog["Posts"] = $newPosts;
+    $blogPost = $this->core->Data("Get", ["bp", $postID]);
+    if(!empty($blogPost)) {
+     $blogPost["Purge"] = 1;
+     #$this->core->Data("Save", ["bp", $postID, $blogPost]);
+    }
+    $conversation = $this->core->Data("Get", ["conversation", $postID]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     #$this->core->Data("Save", ["conversation", $postID, $conversation]);
+    }
+    #$this->core->Data("Purge", ["translate", $postID]);
+    #$this->core->Data("Purge", ["votes", $postID]);
+    #$this->core->Data("Save", ["blg", $blogID, $blogID]);
+    $r = $this->core->Element([
+     "p", "The Blog Post and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "p", json_encode([$blog, $blogPost, $conversation], true)
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -260,7 +331,7 @@
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
-     $purge = $data["Purge"] ?? 0;
+     $purge = $post["Purge"] ?? 0;
      if(!empty($data["rATTI"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
       $i = 0;
@@ -351,64 +422,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
-   $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Blog or Post Identifier are missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = explode("-", $id);
-    $blog = $id[0];
-    $blog = $this->core->Data("Get", ["blg", $blog]) ?? [];
-    $blog["Modified"] = $this->core->timestamp;
-    $newPosts = [];
-    $post = $id[1];
-    $posts = $blog["Posts"] ?? [];
-    if(!empty($this->core->Data("Get", ["conversation", $post]))) {
-     $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => $id]
-     ]);
-    } foreach($posts as $key => $value) {
-     if($post != $value) {
-      array_push($newPosts, $value);
-     }
-    }
-    $blog["Posts"] = $newPosts;
-    $this->core->Data("Purge", ["bp", $post]);
-    $this->core->Data("Purge", ["local", $post]);
-    $this->core->Data("Purge", ["votes", $post]);
-    $this->core->Data("Save", ["blg", $blog["ID"], $blog]);
-    $r = [
-     "Body" => "The Blog Post was deleted.",
-     "Header" => "Done"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function __destruct() {

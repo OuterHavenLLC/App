@@ -1167,6 +1167,7 @@
     $newMember["ArtistCommissionsPaid"] = $y["ArtistCommissionsPaid"] ?? [];
     $newMember["Blogs"] = $y["Blogs"] ?? [];
     $newMember["Forums"] = $y["Forums"] ?? [];
+    $newMember["Inactive"] = 0;
     $newMember["Pages"] = $y["Pages"] ?? [];
     $newMember["Personal"]["Birthday"] = [
      "Month" => $data["BirthMonth"],

@@ -535,10 +535,16 @@
       ]);
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "BlogID" => base64_encode($contentID),
+       "PostID" => base64_encode($additionalContentID),
+       "v" => base64_encode("BlogPost:Purge")
+      ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($additionalContentID)."&List=".base64_encode("Blog Posts")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteBlogPost")."&ID=".base64_encode("$contentID;$additionalContentID")),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&Post=$additionalContentID"),
        "Notes" => $congressionalNotes,
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID;$additionalContentID")),
@@ -1019,6 +1025,7 @@
      "PIN" => md5($pin),
      "Username" => $username
     ],
+    "Inactive" => 0,
     "Pages" => $pages,
     "Personal" => [
      "Age" => $age,
