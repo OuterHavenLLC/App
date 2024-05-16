@@ -167,7 +167,7 @@
        $pay = ($isPayable == 1) ? $this->core->Element([
         "button", "$".number_format($payPeriodSplit, 2), [
          "class" => "BBB GoToView v2",
-         "data-type" => "PartnerPayment;".base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($payPeriodSplit)."&Partner=".base64_encode($partner["Login"]["Username"])."&PayPeriod=".base64_encode($payPeriodID)."&Shop=".md5($you)."&Type=Disbursement&Year=".base64_encode($year))
+         "data-type" => "PartnerPayment;".base64_encode("v=".base64_encode("Shop:Pay")."&Amount=".base64_encode($payPeriodSplit)."&Partner=".base64_encode($partner["Login"]["Username"])."&PayPeriod=".base64_encode($payPeriodID)."&Shop=".md5($partner["Login"]["Username"])."&Type=Disbursement&Year=".base64_encode($year))
         ]
        ]) : $this->core->Element(["p", "No Action Needed"]);
        $pay = ($shop == $you) ? $pay : "";
