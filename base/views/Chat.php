@@ -597,6 +597,55 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
+   $id = $data["ID"];
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $chats = $y["GroupChats"] ?? [];
+    $newChats = [];
+    foreach($chats as $key => $value) {
+     if($id != $value) {
+      array_push($newChats, $value);
+     }
+    }
+    $y["GroupChats"] = $newChats;
+    #$this->core->Data("Purge", ["chat", $id]);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = [
+     "Front" => "The Chat <em>".$chat["Title"]."</em> was deleted.",
+     "Header" => "Done",
+     "Scrollable" => json_encode($y["GroupChats"], true)
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -745,55 +794,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => $success
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Blog Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-    $chats = $y["GroupChats"] ?? [];
-    $newChats = [];
-    foreach($chats as $key => $value) {
-     if($id != $value) {
-      array_push($newChats, $value);
-     }
-    }
-    $y["GroupChats"] = $newChats;
-    $this->core->Data("Purge", ["chat", $id]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = [
-     "Front" => "The Chat <em>".$chat["Title"]."</em> was deleted.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($y["GroupChats"], true)
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function __destruct() {

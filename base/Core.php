@@ -660,7 +660,8 @@
      }
     } elseif($type == "Member") {
      $data = $this->Data("Get", ["mbr", $contentID]) ?? [];
-     $empty = $data["Purge"] ?? 0;
+     $empty = $data["Inactive"] ?? 0;
+     $empty = $data["Purge"] ?? $empty;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $them = $data["Login"]["Username"] ?? "";
