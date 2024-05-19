@@ -313,7 +313,7 @@
      $display = ($ck2 == 1) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $h = $alb["Title"] ?? "Unsorted";
      $h = ($ck2 == 1) ? "System Media Library" : $h;
-     $li .= "&AID=$aid&UN=".$data["UN"]."&lPG=$lpg";
+     $li .= "&AID=$aid&UN=".$data["UN"];
      $lis = "Search $h";
      $usernamelimitedFiles = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
      $usernamelimitedFiles = ($ck2 == 1) ? "No Upload Limit" : $usernamelimitedFiles;
@@ -2178,8 +2178,7 @@
      $bl = $this->core->CheckBlocked([$y, "Files", $value["ID"]]);
      $_File = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("File;".$t["Login"]["Username"].";".$value["ID"]),
-      "ParentPage" => $lpg
+      "ID" => base64_encode("File;".$t["Login"]["Username"].";".$value["ID"])
      ]);
      if($_File["Empty"] == 0 && $bl == 0) {
       $file = $_File["DataModel"];
@@ -2188,7 +2187,7 @@
       array_push($msg, [
        "[File.CoverPhoto]" => base64_encode($source),
        "[File.Title]" => base64_encode($file["Title"]),
-       "[File.View]" => base64_encode("$lpg;".$options["View"])
+       "[File.View]" => base64_encode("Files;".$options["View"])
       ]);
      }
     }
@@ -2204,8 +2203,7 @@
       $bl = $this->core->CheckBlocked([$y, "Files", $value[1]]);
       $_File = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("File;$member;".$value[1]),
-       "ParentPage" => $lpg
+       "ID" => base64_encode("File;$member;".$value[1])
       ]);
       if($_File["Empty"] == 0 && $bl == 0) {
        $file = $_File["DataModel"];
@@ -2217,7 +2215,7 @@
        array_push($msg, [
         "[File.CoverPhoto]" => base64_encode($source),
         "[File.Title]" => base64_encode($file["Title"]),
-        "[File.View]" => base64_encode("$lpg;".$options["View"])
+        "[File.View]" => base64_encode("Files;".$options["View"])
        ]);
       }
      }

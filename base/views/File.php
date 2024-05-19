@@ -241,7 +241,6 @@
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $parentView = $data["ParentView"] ?? "";
    $r = [
     "Body" => "The Media File Identifier is missing."
    ];
@@ -258,7 +257,7 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($id) && !empty($parentView)) {
+   } elseif(!empty($id)) {
     $_ID = explode("-", base64_decode($id));
     $accessCode = "Accepted";
     $files = $_FileSystem["Files"] ?? [];
@@ -273,10 +272,10 @@
     $file = $files[$id] ?? [];
     $newFiles = [];
     $points = $this->core->config["PTS"]["DeleteFile"];
-    $r = [
-     "Body" => "The File <strong>#$id</strong> could not be found."
-    ];
-    if(!empty($file["AID"])) {
+    $r = $this->core->Element([
+     "p", "The Media File <strong>#$id</strong> could not be found."
+    ]);
+    if(!empty($file["ID"])) {
      $albumID = $file["AID"];
      $albums = $fileSystem["Albums"] ?? [];
      foreach($files as $key => $value) {
@@ -296,7 +295,7 @@
        if(!empty($conversation)) {
         $conversation["Purge"] = 1;
         #$this->core->Data("Save", ["conversation", $key, $conversation]);
-        $tmp.=$this->core->Element(["p", "[Mark for Purge]: $key"]);//TEMP
+        $tmp.=$this->core->Element(["p", "[Purge]: Marked $key for Purging"]);//TEMP
        }
        $mediaFile = $this->core->DocumentRoot."/efs/$username/$_Name";
        #$this->core->Data("Purge", ["translate", $key]);
@@ -306,10 +305,10 @@
        $thumbnail = $this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png";
        if(file_exists($mediaFile)) {
         #unlink($mediaFile);
-        $tmp.=$this->core->Element(["p", "[Purge Media]: $mediaFile"]);//TEMP
+        $tmp.=$this->core->Element(["p", "[Purge]: Media $mediaFile"]);//TEMP
        } if(file_exists($thumbnail)) {
         #unlink($thumbnail);
-        $tmp.=$this->core->Element(["p", "[Purge Thumbnail]: $thumbnail"]);//TEMP
+        $tmp.=$this->core->Element(["p", "[Purge]: Thumbnail $thumbnail"]);//TEMP
        }
       }
      } if($this->core->ID == $username) {
@@ -320,11 +319,12 @@
       $y["Points"] = $y["Points"] + $points;
       #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
       #$this->core->Data("Save", ["mbr", md5($you), $y]);
-        $tmp.=$this->core->Element(["p", "Save...OK"]);//TEMP
+        $tmp.=$this->core->Element(["p", "[Save]: Done"]);//TEMP
+        $tmp.=$this->core->Element(["p", "[Data]: ".json_encode($fileSystem, true)]);//TEMP
      }
      $acknowledge = $this->core->Element(["button", "Okay", [
       "class" => "GoToParent v2 v2w",
-      "data-type" => $parentView
+      "data-type" => "Files"
      ]]);
      $r = $this->core->Element([
       "p", "The Media File was deleted.",
@@ -333,7 +333,7 @@
       "div", $tmp, ["class" => "NONAME"]
      ]).$this->core->Element(["button", "Okay", [
       "class" => "GoToParent v2 v2w",
-      "data-type" => $parentView
+      "data-type" => "Files"
      ]]);
     }
    }
@@ -343,8 +343,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
+    "ResponseType" => "Dialog"
    ]);
   }
   function Save(array $a) {
