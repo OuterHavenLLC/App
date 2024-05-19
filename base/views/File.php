@@ -90,20 +90,16 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "AddTo",
-    "Added",
-    "CARD",
-    "back"
-   ]);
-   $back = ($data["back"] == 1) ? $this->core->Element([
+   $added = $data["Added"] ?? "";
+   $card = $data["CARD"] ?? 0;
+   $parentView = $data["ParentView"] ?? "";
+   $back = (!empty($parentView)) ? $this->core->Element([
     "button", "Back to Files", [
      "class" => "GoToParent LI",
-     "data-type" => $data["lPG"]
+     "data-type" => $parentView
     ]
    ]) : "";
    $id = $data["ID"] ?? "";
-   $parentView = $data["ParentView"] ?? "";
    $pub = $data["pub"] ?? 0;
    $r = [
     "Body" => "The File Identifier or Username are missing."
@@ -139,7 +135,7 @@
      /*--$addTo = (!empty($addToData[1])) ? $this->core->Element([
       "button", $addToData[0], [
        "class" => "AddTo v2",
-       "data-added" => $data["Added"],
+       "data-added" => $added,
        "data-dlc" => $addToMedia,
        "data-input" => base64_encode($addToData[1])
       ]
@@ -226,7 +222,7 @@
      ], $this->core->Extension("c31701a05a48069702cd7590d31ebd63")]);
     }
    }
-   $r = ($data["CARD"] == 1) ? [
+   $r = ($card == 1) ? [
     "Front" => $r
    ] : $r;
    if($pub == 1) {

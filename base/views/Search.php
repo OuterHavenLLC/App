@@ -334,6 +334,7 @@
      $extension = "46ef1d0890a2a5639f67bfda1634ca82";
     } elseif($searchType == "Media") {
      $h = "Media";
+     $li .= "&lPG=Files";
      $lis = "Search Files";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($searchType == "Polls") {
@@ -390,7 +391,7 @@
      $_Added = $data["Added"] ?? "";
      $h = "Files";
      $lPG = $data["lPG"] ?? $searchType;
-     $li .= "&AddTo=".$_AddTo."&Added=".$_Added."&UN=".$data["UN"]."&lPG=$lpg";
+     $li .= "&AddTo=".$_AddTo."&Added=".$_Added."&UN=".$data["UN"]."&lPG=Files";
      $li .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
      $lis = "Search Files";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
@@ -2578,7 +2579,7 @@
      ]);
      $dlc = [
       "[File.CoverPhoto]" => base64_encode($source),
-      "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&AddTo=".$data["AddTo"]."&Added=".$data["Added"]."&ID=".$v["ID"]."&UN=$username&back=1&b2=Files&lPG=$searchType")),
+      "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&AddTo=".$data["AddTo"]."&Added=".$data["Added"]."&ID=".$v["ID"]."&UN=$username&b2=Files&ParentView=Files")),
       "[File.Title]" => base64_encode($v["Title"])
      ];
      if($bl == 0 && $illegal == 0) {
