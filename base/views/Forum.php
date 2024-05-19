@@ -443,6 +443,107 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+    $forums = $y["Forums"] ?? [];
+    $newForums = [];
+    $tmp="";//TEMP
+    foreach($forum["Posts"] as $key => $value) {
+     $forumPost = $this->core->Data("Get", ["bp", $value]);
+     if(!empty($forumPost)) {
+      $forumPost["Purge"] = 1;
+      #$this->core->Data("Save", ["bp", $value, $forumPost]);
+    $tmp.=$this->core->Element(["p", "Purge forum Post #$value..."]);//TEMP
+     }
+     $conversation = $this->core->Data("Get", ["conversation", $value]);
+     if(!empty($conversation)) {
+      $conversation["Purge"] = 1;
+      #$this->core->Data("Save", ["conversation", $value, $conversation]);
+    $tmp.=$this->core->Element(["p", "Purge forum Post Conversation #$value..."]);//TEMP
+     }
+     #$this->core->Data("Purge", ["translate", $value]);
+    $tmp.=$this->core->Element(["p", "Purge forum Post Translations #$value..."]);//TEMP
+     #$this->core->Data("Purge", ["votes", $value]);
+    $tmp.=$this->core->Element(["p", "Purge forum Post Votes #$value..."]);//TEMP
+    }
+    $chat = $this->core->Data("Get", ["chat", $id]);
+    if(!empty($chat)) {
+     $chat["Purge"] = 1;
+     #$this->core->Data("Save", ["chat", $id, $chat]);
+    $tmp.=$this->core->Element(["p", "Purge forum Chat #$id..."]);//TEMP
+    }
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     #$this->core->Data("Save", ["conversation", $id, $conversation]);
+    $tmp.=$this->core->Element(["p", "Purge forum Conversation #$id..."]);//TEMP
+    }
+    $forum = $this->core->Data("Get", ["pf", $id]);
+    if(!empty($forum)) {
+     $forum["Purge"] = 1;
+     #$this->core->Data("Save", ["pf", $id, $forum]);
+    $tmp.=$this->core->Element(["p", "Purge forum #$id..."]);//TEMP
+    }
+    $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
+    if(!empty($manifest)) {
+     $manifest["Purge"] = 1;
+     #$this->core->Data("Save", ["pfmanifest", $id, $manifest]);
+    $tmp.=$this->core->Element(["p", "Purge forum Manifest #$id..."]);//TEMP
+    }
+    #$this->core->Data("Purge", ["translate", $id]);
+    $tmp.=$this->core->Element(["p", "Purge forum Translations #$id..."]);//TEMP
+    #$this->core->Data("Purge", ["votes", $id]);
+    $tmp.=$this->core->Element(["p", "Purge forum Votes #$id..."]);//TEMP
+    foreach($forums as $key => $value) {
+     if($id != $value) {
+      $newForums[$key] = $value;
+     }
+    }
+    $y["Forums"] = $newForums;
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $tmp.=$this->core->Element(["p", "Save Your Forums..."]);//TEMP
+    $r = $this->core->Element([
+     "p", "The Forum <em>".$forum["Title"]."</em> and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "p", $tmp
+    ]).$this->core->Element([
+     "p", json_encode($y["Forums"], true)
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -506,6 +607,7 @@
     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
     $posts = $forum["Posts"] ?? [];
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
+    $purge = $forum["Purge"] ?? 0;
     $title = $data["Title"] ?? "My Forum";
     $type = $data["Type"] ?? md5("Private");
     $forum = [
@@ -523,6 +625,7 @@
      "NSFW" => $nsfw,
      "Posts" => $posts,
      "Privacy" => $privacy,
+     "Purge" => $purge,
      "Title" => $title,
      "UN" => $you,
      "Type" => $type
@@ -589,72 +692,6 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $all = $data["all"] ?? 0;
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN", "all"]);
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Forum Identifier is missing."
-   ];
-   $y = $this->you;
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $y["Login"]["Username"]) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-    $forums = $y["Forums"] ?? [];
-    $newForums = [];
-    /*foreach($forum["Posts"] as $key => $value) {
-     if(!empty($this->core->Data("Get", ["conversation", $value]))) {
-      $this->view(base64_encode("Conversation:SaveDelete"), [
-       "Data" => ["ID" => $value]
-      ]);
-     }
-     $this->core->Data("Purge", ["local", $value]);
-     $this->core->Data("Purge", ["post", $value]);
-     $this->core->Data("Purge", ["votes", $value]);
-    } if(!empty($this->core->Data("Get", ["conversation", $id]))) {
-     $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => $id]
-     ]);
-    }
-    $this->core->Data("Purge", ["chat", $id]);
-    $this->core->Data("Purge", ["local", $id]);
-    $this->core->Data("Purge", ["pfmanifest", $id]);
-    $this->core->Data("Purge", ["pf", $id]);
-    $this->core->Data("Purge", ["react", $id]);*/
-    foreach($forums as $key => $value) {
-     if($id != $value) {
-      $newForums[$key] = $value;
-     }
-    }
-    $r = [
-     "Body" => "The Forum ($id, temp) was deleted.".json_encode($y["Forums"], true),
-     "Header" => "Done"
-    ];
-    $y["Forums"] = $newForums;
-    #$this->core->Data("Save", ["mbr", md5($y["Login"]["Username"]), $y]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function SendInvite(array $a) {

@@ -248,7 +248,7 @@
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($key) != $y["Login"]["PIN"]) {
+   if(md5($key) != $secureKey) {
     $r = [
      "Body" => "The PINs do not match."
     ];
@@ -282,7 +282,6 @@
       if($id != $value["ID"]) {
        $newFiles[$key] = $value;
       } else {
-        $tmp="";//TEMP
        $_Name = $value["Name"] ?? "";
        $coverPhoto = $albums[$albumID]["ICO"] ?? "";
        $baseName = explode(".", $_Name)[0];
@@ -294,39 +293,30 @@
        $conversation = $this->core->Data("Get", ["conversation", $key]);
        if(!empty($conversation)) {
         $conversation["Purge"] = 1;
-        #$this->core->Data("Save", ["conversation", $key, $conversation]);
-        $tmp.=$this->core->Element(["p", "[Purge]: Marked $key for Purging"]);//TEMP
+        $this->core->Data("Save", ["conversation", $key, $conversation]);
        }
        $mediaFile = $this->core->DocumentRoot."/efs/$username/$_Name";
-       #$this->core->Data("Purge", ["translate", $key]);
-        $tmp.=$this->core->Element(["p", "[Purge]: Translations for $key"]);//TEMP
-       #$this->core->Data("Purge", ["votes", $key]);
-        $tmp.=$this->core->Element(["p", "[Purge]: Votes for $key"]);//TEMP
+       $this->core->Data("Purge", ["translate", $key]);
+       $this->core->Data("Purge", ["votes", $key]);
        $thumbnail = $this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png";
        if(file_exists($mediaFile)) {
-        #unlink($mediaFile);
-        $tmp.=$this->core->Element(["p", "[Purge]: Media $mediaFile"]);//TEMP
+        unlink($mediaFile);
        } if(file_exists($thumbnail)) {
-        #unlink($thumbnail);
-        $tmp.=$this->core->Element(["p", "[Purge]: Thumbnail $thumbnail"]);//TEMP
+        unlink($thumbnail);
        }
       }
      } if($this->core->ID == $username) {
-      #$this->core->Data("Save", ["app", "fs", $newFiles]);
+      $this->core->Data("Save", ["app", "fs", $newFiles]);
      } else {
       $fileSystem["Albums"] = $albums;
       $fileSystem["Files"] = $newFiles;
       $y["Points"] = $y["Points"] + $points;
-      #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
-      #$this->core->Data("Save", ["mbr", md5($you), $y]);
-        $tmp.=$this->core->Element(["p", "[Save]: Done"]);//TEMP
-        $tmp.=$this->core->Element(["p", "[Data]: ".json_encode($fileSystem, true)]);//TEMP
+      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+      $this->core->Data("Save", ["mbr", md5($you), $y]);
      }
      $r = $this->core->Element([
       "p", "The Media File was deleted.",
       ["class" => "CenterText"]
-     ]).$this->core->Element([
-      "div", $tmp, ["class" => "NONAME"]
      ]).$this->core->Element(["button", "Okay", [
       "class" => "GoToParent v2 v2w",
       "data-type" => "Files"

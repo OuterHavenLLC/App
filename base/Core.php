@@ -631,10 +631,15 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $description = $data["Description"] ?? "";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($contentID),
+       "v" => base64_encode("Forum:Purge")
+      ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Forums")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteForum")."&ID=".base64_encode($contentID)),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("Forum:Edit")."&ID=$contentID"),
        "Invite" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
        "Post" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
@@ -657,10 +662,16 @@
        "HTMLDecode" => 1
       ]);
       $description = $data["Description"] ?? "";
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ForumID" => base64_encode($contentID),
+       "PostID" => base64_encode($additionalContentID),
+       "v" => base64_encode("Forum:Purge")
+      ], true);
       $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($additionalContentID)."&List=".base64_encode("Forum Posts")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:DeleteForumPost")."&FID=$contentID&ID=$additionalContentID"),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&ID=$additionalContentID"),
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$contentID;$additionalContentID")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode("$contentID-$additionalContentID")."&Type=".base64_encode($type)."&Username=".base64_encode($data["From"])),

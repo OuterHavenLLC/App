@@ -193,6 +193,75 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $forumID = $data["ForumID"] ?? base64_encode("");
+   $forumID = base64_decode($forumID);
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $postID = $data["PostID"] ?? base64_encode("");
+   $postID = base64_decode($postID);
+   $r = [
+    "Body" => "The Post Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($forumID) && !empty($postID)) {
+    $accessCode = "Accepted";
+    $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+    $newPosts = [];
+    $posts = $forum["Posts"] ?? [];
+    $tmp="";//TEMP
+    foreach($posts as $key => $value) {
+     if($postID != $value) {
+      $newPosts[$key] = $value;
+     }
+    }
+    $forum["Posts"] = $newPosts;
+    $conversation = $this->core->Data("Get", ["conversation", $postID]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     #$this->core->Data("Save", ["conversation", $postID, $conversation]);
+    $tmp.=$this->core->Element(["p", "Purge Post Conversation #$postID..."]);//TEMP
+    }
+    #$this->core->Data("Purge", ["post", $postID]);
+    $tmp.=$this->core->Element(["p", "Purge Post #$postID..."]);//TEMP
+    #$this->core->Data("Purge", ["translate", $postID]);
+    $tmp.=$this->core->Element(["p", "Purge Post Translations #$postID..."]);//TEMP
+    #$this->core->Data("Purge", ["votes", $postID]);
+    $tmp.=$this->core->Element(["p", "Purge Post Votes #$postID..."]);//TEMP
+    $this->core->Data("Save", ["pf", $forumID, $forum]);
+    $tmp.=$this->core->Element(["p", "Save forum..."]);//TEMP
+    $r = $this->core->Element([
+     "p", "The Forum Post and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "p", $tmp
+    ]).$this->core->Element([
+     "p", json_encode($forum["Posts"], true)
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -247,6 +316,7 @@
     $illegal = $post["Illegal"] ?? 0;
     $modifiedBy = $post["ModifiedBy"] ?? [];
     $modifiedBy[$now] = $you;
+    $purge = $post["Purge"] ?? 0;
     $post = [
      "Attachments" => $attachments,
      "Body" => $this->core->PlainText([
@@ -262,66 +332,12 @@
      "ModifiedBy" => $modifiedBy,
      "NSFW" => $data["NSFW"],
      "Privacy" => $data["Privacy"],
+     "Purge" => $purge,
      "Title" => $data["Title"]
     ];
     $this->core->Data("Save", ["post", $id, $post]);
     $r = [
      "Body" => "Your post has been $actionTaken.",
-     "Header" => "Done"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["FID", "ID", "PIN"]);
-   $fid = $data["FID"];
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Post Identifier is missing."
-   ];
-   $y = $this->you;
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $y["Login"]["Username"]) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = explode("-", base64_decode($id));
-    $fid = $id[0];
-    $id = $id[1];
-    $forum = $this->core->Data("Get", ["pf", $fid]) ?? [];
-    $newPosts = [];
-    $posts = $forum["Posts"] ?? [];
-    foreach($posts as $key => $value) {
-     if($id != $value) {
-      $newPosts[$key] = $value;
-     }
-    }
-    $forum["Posts"] = $newPosts;
-    $this->view(base64_encode("Conversation:SaveDelete"), [
-     "Data" => ["ID" => $id]
-    ]);
-    $this->core->Data("Purge", ["local", $id]);
-    $this->core->Data("Purge", ["post", $id]);
-    $this->core->Data("Purge", ["votes", $id]);
-    $this->core->Data("Save", ["pf", $fid, $forum]);
-    $r = [
-     "Body" => "The post was deleted.",
      "Header" => "Done"
     ];
    }
