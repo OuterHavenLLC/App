@@ -1647,6 +1647,7 @@
          "[ForumPost.ID]" => base64_encode($value),
          "[ForumPost.MemberRole]" => base64_encode($memberRole),
          "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
+         "[ForumPost.Notes]" => base64_encode($options["Notes"]),
          "[ForumPost.OriginalPoster]" => base64_encode($display.$verified),
          "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
          "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),

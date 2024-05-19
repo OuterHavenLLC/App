@@ -208,12 +208,10 @@
      if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
       $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
       $accessCode = "Accepted";
-      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
       $actions = ($bl == 0 && $ck == 0) ? $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "CloseCard GoToParent Small UpdateButton v2 v2w",
-        "data-type" => ".OHCC;$lpg",
-        "data-processor" => $options["Block"]
+       "button", "Block", [
+        "class" => "CloseCard Small UpdateButton v2 v2w",
+        "data-view" => $options["Block"]
        ]
       ]) : "";
       $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
@@ -223,6 +221,7 @@
        ]
       ]) : "";
       $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->core->Element([
+      #$actions .= ($_SonsOfLiberty != $forum["ID"] && $forum["UN"] == $you && $pub == 0) ? $this->core->Element([
        "button", "Delete", [
         "class" => "CloseCard OpenDialog Small v2",
         "data-view" => $options["Delete"]

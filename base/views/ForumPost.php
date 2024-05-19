@@ -240,7 +240,7 @@
     $tmp.=$this->core->Element(["p", "Purge Post Translations #$postID..."]);//TEMP
     #$this->core->Data("Purge", ["votes", $postID]);
     $tmp.=$this->core->Element(["p", "Purge Post Votes #$postID..."]);//TEMP
-    $this->core->Data("Save", ["pf", $forumID, $forum]);
+    #$this->core->Data("Save", ["pf", $forumID, $forum]);
     $tmp.=$this->core->Element(["p", "Save forum..."]);//TEMP
     $r = $this->core->Element([
      "p", "The Forum Post and dependencies were marked for purging.",
@@ -248,7 +248,7 @@
     ]).$this->core->Element([
      "p", $tmp
     ]).$this->core->Element([
-     "p", json_encode($forum["Posts"], true)
+     "p", json_encode($forum, true)
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
