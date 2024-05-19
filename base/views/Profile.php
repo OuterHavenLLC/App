@@ -499,7 +499,7 @@
    } else {
     $accessCode = "Accepted";
     $y["Inactive"] = 1;
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
     $r = $this->core->Element([
      "div", $this->core->Element([

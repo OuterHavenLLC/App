@@ -466,11 +466,12 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]);
+    $forumPosts = $forum["Posts"] ?? [];
     $forums = $y["Forums"] ?? [];
     $newForums = [];
     $tmp="";//TEMP
-    foreach($forum["Posts"] as $key => $value) {
+    foreach($forumPosts as $key => $value) {
      $forumPost = $this->core->Data("Get", ["post", $value]);
      if(!empty($forumPost)) {
       $forumPost["Purge"] = 1;
