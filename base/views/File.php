@@ -114,7 +114,8 @@
     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $_File = $this->core->GetContentData([
      "Blacklisted" => $bl,
-     "ID" => base64_encode("File;$username;$id")
+     "ID" => base64_encode("File;$username;$id"),
+     "ParentPage" => $parentView
     ]);
     if($_File["Empty"] == 0) {
      $file = $_File["DataModel"];
@@ -142,16 +143,10 @@
      ]) : "";--*/
      $addTo = "";
      $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
-     $viewData = json_encode([
-      "SecureKey" => base64_encode($y["Login"]["PIN"]),
-      "AID" => base64_encode($file["AID"]),
-      "ID" => base64_encode("$username-$id"),
-      "v" => base64_encode("File:Purge")
-     ], true);
      $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
       "button", "Delete", [
        "class" => "GoToView Small v2",
-       "data-type" => "Media$id;".base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode("Delete Media")."&ParentPage=$parentView&ViewData=".base64_encode($viewData))
+       "data-type" => "Media$id;".$options["Delete"]
       ]
      ]) : "";
      $actions .= $this->core->Element([
