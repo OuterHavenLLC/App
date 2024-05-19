@@ -220,8 +220,10 @@
     ];
    } elseif(!empty($forumID) && !empty($postID)) {
     $accessCode = "Accepted";
+    $forumID = base64_decode($forumID);
     $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
     $newPosts = [];
+    $postID = base64_decode($postID);
     $posts = $forum["Posts"] ?? [];
     $tmp="";//TEMP
     foreach($posts as $key => $value) {

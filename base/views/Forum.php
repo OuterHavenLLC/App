@@ -466,6 +466,7 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
+    $id = base64_decode($id);
     $forum = $this->core->Data("Get", ["pf", $id]);
     $forumPosts = $forum["Posts"] ?? [];
     $forums = $y["Forums"] ?? [];
