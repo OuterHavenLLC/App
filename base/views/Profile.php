@@ -487,9 +487,8 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function Deactivate(array $a) {
+  function Deactivate() {
    $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -497,9 +496,16 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(1 == 1) {
+   } else {
     $accessCode = "Accepted";
-    // DEACTIVATE PROFILE
+    $y["Inactive"] = 1;
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $r = $this->view(base64_encode("WebUI:OptIn"), []);
+    $r = $this->core->Element([
+     "div", $this->core->Element([
+      "p", "Your profile is now inactive, we hope to see you again soon!".json_encode($y, true)
+     ]), ["class" => "K4i Red"]
+    ]).$this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -510,27 +516,26 @@
     "ResponseType" => "View"
    ]);
   }
-  function Delete(array $a) {
+  function Purge() {
    $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   // DELETE PROFILE
-   /* DELETE CONVERSATION
    if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(1 == 1) {
+   } else {
     $accessCode = "Accepted";
-    if(!empty($this->core->Data("Get", ["conversation", md5("MBR_$you")]))) {
-     $this->view(base64_encode("Conversation:SaveDelete"), [
-      "Data" => ["ID" => md5("MBR_$you")]
-     ]);
-    }
+    $tmp="";//TEMP
+    // DELETE PROFILE
+    $r = $this->view(base64_encode("WebUI:OptIn"), []);
+    $r = $this->core->Element([
+     "div", $this->core->Element([
+      "p", "Your profile is now slated for purging. We hope to see you again!$tmp"
+     ]), ["class" => "K4i Red"]
+    ]).$this->core->RenderView($r);
    }
-   */
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -1048,6 +1053,7 @@
      "[Preferences.Birthday.Months]" => json_encode($birthMonths, true),
      "[Preferences.Birthday.Year]" => $y["Personal"]["Birthday"]["Year"],
      "[Preferences.Birthday.Years]" => json_encode($birthYears, true),
+     "[Preferences.Deactivate]" => base64_encode("v=".base64_encode("Profile:Deactivate")),
      "[Preferences.Donations.Patreon]" => base64_encode($y["Donations"]["Patreon"]),
      "[Preferences.Donations.PayPal]" => base64_encode($y["Donations"]["PayPal"]),
      "[Preferences.Donations.SubscribeStar]" => base64_encode($y["Donations"]["SubscribeStar"]),
@@ -1092,6 +1098,7 @@
      "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
      "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
      "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
+     "[Preferences.Purge]" => base64_encode("v=".base64_encode("Profile:Purge")),
      "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
     ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }

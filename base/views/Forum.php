@@ -530,7 +530,7 @@
     ]).$this->core->Element([
      "p", $tmp
     ]).$this->core->Element([
-     "p", json_encode($y["Forums"], true)
+     "p", json_encode([$y["Forums"], $this->core->Data("Get", ["pf", $id])], true)
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
