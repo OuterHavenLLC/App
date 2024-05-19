@@ -304,6 +304,68 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Product Identifier is missing."
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $id = base64_decode($id);
+    $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+    $newProducts = [];
+    $products = $shop["Products"] ?? [];
+    foreach($products as $key => $value) {
+     if($id != $value) {
+      $newProducts[$key] = $value;
+     }
+    }
+    $shop["Products"] = $newProducts;
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
+    }
+    $product = $this->core->Data("Get", ["product", $id]);
+    if(!empty($product)) {
+     $product["Purge"] = 1;
+     $this->core->Data("Save", ["product", $id, $product]);
+    }
+    $this->core->Data("Purge", ["translate", $id]);
+    $this->core->Data("Purge", ["votes", $id]);
+    $this->core->Data("Save", ["shop", md5($you), $shop]);
+    $r = $this->core->Element([
+     "p", "The Product <em>".$product["Title"]."</em> and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -521,57 +583,6 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Product Identifier is missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
-    $newProducts = [];
-    $products = $shop["Products"] ?? [];
-    foreach($products as $key => $value) {
-     if($id != $value) {
-      $newProducts[$key] = $value;
-     }
-    }
-    $shop["Products"] = $newProducts;
-    $this->view(base64_encode("Conversation:SaveDelete"), [
-     "Data" => ["ID" => $id]
-    ]);
-    $this->core->Data("Purge", ["local", $id]);
-    $this->core->Data("Purge", ["product", $id]);
-    $this->core->Data("Purge", ["votes", $id]);
-    $this->core->Data("Save", ["shop", md5($you), $shop]);
-    $r = [
-     "Body" => "The Product was deleted.",
-     "Header" => "Done"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
-   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

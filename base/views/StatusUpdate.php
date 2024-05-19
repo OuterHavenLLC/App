@@ -243,18 +243,20 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveDelete(array $a) {
+  function Purge(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN"]);
-   $id = $data["ID"];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Update Identifier is missing."
+    "Body" => "The Status Update Identifier is missing."
    ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
+   if(md5($key) != $secureKey) {
     $r = [
      "Body" => "The PINs do not match."
     ];
@@ -265,36 +267,36 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $mainstream = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
-    $newMainstream = [];
+    $id = base64_decode($id);
     $newStream = [];
     $stream = $this->core->Data("Get", ["stream", md5($you)]) ?? [];
-    foreach($mainstream as $key => $value) {
-     if($id != $value) {
-      $newMainstream[$key] = $value;
-     }
-    } foreach($stream as $key => $value) {
+    foreach($stream as $key => $value) {
      if($id != $value["UpdateID"]) {
       $newStream[$key] = $value;
      }
     }
-    $mainstream = $newMainstream;
     $stream = $newStream;
     $y["Activity"]["LastActive"] = $this->core->timestamp;
-    $this->core->Data("Purge", ["su", $id]);
-    $this->view(base64_encode("Conversation:SaveDelete"), [
-     "Data" => ["ID" => $id]
-    ]);
-    $this->core->Data("Purge", ["local", $id]);
-    $this->core->Data("Purge", ["notes", $id]);
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
+    }
+    $statusUpdate = $this->core->Data("Get", ["su", $id]);
+    if(!empty($statusUpdate)) {
+     $statusUpdate["Purge"] = 1;
+     $this->core->Data("Save", ["su", $id, $statusUpdate]);
+    }
+    $this->core->Data("Purge", ["translate", $id]);
     $this->core->Data("Purge", ["votes", $id]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["stream", md5($you), $stream]);
-    $this->core->Data("Save", ["app", "mainstream", $mainstream]);
-    $r = [
-     "Body" => "The Post was deleted.",
-     "Header" => "Done"
-    ];
+    $r = $this->core->Element([
+     "p", "The Update and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -302,8 +304,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
+    "ResponseType" => "Dialog"
    ]);
   }
   function __destruct() {

@@ -468,13 +468,9 @@
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(empty($key)) {
+   if(md5($key) != $secureKey) {
     $r = [
-     "Body" => "The Key is missing."
-    ];
-   } elseif(md5($key) != $secureKey) {
-    $r = [
-     "Body" => "The Keys do not match."
+     "Body" => "The PINs do not match."
     ];
    } elseif($this->core->ID == $you) {
     $r = [
