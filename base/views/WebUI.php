@@ -276,6 +276,7 @@
     $changeData,
     $this->core->Extension($extension)
    ]);
+   $r.=$this->core->Element(["p", json_encode($y, true)]);//TEMP
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
@@ -425,7 +426,7 @@
     $this->core->Data("Save", ["shop", md5($you), $shop]);
    }
    $r = $this->core->Change([[
-    "[App.Content]" => $content.json_encode($y, true),
+    "[App.Content]" => $content,
     "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
     "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
    ], $this->core->Extension("dd5e4f7f995d5d69ab7f696af4786c49")]);

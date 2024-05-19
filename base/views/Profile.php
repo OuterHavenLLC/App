@@ -503,7 +503,7 @@
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
     $r = $this->core->Element([
      "div", $this->core->Element([
-      "p", "Your profile is now inactive, we hope to see you again soon!"
+      "p", "Your profile is now inactive and you can sign in at any time to re-activate it, we hope to see you again soon!"
      ]), ["class" => "K4i"]
     ]).$this->core->RenderView($r);
    }
@@ -1019,6 +1019,10 @@
     } for($i = 1776; $i <= date("Y"); $i++) {
      $birthYears[$i] = $i;
     }
+    $viewData = json_encode([
+     "SecureKey" => base64_encode($y["Login"]["PIN"]),
+     "v" => base64_encode("Profile:Purge")
+    ], true);
     $r = $this->core->Change([[
      "[Preferences.Birthday.Month]" => $y["Personal"]["Birthday"]["Month"],
      "[Preferences.Birthday.Months]" => json_encode($birthMonths, true),
@@ -1069,7 +1073,7 @@
      "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
      "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
      "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
-     "[Preferences.Purge]" => base64_encode("v=".base64_encode("Profile:Purge")),
+     "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&ParentPage=Files&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
      "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
     ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
@@ -1082,11 +1086,20 @@
     "ResponseType" => "View"
    ]);
   }
-  function Purge() {
+  function Purge(array $a) {
    $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
