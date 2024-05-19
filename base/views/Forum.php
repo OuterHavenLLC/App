@@ -471,10 +471,10 @@
     $newForums = [];
     $tmp="";//TEMP
     foreach($forum["Posts"] as $key => $value) {
-     $forumPost = $this->core->Data("Get", ["bp", $value]);
+     $forumPost = $this->core->Data("Get", ["post", $value]);
      if(!empty($forumPost)) {
       $forumPost["Purge"] = 1;
-      #$this->core->Data("Save", ["bp", $value, $forumPost]);
+      #$this->core->Data("Save", ["post", $value, $forumPost]);
     $tmp.=$this->core->Element(["p", "Purge forum Post #$value..."]);//TEMP
      }
      $conversation = $this->core->Data("Get", ["conversation", $value]);
