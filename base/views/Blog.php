@@ -375,7 +375,7 @@
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($key) != $y["Login"]["PIN"]) {
+   if(md5($key) != $secureKey) {
     $r = [
      "Body" => "The PINs do not match."
     ];

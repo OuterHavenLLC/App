@@ -451,6 +451,8 @@
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKey) {
