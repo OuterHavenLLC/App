@@ -94,8 +94,7 @@
     "AddTo",
     "Added",
     "CARD",
-    "back",
-    "lPG"
+    "back"
    ]);
    $back = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back to Files", [
@@ -104,6 +103,7 @@
     ]
    ]) : "";
    $id = $data["ID"] ?? "";
+   $parentView = $data["ParentView"] ?? "";
    $pub = $data["pub"] ?? 0;
    $r = [
     "Body" => "The File Identifier or Username are missing."
@@ -155,7 +155,7 @@
      $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
       "button", "Delete", [
        "class" => "GoToView Small v2",
-       "data-type" => "Media$id;".base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode("Delete Media")."&ParentPage=".$data["ParentView"]."&ViewData=".base64_encode($viewData))
+       "data-type" => "Media$id;".base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode("Delete Media")."&ParentPage=$parentView&ViewData=".base64_encode($viewData))
       ]
      ]) : "";
      $actions .= $this->core->Element([
@@ -338,7 +338,7 @@
      $r = $this->core->Element([
       "p", "The Media File was deleted.",
       ["class" => "CenterText"]
-     $r = $this->core->Element([
+     ]).$this->core->Element([
       "div", $tmp, ["class" => "NONAME"]
      ]).$this->core->Element(["button", "Okay", [
       "class" => "GoToParent v2 v2w",

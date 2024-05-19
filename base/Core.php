@@ -621,6 +621,7 @@
        "Edit" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContentID)."&UN=".base64_encode($contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
        "Source" => $this->GetSourceFromExtension([$contentID, $data]),
+       "View" => base64_encode("v=".base64_encode("File:Home")."&ID=$additionalContentID&UN=$contentID&back=1&ParentView=$parentPage"),
        "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";

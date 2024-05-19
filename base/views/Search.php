@@ -2175,14 +2175,19 @@
      $files = $fileSystem["Files"] ?? [];
     } foreach($files as $key => $value) {
      $bl = $this->core->CheckBlocked([$y, "Files", $value["ID"]]);
-     $illegal = $value["Illegal"] ?? 0;
-     $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     if($albumID == $value["AID"] && $bl == 0 && $illegal == 0) {
-      $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $value]);
+     $_File = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("File;".$t["Login"]["Username"].";".$value["ID"]),
+      "ParentPage" => $lpg
+     ]);
+     if($_File["Empty"] == 0 && $bl == 0) {
+      $file = $_File["DataModel"];
+      $options = $_File["ListItem"]["Options"];
+      $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $file]);
       array_push($msg, [
        "[File.CoverPhoto]" => base64_encode($source),
-       "[File.Title]" => base64_encode($value["Title"]),
-       "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&ID=".$value["ID"]."&UN=".$t["Login"]["Username"]."&back=1&ParentView=$lpg"))
+       "[File.Title]" => base64_encode($file["Title"]),
+       "[File.View]" => base64_encode("$lpg;".$options["View"])
       ]);
      }
     }
@@ -2192,31 +2197,27 @@
     $index = $this->core->RenderSearchIndex("Media");
     foreach($index as $key => $value) {
      $value = explode(";", $value);
-     $bl = $this->core->CheckBlocked([$y, "Members", $value[0]]);;
-     $_Member = $this->core->GetContentData([
-      "Blacklisted" => $bl,
-      "ID" => base64_encode("Member;".$value[0])
-     ]);
-     if($_Member["Empty"] == 0) {
+     $member = $this->core->Data("Get", ["mbr", $value[0]]);
+     if(!empty($member)) {
+      $member = $member["Login"]["Username"];
       $bl = $this->core->CheckBlocked([$y, "Files", $value[1]]);
-      $member = $_Member["DataModel"];
-      if($bl == 0) {
-       $file = $this->core->Data("Get", ["fs", $value[0]]) ?? [];
-       $file = $file["Files"] ?? [];
-       $file = $file[$value[1]] ?? [];
-       $illegal = $file["Illegal"] ?? 0;
-       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       if($illegal == 0) {
-        $source = $this->core->GetSourceFromExtension([
-         $member["Login"]["Username"],
-         $file
-        ]);
-        array_push($msg, [
-         "[File.CoverPhoto]" => base64_encode($source),
-         "[File.Title]" => base64_encode($file["Title"]),
-         "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&ID=".$file["ID"]."&UN=".$member["Login"]["Username"]."&back=1&lPG=$lpg"))
-        ]);
-       }
+      $_File = $this->core->GetContentData([
+       "Blacklisted" => $bl,
+       "ID" => base64_encode("File;$member;".$value[1]),
+       "ParentPage" => $lpg
+      ]);
+      if($_File["Empty"] == 0 && $bl == 0) {
+       $file = $_File["DataModel"];
+       $options = $_File["ListItem"]["Options"];
+       $source = $this->core->GetSourceFromExtension([
+        $member,
+        $file
+       ]);
+       array_push($msg, [
+        "[File.CoverPhoto]" => base64_encode($source),
+        "[File.Title]" => base64_encode($file["Title"]),
+        "[File.View]" => base64_encode("$lpg;".$options["View"])
+       ]);
       }
      }
     }
