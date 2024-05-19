@@ -220,8 +220,7 @@
         "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
        ]
       ]) : "";
-      $actions .= ($forum["UN"] == $you && $pub == 0) ? $this->core->Element([
-      #$actions .= ($_SonsOfLiberty != $forum["ID"] && $forum["UN"] == $you && $pub == 0) ? $this->core->Element([
+      $actions .= ($_SonsOfLiberty != $forum["ID"] && $forum["UN"] == $you && $pub == 0) ? $this->core->Element([
        "button", "Delete", [
         "class" => "CloseCard OpenDialog Small v2",
         "data-view" => $options["Delete"]
@@ -468,71 +467,52 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $forum = $this->core->Data("Get", ["pf", $id]);
+    $forum["Purge"] = 1;
     $forumPosts = $forum["Posts"] ?? [];
     $forums = $y["Forums"] ?? [];
     $newForums = [];
-    $tmp="";//TEMP
+    $this->core->Data("Save", ["pf", $id]);
     foreach($forumPosts as $key => $value) {
      $forumPost = $this->core->Data("Get", ["post", $value]);
      if(!empty($forumPost)) {
       $forumPost["Purge"] = 1;
-      #$this->core->Data("Save", ["post", $value, $forumPost]);
-    $tmp.=$this->core->Element(["p", "Purge forum Post #$value..."]);//TEMP
+      $this->core->Data("Save", ["post", $value, $forumPost]);
      }
      $conversation = $this->core->Data("Get", ["conversation", $value]);
      if(!empty($conversation)) {
       $conversation["Purge"] = 1;
-      #$this->core->Data("Save", ["conversation", $value, $conversation]);
-    $tmp.=$this->core->Element(["p", "Purge forum Post Conversation #$value..."]);//TEMP
+      $this->core->Data("Save", ["conversation", $value, $conversation]);
      }
-     #$this->core->Data("Purge", ["translate", $value]);
-    $tmp.=$this->core->Element(["p", "Purge forum Post Translations #$value..."]);//TEMP
-     #$this->core->Data("Purge", ["votes", $value]);
-    $tmp.=$this->core->Element(["p", "Purge forum Post Votes #$value..."]);//TEMP
+     $this->core->Data("Purge", ["translate", $value]);
+     $this->core->Data("Purge", ["votes", $value]);
     }
     $chat = $this->core->Data("Get", ["chat", $id]);
     if(!empty($chat)) {
      $chat["Purge"] = 1;
-     #$this->core->Data("Save", ["chat", $id, $chat]);
-    $tmp.=$this->core->Element(["p", "Purge forum Chat #$id..."]);//TEMP
+     $this->core->Data("Save", ["chat", $id, $chat]);
     }
     $conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     #$this->core->Data("Save", ["conversation", $id, $conversation]);
-    $tmp.=$this->core->Element(["p", "Purge forum Conversation #$id..."]);//TEMP
-    }
-    $forum = $this->core->Data("Get", ["pf", $id]);
-    if(!empty($forum)) {
-     $forum["Purge"] = 1;
-     #$this->core->Data("Save", ["pf", $id, $forum]);
-    $tmp.=$this->core->Element(["p", "Purge forum #$id..."]);//TEMP
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
     }
     $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
     if(!empty($manifest)) {
      $manifest["Purge"] = 1;
-     #$this->core->Data("Save", ["pfmanifest", $id, $manifest]);
-    $tmp.=$this->core->Element(["p", "Purge forum Manifest #$id..."]);//TEMP
+     $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
     }
-    #$this->core->Data("Purge", ["translate", $id]);
-    $tmp.=$this->core->Element(["p", "Purge forum Translations #$id..."]);//TEMP
-    #$this->core->Data("Purge", ["votes", $id]);
-    $tmp.=$this->core->Element(["p", "Purge forum Votes #$id..."]);//TEMP
+    $this->core->Data("Purge", ["translate", $id]);
+    $this->core->Data("Purge", ["votes", $id]);
     foreach($forums as $key => $value) {
      if($id != $value) {
       $newForums[$key] = $value;
      }
     }
     $y["Forums"] = $newForums;
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
-    $tmp.=$this->core->Element(["p", "Save Your Forums..."]);//TEMP
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
      "p", "The Forum <em>".$forum["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "p", $tmp
-    ]).$this->core->Element([
-     "p", json_encode([$y["Forums"], $this->core->Data("Get", ["pf", $id])], true)
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
