@@ -88,7 +88,6 @@
      "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
      "[Admin.Server]" => "https://www.digitalocean.com/",
-     "[App.Configuration.Model.Media]" => json_encode($config["Media"], true),
      "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
      "[Configuration.App.Keywords]" => base64_encode($config["App"]["Keywords"]),
      "[Configuration.App.Maintenance]" => $config["Maintenance"],
@@ -259,8 +258,7 @@
      $this->core->Data("Save", ["app", md5("config"), $config]);
      $r = [
       "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-      "Header" => "Done",
-      "Scrollable" => json_encode($config["PublicEvents"], true)
+      "Header" => "Done"
      ];
     }
    }
@@ -317,8 +315,7 @@
     $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($config["Media"], true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
