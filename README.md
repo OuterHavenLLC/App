@@ -30,7 +30,7 @@ This release focuses on search—both inside and outside the platform, content c
 
 ### Congressional Notes
 * Members of Congress may now contribute Congressional Notes to add context.
-* Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Articles and Status Updates until another overtakes it.
+* Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Articles, Forum Posts, and Status Updates until another overtakes it.
 
 ### Re:Search
 * Refined content visibility across the platform.
