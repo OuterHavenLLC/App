@@ -116,10 +116,14 @@ Outer Haven is a Constitutional Social Media platform where every Member is affo
 # Cron Tab
 Below is the cron tab configuration we have set up to efficiently maintain the server and (re-)establish Re:Search indexes.
 
-## Example
+## Root
 MAILTO=""
 @daily /bin/bash /home/mike/Upkeep.sh
-@hourly /usr/bin/php /var/www/html/base/crontab/purge.php
+@reboot /bin/bash /home/mike/Upkeep.sh
+
+## www-data
+MAILTO=""
+@daily /usr/bin/php /var/www/html/base/crontab/purge.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.blog.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.chat.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.feedback.php
@@ -133,6 +137,5 @@ MAILTO=""
 @hourly /usr/bin/php /var/www/html/base/crontab/search.statusupdate.php
 @hourly /usr/bin/php /var/www/html/base/crontab/thumbnails.php
 @hourly /usr/bin/php /var/www/html/base/crontab/crontab.php
-@reboot /bin/bash /home/mike/Upkeep.sh
 
 We welcome your feedback regarding bugs and general suggestions via the Company Feedback form.

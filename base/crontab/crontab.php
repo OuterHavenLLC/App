@@ -9,7 +9,7 @@
  ]).$oh->core->Element([
   "p", "The following cron jobs have been executed on ".$oh->core->timestamp.":"
  ]).$oh->core->Element([
-  "p", "&bull; Content Purging"
+  "p", "&bull; Content Purge (runs daily)"
  ]).$oh->core->Element([
   "p", "&bull; Blog Index"
  ]).$oh->core->Element([

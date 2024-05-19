@@ -247,11 +247,10 @@
       $r = json_encode([]);
      } else {
       $r = fopen($dataFile, "r");
-      $r = fread($r, filesize($dataFile))?? json_encode([]);
+      $r = fread($r, filesize($dataFile)) ?? json_encode([]);
      }
      return json_decode($r, true);
     } elseif($action == "Save") {
-     $data = $data ?? [];
      if(!empty($data)) {
       $r = fopen($dataFile, "w+");
       fwrite($r, json_encode($data, true));
@@ -617,7 +616,7 @@
       $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($content["ID"])."&List=".base64_encode("Files")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->core->Element(["h1", "Delete Media", ["class" => "CenterText"]]))."&ParentPage=$parentView&ViewData=".base64_encode($viewData)),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Media", ["class" => "CenterText"]]))."&ParentPage=$parentView&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContentID)."&UN=".base64_encode($contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
        "Source" => $this->GetSourceFromExtension([$contentID, $data]),
