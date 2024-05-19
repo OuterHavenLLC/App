@@ -101,7 +101,7 @@
    $fsUsage = number_format(round($fsUsage / 1000));
    $fsUsage = str_replace(",", "", $fsUsage);
    if(!empty($id) && !empty($username)) {
-    $bl = $this->core->CheckBlocked([$y, "Albums", $blockID]);
+    $bl = $this->core->CheckBlocked([$y, "Albums", $id]);
     $_Album = $this->core->GetContentData([
      "Blacklisted" => $bl,
      "ID" => base64_encode("Album;$username;$id"),
@@ -109,6 +109,7 @@
     ]);
     if($_Album["Empty"] == 0) {
      $album = $_Album["DataModel"];
+     $options = $_Album["ListItem"]["Options"];
      $t = ($username == $you) ? $y : $this->core->Member($username);
      $secureUsername = base64_encode($t["Login"]["Username"]);
      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
@@ -130,7 +131,7 @@
       ]) : "";
       $actions .= $this->core->Element(["button", "Edit", [
        "class" => "OpenCard Small v2 v2w",
-       "data-view" => $optionsp["Edit"]
+       "data-view" => $options["Edit"]
       ]]);
      }
      $actions = ($this->core->ID != $you) ? $actions : "";

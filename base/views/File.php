@@ -146,13 +146,16 @@
      ]) : "";--*/
      $addTo = "";
      $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
+     $viewData = json_encode([
+      "SecureKey" => base64_encode($y["Login"]["PIN"]),
+      "AID" => base64_encode($file["AID"]),
+      "ID" => base64_encode("$username-$id"),
+      "v" => base64_encode("File:Purge")
+     ], true);
      $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
       "button", "Delete", [
-       "class" => "OpenDialog Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteFile")."&AID=".$file["AID"]."&ID=$id&ParentView=".$this->core->PlainText([
-        "Data" => $data["lPG"],
-        "Encode" => 1
-       ])."&UN=".base64_encode($username))
+       "class" => "GoToView Small v2",
+       "data-type" => "Media$id;".base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode("Delete Media")."&ParentPage=".$data["ParentView"]."&ViewData=".base64_encode($viewData))
       ]
      ]) : "";
      $actions .= $this->core->Element([
@@ -241,6 +244,118 @@
     "ResponseType" => "View"
    ]);
   }
+  function Purge(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $parentView = $data["ParentView"] ?? "";
+   $r = [
+    "Body" => "The Media File Identifier is missing."
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $y["Login"]["PIN"]) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id) && !empty($parentView)) {
+    $_ID = explode("-", base64_decode($id));
+    $accessCode = "Accepted";
+    $files = $_FileSystem["Files"] ?? [];
+    $id = $_ID[1];
+    $username = $_ID[0];
+    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
+    $files = $fileSystem["Files"] ?? [];
+    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
+     "app",
+     "fs"
+    ]) : $files;
+    $file = $files[$id] ?? [];
+    $newFiles = [];
+    $points = $this->core->config["PTS"]["DeleteFile"];
+    $r = [
+     "Body" => "The File <strong>#$id</strong> could not be found."
+    ];
+    if(!empty($file["AID"])) {
+     $albumID = $file["AID"];
+     $albums = $fileSystem["Albums"] ?? [];
+     foreach($files as $key => $value) {
+      if($id != $value["ID"]) {
+       $newFiles[$key] = $value;
+      } else {
+        $tmp="";//TEMP
+       $_Name = $value["Name"] ?? "";
+       $coverPhoto = $albums[$albumID]["ICO"] ?? "";
+       $baseName = explode(".", $_Name)[0];
+       if($this->core->ID != $username) {
+        if($_Name == $coverPhoto && $username == $you) {
+         $albums[$albumID]["ICO"] = "";
+        }
+       }
+       $conversation = $this->core->Data("Get", ["conversation", $key]);
+       if(!empty($conversation)) {
+        $conversation["Purge"] = 1;
+        #$this->core->Data("Save", ["conversation", $key, $conversation]);
+        $tmp.=$this->core->Element(["p", "[Mark for Purge]: $key"]);//TEMP
+       }
+       $mediaFile = $this->core->DocumentRoot."/efs/$username/$_Name";
+       #$this->core->Data("Purge", ["translate", $key]);
+        $tmp.=$this->core->Element(["p", "[Purge]: Translations for $key"]);//TEMP
+       #$this->core->Data("Purge", ["votes", $key]);
+        $tmp.=$this->core->Element(["p", "[Purge]: Votes for $key"]);//TEMP
+       $thumbnail = $this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png";
+       if(file_exists($mediaFile)) {
+        #unlink($mediaFile);
+        $tmp.=$this->core->Element(["p", "[Purge Media]: $mediaFile"]);//TEMP
+       } if(file_exists($thumbnail)) {
+        #unlink($thumbnail);
+        $tmp.=$this->core->Element(["p", "[Purge Thumbnail]: $thumbnail"]);//TEMP
+       }
+      }
+     } if($this->core->ID == $username) {
+      #$this->core->Data("Save", ["app", "fs", $newFiles]);
+     } else {
+      $fileSystem["Albums"] = $albums;
+      $fileSystem["Files"] = $newFiles;
+      $y["Points"] = $y["Points"] + $points;
+      #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+      #$this->core->Data("Save", ["mbr", md5($you), $y]);
+        $tmp.=$this->core->Element(["p", "Save...OK"]);//TEMP
+     }
+     $acknowledge = $this->core->Element(["button", "Okay", [
+      "class" => "GoToParent v2 v2w",
+      "data-type" => $parentView
+     ]]);
+     $r = $this->core->Element([
+      "p", "The Media File was deleted.",
+      ["class" => "CenterText"]
+     $r = $this->core->Element([
+      "div", $tmp, ["class" => "NONAME"]
+     ]).$this->core->Element(["button", "Okay", [
+      "class" => "GoToParent v2 v2w",
+      "data-type" => $parentView
+     ]]);
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog",
+    "Success" => "CloseDialog"
+   ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -302,94 +417,6 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
-   ]);
-  }
-  function SaveDelete(array $a) {
-   $accessCode = "Denied";
-   $acknowledge = $this->Element(["button", "Okay", [
-    "class" => "CloseDialog v2 v2w"
-   ]]);
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $id = $data["ID"] ?? "";
-   $parentView = $data["ParentView"] ?? "";
-   $r = "The File Identifier is missing.";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = "The PINs do not match.";
-   } elseif($this->core->ID == $you) {
-    $r = "You must be signed in to continue.";
-   } elseif(!empty($id) && !empty($parentView)) {
-    $_ID = explode("-", base64_decode($id));
-    $accessCode = "Accepted";
-    $files = $_FileSystem["Files"] ?? [];
-    $id = $_ID[1];
-    $username = $_ID[0];
-    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
-    $files = $fileSystem["Files"] ?? [];
-    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
-     "app",
-     "fs"
-    ]) : $files;
-    $file = $files[$id] ?? [];
-    $newFiles = [];
-    $points = $this->core->config["PTS"]["DeleteFile"];
-    $r = "The File <strong>#$id</strong> could not be found.";
-    if(!empty($file["AID"])) {
-     $albumID = $file["AID"];
-     $albums = $fileSystem["Albums"] ?? [];
-     foreach($files as $key => $value) {
-      if($id != $value["ID"]) {
-       $newFiles[$key] = $value;
-      } else {
-       $_Name = $value["Name"] ?? "";
-       $coverPhoto = $albums[$albumID]["ICO"] ?? "";
-       $baseName = explode(".", $_Name)[0];
-       if($this->core->ID != $username) {
-        if($_Name == $coverPhoto && $username == $you) {
-         $albums[$albumID]["ICO"] = "";
-        }
-       }
-       $this->view(base64_encode("Conversation:SaveDelete"), [
-        "Data" => ["ID" => $key]
-       ]);
-       $this->core->Data("Purge", ["votes", $key]);
-       unlink($this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png");
-       unlink($this->core->DocumentRoot."/efs/$username/$_Name");
-      }
-     } if($this->core->ID == $username) {
-      $this->core->Data("Save", ["app", "fs", $newFiles]);
-     } else {
-      $fileSystem["Albums"] = $albums;
-      $fileSystem["Files"] = $newFiles;
-      $y["Points"] = $y["Points"] + $points;
-      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
-      $this->core->Data("Save", ["mbr", md5($you), $y]);
-     }
-     $acknowledge = $this->core->Element(["button", "Okay", [
-      "class" => "GoToParent dBC v2 v2w",
-      "data-type" => $parentView
-     ]]);
-     $r = ($accessCode == "Accepted") ? "The File was deleted." : $r;
-    }
-   }
-   $header = ($accessCode == "Denied") ? "Error" : "Done";
-   $r = [
-    "Body" => $r,
-    "Header" => $header,
-    "Options" => [
-     $acknowledge
-    ]
-   ];
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
    ]);
   }
   function SaveProfileImage(array $a) {

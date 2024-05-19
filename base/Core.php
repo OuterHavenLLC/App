@@ -609,9 +609,15 @@
        "class" => "NONAME",
        "style" => "height:0.5em"
       ]]);
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "ID" => base64_encode($contentID),
+       "v" => base64_encode("File:Purge")
+      ], true);
       $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($content["ID"])."&List=".base64_encode("Files")),
+       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContentID)."&UN=".base64_encode($contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
        "Source" => $this->GetSourceFromExtension([$contentID, $data]),

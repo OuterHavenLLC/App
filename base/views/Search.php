@@ -1425,10 +1425,7 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
     if($notAnon == 1) {
-     $x = $this->core->Data("Get", [
-      "dc",
-      md5($y["Login"]["Username"])
-     ]) ?? [];
+     $x = $this->core->Data("Get", ["dc", md5($you)]) ?? [];
      foreach($x as $key => $value) {
       $viewData = json_encode([
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
@@ -2171,10 +2168,7 @@
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
-    $fileSystem = $this->core->Data("Get", [
-     "fs",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
+    $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
     if($t["Login"]["Username"] == $this->core->ID) {
      $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
     } else {
@@ -2188,7 +2182,7 @@
       array_push($msg, [
        "[File.CoverPhoto]" => base64_encode($source),
        "[File.Title]" => base64_encode($value["Title"]),
-       "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&ID=".$value["ID"]."&UN=".$t["Login"]["Username"]."&back=1&lPG=$lpg"))
+       "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&ID=".$value["ID"]."&UN=".$t["Login"]["Username"]."&back=1&ParentView=$lpg"))
       ]);
      }
     }
