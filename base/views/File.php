@@ -322,10 +322,6 @@
         $tmp.=$this->core->Element(["p", "[Save]: Done"]);//TEMP
         $tmp.=$this->core->Element(["p", "[Data]: ".json_encode($fileSystem, true)]);//TEMP
      }
-     $acknowledge = $this->core->Element(["button", "Okay", [
-      "class" => "GoToParent v2 v2w",
-      "data-type" => "Files"
-     ]]);
      $r = $this->core->Element([
       "p", "The Media File was deleted.",
       ["class" => "CenterText"]
