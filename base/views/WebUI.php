@@ -276,7 +276,6 @@
     $changeData,
     $this->core->Extension($extension)
    ]);
-   $r.=$this->core->Element(["p", json_encode($y, true)]);//TEMP
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [

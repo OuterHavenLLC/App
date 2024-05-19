@@ -503,7 +503,7 @@
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
     $r = $this->core->Element([
      "div", $this->core->Element([
-      "p", "Your profile is now inactive and you can sign in at any time to re-activate it, we hope to see you again soon!"
+      "p", "Your profile is now inactive and you can sign in at any time to activate it, we hope to see you again soon!"
      ]), ["class" => "K4i"]
     ]).$this->core->RenderView($r);
    }
