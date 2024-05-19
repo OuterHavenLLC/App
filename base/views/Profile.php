@@ -499,41 +499,12 @@
    } else {
     $accessCode = "Accepted";
     $y["Inactive"] = 1;
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
     $r = $this->core->Element([
      "div", $this->core->Element([
-      "p", "Your profile is now inactive, we hope to see you again soon!".json_encode($y, true)
-     ]), ["class" => "K4i Red"]
-    ]).$this->core->RenderView($r);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
-  function Purge() {
-   $accessCode = "Denied";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } else {
-    $accessCode = "Accepted";
-    $tmp="";//TEMP
-    // DELETE PROFILE
-    $r = $this->view(base64_encode("WebUI:OptIn"), []);
-    $r = $this->core->Element([
-     "div", $this->core->Element([
-      "p", "Your profile is now slated for purging. We hope to see you again!$tmp"
-     ]), ["class" => "K4i Red"]
+      "p", "Your profile is now inactive, we hope to see you again soon!"
+     ]), ["class" => "K4i"]
     ]).$this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
@@ -1101,6 +1072,35 @@
      "[Preferences.Purge]" => base64_encode("v=".base64_encode("Profile:Purge")),
      "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
     ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function Purge() {
+   $accessCode = "Denied";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } else {
+    $accessCode = "Accepted";
+    $tmp="";//TEMP
+    // DELETE PROFILE
+    $r = $this->view(base64_encode("WebUI:OptIn"), []);
+    $r = $this->core->Element([
+     "div", $this->core->Element([
+      "p", "Your profile is now slated for purging. We hope to see you again!$tmp"
+     ]), ["class" => "K4i Red"]
+    ]).$this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
