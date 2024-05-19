@@ -666,7 +666,7 @@
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ForumID" => base64_encode($contentID),
        "PostID" => base64_encode($additionalContentID),
-       "v" => base64_encode("Forum:Purge")
+       "v" => base64_encode("ForumPost:Purge")
       ], true);
       $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [

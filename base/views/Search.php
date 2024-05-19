@@ -2390,9 +2390,15 @@
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     foreach($invoicePresets as $key => $value) {
      $preset = $this->core->Data("Get", ["invoice-preset", $value]) ?? [];
+     $viewData = json_encode([
+      "SecureKey" => base64_encode($y["Login"]["PIN"]),
+      "ID" => base64_encode($value),
+      "Shop" => base64_encode($data["Shop"]),
+      "v" => base64_encode("Invoice:PurgePreset")
+     ], true);
      $options = $this->core->Element(["button", "Delete", [
       "class" => "A OpenDialog v2",
-      "data-view" => base64_encode("v=".base64_encode("Authentication:DeleteService")."&ID=$value&Shop=".$data["Shop"])
+      "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
      ]]);
      if(!empty($preset)) {
       array_push($msg, [

@@ -120,72 +120,6 @@
     "Success" => "CloseCard"
    ]);
   }
-  function DeletePreset(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $id = $data["ID"] ?? "";
-   $pin = $data["PIN"] ?? "";
-   $r = [
-    "Body" => "The Shop-Service Identifier are missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($pin) != $y["Login"]["PIN"]) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must sign in to continue."
-    ];
-   } elseif(!empty($id)) {
-    $check = 0;
-    $combinedID = explode("-", base64_decode($id));
-    $id = $combinedID[1];
-    $shopID = $combinedID[0];
-    $isAdmin = ($shopID == md5($you)) ? 1 : 0;
-    $r = [
-     "Body" => "You are not authorized to delete Pre-sets.",
-     "Header" => "Forbidden"
-    ];
-    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-    foreach($shop["Contributors"] as $member => $role) {
-     if($check == 0 && $member == $you) {
-      $check++;
-     }
-    } if($check == 1 && $isAdmin == 1) {
-     $accessCode = "Accepted";
-     $newPresets = [];
-     $presets = $shop["InvoicePresets"] ?? [];
-     foreach($presets as $key => $value) {
-      if($value != $id) {
-       $newPresets[$key] = $value;
-      }
-     }
-     $preset = $this->core->Data("Get", [
-      "invoice-preset",
-      $id
-     ]) ?? [];
-     $shop["InvoicePresets"] = $newPresets;
-     $this->core->Data("Purge", ["invoice-preset", $id]);
-     $this->core->Data("Save", ["shop", $shopID, $shop]);
-     $r = [
-      "Body" => "The service <em>".$preset["Title"]."</em> was deleted.",
-      "Header" => "Done"
-     ];
-    }
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
-   ]);
-  }
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -835,6 +769,75 @@
        ];
       }
      }
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function PurgePreset(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Shop or Service Identifiers are missing."
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $shopID = $data["Shop"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id) && !empty($shopID)) {
+    $check = 0;
+    $id = base64_decode($id);
+    $shopID = base64_decode($shopID);
+    $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+    $r = [
+     "Body" => "You are not authorized to delete Pre-sets.",
+     "Header" => "Forbidden"
+    ];
+    $shop = $this->core->Data("Get", ["shop", $shopID]);
+    $shopPartners = $shop["Contributors"] ?? [];
+    foreach($shopPartners as $member => $role) {
+     if($check == 0 && $member == $you) {
+      $check++;
+      break;
+     }
+    } if($check == 1 && $isAdmin == 1) {
+     $accessCode = "Accepted";
+     $newPresets = [];
+     $presets = $shop["InvoicePresets"] ?? [];
+     foreach($presets as $key => $value) {
+      if($value != $id) {
+       $newPresets[$key] = $value;
+      }
+     }
+     $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
+     $shop["InvoicePresets"] = $newPresets;
+     $this->core->Data("Purge", ["invoice-preset", $id]);
+     $this->core->Data("Save", ["shop", $shopID, $shop]);
+     $r = $this->core->Element([
+      "p", "The service <em>".$preset["Title"]."</em> was deleted.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]);
     }
    }
    return $this->core->JSONResponse([

@@ -523,8 +523,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
+    "ResponseType" => "Dialog"
    ]);
   }
   function Save(array $a) {

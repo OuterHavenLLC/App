@@ -221,7 +221,7 @@
    } elseif(!empty($forumID) && !empty($postID)) {
     $accessCode = "Accepted";
     $forumID = base64_decode($forumID);
-    $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $forumID]);
     $newPosts = [];
     $postID = base64_decode($postID);
     $posts = $forum["Posts"] ?? [];
@@ -231,6 +231,12 @@
       $newPosts[$key] = $value;
      }
     }
+    $forumPost = $this->core->Data("Get", ["post", $postID]);
+    if(!empty($forumPost)) {
+     $forumPost["Purge"] = 1;
+     #$this->core->Data("Save", ["post", $postID, $forumPost]);
+    $tmp.=$this->core->Element(["p", "Purge Post #$postID..."]);//TEMP
+    }
     $forum["Posts"] = $newPosts;
     $conversation = $this->core->Data("Get", ["conversation", $postID]);
     if(!empty($conversation)) {
@@ -238,8 +244,6 @@
      #$this->core->Data("Save", ["conversation", $postID, $conversation]);
     $tmp.=$this->core->Element(["p", "Purge Post Conversation #$postID..."]);//TEMP
     }
-    #$this->core->Data("Purge", ["post", $postID]);
-    $tmp.=$this->core->Element(["p", "Purge Post #$postID..."]);//TEMP
     #$this->core->Data("Purge", ["translate", $postID]);
     $tmp.=$this->core->Element(["p", "Purge Post Translations #$postID..."]);//TEMP
     #$this->core->Data("Purge", ["votes", $postID]);
@@ -252,7 +256,7 @@
     ]).$this->core->Element([
      "p", $tmp
     ]).$this->core->Element([
-     "p", json_encode($forum, true)
+     "p", json_encode([$forum, $forumPost, $conversation], true)
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
