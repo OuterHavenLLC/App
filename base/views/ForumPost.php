@@ -196,12 +196,10 @@
   function Purge(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $forumID = $data["ForumID"] ?? base64_encode("");
-   $forumID = base64_decode($forumID);
+   $forumID = $data["ForumID"] ?? "";
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
-   $postID = $data["PostID"] ?? base64_encode("");
-   $postID = base64_decode($postID);
+   $postID = $data["PostID"] ?? "";
    $r = [
     "Body" => "The Post Identifier is missing."
    ];
@@ -225,7 +223,6 @@
     $newPosts = [];
     $postID = base64_decode($postID);
     $posts = $forum["Posts"] ?? [];
-    $tmp="";//TEMP
     foreach($posts as $key => $value) {
      if($postID != $value) {
       $newPosts[$key] = $value;
@@ -234,29 +231,20 @@
     $forumPost = $this->core->Data("Get", ["post", $postID]);
     if(!empty($forumPost)) {
      $forumPost["Purge"] = 1;
-     #$this->core->Data("Save", ["post", $postID, $forumPost]);
-    $tmp.=$this->core->Element(["p", "Purge Post #$postID..."]);//TEMP
+     $this->core->Data("Save", ["post", $postID, $forumPost]);
     }
     $forum["Posts"] = $newPosts;
     $conversation = $this->core->Data("Get", ["conversation", $postID]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     #$this->core->Data("Save", ["conversation", $postID, $conversation]);
-    $tmp.=$this->core->Element(["p", "Purge Post Conversation #$postID..."]);//TEMP
+     $this->core->Data("Save", ["conversation", $postID, $conversation]);
     }
-    #$this->core->Data("Purge", ["translate", $postID]);
-    $tmp.=$this->core->Element(["p", "Purge Post Translations #$postID..."]);//TEMP
-    #$this->core->Data("Purge", ["votes", $postID]);
-    $tmp.=$this->core->Element(["p", "Purge Post Votes #$postID..."]);//TEMP
-    #$this->core->Data("Save", ["pf", $forumID, $forum]);
-    $tmp.=$this->core->Element(["p", "Save forum..."]);//TEMP
+    $this->core->Data("Purge", ["translate", $postID]);
+    $this->core->Data("Purge", ["votes", $postID]);
+    $this->core->Data("Save", ["pf", $forumID, $forum]);
     $r = $this->core->Element([
      "p", "The Forum Post and dependencies were marked for purging.",
      ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "p", $tmp
-    ]).$this->core->Element([
-     "p", json_encode([$forum, $forumPost, $conversation], true)
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
