@@ -1098,7 +1098,7 @@
        "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
        "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
        "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
-       "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&ParentPage=Files&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
+       "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&ParentPage=Files&SignOut=".base64_encode(1)."&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
        "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
       ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
      }

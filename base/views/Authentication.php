@@ -121,6 +121,8 @@
     "Body" => "The View Data is missing."
    ];
    $responseType = "Dialog";
+   $signOut = $data["SignOut"] ?? base64_encode(0);
+   $signOut = base64_decode($signOut);
    $text = $data["Text"] ?? base64_encode("Please enter your PIN below to continue.");
    $text = base64_decode($text);
    $y = $this->you;
@@ -149,6 +151,7 @@
      "[ProtectedContent.Back]" => $back,
      "[ProtectedContent.CloseDialog]" => $closeDialog,
      "[ProtectedContent.Header]" => $header,
+     "[ProtectedContent.SignOut]" => base64_decode($signOut),
      "[ProtectedContent.Text]" => $text,
      "[ProtectedContent.View]" => base64_encode(rtrim($view, "&"))
     ], $this->core->Extension("a1f9348036f81e1e9b79550e03f825fb")]);
