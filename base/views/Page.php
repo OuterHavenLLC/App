@@ -275,24 +275,20 @@
       $accessCode = "Denied";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
-      $r = $this->core->Element(["p", "The Secure Key is missing."]);
+      $r = $this->core->Element(["p", "The Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
-      if(!empty($secureKey)) {
-       if(empty($key)) {
-        $r = $this->core->Element(["p", "The Key is missing."]);
-       } elseif($key != $secureKey) {
-        $r = $this->core->Element(["p", "The Keys do not match."]);
-       } else {
-        $accessCode = "Accepted";
-        $r = $this->view(base64_encode("Page:Home"), ["Data" => [
-         "BackTo" => $backTo,
-         "ID" => $id,
-         "ParentPage" => $parentPage,
-         "ViewProtectedContent" => 1
-        ]]);
-        $r = $this->core->RenderView($r);
-       }
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("Page:Home"), ["Data" => [
+        "BackTo" => $backTo,
+        "ID" => $id,
+        "ParentPage" => $parentPage,
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_ViewTitle = $_Article["ListItem"]["Title"] ?? $_ViewTitle;
