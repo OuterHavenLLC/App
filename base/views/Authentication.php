@@ -115,7 +115,6 @@
    $data = $a["Data"] ?? [];
    $dialog = $data["Dialog"] ?? 0;
    $header = $data["Header"] ?? base64_encode("");
-   $header = base64_decode($header);
    $parentPage = $data["ParentPage"] ?? "";
    $r = [
     "Body" => "The View Data is missing."
@@ -123,7 +122,6 @@
    $responseType = "Dialog";
    $signOut = $data["SignOut"] ?? 0;
    $text = $data["Text"] ?? base64_encode("Please enter your PIN below to continue.");
-   $text = base64_decode($text);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -141,17 +139,17 @@
      "button", "Cancel", ["class" => "CloseDialog v2 v2w"]
     ]) : "";
     $view = "";
-    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
-    $viewData = json_decode(base64_decode($viewData), true);
+    $viewData = $data["ViewData"] ?? base64_encode(json_encode([], true));
+    $viewData = json_decode(base64_decode($viewData));
     foreach($viewData as $key => $value) {
      $view .= "$key=$value&";
     }
     $r = $this->core->Change([[
      "[ProtectedContent.Back]" => $back,
      "[ProtectedContent.CloseDialog]" => $closeDialog,
-     "[ProtectedContent.Header]" => $header,
+     "[ProtectedContent.Header]" => base64_decode($header),
      "[ProtectedContent.SignOut]" => $signOut,
-     "[ProtectedContent.Text]" => $text,
+     "[ProtectedContent.Text]" => base64_decode($text),
      "[ProtectedContent.View]" => base64_encode(rtrim($view, "&"))
     ], $this->core->Extension("a1f9348036f81e1e9b79550e03f825fb")]);
     $r = ($dialog == 1) ? [
