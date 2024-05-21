@@ -1006,76 +1006,116 @@
     ];
    } else {
     $accessCode = "Accepted";
-    $id = md5($you);
-    $birthMonths = [];
-    $birthYears = [];
-    $chooseElectable = $y["Personal"]["Electable"] ?? 0;
-    $chooseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
-    $chooseMinimalDesign = (!empty($chooseMinimalDesign)) ? 1 : 0;
-    $polls = $y["Privacy"]["Posts"] ?? md5("Public");
-    $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
-    for($i = 1; $i <= 12; $i++) {
-     $birthMonths[$i] = $i;
-    } for($i = 1776; $i <= date("Y"); $i++) {
-     $birthYears[$i] = $i;
+    $passPhrase = $y["Login"]["PIN"];
+    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+    $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+    if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+     $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      "Header" => base64_encode($this->core->Element([
+       "h1", "Preferences", ["class" => "CenterText"]
+      ])),
+      "ParentPage" => $parentPage,
+      "Text" => base64_encode("Please enter your PIN to access your Prefernces."),
+      "ViewData" => base64_encode(json_encode([
+       "BackTo" => $backTo,
+       "SecureKey" => base64_encode($passPhrase),
+       "VerifyPassPhrase" => 1,
+       "v" => base64_encode("Profile:Preferences")
+      ], true))
+     ]]);
+     $r = $this->core->RenderView($r);
+    } elseif($verifyPassPhrase == 1) {
+     $accessCode = "Denied";
+     $key = $data["Key"] ?? base64_encode("");
+     $key = base64_decode($key);
+     $r = $this->core->Element(["p", "The Secure Key is missing."]);
+     $secureKey = $data["SecureKey"] ?? base64_encode("");
+     $secureKey = base64_decode($secureKey);
+     if(!empty($secureKey)) {
+      if(empty($key)) {
+       $r = $this->core->Element(["p", "The Key is missing."]);
+      } elseif($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("Profile:Preferences"), ["Data" => [
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     }
+    } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+     $id = md5($you);
+     $birthMonths = [];
+     $birthYears = [];
+     $chooseElectable = $y["Personal"]["Electable"] ?? 0;
+     $chooseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
+     $chooseMinimalDesign = (!empty($chooseMinimalDesign)) ? 1 : 0;
+     $polls = $y["Privacy"]["Posts"] ?? md5("Public");
+     $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
+     for($i = 1; $i <= 12; $i++) {
+      $birthMonths[$i] = $i;
+     } for($i = 1776; $i <= date("Y"); $i++) {
+      $birthYears[$i] = $i;
+     }
+     $viewData = json_encode([
+      "SecureKey" => base64_encode($y["Login"]["PIN"]),
+      "v" => base64_encode("Profile:Purge")
+     ], true);
+     $r = $this->core->Change([[
+      "[Preferences.Birthday.Month]" => $y["Personal"]["Birthday"]["Month"],
+      "[Preferences.Birthday.Months]" => json_encode($birthMonths, true),
+      "[Preferences.Birthday.Year]" => $y["Personal"]["Birthday"]["Year"],
+      "[Preferences.Birthday.Years]" => json_encode($birthYears, true),
+      "[Preferences.Deactivate]" => base64_encode("v=".base64_encode("Profile:Deactivate")),
+      "[Preferences.Donations.Patreon]" => base64_encode($y["Donations"]["Patreon"]),
+      "[Preferences.Donations.PayPal]" => base64_encode($y["Donations"]["PayPal"]),
+      "[Preferences.Donations.SubscribeStar]" => base64_encode($y["Donations"]["SubscribeStar"]),
+      "[Preferences.General.Name]" => base64_encode($y["Personal"]["FirstName"]),
+      "[Preferences.General.Description]" => base64_encode($y["Personal"]["Description"]),
+      "[Preferences.General.DisplayName]" => base64_encode($y["Personal"]["DisplayName"]),
+      "[Preferences.General.Email]" => base64_encode($y["Personal"]["Email"]),
+      "[Preferences.General.Gender]" => $y["Personal"]["Gender"],
+      "[Preferences.General.OnlineStatus]" => $y["Activity"]["OnlineStatus"],
+      "[Preferences.General.RelationshipStatus]" => $y["Personal"]["RelationshipStatus"],
+      "[Preferences.General.RelationshipWith]" => base64_encode($relationshipWith),
+      "[Preferences.ID]" => $id,
+      "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode(md5($y["Login"]["Username"]))),
+      "[Preferences.Links.NewPassword]" => base64_encode("v=".base64_encode("Profile:NewPassword")),
+      "[Preferences.Links.NewPIN]" => base64_encode("v=".base64_encode("Profile:NewPIN")),
+      "[Preferences.Personal.Electable]" => $chooseElectable,
+      "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
+      "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
+      "[Preferences.Privacy.Archive]" => $y["Privacy"]["Archive"],
+      "[Preferences.Privacy.Articles]" => $y["Privacy"]["Articles"],
+      "[Preferences.Privacy.Comments]" => $y["Privacy"]["Comments"],
+      "[Preferences.Privacy.ContactInfo]" => $y["Privacy"]["ContactInfo"],
+      "[Preferences.Privacy.ContactInfoDonate]" => $y["Privacy"]["ContactInfoDonate"],
+      "[Preferences.Privacy.ContactInfoEmails]" => $y["Privacy"]["ContactInfoEmails"],
+      "[Preferences.Privacy.ContactRequests]" => $y["Privacy"]["ContactRequests"],
+      "[Preferences.Privacy.Contacts]" => $y["Privacy"]["Contacts"],
+      "[Preferences.Privacy.Contributions]" => $y["Privacy"]["Contributions"],
+      "[Preferences.Privacy.DLL]" => $y["Privacy"]["DLL"],
+      "[Preferences.Privacy.ForumsType]" => $y["Privacy"]["ForumsType"],
+      "[Preferences.Privacy.Gender]" => $y["Privacy"]["Gender"],
+      "[Preferences.Privacy.Journal]" => $y["Privacy"]["Journal"],
+      "[Preferences.Privacy.LastActivity]" => $y["Privacy"]["LastActivity"],
+      "[Preferences.Privacy.LookMeUp]" => $y["Privacy"]["LookMeUp"],
+      "[Preferences.Privacy.MSG]" => $y["Privacy"]["MSG"],
+      "[Preferences.Privacy.NSFW]" => $y["Privacy"]["NSFW"],
+      "[Preferences.Privacy.OnlineStatus]" => $y["Privacy"]["OnlineStatus"],
+      "[Preferences.Privacy.Polls]" => $polls,
+      "[Preferences.Privacy.Posts]" => $y["Privacy"]["Posts"],
+      "[Preferences.Privacy.Products]" => $y["Privacy"]["Products"],
+      "[Preferences.Privacy.Profile]" => $y["Privacy"]["Profile"],
+      "[Preferences.Privacy.Registered]" => $y["Privacy"]["Registered"],
+      "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
+      "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
+      "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
+      "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&ParentPage=Files&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
+      "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
+     ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
     }
-    $viewData = json_encode([
-     "SecureKey" => base64_encode($y["Login"]["PIN"]),
-     "v" => base64_encode("Profile:Purge")
-    ], true);
-    $r = $this->core->Change([[
-     "[Preferences.Birthday.Month]" => $y["Personal"]["Birthday"]["Month"],
-     "[Preferences.Birthday.Months]" => json_encode($birthMonths, true),
-     "[Preferences.Birthday.Year]" => $y["Personal"]["Birthday"]["Year"],
-     "[Preferences.Birthday.Years]" => json_encode($birthYears, true),
-     "[Preferences.Deactivate]" => base64_encode("v=".base64_encode("Profile:Deactivate")),
-     "[Preferences.Donations.Patreon]" => base64_encode($y["Donations"]["Patreon"]),
-     "[Preferences.Donations.PayPal]" => base64_encode($y["Donations"]["PayPal"]),
-     "[Preferences.Donations.SubscribeStar]" => base64_encode($y["Donations"]["SubscribeStar"]),
-     "[Preferences.General.Name]" => base64_encode($y["Personal"]["FirstName"]),
-     "[Preferences.General.Description]" => base64_encode($y["Personal"]["Description"]),
-     "[Preferences.General.DisplayName]" => base64_encode($y["Personal"]["DisplayName"]),
-     "[Preferences.General.Email]" => base64_encode($y["Personal"]["Email"]),
-     "[Preferences.General.Gender]" => $y["Personal"]["Gender"],
-     "[Preferences.General.OnlineStatus]" => $y["Activity"]["OnlineStatus"],
-     "[Preferences.General.RelationshipStatus]" => $y["Personal"]["RelationshipStatus"],
-     "[Preferences.General.RelationshipWith]" => base64_encode($relationshipWith),
-     "[Preferences.ID]" => $id,
-     "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode(md5($y["Login"]["Username"]))),
-     "[Preferences.Links.NewPassword]" => base64_encode("v=".base64_encode("Profile:NewPassword")),
-     "[Preferences.Links.NewPIN]" => base64_encode("v=".base64_encode("Profile:NewPIN")),
-     "[Preferences.Personal.Electable]" => $chooseElectable,
-     "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
-     "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
-     "[Preferences.Privacy.Archive]" => $y["Privacy"]["Archive"],
-     "[Preferences.Privacy.Articles]" => $y["Privacy"]["Articles"],
-     "[Preferences.Privacy.Comments]" => $y["Privacy"]["Comments"],
-     "[Preferences.Privacy.ContactInfo]" => $y["Privacy"]["ContactInfo"],
-     "[Preferences.Privacy.ContactInfoDonate]" => $y["Privacy"]["ContactInfoDonate"],
-     "[Preferences.Privacy.ContactInfoEmails]" => $y["Privacy"]["ContactInfoEmails"],
-     "[Preferences.Privacy.ContactRequests]" => $y["Privacy"]["ContactRequests"],
-     "[Preferences.Privacy.Contacts]" => $y["Privacy"]["Contacts"],
-     "[Preferences.Privacy.Contributions]" => $y["Privacy"]["Contributions"],
-     "[Preferences.Privacy.DLL]" => $y["Privacy"]["DLL"],
-     "[Preferences.Privacy.ForumsType]" => $y["Privacy"]["ForumsType"],
-     "[Preferences.Privacy.Gender]" => $y["Privacy"]["Gender"],
-     "[Preferences.Privacy.Journal]" => $y["Privacy"]["Journal"],
-     "[Preferences.Privacy.LastActivity]" => $y["Privacy"]["LastActivity"],
-     "[Preferences.Privacy.LookMeUp]" => $y["Privacy"]["LookMeUp"],
-     "[Preferences.Privacy.MSG]" => $y["Privacy"]["MSG"],
-     "[Preferences.Privacy.NSFW]" => $y["Privacy"]["NSFW"],
-     "[Preferences.Privacy.OnlineStatus]" => $y["Privacy"]["OnlineStatus"],
-     "[Preferences.Privacy.Polls]" => $polls,
-     "[Preferences.Privacy.Posts]" => $y["Privacy"]["Posts"],
-     "[Preferences.Privacy.Products]" => $y["Privacy"]["Products"],
-     "[Preferences.Privacy.Profile]" => $y["Privacy"]["Profile"],
-     "[Preferences.Privacy.Registered]" => $y["Privacy"]["Registered"],
-     "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
-     "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
-     "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
-     "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&ParentPage=Files&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
-     "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
-    ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
