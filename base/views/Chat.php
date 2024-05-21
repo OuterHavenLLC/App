@@ -724,13 +724,13 @@
       "Title" => $title,
       "UN" => $username
      ];
-     if(!in_array($id, $groupChats)) {
+     if(!in_array($id, $groupChats) && $username == $you) {
       array_push($groupChats, $id);
       array_unique($groupChats);
       $y["GroupChats"] = $groupChats;
+      $this->core->Data("Save", ["mbr", md5($you), $y]);
      }
      $this->core->Data("Save", ["chat", $id, $chat]);
-     $this->core->Data("Save", ["mbr", md5($you), $y]);
      $r = [
       "Body" => "The Group Chat for <em>$title</em> has been saved.",
       "Header" => "Done"

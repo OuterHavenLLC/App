@@ -1059,6 +1059,7 @@
      "PIN" => md5($pin),
      "Username" => $username
     ],
+    "GroupChats" => [],
     "Inactive" => 0,
     "Pages" => $pages,
     "Personal" => [

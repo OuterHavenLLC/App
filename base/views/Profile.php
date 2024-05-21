@@ -1098,7 +1098,7 @@
        "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
        "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
        "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
-       "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&ParentPage=Files&SignOut=".base64_encode(1)."&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
+       "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->core->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&SignOut=1&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
        "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
       ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
      }
@@ -1133,8 +1133,70 @@
     ];
    } else {
     $accessCode = "Accepted";
+    $articles = $y["Pages"] ?? [];
+    $blogs = $y["Blogs"] ?? [];
+    $chats = $y["GroupChats"] ?? [];
+    $forums = $y["Forums"] ?? [];
+    $polls = $y["Polls"] ?? [];
+    $shop = $this->core->Data("Get", ["shop", md5($you)]);
+    $shop["Live"] = 0;
+    $shop["Open"] = 0;
+    $shop["Purge"] = 1;
+    $shopProducts = $shop["Products"] ?? [];// MARK FOR PURGING
+    $restrictedIDs = [
+     "5ec1e051bf732d19e09ea9673cd7986b",
+     "7216072bbd437563e692cc7ff69cdb69",
+     "cb3e432f76b38eaa66c7269d658bd7ea"
+    ];
     $tmp="";//TEMP
-    // DELETE PROFILE
+    #$this->core->Data("Save", ["shop", md5($you), $shop]);
+    foreach($blogs as $key => $id) {
+     $blog = $this->core->Data("Get", ["blg", $id]);
+     if(!empty($blog)) {
+      $blog["Purge"] = 1;
+      $tmp.=$this->core->Element(["p", "Marked Blog #$value for Purging..."]);//TEMP
+      #$this->core->Data("Save", ["chat", $id, $blog]);
+     } foreach($blog["Posts"] as $key => $value) {
+      $blogPost = $this->core->Data("Get", ["bp", $value]);
+      if(!empty($blogPost)) {
+       $blogPost["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked Blog Post #$value for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["bp", $value, $blogPost]);
+      }
+      $conversation = $this->core->Data("Get", ["conversation", $value]);
+      if(!empty($conversation)) {
+       $conversation["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked Conversation #$value for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["conversation", $value, $conversation]);
+      }
+      $tmp.=$this->core->Element(["p", "Step 1 Purge of #$value Translations..."]);//TEMP
+      #$this->core->Data("Purge", ["translate", $value]);
+      $tmp.=$this->core->Element(["p", "Step 1 Purge of #$value Votes..."]);//TEMP
+      #$this->core->Data("Purge", ["votes", $value]);
+     }
+     $chat = $this->core->Data("Get", ["chat", $id]);
+     if(!empty($chat)) {
+      $chat["Purge"] = 1;
+      #$this->core->Data("Save", ["chat", $id, $chat]);
+     }
+     $conversation = $this->core->Data("Get", ["conversation", $id]);
+     if(!empty($conversation)) {
+      $conversation["Purge"] = 1;
+      $tmp.=$this->core->Element(["p", "Marked Conversation #$value for Purging..."]);//TEMP
+      #$this->core->Data("Save", ["conversation", $id, $conversation]);
+     }
+     $tmp.=$this->core->Element(["p", "Step 1 Purge of #$id Translations..."]);//TEMP
+     #$this->core->Data("Purge", ["translate", $id]);
+     $tmp.=$this->core->Element(["p", "Step 1 Purge of #$id Votes..."]);//TEMP
+     #$this->core->Data("Purge", ["votes", $id]);
+    }
+    // PURGE ALL OTHER CONTENT CREATED BY $you
+    $member = $this->core->Data("Get", ["mbr", md5($you)]);
+    if(!empty($member)) {
+     $member["Purge"] = 1;
+     $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
+     #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    }
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
     $r = $this->core->Element([
      "div", $this->core->Element([
