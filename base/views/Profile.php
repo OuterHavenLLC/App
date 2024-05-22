@@ -406,8 +406,7 @@
   }
   function Bulletins(array $a) {
    $accessCode = "Denied";
-   $extension = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
-   $r = [];
+   $i = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
@@ -416,36 +415,20 @@
     if(!empty($bulletins)) {
      foreach($bulletins as $key => $value) {
       if($value["Seen"] == 0) {
+       $i++;
        $bulletins[$key]["Seen"] = 1;
-       $value["ID"] = $key;
-       $t = $this->core->Member($value["From"]);
-       $pic = $this->core->ProfilePicture($t, "margin:5%;width:90%");
-       $message = $this->view(base64_encode("Profile:BulletinMessage"), [
-        "Data" => $value
-       ]);
-       $options = $this->view(base64_encode("Profile:BulletinOptions"), [
-        "Data" => [
-         "Bulletin" => base64_encode(json_encode($value))
-        ]
-       ]);
-       array_push($r, [
-        "Data" => $value["Data"],
-        "Date" => $this->core->TimeAgo($value["Sent"]),
-        "From" => $t["Personal"]["DisplayName"],
-        "ID" => $key,
-        "Message" => $this->core->RenderView($message),
-        "Options" => $this->core->RenderView($options),
-        "Picture" => $pic
-       ]);
       }
      }
      $this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
     }
    }
    return $this->core->JSONResponse([
-    $accessCode,
-    base64_encode(json_encode($r, true)),
-    base64_encode($extension)
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $i
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function ChangeRank(array $a) {
