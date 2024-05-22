@@ -23,6 +23,7 @@
   }
   $r = $oh->core->Change([[
    "[App.AddContent]" => base64_encode("v=".base64_encode("Profile:AddContentCheck")),
+   "[App.Bulletin]" => base64_encode($oh->core->Extension("ae30582e627bc060926cfacf206920ce"))
    "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
    "[App.Language]" => $oh->core->language,
    "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
