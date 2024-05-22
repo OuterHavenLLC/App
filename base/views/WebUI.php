@@ -205,6 +205,13 @@
     $extension = "73859ffa637c369b9fa88399a27b5598";
    } else {
     $accessCode = "Accepted";
+    $bulletinBadge = $this->view(base64_encode("Profile:Bulletins"), []);
+    $bulletinBadge = $this->core->RenderView($bulletinBadge);
+    /*--$bulletinBadge = ($bulletinBadge == 0) ? $this->core->Element([
+     "span", $bulletinBadge, [
+      "class" => "Red Right c2"
+     ]
+    ]) : "";--*/
     $i = 0;
     $subscriptionsList = "";
     $verified = $y["Verified"] ?? 0;
@@ -230,6 +237,7 @@
     }
     $changeData = [
      "[Menu.Administration]" => $admin,
+     "[Menu.BulletinBadge]" => $bulletinBadge,
      "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
      "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
      "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
