@@ -426,7 +426,7 @@
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
-     "Web" => $i
+     "Web" => "$i"
     ],
     "ResponseType" => "View"
    ]);
@@ -1121,6 +1121,7 @@
     $chats = $y["GroupChats"] ?? [];
     $forums = $y["Forums"] ?? [];
     $polls = $y["Polls"] ?? [];
+    $secureKey = base64_encode($y["Login"]["PIN"]);
     $shop = $this->core->Data("Get", ["shop", md5($you)]);
     $shop["Live"] = 0;
     $shop["Open"] = 0;
@@ -1139,39 +1140,12 @@
       $blog["Purge"] = 1;
       $tmp.=$this->core->Element(["p", "Marked Blog #$value for Purging..."]);//TEMP
       #$this->core->Data("Save", ["chat", $id, $blog]);
-     } foreach($blog["Posts"] as $key => $value) {
-      $blogPost = $this->core->Data("Get", ["bp", $value]);
-      if(!empty($blogPost)) {
-       $blogPost["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked Blog Post #$value for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["bp", $value, $blogPost]);
-      }
-      $conversation = $this->core->Data("Get", ["conversation", $value]);
-      if(!empty($conversation)) {
-       $conversation["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked Conversation #$value for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["conversation", $value, $conversation]);
-      }
-      $tmp.=$this->core->Element(["p", "Step 1 Purge of #$value Translations..."]);//TEMP
-      #$this->core->Data("Purge", ["translate", $value]);
-      $tmp.=$this->core->Element(["p", "Step 1 Purge of #$value Votes..."]);//TEMP
-      #$this->core->Data("Purge", ["votes", $value]);
+      /*--$tmp.=$this->view(base64_encode("Blog:Purge"), ["Data" => [
+       "Key" => $secureKey,
+       "ID" => base64_encode($id),
+       "SecureKey" => $secureKey
+      ]]);--*/
      }
-     $chat = $this->core->Data("Get", ["chat", $id]);
-     if(!empty($chat)) {
-      $chat["Purge"] = 1;
-      #$this->core->Data("Save", ["chat", $id, $chat]);
-     }
-     $conversation = $this->core->Data("Get", ["conversation", $id]);
-     if(!empty($conversation)) {
-      $conversation["Purge"] = 1;
-      $tmp.=$this->core->Element(["p", "Marked Conversation #$value for Purging..."]);//TEMP
-      #$this->core->Data("Save", ["conversation", $id, $conversation]);
-     }
-     $tmp.=$this->core->Element(["p", "Step 1 Purge of #$id Translations..."]);//TEMP
-     #$this->core->Data("Purge", ["translate", $id]);
-     $tmp.=$this->core->Element(["p", "Step 1 Purge of #$id Votes..."]);//TEMP
-     #$this->core->Data("Purge", ["votes", $id]);
     }
     // PURGE ALL OTHER CONTENT CREATED BY $you
     $member = $this->core->Data("Get", ["mbr", md5($you)]);
