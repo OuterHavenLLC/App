@@ -207,11 +207,12 @@
     $accessCode = "Accepted";
     $bulletinBadge = $this->view(base64_encode("Profile:Bulletins"), []);
     $bulletinBadge = $this->core->RenderView($bulletinBadge);
-    /*--$bulletinBadge = ($bulletinBadge == 0) ? $this->core->Element([
-     "span", $bulletinBadge, [
-      "class" => "Red Right c2"
+    $bulletinBadge = ($bulletinBadge > 0) ? $this->core->Element([
+     "span", "&nbsp; $bulletinBadge &nbsp;", [
+      "class" => "Red Right v2",
+      "style" => "margin:0em;padding:0em"
      ]
-    ]) : "";--*/
+    ]) : "";
     $i = 0;
     $subscriptionsList = "";
     $verified = $y["Verified"] ?? 0;
