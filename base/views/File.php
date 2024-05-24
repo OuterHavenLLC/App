@@ -293,26 +293,26 @@
        $conversation = $this->core->Data("Get", ["conversation", $key]);
        if(!empty($conversation)) {
         $conversation["Purge"] = 1;
-        $this->core->Data("Save", ["conversation", $key, $conversation]);
+        #$this->core->Data("Save", ["conversation", $key, $conversation]);
        }
        $mediaFile = $this->core->DocumentRoot."/efs/$username/$_Name";
-       $this->core->Data("Purge", ["translate", $key]);
-       $this->core->Data("Purge", ["votes", $key]);
+       #$this->core->Data("Purge", ["translate", $key]);
+       #$this->core->Data("Purge", ["votes", $key]);
        $thumbnail = $this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png";
        if(file_exists($mediaFile)) {
-        unlink($mediaFile);
+        #unlink($mediaFile);
        } if(file_exists($thumbnail)) {
-        unlink($thumbnail);
+        #unlink($thumbnail);
        }
       }
      } if($this->core->ID == $username) {
-      $this->core->Data("Save", ["app", "fs", $newFiles]);
+      #$this->core->Data("Save", ["app", "fs", $newFiles]);
      } else {
       $fileSystem["Albums"] = $albums;
       $fileSystem["Files"] = $newFiles;
       $y["Points"] = $y["Points"] + $points;
-      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
-      $this->core->Data("Save", ["mbr", md5($you), $y]);
+      #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+      #$this->core->Data("Save", ["mbr", md5($you), $y]);
      }
      $r = $this->core->Element([
       "p", "The Media File was deleted.",

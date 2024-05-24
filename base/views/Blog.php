@@ -377,7 +377,7 @@
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKey) {
     $r = [
-     "Body" => "The PINs do not match."
+     "Body" => "The PINs do not match. ($key, ".md5($key).", $secureKey)"
     ];
    } elseif($this->core->ID == $you) {
     $r = [
@@ -441,8 +441,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
+    "ResponseType" => "Dialog"
    ]);
   }
   function Save(array $a) {
