@@ -5,11 +5,9 @@
  $oh = New OH;
  $images = $oh->core->config["XFS"]["FT"]["P"] ?? [];
  $r = $oh->core->Element([
-  "h1", "Cron Tasks Executed!"
+  "h1", "Tasks Executed!"
  ]).$oh->core->Element([
   "p", "The following cron jobs have been executed on ".$oh->core->timestamp.":"
- ]).$oh->core->Element([
-  "p", "&bull; Content Purge (runs daily)"
  ]).$oh->core->Element([
   "p", "&bull; Blog Index"
  ]).$oh->core->Element([
@@ -34,6 +32,8 @@
   "p", "&bull; Status Update Index"
  ]).$oh->core->Element([
   "p", "&bull; Thumbnail Assurance"
+ ]).$oh->core->Element([
+  "p", "Please note, the Content Purge is set to run daily at midnight."
  ]);
  $oh->core->SendEmail([
   "Message" => $r,
