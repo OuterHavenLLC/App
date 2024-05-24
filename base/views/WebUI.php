@@ -373,9 +373,8 @@
    foreach($this->core->Languages() as $region => $language) {
     if($key == "en_US") {//TEMP
      $options .= $this->core->Element(["button", $language, [
-      "class" => "LI Reg UpdateContent v2 v2w",
-      "data-type" => $region,
-      "data-view" => base64_encode("v=".base64_encode("WebUI:OptIn"))
+      "class" => "LI Reg v2 v2w",
+      "data-type" => $region
      ]]);
     }//TEMP
    }
