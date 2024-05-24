@@ -626,7 +626,7 @@
    $viewPairID = base64_decode($viewPairID);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
+   if($this->core->ID == $you && $type != "Donation") {
     $r = [
      "Body" => "You must sign in to continue."
     ];
