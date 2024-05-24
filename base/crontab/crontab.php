@@ -1,5 +1,5 @@
 <?php
- # Cron Tab Execution Notification
+ # Cron Tab Notification
  # Place this last in the Cron Job order, it is meant to notify of success.
  require_once("/var/www/html/base/Bootloader.php");
  $oh = New OH;

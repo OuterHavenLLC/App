@@ -405,12 +405,10 @@
    ]);
   }
   function Bulletins(array $a) {
-   $accessCode = "Denied";
    $i = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
-    $accessCode = "Accepted";
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]) ?? [];
     if(!empty($bulletins)) {
      foreach($bulletins as $key => $value) {
@@ -423,7 +421,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
      "Web" => "$i"
