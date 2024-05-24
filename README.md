@@ -18,6 +18,7 @@ This release focuses on search—both inside and outside the platform, content c
 * App Statistics have been revamped, and are now more granular than ever with new daily, monthly, and annual totals now taken into account.
 * Developers now have a Card for viewing app documentation, guides, Heath Kit downloads, and submitting feedback.
 * Members may now secure Articles and Journal Entries with Pass Phrases.
+* Completed the Congressional Ballot. (comming soon...)
 
 ### Artists
 * Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
