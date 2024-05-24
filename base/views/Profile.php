@@ -1025,10 +1025,6 @@
       } for($i = 1776; $i <= date("Y"); $i++) {
        $birthYears[$i] = $i;
       }
-      $viewData = json_encode([
-       "SecureKey" => base64_encode($y["Login"]["PIN"]),
-       "v" => base64_encode("Profile:Purge")
-      ], true);
       $r = $this->core->Change([[
        "[Preferences.Birthday.Month]" => $y["Personal"]["Birthday"]["Month"],
        "[Preferences.Birthday.Months]" => json_encode($birthMonths, true),
@@ -1079,7 +1075,7 @@
        "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
        "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
        "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
-       "[Preferences.Purge]" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->core->Element(["h1", "Delete Profile", ["class" => "CenterText"]]))."&SignOut=1&Text=".base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile from <em>".$this->core->config["App"]["Name"]."</em>, please enter your PIN below.")."&ViewData=".base64_encode($viewData)),
+       "[Preferences.Purge]" => base64_encode("v=".base64_encode("Profile:Purge")),
        "[Preferences.Save]" => base64_encode("v=".base64_encode("Profile:Save"))
       ], $this->core->Extension("e54cb66a338c9dfdcf0afa2fec3b6d8a")]);
      }
@@ -1103,61 +1099,103 @@
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($key) != $secureKey) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
+   if($this->core->ID == $you) {
     $r = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } else {
     $accessCode = "Accepted";
-    $articles = $y["Pages"] ?? [];
-    $blogs = $y["Blogs"] ?? [];
-    $chats = $y["GroupChats"] ?? [];
-    $forums = $y["Forums"] ?? [];
-    $polls = $y["Polls"] ?? [];
-    $secureKey = base64_encode($y["Login"]["PIN"]);
-    $shop = $this->core->Data("Get", ["shop", md5($you)]);
-    $shop["Live"] = 0;
-    $shop["Open"] = 0;
-    $shop["Purge"] = 1;
-    $shopProducts = $shop["Products"] ?? [];// MARK FOR PURGING
-    $restrictedIDs = [
-     "5ec1e051bf732d19e09ea9673cd7986b",
-     "7216072bbd437563e692cc7ff69cdb69",
-     "cb3e432f76b38eaa66c7269d658bd7ea"
-    ];
-    $tmp="";//TEMP
-    #$this->core->Data("Save", ["shop", md5($you), $shop]);
-    foreach($blogs as $key => $id) {
-     $blog = $this->core->Data("Get", ["blg", $id]);
-     if(!empty($blog)) {
-      $blog["Purge"] = 1;
-      $tmp.=$this->core->Element(["p", "Marked Blog #$value for Purging..."]);//TEMP
-      #$this->core->Data("Save", ["chat", $id, $blog]);
-      /*--$tmp.=$this->view(base64_encode("Blog:Purge"), ["Data" => [
-       "Key" => $secureKey,
-       "ID" => base64_encode($id),
-       "SecureKey" => $secureKey
-      ]]);--*/
+    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+    $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+     "Header" => base64_encode($this->core->Element([
+      "h1", "Delete Profile", ["class" => "CenterText"]
+     ])),
+     "SignOut" => "Yes",
+     "Text" => base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile, please enter your PIN below."),
+     "ViewData" => base64_encode(json_encode([
+      "SecureKey" => base64_encode($y["Login"]["PIN"]),
+      "VerifyPassPhrase" => 1,
+      "v" => base64_encode("Profile:Purge")
+     ], true))
+    ]]);
+    $r = $this->core->RenderView($r);
+    if($verifyPassPhrase == 1) {
+     $accessCode = "Denied";
+     $key = $data["Key"] ?? base64_encode("");
+     $key = base64_decode($key);
+     $r = $this->core->Element(["p", "The Key is missing."]);
+     $secureKey = $data["SecureKey"] ?? base64_encode("");
+     $secureKey = base64_decode($secureKey);
+     if(md5($key) != $secureKey) {
+      $r = $this->core->Element(["p", "The Keys do not match."]);
+     } else {
+      $accessCode = "Accepted";
+      $articles = $y["Pages"] ?? [];
+      $blogs = $y["Blogs"] ?? [];
+      $chats = $y["GroupChats"] ?? [];
+      $forums = $y["Forums"] ?? [];
+      $polls = $y["Polls"] ?? [];
+      $secureKey = base64_encode($y["Login"]["PIN"]);
+      $shop = $this->core->Data("Get", ["shop", md5($you)]);
+      $shop["Live"] = 0;
+      $shop["Open"] = 0;
+      $shop["Purge"] = 1;
+      $shopProducts = $shop["Products"] ?? [];// MARK FOR PURGING
+      $restrictedIDs = [
+       "5ec1e051bf732d19e09ea9673cd7986b",
+       "7216072bbd437563e692cc7ff69cdb69",
+       "cb3e432f76b38eaa66c7269d658bd7ea"
+      ];
+      $tmp="";//TEMP
+      foreach($blogs as $key => $id) {
+       $blog = $this->core->Data("Get", ["blg", $id]);
+       if(!empty($blog)) {
+        $blog["Purge"] = 1;
+        $tmp.=$this->core->Element(["p", "Marked Blog #$id for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("Blog:Purge"), ["Data" => [
+         "Key" => $secureKey,
+         "ID" => base64_encode($id),
+         "SecureKey" => $secureKey
+        ]]);
+       }
+      }
+      // PURGE ALL OTHER CONTENT CREATED BY $you
+      $member = $this->core->Data("Get", ["mbr", md5($you)]);
+      if(!empty($member)) {
+       $member["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["mbr", md5($you), $member]);
+      }
+      $memberContacts = $this->core->Data("Get", ["cms", md5($you)]);
+      if(!empty($memberContacts)) {
+       $memberContacts["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Contacts for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["cms", md5($you), $memberContacts]);
+      }
+      $memberShop = $this->core->Data("Get", ["shop", md5($you)]);
+      if(!empty($memberShop)) {
+       $memberShop["Purge"] = 1;
+       $products = $memberShop["Products"] ?? [];
+       foreach($products as $key => $id) {
+        $tmp.=$this->core->Element(["p", "Marked Product #$id for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("Product:Purge"), ["Data" => [
+         "Key" => $secureKey,
+         "ID" => base64_encode($id),
+         "SecureKey" => $secureKey
+        ]]);
+       }
+       $tmp.=$this->core->Element(["p", "Marked @$you's Shop for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["shop", md5($you), $memberShop]);
+      }
+      $r = $this->view(base64_encode("WebUI:OptIn"), []);
+      $r = $this->core->Element([
+       "div", $this->core->Element([
+        "p", "Your profile is now slated for purging. We hope to see you again!$tmp"
+       ]), ["class" => "K4i Red"]
+      ]).$this->core->RenderView($r);
      }
     }
-    // PURGE ALL OTHER CONTENT CREATED BY $you
-    $member = $this->core->Data("Get", ["mbr", md5($you)]);
-    if(!empty($member)) {
-     $member["Purge"] = 1;
-     $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
-     #$this->core->Data("Save", ["mbr", md5($you), $y]);
-    }
-    $r = $this->view(base64_encode("WebUI:OptIn"), []);
-    $r = $this->core->Element([
-     "div", $this->core->Element([
-      "p", "Your profile is now slated for purging. We hope to see you again!$tmp"
-     ]), ["class" => "K4i Red"]
-    ]).$this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

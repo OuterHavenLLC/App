@@ -341,16 +341,16 @@
     $conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
+     #$this->core->Data("Save", ["conversation", $id, $conversation]);
     }
     $product = $this->core->Data("Get", ["product", $id]);
     if(!empty($product)) {
      $product["Purge"] = 1;
-     $this->core->Data("Save", ["product", $id, $product]);
+     #$this->core->Data("Save", ["product", $id, $product]);
     }
-    $this->core->Data("Purge", ["translate", $id]);
-    $this->core->Data("Purge", ["votes", $id]);
-    $this->core->Data("Save", ["shop", md5($you), $shop]);
+    #$this->core->Data("Purge", ["translate", $id]);
+    #$this->core->Data("Purge", ["votes", $id]);
+    #$this->core->Data("Save", ["shop", md5($you), $shop]);
     $r = $this->core->Element([
      "p", "The Product <em>".$product["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]

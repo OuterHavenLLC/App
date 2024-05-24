@@ -204,10 +204,6 @@
     } elseif($searchType == "Links") {
      $h = "Links";
      $lis = "Search Links";
-     $lo = $this->core->Element(["button", "+", [
-      "class" => "OpenFirSTEPTool v2",
-      "data-fst" => base64_encode("v=".base64_encode("Search:Links"))
-     ]]);
     } elseif($searchType == "Mainstream") {
      $extension = "f2513ac8d0389416b680c75ed5667774";
      $h = "The ".$searchType;
