@@ -8,7 +8,7 @@ See SETUP.md (coming soon...) for Heath Kit configuration and installation.
 This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, revamped revenue and statistics, and quality of life improvements. (comming soon...)
 
 ### Platform Improvements
-* A revamped Content Purge system now efficiently and permanently purge their respective content and dependencies from the platform, either purging individual content from their respective SaveDelete views or bulk purging marked content via the new Purge cron job. (in the works...)
+* A revamped Content Purge system now efficiently and permanently purges content and their respective dependencies from the platform. (in the works...)
 * Download buttons now support simultanious media downloads.
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
