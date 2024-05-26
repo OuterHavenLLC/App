@@ -1514,15 +1514,19 @@
     $r = "The $field is missing.";
    } else {
     $members = $this->core->DatabaseSet("MBR");
-    foreach($members as $key => $value) {
-     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
-     $member = $member["Login"]["Username"] ?? "";
-     if($username == $member) {
+    foreach($members as $key => $member) {
+     $_Member = $this->core->GetContentData([
+      "Blacklisted" => 0,
+      "ID" => base64_encode("Member;$member")
+     ]);
+     $member = $_Member["DataModel"] ?? [];
+     $memberUsername = $member["Login"]["Username"] ?? "";
+     if($member["Purge"] == 1 && $memberUsername == $username) {
       $i++;
+      break;
      }
     } if($i > 0) {
-     $member = $this->core->Data("Get", ["mbr", md5($username)]) ?? [];
+     #$member = $this->core->Data("Get", ["mbr", md5($username)]) ?? [];
      $password = md5($password);
      if($password == $member["Login"]["Password"]) {
       $accessCode = "Accepted";
