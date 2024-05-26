@@ -411,7 +411,7 @@
     $blog = $this->core->Data("Get", ["blg", $id]);
     if(!empty($blog)) {
      $blog["Purge"] = 1;
-     $this->core->Data("Save", ["chat", $id, $blog]);
+     $this->core->Data("Save", ["blg", $id, $blog]);
     }
     $chat = $this->core->Data("Get", ["chat", $id]);
     if(!empty($chat)) {

@@ -467,7 +467,6 @@
     $accessCode = "Accepted";
     $id = base64_decode($id);
     $forum = $this->core->Data("Get", ["pf", $id]);
-    $forum["Purge"] = 1;
     $forumPosts = $forum["Posts"] ?? [];
     $forums = $y["Forums"] ?? [];
     $newForums = [];
@@ -497,6 +496,11 @@
      $conversation["Purge"] = 1;
      $this->core->Data("Save", ["conversation", $id, $conversation]);
     }
+    $forum = $this->core->Data("Get", ["pf", $id]);
+    if(!empty($forum)) {
+     $forum["Purge"] = 1;
+     $this->core->Data("Save", ["pf", $id, $forum]);
+    }
     $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
     if(!empty($manifest)) {
      $manifest["Purge"] = 1;
@@ -514,7 +518,6 @@
     }
     $y["Forums"] = $newForums;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["pf", $id]);
     $r = $this->core->Element([
      "p", "The Forum <em>".$forum["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]

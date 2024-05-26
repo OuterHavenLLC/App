@@ -107,7 +107,11 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
-    $this->core->Data("Purge", ["extension", $id]);
+    $extension = $this->core->Data("Get", ["extension", $id]);
+    if(!empty($extension)) {
+     $extension["Purge"] = 1;
+     $this->core->Data("Save", ["extension", $id, $extension]);
+    }
     $r = $this->core->Element([
      "p", "The App Extension was deleted.",
      ["class" => "CenterText"]
