@@ -1159,6 +1159,12 @@
        $conversation["Purge"] = 1;
        $tmp.=$this->core->Element(["p", "Marked @$you's Conversation for Purging..."]);//TEMP
        #$this->core->Data("Save", ["conversation", md5($you), $conversation]);
+      }
+      $discountCodes = $this->core->Data("Get", ["dc", md5($you)]);
+      if(!empty($discountCodes)) {
+       $discountCodes["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Discount Codes for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["dc", md5($you), $discountCodes]);
       } foreach($articles as $key => $id) {
        $article = $this->core->Data("Get", ["pg", $id]);
        if(!empty($article) && !in_array($id, $restrictedIDs)) {
