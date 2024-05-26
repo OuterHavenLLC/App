@@ -1107,7 +1107,7 @@
      "Header" => base64_encode($this->core->Element([
       "h1", "Delete Profile", ["class" => "CenterText"]
      ])),
-     #"SignOut" => "Yes",
+     "SignOut" => "Yes",
      "Text" => base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile, please enter your PIN below."),
      "ViewData" => base64_encode(json_encode([
       "SecureKey" => base64_encode($y["Login"]["PIN"]),
