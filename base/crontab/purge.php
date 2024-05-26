@@ -16,13 +16,26 @@
    $purge = $data["Purge"] ?? 0;
    if(empty($data) || $purge == 1) {
     $purged++;
-    $r .= "<p>Purging data for ".implode(".", $database)."...";
+    $r .= $oh->core->Element(["p", "Purging data and dependencies for ".implode(".", $database)."..."]);
     $oh->core->Data("Purge", [$database[2], $database[3]]);
-    $oh->core->Data("Purge", ["chat", $database[3]]);
-    $oh->core->Data("Purge", ["conversation", $database[3]]);
-    $oh->core->Data("Purge", ["translate", $database[3]]);
-    $oh->core->Data("Purge", ["votes", $database[3]]);
-    $r .= "OK</p>\r\n";
+    if(!empty($oh->core->Data("Get", ["chat", $database[3]]))) {
+     $r .= "<p>Chat...";
+     $oh->core->Data("Purge", ["chat", $database[3]]);
+     $r .= "OK</p>\r\n";
+    } if(!empty($oh->core->Data("Get", ["conversation", $database[3]]))) {
+     $r .= "<p>Conversation...";
+     $oh->core->Data("Purge", ["conversation", $database[3]]);
+     $r .= "OK</p>\r\n";
+    } if(!empty($oh->core->Data("Get", ["translate", $database[3]]))) {
+     $r .= "<p>Translations...";
+     $oh->core->Data("Purge", ["translate", $database[3]]);
+     $r .= "OK</p>\r\n";
+    } if(!empty($oh->core->Data("Get", ["votes", $database[3]]))) {
+     $r .= "<p>Votes...";
+     $oh->core->Data("Purge", ["votes", $database[3]]);
+     $r .= "OK</p>\r\n";
+    }
+    $r .= $oh->core->Element(["p", "Purged data for ".implode(".", $database)."!"]);
    }
   }
  } if($purged == 0) {
