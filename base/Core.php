@@ -5,6 +5,7 @@
    try {
     $this->cypher = New Cypher;
     $this->DocumentRoot = "/var/www/html";
+    $this->config = $this->Configuration();
     $this->ID = "App";
     $this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
     $this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
@@ -16,9 +17,8 @@
      "cb3e432f76b38eaa66c7269d658bd7ea"
     ];
     $this->SecureityKey = $this->Authenticate("Get");
-    $this->ShopID = "Mike";
+    $this->ShopID = $this->config["App"]["ShopID"];
     $this->base = $this->ConfigureBaseURL();
-    $this->config = $this->Configuration();
     $this->efs = $this->ConfigureBaseURL("FileSystem");
     $this->language = $header["Language"] ?? "en_US";
     $this->timestamp = date("Y-m-d h:i:sA");

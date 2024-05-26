@@ -32,6 +32,7 @@
     $saveFirst = base64_encode("v=".base64_encode("ControlPanel:SaveFirst"));
     $search = "";
     $searchLists = $config["App"]["Search"] ?? [];
+    $shopID = $config["App"]["ShopID"] ?? "Mike";
     $statistics = "";
     $statisticsList = $config["Statistics"] ?? [];
     foreach($mediaList as $key => $info) {
@@ -96,6 +97,7 @@
      "[Configuration.App.Keywords]" => base64_encode($config["App"]["Keywords"]),
      "[Configuration.App.Maintenance]" => $config["Maintenance"],
      "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
+     "[Configuration.App.ShopID]" => base64_encode($shopID),
      "[Configuration.Events]" => $events,
      "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
       "[Event.BannerText]" => "",
@@ -169,13 +171,15 @@
     $domains_fileSystem = $data["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
     $keywords = $data["Keywords"] ?? $app["Keywords"];
     $name = $data["Name"] ?? $app["Name"];
+    $shopID = $data["ShopID"] ?? "Mike";
     $app = [
      "Description" => $description,
      "Domains_Base" => $domains_base,
      "Domains_FileSystem" => $domains_fileSystem,
      "Keywords" => $keywords,
      "Name" => $name,
-     "Search" => $search
+     "Search" => $search,
+     "ShopID" => $shopID
     ];
     $config["App"] = $app;
     $config["Maintenance"] = $data["Maintenance"] ?? 0;
