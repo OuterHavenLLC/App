@@ -52,6 +52,8 @@
      $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
      $added = base64_encode("Added! Feel free to close this card.");
      $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
+     $domains_base = $config["App"]["Domains_Base"] ?? "outerhaven.nyc";
+     $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
      $events .= $this->core->Change([[
       "[Clone.ID]" => $event,
       "[Event.BannerText]" => $info["BannerText"],
@@ -89,6 +91,8 @@
      "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
      "[Admin.Server]" => "https://www.digitalocean.com/",
      "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
+     "[Configuration.App.Domains.Base]" => base64_encode($domains_base),
+     "[Configuration.App.Domains.FileSystem]" => base64_encode($domains_fileSystem),
      "[Configuration.App.Keywords]" => base64_encode($config["App"]["Keywords"]),
      "[Configuration.App.Maintenance]" => $config["Maintenance"],
      "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
@@ -161,10 +165,14 @@
     $app = $config["App"] ?? [];
     $search = $app["Search"] ?? [];
     $description = $data["Description"] ?? $app["Description"];
+    $domains_base = $data["Domains_Base"] ?? "outerhaven.nyc";
+    $domains_fileSystem = $data["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
     $keywords = $data["Keywords"] ?? $app["Keywords"];
     $name = $data["Name"] ?? $app["Name"];
     $app = [
      "Description" => $description,
+     "Domains_Base" => $domains_base,
+     "Domains_FileSystem" => $domains_fileSystem,
      "Keywords" => $keywords,
      "Name" => $name,
      "Search" => $search

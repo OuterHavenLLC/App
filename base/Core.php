@@ -19,7 +19,7 @@
     $this->ShopID = "Mike";
     $this->base = $this->ConfigureBaseURL();
     $this->config = $this->Configuration();
-    $this->efs = $this->ConfigureBaseURL("efs");
+    $this->efs = $this->ConfigureBaseURL("FileSystem");
     $this->language = $header["Language"] ?? "en_US";
     $this->timestamp = date("Y-m-d h:i:sA");
     $this->you = $this->Member($this->Authenticate("Get"));
@@ -195,9 +195,9 @@
    return $configurationData;
   }
   function ConfigureBaseURL($a = NULL) {
-   $base = $_SERVER["HTTP_HOST"] ?? "outerhaven.nyc";
-   if($a == "efs") {
-    $r = "efs.$base/";
+   $base = $_SERVER["HTTP_HOST"] ?? $this->config["App"]["Domains_Base"];
+   if($a == "FileSystem") {
+    $r = $this->config["App"]["Domains_FileSystem"]."/";
    } else {
     $r = $base;
    }
