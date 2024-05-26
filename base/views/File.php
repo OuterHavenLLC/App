@@ -259,6 +259,7 @@
     ];
    } elseif(!empty($id)) {
     $_ID = explode("-", base64_decode($id));
+    $_Name = "Unknown";
     $accessCode = "Accepted";
     $files = $_FileSystem["Files"] ?? [];
     $id = $_ID[1];
@@ -282,7 +283,7 @@
       if($id != $value["ID"]) {
        $newFiles[$key] = $value;
       } else {
-       $_Name = $value["Name"] ?? "";
+       $_Name = $value["Name"] ?? $_Name;
        $coverPhoto = $albums[$albumID]["ICO"] ?? "";
        $baseName = explode(".", $_Name)[0];
        if($this->core->ID != $username) {
@@ -323,7 +324,7 @@
       #$this->core->Data("Save", ["mbr", md5($you), $y]);
      }
      $r = $this->core->Element([
-      "p", "The Media File was deleted.",
+      "p", "The Media File <em>$_Name</em> was deleted.",
       ["class" => "CenterText"]
      ]).$this->core->Element(["button", "Okay", [
       "class" => "GoToParent v2 v2w",
