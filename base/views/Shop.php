@@ -1504,7 +1504,8 @@
     $nsfw = $data["nsfw"] ?? 0;
     $open = $data["Open"] ?? 0;
     $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
-    $privacy = $data["pri"] ?? $y["Privacy"]["Shop"];
+    $privacy = $data["Privacy"] ?? $y["Privacy"]["Shop"];
+    $purge = $shop["Purge"] ?? 0;
     $products = $shop["Products"] ?? [];
     $tax = $data["Tax"] ?? 10.00;
     $title = $title ?? $shop["Title"];
@@ -1531,6 +1532,7 @@
      "Privacy" => $privacy,
      "Processing" => $shop["Processing"],
      "Products" => $products,
+     "Purge" => $purge,
      "Tax" => $tax,
      "Title" => $title,
      "Welcome" => $this->core->PlainText([
