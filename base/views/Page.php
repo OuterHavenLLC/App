@@ -487,24 +487,24 @@
     $article = $this->core->Data("Get", ["pg", $id]);
     if(!empty($article)) {
      $article["Purge"] = 1;
-     #$this->core->Data("Save", ["pg", $id, $article]);
+     $this->core->Data("Save", ["pg", $id, $article]);
     }
     $conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     #$this->core->Data("Save", ["conversation", $id, $conversation]);
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
     }
     $translations = $this->core->Data("Get", ["translate", $id]);
     if(!empty($translations)) {
      $translations["Purge"] = 1;
-     #$this->core->Data("Save", ["translate", $id, $translations]);
+     $this->core->Data("Save", ["translate", $id, $translations]);
     }
     $votes = $this->core->Data("Get", ["votes", $id]);
     if(!empty($votes)) {
      $votes["Purge"] = 1;
-     #$this->core->Data("Save", ["votes", $id, $votes]);
+     $this->core->Data("Save", ["votes", $id, $votes]);
     }
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
      "p", "The Article <em>".$article["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]

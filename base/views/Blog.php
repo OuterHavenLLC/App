@@ -411,29 +411,29 @@
     $blog = $this->core->Data("Get", ["blg", $id]);
     if(!empty($blog)) {
      $blog["Purge"] = 1;
-     #$this->core->Data("Save", ["chat", $id, $blog]);
+     $this->core->Data("Save", ["chat", $id, $blog]);
     }
     $chat = $this->core->Data("Get", ["chat", $id]);
     if(!empty($chat)) {
      $chat["Purge"] = 1;
-     #$this->core->Data("Save", ["chat", $id, $chat]);
+     $this->core->Data("Save", ["chat", $id, $chat]);
     }
     $conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     #$this->core->Data("Save", ["conversation", $id, $conversation]);
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
     }
     $translations = $this->core->Data("Get", ["translate", $id]);
     if(!empty($translations)) {
      $translations["Purge"] = 1;
-     #$this->core->Data("Save", ["translate", $id, $translations]);
+     $this->core->Data("Save", ["translate", $id, $translations]);
     }
     $votes = $this->core->Data("Get", ["votes", $id]);
     if(!empty($votes)) {
      $votes["Purge"] = 1;
-     #$this->core->Data("Save", ["votes", $id, $votes]);
+     $this->core->Data("Save", ["votes", $id, $votes]);
     }
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
      "p", "The Blog <em>".$blog["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]

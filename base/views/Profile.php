@@ -1141,35 +1141,29 @@
       $shop["Purge"] = 1;
       $shopProducts = $shop["Products"] ?? [];
       $statusUpdates = $y["StatusUpdates"] ?? [];
-      $tmp="";//TEMP
       $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
       if(!empty($bulletins)) {
        $bulletins["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Bulletins for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
+       $this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
       }
       $contacts = $this->core->Data("Get", ["cms", md5($you)]);
       if(!empty($contacts)) {
        $contacts["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Contacts for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["cms", md5($you), $contacts]);
+       $this->core->Data("Save", ["cms", md5($you), $contacts]);
       }
       $conversation = $this->core->Data("Get", ["conversation", md5($you)]);
       if(!empty($conversation)) {
        $conversation["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Conversation for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["conversation", md5($you), $conversation]);
+       $this->core->Data("Save", ["conversation", md5($you), $conversation]);
       }
       $discountCodes = $this->core->Data("Get", ["dc", md5($you)]);
       if(!empty($discountCodes)) {
        $discountCodes["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Discount Codes for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["dc", md5($you), $discountCodes]);
+       $this->core->Data("Save", ["dc", md5($you), $discountCodes]);
       } foreach($articles as $key => $id) {
        $article = $this->core->Data("Get", ["pg", $id]);
        if(!empty($article) && !in_array($id, $restrictedIDs)) {
-        $tmp.=$this->core->Element(["p", "Marked Article #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("Page:Purge"), ["Data" => [
+        $this->view(base64_encode("Page:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
          "SecureKey" => $securePassPhrase
@@ -1178,8 +1172,7 @@
       } foreach($blogs as $key => $id) {
        $blog = $this->core->Data("Get", ["blg", $id]);
        if(!empty($blog) && !in_array($id, $restrictedIDs)) {
-        $tmp.=$this->core->Element(["p", "Marked Blog #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("Blog:Purge"), ["Data" => [
+        $this->view(base64_encode("Blog:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
          "SecureKey" => $securePassPhrase
@@ -1188,8 +1181,7 @@
       } foreach($chats as $key => $id) {
        $chat = $this->core->Data("Get", ["chat", $id]);
        if(!empty($chat) && !in_array($id, $restrictedIDs)) {
-        $tmp.=$this->core->Element(["p", "Marked Chat #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("Chat:Purge"), ["Data" => [
+        $this->view(base64_encode("Chat:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
          "SecureKey" => $securePassPhrase
@@ -1198,8 +1190,7 @@
       } foreach($forums as $key => $id) {
        $forum = $this->core->Data("Get", ["pf", $id]);
        if(!empty($forum) && !in_array($id, $restrictedIDs)) {
-        $tmp.=$this->core->Element(["p", "Marked Forum #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("Forum:Purge"), ["Data" => [
+        $this->view(base64_encode("Forum:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
          "SecureKey" => $securePassPhrase
@@ -1213,30 +1204,25 @@
        $mediaAlbums = $media["Albums"] ?? [];
        $mediaFiles = $media["Files"] ?? [];
        foreach($mediaAlbums as $key => $info) {
-        $tmp.=$this->core->Element(["p", "Marked Album #$id dependencies for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("Album:Purge"), ["Data" => [
+        $this->view(base64_encode("Album:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($info["ID"]),
          "SecureKey" => $securePassPhrase
         ]]);
        } foreach($mediaFiles as $key => $info) {
-        $tmp.=$this->core->Element(["p", "Marked Media File #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("File:Purge"), ["Data" => [
+        $this->view(base64_encode("File:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode("$you-".$info["ID"]),
          "SecureKey" => $securePassPhrase
         ]]);
        } if(file_exists($efsAnnex) || is_dir($efsAnnex)) {
-        #unlink($efsAnnex);
-        $tmp.=$this->core->Element(["p", "Purged @$you's E.F.S. Annex..."]);//TEMP
+        unlink($efsAnnex);
        }
-       $tmp.=$this->core->Element(["p", "Marked @$you's Media Library for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["fs", md5($you), $media]);
+       $this->core->Data("Save", ["fs", md5($you), $media]);
       } foreach($polls as $key => $id) {
        $poll = $this->core->Data("Get", ["poll", $id]);
        if(!empty($forum) && !in_array($id, $restrictedIDs)) {
-        $tmp.=$this->core->Element(["p", "Marked Poll #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("Poll:Purge"), ["Data" => [
+        $this->view(base64_encode("Poll:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
          "SecureKey" => $securePassPhrase
@@ -1245,8 +1231,7 @@
       } foreach($statusUpdates as $key => $id) {
        $statusUpdates = $this->core->Data("Get", ["su", $id]);
        if(!empty($statusUpdates) && !in_array($id, $restrictedIDs)) {
-        $tmp.=$this->core->Element(["p", "Marked Update #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("StatusUpdate:Purge"), ["Data" => [
+        $this->view(base64_encode("StatusUpdate:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
          "SecureKey" => $securePassPhrase
@@ -1256,39 +1241,33 @@
       $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]);
       if(!empty($stream)) {
        $purchaseOrders["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Purchase Orders for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["po", md5($you), $purchaseOrders]);
+       $this->core->Data("Save", ["po", md5($you), $purchaseOrders]);
       }
       $shop = $this->core->Data("Get", ["shop", md5($you)]);
       if(!empty($shop)) {
        foreach($shopProducts as $key => $id) {
-        $tmp.=$this->core->Element(["p", "Marked Product #$id for Purging..."]);//TEMP
-        $tmp.=$this->view(base64_encode("Product:Purge"), ["Data" => [
+        $this->view(base64_encode("Product:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
          "SecureKey" => $securePassPhrase
         ]]);
        }
-       $tmp.=$this->core->Element(["p", "Marked @$you's Shop for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["shop", md5($you), $shop]);
+       $this->core->Data("Save", ["shop", md5($you), $shop]);
       }
       $stream = $this->core->Data("Get", ["stream", md5($you)]);
       if(!empty($stream)) {
        $stream["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Stream for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["stream", md5($you), $stream]);
+       $this->core->Data("Save", ["stream", md5($you), $stream]);
       }
       $votes = $this->core->Data("Get", ["votes", md5($you)]);
       if(!empty($votes)) {
        $votes["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Votes for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["votes", md5($you), $votes]);
+       $this->core->Data("Save", ["votes", md5($you), $votes]);
       }
       $yourData = $this->core->Data("Get", ["mbr", md5($you)]);
       if(!empty($yourData)) {
        $yourData["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["mbr", md5($you), $yourData]);
+       $this->core->Data("Save", ["mbr", md5($you), $yourData]);
       }
       $r = $this->view(base64_encode("WebUI:OptIn"), []);
       $r = $this->core->Element([
@@ -1297,8 +1276,6 @@
        ]).$this->core->Element([
         "p", "Your profile is now slated for purging. We hope to see you again!",
         ["class" => "CenterText"]
-       ]).$this->core->Element([
-        "p", $tmp
        ]), ["class" => "K4i"]
       ]).$this->core->RenderView($r);
      }
@@ -1545,7 +1522,7 @@
       break;
      }
     } if($i > 0) {
-     #$member = $this->core->Data("Get", ["mbr", md5($username)]) ?? [];
+     $member = $this->core->Data("Get", ["mbr", md5($username)]) ?? [];
      $password = md5($password);
      if($password == $member["Login"]["Password"]) {
       $accessCode = "Accepted";

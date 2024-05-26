@@ -274,7 +274,7 @@
     $newFiles = [];
     $points = $this->core->config["PTS"]["DeleteFile"];
     $r = $this->core->Element([
-     "p", "The Media File <strong>#$id</strong> could not be found."
+     "p", "The Media File <strong>$id</strong> could not be found."
     ]);
     if(!empty($file["ID"])) {
      $albumID = $file["AID"];
@@ -294,18 +294,18 @@
        $conversation = $this->core->Data("Get", ["conversation", $key]);
        if(!empty($conversation)) {
         $conversation["Purge"] = 1;
-        #$this->core->Data("Save", ["conversation", $key, $conversation]);
+        $this->core->Data("Save", ["conversation", $key, $conversation]);
        }
        $mediaFile = $this->core->DocumentRoot."/efs/$username/$_Name";
        $translations = $this->core->Data("Get", ["translate", $key]);
        if(!empty($translations)) {
         $translations["Purge"] = 1;
-        #$this->core->Data("Save", ["translate", $key, $translations]);
+        $this->core->Data("Save", ["translate", $key, $translations]);
        }
        $votes = $this->core->Data("Get", ["votes", $key]);
        if(!empty($votes)) {
         $votes["Purge"] = 1;
-        #$this->core->Data("Save", ["votes", $key, $votes]);
+        $this->core->Data("Save", ["votes", $key, $votes]);
        }
        $thumbnail = $this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png";
        if(file_exists($mediaFile) || is_dir($mediaFile)) {
@@ -315,13 +315,13 @@
        }
       }
      } if($this->core->ID == $username) {
-      #$this->core->Data("Save", ["app", "fs", $newFiles]);
+      $this->core->Data("Save", ["app", "fs", $newFiles]);
      } else {
       $fileSystem["Albums"] = $albums;
       $fileSystem["Files"] = $newFiles;
       $y["Points"] = $y["Points"] + $points;
-      #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
-      #$this->core->Data("Save", ["mbr", md5($you), $y]);
+      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+      $this->core->Data("Save", ["mbr", md5($you), $y]);
      }
      $r = $this->core->Element([
       "p", "The Media File <em>$_Name</em> was deleted.",
@@ -437,7 +437,7 @@
      "Body" => "The Photo was set as your $cp.<br/>".json_encode($y["Personal"], true),
      "Header" => "Done"
     ];
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

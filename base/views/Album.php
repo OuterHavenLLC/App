@@ -277,19 +277,19 @@
      $conversation = $this->core->Data("Get", ["conversation", $id]);
      if(!empty($conversation)) {
       $conversation["Purge"] = 1;
-      #$this->core->Data("Save", ["conversation", $id, $conversation]);
+      $this->core->Data("Save", ["conversation", $id, $conversation]);
      }
      $translations = $this->core->Data("Get", ["translate", $id]);
      if(!empty($translations)) {
       $translations["Purge"] = 1;
-      #$this->core->Data("Save", ["translate", $id, $translations]);
+      $this->core->Data("Save", ["translate", $id, $translations]);
      }
      $votes = $this->core->Data("Get", ["votes", $id]);
      if(!empty($votes)) {
       $votes["Purge"] = 1;
-      #$this->core->Data("Save", ["votes", $id, $votes]);
+      $this->core->Data("Save", ["votes", $id, $votes]);
      }
-     #$this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
+     $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
      $r = $this->core->Element([
       "p", "The Album <em>$title</em> was successfully deleted, and dependencies were marked for purging.",
       ["class" => "CenterText"]

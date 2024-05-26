@@ -634,14 +634,14 @@
     $chat = $this->core->Data("Get", ["chat", $id]);
     if(!empty($chat)) {
      $chat["Purge"] = 1;
-     #$this->core->Data("Save", ["chat", $id, $chat]);
+     $this->core->Data("Save", ["chat", $id, $chat]);
     }
     $translations = $this->core->Data("Get", ["translate", $id]);
     if(!empty($translations)) {
      $translations["Purge"] = 1;
-     #$this->core->Data("Save", ["translate", $id, $translations]);
+     $this->core->Data("Save", ["translate", $id, $translations]);
     }
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
      "p", "The Blog <em>".$chat["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]

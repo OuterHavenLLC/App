@@ -163,9 +163,9 @@
     $poll = $this->core->Data("Get", ["poll", $id]);
     if(!empty($poll)) {
      $poll["Purge"] = 1;
-     #$this->core->Data("Save", ["poll", $id, $poll]);
+     $this->core->Data("Save", ["poll", $id, $poll]);
     }
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
      "p", "Your Poll was successfully deleted.",
      ["class" => "CenterText"]

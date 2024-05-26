@@ -16,7 +16,9 @@
    $purge = $data["Purge"] ?? 0;
    if(empty($data) || $purge == 1) {
     $purged++;
-    $r .= $oh->core->Element(["p", "Purging data and dependencies for ".implode(".", $database)."..."]);
+    $r .= $oh->core->Element([
+     "p", "Purging data and dependencies for ".implode(".", $database)."..."
+    ]);
     $oh->core->Data("Purge", [$database[2], $database[3]]);
     if(!empty($oh->core->Data("Get", ["chat", $database[3]]))) {
      $r .= "<p>Chat...";
@@ -35,7 +37,9 @@
      $oh->core->Data("Purge", ["votes", $database[3]]);
      $r .= "OK</p>\r\n";
     }
-    $r .= $oh->core->Element(["p", "Purged data for ".implode(".", $database)."!"]);
+    $r .= $oh->core->Element([
+     "p", "Purged data and dependencies for ".implode(".", $database)."!"
+    ]);
    }
   }
  } if($purged == 0) {
