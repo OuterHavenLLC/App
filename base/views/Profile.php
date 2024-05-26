@@ -1287,7 +1287,12 @@
       $r = $this->view(base64_encode("WebUI:OptIn"), []);
       $r = $this->core->Element([
        "div", $this->core->Element([
-        "p", "Your profile is now slated for purging. We hope to see you again!$tmp"
+        "h3", "Success!", ["class" => "CenterText UpperCase"]
+       ]).$this->core->Element([
+        "p", "Your profile is now slated for purging. We hope to see you again!",
+        ["class" => "CenterText"]
+       ]).$this->core->Element([
+        "p", $tmp
        ]), ["class" => "K4i Red"]
       ]).$this->core->RenderView($r);
      }
