@@ -1253,6 +1253,12 @@
         ]]);
        }
       }
+      $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]);
+      if(!empty($stream)) {
+       $purchaseOrders["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Purchase Orders for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["po", md5($you), $purchaseOrders]);
+      }
       $shop = $this->core->Data("Get", ["shop", md5($you)]);
       if(!empty($shop)) {
        foreach($shopProducts as $key => $id) {
@@ -1293,7 +1299,7 @@
         ["class" => "CenterText"]
        ]).$this->core->Element([
         "p", $tmp
-       ]), ["class" => "K4i Red"]
+       ]), ["class" => "K4i"]
       ]).$this->core->RenderView($r);
      }
     }
