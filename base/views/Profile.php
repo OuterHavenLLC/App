@@ -1151,6 +1151,11 @@
        $bulletins["Purge"] = 1;
        $this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
       }
+      $chat = $this->core->Data("Get", ["chat", md5($you)]);
+      if(!empty($chat)) {
+       $chat["Purge"] = 1;
+       $this->core->Data("Save", ["chat", md5($you), $chat]);
+      }
       $contacts = $this->core->Data("Get", ["cms", md5($you)]);
       if(!empty($contacts)) {
        $contacts["Purge"] = 1;
