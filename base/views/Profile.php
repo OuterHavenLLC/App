@@ -1266,8 +1266,12 @@
        $tmp.=$this->core->Element(["p", "Marked @$you's Votes for Purging..."]);//TEMP
        #$this->core->Data("Save", ["votes", md5($you), $votes]);
       }
-      $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
-      #$this->core->Data("Save", ["mbr", md5($you), $member]);
+      $yourData = $this->core->Data("Get", ["mbr", md5($you)]);
+      if(!empty($yourData)) {
+       $yourData["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["mbr", md5($you), $yourData]);
+      }
       $r = $this->view(base64_encode("WebUI:OptIn"), []);
       $r = $this->core->Element([
        "div", $this->core->Element([
