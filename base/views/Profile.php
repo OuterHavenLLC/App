@@ -1231,7 +1231,7 @@
        $this->core->Data("Save", ["fs", md5($you), $media]);
       } foreach($polls as $key => $id) {
        $poll = $this->core->Data("Get", ["poll", $id]);
-       if(!empty($forum) && !in_array($id, $restrictedIDs)) {
+       if(!empty($poll) && !in_array($id, $restrictedIDs)) {
         $this->view(base64_encode("Poll:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode($id),
