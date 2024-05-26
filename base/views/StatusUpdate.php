@@ -275,22 +275,30 @@
       $newStream[$key] = $value;
      }
     }
-    $stream = $newStream;
     $y["Activity"]["LastActive"] = $this->core->timestamp;
     $conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
+     #$this->core->Data("Save", ["conversation", $id, $conversation]);
     }
     $statusUpdate = $this->core->Data("Get", ["su", $id]);
     if(!empty($statusUpdate)) {
      $statusUpdate["Purge"] = 1;
-     $this->core->Data("Save", ["su", $id, $statusUpdate]);
+     #$this->core->Data("Save", ["su", $id, $statusUpdate]);
     }
-    $this->core->Data("Purge", ["translate", $id]);
-    $this->core->Data("Purge", ["votes", $id]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["stream", md5($you), $stream]);
+    $stream = $newStream;
+    $translations = $this->core->Data("Get", ["translate", $id]);
+    if(!empty($translations)) {
+     $translations["Purge"] = 1;
+     #$this->core->Data("Save", ["translate", $id, $translations]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $id]);
+    if(!empty($votes)) {
+     $votes["Purge"] = 1;
+     #$this->core->Data("Save", ["votes", $id, $votes]);
+    }
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Save", ["stream", md5($you), $stream]);
     $r = $this->core->Element([
      "p", "The Update and dependencies were marked for purging.",
      ["class" => "CenterText"]

@@ -348,8 +348,16 @@
      $product["Purge"] = 1;
      #$this->core->Data("Save", ["product", $id, $product]);
     }
-    #$this->core->Data("Purge", ["translate", $id]);
-    #$this->core->Data("Purge", ["votes", $id]);
+    $translations = $this->core->Data("Get", ["translate", $id]);
+    if(!empty($translations)) {
+     $translations["Purge"] = 1;
+     #$this->core->Data("Save", ["translate", $id, $translations]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $id]);
+    if(!empty($votes)) {
+     $votes["Purge"] = 1;
+     #$this->core->Data("Save", ["votes", $id, $votes]);
+    }
     #$this->core->Data("Save", ["shop", md5($you), $shop]);
     $r = $this->core->Element([
      "p", "The Product <em>".$product["Title"]."</em> and dependencies were marked for purging.",

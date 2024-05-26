@@ -296,12 +296,20 @@
         #$this->core->Data("Save", ["conversation", $key, $conversation]);
        }
        $mediaFile = $this->core->DocumentRoot."/efs/$username/$_Name";
-       #$this->core->Data("Purge", ["translate", $key]);
-       #$this->core->Data("Purge", ["votes", $key]);
+       $translations = $this->core->Data("Get", ["translate", $key]);
+       if(!empty($translations)) {
+        $translations["Purge"] = 1;
+        #$this->core->Data("Save", ["translate", $key, $translations]);
+       }
+       $votes = $this->core->Data("Get", ["votes", $key]);
+       if(!empty($votes)) {
+        $votes["Purge"] = 1;
+        #$this->core->Data("Save", ["votes", $key, $votes]);
+       }
        $thumbnail = $this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png";
-       if(file_exists($mediaFile)) {
+       if(file_exists($mediaFile) || is_dir($mediaFile)) {
         #unlink($mediaFile);
-       } if(file_exists($thumbnail)) {
+       } if(file_exists($thumbnail) || is_dir($mediaFile)) {
         #unlink($thumbnail);
        }
       }

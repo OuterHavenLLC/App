@@ -250,16 +250,24 @@
     $blogPost = $this->core->Data("Get", ["bp", $postID]);
     if(!empty($blogPost)) {
      $blogPost["Purge"] = 1;
-     $this->core->Data("Save", ["bp", $postID, $blogPost]);
+     #$this->core->Data("Save", ["bp", $postID, $blogPost]);
     }
     $conversation = $this->core->Data("Get", ["conversation", $postID]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $postID, $conversation]);
+     #$this->core->Data("Save", ["conversation", $postID, $conversation]);
     }
-    $this->core->Data("Purge", ["translate", $postID]);
-    $this->core->Data("Purge", ["votes", $postID]);
-    $this->core->Data("Save", ["blg", $blogID, $blogID]);
+    $translations = $this->core->Data("Get", ["translate", $postID]);
+    if(!empty($translations)) {
+     $translations["Purge"] = 1;
+     #$this->core->Data("Save", ["translate", $postID, $translations]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $postID]);
+    if(!empty($votes)) {
+     $votes["Purge"] = 1;
+     #$this->core->Data("Save", ["votes", $postID, $votes]);
+    }
+    #$this->core->Data("Save", ["blg", $blogID, $blogID]);
     $r = $this->core->Element([
      "p", "The Blog Post and dependencies were marked for purging.",
      ["class" => "CenterText"]

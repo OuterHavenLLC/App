@@ -231,17 +231,25 @@
     $forumPost = $this->core->Data("Get", ["post", $postID]);
     if(!empty($forumPost)) {
      $forumPost["Purge"] = 1;
-     $this->core->Data("Save", ["post", $postID, $forumPost]);
+     #$this->core->Data("Save", ["post", $postID, $forumPost]);
     }
     $forum["Posts"] = $newPosts;
     $conversation = $this->core->Data("Get", ["conversation", $postID]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $postID, $conversation]);
+     #$this->core->Data("Save", ["conversation", $postID, $conversation]);
     }
-    $this->core->Data("Purge", ["translate", $postID]);
-    $this->core->Data("Purge", ["votes", $postID]);
-    $this->core->Data("Save", ["pf", $forumID, $forum]);
+    $translations = $this->core->Data("Get", ["translate", $postID]);
+    if(!empty($translations)) {
+     $translations["Purge"] = 1;
+     #$this->core->Data("Save", ["translate", $postID, $translations]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $postID]);
+    if(!empty($votes)) {
+     $votes["Purge"] = 1;
+     #$this->core->Data("Save", ["votes", $postID, $votes]);
+    }
+    #$this->core->Data("Save", ["pf", $forumID, $forum]);
     $r = $this->core->Element([
      "p", "The Forum Post and dependencies were marked for purging.",
      ["class" => "CenterText"]

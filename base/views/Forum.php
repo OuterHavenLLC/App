@@ -471,45 +471,50 @@
     $forumPosts = $forum["Posts"] ?? [];
     $forums = $y["Forums"] ?? [];
     $newForums = [];
-    $this->core->Data("Save", ["pf", $id]);
+    $passPhrase = base64_encode($key);
+    $securePassPhrase = base64_encode($secureKey);
     foreach($forumPosts as $key => $value) {
      $forumPost = $this->core->Data("Get", ["post", $value]);
      if(!empty($forumPost)) {
-      $forumPost["Purge"] = 1;
-      $this->core->Data("Save", ["post", $value, $forumPost]);
+      $this->view(base64_encode("ForumPost:Purge"), ["Data" => [
+       "Key" => $passPhrase,
+       "ID" => base64_encode($value),
+       "SecureKey" => $securePassPhrase
+      ]]);
      }
-     $conversation = $this->core->Data("Get", ["conversation", $value]);
-     if(!empty($conversation)) {
-      $conversation["Purge"] = 1;
-      $this->core->Data("Save", ["conversation", $value, $conversation]);
-     }
-     $this->core->Data("Purge", ["translate", $value]);
-     $this->core->Data("Purge", ["votes", $value]);
-    }
-    $chat = $this->core->Data("Get", ["chat", $id]);
-    if(!empty($chat)) {
-     $chat["Purge"] = 1;
-     $this->core->Data("Save", ["chat", $id, $chat]);
-    }
-    $conversation = $this->core->Data("Get", ["conversation", $id]);
-    if(!empty($conversation)) {
-     $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
-    }
-    $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
-    if(!empty($manifest)) {
-     $manifest["Purge"] = 1;
-     $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
-    }
-    $this->core->Data("Purge", ["translate", $id]);
-    $this->core->Data("Purge", ["votes", $id]);
-    foreach($forums as $key => $value) {
+    } foreach($forums as $key => $value) {
      if($id != $value) {
       $newForums[$key] = $value;
      }
     }
+    $chat = $this->core->Data("Get", ["chat", $id]);
+    if(!empty($chat)) {
+     $chat["Purge"] = 1;
+     #$this->core->Data("Save", ["chat", $id, $chat]);
+    }
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     #$this->core->Data("Save", ["conversation", $id, $conversation]);
+    }
+    $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
+    if(!empty($manifest)) {
+     $manifest["Purge"] = 1;
+     #$this->core->Data("Save", ["pfmanifest", $id, $manifest]);
+    }
+    $translations = $this->core->Data("Get", ["translate", $id]);
+    if(!empty($translations)) {
+     $translations["Purge"] = 1;
+     #$this->core->Data("Save", ["translate", $id, $translations]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $id]);
+    if(!empty($votes)) {
+     $votes["Purge"] = 1;
+     #$this->core->Data("Save", ["votes", $id, $votes]);
+    }
     $y["Forums"] = $newForums;
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Save", ["pf", $id]);
     $r = $this->core->Element([
      "p", "The Forum <em>".$forum["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]

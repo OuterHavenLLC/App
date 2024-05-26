@@ -334,6 +334,7 @@
     $nsfw = $data["NSFW"] ?? $nsfw;
     $privacy = $conversation["Privacy"] ?? $y["Privacy"]["Comments"];
     $privacy = $data["Privacy"] ?? $privacy;
+    $purge = $conversation["Privacy"] ?? 0;
     if(!empty($data["rATTDLC"])) {
      $attachments = array_reverse(explode(";", base64_decode($data["rATTDLC"])));
      foreach($attachments as $attachments) {
@@ -359,6 +360,9 @@
      "NSFW" => $nsfw,
      "Privacy" => $privacy
     ];
+    if($purge != 0) {
+     $conversation["Purge"] = $purge;
+    }
     $this->core->Data("Save", ["conversation", $id, $conversation]);
     $r = [
      "Body" => "Your $commentType was $actionTaken.",

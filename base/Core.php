@@ -226,7 +226,7 @@
      }
      return json_decode($r, true);
     } elseif($action == "Purge") {
-     if(file_exists($dataFile)) {
+     if(file_exists($dataFile) || is_dir($dataFile)) {
       unlink($dataFile);
      }
     } elseif($action == "Save") {

@@ -95,11 +95,14 @@
     ];
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
+    $purge = $translations["Purge"] ?? 0;
     $translations = [];
     for($i = 0; $i < count($data["TranslatePackageID"]); $i++) {
      foreach($this->core->Languages() as $region => $language) {
       $translations[$data["TranslatePackageID"][$i]][$region] = $data[$region][$i] ?? "";
      }
+    } if($purge != 0) {
+     $translations["Purge"] = $purge;
     }
     $this->core->Data("Save", ["translate", $id, $translations]);
     $r = [

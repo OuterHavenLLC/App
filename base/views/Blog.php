@@ -391,19 +391,17 @@
     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
     $blogPosts = $blog["Posts"] ?? [];
     $newBlogs = [];
+    $passPhrase = base64_encode($key);
+    $securePassPhrase = base64_encode($secureKey);
     foreach($blogPosts as $key => $value) {
      $blogPost = $this->core->Data("Get", ["bp", $value]);
      if(!empty($blogPost)) {
-      $blogPost["Purge"] = 1;
-      #$this->core->Data("Save", ["bp", $value, $blogPost]);
+      $this->view(base64_encode("BlogPost:Purge"), ["Data" => [
+       "Key" => $passPhrase,
+       "ID" => base64_encode($value),
+       "SecureKey" => $securePassPhrase
+      ]]);
      }
-     $conversation = $this->core->Data("Get", ["conversation", $value]);
-     if(!empty($conversation)) {
-      $conversation["Purge"] = 1;
-      #$this->core->Data("Save", ["conversation", $value, $conversation]);
-     }
-     #$this->core->Data("Purge", ["translate", $value]);
-     #$this->core->Data("Purge", ["votes", $value]);
     } foreach($blogs as $key => $value) {
      if($id != $value) {
       array_push($newBlogs, $value);
@@ -425,8 +423,16 @@
      $conversation["Purge"] = 1;
      #$this->core->Data("Save", ["conversation", $id, $conversation]);
     }
-    #$this->core->Data("Purge", ["translate", $id]);
-    #$this->core->Data("Purge", ["votes", $id]);
+    $translations = $this->core->Data("Get", ["translate", $id]);
+    if(!empty($translations)) {
+     $translations["Purge"] = 1;
+     #$this->core->Data("Save", ["translate", $id, $translations]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $id]);
+    if(!empty($votes)) {
+     $votes["Purge"] = 1;
+     #$this->core->Data("Save", ["votes", $id, $votes]);
+    }
     #$this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->core->Element([
      "p", "The Blog <em>".$blog["Title"]."</em> and dependencies were marked for purging.",

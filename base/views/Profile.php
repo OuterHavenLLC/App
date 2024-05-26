@@ -1107,7 +1107,7 @@
      "Header" => base64_encode($this->core->Element([
       "h1", "Delete Profile", ["class" => "CenterText"]
      ])),
-     "SignOut" => "Yes",
+     #"SignOut" => "Yes",
      "Text" => base64_encode("You are about to permanently delete your profile. This action cannot be undone, and you will need to sign up for a new profile if you wish to re-join our community. If you are sure you want to permanently delete your profile, please enter your PIN below."),
      "ViewData" => base64_encode(json_encode([
       "SecureKey" => base64_encode($y["Login"]["PIN"]),
@@ -1134,21 +1134,44 @@
       $passPhrase = base64_encode($key);
       $securePassPhrase = base64_encode($secureKey);
       $polls = $y["Polls"] ?? [];;
+      $restrictedIDs = [
+       "1a35f673a438987ec93ef5fd3605b796",
+       "5ec1e051bf732d19e09ea9673cd7986b",
+       "7216072bbd437563e692cc7ff69cdb69",
+       "b490a7c4490eddea6cc886b4d82dbb78",
+       "cb3e432f76b38eaa66c7269d658bd7ea"
+      ];
       $shop = $this->core->Data("Get", ["shop", md5($you)]);
       $shop["Live"] = 0;
       $shop["Open"] = 0;
       $shop["Purge"] = 1;
-      $shopProducts = $shop["Products"] ?? [];// MARK FOR PURGING
-      $restrictedIDs = [
-       "5ec1e051bf732d19e09ea9673cd7986b",
-       "7216072bbd437563e692cc7ff69cdb69",
-       "cb3e432f76b38eaa66c7269d658bd7ea"
-      ];
+      $shopProducts = $shop["Products"] ?? [];
+      $statusUpdates = $y["StatusUpdates"] ?? [];
       $tmp="";//TEMP
-      foreach($blogs as $key => $id) {
+      $contacts = $this->core->Data("Get", ["cms", md5($you)]);
+      if(!empty($contacts)) {
+       $contacts["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Contacts for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["cms", md5($you), $contacts]);
+      }
+      $conversation = $this->core->Data("Get", ["conversation", md5($you)]);
+      if(!empty($conversation)) {
+       $conversation["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Conversation for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["conversation", md5($you), $conversation]);
+      } foreach($articles as $key => $id) {
+       $article = $this->core->Data("Get", ["pg", $id]);
+       if(!empty($article) && !in_array($id, $restrictedIDs)) {
+        $tmp.=$this->core->Element(["p", "Marked Article #$id for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("Page:Purge"), ["Data" => [
+         "Key" => $passPhrase,
+         "ID" => base64_encode($id),
+         "SecureKey" => $securePassPhrase
+        ]]);
+       }
+      } foreach($blogs as $key => $id) {
        $blog = $this->core->Data("Get", ["blg", $id]);
-       if(!empty($blog)) {
-        $blog["Purge"] = 1;
+       if(!empty($blog) && !in_array($id, $restrictedIDs)) {
         $tmp.=$this->core->Element(["p", "Marked Blog #$id for Purging..."]);//TEMP
         $tmp.=$this->view(base64_encode("Blog:Purge"), ["Data" => [
          "Key" => $passPhrase,
@@ -1156,40 +1179,77 @@
          "SecureKey" => $securePassPhrase
         ]]);
        }
+      } foreach($chats as $key => $id) {
+       $chat = $this->core->Data("Get", ["chat", $id]);
+       if(!empty($chat) && !in_array($id, $restrictedIDs)) {
+        $tmp.=$this->core->Element(["p", "Marked Chat #$id for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("Chat:Purge"), ["Data" => [
+         "Key" => $passPhrase,
+         "ID" => base64_encode($id),
+         "SecureKey" => $securePassPhrase
+        ]]);
+       }
+      } foreach($forums as $key => $id) {
+       $forum = $this->core->Data("Get", ["pf", $id]);
+       if(!empty($forum) && !in_array($id, $restrictedIDs)) {
+        $tmp.=$this->core->Element(["p", "Marked Forum #$id for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("Forum:Purge"), ["Data" => [
+         "Key" => $passPhrase,
+         "ID" => base64_encode($id),
+         "SecureKey" => $securePassPhrase
+        ]]);
+       }
       }
-      // PURGE ALL OTHER CONTENT CREATED BY $you
-      $member = $this->core->Data("Get", ["mbr", md5($you)]);
-      if(!empty($member)) {
-       $member["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["mbr", md5($you), $member]);
-      }
-      $memberContacts = $this->core->Data("Get", ["cms", md5($you)]);
-      if(!empty($memberContacts)) {
-       $memberContacts["Purge"] = 1;
-       $tmp.=$this->core->Element(["p", "Marked @$you's Contacts for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["cms", md5($you), $memberContacts]);
-      }
-      $memberMedia = $this->core->Data("Get", ["fs", md5($you)]);
-      if(!empty($memberMedia)) {
-       $memberMedia["Purge"] = 1;
-       $media = $memberMedia["Files"] ?? [];
-       foreach($media as $key => $info) {
-        $tmp.=$this->core->Element(["p", "Marked Media #$id for Purging..."]);//TEMP
+      $media = $this->core->Data("Get", ["fs", md5($you)]);
+      if(!empty($media)) {
+       $efsAnnex = $this->core->DocumentRoot."/efs/$you/";
+       $media["Purge"] = 1;
+       $mediaAlbums = $media["Albums"] ?? [];
+       $mediaFiles = $media["Files"] ?? [];
+       foreach($mediaAlbums as $key => $info) {
+        $tmp.=$this->core->Element(["p", "Marked Album #$id dependencies for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("Album:Purge"), ["Data" => [
+         "Key" => $passPhrase,
+         "ID" => base64_encode($info["ID"]),
+         "SecureKey" => $securePassPhrase
+        ]]);
+       } foreach($mediaFiles as $key => $info) {
+        $tmp.=$this->core->Element(["p", "Marked Media File #$id for Purging..."]);//TEMP
         $tmp.=$this->view(base64_encode("File:Purge"), ["Data" => [
          "Key" => $passPhrase,
          "ID" => base64_encode("$you-".$info["ID"]),
          "SecureKey" => $securePassPhrase
         ]]);
+       } if(file_exists($efsAnnex) || is_dir($efsAnnex)) {
+        #unlink($efsAnnex);
+        $tmp.=$this->core->Element(["p", "Purged @$you's E.F.S. Annex..."]);//TEMP
        }
        $tmp.=$this->core->Element(["p", "Marked @$you's Media Library for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["fs", md5($you), $memberMedia]);
+       #$this->core->Data("Save", ["fs", md5($you), $media]);
+      } foreach($polls as $key => $id) {
+       $poll = $this->core->Data("Get", ["poll", $id]);
+       if(!empty($forum) && !in_array($id, $restrictedIDs)) {
+        $tmp.=$this->core->Element(["p", "Marked Poll #$id for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("Poll:Purge"), ["Data" => [
+         "Key" => $passPhrase,
+         "ID" => base64_encode($id),
+         "SecureKey" => $securePassPhrase
+        ]]);
+       }
+      } foreach($statusUpdates as $key => $id) {
+       $statusUpdates = $this->core->Data("Get", ["su", $id]);
+       if(!empty($statusUpdates) && !in_array($id, $restrictedIDs)) {
+        $tmp.=$this->core->Element(["p", "Marked Update #$id for Purging..."]);//TEMP
+        $tmp.=$this->view(base64_encode("StatusUpdate:Purge"), ["Data" => [
+         "Key" => $passPhrase,
+         "ID" => base64_encode($id),
+         "SecureKey" => $securePassPhrase
+        ]]);
+       }
       }
-      $memberShop = $this->core->Data("Get", ["shop", md5($you)]);
-      if(!empty($memberShop)) {
-       $memberShop["Purge"] = 1;
-       $products = $memberShop["Products"] ?? [];
-       foreach($products as $key => $id) {
+      $shop = $this->core->Data("Get", ["shop", md5($you)]);
+      if(!empty($shop)) {
+       foreach($shopProducts as $key => $id) {
         $tmp.=$this->core->Element(["p", "Marked Product #$id for Purging..."]);//TEMP
         $tmp.=$this->view(base64_encode("Product:Purge"), ["Data" => [
          "Key" => $passPhrase,
@@ -1198,8 +1258,22 @@
         ]]);
        }
        $tmp.=$this->core->Element(["p", "Marked @$you's Shop for Purging..."]);//TEMP
-       #$this->core->Data("Save", ["shop", md5($you), $memberShop]);
+       #$this->core->Data("Save", ["shop", md5($you), $shop]);
       }
+      $stream = $this->core->Data("Get", ["stream", md5($you)]);
+      if(!empty($stream)) {
+       $stream["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Stream for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["stream", md5($you), $stream]);
+      }
+      $votes = $this->core->Data("Get", ["votes", md5($you)]);
+      if(!empty($votes)) {
+       $votes["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Votes for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["votes", md5($you), $votes]);
+      }
+      $tmp.=$this->core->Element(["p", "Marked @$you for Purging..."]);//TEMP
+      #$this->core->Data("Save", ["mbr", md5($you), $member]);
       $r = $this->view(base64_encode("WebUI:OptIn"), []);
       $r = $this->core->Element([
        "div", $this->core->Element([

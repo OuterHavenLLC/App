@@ -1,6 +1,7 @@
 # Outer Haven Web App
 Here you will find the up-to-date change log for all releases of the platform.
 See SETUP.md (coming soon...) for Heath Kit configuration and installation.
+See GNU-GPL.md for licensing information.
 
 # Change Log
 ## 1.3: Compendium

@@ -129,7 +129,11 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $votes = $this->core->Data("Get", ["votes", $id]) ?? [];
+    $purge = $votes["Purge"] ?? 0;
     $votes[$you] = $vote;
+    if($purge != 0) {
+     $votes["Purge"] = $purge;
+    }
     $this->core->Data("Save", ["votes", $id, $votes]);
     $r = $this->view(base64_encode("Vote:Containers"), ["Data" => [
      "ID" => $id,
