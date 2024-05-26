@@ -1134,13 +1134,7 @@
       $passPhrase = base64_encode($key);
       $securePassPhrase = base64_encode($secureKey);
       $polls = $y["Polls"] ?? [];;
-      $restrictedIDs = [
-       "1a35f673a438987ec93ef5fd3605b796",
-       "5ec1e051bf732d19e09ea9673cd7986b",
-       "7216072bbd437563e692cc7ff69cdb69",
-       "b490a7c4490eddea6cc886b4d82dbb78",
-       "cb3e432f76b38eaa66c7269d658bd7ea"
-      ];
+      $restrictedIDs = $this->core->RestrictedIDs;
       $shop = $this->core->Data("Get", ["shop", md5($you)]);
       $shop["Live"] = 0;
       $shop["Open"] = 0;
