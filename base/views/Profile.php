@@ -1524,15 +1524,17 @@
     }
     $r = "The $field is missing.";
    } else {
+    $member = [];
     $members = $this->core->DatabaseSet("MBR");
     foreach($members as $key => $member) {
      $_Member = $this->core->GetContentData([
       "Blacklisted" => 0,
-      "ID" => base64_encode("Member;$member")
+      "ID" => base64_encode("Member;".str_replace("nyc.outerhaven.mbr.", "", $member))
      ]);
      $member = $_Member["DataModel"] ?? [];
      $memberUsername = $member["Login"]["Username"] ?? "";
-     if($member["Purge"] == 1 && $memberUsername == $username) {
+     $purge = $member["Purge"] ?? 0;
+     if($memberUsername == $username && $purge == 0) {
       $i++;
       break;
      }
