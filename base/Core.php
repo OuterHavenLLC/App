@@ -1241,6 +1241,18 @@
    }
    return $r;
   }
+  function RecursiveDirectoryPurge(string $directory): void {
+   $i = new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS);
+   $media = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::CHILD_FIRST);
+   foreach($media as $media) {
+    if($media->isDir()) {
+     rmdir($media->getPathname());
+    } else {
+     unlink($media->getPathname());
+    }
+   }
+   rmdir($directory);
+  }
   function RenderGhostMember() {
    $ghost = $this->Member(uniqid("Ghost_"));
    $ghost["Personal"]["DisplayName"] = "Anonymous";

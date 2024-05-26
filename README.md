@@ -9,7 +9,7 @@ See GNU-GPL.md for licensing information.
 This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, revamped revenue and statistics, and quality of life improvements. (comming soon...)
 
 ### Platform Improvements
-* A revamped Content Purge system now efficiently and permanently purges content and their respective dependencies from the platform. (in the works...)
+* A revamped Content Purge system now efficiently and permanently purges content and their respective dependencies from the platform. (testing...)
 * Download buttons now support simultanious media downloads.
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.

@@ -412,9 +412,14 @@
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]) ?? [];
     if(!empty($bulletins)) {
      foreach($bulletins as $key => $value) {
-      if($value["Seen"] == 0) {
-       $i++;
-       $bulletins[$key]["Seen"] = 1;
+      if($key != "Purge") {
+       $seen = $value["Seen"] ?? 0;
+       if($seen == 0) {
+        $i++;
+        $bulletin = $bulletins[$key] ?? [];
+        $bulletin["Seen"] = 1;
+        $bulletins[$key] = $bulletin;
+       }
       }
      }
      $this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
@@ -1216,7 +1221,7 @@
          "SecureKey" => $securePassPhrase
         ]]);
        } if(file_exists($efsAnnex) || is_dir($efsAnnex)) {
-        unlink($efsAnnex);
+        $this->core->RecursiveDirectoryPurge($efsAnnex);
        }
        $this->core->Data("Save", ["fs", md5($you), $media]);
       } foreach($polls as $key => $id) {
