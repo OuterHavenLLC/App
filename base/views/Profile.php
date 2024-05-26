@@ -1142,6 +1142,12 @@
       $shopProducts = $shop["Products"] ?? [];
       $statusUpdates = $y["StatusUpdates"] ?? [];
       $tmp="";//TEMP
+      $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
+      if(!empty($bulletins)) {
+       $bulletins["Purge"] = 1;
+       $tmp.=$this->core->Element(["p", "Marked @$you's Bulletins for Purging..."]);//TEMP
+       #$this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
+      }
       $contacts = $this->core->Data("Get", ["cms", md5($you)]);
       if(!empty($contacts)) {
        $contacts["Purge"] = 1;
