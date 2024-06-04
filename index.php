@@ -28,6 +28,7 @@
    "[App.Language]" => $oh->core->language,
    "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
    "[App.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
+   "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
    "[App.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
    "[App.WYSIWYG]" => base64_encode("v=".base64_encode("WebUI:WYSIWYG"))
   ], $oh->core->PlainText([

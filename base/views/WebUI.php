@@ -435,7 +435,6 @@
    }
    $r = $this->core->Change([[
     "[App.Content]" => $content,
-    "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
     "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
    ], $this->core->Extension("dd5e4f7f995d5d69ab7f696af4786c49")]);
    return $this->core->JSONResponse([
