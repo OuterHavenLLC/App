@@ -24,7 +24,7 @@
   <div class="AppContainer">
    <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
   </div>
-  <div class="RegSel h">
+  <div class="Frosted RegSel h">
    [Extension:96021f84defa49827569f2aa1070755b]
   </div>
   <script>
