@@ -24,6 +24,7 @@
    <button class="Home" onclick="window.location='http://outerhaven.nyc';"></button>
   </div>
   <div class="Content scr">
+   <div class="TopBarMargin"></div>
    [App.Content]
   </div>
  </body>
