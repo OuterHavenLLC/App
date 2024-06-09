@@ -575,20 +575,22 @@
      $extensions = $this->core->DatabaseSet("Extensions");
      foreach($extensions as $key => $value) {
       $value = str_replace("nyc.outerhaven.extension.", "", $value);
-      $viewData = json_encode([
-       "SecureKey" => base64_encode($y["Login"]["PIN"]),
-       "ID" => base64_encode($value),
-       "v" => base64_encode("Extension:Purge")
-      ], true);
-      $info = $this->core->Data("Get", ["extension", $value]) ?? [];
-      array_push($msg, [
-       "[Extension.Category]" => base64_encode($info["Category"]),
-       "[Extension.Delete]" => base64_encode(base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))),
-       "[Extension.Description]" => base64_encode($info["Description"]),
-       "[Extension.Edit]" => base64_encode(base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($value))),
-       "[Extension.ID]" => base64_encode($value),
-       "[Extension.Title]" => base64_encode($info["Title"])
+      $_Extension = $this->core->GetContentData([
+       "Blacklisted" => 0,
+       "ID" => base64_encode("Extension;$value")
       ]);
+      if($_Extension["Empty"] == 0) {
+       $info = $_Extension["DataModel"];
+       $options = $_Extension["ListItem"]["Options"];
+       array_push($msg, [
+        "[Extension.Category]" => base64_encode($info["Category"]),
+        "[Extension.Delete]" => base64_encode($options["Delete"]),
+        "[Extension.Description]" => base64_encode($info["Description"]),
+        "[Extension.Edit]" => base64_encode($options["Edit"]),
+        "[Extension.ID]" => base64_encode($value),
+        "[Extension.Title]" => base64_encode($info["Title"])
+       ]);
+      }
      }
     }
    } elseif($searchType == "ADM-MassMail") {
