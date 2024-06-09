@@ -593,7 +593,7 @@
       ];
      }
     } elseif($type == "Extension") {
-     $data = $this->Data("Get", ["extension", md5($contentID)]) ?? [];
+     $data = $this->Data("Get", ["extension", $contentID]) ?? [];
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      $viewData = json_encode([

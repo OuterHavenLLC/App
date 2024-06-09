@@ -1625,18 +1625,6 @@
     $accessCode = "Accepted";
     $birthMonth = $data["BirthMonth"] ?? 10;
     $now = $this->core->timestamp;
-    if($data["SOE"] == 1) {
-     $x = $this->core->Data("Get", ["app", md5("ContactList")]) ?? [];
-     $x[$data["Email"]] = [
-      "Email" => $data["Email"],
-      "Name" => $firstName,
-      "Phone" => "N/A",
-      "SendOccasionalEmails" => $data["SOE"],
-      "UN" => $username,
-      "Updated" => $now
-     ];
-     $this->core->Data("Save", ["app", md5("ContactList"), $x]);
-    }
     $this->core->Data("Save", ["cms", md5($username), [
      "Contacts" => [],
      "Requests" => []

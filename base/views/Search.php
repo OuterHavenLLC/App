@@ -45,15 +45,6 @@
        "data-view" => base64_encode("v=".base64_encode("Extension:Edit")."&New=1")
       ]
      ]) : "";
-    } elseif($searchType == "ADM-MassMail") {
-     $h = "Mass Mail";
-     $lis = "Search Pre-Sets";
-     $lo =  ($notAnon == 1) ? $this->core->Element([
-      "button", "+", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Company:MassMail")."&new=1")
-      ]
-     ]) : "";
     } elseif($searchType == "BGP") {
      $data = $this->core->FixMissing($data, ["BLG"]);
      $h = "Blog Posts";
@@ -589,21 +580,6 @@
         "[Extension.Edit]" => base64_encode($options["Edit"]),
         "[Extension.ID]" => base64_encode($value),
         "[Extension.Title]" => base64_encode($info["Title"])
-       ]);
-      }
-     }
-    }
-   } elseif($searchType == "ADM-MassMail") {
-    $accessCode = "Accepted";
-    $preSets = $this->core->Data("Get", ["app", md5("MassMail")]) ?? [];
-    $extension = $this->core->Extension("3536f06229e7b9d9684f8ca1bb08a968");
-    if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
-     foreach($preSets as $key => $preSet) {
-      if($key != "NextSend") {
-       array_push($msg, [
-        "[Email.Description]" => base64_encode($preSet["Description"]),
-        "[Email.Editor]" => base64_encode(base64_encode("v=".base64_encode("Company:MassMail")."&ID=$key")),
-        "[Email.Title]" => base64_encode($preSet["Title"])
        ]);
       }
      }
