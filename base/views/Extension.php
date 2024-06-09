@@ -113,7 +113,7 @@
      $this->core->Data("Save", ["extension", $id, $extension]);
     }
     $r = $this->core->Element([
-     "p", "The App Extension was deleted.",
+     "p", "The App Extension was marked for purging.",
      ["class" => "CenterText"]
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
