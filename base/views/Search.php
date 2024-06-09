@@ -1634,7 +1634,9 @@
    } elseif($searchType == "Links") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
-    $extension = $this->core->Element(["div", $extension, ["class" => "K4i"]]);
+    $extension = $this->core->Element([
+     "div", $extension, ["class" => "FrostedBright Rounded"]
+    ]);
     $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
     foreach($links as $link => $info) {
      $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
@@ -2018,7 +2020,9 @@
       $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-       $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
+       $extension = $this->core->Element([
+        "div", $extension, ["class" => "FrostedBright Poll$value Rounded"]
+       ]);
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", $blockCommand, [
@@ -2211,7 +2215,7 @@
       if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element([
-        "div", $extension, ["class" => "K4i Poll$value"]
+        "div", $extension, ["class" => "FrostedBright Poll$value Rounded"]
        ]);
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
