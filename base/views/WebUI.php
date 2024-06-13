@@ -231,10 +231,9 @@
       "h3", "Subscriptions"
      ]);
      $subscriptions .= $subscriptionsList;
-     $subscriptions .= $this->core->Element(["div", NULL, [
-      "class" => "NONAME",
-      "style" => "height:2em"
-     ]]);
+     $subscriptions = $this->core->Element([
+      "div", $subscriptions, ["class" => "FixedHeightScrollable Medium scr"]
+     ]);
     }
     $changeData = [
      "[Menu.Administration]" => $admin,
