@@ -4,7 +4,7 @@
  require_once("/var/www/html/base/Bootloader.php");
  $oh = New OH;
  $images = $oh->core->config["XFS"]["FT"]["P"] ?? [];
- $r = $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9");
+ $r = $oh->core->Extension("c790e0a597e171ff1d308f923cfc20c9");
  $r .= $oh->core->Element([
   "h1", "Tasks Executed!"
  ]).$oh->core->Element(["div", $oh->core->Element([
