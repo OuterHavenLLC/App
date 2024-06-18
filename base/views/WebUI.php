@@ -232,7 +232,7 @@
      ]);
      $subscriptions .= $subscriptionsList;
      $subscriptions = $this->core->Element([
-      "div", $subscriptions, ["class" => "FixedHeightScrollable Medium scr"]
+      "div", $subscriptions, ["class" => "Medium scr"]
      ]);
     }
     $changeData = [
