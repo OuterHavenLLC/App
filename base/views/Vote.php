@@ -171,7 +171,7 @@
       $_VoteUp++;
      }
     }
-    $class = "Pill VoteFor$id";
+    $class = "Frosted Pill VoteFor$id";
     $class .= "";
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;

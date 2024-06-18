@@ -2527,7 +2527,7 @@
          $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
          array_push($msg, [
           "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"].$value),
+          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
           "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($created)),
           "[StatusUpdate.DT]" => base64_encode($options["View"]),
           "[StatusUpdate.Edit]" => base64_encode($edit),
