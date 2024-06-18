@@ -4,7 +4,8 @@
  require_once("/var/www/html/base/Bootloader.php");
  $oh = New OH;
  $images = $oh->core->config["XFS"]["FT"]["P"] ?? [];
- $r = $oh->core->Element([
+ $r = $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9");
+ $r .= $oh->core->Element([
   "h1", "Tasks Executed!"
  ]).$oh->core->Element(["div", $oh->core->Element([
    "p", "The following cron jobs have been executed on ".$oh->core->timestamp.":"
@@ -34,7 +35,7 @@
    "p", "&bull; Thumbnail Assurance"
   ]).$oh->core->Element([
    "p", "Please note, the Content Purge is set to run daily at midnight."
-  ]), ["class" => "K4i InnerMargin"]
+  ]), ["class" => "FrostedBright RoundedLarge"]
  ]);
  $oh->core->SendEmail([
   "Message" => $r,
