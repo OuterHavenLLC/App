@@ -1355,7 +1355,9 @@
         "style", $this->Extension("669ae04b308fc630f8e06317313d9efe")
        ])
       ]).$this->Element([
-       "body", $a["Message"]
+       "body", $this->Change([[
+        "[Mail.Message]" => $a["Message"]
+       ], $this->Extension("c790e0a597e171ff1d308f923cfc20c9")])
       ])
      ]);
      $data = $this->cypher->MailCredentials();

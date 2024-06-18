@@ -234,12 +234,12 @@
     if($feedback["Username"] != $you) {
      $this->core->SendEmail([
       "Message" => $this->core->Change([[
-       "[Email.Message]" => $this->core->PlainText([
+       "[Mail.Message]" => $this->core->PlainText([
         "Data" => $data["Message"],
         "Display" => 1
        ]),
-       "[Email.Name]" => $feedback["Name"],
-       "[Email.Link]" => $this->core->base."/feedback/$id"
+       "[Mail.Name]" => $feedback["Name"],
+       "[Mail.Link]" => $this->core->base."/feedback/$id"
       ], $this->core->Extension("dc901043662c5e71b5a707af782fdbc1")]),
       "Title" => "Re: ".$feedback["Subject"],
       "To" => $feedback["Email"]

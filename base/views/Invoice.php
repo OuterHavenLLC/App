@@ -361,13 +361,12 @@
        if(!empty($data["Email"])) {
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
-          "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
-          "[Email.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
-          "[Email.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
-          "[Email.Name]" => $name,
-          "[Email.Link]" => $this->core->base."/invoice/$id",
-          "[Email.Shop.Name]" => $shop["Title"],
-          "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+          "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
+          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
+          "[Mail.Name]" => $name,
+          "[Mail.Link]" => $this->core->base."/invoice/$id",
+          "[Mail.Shop.Name]" => $shop["Title"],
+          "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
          "Title" => $shop["Title"].": Invoice $id",
          "To" => $data["Email"]
@@ -385,13 +384,12 @@
         $partner = $this->core->Member($key);
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
-          "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
-          "[Email.Message]" => "<em>".$shop["Title"]."</em> has been hired by a potential client! Please verify payment of the deposit before proceeding with the service.",
-          "[Email.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
-          "[Email.Name]" => $partner["Personal"]["FirstName"],
-          "[Email.Link]" => $this->core->base."/invoice/$id",
-          "[Email.Shop.Name]" => $shop["Title"],
-          "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+          "[Mail.Message]" => "<em>".$shop["Title"]."</em> has been hired by a potential client! Please verify payment of the deposit before proceeding with the service.",
+          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
+          "[Mail.Name]" => $partner["Personal"]["FirstName"],
+          "[Mail.Link]" => $this->core->base."/invoice/$id",
+          "[Mail.Shop.Name]" => $shop["Title"],
+          "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
          "Title" => $shop["Title"].": Invoice $id",
          "To" => $data["Email"]
@@ -738,13 +736,12 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
-         "[Email.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.",
-         "[Email.Invoice]" => $chargeList.$total,
-         "[Email.Name]" => $name,
-         "[Email.Link]" => $this->core->base."/invoice/$id",
-         "[Email.Shop.Name]" => $shop["Title"],
-         "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+         "[Mail.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.",
+         "[Mail.Invoice]" => $chargeList.$total,
+         "[Mail.Name]" => $name,
+         "[Mail.Link]" => $this->core->base."/invoice/$id",
+         "[Mail.Shop.Name]" => $shop["Title"],
+         "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
@@ -949,13 +946,12 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
-         "[Email.Message]" => "Your Invoice is ready for payment.",
-         "[Email.Invoice]" => $chargeList.$total,
-         "[Email.Name]" => $name,
-         "[Email.Link]" => $this->core->base."/invoice/$id",
-         "[Email.Shop.Name]" => $shop["Title"],
-         "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+         "[Mail.Message]" => "Your Invoice is ready for payment.",
+         "[Mail.Invoice]" => $chargeList.$total,
+         "[Mail.Name]" => $name,
+         "[Mail.Link]" => $this->core->base."/invoice/$id",
+         "[Mail.Shop.Name]" => $shop["Title"],
+         "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
@@ -1016,13 +1012,12 @@
          $total = $this->core->RenderView($total);
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
-           "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
-           "[Email.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
-           "[Email.Invoice]" => $chargeList.$total,
-           "[Email.Name]" => $email,
-           "[Email.Link]" => $this->core->base."/invoice/$id",
-           "[Email.Shop.Name]" => $shop["Title"],
-           "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+           "[Mail.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
+           "[Mail.Invoice]" => $chargeList.$total,
+           "[Mail.Name]" => $email,
+           "[Mail.Link]" => $this->core->base."/invoice/$id",
+           "[Mail.Shop.Name]" => $shop["Title"],
+           "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
           ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
           "Title" => $shop["Title"].": Invoice $id",
           "To" => $email
@@ -1162,13 +1157,12 @@
          if(!empty($data["Email"])) {
           $this->core->SendEmail([
            "Message" => $this->core->Change([[
-            "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
-            "[Email.Message]" => "Please review the Invoice linked below.",
-            "[Email.Invoice]" => $chargeList,
-            "[Email.Name]" => $name,
-            "[Email.Link]" => $this->core->base."/invoice/$id",
-            "[Email.Shop.Name]" => $shop["Title"],
-            "[Email.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+            "[Mail.Message]" => "Please review the Invoice linked below.",
+            "[Mail.Invoice]" => $chargeList,
+            "[Mail.Name]" => $name,
+            "[Mail.Link]" => $this->core->base."/invoice/$id",
+            "[Mail.Shop.Name]" => $shop["Title"],
+            "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
            ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
            "Title" => $shop["Title"].": Invoice $id",
            "To" => $data["Email"]

@@ -1686,8 +1686,7 @@
     if(!empty($data["Email"])) {
      $this->core->SendEmail([
       "Message" => $this->core->Change([[
-       "[Email.Header]" => $this->core->Extension("c790e0a597e171ff1d308f923cfc20c9"),
-       "[Email.Name]" => $name
+       "[Mail.Name]" => $name
       ], $this->core->Extension("35fb42097f5a625e9bd0a38554226743")]),
       "Title" => "Welcome to ".$this->core->config["App"]["Name"]."!",
       "To" => $data["Email"]
