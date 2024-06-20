@@ -475,9 +475,9 @@
     if($type == "Album" && !empty($additionalContentID)) {
      $data = $this->Data("Get", ["fs", md5($contentID)]) ?? [];
      $empty = $data["Purge"] ?? 0;
+     $data = $data["Albums"][$additionalContentID] ?? [];
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $data = $data["Albums"][$additionalContentID] ?? [];
       $coverPhoto = $data["ICO"] ?? $coverPhoto;
       $coverPhoto = $this->GetSourceFromExtension([
        $contentID,

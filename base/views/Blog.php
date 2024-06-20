@@ -171,7 +171,6 @@
    $data = $this->core->FixMissing($data, [
     "CARD",
     "CallSign",
-    "ID",
     "back",
     "lPG"
    ]);

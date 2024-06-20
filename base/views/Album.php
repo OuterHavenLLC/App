@@ -31,11 +31,12 @@
      md5($t["Login"]["Username"])
     ]) ?? [];
     $id = ($new == 1) ? md5($t["Login"]["Username"].$this->core->timestamp) : $id;
-    $alb = $fileSystem["Albums"][$id] ?? [];
-    $description = $alb["Description"] ?? "";
-    $nsfw = $alb["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $alb["Privacy"] ?? $y["Privacy"]["Albums"];
-    $title = $alb["Title"] ?? "";
+    $album = $fileSystem["Albums"][$id] ?? [];
+    $description = $album["Description"] ?? "";
+    $nsfw = $album["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $album["PassPhrase"] ?? "";
+    $privacy = $album["Privacy"] ?? $y["Privacy"]["Albums"];
+    $title = $album["Title"] ?? "";
     $header = ($new == 1) ? "Create New Album" : "Edit $title";
     $r = $this->core->Change([[
      "[Album.AdditionalContent]" => $this->core->Change([
@@ -54,6 +55,7 @@
      "[Album.Header]" => $header,
      "[Album.ID]" => $id,
      "[Album.New]" => $new,
+     "[Album.PassPhrase]" => base64_encode($passPhrase),
      "[Album.Title]" => base64_encode($title),
      "[Album.Visibility.NSFW]" => $nsfw,
      "[Album.Visibility.Privacy]" => $privacy
@@ -108,59 +110,99 @@
      "Owner" => $username
     ]);
     if($_Album["Empty"] == 0) {
+     $accessCode = "Accepted";
      $album = $_Album["DataModel"];
      $options = $_Album["ListItem"]["Options"];
-     $t = ($username == $you) ? $y : $this->core->Member($username);
-     $secureUsername = base64_encode($t["Login"]["Username"]);
-     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
-     $ck2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
-     $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
-     $actions = ($ck == 0) ? $this->core->Element([
-      "button", "Block", [
-       "class" => "Small UpdateButton v2",
-       "data-processor" => $options["Block"]
-      ]
-     ]) : "";
-     if($ck == 1) {
+     $passPhrase = $album["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Album["ListItem"]["Title"]."</em>."),
+       "ViewData" => base64_encode(json_encode([
+        "SecureKey" => base64_encode($passPhrase),
+        "AID" => $id,
+        "UN" => $username,
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("Album:Home")
+       ], true))
+      ]]);
+      $r = [
+       "Front" => $this->core->RenderView($r)
+      ];
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Key is missing."]);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("Album:Home"), ["Data" => [
+        "AID" => $id,
+        "EmbeddedView" => 1,
+        "UN" => $username,
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
-      $actions .= ($id != md5("unsorted")) ? $this->core->Element([
-       "button", "Delete", [
-        "class" => "CloseCard OpenDialog Small v2 v2w",
-        "data-view" => $options["Delete"]
+      $embeddedView = $data["EmbeddedView"] ?? 0;
+      $t = ($username == $you) ? $y : $this->core->Member($username);
+      $secureUsername = base64_encode($t["Login"]["Username"]);
+      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
+      $ck2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
+      $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
+      $actions = ($ck == 0) ? $this->core->Element([
+       "button", "Block", [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => $options["Block"]
        ]
       ]) : "";
-      $actions .= $this->core->Element(["button", "Edit", [
-       "class" => "OpenCard Small v2 v2w",
-       "data-view" => $options["Edit"]
-      ]]);
-     }
-     $actions = ($this->core->ID != $you) ? $actions : "";
-     $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
-     $actions .= ($share == 1) ? $this->core->Element([
-      "button", "Share", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Share"]
-      ]
-     ]) : "";
-     $actions .= ($ck == 1 && $ck2 == 1) ? $this->core->Element([
-      "button", "Upload", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Upload"]
-      ]
-     ]) : "";
-     $media = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
-     $coverPhoto = $this->core->PlainText([
-      "Data" => "[Media:CP]",
-      "Display" => 1
-     ]);
-     $coverPhotoList = explode(".", $album["ICO"]);
-     if(!empty($album["ICO"]) && $coverPhotoList[0] != "thumbnail") {
-      $coverPhoto = "$username/";
-      $coverPhoto .= $media["Files"][$coverPhotoList[0]]["Name"];
-     }
-     $options = $_Album["ListItem"]["Options"];
-     $r = [
-      "Front" => $this->core->Change([[
+      if($ck == 1) {
+       $actions .= ($id != md5("unsorted")) ? $this->core->Element([
+        "button", "Delete", [
+         "class" => "CloseCard OpenDialog Small v2 v2w",
+         "data-view" => $options["Delete"]
+        ]
+       ]) : "";
+       $actions .= $this->core->Element(["button", "Edit", [
+        "class" => "OpenCard Small v2 v2w",
+        "data-view" => $options["Edit"]
+       ]]);
+      }
+      $actions = ($this->core->ID != $you) ? $actions : "";
+      $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
+      $actions .= ($share == 1) ? $this->core->Element([
+       "button", "Share", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Share"]
+       ]
+      ]) : "";
+      $actions .= ($ck == 1 && $ck2 == 1) ? $this->core->Element([
+       "button", "Upload", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Upload"]
+       ]
+      ]) : "";
+      $media = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
+      $coverPhoto = $this->core->PlainText([
+       "Data" => "[Media:CP]",
+       "Display" => 1
+      ]);
+      $coverPhotoList = explode(".", $album["ICO"]);
+      if(!empty($album["ICO"]) && $coverPhotoList[0] != "thumbnail") {
+       $coverPhoto = "$username/";
+       $coverPhoto .= $media["Files"][$coverPhotoList[0]]["Name"];
+      }
+      $r = $this->core->Change([[
        "[Album.Actions]" => $actions,
        "[Album.CoverPhoto]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
        "[Album.Created]" => $this->core->TimeAgo($album["Created"]),
@@ -172,8 +214,11 @@
        "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$secureUsername"),
        "[Album.Title]" => $_Album["ListItem"]["Title"],
        "[Album.Votes]" => $options["Vote"]
-      ], $this->core->Extension("91c56e0ee2a632b493451aa044c32515")])
-     ];
+      ], $this->core->Extension("91c56e0ee2a632b493451aa044c32515")]);
+      $r = ($embeddedView == 0) ? [
+       "Front" => $r
+      ] : $r;
+     }
     }
    }
    return $this->core->JSONResponse([
@@ -311,10 +356,6 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "ID",
-    "Title"
-   ]);
    $id = $data["ID"] ?? "";
    $new = $data["New"] ?? 0;
    $now = $this->core->timestamp;
@@ -338,7 +379,10 @@
     $coverPhoto = $albums[$id]["ICO"] ?? "";
     $illegal = $albums[$id]["Illegal"] ?? 0;
     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $data["PassPhrase"] ?? "";
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Albums"];
+    $purge = $albums[$id]["Purge"] ?? 0;
+    $title = $data["Title"] ?? "Untitled";
     $albums[$id] = [
      "Created" => $created,
      "Description" => $data["Description"],
@@ -347,8 +391,10 @@
      "Illegal" => $illegal,
      "Modified" => $now,
      "NSFW" => $nsfw,
+     "PassPhrase" => $passPhrase,
      "Privacy" => $privacy,
-     "Title" => $data["Title"]
+     "Purge" => $purge,
+     "Title" => $title
     ];
     $_FileSystem["Albums"] = $albums;
     $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
