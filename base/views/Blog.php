@@ -124,6 +124,7 @@
     $description = $blog["Description"] ?? "";
     $header = ($new == 1) ? "New Blog" : "Edit ".$blog["Title"];
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $blog["PassPhrase"] ?? "";
     $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
     $template = $blog["TPL"] ?? "";
     $templateOptions = $this->core->DatabaseSet("Extensions");
@@ -131,9 +132,9 @@
     $title = $blog["Title"] ?? "";
     foreach($templateOptions as $key => $value) {
      $value = str_replace("nyc.outerhaven.extension.", "", $value);
-     $value = $this->core->Data("Get", ["extension", $value]) ?? [];
-     if($value["Category"] == "BlogTemplate") {
-      $templates[$key] = $value["Title"];
+     $template = $this->core->Data("Get", ["extension", $value]) ?? [];
+     if($template["Category"] == "BlogTemplate") {
+      $templates[$value] = $template["Title"];
      }
     }
     $r = $this->core->Change([[
@@ -145,6 +146,7 @@
      "[Blog.Header]" => $header,
      "[Blog.ID]" => $id,
      "[Blog.New]" => $new,
+     "[Blog.PassPhrase]" => base64_encode($passPhrase),
      "[Blog.Title]" => base64_encode($title),
      "[Blog.Template]" => $template,
      "[Blog.Templates]" => json_encode($templates, true),
@@ -225,75 +227,114 @@
      $_IsArtist = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
      $accessCode = "Accepted";
-     $actions = "";
-     $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
-     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-     $actions .= ($blog["UN"] != $you) ? $this->core->Element([
-      "button", $blockCommand, [
-       "class" => "Small UpdateButton v2",
-       "data-processor" => $options["Block"]
-      ]
-     ]) : "";
-     $actions .= (!empty($chat)) ? $this->core->Element([
-      "button", "Chat", [
+     $passPhrase = $blog["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Blog["ListItem"]["Title"]."</em>."),
+       "ViewData" => base64_encode(json_encode([
+        "SecureKey" => base64_encode($passPhrase),
+        "ID" => $id,
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("Blog:Home")
+       ], true))
+      ]]);
+      $r = [
+       "Front" => $this->core->RenderView($r)
+      ];
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Key is missing."]);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("Blog:Home"), ["Data" => [
+        "ID" => $id,
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $accessCode = "Accepted";
+      $actions = "";
+      $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
+      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+      $actions .= ($blog["UN"] != $you) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => $options["Block"]
+       ]
+      ]) : "";
+      $actions .= (!empty($chat)) ? $this->core->Element([
+       "button", "Chat", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Chat"]
+       ]
+      ]) : "";
+      $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([
+       "button", "Delete", [
+        "class" => "CloseCard OpenDialog Small v2",
+        "data-view" => $options["Delete"]
+       ]
+      ]) : "";
+      $actions .= ($_IsArtist == 1) ? $this->core->Element([
+       "button", "Donate", [
+        "class" => "OpenDialog Small v2",
+        "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($owner["Login"]["Username"]))
+       ]
+      ]) : "";
+      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
+       "button", "Edit", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Edit"]
+       ]
+      ]) : "";
+      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
+       "button", "Invite", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Invite"]
+       ]
+      ]) : "";
+      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
+       "button", "Post", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Post"]
+       ]
+      ]) : "";
+      $actions .= $this->core->Element(["button", "Share", [
        "class" => "OpenCard Small v2",
-       "data-view" => $options["Chat"]
-      ]
-     ]) : "";
-     $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([
-      "button", "Delete", [
-       "class" => "CloseCard OpenDialog Small v2",
-       "data-view" => $options["Delete"]
-      ]
-     ]) : "";
-     $actions .= ($_IsArtist == 1) ? $this->core->Element([
-      "button", "Donate", [
-       "class" => "OpenDialog Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($owner["Login"]["Username"]))
-      ]
-     ]) : "";
-     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
-      "button", "Edit", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Edit"]
-      ]
-     ]) : "";
-     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
-      "button", "Invite", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Invite"]
-      ]
-     ]) : "";
-     $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
-      "button", "Post", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Post"]
-      ]
-     ]) : "";
-     $actions .= $this->core->Element(["button", "Share", [
-      "class" => "OpenCard Small v2",
-      "data-view" => $options["Share"]
-     ]]);
-     $search = base64_encode("Search:Containers");
-     $extension = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
-     $r = $this->core->Change([[
-      "[Blog.About]" => "About ".$owner["Personal"]["DisplayName"],
-      "[Blog.Actions]" => $actions,
-      "[Blog.Back]" => $bck,
-      "[Blog.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
-      "[Blog.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors"),
-      "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
-      "[Blog.Description]" => $_Blog["ListItem"]["Description"],
-      "[Blog.ID]" => $id,
-      "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),
-      "[Blog.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Blog"),
-      "[Blog.Title]" => $_Blog["ListItem"]["Title"],
-      "[Blog.Votes]" => $options["Vote"]
-     ], $this->core->Extension($extension)]);
-     $r = ($data["CARD"] == 1) ? [
-      "Front" => $r
-     ] : $r;
+       "data-view" => $options["Share"]
+      ]]);
+      $search = base64_encode("Search:Containers");
+      $extension = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
+      $r = $this->core->Change([[
+       "[Blog.About]" => "About ".$owner["Personal"]["DisplayName"],
+       "[Blog.Actions]" => $actions,
+       "[Blog.Back]" => $bck,
+       "[Blog.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
+       "[Blog.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors"),
+       "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
+       "[Blog.Description]" => $_Blog["ListItem"]["Description"],
+       "[Blog.ID]" => $id,
+       "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),
+       "[Blog.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Blog"),
+       "[Blog.Title]" => $_Blog["ListItem"]["Title"],
+       "[Blog.Votes]" => $options["Vote"]
+      ], $this->core->Extension($extension)]);
+      $r = ($data["CARD"] == 1) ? [
+       "Front" => $r
+      ] : $r;
+     }
     }
    }
    if($pub == 1) {
@@ -494,6 +535,7 @@
      $modifiedBy = $blog["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+     $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
      $purge = $blog["Purge"] ?? 0;
      $posts = $blog["Posts"] ?? [];
@@ -530,13 +572,14 @@
       "Illegal" => $illegal,
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
-      "Title" => $title,
-      "TPL" => $data["TPL-BLG"],
       "Description" => htmlentities($data["Description"]),
       "NSFW" => $nsfw,
+      "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
-      "Purge" => $purge,
       "Posts" => $posts,
+      "Purge" => $purge,
+      "Title" => $title,
+      "TPL" => $data["TPL-BLG"],
       "UN" => $author
      ];
      $this->core->Data("Save", ["blg", $id, $blog]);

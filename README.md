@@ -34,6 +34,11 @@ This release focuses on search—both inside and outside the platform, content c
 * Members of Congress may now contribute Congressional Notes to add context.
 * Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Articles, Forum Posts, and Status Updates until another overtakes it.
 
+### Protected Content (working on it...)
+* Members may now add an additional layer of security for primary content—and some secondary content—with pass phrases.
+* Currently protected content includes: Albums, Blogs, Blog Posts, Files, Forums, Forum Posts, Group Chats, Products, Preferences, Profiles, Shops, and Status Updates.
+* Dialogs which require a PIN for authentication now run on the Protected Content workflow.
+
 ### Re:Search
 * Refined content visibility across the platform.
 * Streamlined and built upon the Re:Search experience.

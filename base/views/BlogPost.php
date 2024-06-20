@@ -7,15 +7,10 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "Blog",
-    "Post",
-    "new"
-   ]);
-   $blog = $data["Blog"];
+   $blog = $data["Blog"] ?? "";
    $button = "";
    $new = $data["new"] ?? 0;
-   $post = $data["Post"];
+   $post = $data["Post"] ?? "";
    $r = [
     "Body" => "The Blog Identifier is missing."
    ];
@@ -51,14 +46,17 @@
     $designViewEditor = "ViewBlogPost$id";
     $header = ($new == 1) ? "New Post to ".$blog["Title"] : "Edit ".$post["Title"];
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $post["PassPhrase"] ?? "";
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Profile"];
     $search = base64_encode("Search:Containers");
     $template = $post["TPL"] ?? "";
     $templateOptions = $this->core->DatabaseSet("Extensions");
     $templates = [];
     foreach($templateOptions as $key => $value) {
-     if($value["Category"] == "BlogTemplate") {
-      $templates[$key] = $value["Title"];
+     $value = str_replace("nyc.outerhaven.extension.", "", $value);
+     $template = $this->core->Data("Get", ["extension", $value]) ?? [];
+     if($template["Category"] == "BlogTemplate") {
+      $templates[$value] = $template["Title"];
      }
     }
     $title = $post["Title"] ?? "";
@@ -78,6 +76,7 @@
      "[BlogPost.Header]" => $header,
      "[BlogPost.ID]" => $id,
      "[BlogPost.New]" => $new,
+     "[BlogPost.PassPhrase]" => base64_encode($passPhrase),
      "[BlogPost.Title]" => base64_encode($title),
      "[BlogPost.Template]" => $template,
      "[BlogPost.Templates]" => json_encode($templates, true),
@@ -135,63 +134,102 @@
      "ID" => base64_encode("BlogPost;$blog;$postID")
     ]);
     if($_BlogPost["Empty"] == 0) {
-     $options = $_BlogPost["ListItem"]["Options"];
+     $accessCode = "Accepted";
      $post = $_BlogPost["DataModel"];
-     $author = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
-     $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
-     $description = $author["Personal"]["DisplayName"] ?? "";
-     $extension = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
-     $contributors = $post["Contributors"] ?? [];
-     $contributors = base64_encode(json_encode($contributors, true));
-     $contributors = $post["Contributors"] ?? $blog["Contributiors"];
-     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-     $actions = ($post["UN"] != $you) ? $this->core->Element([
-      "button", $blockCommand, [
-       "class" => "Small UpdateButton v2",
-       "data-processor" => $options["Block"]
-      ]
-     ]) : "";
-     $actions = $this->core->Element([
-      "button", "View Profile", [
-       "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($post["UN"]))
-      ]
-     ]);
-     $share = ($post["UN"] == $you || $post["Privacy"] == md5("Public")) ? 1 : 0;
-     $share = ($share == 1) ? $this->core->Element(["div", $this->core->Element([
-      "button", "Share", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Share"]
-     ]]), ["class" => "Desktop33"]]) : "";
-     $verified = $author["Verified"] ?? 0;
-     $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-     $r = $this->core->Change([[
-      "[Article.Actions]" => $actions,
-      "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
-      "[Article.Back]" => $back,
-      "[Article.Body]" => $_BlogPost["ListItem"]["Body"],
-      "[Article.Contributors]" => $contributors,
-      "[Article.Conversation]" => $this->core->Change([[
-       "[Conversation.CRID]" => $postID,
-       "[Conversation.CRIDE]" => base64_encode($postID),
-       "[Conversation.Level]" => base64_encode(1),
-       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-      "[Article.CoverPhoto]" => $_BlogPost["ListItem"]["CoverPhoto"],
-      "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
-      "[Article.Description]" => $_BlogPost["ListItem"]["Description"],
-      "[Article.ID]" => $postID,
-      "[Article.Modified]" => $_BlogPost["ListItem"]["Modified"],
-      "[Article.Notes]" => $options["Notes"],
-      "[Article.Report]" => $options["Report"],
-      "[Article.Share]" => $share,
-      "[Article.Subscribe]" => "",
-      "[Article.Title]" => $_BlogPost["ListItem"]["Title"],
-      "[Article.Votes]" => $options["Vote"],
-      "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
-      "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
-      "[Member.Description]" => $description
-     ], $this->core->Extension($extension)]);
+     $passPhrase = $post["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_BlogPost["ListItem"]["Title"]."</em>."),
+       "ViewData" => base64_encode(json_encode([
+        "SecureKey" => base64_encode($passPhrase),
+        "Blog" => $blog,
+        "Post" => $postID,
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("BlogPost:Home")
+       ], true))
+      ]]);
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Key is missing."]);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("Blog:Home"), ["Data" => [
+        "Blog" => $blog,
+        "Post" => $postID,
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $accessCode = "Accepted";
+      $options = $_BlogPost["ListItem"]["Options"];
+      $author = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
+      $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
+      $description = $author["Personal"]["DisplayName"] ?? "";
+      $extension = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
+      $contributors = $post["Contributors"] ?? [];
+      $contributors = base64_encode(json_encode($contributors, true));
+      $contributors = $post["Contributors"] ?? $blog["Contributiors"];
+      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+      $actions = ($post["UN"] != $you) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => $options["Block"]
+       ]
+      ]) : "";
+      $actions = $this->core->Element([
+       "button", "View Profile", [
+        "class" => "OpenCard Small v2",
+        "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($post["UN"]))
+       ]
+      ]);
+      $share = ($post["UN"] == $you || $post["Privacy"] == md5("Public")) ? 1 : 0;
+      $share = ($share == 1) ? $this->core->Element(["div", $this->core->Element([
+       "button", "Share", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Share"]
+      ]]), ["class" => "Desktop33"]]) : "";
+      $verified = $author["Verified"] ?? 0;
+      $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+      $r = $this->core->Change([[
+       "[Article.Actions]" => $actions,
+       "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
+       "[Article.Back]" => $back,
+       "[Article.Body]" => $_BlogPost["ListItem"]["Body"],
+       "[Article.Contributors]" => $contributors,
+       "[Article.Conversation]" => $this->core->Change([[
+        "[Conversation.CRID]" => $postID,
+        "[Conversation.CRIDE]" => base64_encode($postID),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+       "[Article.CoverPhoto]" => $_BlogPost["ListItem"]["CoverPhoto"],
+       "[Article.Created]" => $this->core->TimeAgo($post["Created"]),
+       "[Article.Description]" => $_BlogPost["ListItem"]["Description"],
+       "[Article.ID]" => $postID,
+       "[Article.Modified]" => $_BlogPost["ListItem"]["Modified"],
+       "[Article.Notes]" => $options["Notes"],
+       "[Article.Report]" => $options["Report"],
+       "[Article.Share]" => $share,
+       "[Article.Subscribe]" => "",
+       "[Article.Title]" => $_BlogPost["ListItem"]["Title"],
+       "[Article.Votes]" => $options["Vote"],
+       "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
+       "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
+       "[Member.Description]" => $description
+      ], $this->core->Extension($extension)]);
+     }
     }
    } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
@@ -336,6 +374,7 @@
      $modifiedBy = $post["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+     $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
      $purge = $post["Purge"] ?? 0;
      if(!empty($data["rATTI"])) {
@@ -384,6 +423,7 @@
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $nsfw,
+      "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
       "Purge" => $purge,
       "Title" => $title,
