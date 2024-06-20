@@ -413,6 +413,7 @@
        }
       }
      }
+     $post["Contributors"][$you] = ($author == $you) ? "Admin" : "Member";
      $post = [
       "Attachments" => array_unique($attachments),
       "Body" => $this->core->PlainText([

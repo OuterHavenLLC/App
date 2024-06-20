@@ -160,6 +160,7 @@
     $description = $chat["Description"] ?? $description;
     $new = (empty($chat)) ? 1 : 0;
     $nsfw = $chat["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $chat["PassPhrase"] ?? "";
     $privacy = $chat["Privacy"] ?? $y["Privacy"]["MSG"];
     $title = $chat["Title"] ?? $title;
     $action = ($new == 1) ? "Create" : "Update";
@@ -171,6 +172,7 @@
      "[Chat.Header]" => $header,
      "[Chat.ID]" => $id,
      "[Chat.New]" => $new,
+     "[Chat.PassPhrase]" => base64_encode($passPhrase),
      "[Chat.Title]" => base64_encode($title),
      "[Chat.Visibility.NSFW]" => $nsfw,
      "[Chat.Visibility.Privacy]" => $privacy
@@ -236,66 +238,104 @@
        "Integrated" => $integrated
       ]);
       if($_Chat["Empty"] == 0) {
-       $active = 0;
+       $accessCode = "Accepted";
        $chat = $_Chat["DataModel"];
-       $options = $_Chat["ListItem"]["Options"];
-       $contributors = $options["Contributors"] ?? [];
-       foreach($contributors as $member => $role) {
-        if($member == $you) {
-         $active++;
+       $passPhrase = $post["PassPhrase"] ?? "";
+       $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+       $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+       if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+        $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+         "Header" => base64_encode($this->core->Element([
+          "h1", "Protected Content", ["class" => "CenterText"]
+         ])),
+         "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Chat["ListItem"]["Title"]."</em>."),
+         "ViewData" => base64_encode(json_encode([
+          "SecureKey" => base64_encode($passPhrase),
+          "ID" => $chatID,
+          "VerifyPassPhrase" => 1,
+          "v" => base64_encode("Chat:Home")
+         ], true))
+        ]]);
+        $r = $this->core->RenderView($r);
+       } elseif($verifyPassPhrase == 1) {
+        $accessCode = "Denied";
+        $key = $data["Key"] ?? base64_encode("");
+        $key = base64_decode($key);
+        $r = $this->core->Element(["p", "The Key is missing."]);
+        $secureKey = $data["SecureKey"] ?? base64_encode("");
+        $secureKey = base64_decode($secureKey);
+        if($key != $secureKey) {
+         $r = $this->core->Element(["p", "The Keys do not match."]);
+        } else {
+         $accessCode = "Accepted";
+         $r = $this->view(base64_encode("Chat:Home"), ["Data" => [
+          "ID" => $chatID,
+          "ViewProtectedContent" => 1
+         ]]);
+         $r = $this->core->RenderView($r);
         }
+       } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+        $accessCode = "Accepted";
+        $active = 0;
+        $options = $_Chat["ListItem"]["Options"];
+        $contributors = $options["Contributors"] ?? [];
+        foreach($contributors as $member => $role) {
+         if($member == $you) {
+          $active++;
+         }
+        }
+        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+        $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
+        $bookmarkCommand .= "Bookmark";
+        $doNotShare = [
+         "5ec1e051bf732d19e09ea9673cd7986b",
+         "7216072bbd437563e692cc7ff69cdb69"
+        ];
+        $delete = (!in_array($id, $doNotShare) && $chat["UN"] == $you) ? 1 : 0;
+        $privacy = ($chat["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"]) && $chat["Privacy"] != md5("Private")) ? 1 : 0;
+        $share = (!in_array($id, $doNotShare) && ($chat["UN"] == $you || $active == 1)) ? 1 : 0;
+        $actions = ($chat["UN"] != $you) ? $this->core->Element([
+         "button", $blockCommand, [
+          "class" => "Small UpdateButton v2",
+          "data-processor" => $options["Block"]
+         ]
+        ]) : $this->core->Element([
+         "button", "Edit", [
+          "class" => "OpenCard v2",
+          "data-view" => $options["Edit"]
+         ]
+        ]);
+        $actions .= ($chat["UN"] != $you && $privacy == 1 && $share == 1) ? $this->core->Element([
+         "button", $bookmarkCommand, [
+          "class" => "UpdateButton v2",
+          "data-processor" => $options["Bookmark"]
+         ]
+        ]) : "";
+        $actions .= ($delete == 1 && $integrated == 1) ? $this->core->Element([
+         "button", "Delete", [
+          "class" => "CloseCard OpenDialog v2",
+          "data-view" => $options["Delete"]
+         ]
+        ]) : "";
+        $actions .= ($privacy == 1 && $share == 1) ? $this->core->Element([
+         "button", "Share", [
+          "class" => "OpenCard v2",
+          "data-view" => $options["Share"]
+         ]
+        ]) : "";
+        $r = $this->core->Change([[
+         "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
+         "[Chat.Body]" => $body,
+         "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
+         "[Chat.Description]" => $_Chat["ListItem"]["Description"],
+         "[Chat.ID]" => $id,
+         "[Chat.Modified]" => $_Chat["ListItem"]["Modified"],
+         "[Chat.Options]" => $actions,
+         "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
+         "[Chat.Title]" => $_Chat["ListItem"]["Title"],
+        ], $this->core->Extension("5252215b917d920d5d2204dd5e3c8168")]);
        }
-       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-       $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
-       $bookmarkCommand .= "Bookmark";
-       $doNotShare = [
-        "5ec1e051bf732d19e09ea9673cd7986b",
-        "7216072bbd437563e692cc7ff69cdb69"
-       ];
-       $delete = (!in_array($id, $doNotShare) && $chat["UN"] == $you) ? 1 : 0;
-       $privacy = ($chat["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"]) && $chat["Privacy"] != md5("Private")) ? 1 : 0;
-       $share = (!in_array($id, $doNotShare) && ($chat["UN"] == $you || $active == 1)) ? 1 : 0;
-       $actions = ($chat["UN"] != $you) ? $this->core->Element([
-        "button", $blockCommand, [
-         "class" => "Small UpdateButton v2",
-         "data-processor" => $options["Block"]
-        ]
-       ]) : $this->core->Element([
-        "button", "Edit", [
-         "class" => "OpenCard v2",
-         "data-view" => $options["Edit"]
-        ]
-       ]);
-       $actions .= ($chat["UN"] != $you && $privacy == 1 && $share == 1) ? $this->core->Element([
-        "button", $bookmarkCommand, [
-         "class" => "UpdateButton v2",
-         "data-processor" => $options["Bookmark"]
-        ]
-       ]) : "";
-       $actions .= ($delete == 1 && $integrated == 1) ? $this->core->Element([
-        "button", "Delete", [
-         "class" => "CloseCard OpenDialog v2",
-         "data-view" => $options["Delete"]
-        ]
-       ]) : "";
-       $actions .= ($privacy == 1 && $share == 1) ? $this->core->Element([
-        "button", "Share", [
-         "class" => "OpenCard v2",
-         "data-view" => $options["Share"]
-        ]
-       ]) : "";
-       $r = $this->core->Change([[
-        "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
-        "[Chat.Body]" => $body,
-        "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
-        "[Chat.Description]" => $_Chat["ListItem"]["Description"],
-        "[Chat.ID]" => $id,
-        "[Chat.Modified]" => $_Chat["ListItem"]["Modified"],
-        "[Chat.Options]" => $actions,
-        "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
-        "[Chat.Title]" => $_Chat["ListItem"]["Title"],
-       ], $this->core->Extension("5252215b917d920d5d2204dd5e3c8168")]);
-      }
+      #}
      } elseif($oneOnOne == 1) {
       $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
        "Chat" => 1,
@@ -710,6 +750,7 @@
      $modifiedBy = $chat["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+     $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["MSG"];
      $purge = $chat["Purge"] ?? 0;
      $success = "CloseCard";
@@ -723,6 +764,7 @@
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
       "NSFW" => $nsfw,
+      "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
       "Purge" => $purge,
       "Title" => $title,

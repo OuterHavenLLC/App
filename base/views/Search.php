@@ -2175,8 +2175,8 @@
       "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$t["Login"]["Username"].";".$value["ID"])
      ]);
-     if($_File["Empty"] == 0 && $bl == 0) {
-      $file = $_File["DataModel"];
+     $file = $_File["DataModel"];
+     if($_File["Empty"] == 0 && $bl == 0 && $albumID == $file["AID"]) {
       $options = $_File["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $file]);
       array_push($msg, [

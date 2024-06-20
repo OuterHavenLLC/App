@@ -112,7 +112,6 @@
     if($_Album["Empty"] == 0) {
      $accessCode = "Accepted";
      $album = $_Album["DataModel"];
-     $options = $_Album["ListItem"]["Options"];
      $passPhrase = $album["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
@@ -155,6 +154,7 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
       $embeddedView = $data["EmbeddedView"] ?? 0;
+      $options = $_Album["ListItem"]["Options"];
       $t = ($username == $you) ? $y : $this->core->Member($username);
       $secureUsername = base64_encode($t["Login"]["Username"]);
       $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
@@ -233,28 +233,22 @@
   function List(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "AID",
-    "UN",
-    "b2",
-    "back",
-    "lPG",
-    "lPP"
-   ]);
    $back = $data["back"] ?? 0;
    $id = $data["AID"] ?? "";
    $b2 = $data["b2"] ?? "Albums";
-   $y = $this->you;
-   $un = $data["UN"] ?? $y["Login"]["Username"];
+   $parentPage = $data["lPG"] ?? "";
    $r = [
     "Body" => "The requested Album could not be found.",
     "Header" => "Not Found"
    ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   $un = $data["UN"] ?? $you;
    if(!empty($id)) {
     $accessCode = "Accepted";
     $back = ($back == 1) ? $this->core->Element(["button", "Back to $b2", [
      "class" => "GoToParent LI head",
-     "data-type" => $data["lPG"]
+     "data-type" => $parentPage
     ]]) : "";
     $r = $this->view(base64_encode("Search:Containers"), ["Data" => [
      "AID" => $id,

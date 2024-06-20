@@ -56,6 +56,7 @@
     $album = $file["AID"] ?? md5("unsorted");
     $description = $file["Description"] ?? "";
     $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $file["PassPhrase"] ?? "";
     $privacy = $file["Privacy"] ?? $y["Privacy"]["DLL"];
     $title = $file["Title"] ?? "Untitles";
     $r = $this->core->Change([[
@@ -64,6 +65,7 @@
      "[File.Description]" => base64_encode($description),
      "[File.ID]" => $id,
      "[File.NSFW]" => $nsfw,
+     "[File.PassPhrase]" => base64_encode($passPhrase),
      "[File.Privacy]" => $privacy,
      "[File.Title]" => base64_encode($title),
      "[File.Username]" => $username
@@ -118,103 +120,142 @@
      "ParentPage" => $parentView
     ]);
     if($_File["Empty"] == 0) {
-     $file = $_File["DataModel"];
-     $options = $_File["ListItem"]["Options"];
-     $r = [
-      "Body" => "The File <em>$id</em> could not be found."
-     ];
      $accessCode = "Accepted";
-     $actions = ($username != $you) ? $this->core->Element([
-      "button", $blockCommand, [
-       "class" => "Small UpdateButton v2",
-       "data-processor" => $options["Block"]
-      ]
-     ]) : "";
-     $addToData = $data["AddTo"] ?? "";
-     $addToData = (!empty($addToData)) ? explode(":", base64_decode($addToData)) : [];
-     $addToMedia = ($this->core->ID == $username) ? $file["Name"] : $attachmentID;
-     /*--$addTo = (!empty($addToData[1])) ? $this->core->Element([
-      "button", $addToData[0], [
-       "class" => "AddTo v2",
-       "data-added" => $added,
-       "data-dlc" => $addToMedia,
-       "data-input" => base64_encode($addToData[1])
-      ]
-     ]) : "";--*/
-     $addTo = "";
-     $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
-     $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
-      "button", "Delete", [
-       "class" => "GoToView Small v2",
-       "data-type" => "Media$id;".$options["Delete"]
-      ]
-     ]) : "";
-     $actions .= $this->core->Element([
-      "button", "Download", [
-       "class" => "Download Small v2",
-       "data-media" => base64_encode(base64_encode("$username/".$file["Name"])),
-       "data-view" => base64_encode("v=".base64_encode("File:Download"))
-      ]
-     ]);
-     $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
-      "button", "Edit", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Edit"]
-      ]
-     ]) : "";
-     $fileCheck = $this->core->CheckFileType([$file["EXT"], "Photo"]);
-     $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
-     $setAsProfileImage = "";
-     if($nsfw == 0 && $fileCheck == 1) {
-      $_Source = $options["Source"];
-      $httpResponse = $this->core->RenderHTTPResponse($_Source);
-      if($httpResponse != 200) {
-       $_Source = $this->core->efs."D.jpg";
+     $file = $_File["DataModel"];
+     $passPhrase = $file["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
+       "ParentPage" => "Files",
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_File["ListItem"]["Title"]."</em>."),
+       "ViewData" => base64_encode(json_encode([
+        "SecureKey" => base64_encode($passPhrase),
+        "ID" => $id,
+        "ParentView" => "Files",
+        "UN" => $username,
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("File:Home")
+       ], true))
+      ]]);
+      $r = $this->core->RenderView($r);
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Key is missing."]);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("File:Home"), ["Data" => [
+        "ID" => $id,
+        "ParentView" => "Files",
+        "UN" => $username,
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
       }
-      list($height, $width) = getimagesize($_Source);
-      $_Size = ($height <= ($width / 1.5) || $height == $width) ? 1 : 0;
-      $cp = ($height <= ($width / 1.5)) ? "Cover Photo" : "Profile Picture";
-      $type = ($height <= ($width / 1.5)) ? "CoverPhoto" : "ProfilePicture";
-      $type = base64_encode($type);
-      $setAsProfileImage = ($_Size == 1) ? $this->core->Element([
-       "button", "Set as Your $cp", [
-        "class" => "OpenDialog Disable v2",
-        "data-view" => base64_encode("v=".base64_encode("File:SaveProfileImage")."&DLC=$attachmentID&FT=$type")
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $accessCode = "Accepted";
+      $options = $_File["ListItem"]["Options"];
+      $actions = ($username != $you) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => $options["Block"]
        ]
       ]) : "";
+      $addToData = $data["AddTo"] ?? "";
+      $addToData = (!empty($addToData)) ? explode(":", base64_decode($addToData)) : [];
+      $addToMedia = ($this->core->ID == $username) ? $file["Name"] : $attachmentID;
+      /*--$addTo = (!empty($addToData[1])) ? $this->core->Element([
+       "button", $addToData[0], [
+        "class" => "AddTo v2",
+        "data-added" => $added,
+        "data-dlc" => $addToMedia,
+        "data-input" => base64_encode($addToData[1])
+       ]
+      ]) : "";--*/
+      $addTo = "";
+      $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
+      $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
+       "button", "Delete", [
+        "class" => "GoToView Small v2",
+        "data-type" => "Media$id;".$options["Delete"]
+       ]
+      ]) : "";
+      $actions .= $this->core->Element([
+       "button", "Download", [
+        "class" => "Download Small v2",
+        "data-media" => base64_encode(base64_encode("$username/".$file["Name"])),
+        "data-view" => base64_encode("v=".base64_encode("File:Download"))
+       ]
+      ]);
+      $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
+       "button", "Edit", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Edit"]
+       ]
+      ]) : "";
+      $fileCheck = $this->core->CheckFileType([$file["EXT"], "Photo"]);
+      $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
+      $setAsProfileImage = "";
+      if($nsfw == 0 && $fileCheck == 1) {
+       $_Source = $options["Source"];
+       $httpResponse = $this->core->RenderHTTPResponse($_Source);
+       if($httpResponse != 200) {
+        $_Source = $this->core->efs."D.jpg";
+       }
+       list($height, $width) = getimagesize($_Source);
+       $_Size = ($height <= ($width / 1.5) || $height == $width) ? 1 : 0;
+       $cp = ($height <= ($width / 1.5)) ? "Cover Photo" : "Profile Picture";
+       $type = ($height <= ($width / 1.5)) ? "CoverPhoto" : "ProfilePicture";
+       $type = base64_encode($type);
+       $setAsProfileImage = ($_Size == 1) ? $this->core->Element([
+        "button", "Set as Your $cp", [
+         "class" => "OpenDialog Disable v2",
+         "data-view" => base64_encode("v=".base64_encode("File:SaveProfileImage")."&DLC=$attachmentID&FT=$type")
+        ]
+       ]) : "";
+      }
+      $nsfw = ($nsfw == 1) ? "Adults Only" : "Kid-Friendly";
+      $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
+      $share = ($share == 1) ? $this->core->Element([
+       "button", "Share", [
+        "class" => "OpenCard Small v2",
+        "data-view" => $options["Share"]
+      ]]) : "";
+      $r = $this->core->Change([[
+       "[File.Actions]" => $actions,
+       "[File.AddTo]" => $addTo,
+       "[File.Back]" => $back,
+       "[File.Conversation]" => $this->core->Change([[
+        "[Conversation.CRID]" => $id,
+        "[Conversation.CRIDE]" => base64_encode($id),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+       "[File.Description]" => $file["Description"],
+       "[File.Extension]" => $file["EXT"],
+       "[File.ID]" => $id,
+       "[File.Illegal]" => $options["Report"],
+       "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
+       "[File.Name]" => $file["Name"],
+       "[File.NSFW]" => $nsfw,
+       "[File.Preview]" => $_File["ListItem"]["Attachments"],
+       "[File.SetAsProfileImage]" => $setAsProfileImage,
+       "[File.Share]" => $share,
+       "[File.Title]" => $_File["ListItem"]["Title"],
+       "[File.Type]" => $file["Type"],
+       "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
+       "[File.Votes]" => $options["Vote"]
+      ], $this->core->Extension("c31701a05a48069702cd7590d31ebd63")]);
      }
-     $nsfw = ($nsfw == 1) ? "Adults Only" : "Kid-Friendly";
-     $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
-     $share = ($share == 1) ? $this->core->Element([
-      "button", "Share", [
-       "class" => "OpenCard Small v2",
-       "data-view" => $options["Share"]
-     ]]) : "";
-     $r = $this->core->Change([[
-      "[File.Actions]" => $actions,
-      "[File.AddTo]" => $addTo,
-      "[File.Back]" => $back,
-      "[File.Conversation]" => $this->core->Change([[
-       "[Conversation.CRID]" => $id,
-       "[Conversation.CRIDE]" => base64_encode($id),
-       "[Conversation.Level]" => base64_encode(1),
-       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-      "[File.Description]" => $file["Description"],
-      "[File.Extension]" => $file["EXT"],
-      "[File.ID]" => $id,
-      "[File.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("File;".$t["Login"]["Username"].";$id")),
-      "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
-      "[File.Name]" => $file["Name"],
-      "[File.NSFW]" => $nsfw,
-      "[File.Preview]" => $_File["ListItem"]["Attachments"],
-      "[File.SetAsProfileImage]" => $setAsProfileImage,
-      "[File.Share]" => $share,
-      "[File.Title]" => $_File["ListItem"]["Title"],
-      "[File.Type]" => $file["Type"],
-      "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
-      "[File.Votes]" => $options["Vote"]
-     ], $this->core->Extension("c31701a05a48069702cd7590d31ebd63")]);
     }
    }
    $r = ($card == 1) ? [
@@ -309,9 +350,9 @@
        }
        $thumbnail = $this->core->DocumentRoot."/efs/$username/thumbnail.$baseName.png";
        if(file_exists($mediaFile) || is_dir($mediaFile)) {
-        #unlink($mediaFile);
-       } if(file_exists($thumbnail) || is_dir($mediaFile)) {
-        #unlink($thumbnail);
+        unlink($mediaFile);
+       } if(file_exists($thumbnail) || is_dir($thumbnail)) {
+        unlink($thumbnail);
        }
       }
      } if($this->core->ID == $username) {
@@ -345,14 +386,7 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "Description",
-    "ID",
-    "Title"
-   ]);
-   $id = $data["ID"];
-   $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
-   $privacy = $data["NSFW"] ?? $y["Privacy"]["DLL"];
+   $id = $data["ID"] ?? "";
    $r = [
     "Body" => "The File Identifier is missing."
    ];
@@ -375,12 +409,14 @@
     $file = $files[$id] ?? [];
     $file["AID"] = $data["Album"] ?? md5("unsorted");
     $file["Created"] = $files[$id]["Created"] ?? $now;
-    $file["Description"] = $data["Description"];
+    $file["Description"] = $data["Description"] ?? "";
     $file["Illegal"] = $files[$id]["Illegal"] ?? 0;
     $file["Modified"] = $now;
-    $file["NSFW"] = $nsfw;
-    $file["Privacy"] = $privacy;
-    $file["Title"] = $data["Title"];
+    $file["NSFW"] = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $file["PassPhrase"] = $data["PassPhrase"] ?? "";
+    $file["Privacy"] = $data["Privacy"] ?? $y["Privacy"]["DLL"];
+    $file["Purge"] = $file["Purge"] ?? 0;
+    $file["Title"] = $data["Title"] ?? "Untitled";
     $files[$id] = $file;
     if($this->core->ID == $username) {
      $this->core->Data("Save", ["app", "fs", $files]);
