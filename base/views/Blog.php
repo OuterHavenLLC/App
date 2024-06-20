@@ -327,7 +327,7 @@
        "[Blog.Description]" => $_Blog["ListItem"]["Description"],
        "[Blog.ID]" => $id,
        "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),
-       "[Blog.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Blog"),
+       "[Blog.Subscribe]" => $options["Subscribe"],
        "[Blog.Title]" => $_Blog["ListItem"]["Title"],
        "[Blog.Votes]" => $options["Vote"]
       ], $this->core->Extension($extension)]);
@@ -539,7 +539,16 @@
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
      $purge = $blog["Purge"] ?? 0;
      $posts = $blog["Posts"] ?? [];
-     if(!empty($data["CoverPhoto"])) {
+     $subscribers = $blog["Subscribers"] ?? [];
+     foreach($subscribers as $key => $value) {
+      $this->core->SendBulletin([
+       "Data" => [
+        "BlogID" => $id
+       ],
+       "To" => $value,
+       "Type" => "BlogUpdate"
+      ]);
+     } if(!empty($data["CoverPhoto"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["CoverPhoto"])));
       foreach($dlc as $dlc) {
        if($i == 0 && !empty($dlc)) {

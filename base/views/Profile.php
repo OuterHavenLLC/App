@@ -203,6 +203,10 @@
    $request = $data["Data"]["Request"] ?? "";
    if($type == "ArticleUpdate") {
     $message = "Updated their article.";
+   } elseif($type == "BlogUpdate") {
+    $message = "Updated their blog.";
+   } elseif($type == "BlogPostUpdate") {
+    $message = "Updated their blog post.";
    } elseif($type == "ContactRequest") {
     $message = "Sent you a contact request.";
     $message = ($request == "Accepted") ? "Accepted your contact request." : $message;
@@ -251,9 +255,31 @@
     $data = $bulletin["Data"] ?? [];
     $mar = "v=".base64_encode("Profile:MarkBulletinAsRead")."&ID=$id";
     if($bulletin["Type"] == "ArticleUpdate") {
-     $page = $this->core->Data("Get", ["pg", $data["ArticleID"]]) ?? [];
+     $article = $this->core->Data("Get", ["pg", $data["ArticleID"]]) ?? [];
      $r = $this->core->Element([
-      "button", "Take me to <em>".$page["Title"]."</em>", [
+      "button", "Take me to <em>".$article["Title"]."</em>", [
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Page:Home")."&CARD=1&ID=".$data["ArticleID"]),
+       "data-MAR" => base64_encode($mar),
+       "data-target" => ".Bulletin$id .Options"
+      ]
+     ]);
+     $r = "Button";
+    } elseif($bulletin["Type"] == "BlogUpdate") {
+     $blog = $this->core->Data("Get", ["blg", $data["BlogID"]]) ?? [];
+     $r = $this->core->Element([
+      "button", "Take me to <em>".$blog["Title"]."</em>", [
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=".$data["ArticleID"]),
+       "data-MAR" => base64_encode($mar),
+       "data-target" => ".Bulletin$id .Options"
+      ]
+     ]);
+     $r = "Button";
+    } elseif($bulletin["Type"] == "BlogPostUpdate") {
+     $post = $this->core->Data("Get", ["bp", $data["PostID"]]) ?? [];
+     $r = $this->core->Element([
+      "button", "Take me to <em>".$post["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&ID=".$data["ArticleID"]),
        "data-MAR" => base64_encode($mar),

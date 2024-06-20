@@ -330,8 +330,14 @@
      $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
      $check = ($blog["UN"] != $you) ? 1 : 0;
      $processor = base64_encode("v=".base64_encode("Blog:Subscribe"));
-     $subscribers = $shop["Subscribers"] ?? [];
+     $subscribers = $blog["Subscribers"] ?? [];
      $title = $blog["Title"];
+    } elseif($type == "BlogPost") {
+     $post = $this->core->Data("Get", ["bp", $id]) ?? [];
+     $check = ($post["UN"] != $you) ? 1 : 0;
+     $processor = base64_encode("v=".base64_encode("BlogPost:Subscribe"));
+     $subscribers = $post["Subscribers"] ?? [];
+     $title = $post["Title"];
     } elseif($type == "Shop") {
      $check = (md5($you) != $id) ? 1 : 0;
      $processor = base64_encode("v=".base64_encode("Shop:Subscribe"));

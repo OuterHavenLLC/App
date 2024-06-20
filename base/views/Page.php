@@ -580,7 +580,15 @@
      $products = $article["Products"] ?? [];
      $purge = $article["Purge"] ?? 0;
      $subscribers = $article["Subscribers"] ?? [];
-     if(!empty($data["rATTI"])) {
+     foreach($subscribers as $key => $value) {
+      $this->core->SendBulletin([
+       "Data" => [
+        "ArticleID" => $id
+       ],
+       "To" => $value,
+       "Type" => "ArticleUpdate"
+      ]);
+     } if(!empty($data["rATTI"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
       foreach($dlc as $dlc) {
        if($i == 0 && !empty($dlc)) {
@@ -620,15 +628,6 @@
      } if($isPublic == 1 && $new == 1) {
       $ck = ($author == $you) ? 1 : 0;
       $ck = (!in_array($id, $y["Pages"]) && $ck == 1) ? 1 : 0;
-      foreach($subscribers as $key => $value) {
-       $this->core->SendBulletin([
-        "Data" => [
-         "ArticleID" => $id
-        ],
-        "To" => $value,
-        "Type" => "ArticleUpdate"
-       ]);
-      }
       if($ck == 1) {
        $newPages = $y["Pages"];
        array_push($newPages, $id);

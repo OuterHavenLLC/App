@@ -223,7 +223,7 @@
        "[Article.Notes]" => $options["Notes"],
        "[Article.Report]" => $options["Report"],
        "[Article.Share]" => $share,
-       "[Article.Subscribe]" => "",
+       "[Article.Subscribe]" => $options["Subscribe"],
        "[Article.Title]" => $_BlogPost["ListItem"]["Title"],
        "[Article.Votes]" => $options["Vote"],
        "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
@@ -378,7 +378,16 @@
      $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
      $purge = $post["Purge"] ?? 0;
-     if(!empty($data["rATTI"])) {
+     $subscribers = $post["Subscribers"] ?? [];
+     foreach($subscribers as $key => $value) {
+      $this->core->SendBulletin([
+       "Data" => [
+        "PostID" => $id
+       ],
+       "To" => $value,
+       "Type" => "BlogPostUpdate"
+      ]);
+     } if(!empty($data["rATTI"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
       $i = 0;
       foreach($dlc as $dlc) {
@@ -427,6 +436,7 @@
       "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
       "Purge" => $purge,
+      "Subscribers" => $subscribers,
       "Title" => $title,
       "TPL" => $data["TPL-BLG"],
       "UN" => $author
@@ -469,6 +479,53 @@
     ],
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
+   ]);
+  }
+  function Subscribe(array $a) {
+   $accessCode = "Denied";
+   $responseType = "Dialog";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Blog Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to subscribe.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $responseType = "UpdateText";
+    $post = $this->core->Data("Get", ["bp", $id]) ?? [];
+    $subscribers = $post["Subscribers"] ?? [];
+    $subscribed = (in_array($you, $subscribers)) ? 1 : 0;
+    if($subscribed == 1) {
+     $newSubscribers = [];
+     $r = "Subscribe";
+     foreach($subscribers as $key => $value) {
+      if($value != $you) {
+       $newSubscribers[$key] = $value;
+      }
+     }
+     $subscribers = $newSubscribers;
+    } else {
+     array_push($subscribers, $you);
+     $r = "Unsubscribe";
+    }
+    $post["Subscribers"] = $subscribers;
+    $this->core->Data("Save", ["bp", $id, $post]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => $responseType
    ]);
   }
   function __destruct() {

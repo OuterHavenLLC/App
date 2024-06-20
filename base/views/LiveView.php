@@ -151,7 +151,9 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $attachments = explode(";", $id);
+    $attachments = base64_decode($id);
+    $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
+    $attachments = explode(";", $attachments);
     $count = count($attachments);
     $r = "";
     if($type == "Artist") {
