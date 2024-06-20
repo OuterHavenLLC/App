@@ -179,9 +179,6 @@
       $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
       $description = $author["Personal"]["DisplayName"] ?? "";
       $extension = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
-      $contributors = $post["Contributors"] ?? [];
-      $contributors = base64_encode(json_encode($contributors, true));
-      $contributors = $post["Contributors"] ?? $blog["Contributiors"];
       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
       $actions = ($post["UN"] != $you) ? $this->core->Element([
        "button", $blockCommand, [
@@ -208,7 +205,7 @@
        "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
        "[Article.Back]" => $back,
        "[Article.Body]" => $_BlogPost["ListItem"]["Body"],
-       "[Article.Contributors]" => $contributors,
+       "[Article.Contributors]" => $options["Contributors"],
        "[Article.Conversation]" => $this->core->Change([[
         "[Conversation.CRID]" => $postID,
         "[Conversation.CRIDE]" => base64_encode($postID),

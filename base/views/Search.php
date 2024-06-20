@@ -1272,6 +1272,14 @@
         $admin++;
        }
       }
+     } elseif($type == "BlogPost") {
+      $post = $this->core->Data("Get", ["bp", $id]) ?? [];
+      $contributors = $post["Contributors"] ?? [];
+      foreach($contributors as $member => $role) {
+       if($admin == 0 && $member == $you && $role == "Admin") {
+        $admin++;
+       }
+      }
      } elseif($type == "Forum") {
       $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
       $contributors = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
@@ -1341,6 +1349,14 @@
             "data-view" => base64_encode("v=".base64_encode("Authentication:BlogChangeMemberRole")."&ID=$eid&Member=$mbr")
            ]
           ]) : "";
+         }
+        } elseif($type == "BlogPost") {
+         $ck2 = ($post["UN"] == $you || $admin == 1) ? 1 : 0;
+         $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
+         if($ck == 1 || $ck2 == 1) {
+          $ck = ($post["UN"] != $member && $post["UN"] != $you) ? 1 : 0;
+          $eid = base64_encode($post["ID"]);
+          $mbr = base64_encode($them);
          }
         } elseif($type == "Forum") {
          $ck2 = ($forum["UN"] == $you || $admin == 1) ? 1 : 0;
