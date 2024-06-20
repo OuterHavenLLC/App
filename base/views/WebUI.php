@@ -117,16 +117,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function Empty() {
-   return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $this->core->Element(["div", NULL, ["class" => "NONAME"]])
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function Error(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];

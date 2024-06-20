@@ -55,7 +55,7 @@
     foreach($templateOptions as $key => $value) {
      $value = str_replace("nyc.outerhaven.extension.", "", $value);
      $template = $this->core->Data("Get", ["extension", $value]) ?? [];
-     if($template["Category"] == "BlogTemplate") {
+     if($template["Category"] == "ArticleTemplate") {
       $templates[$value] = $template["Title"];
      }
     }

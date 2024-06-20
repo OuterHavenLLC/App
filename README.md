@@ -32,7 +32,7 @@ This release focuses on search—both inside and outside the platform, content c
 
 ### Congressional Notes
 * Members of Congress may now contribute Congressional Notes to add context.
-* Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Articles, Forum Posts, and Status Updates until another overtakes it.
+* Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Articles, Blog Posts, Forum Posts, and Status Updates until another overtakes it.
 
 ### Protected Content (working on it...)
 * Members may now add an additional layer of security for primary content—and some secondary content—with pass phrases.
