@@ -490,7 +490,7 @@
     $r = $this->core->Element([
      "div", $this->core->Element([
       "p", "Your profile is now inactive and you can sign in at any time to activate it, we hope to see you again soon!"
-     ]), ["class" => "K4i"]
+     ]), ["class" => "FrostedBright RoundedLarge Shadowed"]
     ]).$this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
@@ -1286,7 +1286,7 @@
        ]).$this->core->Element([
         "p", "Your profile is now slated for purging. We hope to see you again!",
         ["class" => "CenterText"]
-       ]), ["class" => "K4i"]
+       ]), ["class" => "Red RoundedLarge Shadowed"]
       ]).$this->core->RenderView($r);
      }
     }

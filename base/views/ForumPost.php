@@ -7,12 +7,11 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["FID", "ID", "new"]);
-   $forumID = $data["FID"];
+   $forumID = $data["FID"] ?? "";
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];

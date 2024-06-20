@@ -7,10 +7,6 @@
   function Edit(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "ID",
-    "new"
-   ]);
    $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];

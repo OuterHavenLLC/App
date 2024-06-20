@@ -134,21 +134,6 @@
    if(!empty($data["MSG"])) {
     $accessCode = "Accepted";
     $now = $this->core->timestamp;
-    if($data["SOE"] == 1) {
-     $contacts  = $this->core->Data("Get", [
-      "app",
-      md5("ContactList")
-     ]) ?? [];
-     $contacts[$data["Email"]] = [
-      "Email" => $data["Email"],
-      "Name" => $data["Name"],
-      "Phone" => $data["Phone"],
-      "SendOccasionalEmails" => $data["SOE"],
-      "UN" => $you,
-      "Updated" => $now
-     ];
-     $this->core->Data("Save", ["app", md5("ContactList"), $contacts]);
-    }
     $feedback = [
      "AllowIndexing" => $data["Index"],
      "Email" => $data["Email"],

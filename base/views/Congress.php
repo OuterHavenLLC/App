@@ -281,7 +281,7 @@
         "h2", "Done", ["class" => "CenterText UpperCase"]
        ]).$this->core->Element([
         "p", $r, ["class" => "CenterText"]
-       ]), ["class" => "K4i"]
+       ]), ["class" => "FrostedBright Rounded"]
       ]);
       $responseType = "ReplaceContent";
      }
@@ -393,7 +393,7 @@
        ], $extension]);
       }
      }
-     $r = $this->core->Element(["div", $r, ["class" => "K4i"]]);
+     $r = $this->core->Element(["div", $r, ["class" => "FrostedBright Rounded"]]);
     } elseif(!empty($congressmen[$you])) {
      $add = $data["Add"] ?? 0;
      $save = $data["Save"] ?? 0;

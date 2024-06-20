@@ -58,7 +58,9 @@
     ]);
     if($_Poll["Empty"] == 0) {
      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-     $extension = $this->core->Element(["div", $extension, ["class" => "K4i Poll$value"]]);
+     $extension = $this->core->Element([
+      "div", $extension, ["class" => "FrostedBright Poll$value Rounded"]
+     ]);
      $options = $_Poll["ListItem"]["Options"];
      $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
       "div", $this->core->Element(["button", $blockCommand, [
@@ -109,7 +111,7 @@
       "[Poll.Vote]" => $vote
      ], $this->core->Extension("184ada666b3eb85de07e414139a9a0dc")]);
      $r = ($containers == 1) ? $this->core->Element([
-      "div", $r, ["class" => "K4i Poll$id"]
+      "div", $r, ["class" => "FrostedBright Poll$id Rounded"]
      ]) : $r;
     } if($pub == 1) {
      $r = $this->view(base64_encode("WebUI:Containers"), [

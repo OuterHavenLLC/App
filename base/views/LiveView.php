@@ -187,7 +187,7 @@
           "T" => $f[0],
           "Y" => $you
          ]), [
-          "class" => "K4i Medium OpenCard",
+          "class" => "FrostedBright Medium OpenCard Rounded",
           "data-view" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
          ]
         ]);
