@@ -153,6 +153,7 @@
         "v" => base64_encode("BlogPost:Home")
        ], true))
       ]]);
+      $r = $this->core->RenderView($r);
      } elseif($verifyPassPhrase == 1) {
       $accessCode = "Denied";
       $key = $data["Key"] ?? base64_encode("");
@@ -164,7 +165,7 @@
        $r = $this->core->Element(["p", "The Keys do not match."]);
       } else {
        $accessCode = "Accepted";
-       $r = $this->view(base64_encode("Blog:Home"), ["Data" => [
+       $r = $this->view(base64_encode("BlogPost:Home"), ["Data" => [
         "Blog" => $blog,
         "Post" => $postID,
         "ViewProtectedContent" => 1
