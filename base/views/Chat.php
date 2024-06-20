@@ -335,7 +335,7 @@
          "[Chat.Title]" => $_Chat["ListItem"]["Title"],
         ], $this->core->Extension("5252215b917d920d5d2204dd5e3c8168")]);
        }
-      #}
+      }
      } elseif($oneOnOne == 1) {
       $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
        "Chat" => 1,
