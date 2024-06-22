@@ -1038,6 +1038,7 @@
    $history = $a["History"] ?? [];
    $now = $this->timestamp;
    $lastActive = $a["LastActive"] ?? $now;
+   $nonEssentialCommunications = $a["NonEssentialCommunications"] ?? 0;
    $onlineStatus = $a["OnlineStatus"] ?? 1;
    $pages = $a["Pages"] ?? [];
    $password = $a["Password"] ?? md5("P@ssw0rd!");
@@ -1124,6 +1125,7 @@
      "Journal" => md5("Contacts"),
      "LastActivity" => md5("Close Contacts"),
      "LookMeUp" => 1,
+     "NonEssentialCommunications" => $nonEssentialCommunications,
      "OnlineStatus" => md5("Contacts"),
      "MSG" => md5("Close Contacts"),
      "NSFW" => 0,

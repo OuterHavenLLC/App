@@ -1049,6 +1049,7 @@
       $chooseElectable = $y["Personal"]["Electable"] ?? 0;
       $chooseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
       $chooseMinimalDesign = (!empty($chooseMinimalDesign)) ? 1 : 0;
+      $nonEssentialCommunications = $y["Privacy"]["NonEssentialCommunications"] ?? 0;
       $polls = $y["Privacy"]["Posts"] ?? md5("Public");
       $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
       for($i = 1; $i <= 12; $i++) {
@@ -1091,6 +1092,7 @@
        "[Preferences.Privacy.Contributions]" => $y["Privacy"]["Contributions"],
        "[Preferences.Privacy.DLL]" => $y["Privacy"]["DLL"],
        "[Preferences.Privacy.ForumsType]" => $y["Privacy"]["ForumsType"],
+       "[Preferences.Privacy.NonEssentialCommunications]" => $nonEssentialCommunications,
        "[Preferences.Privacy.Gender]" => $y["Privacy"]["Gender"],
        "[Preferences.Privacy.Journal]" => $y["Privacy"]["Journal"],
        "[Preferences.Privacy.LastActivity]" => $y["Privacy"]["LastActivity"],
@@ -1601,12 +1603,12 @@
     "BirthYear",
     "Email",
     "Name",
+    "NonEssentialCommunications",
     "Password",
     "Password2",
     "Gender",
     "PIN",
     "PIN2",
-    "SOE",
     "Username"
    ]);
    $_MinimumAge = $this->core->config["minRegAge"];
@@ -1650,6 +1652,7 @@
    } else {
     $accessCode = "Accepted";
     $birthMonth = $data["BirthMonth"] ?? 10;
+    $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
     $now = $this->core->timestamp;
     $this->core->Data("Save", ["cms", md5($username), [
      "Contacts" => [],
@@ -1679,6 +1682,7 @@
       "Email" => $data["Email"],
       "FirstName" => $firstName,
       "Gender" => $data["Gender"],
+      "NonEssentialCommunications" => $nonEssentialCommunications,
       "Password" => $password,
       "PIN" => md5($data["PIN"]),
       "Username" => $username
