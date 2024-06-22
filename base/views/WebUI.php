@@ -370,7 +370,7 @@
    foreach($this->core->Languages() as $region => $language) {
     if($region == "en_US") {//TEMP
      $options .= $this->core->Element(["button", $language, [
-      "class" => "LI Reg v2",
+      "class" => "Reg v2 v2w",
       "data-type" => $region
      ]]);
     }//TEMP
