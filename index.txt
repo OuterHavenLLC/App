@@ -24,11 +24,12 @@
   <div class="AppContainer">
    <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
   </div>
-  <div class="Frosted RegSel h">
-   [Extension:96021f84defa49827569f2aa1070755b]
+  <div class="Frosted RegSel h scr">
+   <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
   </div>
   <script>
    UpdateContent(".AppContainer", "[App.Content]");
+   UpdateContent(".RegSel", "[App.SwitchLanguages]");
   </script>
  </body>
 </html>

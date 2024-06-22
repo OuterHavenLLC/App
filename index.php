@@ -145,6 +145,7 @@
    "[App.Content]" => base64_encode($content),
    "[App.Description]" => $oh->core->config["App"]["Description"],
    "[App.Keywords]" => $oh->core->config["App"]["Keywords"],
+   "[App.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages")),
    "[App.Owner]" => $oh->core->ShopID,
    "[App.Title]" => $oh->core->config["App"]["Name"]
   ], $oh->core->PlainText([

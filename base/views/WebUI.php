@@ -190,7 +190,8 @@
      "[Menu.LostAndFound]" => base64_encode("v=".base64_encode("LostAndFound:Home")),
      "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
      "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
-     "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn"))
+     "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
+     "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
     ];
     $extension = "73859ffa637c369b9fa88399a27b5598";
    } else {
@@ -367,16 +368,16 @@
   function SwitchLanguages() {
    $options = "";
    foreach($this->core->Languages() as $region => $language) {
-    if($key == "en_US") {//TEMP
+    if($region == "en_US") {//TEMP
      $options .= $this->core->Element(["button", $language, [
-      "class" => "LI Reg v2 v2w",
+      "class" => "LI Reg v2",
       "data-type" => $region
      ]]);
     }//TEMP
    }
    $r = $this->core->Change([[
-    "[Translate.Options]" => $options
-   ], $this->core->Extension("350d1d8dfa7ce14e12bd62f5f5f27d30")]);
+    "[App.Languages]" => $options
+   ], $this->core->Extension("96021f84defa49827569f2aa1070755b")]);
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
     "Response" => [
