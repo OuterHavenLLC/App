@@ -1603,7 +1603,6 @@
     "BirthYear",
     "Email",
     "Name",
-    "NonEssentialCommunications",
     "Password",
     "Password2",
     "Gender",
