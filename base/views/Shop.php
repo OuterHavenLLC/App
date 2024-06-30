@@ -445,7 +445,7 @@
     ]);
     if($_Shop["Empty"] == 0) {
      $shop = $_Shop["DataModel"];
-     $passPhrase = $post["PassPhrase"] ?? "";
+     $passPhrase = $shop["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
@@ -1585,11 +1585,10 @@
       "HTMLEncode" => 1
      ])
     ];
-    #$this->core->Data("Save", ["shop", $id, $shop]);
+    $this->core->Data("Save", ["shop", $id, $shop]);
     $r = [
      "Body" => "$title has been updated.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($shop, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
