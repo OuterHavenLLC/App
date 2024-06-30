@@ -502,9 +502,12 @@
            "fs",
            md5($t["Login"]["Username"])
           ]) ?? [];
-          $coverPhoto = $dbi[0]."/".$efs["Files"][$dbi[1]]["Name"];
-          $coverPhotoSource = base64_encode($dbi[0]."-".$dbi[1]);
-          $i2++;
+          $fileName = $efs["Files"][$dbi[1]]["Name"] ?? "";
+          if(!empty($fileName)) {
+           $coverPhoto = $dbi[0]."/$fileName";
+           $coverPhotoSource = base64_encode($dbi[0]."-".$dbi[1]);
+           $i2++;
+          }
          }
         }
        }

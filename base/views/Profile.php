@@ -664,7 +664,6 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
-        "EmbeddedView" => 1,
         "UN" => base64_encode($id),
         "ViewProtectedContent" => 1
        ]]);
@@ -891,7 +890,7 @@
      }
     }
    }
-   $r = ($card == 1 && $embeddedView == 0) ? [
+   $r = ($card == 1) ? [
     "Front" => $r
    ] : $r;
    if($pub == 1) {

@@ -592,7 +592,7 @@
      } if(!empty($data["rATTI"])) {
       $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
       foreach($dlc as $dlc) {
-       if($i == 0 && !empty($dlc)) {
+       if(!empty($dlc) && $i == 0) {
         $f = explode("-", base64_decode($dlc));
         if(!empty($f[0]) && !empty($f[1])) {
          $t = $this->core->Member($f[0]);
@@ -600,10 +600,13 @@
           "fs",
           md5($t["Login"]["Username"])
          ]) ?? [];
-         $coverPhoto = $f[0]."/".$efs["Files"][$f[1]]["Name"];
-         $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
+         $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
+         if(!empty($fileName)) {
+          $coverPhoto = $f[0]."/$fileName";
+          $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
+          $i++;
+         }
         }
-        $i++;
        }
       }
      } if(!empty($data["rATTF"])) {

@@ -397,10 +397,13 @@
           "fs",
           md5($t["Login"]["Username"])
          ]) ?? [];
-         $coverPhoto = $f[0]."/".$efs["Files"][$f[1]]["Name"];
-         $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
+         $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
+         if(!empty($fileName)) {
+          $coverPhoto = $f[0]."/$fileName";
+          $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
+          $i++;
+         }
         }
-        $i++;
        }
       }
      } if(!empty($data["rATTF"])) {

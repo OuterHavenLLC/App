@@ -114,6 +114,7 @@
     $hireLimit = $shop["HireLimit"] ?? 5;
     $hireTerms = $shop["HireTerms"] ?? $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $shop["PassPhrase"] ?? "";
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $percentages = [];
     for($i = 1; $i < 100; $i++) {
@@ -162,6 +163,7 @@
      ], true),
      "[Shop.ID]" => $id,
      "[Shop.Header]" => $header,
+     "[Shop.PassPhrase]" => base64_encode($passPhrase),
      "[Shop.PaymentProcessor]" => $paymentProcessor,
      "[Shop.PayPal.Live.ClientID]" => $processing["PayPalClientIDLive"],
      "[Shop.PayPal.Live.Email]" => $processing["PayPalEmailLive"],
@@ -442,112 +444,149 @@
      "Owner" => $username
     ]);
     if($_Shop["Empty"] == 0) {
-     $chat = $this->core->Data("Get", ["chat", md5("Shop$id")]) ?? [];
      $shop = $_Shop["DataModel"];
-     $enableHireSection = $shop["EnableHireSection"] ?? 0;
-     $partners = $shop["Contributors"] ?? [];
-     $t = ($username == $you) ? $y : $this->core->Member($username);
-     $ck = ($username == $you) ? 1 : 0;
-     $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-     if($ck == 1 || $ck2 == 1) {
-      $_Search = base64_encode("Search:Containers");
-      $cms = $this->core->Data("Get", ["cms", $id]) ?? [];
-      $ck2 = $this->core->CheckPrivacy([
-       "Contacts" => $cms["Contacts"],
-       "Privacy" => $t["Privacy"]["Shop"],
-       "UN" => $username,
-       "Y" => $you
-      ]);
-      $ck2 = ($this->core->ShopID == $username) ? 1 : $ck2;
-      $options = $_Shop["ListItem"]["Options"];
+     $passPhrase = $post["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Shop["ListItem"]["Title"]."</em>."),
+       "ViewData" => base64_encode(json_encode([
+        "SecureKey" => base64_encode($passPhrase),
+        "UN" => $data["UN"],
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("Shop:Home")
+       ], true))
+      ]]);
+      $r = $this->core->RenderView($r);
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Key is missing."]);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("Shop:Home"), ["Data" => [
+        "UN" => $data["UN"],
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $accessCode = "Accepted";
+      $chat = $this->core->Data("Get", ["chat", md5("Shop$id")]) ?? [];
+      $enableHireSection = $shop["EnableHireSection"] ?? 0;
       $partners = $shop["Contributors"] ?? [];
-      $services = $shop["InvoicePresets"] ?? [];
-      if($ck == 1 || $ck2 == 1 && $shop["Open"] == 1) {
-       $active = 0;
-       foreach($partners as $member => $role) {
-        if($active == 0 && $member == $you) {
-         $active++;
+      $t = ($username == $you) ? $y : $this->core->Member($username);
+      $ck = ($username == $you) ? 1 : 0;
+      $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+      if($ck == 1 || $ck2 == 1) {
+       $_Search = base64_encode("Search:Containers");
+       $cms = $this->core->Data("Get", ["cms", $id]) ?? [];
+       $ck2 = $this->core->CheckPrivacy([
+        "Contacts" => $cms["Contacts"],
+        "Privacy" => $t["Privacy"]["Shop"],
+        "UN" => $username,
+        "Y" => $you
+       ]);
+       $ck2 = ($this->core->ShopID == $username) ? 1 : $ck2;
+       $options = $_Shop["ListItem"]["Options"];
+       $partners = $shop["Contributors"] ?? [];
+       $services = $shop["InvoicePresets"] ?? [];
+       if($ck == 1 || $ck2 == 1 && $shop["Open"] == 1) {
+        $active = 0;
+        foreach($partners as $member => $role) {
+         if($active == 0 && $member == $you) {
+          $active++;
+         }
         }
+        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+        $ck = ($active == 1 || $username == $you) ? 1 : 0;
+        $block = ($ck == 0) ? $this->core->Element([
+         "button", $blockCommand, [
+          "class" => "Small UpdateButton v2",
+          "data-processor" => $options["Block"]
+         ]
+        ]) : "";
+        $chat = (!empty($chat) && $ck == 1) ? $this->core->Element([
+         "button", "Partner Chat", [
+          "class" => "OpenCard Small v2",
+          "data-view" => $options["Chat"]
+         ]
+        ]) : "";
+        $hire = ($username == $you) ? $this->core->Element([
+         "button", "Hire", [
+          "class" => "OpenCard Medium v2",
+          "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1")
+         ]
+        ]) : "";
+        $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
+         "[Dashboard.Charts]" => "",
+         "[Dashboard.Hire]" => $hire,
+         "[Dashboard.Invoices]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
+         "[Dashboard.NewProduct]" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
+         "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders"),
+         "[Dashboard.Services]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
+        ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
+        $dashboardView = ($active == 1 || $username == $you) ? $this->core->Element([
+         "button", "Dashboard", [
+          "class" => "PS Small v2",
+          "data-type" => ".Shop$id;.ShopNavigation;.Dashboard"
+         ]
+        ]) : "";
+        $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
+        $edit = ($ck == 1) ? $this->core->Element([
+         "button", "Edit", [
+          "class" => "OpenCard Small v2",
+          "data-view" => $options["Edit"]
+         ]
+        ]) : "";
+        $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
+        $share = ($share == 1) ? $this->core->Element([
+         "button", "Share", [
+          "class" => "OpenCard Small v2",
+          "data-view" => $options["Share"]
+         ]
+        ]) : "";
+        $r = $this->core->Change([[
+         "[Shop.Back]" => $back,
+         "[Shop.Block]" => $block,
+         "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
+         "[Shop.Conversation]" => $this->core->Change([[
+          "[Conversation.CRID]" => $id,
+          "[Conversation.CRIDE]" => base64_encode($id),
+          "[Conversation.Level]" => base64_encode(1),
+          "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+         ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+         "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
+         "[Shop.Dashboard]" => $dashboard,
+         "[Shop.DashboardView]" => $dashboardView,
+         "[Shop.Disclaimer]" => $disclaimer,
+         "[Shop.Edit]" => $edit,
+         "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
+         "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id"),
+         "[Shop.ID]" => $id,
+         "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
+         "[Shop.PartnerChat]" => $chat,
+         "[Shop.Revenue]" => $options["Revenue"],
+         "[Shop.Share]" => $share,
+         "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
+         "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
+         "[Shop.Title]" => $_Shop["ListItem"]["Title"],
+         "[Shop.Welcome]" => $this->core->PlainText([
+          "Data" => $shop["Welcome"],
+          "HTMLDecode" => 1
+         ]),
+         "[Shop.Votes]" => $options["Vote"]
+        ], $this->core->Extension("f009776d658c21277f8cfa611b843c24")]);
        }
-       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-       $ck = ($active == 1 || $username == $you) ? 1 : 0;
-       $block = ($ck == 0) ? $this->core->Element([
-        "button", $blockCommand, [
-         "class" => "Small UpdateButton v2",
-         "data-processor" => $options["Block"]
-        ]
-       ]) : "";
-       $chat = (!empty($chat) && $ck == 1) ? $this->core->Element([
-        "button", "Partner Chat", [
-         "class" => "OpenCard Small v2",
-         "data-view" => $options["Chat"]
-        ]
-       ]) : "";
-       $hire = ($username == $you) ? $this->core->Element([
-        "button", "Hire", [
-         "class" => "OpenCard Medium v2",
-         "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1")
-        ]
-       ]) : "";
-       $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
-        "[Dashboard.Charts]" => "",
-        "[Dashboard.Hire]" => $hire,
-        "[Dashboard.Invoices]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
-        "[Dashboard.NewProduct]" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
-        "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders"),
-        "[Dashboard.Services]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
-       ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
-       $dashboardView = ($active == 1 || $username == $you) ? $this->core->Element([
-        "button", "Dashboard", [
-         "class" => "PS Small v2",
-         "data-type" => ".Shop$id;.ShopNavigation;.Dashboard"
-        ]
-       ]) : "";
-       $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
-       $edit = ($ck == 1) ? $this->core->Element([
-        "button", "Edit", [
-         "class" => "OpenCard Small v2",
-         "data-view" => $options["Edit"]
-        ]
-       ]) : "";
-       $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
-       $share = ($share == 1) ? $this->core->Element([
-        "button", "Share", [
-         "class" => "OpenCard Small v2",
-         "data-view" => $options["Share"]
-        ]
-       ]) : "";
-       $r = $this->core->Change([[
-        "[Shop.Back]" => $back,
-        "[Shop.Block]" => $block,
-        "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
-        "[Shop.Conversation]" => $this->core->Change([[
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-        ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-        "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
-        "[Shop.Dashboard]" => $dashboard,
-        "[Shop.DashboardView]" => $dashboardView,
-        "[Shop.Disclaimer]" => $disclaimer,
-        "[Shop.Edit]" => $edit,
-        "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
-        "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id"),
-        "[Shop.ID]" => $id,
-        "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
-        "[Shop.PartnerChat]" => $chat,
-        "[Shop.Revenue]" => $options["Revenue"],
-        "[Shop.Share]" => $share,
-        "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
-        "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
-        "[Shop.Title]" => $_Shop["ListItem"]["Title"],
-        "[Shop.Welcome]" => $this->core->PlainText([
-         "Data" => $shop["Welcome"],
-         "HTMLDecode" => 1
-        ]),
-        "[Shop.Votes]" => $options["Vote"]
-       ], $this->core->Extension("f009776d658c21277f8cfa611b843c24")]);
       }
      }
     }
@@ -1482,9 +1521,12 @@
           "fs",
           md5($t["Login"]["Username"])
          ]) ?? [];
-         $coverPhoto = $f[0]."/".$efs["Files"][$f[1]]["Name"];
-         $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
-         $i++;
+         $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
+         if(!empty($fileName)) {
+          $coverPhoto = $f[0]."/$fileName";
+          $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
+          $i++;
+         }
         }
        }
       }
@@ -1503,9 +1545,11 @@
     $modifiedBy[$now] = $you;
     $nsfw = $data["nsfw"] ?? 0;
     $open = $data["Open"] ?? 0;
+    $passPhrase = $data["PassPhrase"] ?? "";
     $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Shop"];
     $purge = $shop["Purge"] ?? 0;
+    $processing = $shop["Processing"] ?? [];
     $products = $shop["Products"] ?? [];
     $tax = $data["Tax"] ?? 10.00;
     $title = $title ?? $shop["Title"];
@@ -1528,9 +1572,10 @@
      "ModifiedBy" => $modifiedBy,
      "NSFW" => $nsfw,
      "Open" => $open,
+     "PassPhrase" => $passPhrase,
      "PaymentProcessor" => $paymentProcessor,
      "Privacy" => $privacy,
-     "Processing" => $shop["Processing"],
+     "Processing" => $processing,
      "Products" => $products,
      "Purge" => $purge,
      "Tax" => $tax,
@@ -1540,10 +1585,11 @@
       "HTMLEncode" => 1
      ])
     ];
-    $this->core->Data("Save", ["shop", $id, $shop]);
+    #$this->core->Data("Save", ["shop", $id, $shop]);
     $r = [
      "Body" => "$title has been updated.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($shop, true)
     ];
    }
    return $this->core->JSONResponse([
