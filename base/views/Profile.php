@@ -1640,53 +1640,51 @@
    ]);
   }
   function SaveSignUp(array $a) {
+   $_MinimumAge = $this->core->config["minRegAge"];
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "BirthMonth",
     "BirthYear",
-    "Email",
     "Name",
-    "Password",
     "Password2",
     "Gender",
-    "PIN",
-    "PIN2",
-    "Username"
+    "PIN2"
    ]);
-   $_MinimumAge = $this->core->config["minRegAge"];
    $birthYear = $data["BirthYear"] ?? 1995;
    $age = date("Y") - $birthYear;
    $ck = ($age > $_MinimumAge) ? 1 : 0;
+   $email = $data["Email"] ?? "";
    $firstName = ($data["Gender"] == "Male") ? "John" : "Jane";
    $i = 0;
    $members = $this->core->DatabaseSet("MBR");
-   $password = $data["Password"];
+   $password = $data["Password"] ?? "";
+   $pin = $data["PIN"] ?? "";
    $r = "Internal Error";
-   $username = $this->core->CallSign($data["Username"]);
+   $username = $data["Username"] ?? "";
    foreach($members as $key => $value) {
     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
     if($i == 0 && $member["Login"]["Username"] == $username) {
      $i++;
     }
-   } if(empty($data["Email"])) {
+   } if(empty($email)) {
     $r = "An Email address is required.";
-   } elseif(empty($data["Password"])) {
+   } elseif(empty($password)) {
     $r = "A Password is required.";
-   } elseif($data["Password"] != $data["Password2"]) {
+   } elseif($password != $data["Password2"]) {
     $r = "Your Passwords must match.";
-   } elseif(empty($data["PIN"])) {
+   } elseif(empty($pin)) {
     $r = "A PIN is required.";
-   } elseif(!is_numeric($data["PIN"]) || !is_numeric($data["PIN2"])) {
+   } elseif(!is_numeric($pin) || !is_numeric($data["PIN2"])) {
     $r = "Your PINs must be numeric.";
-   } elseif($data["PIN"] != $data["PIN2"]) {
+   } elseif($pin != $data["PIN2"]) {
     $r = "Your PINs must match.";
-   } elseif(empty($data["Username"])) {
+   } elseif(empty($username)) {
     $r = "A Username is required.";
-   } elseif(strpos($data["Username"], "Ghost_")) {
+   } elseif(strpos($username, "Ghost_")) {
     $r = "You cannot be a ghost.";
-   } elseif($data["Username"] == $this->core->ID) {
+   } elseif($username == $this->core->ID) {
     $r = $this->core->ID." is the system profile and cannot be used.";
    } elseif($ck == 0) {
     $r = "You must be $_MinimumAge or older to sign up.";
@@ -1722,12 +1720,12 @@
       "BirthMonth" => $birthMonth,
       "BirthYear" => $birthYear,
       "DisplayName" => $username,
-      "Email" => $data["Email"],
+      "Email" => $email,
       "FirstName" => $firstName,
       "Gender" => $data["Gender"],
       "NonEssentialCommunications" => $nonEssentialCommunications,
       "Password" => $password,
-      "PIN" => md5($data["PIN"]),
+      "PIN" => md5($pin),
       "Username" => $username
      ])
     ]);
@@ -1799,7 +1797,6 @@
    ]);
   }
   function SignUp(array $a) {
-   $accessCode = "Accepeted";
    $birthMonths = [];
    $birthYears = [];
    $minAge = $this->core->config["minRegAge"] ?? 13;
@@ -1808,25 +1805,24 @@
    } for($i = 1776; $i <= (date("Y") - $minAge); $i++) {
     $birthYears[$i] = $i;
    }
-   $r = [
-    "Front" => $this->core->Change([[
-     "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
-     "[SignUp.BirthMonths]" => json_encode($birthMonths, true),
-     "[SignUp.BirthYears]" => json_encode($birthYears, true),
-     "[SignUp.MinimumAge]" => $this->core->config["minAge"],
-     "[SignUp.ReturnView]" => base64_encode(json_encode([
-      "Group" => "Profile",
-      "View" => "SaveSignUp"
-     ], true))
-    ], $this->core->Extension("c48eb7cf715c4e41e2fb62bdfa60f198")])
-   ];
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
-     "Web" => $r
+     "Web" => [
+      "Front" => $this->core->Change([[
+       "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
+       "[SignUp.BirthMonths]" => json_encode($birthMonths, true),
+       "[SignUp.BirthYears]" => json_encode($birthYears, true),
+       "[SignUp.MinimumAge]" => $this->core->config["minAge"],
+       "[SignUp.ReturnView]" => base64_encode(json_encode([
+        "Group" => "Profile",
+        "View" => "SaveSignUp"
+       ], true))
+      ], $this->core->Extension("c48eb7cf715c4e41e2fb62bdfa60f198")])
+     ]
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "Card"
    ]);
   }
   function __destruct() {
