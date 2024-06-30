@@ -187,10 +187,13 @@
      "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
+     "[Menu.Gateway]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
      "[Menu.LostAndFound]" => base64_encode("v=".base64_encode("LostAndFound:Home")),
      "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
      "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
      "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
+     "[Menu.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
+     "[Menu.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp")),
      "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
     ];
     $extension = "73859ffa637c369b9fa88399a27b5598";

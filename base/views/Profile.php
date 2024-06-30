@@ -1742,20 +1742,11 @@
    ]);
   }
   function SignIn(array $a) {
-   $accessCode = "Denied";
-   $r = [
-    "Actions" => [
-     $this->core->Element(["button", "Sign In", [
-      "class" => "BBB SendData v2 v2w",
-      "data-form" => ".SignIn",
-      "data-processor" => base64_encode("v=".base64_encode("Profile:SaveSignIn"))
-     ]])
-    ],
-    "Header" => "Sign In",
-    "Scrollable" => $this->core->Extension("ff434d30a54ee6d6bbe5e67c261b2005")
-   ];
+   $r = $this->core->Change([[
+    "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SaveSignIn"))
+   ], $this->core->Extension("ff434d30a54ee6d6bbe5e67c261b2005")]);
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => "Accepted",
     "Response" => [
      "JSON" => "",
      "Web" => $r
