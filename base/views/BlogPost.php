@@ -371,6 +371,7 @@
      $illegal = $post["Illegal"] ?? 0;
      $modifiedBy = $post["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
+     $notes = $post["Notes"] ?? [];
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
@@ -430,6 +431,7 @@
       "Illegal" => $illegal,
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
+      "Notes" => $notes,
       "NSFW" => $nsfw,
       "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,

@@ -575,6 +575,7 @@
      $modifiedBy = $article["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["Posts"];
+     $notes = $article["Notes"] ?? [];
      $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Articles"];
      $products = $article["Products"] ?? [];
@@ -653,6 +654,7 @@
       "Illegal" => $illegal,
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
+      "Notes" => $notes,
       "NSFW" => $nsfw,
       "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,

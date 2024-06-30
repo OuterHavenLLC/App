@@ -43,6 +43,7 @@
      $attachments = base64_encode(implode(";", $update["Attachments"]));
     }
     $nsfw = $update["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $update["PassPhrase"] ?? "";
     $privacy = $update["Privacy"] ?? $y["Privacy"]["Posts"];
     $to = (!empty($to)) ? base64_decode($to) : $to;
     $r = $this->core->Change([[
@@ -58,6 +59,7 @@
      "[Update.From]" => $you,
      "[Update.ID]" => $id,
      "[Update.New]" => $new,
+     "[Update.PassPhrase]" => base64_encode($passPhrase),
      "[Update.To]" => $to,
      "[Update.Visibility.NSFW]" => $nsfw,
      "[Update.Visibility.Privacy]" => $privacy
@@ -173,9 +175,12 @@
     $att = $update["Attachments"] ?? [];
     $created = $update["Created"] ?? $this->core->timestamp;
     $illegal = $update["Illegal"] ?? 0;
+    $notes = $update["Notes"] ?? [];
     $now = $this->core->timestamp;
-    $nsfw = $data["nsfw"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $data["pri"] ?? $y["Privacy"]["Posts"];
+    $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $data["PassPhrase"] ?? "";
+    $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
+    $purge = $data["Purge"] ?? 0;
     if(!empty($data["rATTF"])) {
      $dlc = array_reverse(explode(";", base64_decode($data["rATTF"])));
      foreach($dlc as $dlc) {
@@ -215,8 +220,11 @@
      "ID" => $id,
      "Illegal" => $illegal,
      "Modified" => $now,
+     "Notes" => $notes,
      "NSFW" => $nsfw,
+     "PassPhrase" => $passPhrase,
      "Privacy" => $privacy,
+     "Purge" => $purge,
      "To" => $to
     ];
     $y["Activity"]["LastActivity"] = $this->core->timestamp;

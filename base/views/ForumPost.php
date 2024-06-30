@@ -319,6 +319,9 @@
     $illegal = $post["Illegal"] ?? 0;
     $modifiedBy = $post["ModifiedBy"] ?? [];
     $modifiedBy[$now] = $you;
+    $notes = $post["Notes"] ?? [];
+    $nsfw = $data["NSFW"] ?? 0;
+    $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
     $purge = $post["Purge"] ?? 0;
     $post = [
      "Attachments" => $attachments,
@@ -333,8 +336,9 @@
      "Illegal" => $illegal,
      "Modified" => $now,
      "ModifiedBy" => $modifiedBy,
-     "NSFW" => $data["NSFW"],
-     "Privacy" => $data["Privacy"],
+     "Notes" => $notes,
+     "NSFW" => $nsfw,
+     "Privacy" => $privacy,
      "Purge" => $purge,
      "Title" => $data["Title"]
     ];

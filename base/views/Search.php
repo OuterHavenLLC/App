@@ -2,6 +2,9 @@
  Class Search extends OH {
   function __construct() {
    parent::__construct();
+   $this->ContentIsProtected = $this->core->Element([
+    "h3", "This content is protected by the owner.", ["class" => "CenterText UpperCase"]
+   ]);
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
    $this->lists = base64_encode("Search:Lists");
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
@@ -1700,6 +1703,7 @@
         "Y" => $you
        ]);
        if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
+        $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $options = $_StatusUpdate["ListItem"]["Options"];
         $edit = ($from == $you) ? $this->core->Element([
@@ -1713,11 +1717,11 @@
           "data-view" => $options["Edit"]
          ]
         ]) : "";
-       $verified = $op["Verified"] ?? 0;
-       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        $verified = $op["Verified"] ?? 0;
+        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-         "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
+         "[StatusUpdate.Body]" => base64_encode($body),
          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
          "[StatusUpdate.DT]" => base64_encode($options["View"]),
          "[StatusUpdate.Edit]" => base64_encode($edit),
@@ -2125,6 +2129,7 @@
        ]);
        $ck2 = 1;
        if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
+        $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $options = $_StatusUpdate["ListItem"]["Options"];
         $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
@@ -2138,11 +2143,11 @@
           "data-view" => $options["Edit"]
          ]
         ]) : "";
-       $verified = $op["Verified"] ?? 0;
-       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        $verified = $op["Verified"] ?? 0;
+        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
         array_push($msg, [
          "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-         "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
+         "[StatusUpdate.Body]" => base64_encode($body),
          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
          "[StatusUpdate.DT]" => base64_encode($options["View"]),
          "[StatusUpdate.Edit]" => base64_encode($edit),
@@ -2524,6 +2529,7 @@
          "Y" => $you
         ]);
         if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
+         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
          $created = $update["Created"] ?? $this->core->timestamp;
          $options = $_StatusUpdate["ListItem"]["Options"];
          $display = $op["Personal"]["DisplayName"] ?? $from;
@@ -2543,7 +2549,7 @@
          $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
          array_push($msg, [
           "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-          "[StatusUpdate.Body]" => base64_encode($_StatusUpdate["ListItem"]["Body"]),
+          "[StatusUpdate.Body]" => base64_encode($body),
           "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($created)),
           "[StatusUpdate.DT]" => base64_encode($options["View"]),
           "[StatusUpdate.Edit]" => base64_encode($edit),
