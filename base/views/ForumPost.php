@@ -99,6 +99,7 @@
      "ID" => base64_encode("ForumPost;$fid;$id")
     ]);
     if($_ForumPost["Empty"] == 0) {
+     $accessCode = "Accepted";
      $forum = $this->core->Data("Get", ["pf", $fid]) ?? [];
      $post = $_ForumPost["DataModel"];
      $passPhrase = $post["PassPhrase"] ?? "";
@@ -112,8 +113,8 @@
        "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_ForumPost["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
         "SecureKey" => base64_encode($passPhrase),
-        "FID" => $data["FID"],
-        "ID" => $data["ID"],
+        "FID" => $fid,
+        "ID" => $id,
         "VerifyPassPhrase" => 1,
         "v" => base64_encode("ForumPost:Home")
        ], true))
@@ -122,7 +123,7 @@
        "Front" => $this->core->RenderView($r)
       ];
      } elseif($verifyPassPhrase == 1) {
-      $accessCode = "Accepted";
+      $accessCode = "Denied";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $r = $this->core->Element(["p", "The Key is missing."]);
@@ -134,8 +135,8 @@
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("ForumPost:Home"), ["Data" => [
         "EmbeddedView" => 1,
-        "FID" => $data["FID"],
-        "ID" => $data["ID"],
+        "FID" => $fid,
+        "ID" => $id,
         "ViewProtectedContent" => 1
        ]]);
        $r = $this->core->RenderView($r);
@@ -223,9 +224,9 @@
         "[ForumPost.Share]" => $share,
         "[ForumPost.Vote]" => $options["Vote"]
        ], $this->core->Extension("d2be822502dd9de5e8b373ca25998c37")]);
-       $r = ($embeddedView == 0) ? [
+       $r = ($embeddedView == 1) ? $r : [
         "Front" => $r
-       ] : $r;
+       ];
       }
      }
     }
