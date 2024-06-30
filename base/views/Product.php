@@ -69,6 +69,7 @@
     $extension = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $extension;
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $product["PassPhrase"] ?? "";
     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
     $profit = $product["Profit"] ?? 0.00;
     $quantities = [];
@@ -114,6 +115,7 @@
      "[Product.ID]" => $id,
      "[Product.Instructions]" => $product["Instructions"],
      "[Product.New]" => $new,
+     "[Product.PassPhrase]" => base64_encode($passPhrase),
      "[Product.Profit]" => base64_encode($profit),
      "[Product.Quantity]" => $quantity,
      "[Product.Quantities]" => json_encode($quantities, true),
@@ -180,7 +182,6 @@
      }
     }
    } if((!empty($id) || $i > 0) && !empty($username)) {
-    $accessCode = "Accepted";
     $base = $this->core->base;
     $bl = $this->core->CheckBlocked([$y, "Products", $id]);
     $username = base64_decode($username);
@@ -191,6 +192,44 @@
     ]);
     if($_Product["Empty"] == 0) {
      $product = $_Product["DataModel"];
+     $passPhrase = $product["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Product["ListItem"]["Title"]."</em>."),
+       "ViewData" => base64_encode(json_encode([
+        "SecureKey" => base64_encode($passPhrase),
+        "ID" => $data["ID"],
+        "UN" => $data["UN"],
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("Product:Home")
+       ], true))
+      ]]);
+      $r = $this->core->RenderView($r);
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Key is missing."]);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("Product:Home"), ["Data" => [
+        "ID" => $data["ID"],
+        "UN" => $data["UN"],
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $accessCode = "Accepted";
      $options = $_Product["ListItem"]["Options"];
      $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
@@ -293,6 +332,7 @@
        "Front" => $r
       ] : $r;
      }
+     }
     }
    }
    return $this->core->JSONResponse([
@@ -374,15 +414,11 @@
     ],
     "ResponseType" => "Dialog"
    ]);
+  }
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "SubscriptionTerm",
-    "Title",
-    "new"
-   ]);
    $r = [
     "Body" => "The Product or Shop Identifiers are missing."
    ];
@@ -415,7 +451,7 @@
      $i = 0;
      $new = $data["new"] ?? 0;
      $products = $this->core->DatabaseSet("PROD") ?? [];
-     $title = $data["Title"] ?? "New Product";
+     $title = $data["Title"] ?? "Untitled";
      foreach($products as $key => $value) {
       $product = str_replace("nyc.outerhaven.product.", "", $value);
       $product = $this->core->Data("Get", ["product", $product]) ?? [];
@@ -460,10 +496,12 @@
       $modifiedBy = $product["ModifiedBy"] ?? [];
       $modifiedBy[$now] = $you;
       $newProducts = $shop["Products"] ?? [];
+      $passPhrase = $product["PassPhrase"] ?? "";
       $points = $this->core->config["PTS"];
       $profit = $data["Profit"] ?? 0;
       $profit = ($profit == "") ? 0 : $profit;
       $profit = ($profit > 0) ? number_format(str_replace(",", "", $profit), 2) : $profit;
+      $purge = $product["Purge"] ?? 0;
       $quantity = $data["Quantity"] ?? "-1";
       $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
       $username = $product["UN"] ?? $you;
@@ -527,6 +565,7 @@
        array_push($newProducts, $id);
        $shop["Products"] = array_unique($newProducts);
       }
+      $subscriptionTerm = $data["SubscriptionTerm"] ?? "";
       $product = [
        "Attachments" => $attachments,
        "Body" => $this->core->PlainText([
@@ -548,39 +587,42 @@
        "Instructions" => $instructions,
        "ModifiedBy" => $modifiedBy,
        "NSFW" => $data["nsfw"],
+       "PassPhrase" => $passPhrase,
        "Points" => $points,
        "Privacy" => $data["Privacy"],
        "Profit" => str_replace(",", "", $profit),
+       "Purge" => $purge,
        "Quantity" => $quantity,
        "Role" => $data["Role"],
-       "SubscriptionTerm" => $data["SubscriptionTerm"],
+       "SubscriptionTerm" => $subscriptionTerm,
        "Title" => $title,
        "UN" => $username
       ];
-      $this->core->Data("Save", ["product", $id, $product]);
-      $this->core->Data("Save", ["shop", $shopID, $shop]);
-      $r = [
-       "Body" => "The Product <em>$title</em> has been $actionTaken!",
-       "Header" => "Done"
-      ];
+      #$this->core->Data("Save", ["product", $id, $product]);
+      #$this->core->Data("Save", ["shop", $shopID, $shop]);
       if($new == 1) {
        $subscribers = $shop["Subscribers"] ?? [];
        $y["Points"] = $y["Points"] + $points;
-       $this->core->Data("Save", ["mbr", md5($you), $y]);
+       #$this->core->Data("Save", ["mbr", md5($you), $y]);
        foreach($subscribers as $key => $value) {
-        $this->core->SendBulletin([
+        /*--$this->core->SendBulletin([
          "Data" => [
           "ProductID" => $id,
           "ShopID" => base64_encode(md5($you))
          ],
          "To" => $value,
          "Type" => "NewProduct"
-        ]);
+        ]);--*/
        }
-       $this->core->Statistic("New Product");
+       #$this->core->Statistic("New Product");
       } else {
-       $this->core->Statistic("Edit Product");
+       #$this->core->Statistic("Edit Product");
       }
+      $r = [
+       "Body" => "The Product <em>$title</em> has been $actionTaken!",
+       "Header" => "Done",
+       "Scrollable" => json_encode($product, true)
+      ];
      }
     }
    }
@@ -593,7 +635,6 @@
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
    ]);
-  }
   }
   function __destruct() {
    // DESTROYS THIS CLASS

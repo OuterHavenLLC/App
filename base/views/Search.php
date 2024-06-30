@@ -1596,8 +1596,10 @@
         "UN" => $post["From"],
         "Y" => $you
        ]);
+       $passPhrase = $post["PassPhrase"] ?? "";
        if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
         $bl = $this->core->CheckBlocked([$y, "Status Updates", $id]);
+        $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
         $actions = ($post["From"] != $you) ? $this->core->Element([
          "button", "Block", [
@@ -1634,7 +1636,7 @@
         array_push($msg, [
          "[ForumPost.Actions]" => base64_encode($actions),
          "[ForumPost.Attachments]" => base64_encode($_ForumPost["ListItem"]["Attachments"]),
-         "[ForumPost.Body]" => base64_encode($_ForumPost["ListItem"]["Body"]),
+         "[ForumPost.Body]" => base64_encode($body),
          "[ForumPost.Comment]" => base64_encode($options["View"]),
          "[ForumPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
          "[ForumPost.ID]" => base64_encode($value),
