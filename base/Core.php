@@ -1129,6 +1129,7 @@
      "OnlineStatus" => md5("Contacts"),
      "MSG" => md5("Close Contacts"),
      "NSFW" => 0,
+     "PassPhrase" => "",
      "Polls" => md5("Public"),
      "Products" => md5("Public"),
      "Profile" => md5("Public"),
