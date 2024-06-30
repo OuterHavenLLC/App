@@ -81,70 +81,112 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $id = $data["SU"] ?? "";
    $r = [
     "Body" => "The Post Identifier is missing.",
     "Header" => "Not Found"
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["SU"])) {
+   if(!empty($id)) {
     $bl = $this->core->CheckBlocked([$y, "Status Updates", $data["SU"]]);
     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $_StatusUpdate = $this->core->GetContentData([
      "Blacklisted" => $bl,
-     "ID" => base64_encode("StatusUpdate;".$data["SU"])
+     "ID" => base64_encode("StatusUpdate;$id")
     ]);
     if($_StatusUpdate["Empty"] == 0) {
      $accessCode = "Accepted";
      $update = $_StatusUpdate["DataModel"];
-     $displayName = $update["From"];
-     $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
-     $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
-     $options = $_StatusUpdate["ListItem"]["Options"];
-     $opt = ($update["From"] != $you) ? $this->core->Element([
-      "button", $blockCommand, [
-       "class" => "Small UpdateButton v2",
-       "data-processor" => $options["Block"]
-      ]
-     ]) : "";
-     $opt = ($this->core->ID != $you) ? $opt : "";
-     $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
-     $share = ($share == 1) ? $this->core->Element([
-      "div", $this->core->Element(["button", "Share", [
-       "class" => "InnerMargin OpenCard",
-       "data-view" => $options["Share"]
-      ]]), ["class" => "Desktop33"]
-     ]) : "";
-     $verified = $op["Verified"] ?? 0;
-     $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-     $r = $this->core->Change([[
-      "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
-      "[StatusUpdate.Body]" => $this->core->PlainText([
-       "BBCodes" => 1,
-       "Data" => $update["Body"],
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ]),
-      "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
-      "[StatusUpdate.Conversation]" => $this->core->Change([[
-       "[Conversation.CRID]" => $update["ID"],
-       "[Conversation.CRIDE]" => base64_encode($update["ID"]),
-       "[Conversation.Level]" => base64_encode(1),
-       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-      ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-      "[StatusUpdate.DisplayName]" => $displayName.$verified,
-      "[StatusUpdate.ID]" => $update["ID"],
-      "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
-      "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-      "[StatusUpdate.Notes]" => $options["Notes"],
-      "[StatusUpdate.Options]" => $opt,
-      "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-      "[StatusUpdate.Share]" => $share,
-      "[StatusUpdate.Votes]" => $options["Vote"]
-     ], $this->core->Extension("2e76fb1523c34ed0c8092cde66895eb1")]);
-     $r = [
-      "Front" => $r
-     ];
+     $passPhrase = $update["PassPhrase"] ?? "";
+     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
+     $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
+     if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
+      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+       "Header" => base64_encode($this->core->Element([
+        "h1", "Protected Content", ["class" => "CenterText"]
+       ])),
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access this Status Update."),
+       "ViewData" => base64_encode(json_encode([
+        "SecureKey" => base64_encode($passPhrase),
+        "SU" => $id,
+        "VerifyPassPhrase" => 1,
+        "v" => base64_encode("StatusUpdate:Home")
+       ], true))
+      ]]);
+      $r = [
+       "Front" => $this->core->RenderView($r)
+      ];
+     } elseif($verifyPassPhrase == 1) {
+      $accessCode = "Denied";
+      $key = $data["Key"] ?? base64_encode("");
+      $key = base64_decode($key);
+      $r = $this->core->Element(["p", "The Key is missing."]);
+      $secureKey = $data["SecureKey"] ?? base64_encode("");
+      $secureKey = base64_decode($secureKey);
+      if($key != $secureKey) {
+       $r = $this->core->Element(["p", "The Keys do not match."]);
+      } else {
+       $accessCode = "Accepted";
+       $r = $this->view(base64_encode("StatusUpdate:Home"), ["Data" => [
+        "SU" => $id,
+        "EmbeddedView" => 1,
+        "ViewProtectedContent" => 1
+       ]]);
+       $r = $this->core->RenderView($r);
+      }
+     } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $accessCode = "Accepted";
+      $displayName = $update["From"];
+      $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
+      $embeddedView = $data["EmbeddedView"] ?? 0;
+      $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
+      $options = $_StatusUpdate["ListItem"]["Options"];
+      $opt = ($update["From"] != $you) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => $options["Block"]
+       ]
+      ]) : "";
+      $opt = ($this->core->ID != $you) ? $opt : "";
+      $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
+      $share = ($share == 1) ? $this->core->Element([
+       "div", $this->core->Element(["button", "Share", [
+        "class" => "InnerMargin OpenCard",
+        "data-view" => $options["Share"]
+       ]]), ["class" => "Desktop33"]
+      ]) : "";
+      $verified = $op["Verified"] ?? 0;
+      $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+      $r = $this->core->Change([[
+       "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
+       "[StatusUpdate.Body]" => $this->core->PlainText([
+        "BBCodes" => 1,
+        "Data" => $update["Body"],
+        "Display" => 1,
+        "HTMLDecode" => 1
+       ]),
+       "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
+       "[StatusUpdate.Conversation]" => $this->core->Change([[
+        "[Conversation.CRID]" => $update["ID"],
+        "[Conversation.CRIDE]" => base64_encode($update["ID"]),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+       "[StatusUpdate.DisplayName]" => $displayName.$verified,
+       "[StatusUpdate.ID]" => $update["ID"],
+       "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
+       "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
+       "[StatusUpdate.Notes]" => $options["Notes"],
+       "[StatusUpdate.Options]" => $opt,
+       "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
+       "[StatusUpdate.Share]" => $share,
+       "[StatusUpdate.Votes]" => $options["Vote"]
+      ], $this->core->Extension("2e76fb1523c34ed0c8092cde66895eb1")]);
+      $r = ($embeddedView == 1) ? $r : [
+       "Front" => $r
+      ];
+     }
     }
    }
    return $this->core->JSONResponse([

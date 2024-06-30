@@ -3,7 +3,7 @@
   function __construct() {
    parent::__construct();
    $this->ContentIsProtected = $this->core->Element([
-    "h3", "This content is protected by the owner.", ["class" => "CenterText UpperCase"]
+    "h3", "Protected Content", ["class" => "CenterText UpperCase"]
    ]);
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
    $this->lists = base64_encode("Search:Lists");
@@ -1702,6 +1702,7 @@
         "UN" => $from,
         "Y" => $you
        ]);
+       $passPhrase = $update["PassPhrase"] ?? "";
        if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
@@ -2128,6 +2129,7 @@
         "Y" => $you
        ]);
        $ck2 = 1;
+       $passPhrase = $update["PassPhrase"] ?? "";
        if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
@@ -2528,6 +2530,7 @@
          "UN" => $from,
          "Y" => $you
         ]);
+       $passPhrase = $update["PassPhrase"] ?? "";
         if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
          $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
          $created = $update["Created"] ?? $this->core->timestamp;
