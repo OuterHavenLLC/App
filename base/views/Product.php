@@ -232,115 +232,112 @@
         "ViewProtectedContent" => 1
        ]]);
        $r = $this->core->RenderView($r);
-       $r = ($data["CARD"] == 1) ? [
-        "Front" => $r
-       ] : $r;
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
-     $options = $_Product["ListItem"]["Options"];
-     $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
-     $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-     $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
-     $t = ($username == $you) ? $y : $this->core->Member($username);
-     $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-     $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-     $illegal = $product["Illegal"] ?? 0;
-     $illegal = ($illegal < $this->illegal) ? 1 : 0;
-     $illegal = ($illegal == 1 && $t["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
-     if($bl == 0 && $ck == 1 && $illegal == 0) {
-      $actions = "";
-      $active = 0;
-      $partners = $shop["Contributors"] ?? [];
-      foreach($partners as $member => $role) {
-       if($active == 0 && $member == $you) {
-        $active++;
+      $options = $_Product["ListItem"]["Options"];
+      $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
+      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $t = ($username == $you) ? $y : $this->core->Member($username);
+      $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
+      $illegal = $product["Illegal"] ?? 0;
+      $illegal = ($illegal < $this->illegal) ? 1 : 0;
+      $illegal = ($illegal == 1 && $t["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
+      if($bl == 0 && $ck == 1 && $illegal == 0) {
+       $actions = "";
+       $active = 0;
+       $partners = $shop["Contributors"] ?? [];
+       foreach($partners as $member => $role) {
+        if($active == 0 && $member == $you) {
+         $active++;
+        }
        }
+       $addTo = $data["AddTo"] ?? base64_encode("");
+       $addTo = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+       if(!empty($data["AddTo"]) && $t["Login"]["Username"] == $you) {
+        $actions .= $this->core->Element(["button", $addTo[0], [
+         "class" => "AddTo Small v2",
+         "data-a" => base64_encode("$username-$value"),
+         "data-c" => $data["Added"],
+         "data-f" => base64_encode($addTo[1]),
+         "data-m" => base64_encode(json_encode([
+          "t" => $t["Login"]["Username"],
+          "y" => $you
+         ]))
+        ]]);
+       }
+       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+       $actions .= ($username == $you) ? $this->core->Element([
+        "button", "Delete", [
+         "class" => "CloseCard OpenDialog Small v2",
+         "data-view" => $options["Delete"]
+        ]
+       ]) : $this->core->Element([
+        "button", $blockCommand, [
+         "class" => "Small UpdateButton v2",
+         "data-processor" => $options["Block"]
+        ]
+       ]);
+       $actions .= ($active == 1) ? $this->core->Element([
+        "button", "Edit", [
+         "class" => "GoToView Small v2",
+         "data-type" => "Product$id;".$options["Edit"]
+        ]
+       ]) : "";
+       $back = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
+        "button", "See more at <em>".$shop["Title"]."</em>", [
+         "class" => "CloseCard LI header",
+         "onclick" => "W('$base/MadeInNewYork/".$t["Login"]["Username"]."/', '_top');"
+        ]
+       ]) : $back;
+       $bundle = "";
+       $share = ($product["UN"] == $you || $product["Privacy"] == md5("Public")) ? 1 : 0;
+       $share = ($share == 1) ? $this->core->Element([
+        "button", "Share", [
+         "class" => "OpenCard Small v2",
+         "data-view" => $options["Share"]
+        ]
+       ]) : "";
+       $r = $this->core->Change([[
+        "[Product.Actions]" => $actions,
+        "[Product.Back]" => $back,
+        "[Product.Body]" => $this->core->PlainText([
+         "Data" => $product["Body"],
+         "Decode" => 1,
+         "Display" => 1,
+         "HTMLDecode" => 1
+        ]),
+        "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=$id&T=$username"),
+        "[Product.Brief.Category]" => $this->core->Element([
+         "p", $product["Category"],
+         ["class" => "CenterText"]
+        ]),
+        "[Product.Brief.Description]" => $_Product["ListItem"]["Description"],
+        "[Product.Brief.Icon]" => "{product_category}",
+        "[Product.Bundled]" => $bundle,
+        "[Product.Conversation]" => $this->core->Change([[
+         "[Conversation.CRID]" => $id,
+         "[Conversation.CRIDE]" => base64_encode($id),
+         "[Conversation.Level]" => base64_encode(1),
+         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
+        ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
+        "[Product.Created]" => $this->core->TimeAgo($product["Created"]),
+        "[Product.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
+        "[Product.ID]" => $id,
+        "[Product.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
+        "[Product.Modified]" => $_Product["ListItem"]["Modified"],
+        "[Product.Title]" => $_Product["ListItem"]["Title"],
+        "[Product.Share]" => $share,
+        "[Product.Votes]" => $options["Vote"]
+       ], $this->core->Extension("96a6768e7f03ab4c68c7532be93dee40")]);
       }
-      $addTo = $data["AddTo"] ?? base64_encode("");
-      $addTo = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-      if(!empty($data["AddTo"]) && $t["Login"]["Username"] == $you) {
-       $actions .= $this->core->Element(["button", $addTo[0], [
-        "class" => "AddTo Small v2",
-        "data-a" => base64_encode("$username-$value"),
-        "data-c" => $data["Added"],
-        "data-f" => base64_encode($addTo[1]),
-        "data-m" => base64_encode(json_encode([
-         "t" => $t["Login"]["Username"],
-         "y" => $you
-        ]))
-       ]]);
-      }
-      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-      $actions .= ($username == $you) ? $this->core->Element([
-       "button", "Delete", [
-        "class" => "CloseCard OpenDialog Small v2",
-        "data-view" => $options["Delete"]
-       ]
-      ]) : $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => $options["Block"]
-       ]
-      ]);
-      $actions .= ($active == 1) ? $this->core->Element([
-       "button", "Edit", [
-        "class" => "GoToView Small v2",
-        "data-type" => "Product$id;".$options["Edit"]
-       ]
-      ]) : "";
-      $back = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
-       "button", "See more at <em>".$shop["Title"]."</em>", [
-        "class" => "CloseCard LI header",
-        "onclick" => "W('$base/MadeInNewYork/".$t["Login"]["Username"]."/', '_top');"
-       ]
-      ]) : $back;
-      $bundle = "";
-      $share = ($product["UN"] == $you || $product["Privacy"] == md5("Public")) ? 1 : 0;
-      $share = ($share == 1) ? $this->core->Element([
-       "button", "Share", [
-        "class" => "OpenCard Small v2",
-        "data-view" => $options["Share"]
-       ]
-      ]) : "";
-      $r = $this->core->Change([[
-       "[Product.Actions]" => $actions,
-       "[Product.Back]" => $back,
-       "[Product.Body]" => $this->core->PlainText([
-        "Data" => $product["Body"],
-        "Decode" => 1,
-        "Display" => 1,
-        "HTMLDecode" => 1
-       ]),
-       "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=$id&T=$username"),
-       "[Product.Brief.Category]" => $this->core->Element([
-        "p", $product["Category"],
-        ["class" => "CenterText"]
-       ]),
-       "[Product.Brief.Description]" => $_Product["ListItem"]["Description"],
-       "[Product.Brief.Icon]" => "{product_category}",
-       "[Product.Bundled]" => $bundle,
-       "[Product.Conversation]" => $this->core->Change([[
-        "[Conversation.CRID]" => $id,
-        "[Conversation.CRIDE]" => base64_encode($id),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-       "[Product.Created]" => $this->core->TimeAgo($product["Created"]),
-       "[Product.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
-       "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
-       "[Product.ID]" => $id,
-       "[Product.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
-       "[Product.Modified]" => $_Product["ListItem"]["Modified"],
-       "[Product.Title]" => $_Product["ListItem"]["Title"],
-       "[Product.Share]" => $share,
-       "[Product.Votes]" => $options["Vote"]
-      ], $this->core->Extension("96a6768e7f03ab4c68c7532be93dee40")]);
-      $r = ($data["CARD"] == 1) ? [
-       "Front" => $r
-      ] : $r;
      }
-     }
+     $r = ($data["CARD"] == 1) ? [
+      "Front" => $r
+     ] : $r;
     }
    }
    return $this->core->JSONResponse([
