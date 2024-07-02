@@ -196,6 +196,7 @@
      "Owner" => base64_encode($username)
     ]);
     if($_Product["Empty"] == 0) {
+     $accessCode = "Accepted";
      $product = $_Product["DataModel"];
      $passPhrase = $product["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
@@ -286,7 +287,7 @@
          "data-type" => "Product$id;".$options["Edit"]
         ]
        ]) : "";
-       $back = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
+       $back = ($card != 1 && $pub == 1) ? $this->core->Element([
         "button", "See more at <em>".$shop["Title"]."</em>", [
          "class" => "CloseCard LI header",
          "onclick" => "W('$base/MadeInNewYork/".$t["Login"]["Username"]."/', '_top');"
