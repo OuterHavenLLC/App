@@ -810,7 +810,9 @@
      $messages = $chat["Messages"] ?? [];
      $t = $this->core->Data("Get", ["mbr", $id]) ?? [];
      $to = $t["Login"]["Username"];
+     $autoResponse = $t["Personal"]["AutoResponse"] ?? "";
     }
+    $autoResponse = ($oneOnOne == 1) ? $autoResponse : "";
     $paid = $data["Paid"] ?? 0;
     $paidAmount = $data["PaidAmount"] ?? "$0.00";
     $messages[$now] = [
@@ -827,6 +829,20 @@
     if($group == 1) {
      $this->core->Data("Save", ["chat", $id, $chat]);
     } elseif($oneOnOne == 1) {
+     if(!empty($autoResponse)) {
+      $theirChat = $this->core->Data("Get", ["chat", md5($to)]) ?? [];
+      $messages[$now] = [
+       "Attachments" => [],
+       "From" => $to,
+       "Message" => $autoResponse,
+       "Paid" => 0,
+       "PaidAmount" => $paidAmount,
+       "Read" => 0,
+       "Timestamp" => $now,
+       "To" => $you
+      ];
+      $this->core->Data("Save", ["chat", md5($to), $theirChat]);
+     }
      $this->core->Data("Save", ["chat", md5($you), $chat]);
      $this->core->SendBulletin([
       "Data" => [

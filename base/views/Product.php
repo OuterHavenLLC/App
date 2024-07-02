@@ -232,6 +232,9 @@
         "ViewProtectedContent" => 1
        ]]);
        $r = $this->core->RenderView($r);
+       $r = ($data["CARD"] == 1) ? [
+        "Front" => $r
+       ] : $r;
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
@@ -283,7 +286,7 @@
       $actions .= ($active == 1) ? $this->core->Element([
        "button", "Edit", [
         "class" => "GoToView Small v2",
-        "data-view" => "Product$id;".$options["Edit"]
+        "data-type" => "Product$id;".$options["Edit"]
        ]
       ]) : "";
       $back = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([
@@ -428,6 +431,7 @@
     "Body" => "The Product or Shop Identifiers are missing."
    ];
    $shopID = $data["Shop"] ?? "";
+   $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -501,7 +505,7 @@
       $modifiedBy = $product["ModifiedBy"] ?? [];
       $modifiedBy[$now] = $you;
       $newProducts = $shop["Products"] ?? [];
-      $passPhrase = $product["PassPhrase"] ?? "";
+      $passPhrase = $data["PassPhrase"] ?? "";
       $points = $this->core->config["PTS"];
       $profit = $data["Profit"] ?? 0;
       $profit = ($profit == "") ? 0 : $profit;
@@ -509,6 +513,8 @@
       $purge = $product["Purge"] ?? 0;
       $quantity = $data["Quantity"] ?? "-1";
       $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
+      $subscriptionTerm = $data["SubscriptionTerm"] ?? "";
+      $success = ($new == 1) ? "CloseCard" : "";
       $username = $product["UN"] ?? $you;
       if(!empty($data["rATT$id"])) {
        $db = explode(";", base64_decode($data["rATT$id"]));
@@ -570,7 +576,6 @@
        array_push($newProducts, $id);
        $shop["Products"] = array_unique($newProducts);
       }
-      $subscriptionTerm = $data["SubscriptionTerm"] ?? "";
       $product = [
        "Attachments" => $attachments,
        "Body" => $this->core->PlainText([
@@ -603,30 +608,29 @@
        "Title" => $title,
        "UN" => $username
       ];
-      #$this->core->Data("Save", ["product", $id, $product]);
-      #$this->core->Data("Save", ["shop", $shopID, $shop]);
+      $this->core->Data("Save", ["product", $id, $product]);
+      $this->core->Data("Save", ["shop", $shopID, $shop]);
       if($new == 1) {
        $subscribers = $shop["Subscribers"] ?? [];
        $y["Points"] = $y["Points"] + $points;
-       #$this->core->Data("Save", ["mbr", md5($you), $y]);
+       $this->core->Data("Save", ["mbr", md5($you), $y]);
        foreach($subscribers as $key => $value) {
-        /*--$this->core->SendBulletin([
+        $this->core->SendBulletin([
          "Data" => [
           "ProductID" => $id,
           "ShopID" => base64_encode(md5($you))
          ],
          "To" => $value,
          "Type" => "NewProduct"
-        ]);--*/
+        ]);
        }
-       #$this->core->Statistic("New Product");
+       $this->core->Statistic("New Product");
       } else {
-       #$this->core->Statistic("Edit Product");
+       $this->core->Statistic("Edit Product");
       }
       $r = [
        "Body" => "The Product <em>$title</em> has been $actionTaken!",
-       "Header" => "Done",
-       "Scrollable" => json_encode($product, true)
+       "Header" => "Done"
       ];
      }
     }
@@ -638,7 +642,7 @@
      "Web" => $r
     ],
     "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    "Success" => $success
    ]);
   }
   function __destruct() {

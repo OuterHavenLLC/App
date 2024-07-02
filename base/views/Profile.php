@@ -1095,6 +1095,7 @@
      } else {
       $accessCode = "Accepted";
       $id = md5($you);
+      $autoResponse = $y["Personal"]["AutoResponse"] ?? "";
       $birthMonths = [];
       $birthYears = [];
       $chooseElectable = $y["Personal"]["Electable"] ?? 0;
@@ -1127,9 +1128,10 @@
        "[Preferences.General.RelationshipStatus]" => $y["Personal"]["RelationshipStatus"],
        "[Preferences.General.RelationshipWith]" => base64_encode($relationshipWith),
        "[Preferences.ID]" => $id,
-       "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&ID=".base64_encode(md5($y["Login"]["Username"]))),
+       "[Preferences.Links.EditShop]" => base64_encode("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode(md5($you))),
        "[Preferences.Links.NewPassword]" => base64_encode("v=".base64_encode("Profile:NewPassword")),
        "[Preferences.Links.NewPIN]" => base64_encode("v=".base64_encode("Profile:NewPIN")),
+       "[Preferences.Personal.AutoResponse]" => base64_encode($autoResponse),
        "[Preferences.Personal.Electable]" => $chooseElectable,
        "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
        "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
