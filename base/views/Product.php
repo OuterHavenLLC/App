@@ -156,10 +156,10 @@
     "AddTo",
     "Added",
     "CallSign",
-    "CARD",
     "b2",
     "back",
    ]);
+   $card = $data["CARD"] ?? 0;
    $i = 0;
    $id = $data["ID"] ?? "";
    $lpg = $data["lPG"] ?? "";
@@ -335,7 +335,7 @@
        ], $this->core->Extension("96a6768e7f03ab4c68c7532be93dee40")]);
       }
      }
-     $r = ($data["CARD"] == 1) ? [
+     $r = ($card == 1) ? [
       "Front" => $r
      ] : $r;
     }
