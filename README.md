@@ -11,6 +11,7 @@ This release focuses on search—both inside and outside the platform, content c
 ### Platform Improvements
 * A revamped Content Purge system now efficiently and permanently purges content and their respective dependencies from the platform.
 * Download buttons now support simultanious media downloads.
+* Forum Posts may now be grouped into Topics. (working on it...)
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
 * A new content creation tool (represented by a + button at the bottom-right corner when signed in) creates a central hub where many of the common content types may be created from.
@@ -34,7 +35,7 @@ This release focuses on search—both inside and outside the platform, content c
 * Members of Congress may now contribute Congressional Notes to add context.
 * Congressional Notes may be voted upon, and the Note with the highest rating will be attached to the Articles, Blog Posts, Forum Posts, and Status Updates until another overtakes it.
 
-### Protected Content (working on it...)
+### Protected Content
 * Members may now add an additional layer of security for primary content—and some secondary content—with pass phrases.
 * Currently protected content includes: Albums, Blogs, Blog Posts, Files, Forums, Forum Posts, Group Chats, Products, Preferences, Profiles, Shops, and Status Updates.
 * Dialogs which require a PIN for authentication now run on the Protected Content workflow.
