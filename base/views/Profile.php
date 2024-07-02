@@ -767,11 +767,10 @@
           "[ContactRequest.Header]" => "Pending Request",
           "[ContactRequest.ID]" => $id,
           "[ContactRequest.Option]" => $this->core->Element([
-           "div", $this->core->Element([
-            "div", $this->core->Element(["button", "Accept", [
-             "class" => "BBB SendData v2 v2w",
-             "data-form" => ".ContactRequest$id",
-             "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&accept=1")
+           "div", $this->core->Element(["button", "Accept", [
+            "class" => "BBB SendData v2 v2w",
+            "data-form" => ".ContactRequest$id",
+            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&accept=1")
            ]]), ["class" => "Desktop50"]
           ]).$this->core->Element([
            "div", $this->core->Element(["button", "Decline", [
