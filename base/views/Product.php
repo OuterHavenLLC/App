@@ -160,7 +160,7 @@
    $lpg = $data["lPG"] ?? "";
    $back = ($data["back"] == 1) ? $this->core->Element(["button", "Back to ".$data["b2"], [
     "class" => "GoToParent LI head",
-    "data-type" => ".OHCC;$lpg"
+    "data-type" => $lpg
    ]]) : "";
    $pub = $data["pub"] ?? 0;
    $r = [
@@ -277,8 +277,8 @@
       ]);
       $actions .= ($active == 1) ? $this->core->Element([
        "button", "Edit", [
-        "class" => "OpenCard Small v2",
-        "data-view" => $options["Edit"]
+        "class" => "GoToView Small v2",
+        "data-view" => "Product$id;".$options["Edit"]
        ]
       ]) : "";
       $back = ($data["CARD"] != 1 && $pub == 1) ? $this->core->Element([

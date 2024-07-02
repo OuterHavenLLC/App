@@ -291,7 +291,7 @@
    $accessCode = "Accepted";
    $eventMedia = $this->core->RenderEventMedia() ?? [];
    $r = $this->core->Change([[
-    "[Gateway.Company]" => base64_encode("v=".base64_encode("Company:Home")),
+    "[Gateway.Company]" => base64_encode("v=".base64_encode("Company:Home")."&Card=1"),
     "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
     "[Gateway.Banner]" => $eventMedia["Banner"],
     "[Gateway.CoverPhoto]" => $eventMedia["CoverPhoto"],

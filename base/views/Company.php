@@ -44,6 +44,7 @@
    $b2 = urlencode($this->core->config["App"]["Name"]);
    $eventMedia = $this->core->RenderEventMedia() ?? [];
    $data = $a["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
    $pub = $data["pub"] ?? 0;
    $shopID = base64_encode($this->core->ShopID);
    $r = $this->core->Change([[
@@ -54,10 +55,13 @@
     "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
     "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
     "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
-    "[App.Shop]" => "OHC;".base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
+    "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
     "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
-    "[App.VVA]" => "OHC;".base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
+    "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
    ], $this->core->Extension("0a24912129c7df643f36cb26038300d6")]);
+   $r = ($card == 1) ? [
+    "Front" => $r
+   ] : $r;
    if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
@@ -70,7 +74,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "Title" => $_ViewTitle
    ]);
   }
   function Partners(array $a) {
