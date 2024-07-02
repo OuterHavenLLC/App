@@ -829,6 +829,14 @@
     if($group == 1) {
      $this->core->Data("Save", ["chat", $id, $chat]);
     } elseif($oneOnOne == 1) {
+     $this->core->Data("Save", ["chat", md5($you), $chat]);
+     $this->core->SendBulletin([
+      "Data" => [
+       "From" => $you
+      ],
+      "To" => $to,
+      "Type" => "NewMessage"
+     ]);
      if(!empty($autoResponse)) {
       $theirChat = $this->core->Data("Get", ["chat", md5($to)]) ?? [];
       $messages[$now] = [
@@ -843,14 +851,6 @@
       ];
       $this->core->Data("Save", ["chat", md5($to), $theirChat]);
      }
-     $this->core->Data("Save", ["chat", md5($you), $chat]);
-     $this->core->SendBulletin([
-      "Data" => [
-       "From" => $you
-      ],
-      "To" => $to,
-      "Type" => "NewMessage"
-     ]);
     }
     $r = [
      "Body" => "Your message has been sent.",
