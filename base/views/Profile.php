@@ -763,21 +763,28 @@
        $cancel = (in_array($you, $theirRequests)) ? 1 : 0;
        if($contactStatus["TheyHaveYou"] == 0 && $contactStatus["YouHaveThem"] == 0) {
         if($contactStatus["TheyRequested"] > 0) {
-         $addContact = $this->core->Element([
-          "div", $this->core->Element(["button", "Accept", [
-           "class" => "BBB SendData v2 v2w",
-           "data-form" => ".ContactRequest$id",
-           "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&accept=1")
-          ]]), ["class" => "Desktop50"]
-         ]).$this->core->Element([
-          "div", $this->core->Element(["button", "Decline", [
-           "class" => "BB SendData v2 v2w",
-           "data-form" => ".ContactRequest$id",
-           "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&decline=1")
-          ]]), ["class" => "Desktop50"]
-         ]);
-        } if($cancel == 1 || $contactStatus["YouRequested"] > 0) {
-         $addContact = $this->core->Change([[
+         $changeData = [
+          "[ContactRequest.Header]" => "Pending Request",
+          "[ContactRequest.ID]" => $id,
+          "[ContactRequest.Option]" => $this->core->Element([
+           "div", $this->core->Element([
+            "div", $this->core->Element(["button", "Accept", [
+             "class" => "BBB SendData v2 v2w",
+             "data-form" => ".ContactRequest$id",
+             "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&accept=1")
+           ]]), ["class" => "Desktop50"]
+          ]).$this->core->Element([
+           "div", $this->core->Element(["button", "Decline", [
+            "class" => "BB SendData v2 v2w",
+            "data-form" => ".ContactRequest$id",
+            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&decline=1")
+           ]]), ["class" => "Desktop50"]
+          ]),
+          "[ContactRequest.Text]" => "$display sent you a contact request.",
+          "[ContactRequest.Username]" => $id
+         ];
+        } elseif($cancel == 1 || $contactStatus["YouRequested"] > 0) {
+         $changeData = [
           "[ContactRequest.Header]" => "Cancel Request",
           "[ContactRequest.ID]" => $id,
           "[ContactRequest.Option]" => $this->core->Element([
@@ -789,9 +796,9 @@
           ]),
           "[ContactRequest.Text]" => "Cancel the contact request you snet to $display.",
           "[ContactRequest.Username]" => $id
-         ], $this->core->Extension("a73ffa3f28267098851bf3550eaa9a02")]);
+         ];
         } else {
-         $addContact = $this->core->Change([[
+         $changeData = [
           "[ContactRequest.Header]" => "Add $displayName",
           "[ContactRequest.ID]" => $id,
           "[ContactRequest.Option]" => $this->core->Element([
@@ -803,11 +810,14 @@
           ]),
           "[ContactRequest.Text]" => "Send $displayName a Contact Request.",
           "[ContactRequest.Username]" => $id
-         ], $this->core->Extension("a73ffa3f28267098851bf3550eaa9a02")]);
+         ];
         }
+        $addContact = $this->core->Change([
+         $changeData,
+         $this->core->Extension("a73ffa3f28267098851bf3550eaa9a02")
+        ]);
        }
-       $addContact = ($id != $this->core->ID) ? $addContact : "";
-       $addContact = ($you != $this->core->ID) ? $addContact : "";
+       $addContact = ($id != $this->core->ID && $this->core->ID != $you) ? $addContact : "";
       } if($id != $you && $y["Rank"] == md5("High Command") || $y["Rank"] == md5("Support")) {
        if($id != $this->core->ID && $id != $this->core->ShopID) {
         if($y["Rank"] == md5("High Command")) {

@@ -13,6 +13,7 @@
    $editor = $data["Editor"] ?? "";
    $id = $data["ID"] ?? md5("ShopProduct-".$this->core->timestamp);
    $new = $data["new"] ?? 0;
+   $parentView = $data["ParentView"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $shop = $data["Shop"] ?? md5($you);
@@ -40,10 +41,14 @@
      "ID" => $id
     ]);
     $additionalContent = $this->core->RenderView($additionalContent);
+    $back = (!empty($parentView)) ? $this->core->Element(["button", "Back", [
+     "class" => "GoToParent v2 v2w",
+     "data-type" => $parentView
+    ]]) : $back;
     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
      "data-type" => "ProductEditors"
-    ]]) : "&nbsp;";
+    ]]) : $back;
     $bundledProducts = "";
     $dlc = "";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
