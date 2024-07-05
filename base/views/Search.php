@@ -188,9 +188,9 @@
      $id = $data["ID"] ?? "";
      $id = base64_decode($id);
      $f = $this->core->Data("Get", ["pf", $id]) ?? [];
-     $h = "Forum Posts";
+     $h = "All Posts";
      $li .= "&ID=$id";
-     $lis = "Search Posts from ".$f["Title"];
+     $lis = "Search all Posts from ".$f["Title"];
     } elseif($searchType == "Knowledge") {
      $extension = "8568ac7727dae51ee4d96334fa891395";
      $h = "Knowledge Base";

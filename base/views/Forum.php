@@ -87,11 +87,10 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "new"]);
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
-   $id = $data["ID"];
+   $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $now = $this->core->timestamp;
    $y = $this->you;
@@ -150,6 +149,52 @@
      "Action" => $action,
      "Front" => $r
     ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function EditTopics(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
+   $id = $data["ID"] ?? "";
+   $now = $this->core->timestamp;
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($id)) {
+    $id = base64_decode($id);
+    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
+    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $_Forum = $this->core->GetContentData([
+     "Blacklisted" => $bl,
+     "ID" => base64_encode("Forum;$id")
+    ]);
+    $r = [
+     "Body" => "The requested Forum could not be found."
+    ];
+    if($_Forum["Empty"] == 0) {
+     $accessCode = "Accepted";
+     $forum = $_Forum["DataModel"];
+     $topicList = "";
+     $r = $this->core->Change([[
+      "[Forum.ID]" => $id,
+      "[Topics.Clone]" => base64_encode($this->core->Extension("5f5acd280261747ae18830eb70ce719c")),
+      "[Topics.List]" => $topicList,
+      "[Topics.Save]" => base64_encode("v=".base64_encode("Forum:SaveTopics"))
+     ], $this->core->Extension("4a40ab9e976c8d00bb4ebc8c953cd3ca")]);
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -305,12 +350,14 @@
         "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
         "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
         "[Forum.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
+        "[Forum.EditTopics]" => base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".base64_encode($id)),
         "[Forum.Description]" => $_Forum["ListItem"]["Description"],
         "[Forum.ID]" => $id,
         "[Forum.Invite]" => $invite,
         "[Forum.Join]" => $join,
         "[Forum.Stream]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=Forums-Posts"),
         "[Forum.Title]" => $title,
+        "[Forum.Topics]" => base64_encode("v=".base64_encode("Forum:Topics")."&ID=".base64_encode($id)),
         "[Forum.Votes]" => $options["Vote"]
        ], $this->core->Extension("4159d14e4e8a7d8936efca6445d11449")]);
       }
@@ -735,6 +782,38 @@
     "ResponseType" => "View"
    ]);
   }
+  function SaveTopics(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $id = $data["ID"] ?? "";
+   $now = $this->core->timestamp;
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $accessCode = "Accepted";
+    $r = [
+     "Body" => "The Topic list was updated.",
+     "Header" => "Done"
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function SendInvite(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -830,6 +909,135 @@
      "Web" => $r
     ],
     "ResponseType" => "Dialog"
+   ]);
+  }
+  function Topic(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
+   $topic = $data["Topic"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($id)) {
+    $action = "";
+    $id = base64_decode($id);
+    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
+    $_Forum = $this->core->GetContentData([
+     "Blacklisted" => $bl,
+     "ID" => base64_encode("Forum;$id")
+    ]);
+    $r = [
+     "Body" => "The Forum could not be loaded."
+    ];
+    $topic = base64_decode($topic);
+    if($_Forum["Empty"] == 0) {
+     $accessCode = "Accepted";
+     $forum = $_Forum["DataModel"];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+     $yourRole = $manifest[$you] ?? "";
+     $topic = $forum["Topics"][$topic] ?? [];
+     $posts = $topic["Posts"] ?? [];
+     $r = $this->core->Change([[
+      "[Error.Back]" => "",
+      "[Error.Header]" => "No Posts",
+      "[Error.Message]" => "This Topic currently has no posts."
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+     if(!empty($posts)) {
+      $posts = array_reverse($posts);
+      $r = $this->core->Element(["h1", "Posts"]);
+      foreach($posts as $key => $post) {
+       # LIST POSTS
+       $r .= $this->core->Element(["h4", "Post #$post"]);
+      }
+     }
+     $r .= (!empty($yourRole)) ? $this->core->Element([
+      "button", "Say Something", [
+       "class" => "BBB OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Post:Edit")."&FID=$id&new=1")
+      ]
+     ]) : "";
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function Topics(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue."
+    ];
+   } elseif(!empty($id)) {
+    $action = "";
+    $id = base64_decode($id);
+    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
+    $_Forum = $this->core->GetContentData([
+     "Blacklisted" => $bl,
+     "ID" => base64_encode("Forum;$id")
+    ]);
+    $r = [
+     "Body" => "The Forum could not be loaded."
+    ];
+    if($_Forum["Empty"] == 0) {
+     $accessCode = "Accepted";
+     $forum = $_Forum["DataModel"];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+     $yourRole = $manifest[$you] ?? "";
+     $topics = $forum["Topics"] ?? [];
+     $r = $this->core->Change([[
+      "[Error.Back]" => "",
+      "[Error.Header]" => "No Topics",
+      "[Error.Message]" => "This Forum currently has no discussion topics."
+     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+     if(!empty($topics)) {
+      $r = $this->core->Element(["h1", "Topics"]);
+      foreach($topics as $key => $value) {
+       $r .= $this->core->Change([[
+       ], $this->core->Extension("099d6de4214f55e68ea49395a63b5e4d")]);
+      }
+     }
+     // CREATE EXTENSION FOR BELOW
+     $r .= ($forum["UN"] == $you) ? $this->core->Element([
+      "div", "&nbsp;", ["class" => "Desktop33"]
+     ]).$this->core->Element([
+      "div", $this->core->Element([
+       "button", "Create a Topic", [
+        "class" => "BBB GoToView v2 v2w",
+        "data-type" => "ForumTopics$id;".base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".$data["ID"])
+       ]
+      ]), ["class" => "Desktop33"]
+     ]).$this->core->Element([
+      "div", "&nbsp;", ["class" => "Desktop33"]
+     ]) : "";
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
    ]);
   }
   function __destruct() {
