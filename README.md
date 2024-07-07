@@ -11,7 +11,7 @@ This release focuses on search—both inside and outside the platform, content c
 ### Platform Improvements
 * A revamped Content Purge system now efficiently and permanently purges content and their respective dependencies from the platform.
 * Download buttons now support simultanious media downloads.
-* Forum Posts may now be grouped into Topics. (working on it...)
+* Forum Posts may now be grouped into Topics.
 * The Share Card has been revamped with new options to share via 1:1 Chat, Group Chat, Status Updates, with recent contacts, or by copying the embed code or public link.
 * Launched Free America Broadcasting, our radio station for V.I.P. Members to listen to and participate in.
 * A new content creation tool (represented by a + button at the bottom-right corner when signed in) creates a central hub where many of the common content types may be created from.

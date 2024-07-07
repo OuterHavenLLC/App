@@ -13,6 +13,7 @@
    ];
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
+   $topic = $data["Topic"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -44,10 +45,17 @@
      $attachments = base64_encode(implode(";", $post["Attachments"]));
     }
     $designViewEditor = "UIE$id";
+    $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $post["PassPhrase"] ?? "";
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Posts"];
     $title = $post["Title"] ?? "";
+    $topicOptions = $forum["Topics"] ?? [];
+    $topics = [];
+    foreach($topicOptions as $topicID => $info) {
+     $topics[$topicID] = $info["Title"] ?? "Untitled";
+    }
+    $topic = $post["Topic"] ?? $topic;
     $r = $this->core->Change([[
      "[ForumPost.AdditionalContent]" => $additionalContent["Extension"],
      "[ForumPost.Attachments]" => $attachments,
@@ -64,6 +72,8 @@
      "[ForumPost.PassPhrase]" => base64_encode($passPhrase),
      "[ForumPost.Privacy]" => $privacy,
      "[ForumPost.Title]" => base64_encode($title),
+     "[ForumPost.Topic]" => $topic,
+     "[ForumPost.Topics]" => json_encode($topics, true),
      "[ForumPost.Visibility.NSFW]" => $nsfw,
      "[ForumPost.Visibility.Privacy]" => $privacy
     ], $this->core->Extension("cabbfc915c2edd4d4cba2835fe68b1cc")]);
@@ -373,6 +383,7 @@
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
     $purge = $post["Purge"] ?? 0;
     $title = $data["Title"] ?? "Untitled";
+    $topic = $data["Topic"] ?? "";
     $post = [
      "Attachments" => $attachments,
      "Body" => $this->core->PlainText([
@@ -391,7 +402,8 @@
      "PassPhrase" => $passPhrase,
      "Privacy" => $privacy,
      "Purge" => $purge,
-     "Title" => $title
+     "Title" => $title,
+     "Topic" => $topic
     ];
     $this->core->Data("Save", ["post", $id, $post]);
     $r = [

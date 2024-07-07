@@ -188,9 +188,26 @@
      $accessCode = "Accepted";
      $forum = $_Forum["DataModel"];
      $topicList = "";
+     $topics = $forum["Topics"] ?? [];
+     foreach($topics as $topicID => $info) {
+      $topicList .= $this->core->Change([[
+       "[Topic.CloneID]" => $topicID,
+       "[Topic.Default]" => $info["Default"],
+       "[Topic.Description]" => $info["Description"],
+       "[Topic.ID]" => $topicID,
+       "[Topic.NSFW]" => $info["NSFW"],
+       "[Topic.Title]" => $info["Title"]
+      ], $this->core->Extension("5f5acd280261747ae18830eb70ce719c")]);
+     }
      $r = $this->core->Change([[
       "[Forum.ID]" => $id,
-      "[Topics.Clone]" => base64_encode($this->core->Extension("5f5acd280261747ae18830eb70ce719c")),
+      "[Topics.Clone]" => base64_encode($this->core->Change([[
+       "[Topic.Default]" => 0,
+       "[Topic.Description]" => "",
+       "[Topic.ID]" => "",
+       "[Topic.NSFW]" => 0,
+       "[Topic.Title]" => ""
+      ], $this->core->Extension("5f5acd280261747ae18830eb70ce719c")])),
       "[Topics.List]" => $topicList,
       "[Topics.Save]" => base64_encode("v=".base64_encode("Forum:SaveTopics"))
      ], $this->core->Extension("4a40ab9e976c8d00bb4ebc8c953cd3ca")]);
@@ -328,6 +345,13 @@
          "data-view" => $options["Share"]
         ]
        ]) : "";
+       $createTopicAction = (empty($forum["Topics"])) ? "Create a Topic" : "Manage Topics";
+       $createTopic = ($forum["UN"] == $you) ? $this->core->Element([
+        "button", $createTopicAction, [
+         "class" => "BigButton GoToView MobileFull",
+         "data-type" => "ForumTopics$id;".base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".$data["ID"])
+        ]
+       ]) : "";
        $invite = ($active == 1 && $forum["ID"] != $_SonsOfLiberty) ? $this->core->Element([
         "button", "Invite", [
          "class" => "OpenCard v2",
@@ -350,6 +374,7 @@
         "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
         "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
         "[Forum.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
+        "[Forum.CreateTopic]" => $createTopic,
         "[Forum.EditTopics]" => base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".base64_encode($id)),
         "[Forum.Description]" => $_Forum["ListItem"]["Description"],
         "[Forum.ID]" => $id,
@@ -799,11 +824,71 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
     $r = [
-     "Body" => "The Topic list was updated.",
-     "Header" => "Done"
+     "Body" => "At least one Topic is required."
     ];
+    $topicID = $data["TopicID"] ?? [];
+    if(!empty($topicID)) {
+     $_Forum = $this->core->GetContentData([
+      "Blacklisted" => 0,
+      "ID" => base64_encode("Forum;$id")
+     ]);
+     $r = [
+      "Body" => "The Forum could not be loaded."
+     ];
+     if($_Forum["Empty"] == 0) {
+      $accessCode = "Accepted";
+      $defaultTopics = 0;
+      $forum = $_Forum["DataModel"];
+      $now = $this->core->timestamp;
+      $topics = [];
+      for($i = 0; $i < count($topicID); $i++) {
+       $topicIdentifier = $topicID[$i] ?? "NoID";
+       $previousTopicIdentifier = $data["PreviousID"][$i] ?? $topicID[$i];
+       $_Topic = $forum["Topics"][$previousTopicIdentifier] ?? [];
+       $created = $_Topic["Created"] ?? $now;
+       $default = $_Topic["Default"] ?? 0;
+       $default = $data["Default"][$i] ?? $default;
+       $description = $_Topic["Description"] ?? "";
+       $description = $data["Description"][$i] ?? $description;
+       $modifiedBy = $_Topic["ModifiedBy"] ?? [];
+       $modifiedBy[$now] = $you;
+       $nsfw = $data["NSFW"][$i] ?? 0;
+       $nsfw = $_Topic["NSFW"] ?? $nsfw;
+       $posts = $_Topic["Posts"] ?? [];
+       $title = $data["Title"][$i] ?? "Untitled";
+       $title = $_Topic["Title"][$i] ?? $title;
+       $topicIdentifier = $topicID[$i] ?? $previousTopicIdentifier;
+       if($default == 1) {
+        $defaultTopics++;
+       }
+       $topics[$topicIdentifier] = [
+        "Created" => $created,
+        "Default" => $default,
+        "Description" => $description,
+        "Modified" => $now,
+        "ModifiedBy" => $modifiedBy,
+        "NSFW" => $nsfw,
+        "Posts" => $posts,
+        "Title" => $title
+       ];
+      } if($defaultTopics == 0) {
+       $accessCode = "Denied";
+       $topics[0]["Default"] = 1;
+       $r = [
+        "Body" => "A default Topic is required."
+       ];
+      } else {
+       $forum["Topics"] = $topics;
+       #$this->core->Data("Save", ["pf", $id, $forum]);
+       $r = [
+        "Body" => "The Topic list was updated.",
+        "Header" => "Done",
+        "Scrollable" => json_encode($topics, true)
+       ];
+      }
+     }
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -914,35 +999,36 @@
   function Topic(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
+   $forumID = $data["Forum"] ?? "";
    $r = [
     "Body" => "The Forum Identifier is missing."
    ];
-   $topic = $data["Topic"] ?? "";
+   $topicID = $data["Topic"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $r = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($id)) {
+   } elseif(!empty($forumID)) {
     $action = "";
-    $id = base64_decode($id);
-    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
+    $forumID = base64_decode($forumID);
+    $bl = $this->core->CheckBlocked([$y, "Forums", $forumID]);
     $_Forum = $this->core->GetContentData([
      "Blacklisted" => $bl,
-     "ID" => base64_encode("Forum;$id")
+     "ID" => base64_encode("Forum;$forumID")
     ]);
     $r = [
      "Body" => "The Forum could not be loaded."
     ];
-    $topic = base64_decode($topic);
+    $topicID = base64_decode($topicID);
     if($_Forum["Empty"] == 0) {
      $accessCode = "Accepted";
      $forum = $_Forum["DataModel"];
-     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $forumID]) ?? [];
+     $now = $this->core->timestamp;
      $yourRole = $manifest[$you] ?? "";
-     $topic = $forum["Topics"][$topic] ?? [];
+     $topic = $forum["Topics"][$topicID] ?? [];
      $posts = $topic["Posts"] ?? [];
      $r = $this->core->Change([[
       "[Error.Back]" => "",
@@ -951,18 +1037,29 @@
      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if(!empty($posts)) {
       $posts = array_reverse($posts);
-      $r = $this->core->Element(["h1", "Posts"]);
+      $r = $this->core->Element(["h1", $topic["Title"]]);
       foreach($posts as $key => $post) {
-       # LIST POSTS
-       $r .= $this->core->Element(["h4", "Post #$post"]);
+       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $post]);
+       $_Forum = $this->core->GetContentData([
+        "Blacklisted" => $bl,
+        "ID" => base64_encode("ForumPost;$post")
+       ]);
+       if($_ForumPost["Empty"] == 0) {
+        # LIST POSTS
+        $r .= $this->core->Element(["h4", "Post #$post"]);
+       }
       }
      }
      $r .= (!empty($yourRole)) ? $this->core->Element([
       "button", "Say Something", [
-       "class" => "BBB OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Post:Edit")."&FID=$id&new=1")
+       "class" => "BigButton OpenCard",
+       "data-view" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$forumID&Topic=$topicID&new=1")
       ]
      ]) : "";
+     $r .= $this->core->Element(["button", "Back", [
+      "class" => "GoToParent v2 v2w",
+      "data-type" => "TopicsList$forumID"
+     ]]);
     }
    }
    return $this->core->JSONResponse([
@@ -1002,6 +1099,7 @@
      $accessCode = "Accepted";
      $forum = $_Forum["DataModel"];
      $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+     $now = $this->core->timestamp;
      $yourRole = $manifest[$you] ?? "";
      $topics = $forum["Topics"] ?? [];
      $r = $this->core->Change([[
@@ -1011,24 +1109,21 @@
      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if(!empty($topics)) {
       $r = $this->core->Element(["h1", "Topics"]);
-      foreach($topics as $key => $value) {
+      foreach($topics as $topicID => $info) {
+       $created = $info["Created"] ?? $now;
+       $modified = $info["Modified"] ?? $this->core->TimeAgo($now);
+       $posts = array_reverse($info["Posts"]); # LIMIT TO 5
        $r .= $this->core->Change([[
+        "[Forum.ID]" => $id,
+        "[Topic.Created]" => $created,
+        "[Topic.Description]" => $info["Description"],
+        "[Topic.LatestPosts]" => json_encode($posts, true),
+        "[Topic.Modified]" => $modified,
+        "[Topic.Title]" => $info["Title"],
+        "[Topic.View]" => base64_encode("v=".base64_encode("Forum:Topic")."&Forum=".base64_encode($id)."&Topic=".base64_encode($topicID))
        ], $this->core->Extension("099d6de4214f55e68ea49395a63b5e4d")]);
       }
      }
-     // CREATE EXTENSION FOR BELOW
-     $r .= ($forum["UN"] == $you) ? $this->core->Element([
-      "div", "&nbsp;", ["class" => "Desktop33"]
-     ]).$this->core->Element([
-      "div", $this->core->Element([
-       "button", "Create a Topic", [
-        "class" => "BBB GoToView v2 v2w",
-        "data-type" => "ForumTopics$id;".base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".$data["ID"])
-       ]
-      ]), ["class" => "Desktop33"]
-     ]).$this->core->Element([
-      "div", "&nbsp;", ["class" => "Desktop33"]
-     ]) : "";
     }
    }
    return $this->core->JSONResponse([
