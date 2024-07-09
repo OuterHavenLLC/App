@@ -369,7 +369,6 @@
      $forum["Posts"] = $posts;
      $y["Activity"]["LastActive"] = $now;
      $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-     $this->core->Data("Save", ["pf", $fid, $forum]);
      $this->core->Data("Save", ["mbr", md5($you), $y]);
     }
     $created = $post["Created"] ?? $now;
@@ -384,6 +383,11 @@
     $purge = $post["Purge"] ?? 0;
     $title = $data["Title"] ?? "Untitled";
     $topic = $data["Topic"] ?? "";
+    foreach($forum["Topics"] as $topicID => $info) {
+     if(!in_array($id, $info["Posts"]) && $topic == $topicID) {
+      array_push($forum["Topics"][$topicID]["Posts"], $id);
+     }
+    }
     $post = [
      "Attachments" => $attachments,
      "Body" => $this->core->PlainText([
@@ -405,6 +409,7 @@
      "Title" => $title,
      "Topic" => $topic
     ];
+    $this->core->Data("Save", ["pf", $fid, $forum]);
     $this->core->Data("Save", ["post", $id, $post]);
     $r = [
      "Body" => "Your post has been $actionTaken.",
