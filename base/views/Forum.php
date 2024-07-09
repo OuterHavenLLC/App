@@ -738,27 +738,22 @@
        ]);
       } else {
        $newTopics = [];
-       for($t = 0; $t <= 10; $t++) {
-        array_push($topics[$migrateTo]["Posts"], uniqid("Post").$t);
-       }
        foreach($topic["Posts"] as $key => $post) {
         array_push($topics[$migrateTo]["Posts"], $post);
        } foreach($topics as $id => $info) {
-        if($id != $topicID && $info["Default"] == 1) {
+        if($id != $topicID) {
          $newTopics[$id] = $info;
         }
        }
        $forum["Topics"] = $newTopics;
-       #$thic->core->Data("Save", ["pf", $forumID, $forum]);
+       $this->core->Data("Save", ["pf", $forumID, $forum]);
        $r = $this->core->Element([
         "p", "The topic <em>".$topic["Title"]."</em> was purged from <em>".$forum["Title"]."</em>.",
         ["class" => "CenterText"]
        ]).$this->core->Element([
-        "p", json_encode($forum["Topics"], true)
-       ]).$this->core->Element([
         "button", "Okay", ["class" => "CloseDialog v2 v2w"]
        ]).$this->core->Element([
-        "script", "$('.DeleteTopic$topicID').slideUp(500).remove();"
+        "script", "$('.DeleteTopic$topicID').remove();"
        ]);
       }
      }
@@ -982,7 +977,7 @@
        $nsfw = $_Topic["NSFW"] ?? $nsfw;
        $posts = $_Topic["Posts"] ?? [];
        $title = $data["Title"][$i] ?? "Untitled";
-       $title = $_Topic["Title"][$i] ?? $title;
+       $title = $_Topic["Title"] ?? $title;
        $topicIdentifier = $topicID[$i] ?? $previousTopicIdentifier;
        if($default == 1) {
         $defaultTopics++;
@@ -1005,11 +1000,10 @@
        ];
       } else {
        $forum["Topics"] = $topics;
-       #$this->core->Data("Save", ["pf", $id, $forum]);
+       $this->core->Data("Save", ["pf", $id, $forum]);
        $r = [
         "Body" => "The Topic list was updated.",
-        "Header" => "Done",
-        "Scrollable" => json_encode($topics, true)
+        "Header" => "Done"
        ];
       }
      }
