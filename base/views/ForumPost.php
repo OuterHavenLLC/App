@@ -386,6 +386,8 @@
     foreach($forum["Topics"] as $topicID => $info) {
      if(!in_array($id, $info["Posts"]) && $topic == $topicID) {
       array_push($forum["Topics"][$topicID]["Posts"], $id);
+     } elseif(in_array($id, $info["Posts"]) && $topic != $topicID) {
+      unset($forum["Topics"][$topicID]["Posts"][$id]);
      }
     }
     $post = [

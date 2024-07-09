@@ -1164,17 +1164,6 @@
       $r = $this->core->Element([
        "h1", $topic["Title"]
       ]).$this->core->RenderView($r);
-      foreach($posts as $key => $post) {
-       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $post]);
-       $_Forum = $this->core->GetContentData([
-        "Blacklisted" => $bl,
-        "ID" => base64_encode("ForumPost;$post")
-       ]);
-       if($_ForumPost["Empty"] == 0) {
-        # LIST POSTS
-        $r .= $this->core->Element(["h4", "Post #$post"]);
-       }
-      }
      }
      $r .= (!empty($yourRole)) ? $this->core->Element([
       "button", "Say Something", [
@@ -1183,7 +1172,7 @@
       ]
      ]) : "";
      $r .= $this->core->Element(["button", "Back", [
-      "class" => "GoToParent v2 v2w",
+      "class" => "Center GoToParent v1",
       "data-type" => "TopicsList$forumID"
      ]]);
     }

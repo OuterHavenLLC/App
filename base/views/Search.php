@@ -193,11 +193,11 @@
      $lis = "Search all Posts from ".$forum["Title"];
     } elseif($searchType == "Forums-Topic") {
      $extension = "e58b4fc5070b14c01c88c28050547285";
-     $forum = $data["Forum"] ?? "";
-     $topic = $data["Topic"] ?? "";
-     $forum = $this->core->Data("Get", ["pf", $forum]) ?? [];
-     $li .= "&Forum=$forum&Topic=$topic";
-     $topic = $forum["Topics"][$topic] ?? [];
+     $forumID = $data["Forum"] ?? "";
+     $topicID = $data["Topic"] ?? "";
+     $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+     $li .= "&Forum=$forumID&Topic=$topicID";
+     $topic = $forum["Topics"][$topicID] ?? [];
      $topic = $topic["Title"] ?? "Untitled";
      $lis = "Search Posts from $topic";
     } elseif($searchType == "Forums-Topics") {
@@ -1613,7 +1613,7 @@
        ]);
        $passPhrase = $post["PassPhrase"] ?? "";
        if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
-        $bl = $this->core->CheckBlocked([$y, "Status Updates", $id]);
+        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $id]);
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
         $actions = ($post["From"] != $you) ? $this->core->Element([
@@ -1669,9 +1669,109 @@
     }
    } elseif($searchType == "Forums-Topic") {
     $accessCode = "Accepted";
+    $active = 0;
+    $admin = 0;
     $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
     $forumID = $data["Forum"] ?? "";
+    $manifest = $this->core->Data("Get", ["pfmanifest", $forumID]) ?? [];
+    foreach($manifest as $member => $role) {
+     if($active == 0 && $member == $you) {
+      $active = 0;
+      if($admin == 0 && $role == "Admin") {
+       $admin++;
+      }
+     }
+    }
     $topicID = $data["Topic"] ?? "";
+    $_Forum = $this->core->GetContentData([
+     "Blacklisted" => 0,
+     "ID" => base64_encode("Forum;$forumID")
+    ]);
+    if($_Forum["Empty"] == 0) {
+     $forum = $_Forum["DataModel"];
+     $now = $this->core->timestamp;
+     $topics = $forum["Topics"] ?? [];
+     $topic = $topics[$topicID] ?? [];
+     $posts = $topic["Posts"] ?? [];
+     foreach($posts as $key => $postID) {
+      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $postID]);
+      $_ForumPost = $this->core->GetContentData([
+       "Blacklisted" => $bl,
+       "ID" => base64_encode("ForumPost;$forumID;$postID")
+      ]);
+      if($_ForumPost["Empty"] == 0 && $i <= 5) {
+       $actions = "";
+       $active = 0;
+       $post = $_ForumPost["DataModel"];
+       $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
+       $illegal = $post["Illegal"] ?? 0;
+       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+       $op = ($forum["UN"] == $you) ? $y : $this->core->Member($post["From"]);
+       $options = $_ForumPost["ListItem"]["Options"];
+       $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
+       $ck2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
+       $ck3 = $this->core->CheckPrivacy([
+        "Contacts" => $cms["Contacts"],
+        "Privacy" => $post["Privacy"],
+        "UN" => $post["From"],
+        "Y" => $you
+       ]);
+       $passPhrase = $post["PassPhrase"] ?? "";
+       if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
+        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $postID]);
+        $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
+        $con = base64_encode("Conversation:Home");
+        $actions = ($post["From"] != $you) ? $this->core->Element([
+         "button", "Block", [
+          "class" => "InnerMargin",
+          "data-cmd" => base64_encode("B"),
+          "data-u" => $options["Block"]
+         ]
+        ]) : "";
+        $actions = ($this->core->ID != $you) ? $actions : "";
+        if($ck == 1) {
+         $actions .= $this->core->Element([
+          "button", "Delete", [
+           "class" => "InnerMargin OpenDialog",
+           "data-view" => $options["Delete"]
+          ]
+         ]);
+         $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element([
+          "button", "Edit", [
+           "class" => "InnerMargin OpenCard",
+           "data-view" => $options["Edit"]
+          ]
+         ]) : "";
+        }
+        $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
+         "button", "Share", [
+          "class" => "InnerMargin OpenCard",
+          "data-view" => $options["Share"]
+         ]
+        ]) : "";
+        $display = ($post["From"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+        $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
+        $verified = $op["Verified"] ?? 0;
+        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        array_push($msg, [
+         "[ForumPost.Actions]" => base64_encode($actions),
+         "[ForumPost.Attachments]" => base64_encode($_ForumPost["ListItem"]["Attachments"]),
+         "[ForumPost.Body]" => base64_encode($body),
+         "[ForumPost.Comment]" => base64_encode($options["View"]),
+         "[ForumPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
+         "[ForumPost.ID]" => base64_encode($postID),
+         "[ForumPost.MemberRole]" => base64_encode($memberRole),
+         "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
+         "[ForumPost.Notes]" => base64_encode($options["Notes"]),
+         "[ForumPost.OriginalPoster]" => base64_encode($display.$verified),
+         "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
+         "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),
+         "[ForumPost.Votes]" => base64_encode($options["Vote"])
+        ]);
+       }
+      }
+     }
+    }
    } elseif($searchType == "Forums-Topics") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("099d6de4214f55e68ea49395a63b5e4d");
@@ -1690,8 +1790,7 @@
        $created = $info["Created"] ?? $now;
        $i = 0;
        $modified = $info["Modified"] ?? $this->core->TimeAgo($now);
-       $posts = array_reverse($info["Posts"]); # LIMIT TO 5
-       $postCount = count($posts);
+       $posts = array_reverse($info["Posts"]);
        $postList = "";
        foreach($posts as $key => $post) {
         $bl = $this->core->CheckBlocked([$y, "Forum Posts", $post]);
@@ -1699,13 +1798,16 @@
          "Blacklisted" => $bl,
          "ID" => base64_encode("ForumPost;$forumID;$post")
         ]);
-        if($_ForumPost["Empty"] == 0 && $i <= 5) {
+        if($_ForumPost["Empty"] == 0 && $i < 5) {
+         $i++;
          $post = $_ForumPost["DataModel"];
-         $postList .= $this->core->Element(["div", $this->core->Element([
-          "h4", $ForumPost["ListItem"]["Title"]
-         ]).$this->core->Element([
-          "p", $this->core->Excerpt("Text").$ForumPost["ListItem"]["Body"]
-         ]), ["class" => "Frosted Rounded"]]);
+         $postList .= $this->core->Element([
+          "div", $this->core->Element([
+           "h4", $post["Title"]
+          ]).$this->core->Element([
+           "p", $this->core->Excerpt(htmlentities($post["Body"]))
+          ]), ["class" => "Frosted Medium Rounded"]
+         ]);
         }
        }
        array_push($msg, [
