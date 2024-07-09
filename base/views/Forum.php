@@ -1171,10 +1171,16 @@
        "data-view" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$forumID&Topic=$topicID&new=1")
       ]
      ]) : "";
-     $r .= $this->core->Element(["button", "Back", [
-      "class" => "Center GoToParent v1",
-      "data-type" => "TopicsList$forumID"
-     ]]);
+     $r .= $this->core->Element([
+      "div", "&nbsp;", ["class" => "Desktop33"]
+     ]).$this->core->Element([
+      "div", $this->core->Element(["button", "Back", [
+       "class" => "GoToParent v2 v2w",
+       "data-type" => "TopicsList$forumID"
+      ]]), ["class" => "Desktop33"]
+     ]).$this->core->Element([
+      "div", "&nbsp;", ["class" => "Desktop33"]
+     ]);
     }
    }
    return $this->core->JSONResponse([
