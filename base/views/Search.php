@@ -185,12 +185,27 @@
      $lis = "Search Administrators";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
     } elseif($searchType == "Forums-Posts") {
-     $id = $data["ID"] ?? "";
-     $id = base64_decode($id);
-     $f = $this->core->Data("Get", ["pf", $id]) ?? [];
+     $forumID = $data["ID"] ?? "";
+     $forumID = base64_decode($forumID);
+     $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
      $h = "All Posts";
-     $li .= "&ID=$id";
-     $lis = "Search all Posts from ".$f["Title"];
+     $li .= "&ID=$forumID";
+     $lis = "Search all Posts from ".$forum["Title"];
+    } elseif($searchType == "Forums-Topic") {
+     $extension = "e58b4fc5070b14c01c88c28050547285";
+     $forum = $data["Forum"] ?? "";
+     $topic = $data["Topic"] ?? "";
+     $forum = $this->core->Data("Get", ["pf", $forum]) ?? [];
+     $li .= "&Forum=$forum&Topic=$topic";
+     $topic = $forum["Topics"][$topic] ?? [];
+     $topic = $topic["Title"] ?? "Untitled";
+     $lis = "Search Posts from $topic";
+    } elseif($searchType == "Forums-Topics") {
+     $extension = "e58b4fc5070b14c01c88c28050547285";
+     $forumID = $data["Forum"] ?? "";
+     $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+     $li .= "&Forum=$forumID";
+     $lis = "Search Topics from ".$forum["Title"];
     } elseif($searchType == "Knowledge") {
      $extension = "8568ac7727dae51ee4d96334fa891395";
      $h = "Knowledge Base";
@@ -1559,6 +1574,7 @@
     $accessCode = "Accepted";
     $active = 0;
     $admin = 0;
+    $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
     $id = $data["ID"] ?? "";
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
@@ -1571,7 +1587,6 @@
      }
     }
     $posts = $forum["Posts"] ?? [];
-    $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
     if($active == 1 || $admin == 1 || $forum["Type"] == "Public") {
      foreach($posts as $key => $value) {
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $value]);
@@ -1649,6 +1664,60 @@
          "[ForumPost.Votes]" => base64_encode($options["Vote"])
         ]);
        }
+      }
+     }
+    }
+   } elseif($searchType == "Forums-Topic") {
+    $accessCode = "Accepted";
+    $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
+    $forumID = $data["Forum"] ?? "";
+    $topicID = $data["Topic"] ?? "";
+   } elseif($searchType == "Forums-Topics") {
+    $accessCode = "Accepted";
+    $extension = $this->core->Extension("099d6de4214f55e68ea49395a63b5e4d");
+    $forumID = $data["Forum"] ?? "";
+    $_Forum = $this->core->GetContentData([
+     "Blacklisted" => 0,
+     "ID" => base64_encode("Forum;$forumID")
+    ]);
+    if($_Forum["Empty"] == 0) {
+     $forum = $_Forum["DataModel"];
+     $now = $this->core->timestamp;
+     $topics = $forum["Topics"] ?? [];
+     foreach($topics as $topicID => $info) {
+      $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $info["NSFW"] == 0) ? 1 : 0;
+      if($check == 1) {
+       $created = $info["Created"] ?? $now;
+       $i = 0;
+       $modified = $info["Modified"] ?? $this->core->TimeAgo($now);
+       $posts = array_reverse($info["Posts"]); # LIMIT TO 5
+       $postCount = count($posts);
+       $postList = "";
+       foreach($posts as $key => $post) {
+        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $post]);
+        $_ForumPost = $this->core->GetContentData([
+         "Blacklisted" => $bl,
+         "ID" => base64_encode("ForumPost;$forumID;$post")
+        ]);
+        if($_ForumPost["Empty"] == 0 && $i <= 5) {
+         $post = $_ForumPost["DataModel"];
+         $postList .= $this->core->Element(["div", $this->core->Element([
+          "h4", $ForumPost["ListItem"]["Title"]
+         ]).$this->core->Element([
+          "p", $this->core->Excerpt("Text").$ForumPost["ListItem"]["Body"]
+         ]), ["class" => "Frosted Rounded"]]);
+        }
+       }
+       array_push($msg, [
+        "[Forum.ID]" => base64_encode($forumID),
+        "[Topic.Created]" => base64_encode($created),
+        "[Topic.Description]" => base64_encode($info["Description"]),
+        "[Topic.LatestPosts]" => base64_encode($postList),
+        "[Topic.Modified]" => base64_encode($modified),
+        "[Topic.PostCount]" => base64_encode($this->core->ShortNumber(count($posts))),
+        "[Topic.Title]" => base64_encode($info["Title"]),
+        "[Topic.View]" => base64_encode(base64_encode("v=".base64_encode("Forum:Topic")."&Forum=".base64_encode($forumID)."&Topic=".base64_encode($topicID)))
+       ]);
       }
      }
     }

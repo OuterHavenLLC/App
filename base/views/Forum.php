@@ -190,9 +190,19 @@
      $topicList = "";
      $topics = $forum["Topics"] ?? [];
      foreach($topics as $topicID => $info) {
+      $viewData = json_encode([
+       "SecureKey" => base64_encode($y["Login"]["PIN"]),
+       "Forum" => base64_encode($id),
+       "Topic" => base64_encode($topicID),
+       "v" => base64_encode("Forum:PurgeTopic")
+      ], true);
       $topicList .= $this->core->Change([[
-       "[Topic.CloneID]" => $topicID,
+       "[Clone.ID]" => $topicID,
        "[Topic.Default]" => $info["Default"],
+       "[Topic.Delete]" => $this->core->Element(["button", "Delete Topic", [
+        "class" => "OpenDialog v2 v2w",
+        "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
+       ]]),
        "[Topic.Description]" => $info["Description"],
        "[Topic.ID]" => $topicID,
        "[Topic.NSFW]" => $info["NSFW"],
@@ -203,6 +213,10 @@
       "[Forum.ID]" => $id,
       "[Topics.Clone]" => base64_encode($this->core->Change([[
        "[Topic.Default]" => 0,
+       "[Topic.Delete]" => $this->core->Element(["button", "Delete Topic", [
+        "class" => "Delete v2 v2w",
+        "data-target" => ".DeleteTopic[Clone.ID]"
+       ]]),
        "[Topic.Description]" => "",
        "[Topic.ID]" => "",
        "[Topic.NSFW]" => 0,
@@ -348,7 +362,7 @@
        $createTopicAction = (empty($forum["Topics"])) ? "Create a Topic" : "Manage Topics";
        $createTopic = ($forum["UN"] == $you) ? $this->core->Element([
         "button", $createTopicAction, [
-         "class" => "BigButton GoToView MobileFull",
+         "class" => "BigButton GoToView",
          "data-type" => "ForumTopics$id;".base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".$data["ID"])
         ]
        ]) : "";
@@ -578,66 +592,177 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
     $id = base64_decode($id);
-    $forum = $this->core->Data("Get", ["pf", $id]);
-    $forumPosts = $forum["Posts"] ?? [];
-    $forums = $y["Forums"] ?? [];
-    $newForums = [];
-    $passPhrase = base64_encode($key);
-    $securePassPhrase = base64_encode($secureKey);
-    foreach($forumPosts as $key => $value) {
-     $forumPost = $this->core->Data("Get", ["post", $value]);
-     if(!empty($forumPost)) {
-      $this->view(base64_encode("ForumPost:Purge"), ["Data" => [
-       "Key" => $passPhrase,
-       "ID" => base64_encode($value),
-       "SecureKey" => $securePassPhrase
-      ]]);
-     }
-    } foreach($forums as $key => $value) {
-     if($id != $value) {
-      $newForums[$key] = $value;
-     }
-    }
-    $chat = $this->core->Data("Get", ["chat", $id]);
-    if(!empty($chat)) {
-     $chat["Purge"] = 1;
-     $this->core->Data("Save", ["chat", $id, $chat]);
-    }
-    $conversation = $this->core->Data("Get", ["conversation", $id]);
-    if(!empty($conversation)) {
-     $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
-    }
-    $forum = $this->core->Data("Get", ["pf", $id]);
-    if(!empty($forum)) {
-     $forum["Purge"] = 1;
-     $this->core->Data("Save", ["pf", $id, $forum]);
-    }
-    $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
-    if(!empty($manifest)) {
-     $manifest["Purge"] = 1;
-     $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
-    }
-    $translations = $this->core->Data("Get", ["translate", $id]);
-    if(!empty($translations)) {
-     $translations["Purge"] = 1;
-     $this->core->Data("Save", ["translate", $id, $translations]);
-    }
-    $votes = $this->core->Data("Get", ["votes", $id]);
-    if(!empty($votes)) {
-     $votes["Purge"] = 1;
-     $this->core->Data("Save", ["votes", $id, $votes]);
-    }
-    $y["Forums"] = $newForums;
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->core->Element([
-     "p", "The Forum <em>".$forum["Title"]."</em> and dependencies were marked for purging.",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    $_Forum = $this->core->GetContentData([
+     "Blacklisted" => 0,
+     "ID" => base64_encode("Forum;$id")
     ]);
+    $r = [
+     "Body" => "The Forum was not found."
+    ];
+    if($_Forum["Empty"] == 0) {
+     $accessCode = "Accepted";
+     $forum = $_Forum["DataModel"];
+     $forumPosts = $forum["Posts"] ?? [];
+     $forums = $y["Forums"] ?? [];
+     $newForums = [];
+     $passPhrase = base64_encode($key);
+     $securePassPhrase = base64_encode($secureKey);
+     foreach($forumPosts as $key => $value) {
+      $forumPost = $this->core->Data("Get", ["post", $value]);
+      if(!empty($forumPost)) {
+       $this->view(base64_encode("ForumPost:Purge"), ["Data" => [
+        "Key" => $passPhrase,
+        "ID" => base64_encode($value),
+        "SecureKey" => $securePassPhrase
+       ]]);
+      }
+     } foreach($forums as $key => $value) {
+      if($id != $value) {
+       $newForums[$key] = $value;
+      }
+     }
+     $chat = $this->core->Data("Get", ["chat", $id]);
+     if(!empty($chat)) {
+      $chat["Purge"] = 1;
+      $this->core->Data("Save", ["chat", $id, $chat]);
+     }
+     $conversation = $this->core->Data("Get", ["conversation", $id]);
+     if(!empty($conversation)) {
+      $conversation["Purge"] = 1;
+      $this->core->Data("Save", ["conversation", $id, $conversation]);
+     }
+     $forum = $this->core->Data("Get", ["pf", $id]);
+     if(!empty($forum)) {
+      $forum["Purge"] = 1;
+      $this->core->Data("Save", ["pf", $id, $forum]);
+     }
+     $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
+     if(!empty($manifest)) {
+      $manifest["Purge"] = 1;
+      $this->core->Data("Save", ["pfmanifest", $id, $manifest]);
+     }
+     $translations = $this->core->Data("Get", ["translate", $id]);
+     if(!empty($translations)) {
+      $translations["Purge"] = 1;
+      $this->core->Data("Save", ["translate", $id, $translations]);
+     }
+     $votes = $this->core->Data("Get", ["votes", $id]);
+     if(!empty($votes)) {
+      $votes["Purge"] = 1;
+      $this->core->Data("Save", ["votes", $id, $votes]);
+     }
+     $y["Forums"] = $newForums;
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
+     $r = $this->core->Element([
+      "p", "The Forum <em>".$forum["Title"]."</em> and dependencies were marked for purging.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]);
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function PurgeTopic(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $forumID = $data["Forum"] ?? "";
+   $r = [
+    "Body" => "The Forum Identifier is missing."
+   ];
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $topicID = $data["Topic"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $r = [
+     "Body" => "The PINs do not match."
+    ];
+   } elseif($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($forumID) && !empty($topicID)) {
+    $forumID = base64_decode($forumID);
+    $_Forum = $this->core->GetContentData([
+     "Blacklisted" => 0,
+     "ID" => base64_encode("Forum;$forumID")
+    ]);
+    $r = [
+     "Body" => "The Forum was not found."
+    ];
+    if($_Forum["Empty"] == 0) {
+     $forum = $_Forum["DataModel"];
+     $owner = $forum["UN"] ?? "";
+     $r = [
+      "Body" => "You do not have permission to delete this topic.",
+      "Header" => "Forbidden"
+     ];
+     $topicID = base64_decode($topicID);
+     $topics = $forum["Topics"] ?? [];
+     $topic = $topics[$topicID] ?? [];
+     $topicIsDefault = $topic["Default"] ?? 0;
+     if(empty($topic)) {
+      $r = [
+       "Body" => "The topic was not found."
+      ];
+     } elseif($owner == $you) {
+      $accessCode = "Accepted";
+      $defaultTopics = 0;
+      $migrateTo = "";
+      foreach($topics as $id => $info) {
+       if($info["Default"] == 1) {
+        $defaultTopics++;
+        if($id != $topicID && $info["Default"] == 1) {
+         $migrateTo = $id;
+        }
+       }
+      } if($defaultTopics == 1 && $topicIsDefault == 1) {
+       $r = $this->core->Element([
+        "p", "Please make another topic the default before deleting this one.",
+        ["class" => "CenterText"]
+       ]).$this->core->Element([
+        "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+       ]);
+      } else {
+       $newTopics = [];
+       for($t = 0; $t <= 10; $t++) {
+        array_push($topics[$migrateTo]["Posts"], uniqid("Post").$t);
+       }
+       foreach($topic["Posts"] as $key => $post) {
+        array_push($topics[$migrateTo]["Posts"], $post);
+       } foreach($topics as $id => $info) {
+        if($id != $topicID && $info["Default"] == 1) {
+         $newTopics[$id] = $info;
+        }
+       }
+       $forum["Topics"] = $newTopics;
+       #$thic->core->Data("Save", ["pf", $forumID, $forum]);
+       $r = $this->core->Element([
+        "p", "The topic <em>".$topic["Title"]."</em> was purged from <em>".$forum["Title"]."</em>.",
+        ["class" => "CenterText"]
+       ]).$this->core->Element([
+        "p", json_encode($forum["Topics"], true)
+       ]).$this->core->Element([
+        "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+       ]).$this->core->Element([
+        "script", "$('.DeleteTopic$topicID').slideUp(500).remove();"
+       ]);
+      }
+     }
+    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
@@ -1037,7 +1162,14 @@
      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if(!empty($posts)) {
       $posts = array_reverse($posts);
-      $r = $this->core->Element(["h1", $topic["Title"]]);
+      $r = $this->view(base64_encode("Search:Containers"), ["Data" => [
+       "Forum" => $forumID,
+       "Topic" => $topicID,
+       "st" => "Forums-Topic"
+      ]]);
+      $r = $this->core->Element([
+       "h1", $topic["Title"]
+      ]).$this->core->RenderView($r);
       foreach($posts as $key => $post) {
        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $post]);
        $_Forum = $this->core->GetContentData([
@@ -1098,9 +1230,6 @@
     if($_Forum["Empty"] == 0) {
      $accessCode = "Accepted";
      $forum = $_Forum["DataModel"];
-     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
-     $now = $this->core->timestamp;
-     $yourRole = $manifest[$you] ?? "";
      $topics = $forum["Topics"] ?? [];
      $r = $this->core->Change([[
       "[Error.Back]" => "",
@@ -1108,21 +1237,11 @@
       "[Error.Message]" => "This Forum currently has no discussion topics."
      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      if(!empty($topics)) {
-      $r = $this->core->Element(["h1", "Topics"]);
-      foreach($topics as $topicID => $info) {
-       $created = $info["Created"] ?? $now;
-       $modified = $info["Modified"] ?? $this->core->TimeAgo($now);
-       $posts = array_reverse($info["Posts"]); # LIMIT TO 5
-       $r .= $this->core->Change([[
-        "[Forum.ID]" => $id,
-        "[Topic.Created]" => $created,
-        "[Topic.Description]" => $info["Description"],
-        "[Topic.LatestPosts]" => json_encode($posts, true),
-        "[Topic.Modified]" => $modified,
-        "[Topic.Title]" => $info["Title"],
-        "[Topic.View]" => base64_encode("v=".base64_encode("Forum:Topic")."&Forum=".base64_encode($id)."&Topic=".base64_encode($topicID))
-       ], $this->core->Extension("099d6de4214f55e68ea49395a63b5e4d")]);
-      }
+      $r = $this->view(base64_encode("Search:Containers"), ["Data" => [
+       "Forum" => $id,
+       "st" => "Forums-Topics"
+      ]]);
+      $r = $this->core->RenderView($r);
      }
     }
    }
