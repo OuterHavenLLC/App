@@ -25,7 +25,7 @@
     ];
    } elseif(strtotime($now) < $electionTime) {
     $r = [
-     "Body" => "The next Election may be held after ".date("Y-m-d H:i:s", $electionTime)."."
+     "Body" => "The next Election may be held after ".date("F jS\, Y", $electionTime)."."
     ];
    } else {
     $eligibleCandidates = 0;
@@ -42,11 +42,12 @@
     } if($eligibleCandidates > 0) {
      $accessCode = "Accepted";
      $congress["Members"] = $congressionalStaff;
-     $this->core->Data("Save", ["app", md5("Congress"), $congress]);
-     $this->core->Data("Save", ["app", md5("CongressionalBallot"), $newBallot]);
+     #$this->core->Data("Save", ["app", md5("Congress"), $congress]);
+     #$this->core->Data("Save", ["app", md5("CongressionalBallot"), $newBallot]);
      $r = [
-      "Body" => "All elegible candidates have been elected into Congress. The next election may be held after $nextElection.",
-      "Header" => "Done"
+      "Body" => "$eligibleCandidates candidates have been elected into Congress. The next election may be held after $nextElection.",
+      "Header" => "Done",
+      "Scrollable" => json_encode([$congress, $newBallot], true)
      ];
     }
    }
@@ -893,6 +894,49 @@
       "Body" => "Your <em>$yourVote</em> vote has been cast! $r",
       "Header" => "Done"
      ];
+    }
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "View"
+   ]);
+  }
+  function VoteForCandidate(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $candidate = $data["Candidate"] ?? "";
+   $chamber = $data["Chamber"] ?? "";
+   $r = [
+    "Body" => "The Candidate or Chamber Identifiers are missing."
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must sign in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($candidate) && !empty($chamber)) {
+    $accessCode = "Accepted";
+    $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]);
+    $candidate = base64_decode($candidate);
+    $chamber = base64_decode($chamber);
+    $r = $this->core->Element(["p", "Error voting for @$candidate..."]);
+    $registeredVotes = $ballot["RegisteredVotes"] ?? [];
+    if(empty($registeredVotes[$you])) {
+     $chamber = $ballot["Candidates"][$candidate]["Chamber"] ?? "House";
+     #$votes = $ballot["Candidates"][$candidate]["Votes"] ?? 0;
+     $votes = $ballot["Candidates"][$candidate]["Votes"] ?? 2000;//TEMP
+     $votes++;
+     $ballot["Candidates"][$candidate]["Votes"] = $votes;
+     $ballot["Candidates"][$candidate]["Chamber"] = $chamber;
+     $ballot["RegisteredVotes"][$you] = $candidate;
+     $this->core->Data("Save", ["app", md5("CongressionalBallot"), $ballot]);
+     $r = $this->core->Element(["p", "Your vote was cast for @$candidate!"]);
     }
    }
    return $this->core->JSONResponse([

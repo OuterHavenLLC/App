@@ -1133,12 +1133,45 @@
     }
    } elseif($searchType == "CongressionalBallot") {
     $accessCode = "Accepted";
-    $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
+    $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]);
+    $candidates = $ballot["Candidates"] ?? [];
+    $candidates=["Mike"=>["Chanber"=>"House","Votes"=>1000],"JohnnyTest"=>["Chanber"=>"Senate","Votes"=>250]];//TEMP
     $chamber = $data["Chamber"] ?? "";
-    $extension = $this->core->Extension("1f32642e05747ba3cec15d7c9fffbd0f");
+    $extension = $this->core->Extension("633ddf914ed8a2e2aa7e023471ec83b2");
     $na = "No Candidates for the $chamber";
+    $registeredVotes = $ballot["RegisteredVotes"] ?? [];
     if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
-     // CONGRESSIONAL BALLOT
+     foreach($candidates as $member => $info) {
+      $_Member = $this->core->GetContentData([
+       "ID" => base64_encode("Member;".md5($member))
+      ]);
+      if($_Member["Empty"] == 0 && $member != $you) {
+       $member = $_Member["DataModel"];
+       $displayName = $member["Personal"]["DisplayName"];
+       $memberID = $member["Login"]["Username"];
+       $options = $_Member["ListItem"]["Options"];
+       $action = (empty($registeredVotes[$you])) ? $this->core->Element([
+        "button", "Vote for $displayName", [
+         "class" => "UpdateContent v2 v2w",
+         "data-container" => ".VoteFor".md5($memberID),
+         "data-view" => base64_encode("v=".base64_encode("Congress:VoteForCandidate")."&Candidate=".base64_encode($memberID)."&Chamber=".base64_encode($chamber))
+        ]
+       ]) : "";
+       $voteCount = $info["Votes"] ?? 0;
+       array_push($msg, [
+        "[Tile.Action]" => base64_encode($this->core->Element([
+         "div", $action, ["class" => "VoteFor".md5($memberID)]
+        ]).$this->core->Element(["button", "View $displayName's Profile", [
+         "class" => "OpenCard v2 v2w",
+         "data-view" => $options["View"]
+        ]])),
+        "[Tile.Data]" => base64_encode($this->core->Element([
+         "h4", number_format($voteCount)." members have cast their vote for $displayName."
+        ])),
+        "[Tile.Header]" => base64_encode($displayName)
+       ]);
+      }
+     }
     }
    } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
     $accessCode = "Accepted";
