@@ -6,7 +6,7 @@ See GNU-GPL.md for licensing information.
 # Change Log
 ## 1.3: Compendium
 ### Release Notes
-This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, revamped revenue and statistics, and quality of life improvements. (comming soon...)
+This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, revamped revenue and statistics, and quality of life improvements.
 
 ### Platform Improvements
 * A revamped Content Purge system now efficiently and permanently purges content and their respective dependencies from the platform.
@@ -20,7 +20,7 @@ This release focuses on search—both inside and outside the platform, content c
 * App Statistics have been revamped, and are now more granular than ever with new daily, monthly, and annual totals now taken into account.
 * Developers now have a Card for viewing app documentation, guides, Heath Kit downloads, and submitting feedback.
 * Members may now secure Articles and Journal Entries with Pass Phrases.
-* Completed the Congressional Ballot. (comming soon...)
+* Completed the Congressional Ballot.
 
 ### Artists
 * Addressed an issue that would overrite a Member's shop data even if they were adding or editing products from other shops which they contribute to.
