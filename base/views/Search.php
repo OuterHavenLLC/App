@@ -94,7 +94,7 @@
     } elseif($searchType == "CongressionalBallot") {
      $chamber = $data["Chamber"] ?? "";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";
-     $h = "Congressional Ballot";
+     $h = "Congressional $chamber Ballot";
      $li .= "&Chamber=$chamber";
      $lis = "Search Candidates";
     } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
@@ -1135,17 +1135,17 @@
     $accessCode = "Accepted";
     $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]);
     $candidates = $ballot["Candidates"] ?? [];
-    $candidates=["Mike"=>["Chanber"=>"House","Votes"=>1000],"JohnnyTest"=>["Chanber"=>"Senate","Votes"=>250]];//TEMP
-    $chamber = $data["Chamber"] ?? "";
+    $chamber = $data["Chamber"] ?? "House";
     $extension = $this->core->Extension("633ddf914ed8a2e2aa7e023471ec83b2");
     $na = "No Candidates for the $chamber";
     $registeredVotes = $ballot["RegisteredVotes"] ?? [];
     if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
      foreach($candidates as $member => $info) {
+      $candidateChamber = $info["Chamber"] ?? $chamber;
       $_Member = $this->core->GetContentData([
        "ID" => base64_encode("Member;".md5($member))
       ]);
-      if($_Member["Empty"] == 0 && $member != $you) {
+      if($_Member["Empty"] == 0 && $chamber == $candidateChamber && $member != $you) {
        $member = $_Member["DataModel"];
        $displayName = $member["Personal"]["DisplayName"];
        $memberID = $member["Login"]["Username"];
@@ -1166,7 +1166,7 @@
          "data-view" => $options["View"]
         ]])),
         "[Tile.Data]" => base64_encode($this->core->Element([
-         "h4", number_format($voteCount)." members have cast their vote for $displayName."
+         "h4", number_format($voteCount)." members have cast their vote for $displayName to join the $candidateChamber."
         ])),
         "[Tile.Header]" => base64_encode($displayName)
        ]);

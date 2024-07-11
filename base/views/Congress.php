@@ -7,6 +7,7 @@
   function Elect() {
    $accessCode = "Denied";
    $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]) ?? [];
+   $candidates = $ballot["Candidates"] ?? [];
    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
    $congressionalStaff = $congress["Members"] ?? [];
    $newBallot = [];
@@ -30,8 +31,9 @@
    } else {
     $eligibleCandidates = 0;
     $threshold = $this->core->config["App"]["Illegal"] ?? 777;
-    foreach($ballot as $member => $info) {
-     $role = $info["Role"] ?? "";
+    foreach($candidates as $member => $info) {
+     $role = $info["Chamber"] ?? "";
+     $role = ($role == "House") ? "HouseRepresentative" : "Senator";
      $votes = $info["Votes"] ?? 0;
      if($votes >= $threshold) {
       $congressionalStaff[$member] = $role;
@@ -42,12 +44,11 @@
     } if($eligibleCandidates > 0) {
      $accessCode = "Accepted";
      $congress["Members"] = $congressionalStaff;
-     #$this->core->Data("Save", ["app", md5("Congress"), $congress]);
-     #$this->core->Data("Save", ["app", md5("CongressionalBallot"), $newBallot]);
+     $this->core->Data("Save", ["app", md5("Congress"), $congress]);
+     $this->core->Data("Save", ["app", md5("CongressionalBallot"), $newBallot]);
      $r = [
       "Body" => "$eligibleCandidates candidates have been elected into Congress. The next election may be held after $nextElection.",
-      "Header" => "Done",
-      "Scrollable" => json_encode([$congress, $newBallot], true)
+      "Header" => "Done"
      ];
     }
    }
@@ -929,8 +930,7 @@
     $registeredVotes = $ballot["RegisteredVotes"] ?? [];
     if(empty($registeredVotes[$you])) {
      $chamber = $ballot["Candidates"][$candidate]["Chamber"] ?? "House";
-     #$votes = $ballot["Candidates"][$candidate]["Votes"] ?? 0;
-     $votes = $ballot["Candidates"][$candidate]["Votes"] ?? 2000;//TEMP
+     $votes = $ballot["Candidates"][$candidate]["Votes"] ?? 0;
      $votes++;
      $ballot["Candidates"][$candidate]["Votes"] = $votes;
      $ballot["Candidates"][$candidate]["Chamber"] = $chamber;
