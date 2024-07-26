@@ -4,6 +4,16 @@ See SETUP.md (coming soon...) for Heath Kit configuration and installation.
 See GNU-GPL.md for licensing information.
 
 # Change Log
+## 1.4: Heath Kit (coming soon…)
+### Release Notes
+Release Notes
+
+### Platform Improvements
+* Platform Notes
+
+### Heath Kit
+* Installer Notes
+
 ## 1.3: Compendium
 ### Release Notes
 This release focuses on search—both inside and outside the platform, content creation and management, new administrative and congressional functions, revamped revenue and statistics, and quality of life improvements.
@@ -134,6 +144,7 @@ MAILTO=""
 @daily /usr/bin/php /var/www/html/base/crontab/purge.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.blog.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.chat.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.extension.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.feedback.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.forum.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.link.php

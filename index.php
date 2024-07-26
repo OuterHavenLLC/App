@@ -40,9 +40,10 @@
   $r = $oh->core->config["Maintenance"] ?? 0;
  } elseif($api == "Web") {
   if($view == base64_encode("File:SaveUpload")) {
+   $uploads = $_FILES["Uploads"] ?? [];
    $r = $oh->view($view, [
     "Data" => $data,
-    "Files" => $_FILES["Uploads"]
+    "Files" => $uploads
    ]);
   } elseif($view == "MD5") {
    $r = md5(base64_decode($data["MD5"]));

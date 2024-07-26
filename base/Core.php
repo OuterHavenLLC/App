@@ -1,5 +1,4 @@
 <?php
- require_once(__DIR__."/Cypher.php");
  Class Core {
   function __construct() {
    try {
@@ -495,7 +494,7 @@
        "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$additionalContentID&UN=".base64_encode($contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("Album")."&Username=".base64_encode($contentID)),
-       "Upload" => base64_encode("v=".base64_encode("File:Upload")."&AID=$additionalContentID&UN=".base64_encode($contentID)),
+       "Upload" => base64_encode("v=".base64_encode("File:Upload")."&AID=$additionalContentID&UN=$contentID"),
        "View" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContentID&UN=".$contentID)),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];

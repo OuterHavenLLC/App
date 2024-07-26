@@ -14,6 +14,8 @@
    ]).$oh->core->Element([
     "p", "&bull; Chat Index"
    ]).$oh->core->Element([
+    "p", "&bull; Extension Index (working on it...)"
+   ]).$oh->core->Element([
     "p", "&bull; Feedback Index"
    ]).$oh->core->Element([
     "p", "&bull; Forum Index"

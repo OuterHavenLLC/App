@@ -1,11 +1,11 @@
 <?php
  # Re:Search Index
  require_once("/var/www/html/base/Bootloader.php");
- $category = "Forum";
  $oh = New OH;
+ $category = "Extensions";
  $databases = $oh->core->DatabaseSet($category);
- $index = $oh->core->DataIndex("Get", $category) ?? [];
- $newIndex = [];
+ $index = "";
+ $newRows = 0;
  $r = $oh->core->Element([
   "h1", $oh->core->config["App"]["Name"]."</em> Re:Search Index"
  ]).$oh->core->Element([
@@ -15,15 +15,15 @@
  ]).$oh->core->Element([
   "p", json_encode($databases, true)
  ]);
+ $sql = New SQL($oh->cypher->SQLCredentials());
  foreach($databases as $key => $database) {
   $database = explode(".", $database);
   if(!empty($database[3]) && $database[3] != "cb3e432f76b38eaa66c7269d658bd7ea") {
    $data = $oh->core->Data("Get", [$database[2], $database[3]]) ?? [];
    if(!empty($data)) {
-    if(!in_array($database[3], $index)) {
-     array_push($index, $database[3]);
-     $r .= $oh->core->Element(["p", implode(".", $database)."... OK"]);
-    }
+    // SQL
+    $index .= $oh->core->Element(["p", "Indexed Extension #".$database[3]."."]);
+    $newRows++;
    }
   }
  }
@@ -36,7 +36,7 @@
  ]).$oh->core->Element([
   "p", "Here is the <em>$category</em> Re:Search Index:"
  ]).$oh->core->Element([
-  "p", json_encode($index, true)
+  "div", json_encode($index, true), ["class" => "NONAME"]
  ]).$oh->core->Element([
   "p", "Done"
  ]);

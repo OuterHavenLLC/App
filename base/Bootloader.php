@@ -6,6 +6,8 @@
  header("Access-Control-Max-Age: 86400");
  ini_set("display_errors", "on");
  require_once(__DIR__."/Core.php");
+ require_once(__DIR__."/Cypher.php");
+ require_once(__DIR__."/SQL.php");
  Class OH extends Core {
   function __construct() {
    $this->core = New Core;

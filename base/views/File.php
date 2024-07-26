@@ -491,7 +491,7 @@
    $data = $a["Data"] ?? [];
    $err = "Internal Error";
    $id = $data["AID"] ?? md5("unsorted");
-   $username = $data["UN"] ?? "";
+   $username = $data["UN"] ?? base64_encode("");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -500,7 +500,7 @@
      "MSG" => "You must be signed in to upload media.",
      "Passed" => $_Passed
     ];
-   } elseif(empty($data["AID"]) || empty($username)) {
+   } elseif(empty($data["AID"]) || empty(base64_decode($username))) {
     $r = [
      "Failed" => $_Failed,
      "MSG" => "You don't have permission to access this view.",
@@ -511,154 +511,164 @@
     $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
     $_DLC = $this->core->config["XFS"]["FT"] ?? [];
     $username = base64_decode($username);
-    $_HC = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
-    $albumID = $data["AID"] ?? base64_encode(md5("unsorted"));
-    $albumID = base64_decode($albumID);
-    $albums = $_FileSystem["Albums"] ?? [];
-    $files = $_FileSystem["Files"] ?? [];
-    if($_HC == 1) {
-     $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
-    }
-    $now = $this->core->timestamp;
-    $nsfw = $data["NSFW"] ?? base64_encode($y["Privacy"]["NSFW"]);
-    $nsfw = base64_decode($nsfw);
-    $privacy = $data["Privacy"] ?? base64_encode($y["Privacy"]["DLL"]);
-    $privacy = base64_decode($privacy);
-    $root = $_SERVER["DOCUMENT_ROOT"]."/efs/$username/";
-    $uploads = $a["Files"] ?? [];
-    $xfsLimits = $this->core->config["XFS"]["limits"] ?? [];
-    $xfsLimit = str_replace(",", "", $xfsLimits["Total"]);
-    $xfsUsage = 0;
-    foreach($files as $key => $info) {
-     $size = $info["Size"] ?? 0;
-     $xfsUsage = $xfsUsage + $size;
-    }
-    $xfsUsage = str_replace(",", "", $this->core->ByteNotation($xfsUsage));
-    $ck = ($_HC == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
-    $ck = $y["Subscriptions"]["XFS"]["A"] ?? $ck;
-    $allowed = array_merge($_DLC["A"], $_DLC["D"], $_DLC["P"], $_DLC["V"]);
-    foreach($uploads["name"] as $key => $value) {
-     $n = $uploads["name"][$key];
-     $ext = explode(".", $n);
-     $ext = strtolower(end($ext));
-     $ck = ($_HC == 1 || $ck == 1) ? 1 : 0;
-     $ck2 = (in_array($ext, $allowed) && $uploads["error"][$key] == 0) ? 1 : 0;
-     $id = md5("$you-$n-$now");
-     $mime = $uploads["type"][$key];
-     $name = "$id.$ext";
-     $size = $this->core->ByteNotation($uploads["size"][$key]);
-     $size2 = str_replace(",", "", $size);
-     $tmp = $uploads["tmp_name"][$key];
-     if(in_array($ext, $_DLC["A"])) {
-      $ck3 = ($size2 < $xfsLimits["Audio"]) ? 1 : 0;
-      $type = $this->core->config["XFS"]["FT"]["_FT"][0];
-     } elseif(in_array($ext, $_DLC["P"])) {
-      $ck3 = ($size2 < $xfsLimits["Images"]) ? 1 : 0;
-      $type = $this->core->config["XFS"]["FT"]["_FT"][2];
-     } elseif(in_array($ext, $_DLC["D"])) {
-      $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
-      $type = $this->core->config["XFS"]["FT"]["_FT"][1];
-     } elseif(in_array($ext, $_DLC["V"])) {
-      $ck3 = ($size2 < $xfsLimits["Videos"]) ? 1 : 0;
-      $type = $this->core->config["XFS"]["FT"]["_FT"][3];
-     } else {
-      $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
-      $type = $this->core->config["XFS"]["FT"]["_FT"][1];
-     }
-     $fileCheck = [
-      "Checks" => [
-       "AdministratorClearance" => $_HC,
-       "Album" => $id,
-       "File" => [
-        "Clearance" => $ck2,
-        "Data" => $uploads["name"],
-        "Name" => $name,
-        "Limits" => [
-         "Categories" => [
-          "Audio" => $xfsLimits["Audio"],
-          "Documents" => $xfsLimits["Documents"],
-          "Images" => $xfsLimits["Images"],
-          "Videos" => $xfsLimits["Videos"]
-         ],
-         "Clearance" => $ck3,
-         "Size" => $size2,
-         "Totals" => [$xfsUsage, $xfsLimit]
-        ],
-        "Size" => $size,
-        "Type" => $type
-       ],
-       "MemberClearance" => $ck,
-       "Subscription" => $y["Subscriptions"]["XFS"]["A"]
-      ],
-      "UploadErrorStatus" => $uploads["error"][$key],
-      "TemporaryName" => $uploads["tmp_name"][$key]
+    if($this->core->ID == $username && $y["Rank"] != md5("High Command")) {
+     $r = [
+      "Failed" => $_Failed,
+      "MSG" => "You don't have permission to upload to this Media Library.",
+      "Passed" => $_Passed
      ];
-     if($ck == 0 || $ck2 == 0 || $ck3 == 0) {
-      if(!in_array($ext, $allowed)) {
-       $err = "Invalid file type";
-      } elseif($ck == 0) {
-       $err = "Forbidden";
-      } elseif($ck2 == 0) {
-       $err = "File Clearance failed";
-      } elseif($ck3 == 0) {
-       $err = "File storage limit exceeded";
-      } elseif($xfsUsage > $xfsLimit) {
-       $err = "Total storage limit exceeded";
-      }
-      array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
-     } else {
-      if(!move_uploaded_file($tmp, $root.basename($name))) {
-       array_push($fileCheck, "Failed to move $name to your library.");
-       array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
-      } else {
-       $accessCode = "Accepted";
-       $file = [
-        "AID" => $albumID,
-        "Description" => "",
-        "EXT" => $ext,
-        "ID" => $id,
-        "MIME" => $mime,
-        "Modified" => $now,
-        "Name" => $name,
-        "NSFW" => $nsfw,
-        "Privacy" => $privacy,
-        "Size" => $size,
-        "Title" => $name,
-        "Timestamp" => $now,
-        "Type" => $type
-       ];
-       $files[$id] = $file;
-       if($_HC == 1) {
-        $files[$id]["UN"] = $you;
-        $this->core->Data("Save", ["app", "fs", $files]);
+    } else {
+     $_HC = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
+     $albumID = $data["AID"] ?? base64_encode(md5("unsorted"));
+     $albumID = base64_decode($albumID);
+     $albums = $_FileSystem["Albums"] ?? [];
+     $files = $_FileSystem["Files"] ?? [];
+     if($_HC == 1) {
+      $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
+     }
+     $now = $this->core->timestamp;
+     $nsfw = $data["NSFW"] ?? base64_encode($y["Privacy"]["NSFW"]);
+     $nsfw = base64_decode($nsfw);
+     $privacy = $data["Privacy"] ?? base64_encode($y["Privacy"]["DLL"]);
+     $privacy = base64_decode($privacy);
+     $root = $this->core->DocumentRoot."/efs/$username/";
+     $uploads = $a["Files"] ?? [];
+     $xfsLimits = $this->core->config["XFS"]["limits"] ?? [];
+     $xfsLimit = str_replace(",", "", $xfsLimits["Total"]);
+     $xfsUsage = 0;
+     foreach($files as $key => $info) {
+      $size = $info["Size"] ?? 0;
+      $xfsUsage = $xfsUsage + $size;
+     }
+     $xfsUsage = str_replace(",", "", $this->core->ByteNotation($xfsUsage));
+     $ck = ($_HC == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
+     $ck = $y["Subscriptions"]["XFS"]["A"] ?? $ck;
+     $allowed = array_merge($_DLC["A"], $_DLC["D"], $_DLC["P"], $_DLC["V"]);
+     for($key = 0; $key < count($uploads); $key++) {
+      $n = $uploads["name"][$key] ?? "";
+      if(!empty($n)) {
+       $ext = explode(".", $n);
+       $ext = strtolower(end($ext));
+       $ck = ($_HC == 1 || $ck == 1) ? 1 : 0;
+       $ck2 = (in_array($ext, $allowed) && $uploads["error"][$key] == 0) ? 1 : 0;
+       $id = md5("$you-$n-$now");
+       $mime = $uploads["type"][$key];
+       $name = "$id.$ext";
+       $size = $this->core->ByteNotation($uploads["size"][$key]);
+       $size2 = str_replace(",", "", $size);
+       $tmp = $uploads["tmp_name"][$key];
+       if(in_array($ext, $_DLC["A"])) {
+        $ck3 = ($size2 < $xfsLimits["Audio"]) ? 1 : 0;
+        $type = $this->core->config["XFS"]["FT"]["_FT"][0];
+       } elseif(in_array($ext, $_DLC["P"])) {
+        $ck3 = ($size2 < $xfsLimits["Images"]) ? 1 : 0;
+        $type = $this->core->config["XFS"]["FT"]["_FT"][2];
+       } elseif(in_array($ext, $_DLC["D"])) {
+        $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
+        $type = $this->core->config["XFS"]["FT"]["_FT"][1];
+       } elseif(in_array($ext, $_DLC["V"])) {
+        $ck3 = ($size2 < $xfsLimits["Videos"]) ? 1 : 0;
+        $type = $this->core->config["XFS"]["FT"]["_FT"][3];
        } else {
-        $_FileSystem = $_FileSystem ?? [];
-        $_FileSystem["Albums"] = $albums;
-        $_FileSystem["Files"] = $files;
-        if(in_array($ext, $this->core->config["XFS"]["FT"]["P"])) {
-         $thumbnail = $this->core->Thumbnail([
-          "File" => $name,
-          "Username" => $you
-         ])["AlbumCover"] ?? $name;
-         $_FileSystem["Albums"][$albumID]["ICO"] = $thumbnail;
-        }
-        $_FileSystem["Albums"][$albumID]["Modified"] = $now;
-        $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-        $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
-        $this->core->Data("Save", ["mbr", md5($you), $y]);
+        $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
+        $type = $this->core->config["XFS"]["FT"]["_FT"][1];
        }
-       array_push($_Passed, [
-        "HTML" => $this->core->Element([
-         "div", $this->core->GetAttachmentPreview([
-          "DLL" => $file,
-          "T" => $username,
-          "Y" => $you
-         ]), [
-          "class" => "InnerMargin Medium"
-         ]
-        ]),
-        "Raw" => $file
-       ]);
+       $fileCheck = [
+        "Checks" => [
+         "AdministratorClearance" => $_HC,
+         "Album" => $id,
+         "File" => [
+          "Clearance" => $ck2,
+          "Data" => $uploads["name"][$key],
+          "Name" => $name,
+          "Limits" => [
+           "Categories" => [
+            "Audio" => $xfsLimits["Audio"],
+            "Documents" => $xfsLimits["Documents"],
+            "Images" => $xfsLimits["Images"],
+            "Videos" => $xfsLimits["Videos"]
+           ],
+           "Clearance" => $ck3,
+           "Size" => $size2,
+           "Totals" => [$xfsUsage, $xfsLimit]
+          ],
+          "Size" => $size,
+          "Type" => $type
+         ],
+         "MemberClearance" => $ck,
+         "Subscription" => $y["Subscriptions"]["XFS"]["A"]
+        ],
+        "UploadErrorStatus" => $uploads["error"][$key],
+        "TemporaryName" => $uploads["tmp_name"][$key]
+       ];
+       if($ck == 0 || $ck2 == 0 || $ck3 == 0) {
+        if(!in_array($ext, $allowed)) {
+         $err = "Invalid file type";
+        } elseif($ck == 0) {
+         $err = "Forbidden";
+        } elseif($ck2 == 0) {
+         $err = "File Clearance failed";
+        } elseif($ck3 == 0) {
+         $err = "File storage limit exceeded";
+        } elseif($xfsUsage > $xfsLimit) {
+         $err = "Total storage limit exceeded";
+        }
+        array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
+       } else {
+        if(!move_uploaded_file($tmp, $root.basename($name))) {
+         array_push($fileCheck, "Failed to move $name to your library.");
+         array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
+        } else {
+         $accessCode = "Accepted";
+         $file = [
+          "AID" => $albumID,
+          "Description" => "",
+          "EXT" => $ext,
+          "ID" => $id,
+          "MIME" => $mime,
+          "Modified" => $now,
+          "Name" => $name,
+          "NSFW" => $nsfw,
+          "Privacy" => $privacy,
+          "Size" => $size,
+          "Title" => $name,
+          "Timestamp" => $now,
+          "Type" => $type
+         ];
+         $files[$id] = $file;
+         if($_HC == 1) {
+          $files[$id]["UN"] = $you;
+          $this->core->Data("Save", ["app", "fs", $files]);
+         } else {
+          $_FileSystem = $_FileSystem ?? [];
+          $_FileSystem["Albums"] = $albums;
+          $_FileSystem["Files"] = $files;
+          if(in_array($ext, $this->core->config["XFS"]["FT"]["P"])) {
+           $thumbnail = $this->core->Thumbnail([
+            "File" => $name,
+            "Username" => $you
+           ])["AlbumCover"] ?? $name;
+           $_FileSystem["Albums"][$albumID]["ICO"] = $thumbnail;
+          }
+          $_FileSystem["Albums"][$albumID]["Modified"] = $now;
+          $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
+          $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+         }
+         array_push($_Passed, [
+          "HTML" => $this->core->Element([
+           "div", $this->core->GetAttachmentPreview([
+            "DLL" => $file,
+            "T" => $username,
+            "Y" => $you
+           ]), [
+            "class" => "InnerMargin Medium"
+           ]
+          ]),
+          "Raw" => $file
+         ]);
+        }
+       }
       }
      }
     }
@@ -724,8 +734,8 @@
       if($ck == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"".md5("unsorted")."\"/>\r\n";
        $options .= "<input name=\"NSFW\" type=\"hidden\" value=\"0\"/>\r\n";
-       $options .= "<input name=\"Privacy\" type=\"hidden\" value=\"".md5("public")."\"/>\r\n";
-       $title = "System Media Library";
+       $options .= "<input name=\"Privacy\" type=\"hidden\" value=\"".md5("Public")."\"/>\r\n";
+       $title = "<em>".$this->core->config["App"]["Name"]."</em> Media Library";
       } elseif($ck2 == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"$albumID\"/>\r\n";
        $options .= "<input name=\"NSFW\" type=\"hidden\" value=\"".$y["Privacy"]["NSFW"]."\"/>\r\n";
