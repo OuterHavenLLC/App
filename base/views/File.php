@@ -173,15 +173,14 @@
       $addToData = $data["AddTo"] ?? "";
       $addToData = (!empty($addToData)) ? explode(":", base64_decode($addToData)) : [];
       $addToMedia = ($this->core->ID == $username) ? $file["Name"] : $attachmentID;
-      /*--$addTo = (!empty($addToData[1])) ? $this->core->Element([
+      $addTo = (!empty($addToData[1])) ? $this->core->Element([
        "button", $addToData[0], [
         "class" => "AddTo v2",
         "data-added" => $added,
         "data-dlc" => $addToMedia,
         "data-input" => base64_encode($addToData[1])
        ]
-      ]) : "";--*/
-      $addTo = "";
+      ]) : "";
       $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
       $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
        "button", "Delete", [

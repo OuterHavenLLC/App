@@ -60,12 +60,12 @@
       $statistics = "";
       $statisticsList = $config["Statistics"] ?? [];
       foreach($mediaList as $key => $info) {
-       $addTo = base64_encode("Link to ".$info["Name"].":.AddTo$key");
+       $addTo = base64_encode("Link to ".str_replace(":", "&colon;", $info["Name"]).":.AddTo$key");
        $added = base64_encode("Added! Feel free to close this card.");
        $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
        $media .= $this->core->Change([[
         "[Clone.ID]" => $key,
-        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
+        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $file,
         "[Media.File.Quantity]" => $previewQuantity,
         "[Media.ID]" => $key,
