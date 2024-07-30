@@ -163,6 +163,32 @@
      "Title" => $title,
      "UN" => $you
     ];
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "INSERT IGNORE INTO Extensions(
+     Extension_Body,
+     Extension_Description,
+     Extension_ID,
+     Extension_Title,
+     Extension_Username
+    ) VALUES (
+     :Body,
+     :Description,
+     :ID,
+     :Title,
+     :Username
+    )";
+    $sql->query($query, [
+     ":Body" => $this->core->Excerpt($this->core->PlainText([
+      "Data" => $extension["Body"],
+      "Display" => 1,
+      "HTMLDecode" => 1
+     ]), 1000),
+     ":Description" => $extension["Description"],
+     ":ID" => $id,
+     ":Title" => $extension["Title"],
+     ":Username" => $extension["UN"]
+    ]);
+    $sql->execute();
     $this->core->Data("Save", ["extension", $id, $extension]);
     $r = [
      "Body" => "The $newCategory has been saved!",

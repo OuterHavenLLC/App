@@ -353,14 +353,14 @@
   }
   function Excerpt(string $data, $limit = 180) {
    if(strlen($data) <= $limit) {
-    return $data;
+    return strip_tags($data);
    }
    $excerpt = substr($data, 0, $limit);
    $lastSpace = strrpos($excerpt, " ");
    if($lastSpace !== false) {
     $excerpt = substr($excerpt, 0, $lastSpace);
    }
-   return $excerpt;
+   return strip_tags($excerpt);
   }
   function Extension(string $id) {
    $extension = $this->Data("Get", ["extension", $id]) ?? [];
@@ -958,7 +958,10 @@
   function GetSourceFromExtension(array $a) {
    $_ALL = $this->config["XFS"]["FT"] ?? [];
    $file = $a[1] ?? "";
-   $source = "D.jpg";
+   $source = $this->PlainText([
+    "Data" => "[Media:Document]",
+    "Display" => 1
+   ]);
    $r = $this->efs.$source;
    if(!empty($a[0]) && !empty($file)) {
     if(!is_array($file)) {
@@ -968,18 +971,25 @@
      $extension = $file["EXT"];
      $name = $file["Name"];
     } if(in_array($extension, $_ALL["A"])) {
-     $source = "A.jpg";
+     $source = $this->PlainText([
+      "Data" => "[Media:Audio]",
+      "Display" => 1
+     ]);
     } elseif(in_array($extension, $_ALL["D"])) {
-     $source = "D.jpg";
+     $source = $this->PlainText([
+      "Data" => "[Media:Document]",
+      "Display" => 1
+     ]);
     } elseif(in_array($extension, $_ALL["P"])) {
      $source = $this->Thumbnail([
       "File" => $name,
       "Username" => $a[0]
      ])["FullPath"];
     } elseif(in_array($extension, $_ALL["V"])) {
-     $source = "V.jpg";
-    } else {
-     $source = "D.jpg";
+     $source = $this->PlainText([
+      "Data" => "[Media:Video]",
+      "Display" => 1
+     ]);
     } if(in_array($extension, $_ALL["P"])) {
      $r = $source;
     }
@@ -1602,6 +1612,15 @@
     return $r;
    }
   }
+  public static function Media($a = NULL) {
+   $oh = New Core;
+   $file = $oh->config["Media"][$a[1]]["File"] ?? "";
+   if(!empty($a) && !empty($file)) {
+    $r = $oh->efs.$oh->ID."/$file";
+    $oh->__destruct();
+    return $r;
+   }
+  }
   public static function Translate($a = NULL) {
    $oh = New Core;
    if(!empty($a[1])) {
@@ -1619,14 +1638,6 @@
      "BBCodes" => 1,
      "Data" => $r
     ]) : "No Translations were found for <em>".$translationID[0]."-".$translationID[1]."</em>.";
-    $oh->__destruct();
-    return $r;
-   }
-  }
-  public static function Media($a = NULL) {
-   $oh = New Core;
-   if(!empty($a)) {
-    $r = $oh->efs.$oh->ID."/".$oh->config["Media"][$a[1]]["File"];
     $oh->__destruct();
     return $r;
    }

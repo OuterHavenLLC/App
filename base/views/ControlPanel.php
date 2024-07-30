@@ -107,6 +107,7 @@
        ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")]);
       }
       $r = $this->core->Change([[
+       "[Admin.Databases]" => "W('https://outerhaven.nyc/phpmyadmin', '_blank');",
        "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
        "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
        "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),

@@ -573,6 +573,8 @@
    $lpg = $data["lPG"] ?? $searchType;
    $query = $data["query"] ?? base64_encode("");
    $query = base64_decode($query);
+   $querysql = "%$query%";
+   $sql = New SQL($this->core->cypher->SQLCredentials());
    $na .= (!empty($data["query"])) ? " for $query" : "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -581,23 +583,35 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
-     $extensions = $this->core->DatabaseSet("Extensions");
-     foreach($extensions as $key => $value) {
-      $value = str_replace("nyc.outerhaven.extension.", "", $value);
+     $_Query = "SELECT E.*, M.* FROM Extensions E
+                         JOIN Members M ON M.Member_Username=E.Extension_Username
+                         WHERE E.Extension_Body LIKE :Body OR
+                                       E.Extension_Description LIKE :Description OR
+                                       E.Extension_Title LIKE :Title OR
+                                       E.Extension_Username LIKE :Username
+     ";
+     $sql->query($_Query, [
+      ":Body" => $querysql,
+      ":Description" => $querysql,
+      ":Title" => $querysql,
+      ":Username" => $querysql
+     ]);
+     $extensions = $sql->set();
+     foreach($extensions as $key => $info) {
       $_Extension = $this->core->GetContentData([
        "Blacklisted" => 0,
-       "ID" => base64_encode("Extension;$value")
+       "ID" => base64_encode("Extension;".$info["Extension_ID"])
       ]);
       if($_Extension["Empty"] == 0) {
-       $info = $_Extension["DataModel"];
+       $extensionInfo = $_Extension["DataModel"];
        $options = $_Extension["ListItem"]["Options"];
        array_push($msg, [
-        "[Extension.Category]" => base64_encode($info["Category"]),
+        "[Extension.Category]" => base64_encode($extensionInfo["Category"]),
         "[Extension.Delete]" => base64_encode($options["Delete"]),
-        "[Extension.Description]" => base64_encode($info["Description"]),
+        "[Extension.Description]" => base64_encode($info["Extension_Description"]),
         "[Extension.Edit]" => base64_encode($options["Edit"]),
-        "[Extension.ID]" => base64_encode($value),
-        "[Extension.Title]" => base64_encode($info["Title"])
+        "[Extension.ID]" => base64_encode($info["Extension_ID"]),
+        "[Extension.Title]" => base64_encode($info["Extension_Title"])
        ]);
       }
      }
