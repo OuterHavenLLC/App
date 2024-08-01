@@ -488,9 +488,11 @@
    $_Passed = [];
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $albumID = $data["AID"] ?? base64_encode(md5("unsorted"));
+   $albumID = base64_decode($albumID);
    $err = "Internal Error";
-   $id = $data["AID"] ?? md5("unsorted");
    $username = $data["UN"] ?? base64_encode("");
+   $username = base64_decode($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -499,17 +501,16 @@
      "MSG" => "You must be signed in to upload media.",
      "Passed" => $_Passed
     ];
-   } elseif(empty($data["AID"]) || empty(base64_decode($username))) {
+   } elseif(empty($data["AID"]) || empty($data["UN"])) {
     $r = [
      "Failed" => $_Failed,
-     "MSG" => "You don't have permission to access this view.",
+     "MSG" => "You don't have permission to access this view. ($albumID, $username, ".$y["Rank"].")",
      "Passed" => $_Passed
     ];
    } else {
     header("Content-Type: application/json");
     $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
     $_DLC = $this->core->config["XFS"]["FT"] ?? [];
-    $username = base64_decode($username);
     if($this->core->ID == $username && $y["Rank"] != md5("High Command")) {
      $r = [
       "Failed" => $_Failed,
@@ -518,12 +519,10 @@
      ];
     } else {
      $_HC = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
-     $albumID = $data["AID"] ?? base64_encode(md5("unsorted"));
-     $albumID = base64_decode($albumID);
      $albums = $_FileSystem["Albums"] ?? [];
      $files = $_FileSystem["Files"] ?? [];
      if($_HC == 1) {
-      $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
+      $files = $this->core->Data("Get", ["app", "fs"]);
      }
      $now = $this->core->timestamp;
      $nsfw = $data["NSFW"] ?? base64_encode($y["Privacy"]["NSFW"]);

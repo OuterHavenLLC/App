@@ -269,6 +269,34 @@
      "Purge" => $purge,
      "To" => $to
     ];
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "INSERT IGNORE INTO StatusUpdates(
+     StatusUpdate_Body,
+     StatusUpdate_Created,
+     StatusUpdate_ID,
+     StatusUpdate_NSFW,
+     StatusUpdate_Privacy,
+     StatusUpdate_To,
+     StatusUpdate_Username
+    ) VALUES(
+     :Body,
+     :Created,
+     :ID,
+     :NSFW,
+     :Privacy,
+     :To,
+     :Username
+    )";
+    $sql->query($query, [
+     ":Body" => $update["Body"],
+     ":Created" => $created,
+     ":ID" => $update["ID"],
+     ":NSFW" => $update["NSFW"],
+     ":Privacy" => $update["Privacy"],
+     ":To" => $update["To"],
+     ":Username" => $update["From"]
+    ]);
+    $sql->execute();
     $y["Activity"]["LastActivity"] = $this->core->timestamp;
     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $this->core->Data("Save", ["su", $update["ID"], $update]);

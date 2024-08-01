@@ -111,7 +111,6 @@
        "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
        "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
        "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
-       "[Admin.MassMail]" => base64_encode("v=$_Search&st=ADM-MassMail"),
        "[Admin.Mail]" => "https://mail.outerhaven.nyc/iredadmin/",
        "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
        "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),

@@ -570,7 +570,9 @@
    $msg = [];
    $na = "No Results";
    $searchType = $data["st"] ?? "";
+   $limit = $data["Limit"] ?? 50;
    $lpg = $data["lPG"] ?? $searchType;
+   $offset = $data["Offset"] ?? 0;
    $query = $data["query"] ?? base64_encode("");
    $query = base64_decode($query);
    $querysql = "%$query%";
@@ -584,11 +586,15 @@
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
      $_Query = "SELECT E.*, M.* FROM Extensions E
-                         JOIN Members M ON M.Member_Username=E.Extension_Username
+                         JOIN Members M
+                         ON M.Member_Username=E.Extension_Username
                          WHERE E.Extension_Body LIKE :Body OR
                                        E.Extension_Description LIKE :Description OR
                                        E.Extension_Title LIKE :Title OR
                                        E.Extension_Username LIKE :Username
+                         ORDER BY E.Extension_Created DESC
+                         LIMIT $limit
+                         OFFSET $offset
      ";
      $sql->query($_Query, [
       ":Body" => $querysql,
@@ -1899,12 +1905,27 @@
     $edit = base64_encode("StatusUpdate:Edit");
     $attlv = base64_encode("LiveView:InlineMossaic");
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
-    $statusUpdates = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
-    foreach($statusUpdates as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
+    $_Query = "SELECT M.*, U.* FROM StatusUpdates U
+                        JOIN Members M
+                        ON M.Member_Username=U.StatusUpdate_Username
+                        WHERE (U.StatusUpdate_Body LIKE :Body OR
+                                      U.StatusUpdate_Username LIKE :Username)
+                        AND U.StatusUpdate_Privacy=:Privacy
+                        ORDER BY U.StatusUpdate_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
+    $sql->query($_Query, [
+     ":Body" => $querysql,
+     ":Privacy" => md5("Public"),
+     ":Username" => $querysql
+    ]);
+    $statusUpdates = $sql->set();
+    foreach($statusUpdates as $key => $info) {
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("StatusUpdate;$value")
+      "ID" => base64_encode("StatusUpdate;".$info["StatusUpdate_ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
       $update = $_StatusUpdate["DataModel"];
@@ -1946,7 +1967,7 @@
          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
          "[StatusUpdate.DT]" => base64_encode($options["View"]),
          "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($value),
+         "[StatusUpdate.ID]" => base64_encode($info["StatusUpdate_ID"]),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
          "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
@@ -1958,15 +1979,28 @@
      }
     }
    } elseif($searchType == "MBR") {
+    $_Query = "SELECT * FROM Members
+                        WHERE Member_Description LIKE :Description OR
+                                      Member_DisplayName LIKE :DisplayName OR
+                                      Member_Username LIKE :Username
+                        ORDER BY Member_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $home = base64_encode("Profile:Home");
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
-    $members = $this->core->RenderSearchIndex("Member");
-    foreach($members as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Members", $value]);
+    $sql->query($_Query, [
+     ":Description" => $querysql,
+     ":DisplayName" => $querysql,
+     ":Username" => $querysql
+    ]);
+    $members = $sql->set();
+    foreach($members as $key => $info) {
+     $bl = $this->core->CheckBlocked([$y, "Members", $info["Member_Username"]]);
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Member;$value")
+      "ID" => base64_encode("Member;".md5($info["Member_Username"]))
      ]);
      $member = $_Member["DataModel"];
      if($_Member["Empty"] == 0) {
@@ -2318,19 +2352,28 @@
     }
    } elseif($searchType == "MBR-SU") {
     $accessCode = "Accepted";
-    $attlv = base64_encode("LiveView:InlineMossaic");
-    $edit = base64_encode("StatusUpdate:Edit");
-    $stream = $this->core->Data("Get", [
-     "stream",
-     md5(base64_decode($data["UN"]))
-    ]) ?? [];
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
-    foreach($stream as $key => $value) {
+    $_Query = "SELECT M.*, U.* FROM StatusUpdates U
+                        JOIN Members M
+                        ON M.Member_Username=U.StatusUpdate_Username
+                        WHERE U.StatusUpdate_Body LIKE :Body
+                        AND (U.StatusUpdate_To=:Username OR
+                                 U.StatusUpdate_Username=:Username)
+                        ORDER BY U.StatusUpdate_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
+    $sql->query($_Query, [
+     ":Body" => $querysql,
+     ":Username" => base64_decode($data["UN"])
+    ]);
+    $statusUpdates = $sql->set();
+    foreach($statusUpdates as $key => $info) {
      $id = $value["UpdateID"] ?? "";
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("StatusUpdate;$id")
+      "ID" => base64_encode("StatusUpdate;".$info["StatusUpdate_ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
       $update = $_StatusUpdate["DataModel"];
@@ -2373,7 +2416,7 @@
          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
          "[StatusUpdate.DT]" => base64_encode($options["View"]),
          "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($id),
+         "[StatusUpdate.ID]" => base64_encode($info["StatusUpdate_ID"]),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
          "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
@@ -2712,12 +2755,25 @@
    } elseif($searchType == "StatusUpdates") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
-    $statusUpdates = $this->core->RenderSearchIndex("StatusUpdate");
-    foreach($statusUpdates as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $value]);
+    $_Query = "SELECT M.*, U.* FROM StatusUpdates U
+                        JOIN Members M
+                        ON M.Member_Username=U.StatusUpdate_Username
+                        WHERE U.StatusUpdate_Body LIKE :Body OR
+                                      U.StatusUpdate_Username LIKE :Username
+                        ORDER BY U.StatusUpdate_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
+    $sql->query($_Query, [
+     ":Body" => $querysql,
+     ":Username" => $querysql
+    ]);
+    $statusUpdates = $sql->set();
+    foreach($statusUpdates as $key => $info) {
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("StatusUpdate;$value")
+      "ID" => base64_encode("StatusUpdate;".$info["StatusUpdate_ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
       $update = $_StatusUpdate["DataModel"];
@@ -2776,7 +2832,7 @@
           "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($created)),
           "[StatusUpdate.DT]" => base64_encode($options["View"]),
           "[StatusUpdate.Edit]" => base64_encode($edit),
-          "[StatusUpdate.ID]" => base64_encode($value),
+          "[StatusUpdate.ID]" => base64_encode($info["StatusUpdate_ID"]),
           "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
           "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
           "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),

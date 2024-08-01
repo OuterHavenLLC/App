@@ -24,6 +24,7 @@
  ]);
  $query = "CREATE TABLE IF NOT EXISTS $categorySQL(
   Extension_Body text not null,
+  Extension_Created text not null,
   Extension_Description text not null,
   Extension_ID varchar(64) not null,
   Extension_Title text not null,
@@ -41,15 +42,18 @@
    $data = $oh->core->Data("Get", [$database[2], $database[3]]) ?? [];
    $purge = $data["Purge"] ?? 0;
    if(!empty($data) && $purge == 0) {
+    $created = $data["Created"] ?? $oh->core->timestamp;
     $dataID = $database[3];
     $query = "INSERT INTO $categorySQL(
      Extension_Body,
+     Extension_Created,
      Extension_Description,
      Extension_ID,
      Extension_Title,
      Extension_Username
-    ) VALUES (
+    ) VALUES(
      :Body,
+     :Created,
      :Description,
      :ID,
      :Title,
@@ -61,6 +65,7 @@
       "Display" => 1,
       "HTMLDecode" => 1
      ]), 1000),
+     ":Created" => $created,
      ":Description" => $data["Description"],
      ":ID" => $dataID,
      ":Title" => $data["Title"],
@@ -76,7 +81,7 @@
   "p", "Saving..."
  ]);
  $r .= $oh->core->Element([
-  "p", "Re:Search indexing complete!"
+  "p", "Re:Search indexing complete! $newRows entries indexed on ".$oh->core->timestamp."."
  ]).$oh->core->Element([
   "p", "Done"
  ]);

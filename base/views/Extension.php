@@ -36,6 +36,7 @@
      "Extension" => "Extension"
     ];
     $category = $extension["Category"] ?? "Extension";
+    $created = $extension["Created"] ?? $this->core->timestamp;
     $description = $extension["Description"] ?? "";
     $title = $extension["Title"] ?? "";
     $header = ($new == 1) ? "New Extension" : "Edit $title";
@@ -57,6 +58,7 @@
      ])),
      "[Extension.Categories]" => json_encode($categories, true),
      "[Extension.Category]" => $category,
+     "[Extension.Created]" => $created,
      "[Extension.Description]" => base64_encode($description),
      "[Extension.Header]" => $header,
      "[Extension.ID]" => $id,
@@ -148,6 +150,7 @@
     $accessCode = "Accepted";
     $body = $data["Body"] ?? "";
     $category = $data["Category"] ?? "Extension";
+    $created = $data["Created"] ?? $this->core->timestamp;
     $description = $data["Description"] ?? "";
     $newCategory = "Extension";
     $newCategory = ($category == "ArticleTemplate") ? "Article Template" : $newCategory;
@@ -159,6 +162,7 @@
       "HTMLEncode" => 1
      ]),
      "Category" => $category,
+     "Created" => $created,
      "Description" => $description,
      "Title" => $title,
      "UN" => $you
@@ -170,7 +174,7 @@
      Extension_ID,
      Extension_Title,
      Extension_Username
-    ) VALUES (
+    ) VALUES(
      :Body,
      :Description,
      :ID,
