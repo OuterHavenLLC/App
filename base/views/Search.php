@@ -211,6 +211,7 @@
      $h = "Knowledge Base";
      $lis = "Search Q&As";
     } elseif($searchType == "Links") {
+     $extension = "f2513ac8d0389416b680c75ed5667774";
      $h = "Links";
      $lis = "Search Links";
     } elseif($searchType == "Mainstream") {
@@ -481,17 +482,31 @@
        $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
        $tags = get_meta_tags($link) ?? [];
        $description = $tags["description"] ?? "No Description";
-       $keywords = $tags["keywords"] ?? "No Keywords";
+       $keywords = $tags["keywords"] ?? "None";
        $responseType = "ReplaceContent";
-       $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "No Title";
-       $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
-       $links[$link] = [
-        "Description" => $description,
-        "Keywords" => $keywords,
-        "IconExsists" => $iconExists,
-        "Title" => $title
-       ];
-       $this->core->Data("Save", ["app", md5("Links"), $links]);
+       $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "Untitled";
+       $query = "REPLACE INTO Links(
+        Link_Description,
+        Link_Keywords,
+        Link_IconExists,
+        Link_ID,
+        Link_Title
+       ) VALUES(
+        :Description,
+        :Keywords,
+        :IconExists,
+        :ID,
+        :Title
+       )";
+       $sql = New SQL($this->core->cypher->SQLCredentials());
+       $sql->query($query, [
+        ":Description" => $description,
+        ":Keywords" => $keywords,
+        ":IconExists" => $iconExists,
+        ":ID" => $link,
+        ":Title" => $title
+       ]);
+       $sql->execute();
        $r = $this->core->Element([
         "h1", "Done", ["class" => "CenterText"]
        ]).$this->core->Element([
@@ -755,13 +770,21 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Links") {
-       $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
-       $de = $links[$value]["Description"] ?? "";
-       $title = $links[$value]["Title"] ?? "Link";
-       $vi = $this->core->Element(["button", "Visit <em>$title</em>", [
-        "class" => "v2 v2w",
-        "onclick" => "W('$value', '_blank');"
-       ]]);
+       $_Query = "SELECT * FROM Links
+                           WHERE Link_ID=$:ID
+       ";
+       $sql->query($_Query, [
+        ":ID" => $value
+       ]);
+       $sql = $sql->single();
+       foreach($sql as $sql) {
+        $de = $sql["Link_Description"] ?? "No Description";
+        $title = $sql["Link_Title"] ?? "Untitled";
+        $vi = $this->core->Element(["button", "Visit <em>$title</em>", [
+         "class" => "v2 v2w",
+         "onclick" => "W('$value', '_blank');"
+        ]]);
+       }
       } elseif($bl == "Members") {
        $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
        $de = $member["Description"];
@@ -1938,27 +1961,39 @@
      }
     }
    } elseif($searchType == "Links") {
+    $_Query = "SELECT * FROM Links
+                        WHERE Link_Description LIKE :Search OR
+                                      Link_Keywords LIKE :Search OR
+                                      Link_ID LIKE :Search OR
+                                      Link_Title LIKE :Search
+                        ORDER BY Link_Title DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $extension = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
     $extension = $this->core->Element([
      "div", $extension, ["class" => "FrostedBright Rounded"]
     ]);
-    $links = $this->core->Data("Get", ["app", md5("Links")]) ?? [];
-    foreach($links as $link => $info) {
-     $icon = parse_url($link, PHP_URL_SCHEME)."://".parse_url($link, PHP_URL_HOST); 
+    $sql->query($_Query, [
+     ":Search" => $querysql
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $icon = parse_url($sql["Link_ID"], PHP_URL_SCHEME)."://".parse_url($sql["Link_ID"], PHP_URL_HOST); 
      $icon = trim($icon, "/");
      $icon = "$icon/apple-touch-icon.png";
      $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
      $icon = ($iconExists == 0) ? $this->core->base."/apple-touch-icon.png" : $icon;
      array_push($msg, [
-      "[Link.Description]" => base64_encode($info["Description"]),
-      "[Link.Keywords]" => base64_encode($info["Keywords"]),
+      "[Link.Description]" => base64_encode($sql["Link_Description"]),
+      "[Link.Keywords]" => base64_encode($sql["Link_Keywords"]),
       "[Link.Icon]" => base64_encode($this->core->Element([
        "div", "<img src=\"$icon\" style=\"max-width:24em\" width=\"90%\"/>\r\n", [
         "class" => "InnerMargin"
        ]
       ])),
-      "[Link.Title]" => base64_encode($info["Title"])
+      "[Link.Title]" => base64_encode($sql["Link_Title"])
      ]);
     }
    } elseif($searchType == "Mainstream") {
