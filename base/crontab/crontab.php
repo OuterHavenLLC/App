@@ -10,6 +10,8 @@
   ]).$oh->core->Element(["div", $oh->core->Element([
     "p", "The following cron jobs have been executed on ".$oh->core->timestamp.":"
    ]).$oh->core->Element([
+    "p", "&bull; Article Index"
+   ]).$oh->core->Element([
     "p", "&bull; Blog Index"
    ]).$oh->core->Element([
     "p", "&bull; Chat Index"

@@ -889,9 +889,21 @@
     }
    } elseif($searchType == "CA" || $searchType == "PR") {
     $accessCode = "Accepted";
-    $articles = $this->core->RenderSearchIndex("Article");
     $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
-    foreach($articles as $key => $value) {
+    $_Query = "SELECT A.*, M.* FROM Articles A
+                        JOIN Members M
+                        ON M.Member_Username=A.Article_Username
+                        WHERE A.Article_Body LIKE :Search OR
+                                      A.Article_Description LIKE :Search OR
+                                      A.Article_Title LIKE :Search
+                        ORDER BY A.Article_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
+    $sql->query($_Query, [
+     ":Search" => $querysql
+    ]);
+    while($info = $sql->set()) {
      $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
      $_Article = $this->core->GetContentData([
       "BackTo" => $b2,
@@ -2099,8 +2111,8 @@
      $_Query = "SELECT B.*, M.* FROM Blogs B
                          JOIN Members M
                          ON M.Member_Username=B.Blog_Username
-                         WHERE B.Blog_Description LIKE :Search OR
-                                       B.Blog_Title LIKE :Search
+                         WHERE (B.Blog_Description LIKE :Search OR
+                                       B.Blog_Title LIKE :Search)
                          AND B.Blog_Username=:Username
                          ORDER BY B.Blog_Created DESC
                          LIMIT $limit
@@ -2141,7 +2153,22 @@
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $bl = $this->core->CheckBlocked([$t, "Members", $you]);
     $extension = $this->core->Extension("90bfbfb86908fdc401c79329bedd7df5");
-    foreach($t["Pages"] as $key => $value) {
+    $_Query = "SELECT A.*, M.* FROM Articles A
+                        JOIN Members M
+                        ON M.Member_Username=A.Article_Username
+                        WHERE (A.Article_Body LIKE :Search OR
+                                      A.Article_Description LIKE :Search OR
+                                      A.Article_Title LIKE :Search)
+                        AND A.Article_Username=:Username
+                        ORDER BY A.Article_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
+    $sql->query($_Query, [
+     ":Search" => $querysql,
+     ":Username" => $t["Login"]["Username"]
+    ]);
+    while($info = $sql->set()) {
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
      $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
      $_Article = $this->core->GetContentData([
@@ -2195,8 +2222,8 @@
       $_Query = "SELECT C.*, M.* FROM Chat C
                           JOIN Members M
                           ON M.Member_Username=C.Chat_Username
-                          WHERE C.Chat_Description LIKE :Search OR
-                                        C.Chat_Title LIKE :Search
+                          WHERE (C.Chat_Description LIKE :Search OR
+                                        C.Chat_Title LIKE :Search)
                           AND C.Chat_Username=:Username
                           ORDER BY C.Chat_Created DESC
                           LIMIT $limit

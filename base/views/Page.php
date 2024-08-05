@@ -666,26 +666,52 @@
       "Title" => $title,
       "UN" => $author
      ];
-     $this->core->Data("Save", ["pg", $id, $article]);
-     $this->core->Data("Save", ["mbr", md5($you), $y]);
+     $sql = New SQL($this->core->cypher->SQLCredentials());
+     $query = "REPLACE INTO Articles(
+      Article_Body,
+      Article_Description,
+      Article_ID,
+      Article_Title,
+      Article_Username
+     ) VALUES(
+      :Body,
+      :Description,
+      :ID,
+      :Title,
+      :Username
+     )";
+     $sql->query($query, [
+      ":Body" => $this->core->Excerpt($this->core->PlainText([
+       "Data" => $article["Body"],
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ]), 1000),
+      ":Description" => $article["Description"],
+      ":ID" => $id,
+      ":Title" => $article["Title"],
+      ":Username" => $article["UN"]
+     ]);
+     $sql->execute();
+     #$this->core->Data("Save", ["pg", $id, $article]);
+     #$this->core->Data("Save", ["mbr", md5($you), $y]);
      $r = [
       "Body" => "The $newCategory has been $actionTaken!",
       "Header" => "Done"
      ];
      if($new == 1) {
-      $this->core->Statistic("New Article");
+      #$this->core->Statistic("New Article");
      } else {
-      $this->core->Statistic("Edit Article");
+      #$this->core->Statistic("Edit Article");
       if($isPublic == 1) {
        foreach($subscribers as $key => $value) {
-        $this->core->SendBulletin([
+        /*--$this->core->SendBulletin([
          "Data" => [
           "ArticleID" => $id,
           "Author" => $you
          ],
          "To" => $value,
          "Type" => "ArticleUpdate"
-        ]);
+        ]);--*/
        }
       }
      }
