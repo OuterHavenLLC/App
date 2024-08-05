@@ -6,13 +6,19 @@ See GNU-GPL.md for licensing information.
 # Change Log
 ## 1.4: Heath Kit (coming soon…)
 ### Release Notes
-Release Notes
+This release brings bug fixes to mission-critical experiences, a hybrid schema for data storage and indexing, and the first version of Heath Kits—an installation tool to help Developers deploy a copy of our platform onto their servers.
 
 ### Platform Improvements
-* Platform Notes
+* Revised the media upload process.
+* Added automatic redirects for protected directories.
+* Other bug fixes.
+
+### Re:Search
+* A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files. (working on it...)
+* Pagination on Scroll renders up to 30 more results when Members scroll to the bottom of the rendered list. (coming soon...)
 
 ### Heath Kit
-* Installer Notes
+* Coming soon...
 
 ## 1.3: Compendium
 ### Release Notes

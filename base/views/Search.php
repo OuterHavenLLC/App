@@ -599,8 +599,7 @@
      $sql->query($_Query, [
       ":Search" => $querysql
      ]);
-     $extensions = $sql->set();
-     foreach($extensions as $key => $info) {
+     while($info = $sql->set()) {
       $_Extension = $this->core->GetContentData([
        "Blacklisted" => 0,
        "ID" => base64_encode("Extension;".$info["Extension_ID"])
@@ -828,8 +827,7 @@
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
-    $blogs = $sql->set();
-    foreach($blogs as $key => $info) {
+    while($info = $sql->set()) {
      $bl = $this->core->CheckBlocked([$y, "Blogs", $info["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -988,8 +986,7 @@
       ":Search" => $querysql,
       ":Username" => $you
      ]);
-     $groupChats = $sql->set();
-     foreach($groupChats as $key => $info) {
+     while($info = $sql->set()) {
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $info["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -1942,8 +1939,7 @@
      ":Privacy" => md5("Public"),
      ":Username" => $querysql
     ]);
-    $statusUpdates = $sql->set();
-    foreach($statusUpdates as $key => $info) {
+    while($info = $sql->set()) {
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2114,8 +2110,7 @@
       ":Search" => $querysql,
       ":Username" => $you
      ]);
-     $blogs = $sql->set();
-     foreach($blogs as $key => $info) {
+     while($info = $sql->set()) {
       $bl = $this->core->CheckBlocked([$y, "Blogs", $info["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -2211,8 +2206,7 @@
        ":Search" => $querysql,
        ":Username" => $you
       ]);
-      $groupChats = $sql->set();
-      foreach($groupChats as $key => $info) {
+      while($info = $sql->set()) {
        $active = 0;
        $bl = $this->core->CheckBlocked([$y, "Group Chats", $info["Chat_ID"]]);
        $_Chat = $this->core->GetContentData([
@@ -2419,8 +2413,7 @@
      ":Body" => $querysql,
      ":Username" => base64_decode($data["UN"])
     ]);
-    $statusUpdates = $sql->set();
-    foreach($statusUpdates as $key => $info) {
+    while($info = $sql->set()) {
      $id = $value["UpdateID"] ?? "";
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
@@ -2820,8 +2813,7 @@
      ":Body" => $querysql,
      ":Username" => $querysql
     ]);
-    $statusUpdates = $sql->set();
-    foreach($statusUpdates as $key => $info) {
+    while($info = $sql->set()) {
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
