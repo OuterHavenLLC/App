@@ -815,10 +815,7 @@
        $f = explode("-", base64_decode($dlc));
        if(!empty($f[0]) && !empty($f[1])) {
         $t = $this->core->Member($f[0]);
-        $efs = $this->core->Data("Get", [
-         "fs",
-         md5($t["Login"]["Username"])
-        ]) ?? [];
+        $efs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
         $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
         if(!empty($fileName)) {
          $coverPhoto = $f[0]."/$fileName";
@@ -863,6 +860,34 @@
      "Type" => $type,
      "UN" => $owner
     ];
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "REPLACE INTO Forums(
+     Forum_Created,
+     Forum_Description,
+     Forum_ID,
+     Forum_NSFW,
+     Forum_Privacy,
+     Forum_Title,
+     Forum_Username
+    ) VALUES(
+     :Created,
+     :Description,
+     :ID,
+     :NSFW,
+     :Privacy,
+     :Title,
+     :Username
+    )";
+    $sql->query($query, [
+     ":Created" => $created,
+     ":Description" => $forum["Description"],
+     ":ID" => $id,
+     ":NSFW" => $forum["NSFW"],
+     ":Privacy" => $forum["Privacy"],
+     ":Title" => $forum["Title"],
+     ":Username" => $owner
+    ]);
+    $sql->execute();
     $this->core->Data("Save", ["pf", $id, $forum]);
     $r = [
      "Body" => "The Forum <em>$title</em> was $actionTaken.",

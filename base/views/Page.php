@@ -359,7 +359,8 @@
         "[Article.Back]" => $back,
         "[Article.Body]" => $this->core->PlainText([
          "Data" => $article["Body"],
-         "Decode" => 1
+         "Decode" => 1,
+         "HTMLDecode" => 1
         ]),
         "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
         "[Article.Conversation]" => $this->core->Change([[

@@ -590,6 +590,7 @@
                          ON M.Member_Username=E.Extension_Username
                          WHERE E.Extension_Body LIKE :Search OR
                                        E.Extension_Description LIKE :Search OR
+                                       E.Extension_ID LIKE :Search OR
                                        E.Extension_Title LIKE :Search OR
                                        E.Extension_Username LIKE :Search
                          ORDER BY E.Extension_Created DESC
@@ -1544,12 +1545,25 @@
      }
     }
    } elseif($searchType == "Feedback") {
+    $_Query = "SELECT F.*, M.* FROM Feedback F
+                        JOIN Members M
+                        ON M.Member_Username=F.Feedback_Username
+                        WHERE F.Feedback_Message LIKE :Search OR
+                                      F.Feedback_ParaphrasedQuestion LIKE :Search OR
+                                      F.Feedback_Subject LIKE :Search
+                        ORDER BY F.Feedback_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $now = $this->core->timestamp;
-    $feedback = $this->core->RenderSearchIndex("Feedback");
     $extension = $this->core->Extension("e7c4e4ed0a59537ffd00a2b452694750");
-    foreach($feedback as $key => $value) {
-     $feedback = $this->core->Data("Get", ["feedback", $value]) ?? [];
+    $sql->query($_Query, [
+     ":Search" => $querysql
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $feedback = $this->core->Data("Get", ["feedback", $sql["Feedback_ID"]]) ?? [];
      $mesasge = $feedback["Thread"] ?? [];
      $mesasge = $feedback["Thread"][0] ?? [];
      $message = $feedback["Thread"][0]["Body"] ?? "";
@@ -1578,19 +1592,31 @@
      ]);
     }
    } elseif($searchType == "Forums") {
+    $_Query = "SELECT F.*, M.* FROM Forums F
+                        JOIN Members M
+                        ON M.Member_Username=F.Forum_Username
+                        WHERE F.Forum_Description LIKE :Search OR
+                                      F.Forum_Title LIKE :Search
+                        ORDER BY F.Forum_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    $forums = $this->core->RenderSearchIndex("Forum");
-    foreach($forums as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Forums", $value]);
+    $sql->query($_Query, [
+     ":Search" => $querysql
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);
      $_Forum = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Forum;$value")
+      "ID" => base64_encode("Forum;".$sql["Forum_ID"])
      ]);
-     if($_Forum["Empty"] == 0) {
+     if(!in_array($sql["Forum_ID"], $this->core->RestrictedIDs) && $_Forum["Empty"] == 0) {
       $active = 0;
       $forum = $_Forum["DataModel"];
-      $manifest = $this->core->Data("Get", ["pfmanifest", $value]) ?? [];
+      $manifest = $this->core->Data("Get", ["pfmanifest", $sql["Forum_ID"]]) ?? [];
       $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
       $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
       $ck = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
@@ -2310,20 +2336,34 @@
      }
     }
    } elseif($searchType == "MBR-Forums") {
+    $_Query = "SELECT F.*, M.* FROM Forums F
+                        JOIN Members M
+                        ON M.Member_Username=F.Forum_Username
+                        WHERE (F.Forum_Description LIKE :Search OR
+                                      F.Forum_Title LIKE :Search)
+                        AND F.Forum_Username=:Username
+                        ORDER BY F.Forum_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $home = base64_encode("Forum:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    $x = $y["Forums"] ?? [];
-    foreach($x as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Forums", $value]);;
+    $sql->query($_Query, [
+     ":Search" => $querysql,
+     ":Username" => $you
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);;
      $_Forum = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Forum;$value")
+      "ID" => base64_encode("Forum;".$sql["Forum_ID"])
      ]);
      if($_Forum["Empty"] == 0) {
       $active = 0;
       $forum = $_Forum["DataModel"];
-      $illegal = $value["Illegal"] ?? 0;
+      $illegal = $forum["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];

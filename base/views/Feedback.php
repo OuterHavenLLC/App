@@ -119,10 +119,9 @@
    $data = $this->core->FixMissing($data, [
     "Email",
     "Index",
-    "MSG",
+    "Message",
     "Name",
     "Phone",
-    "SOE",
     "Subject",
     "Priority"
    ]);
@@ -131,7 +130,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["MSG"])) {
+   if(!empty($data["Message"])) {
     $accessCode = "Accepted";
     $now = $this->core->timestamp;
     $feedback = [
@@ -147,6 +146,7 @@
      "Username" => $you,
      "UseParaphrasedQuestion" => 0
     ];
+    $id = md5("$you-$now-".uniqid("Feedback"));
     array_push($feedback["Thread"], [
      "Body" => $this->core->PlainText([
       "Data" => $data["Message"],
@@ -156,11 +156,36 @@
      "From" => $you,
      "Sent" => $now
     ]);
-    $this->core->Data("Save", [
-     "feedback",
-     md5("FeedbackBase-$now-".uniqid()),
-     $feedback
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "REPLACE INTO Feedback(
+     Feedback_Created,
+     Feedback_ID,
+     Feedback_Message,
+     Feedback_ParaphrasedQuestion,
+     Feedback_Subject,
+     Feedback_Username
+    ) VALUES(
+     :Created,
+     :ID,
+     :Message,
+     :ParaphrasedQuestion,
+     :Subject,
+     :Username
+    )";
+    $sql->query($query, [
+     ":Created" => $now,
+     ":ID" => $id,
+     ":Message" => $this->core->Excerpt($this->core->PlainText([
+      "Data" => $feedback["Thread"][0]["Body"],
+      "Display" => 1,
+      "HTMLDecode" => 1
+     ]), 1000),
+     ":ParaphrasedQuestion" => $feedback["ParaphrasedQuestion"],
+     ":Subject" => $feedback["Subject"],
+     ":Username" => $feedback["Username"]
     ]);
+    $sql->execute();
+    $this->core->Data("Save", ["feedback", $id, $feedback]);
     $this->core->Statistic("New Feedback");
     $r = [
      "Body" => "We will be in touch as soon as possible!",
