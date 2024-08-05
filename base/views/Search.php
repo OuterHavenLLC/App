@@ -972,18 +972,31 @@
     $integrated = $data["Integrated"] ?? 0;
     $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
     if($notAnon == 1) {
+     $_Query = "SELECT C.*, M.* FROM Chat C
+                         JOIN Members M
+                         ON M.Member_Username=C.Chat_Username
+                         WHERE C.Chat_Description LIKE :Search OR
+                                       C.Chat_Title LIKE :Search
+                         ORDER BY C.Chat_Created DESC
+                         LIMIT $limit
+                         OFFSET $offset
+     ";
      $extension = "343f78d13872e3b4e2ac0ba587ff2910";
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
      $extension = $this->core->Extension($extension);
-     $groups = $this->core->RenderSearchIndex("Chat");
-     foreach($groups as $key => $group) {
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $group["ID"]]);
+     $sql->query($_Query, [
+      ":Search" => $querysql,
+      ":Username" => $you
+     ]);
+     $groupChats = $sql->set();
+     foreach($groupChats as $key => $info) {
+      $bl = $this->core->CheckBlocked([$y, "Group Chats", $info["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Chat;".$group["ID"]),
+       "ID" => base64_encode("Chat;".$info["Chat_ID"]),
        "Integrated" => $integrated
       ]);
-      if($_Chat["Empty"] == 0) {
+      if(!in_array($info["Chat_ID"], $this->core->RestrictedIDs) && $_Chat["Empty"] == 0) {
        $active = 0;
        $chat = $_Chat["DataModel"];
        $contributors = $chat["Contributors"] ?? [];
@@ -2091,7 +2104,7 @@
                          JOIN Members M
                          ON M.Member_Username=B.Blog_Username
                          WHERE B.Blog_Description LIKE :Search OR
-                                       B.Blog_Title LIKE :Search OR
+                                       B.Blog_Title LIKE :Search
                          AND B.Blog_Username=:Username
                          ORDER BY B.Blog_Created DESC
                          LIMIT $limit
@@ -2099,7 +2112,7 @@
      ";
      $sql->query($_Query, [
       ":Search" => $querysql,
-      ":Username" => base64_decode($you)
+      ":Username" => $you
      ]);
      $blogs = $sql->set();
      foreach($blogs as $key => $info) {
@@ -2184,35 +2197,50 @@
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
      $extension = $this->core->Extension($extension);
      if($group == 1) {
-      $groups = $y["GroupChats"] ?? [];
-      foreach($groups as $key => $group) {
+      $_Query = "SELECT C.*, M.* FROM Chat C
+                          JOIN Members M
+                          ON M.Member_Username=C.Chat_Username
+                          WHERE C.Chat_Description LIKE :Search OR
+                                        C.Chat_Title LIKE :Search
+                          AND C.Chat_Username=:Username
+                          ORDER BY C.Chat_Created DESC
+                          LIMIT $limit
+                          OFFSET $offset
+      ";
+      $sql->query($_Query, [
+       ":Search" => $querysql,
+       ":Username" => $you
+      ]);
+      $groupChats = $sql->set();
+      foreach($groupChats as $key => $info) {
        $active = 0;
-       $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
-       $group = str_replace("nyc.outerhaven.chat.", "", $group);
-       $chat = $this->core->Data("Get", ["chat", $group]) ?? [];
-       $contributors = $chat["Contributors"] ?? [];
-       foreach($contributors as $member => $role) {
-        if($member == $you) {
-         $active++;
+       $bl = $this->core->CheckBlocked([$y, "Group Chats", $info["Chat_ID"]]);
+       $chat = $this->core->Data("Get", ["chat", $info["Chat_ID"]]) ?? [];
+       if(!empty($chat)) {
+        $contributors = $chat["Contributors"] ?? [];
+        foreach($contributors as $member => $role) {
+         if($member == $you) {
+          $active++;
+         }
         }
-       }
-       $nsfw = $chat["NSFW"] ?? 0;
-       $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-       $privacy = $chat["Privacy"] ?? 0;
-       $privacy = ($active == 1 || $privacy != md5("Private")) ? 1 : 0;
-       if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
-        $displayName = $chat["Title"] ?? "Group Chat";
-        $t = $this->core->Member($this->core->ID);
-        $verified = $t["Verified"] ?? 0;
-        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($group)."&Integrated=$integrated";
-        $view .= ($integrated == 1) ? "&Card=1" : "";
-        array_push($msg, [
-         "[Chat.DisplayName]" => base64_encode($displayName.$verified),
-         "[Chat.Online]" => base64_encode(""),
-         "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-         "[Chat.View]" => base64_encode(base64_encode($view))
-        ]);
+        $nsfw = $chat["NSFW"] ?? 0;
+        $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+        $privacy = $chat["Privacy"] ?? 0;
+        $privacy = ($active == 1 || $privacy != md5("Private")) ? 1 : 0;
+        if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
+         $displayName = $chat["Title"] ?? "Untitled";
+         $t = $this->core->Member($this->core->ID);
+         $verified = $t["Verified"] ?? 0;
+         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+         $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($info["Chat_ID"])."&Integrated=$integrated";
+         $view .= ($integrated == 1) ? "&Card=1" : "";
+         array_push($msg, [
+          "[Chat.DisplayName]" => base64_encode($displayName.$verified),
+          "[Chat.Online]" => base64_encode(""),
+          "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
+          "[Chat.View]" => base64_encode(base64_encode($view))
+         ]);
+        }
        }
       }
      } elseif($oneOnOne == 1) {

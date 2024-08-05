@@ -419,7 +419,7 @@
       $accessCode = (!empty($chat)) ? "Accepted" : "Denied";
       $active = "Active";
       $check = (!empty($chat)) ? 1 : 0;
-      $displayName = $chat["Title"] ?? "Group Chat";
+      $displayName = $chat["Title"] ?? "Untitled";
       $t = $this->core->Member($this->core->ID);
       $to = $displayName;
      } elseif($oneOnOne == 1) {
@@ -770,6 +770,34 @@
       "Title" => $title,
       "UN" => $username
      ];
+     $sql = New SQL($this->core->cypher->SQLCredentials());
+     $query = "REPLACE INTO Chat(
+      Chat_Created,
+      Chat_Description,
+      Chat_ID,
+      Chat_NSFW,
+      Chat_Privacy,
+      Chat_Title,
+      Chat_Username
+     ) VALUES(
+      :Created,
+      :Description,
+      :ID,
+      :NSFW,
+      :Privacy,
+      :Title,
+      :Username
+     )";
+     $sql->query($query, [
+      ":Created" => $created,
+      ":Description" => $chat["Description"],
+      ":ID" => $id,
+      ":NSFW" => $chat["NSFW"],
+      ":Privacy" => $chat["Privacy"],
+      ":Title" => $chat["Title"],
+      ":Username" => $username
+     ]);
+     $sql->execute();
      if(!in_array($id, $groupChats) && $username == $you) {
       array_push($groupChats, $id);
       array_unique($groupChats);
