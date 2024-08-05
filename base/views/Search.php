@@ -599,21 +599,22 @@
      $sql->query($_Query, [
       ":Search" => $querysql
      ]);
-     while($info = $sql->set()) {
+     $sql = $sql->set();
+     foreach($sql as $sql) {
       $_Extension = $this->core->GetContentData([
        "Blacklisted" => 0,
-       "ID" => base64_encode("Extension;".$info["Extension_ID"])
+       "ID" => base64_encode("Extension;".$sql["Extension_ID"])
       ]);
       if($_Extension["Empty"] == 0) {
-       $extensionInfo = $_Extension["DataModel"];
+       $info = $_Extension["DataModel"];
        $options = $_Extension["ListItem"]["Options"];
        array_push($msg, [
-        "[Extension.Category]" => base64_encode($extensionInfo["Category"]),
+        "[Extension.Category]" => base64_encode($info["Category"]),
         "[Extension.Delete]" => base64_encode($options["Delete"]),
-        "[Extension.Description]" => base64_encode($info["Extension_Description"]),
+        "[Extension.Description]" => base64_encode($sql["Extension_Description"]),
         "[Extension.Edit]" => base64_encode($options["Edit"]),
-        "[Extension.ID]" => base64_encode($info["Extension_ID"]),
-        "[Extension.Title]" => base64_encode($info["Extension_Title"])
+        "[Extension.ID]" => base64_encode($sql["Extension_ID"]),
+        "[Extension.Title]" => base64_encode($sql["Extension_Title"])
        ]);
       }
      }
@@ -827,11 +828,12 @@
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
-    while($info = $sql->set()) {
-     $bl = $this->core->CheckBlocked([$y, "Blogs", $info["Blog_ID"]]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Blog;".$info["Blog_ID"])
+      "ID" => base64_encode("Blog;".$sql["Blog_ID"])
      ]);
      if($_Blog["Empty"] == 0) {
       $blog = $_Blog["DataModel"];
@@ -903,12 +905,13 @@
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
-    while($info = $sql->set()) {
-     $bl = $this->core->CheckBlocked([$y, "Pages", $value]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Pages", $sql["Article_ID"]]);
      $_Article = $this->core->GetContentData([
       "BackTo" => $b2,
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Page;$value"),
+      "ID" => base64_encode("Page;".$sql["Article_ID"]),
       "ParentPage" => $lpg
      ]);
      if($_Article["Empty"] == 0) {
@@ -998,11 +1001,12 @@
       ":Search" => $querysql,
       ":Username" => $you
      ]);
-     while($info = $sql->set()) {
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $info["Chat_ID"]]);
+     $sql = $sql->set();
+     foreach($sql as $sql) {
+      $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Chat;".$info["Chat_ID"]),
+       "ID" => base64_encode("Chat;".$sql["Chat_ID"]),
        "Integrated" => $integrated
       ]);
       if(!in_array($info["Chat_ID"], $this->core->RestrictedIDs) && $_Chat["Empty"] == 0) {
@@ -1951,11 +1955,12 @@
      ":Privacy" => md5("Public"),
      ":Username" => $querysql
     ]);
-    while($info = $sql->set()) {
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("StatusUpdate;".$info["StatusUpdate_ID"])
+      "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
       $update = $_StatusUpdate["DataModel"];
@@ -1997,7 +2002,7 @@
          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
          "[StatusUpdate.DT]" => base64_encode($options["View"]),
          "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($info["StatusUpdate_ID"]),
+         "[StatusUpdate.ID]" => base64_encode($sql["StatusUpdate_ID"]),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
          "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
@@ -2122,11 +2127,12 @@
       ":Search" => $querysql,
       ":Username" => $you
      ]);
-     while($info = $sql->set()) {
-      $bl = $this->core->CheckBlocked([$y, "Blogs", $info["Blog_ID"]]);
+     $sql = $sql->set();
+     foreach($sql as $sql) {
+      $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Blog;".$info["Blog_ID"])
+       "ID" => base64_encode("Blog;".$sql["Blog_ID"])
       ]);
       if($_Blog["Empty"] == 0) {
        $options = $_Blog["ListItem"]["Options"];
@@ -2168,13 +2174,14 @@
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
     ]);
-    while($info = $sql->set()) {
+    $sql = $sql->set();
+    foreach($sql as $sql) {
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
      $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
      $_Article = $this->core->GetContentData([
       "BackTo" => $backTo,
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Page;$value"),
+      "ID" => base64_encode("Page;".$sql["Article_ID"]),
       "ParentPage" => $lpg
      ]);
      if($_Article["Empty"] == 0) {
@@ -2233,12 +2240,13 @@
        ":Search" => $querysql,
        ":Username" => $you
       ]);
-      while($info = $sql->set()) {
+      $sql = $sql->set();
+      foreach($sql as $sql) {
        $active = 0;
-       $bl = $this->core->CheckBlocked([$y, "Group Chats", $info["Chat_ID"]]);
+       $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
        $_Chat = $this->core->GetContentData([
         "Blacklisted" => $bl,
-        "ID" => base64_encode("Chat;".$info["Chat_ID"]),
+        "ID" => base64_encode("Chat;".$sql["Chat_ID"]),
         "Integrated" => $integrated
        ]);
        if($_Chat["Empty"] == 0) {
@@ -2440,12 +2448,13 @@
      ":Body" => $querysql,
      ":Username" => base64_decode($data["UN"])
     ]);
-    while($info = $sql->set()) {
+    $sql = $sql->set();
+    foreach($sql as $sql) {
      $id = $value["UpdateID"] ?? "";
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("StatusUpdate;".$info["StatusUpdate_ID"])
+      "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
       $update = $_StatusUpdate["DataModel"];
@@ -2488,7 +2497,7 @@
          "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
          "[StatusUpdate.DT]" => base64_encode($options["View"]),
          "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($info["StatusUpdate_ID"]),
+         "[StatusUpdate.ID]" => base64_encode($sql["StatusUpdate_ID"]),
          "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
          "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
          "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
@@ -2840,11 +2849,12 @@
      ":Body" => $querysql,
      ":Username" => $querysql
     ]);
-    while($info = $sql->set()) {
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $info["StatusUpdate_ID"]]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("StatusUpdate;".$info["StatusUpdate_ID"])
+      "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
       $update = $_StatusUpdate["DataModel"];
@@ -2903,7 +2913,7 @@
           "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($created)),
           "[StatusUpdate.DT]" => base64_encode($options["View"]),
           "[StatusUpdate.Edit]" => base64_encode($edit),
-          "[StatusUpdate.ID]" => base64_encode($info["StatusUpdate_ID"]),
+          "[StatusUpdate.ID]" => base64_encode($sql["StatusUpdate_ID"]),
           "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
           "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
           "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
