@@ -570,7 +570,7 @@
    $msg = [];
    $na = "No Results";
    $searchType = $data["st"] ?? "";
-   $limit = $data["Limit"] ?? 50;
+   $limit = $data["Limit"] ?? 30;
    $lpg = $data["lPG"] ?? $searchType;
    $offset = $data["Offset"] ?? 0;
    $query = $data["query"] ?? base64_encode("");
@@ -1013,7 +1013,7 @@
         $contributors = $chat["Contributors"] ?? [];
         $isGroupChat = $chat["Group"] ?? 0;
         if(!empty($contributors) || $isGroupChat == 1) {
-         $displayName = $chat["Title"] ?? "Group Chat";
+         $displayName = $chat["Title"] ?? "Untitled";
          $t = $this->core->Member($this->core->ID);
          array_push($msg, [
           "[Chat.DisplayName]" => base64_encode($displayName),
@@ -2215,8 +2215,13 @@
       foreach($groupChats as $key => $info) {
        $active = 0;
        $bl = $this->core->CheckBlocked([$y, "Group Chats", $info["Chat_ID"]]);
-       $chat = $this->core->Data("Get", ["chat", $info["Chat_ID"]]) ?? [];
-       if(!empty($chat)) {
+       $_Chat = $this->core->GetContentData([
+        "Blacklisted" => $bl,
+        "ID" => base64_encode("Chat;".$info["Chat_ID"]),
+        "Integrated" => $integrated
+       ]);
+       if($_Chat["Empty"] == 0) {
+        $chat = $_Chat["DataModel"];
         $contributors = $chat["Contributors"] ?? [];
         foreach($contributors as $member => $role) {
          if($member == $you) {
@@ -2232,13 +2237,11 @@
          $t = $this->core->Member($this->core->ID);
          $verified = $t["Verified"] ?? 0;
          $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-         $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($info["Chat_ID"])."&Integrated=$integrated";
-         $view .= ($integrated == 1) ? "&Card=1" : "";
          array_push($msg, [
           "[Chat.DisplayName]" => base64_encode($displayName.$verified),
           "[Chat.Online]" => base64_encode(""),
           "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-          "[Chat.View]" => base64_encode(base64_encode($view))
+          "[Chat.View]" => base64_encode($_Chat["ListItem"]["Options"]["View"])
          ]);
         }
        }
