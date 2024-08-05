@@ -270,7 +270,7 @@
      "To" => $to
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
-    $query = "INSERT IGNORE INTO StatusUpdates(
+    $query = "REPLACE INTO StatusUpdates(
      StatusUpdate_Body,
      StatusUpdate_Created,
      StatusUpdate_ID,

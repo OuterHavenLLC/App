@@ -588,19 +588,16 @@
      $_Query = "SELECT E.*, M.* FROM Extensions E
                          JOIN Members M
                          ON M.Member_Username=E.Extension_Username
-                         WHERE E.Extension_Body LIKE :Body OR
-                                       E.Extension_Description LIKE :Description OR
-                                       E.Extension_Title LIKE :Title OR
-                                       E.Extension_Username LIKE :Username
+                         WHERE E.Extension_Body LIKE :Search OR
+                                       E.Extension_Description LIKE :Search OR
+                                       E.Extension_Title LIKE :Search OR
+                                       E.Extension_Username LIKE :Search
                          ORDER BY E.Extension_Created DESC
                          LIMIT $limit
                          OFFSET $offset
      ";
      $sql->query($_Query, [
-      ":Body" => $querysql,
-      ":Description" => $querysql,
-      ":Title" => $querysql,
-      ":Username" => $querysql
+      ":Search" => $querysql
      ]);
      $extensions = $sql->set();
      foreach($extensions as $key => $info) {
@@ -816,15 +813,27 @@
      }
     }
    } elseif($searchType == "BLG") {
-    $blogs = $this->core->RenderSearchIndex("Blog");
+    $_Query = "SELECT B.*, M.* FROM Blogs B
+                        JOIN Members M
+                        ON M.Member_Username=B.Blog_Username
+                        WHERE B.Blog_Description LIKE :Search OR
+                                      B.Blog_Title LIKE :Search
+                        ORDER BY B.Blog_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    foreach($blogs as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
+    $sql->query($_Query, [
+     ":Search" => $querysql
+    ]);
+    $blogs = $sql->set();
+    foreach($blogs as $key => $info) {
+     $bl = $this->core->CheckBlocked([$y, "Blogs", $info["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Blog;$value")
+      "ID" => base64_encode("Blog;".$info["Blog_ID"])
      ]);
      if($_Blog["Empty"] == 0) {
       $blog = $_Blog["DataModel"];
@@ -1980,9 +1989,9 @@
     }
    } elseif($searchType == "MBR") {
     $_Query = "SELECT * FROM Members
-                        WHERE Member_Description LIKE :Description OR
-                                      Member_DisplayName LIKE :DisplayName OR
-                                      Member_Username LIKE :Username
+                        WHERE Member_Description LIKE :Search OR
+                                      Member_DisplayName LIKE :Search OR
+                                      Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
                         LIMIT $limit
                         OFFSET $offset
@@ -1991,9 +2000,7 @@
     $home = base64_encode("Profile:Home");
     $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
     $sql->query($_Query, [
-     ":Description" => $querysql,
-     ":DisplayName" => $querysql,
-     ":Username" => $querysql
+     ":Search" => $querysql
     ]);
     $members = $sql->set();
     foreach($members as $key => $info) {
@@ -2080,12 +2087,26 @@
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     if($notAnon == 1) {
-     $blogs = $y["Blogs"] ?? [];
-     foreach($blogs as $key => $value) {
-      $bl = $this->core->CheckBlocked([$y, "Blogs", $value]);
+     $_Query = "SELECT B.*, M.* FROM Blogs B
+                         JOIN Members M
+                         ON M.Member_Username=B.Blog_Username
+                         WHERE B.Blog_Description LIKE :Search OR
+                                       B.Blog_Title LIKE :Search OR
+                         AND B.Blog_Username=:Username
+                         ORDER BY B.Blog_Created DESC
+                         LIMIT $limit
+                         OFFSET $offset
+     ";
+     $sql->query($_Query, [
+      ":Search" => $querysql,
+      ":Username" => base64_decode($you)
+     ]);
+     $blogs = $sql->set();
+     foreach($blogs as $key => $info) {
+      $bl = $this->core->CheckBlocked([$y, "Blogs", $info["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Blog;$value")
+       "ID" => base64_encode("Blog;".$info["Blog_ID"])
       ]);
       if($_Blog["Empty"] == 0) {
        $options = $_Blog["ListItem"]["Options"];

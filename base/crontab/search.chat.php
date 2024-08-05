@@ -12,7 +12,7 @@
  $r = $oh->core->Element([
   "h1", $oh->core->config["App"]["Name"]."</em> Re:Search Index"
  ]).$oh->core->Element([
-  "p", "This tool maintains the Re:Search <em>$category</em> index file."
+  "p", "This tool maintains the Re:Search <em>$category</em> index."
  ]).$oh->core->Element([
   "p", "Fetching source database list..."
  ]).$oh->core->Element([

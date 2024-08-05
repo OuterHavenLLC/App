@@ -8,17 +8,12 @@
  $r = $oh->core->Element([
   "h1", $oh->core->config["App"]["Name"]."</em> Re:Search Index"
  ]).$oh->core->Element([
-  "p", "This tool maintains the Re:Search <em>$category</em> index file."
+  "p", "This tool maintains the Re:Search <em>$category</em> index."
  ]).$oh->core->Element([
   "p", "Fetching source database list..."
  ]);
  $sql = New SQL($oh->core->cypher->SQLCredentials());
  $databases = $oh->core->DatabaseSet($category);
- $r .= $oh->core->Element([
-  "p", "Dropping the $category Index if it exists..."
- ]);
- $sql->query("DROP TABLE IF EXISTS $categorySQL", []);
- $sql->execute();
  $r .= $oh->core->Element([
   "p", "Creating the $category Index if it does not exist..."
  ]);
@@ -44,7 +39,7 @@
    if(!empty($data) && $purge == 0) {
     $created = $data["Created"] ?? $oh->core->timestamp;
     $dataID = $database[3];
-    $query = "INSERT INTO $categorySQL(
+    $query = "REPLACE INTO $categorySQL(
      Extension_Body,
      Extension_Created,
      Extension_Description,

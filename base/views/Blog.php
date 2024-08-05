@@ -594,6 +594,34 @@
       "TPL" => $data["TPL-BLG"],
       "UN" => $author
      ];
+     $sql = New SQL($this->core->cypher->SQLCredentials());
+     $query = "REPLACE INTO Blogs(
+      Blog_Created,
+      Blog_Description,
+      Blog_ID,
+      Blog_NSFW,
+      Blog_Privacy,
+      Blog_Title,
+      Blog_Username
+     ) VALUES(
+      :Created,
+      :Description,
+      :ID,
+      :NSFW,
+      :Privacy,
+      :Title,
+      :Username
+     )";
+     $sql->query($query, [
+      ":Created" => $created,
+      ":Description" => $blog["Description"],
+      ":ID" => $id,
+      ":NSFW" => $blog["NSFW"],
+      ":Privacy" => $blog["Privacy"],
+      ":Title" => $blog["Title"],
+      ":Username" => $author
+     ]);
+     $sql->execute();
      $this->core->Data("Save", ["blg", $id, $blog]);
      $this->core->Data("Save", ["mbr", md5($you), $y]);
      $r = [

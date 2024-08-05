@@ -168,7 +168,7 @@
      "UN" => $you
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
-    $query = "INSERT IGNORE INTO Extensions(
+    $query = "REPLACE INTO Extensions(
      Extension_Body,
      Extension_Description,
      Extension_ID,
