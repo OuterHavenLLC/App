@@ -65,7 +65,7 @@
        $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
        $media .= $this->core->Change([[
         "[Clone.ID]" => $key,
-        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
+        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $file,
         "[Media.File.Quantity]" => $previewQuantity,
         "[Media.ID]" => $key,

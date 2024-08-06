@@ -93,8 +93,9 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $added = $data["Added"] ?? "";
+   $addTo = $data["AddTo"] ?? "";
    $card = $data["CARD"] ?? 0;
-   $parentView = $data["ParentView"] ?? "";
+   $parentView = $data["ParentView"] ?? "Files";
    $back = (!empty($parentView)) ? $this->core->Element([
     "button", "Back to Files", [
      "class" => "GoToParent LI",
@@ -112,7 +113,7 @@
    if(!empty($id) && !empty($username)) {
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $attachmentID = base64_encode($t["Login"]["Username"]."-".$id);
-    $bl = $this->core->CheckBlocked([$y, "Files", $id]);
+    $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $_File = $this->core->GetContentData([
      "Blacklisted" => $bl,
@@ -133,9 +134,11 @@
        "ParentPage" => "Files",
        "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_File["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
+        "Added" => $added,
+        "AddTo" => $addTo,
         "SecureKey" => base64_encode($passPhrase),
         "ID" => $id,
-        "ParentView" => "Files",
+        "ParentView" => $parentView,
         "UN" => $username,
         "VerifyPassPhrase" => 1,
         "v" => base64_encode("File:Home")
@@ -154,6 +157,8 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("File:Home"), ["Data" => [
+        "Added" => $added,
+        "AddTo" => $addTo,
         "ID" => $id,
         "ParentView" => "Files",
         "UN" => $username,
@@ -170,18 +175,17 @@
         "data-processor" => $options["Block"]
        ]
       ]) : "";
-      $addToData = $data["AddTo"] ?? "";
-      $addToData = (!empty($addToData)) ? explode(":", base64_decode($addToData)) : [];
-      $addToMedia = ($this->core->ID == $username) ? $file["Name"] : $attachmentID;
-      $addTo = (!empty($addToData[1])) ? $this->core->Element([
-       "button", $addToData[0], [
-        "class" => "AddTo v2",
+      $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
+      $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+      $addToMedia = ($ck == 1) ? $file["Name"] : $attachmentID;
+      $actions .= (!empty($addToData)) ? $this->core->Element([
+       "button", "Attach", [
+        "class" => "AddTo Small v2",
         "data-added" => $added,
         "data-dlc" => $addToMedia,
         "data-input" => base64_encode($addToData[1])
        ]
       ]) : "";
-      $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
       $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
        "button", "Delete", [
         "class" => "GoToView Small v2",
@@ -417,13 +421,41 @@
     $file["Purge"] = $file["Purge"] ?? 0;
     $file["Title"] = $data["Title"] ?? "Untitled";
     $files[$id] = $file;
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "REPLACE INTO Forums(
+     Media_Created,
+     Media_Description,
+     Media_ID,
+     Media_NSFW,
+     Media_Privacy,
+     Media_Title,
+     Media_Username
+    ) VALUES(
+     :Created,
+     :Description,
+     :ID,
+     :NSFW,
+     :Privacy,
+     :Title,
+     :Username
+    )";
+    $sql->query($query, [
+     ":Created" => $created,
+     ":Description" => $file["Description"],
+     ":ID" => $id,
+     ":NSFW" => $file["NSFW"],
+     ":Privacy" => $file["Privacy"],
+     ":Title" => $file["Title"],
+     ":Username" => $username
+    ]);
+    $sql->execute();
     if($this->core->ID == $username) {
-     $this->core->Data("Save", ["app", "fs", $files]);
+     #$this->core->Data("Save", ["app", "fs", $files]);
     } else {
      $fileSystem["Files"] = $files;
-     $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+     #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
     }
-    $this->core->Statistic("Edit Media");
+    #$this->core->Statistic("Edit Media");
     $r = [
      "Body" => "The file <em>".$file["Title"]."</em> was updated.<br/>",
      "Header" => "Done"

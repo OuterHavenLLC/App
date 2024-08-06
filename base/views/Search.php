@@ -397,10 +397,10 @@
      $_Added = $data["Added"] ?? "";
      $h = "Files";
      $lPG = $data["lPG"] ?? $searchType;
-     $li .= "&AddTo=".$_AddTo."&Added=".$_Added."&UN=".$data["UN"]."&lPG=Files";
+     $li .= "&AddTo=$_AddTo&Added=$_Added&UN=".$data["UN"];
      $li .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
      $lis = "Search Files";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     #$extension = "e3de2c4c383d11d97d62a198f15ee885";
     }
     $li = base64_encode($li);
     $r = $this->core->Change([[
@@ -414,7 +414,8 @@
    } if(in_array($searchType, [
      "DC",
      "SHOP-InvoicePresets",
-     "SHOP-Invoices"
+     "SHOP-Invoices",
+     "XFS"
     ])) {
     $r = [
      "Front" => $r
@@ -2584,6 +2585,16 @@
      }
     }
    } elseif($searchType == "MBR-XFS") {
+    $_Query = "SELECT F.*, M.* FROM :Database F
+                        JOIN Members M
+                        ON M.Member_Username=F.Media_Username
+                        WHERE (F.Media_Description LIKE :Search OR
+                                      F.Media_Title LIKE :Search)
+                        AND F.Media_Username=:Username
+                        ORDER BY F.Media_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $albumID = $data["AID"] ?? md5("unsorted");
     $t = $data["UN"] ?? base64_encode($you);
@@ -2591,15 +2602,19 @@
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
-    if($t["Login"]["Username"] == $this->core->ID) {
-     $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
-    } else {
-     $files = $fileSystem["Files"] ?? [];
-    } foreach($files as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Files", $value["ID"]]);
+    $database = ($t["Login"]["Username"] == $this->core->ID) ? "CoreMedia" : "Media";
+    $sql->query($_Query, [
+     ":Database" => $database,
+     ":Search" => $querysql,
+     ":Username" => $t["Login"]["Username"]
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
+     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("File;".$t["Login"]["Username"].";".$value["ID"])
+      "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
      $file = $_File["DataModel"];
      if($_File["Empty"] == 0 && $bl == 0 && $albumID == $file["AID"]) {
@@ -2613,32 +2628,41 @@
      }
     }
    } elseif($searchType == "Media") {
+    $_Query = "SELECT F.*, M.* FROM Media F
+                        JOIN Members M
+                        ON M.Member_Username=F.Media_Username
+                        WHERE F.Media_Description LIKE :Search OR
+                                      F.Media_Title LIKE :Search OR
+                                      F.Media_Username LIKE :Search
+                        ORDER BY F.Media_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
-    $index = $this->core->RenderSearchIndex("Media");
-    foreach($index as $key => $value) {
-     $value = explode(";", $value);
-     $member = $this->core->Data("Get", ["mbr", $value[0]]);
-     if(!empty($member)) {
-      $member = $member["Login"]["Username"];
-      $bl = $this->core->CheckBlocked([$y, "Files", $value[1]]);
-      $_File = $this->core->GetContentData([
-       "Blacklisted" => $bl,
-       "ID" => base64_encode("File;$member;".$value[1])
+    $sql->query($_Query, [
+     ":Search" => $querysql
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
+     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
+     $_File = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
+     ]);
+     if($_File["Empty"] == 0 && $bl == 0) {
+      $file = $_File["DataModel"];
+      $options = $_File["ListItem"]["Options"];
+      $source = $this->core->GetSourceFromExtension([
+       $sql["Media_Username"],
+       $file
       ]);
-      if($_File["Empty"] == 0 && $bl == 0) {
-       $file = $_File["DataModel"];
-       $options = $_File["ListItem"]["Options"];
-       $source = $this->core->GetSourceFromExtension([
-        $member,
-        $file
-       ]);
-       array_push($msg, [
-        "[File.CoverPhoto]" => base64_encode($source),
-        "[File.Title]" => base64_encode($file["Title"]),
-        "[File.View]" => base64_encode("Files;".$options["View"])
-       ]);
-      }
+      array_push($msg, [
+       "[File.CoverPhoto]" => base64_encode($source),
+       "[File.Title]" => base64_encode($file["Title"]),
+       "[File.View]" => base64_encode("Files;".$options["View"])
+      ]);
      }
     }
    } elseif($searchType == "Polls") {
@@ -3001,39 +3025,59 @@
      }
     }
    } elseif($searchType == "XFS") {
+    $_Query = "SELECT F.*, M.* FROM :Database F
+                        JOIN Members M
+                        ON M.Member_Username=F.Media_Username
+                        WHERE (F.Media_Description LIKE :Search OR
+                                      F.Media_Title LIKE :Search)
+                        AND F.Media_Username=:Username
+                        ORDER BY F.Media_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
+    $_Username = $data["UN"] ?? base64_encode("");
+    $_Username = base64_decode($_Username);
     $accessCode = "Accepted";
+    $added = $data["Added"] ?? "";
+    $addTo = $data["AddTo"] ?? "";
+    $database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
-    $username = base64_decode($data["UN"]);
-    if($this->core->ID == $username) {
-     $files = $this->core->Data("Get", ["app", "fs"]) ?? [];
-    } else {
-     $files = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
-     $files = $files["Files"] ?? [];
-    } foreach($files as $k => $v) {
-     $bl = $this->core->CheckBlocked([$y, "Files", $v["ID"]]);
-     $illegal = $v["Illegal"] ?? 0;
-     $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-     $source = $this->core->GetSourceFromExtension([
-      $username,
-      $v
+    $mediaType = $data["ftype"] ?? "";
+    $sql->query($_Query, [
+     ":Database" => $database,
+     ":Search" => $querysql,
+     ":Username" => $_Username
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
+     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
+     $_File = $this->core->GetContentData([
+      "Added" => $added,
+      "AddTo" => $addTo,
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"]),
+      "ParentView" => "Files"
      ]);
-     $dlc = [
-      "[File.CoverPhoto]" => base64_encode($source),
-      "[File.View]" => base64_encode("$lpg;".base64_encode("v=".base64_encode("File:Home")."&AddTo=".$data["AddTo"]."&Added=".$data["Added"]."&ID=".$v["ID"]."&UN=$username&b2=Files&ParentView=Files")),
-      "[File.Title]" => base64_encode($v["Title"])
-     ];
-     if($bl == 0 && $illegal == 0) {
-      if(!isset($data["ftype"]) && $bl == 0) {
-       array_push($msg, $dlc);
+     if($_File["Empty"] == 0 && $bl == 0) {
+      $file = $_File["DataModel"];
+      $options = $_File["ListItem"]["Options"];
+      $source = $this->core->GetSourceFromExtension([$sql["Media_Username"], $file]);
+      $media = [
+       "[File.CoverPhoto]" => base64_encode($source),
+       "[File.Title]" => base64_encode($file["Title"]),
+       "[File.View]" => base64_encode("$searchType;".$options["View"])
+      ];
+      if(empty($mediaType)) {
+       array_push($msg, $media);
       } else {
-       $xf = json_decode(base64_decode($data["ftype"]));
-       foreach($xf as $xf) {
-        if($this->core->CheckFileType([$v["EXT"], $xf]) == 1 && $bl == 0) {
-         array_push($msg, $dlc);
+       $mediaTypes = json_decode(base64_decode($mediaType));
+       foreach($mediaTypes as $mediaTypes) {
+        if($this->core->CheckFileType([$file["EXT"], $mediaTypes]) == 1) {
+         array_push($msg, $media);
         }
        }
       }
-      $i++;
      }
     }
    }
