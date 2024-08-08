@@ -1034,7 +1034,7 @@
        "ID" => base64_encode("Chat;".$sql["Chat_ID"]),
        "Integrated" => $integrated
       ]);
-      if(!in_array($info["Chat_ID"], $this->core->RestrictedIDs) && $_Chat["Empty"] == 0) {
+      if(!in_array($sql["Chat_ID"], $this->core->RestrictedIDs) && $_Chat["Empty"] == 0) {
        $active = 0;
        $chat = $_Chat["DataModel"];
        $contributors = $chat["Contributors"] ?? [];
@@ -2092,10 +2092,10 @@
     ]);
     $members = $sql->set();
     foreach($members as $key => $info) {
-     $bl = $this->core->CheckBlocked([$y, "Members", $info["Member_Username"]]);
+     $bl = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Member;".md5($info["Member_Username"]))
+      "ID" => base64_encode("Member;".md5($sql["Member_Username"]))
      ]);
      $member = $_Member["DataModel"];
      if($_Member["Empty"] == 0) {
