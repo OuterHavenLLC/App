@@ -1,7 +1,7 @@
 <?php
  # Re:Search Index
  require_once("/var/www/html/base/Bootloader.php");
- $category = "ForumPost";
+ $category = "BlogPost";
  $categorySQL = $category."s";
  $newRows = 0;
  $oh = New OH;
@@ -13,21 +13,21 @@
   "p", "Fetching source database list..."
  ]);
  $sql = New SQL($oh->core->cypher->SQLCredentials());
- $databases = $oh->core->DatabaseSet("Forum");
+ $databases = $oh->core->DatabaseSet("Blog");
  $r .= $oh->core->Element([
   "p", "Creating the $category Index if it does not exist..."
  ]);
  $query = "CREATE TABLE IF NOT EXISTS $categorySQL(
-  ForumPost_Body text not null,
-  ForumPost_Created text not null,
-  ForumPost_Forum text not null,
-  ForumPost_ID varchar(64) not null,
-  ForumPost_NSFW text not null,
-  ForumPost_Privacy text not null,
-  ForumPost_Title text not null,
-  ForumPost_Topic text not null,
-  ForumPost_Username text not null,
-  PRIMARY KEY(ForumPost_ID)
+  BlogPost_Blog text not null,
+  BlogPost_Body text not null,
+  BlogPost_Created text not null,
+  BlogPost_Description text not null,
+  BlogPost_ID varchar(64) not null,
+  BlogPost_NSFW text not null,
+  BlogPost_Privacy text not null,
+  BlogPost_Title text not null,
+  BlogPost_Username text not null,
+  PRIMARY KEY(BlogPost_ID)
  )";
  $sql->query($query, []);
  $sql->execute();
@@ -43,44 +43,45 @@
    $purge = $data["Purge"] ?? 0;
    if(!empty($data) && $purge == 0) {
     foreach($data as $key => $postID) {
-     $data = $oh->core->Data("Get", ["post", $postID]);
+     $data = $oh->core->Data("Get", ["bp", $postID]);
      $purge = $data["Purge"] ?? 0;
      if(!empty($data) && $purge == 0) {
       $created = $data["Created"] ?? $oh->core->timestamp;
       $query = "REPLACE INTO $categorySQL(
-       ForumPost_Body,
-       ForumPost_Created,
-       ForumPost_Forum,
-       ForumPost_ID,
-       ForumPost_NSFW,
-       ForumPost_Privacy,
-       ForumPost_Title,
-       ForumPost_Topic,
-       ForumPost_Username
+       BlogPost_Blog,
+       BlogPost_Body,
+       BlogPost_Created,
+       BlogPost_Description,
+       BlogPost_ID,
+       BlogPost_NSFW,
+       BlogPost_Privacy,
+       BlogPost_Title,
+       BlogPost_Username
       ) VALUES(
+       :Blog,
        :Body,
        :Created,
-       :Forum,
+       :Description,
        :ID,
        :NSFW,
        :Privacy,
        :Title,
-       :Topic,
        :Username
       )";
       $sql->query($query, [
+       ":Blog" => $dataID,
        ":Body" => $oh->core->PlainText([
         "Data" => $data["Body"],
+        "Decode" => 1,
         "HTMLDecode" => 1
        ]),
        ":Created" => $created,
-       ":Forum" => $dataID,
+       ":Description" => $data["Description"],
        ":ID" => $postID,
        ":NSFW" => $data["NSFW"],
        ":Privacy" => $data["Privacy"],
        ":Title" => $data["Title"],
-       ":Topic" => $data["Topic"],
-       ":Username" => $data["From"]
+       ":Username" => $data["UN"]
       ]);
       $sql->execute();
       $r .= $oh->core->Element(["p", "$postID... OK"]);

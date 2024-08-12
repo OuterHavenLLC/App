@@ -448,6 +448,43 @@
       array_push($blog["Posts"], $id);
       $blog["Posts"] = array_unique($blog["Posts"]);
      }
+     $sql = New SQL($this->core->cypher->SQLCredentials());
+     $query = "REPLACE INTO BlogPosts(
+      BlogPost_Blog,
+      BlogPost_Body,
+      BlogPost_Created,
+      BlogPost_Description,
+      BlogPost_ID,
+      BlogPost_NSFW,
+      BlogPost_Privacy,
+      BlogPost_Title,
+      BlogPost_Username
+     ) VALUES(
+      :Blog,
+      :Body,
+      :Created,
+      :Description,
+      :ID,
+      :NSFW,
+      :Privacy,
+      :Title,
+      :Username
+     )";
+     $sql->query($query, [
+      ":Blog" => $data["BLG"],
+      ":Body" => $this->core->PlainText([
+       "Data" => $data["Body"],
+       "HTMLDecode" => 1
+      ]),
+      ":Created" => $created,
+      ":Description" => $post["Description"],
+      ":ID" => $id,
+      ":NSFW" => $post["NSFW"],
+      ":Privacy" => $post["Privacy"],
+      ":Title" => $post["Title"],
+      ":Username" => $post["UN"]
+     ]);
+     $sql->execute();
      $y["Activity"]["LastActive"] = $now;
      $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
      $this->core->Data("Save", ["blg", $data["BLG"], $blog]);

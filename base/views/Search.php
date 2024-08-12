@@ -637,26 +637,44 @@
      }
     }
    } elseif($searchType == "BGP") {
+    $_BlogID = base64_decode($data["ID"]);
     $accessCode = "Accepted";
-    $blog = $this->core->Data("Get", ["blg", base64_decode($data["ID"])]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $_BlogID]) ?? [];
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     $extension = $this->core->Extension("dba88e1a123132be03b9a2e13995306d");
     if($notAnon == 1) {
+     $_Query = "SELECT B.*, BP.*, M.* FROM BlogPosts BP
+                         JOIN Blogs B
+                         ON B.Blog_ID=BP.BlogPost_Blog
+                         JOIN Members M
+                         ON M.Member_Username=BP.BlogPost_Username
+                         WHERE (BP.BlogPost_Body LIKE :Search OR
+                                       BP.BlogPost_Description LIKE :Search OR
+                                       BP.BlogPost_Title LIKE :Search)
+                         AND BP.BlogPost_Blog=:Blog
+                         ORDER BY BP.BlogPost_Created DESC
+                         LIMIT $limit
+                         OFFSET $offset
+     ";
      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
      $title = $blog["Title"];
      $title = urlencode($title);
-     $posts = $blog["Posts"] ?? [];
-     foreach($posts as $key => $value) {
-      $bl = $this->core->CheckBlocked([$y, "Blog Posts", $value]);
+     $sql->query($_Query, [
+      ":Blog" => $_BlogID,
+      ":Search" => $querysql
+     ]);
+     $sql = $sql->set();
+     foreach($sql as $sql) {
+      $bl = $this->core->CheckBlocked([$y, "Blog Posts", $sql["BlogPost_ID"]]);
       $_BlogPost = $this->core->GetContentData([
        "BackTo" => $title,
        "Blacklisted" => $bl,
-       "ID" => base64_encode("BlogPost;".$blog["ID"].";$value")
+       "ID" => base64_encode("BlogPost;".$sql["BlogPost_Blog"].";".$sql["BlogPost_ID"])
       ]);
       if($_BlogPost["Empty"] == 0) {
        $options = $_BlogPost["ListItem"]["Options"];
        $post = $_BlogPost["DataModel"];
-       $actions = ($post["UN"] != $you) ? $this->core->Element([
+       $actions = ($sql["BlogPost_Username"] != $you) ? $this->core->Element([
         "button", "Block", [
          "class" => "InnerMargin UpdateButton v2",
          "data-processor" => $options["Block"]
@@ -698,12 +716,12 @@
          "[BlogPost.Author]" => base64_encode($display.$verified),
          "[BlogPost.Description]" => base64_encode($_BlogPost["ListItem"]["Description"]),
          "[BlogPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
-         "[BlogPost.ID]" => base64_encode($post["ID"]),
+         "[BlogPost.ID]" => base64_encode($sql["BlogPost_ID"]),
          "[BlogPost.MemberRole]" => base64_encode($memberRole),
          "[BlogPost.Modified]" => base64_encode($_BlogPost["ListItem"]["Modified"]),
          "[BlogPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
          "[BlogPost.Title]" => base64_encode($_BlogPost["ListItem"]["Title"]),
-         "[BlogPost.View]" => base64_encode("Blog".$blog["ID"].";".$options["View"])
+         "[BlogPost.View]" => base64_encode("Blog".$sql["BlogPost_Blog"].";".$options["View"])
         ]);
        }
       }

@@ -413,17 +413,19 @@
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO ForumPosts(
-     Forum_Body,
-     Forum_Created,
-     Forum_ID,
-     Forum_NSFW,
-     Forum_Privacy,
-     Forum_Title,
-     Forum_Topic,
-     Forum_Username
+     ForumPost_Body,
+     ForumPost_Created,
+     ForumPost_Forum,
+     ForumPost_ID,
+     ForumPost_NSFW,
+     ForumPost_Privacy,
+     ForumPost_Title,
+     ForumPost_Topic,
+     ForumPost_Username
     ) VALUES(
      :Body,
      :Created,
+     :Forum,
      :ID,
      :NSFW,
      :Privacy,
@@ -446,8 +448,10 @@
      ":Username" => $post["From"]
     ]);
     $sql->execute();
-    #$this->core->Data("Save", ["pf", $fid, $forum]);
-    #$this->core->Data("Save", ["post", $id, $post]);
+    $statistic = ($new == 1) ? "Save Forum Post" : "Update Forum Post";
+    $this->core->Data("Save", ["pf", $fid, $forum]);
+    $this->core->Data("Save", ["post", $id, $post]);
+    $this->core->Statistic($statistic);
     $r = [
      "Body" => "Your post has been $actionTaken.",
      "Header" => "Done"
