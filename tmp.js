@@ -764,6 +764,9 @@ function RenderVisibilityFilters(Container, Data) {
   RenderInputs(Container, Inputs);
  }
 }
+function ReSearch(input) {
+ console.log(input);//TEMP
+}
 function Search(input) {
  var Input = input || {},
        ListContainer = $(Input.Bar).attr("data-container") || "",
@@ -1940,6 +1943,9 @@ $(document).on("keyup", ".LinkData", function() {
   },
   url: base + Preview + "&Link=" + Link
  });
+});
+$(document).on("keyup", ".ReSearch", function() {
+ ReSearch($(this));
 });
 $(document).on("keyup", ".TopBar .SearchBar", function() {
  var Bar = $(this),

@@ -15,7 +15,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
-* Pagination on Scroll renders up to 30 more results when Members scroll to the bottom of the rendered list. (coming soon...)
+* Client-side pagination renders up to 30 more results when Members scroll to the bottom of the rendered list. (working on it...)
 
 ### Heath Kit
 * Coming soon...
