@@ -2089,8 +2089,8 @@
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
-    $members = $sql->set();
-    foreach($members as $key => $info) {
+    $sql = $sql->set();
+    foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2691,8 +2691,7 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
     $sql->query($_Query, [
-     ":Search" => $querysql,
-     ":Username" => $you
+     ":Search" => $querysql
     ]);
     $sql = $sql->set();
     foreach($sql as $sql) {
@@ -2762,55 +2761,53 @@
      }
     }
    } elseif($searchType == "Products") {
+    $_Query = "SELECT M.*, P.* FROM Products P
+                        JOIN Members M
+                        ON M.Member_Username=P.Product_Username
+                        WHERE P.Product_Description LIKE :Search OR
+                                      P.Product_Title LIKE :Search
+                        ORDER BY P.Product_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    $members = $this->core->RenderSearchIndex("Member");
-    foreach($members as $key => $value) {
-     $value = $this->core->Data("Get", ["mbr", $value]) ?? [];
-     if(!empty($value["Login"])) {
-      $them = $value["Login"]["Username"];
-      if($notAnon == 1) {
-       $bl = $this->core->CheckBlocked([$y, "Members", $them]);
-       $_Shop = $this->core->GetContentData([
-        "Blacklisted" => $bl,
-        "ID" => base64_encode("Shop;".md5($them)),
-        "Owner" => $them
+    $sql->query($_Query, [
+     ":Search" => $querysql
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $b2 = $b2 ?? "Products";
+     $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
+     $_Product = $this->core->GetContentData([
+      "BackTo" => $b2,
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Product;".$sql["Product_ID"]),
+      "Owner" => $sql["Product_Username"]
+     ]);
+     if($_Product["Empty"] == 0) {
+      $product = $_Product["DataModel"];
+      $bl = $this->core->CheckBlocked([$y, "Members", $sql["Product_Username"]]);
+      $owner = $this->core->GetContentData([
+       "Blacklisted" => $bl,
+       "ID" => base64_encode("Member;".md5($sql["Product_Username"]))
+      ]);
+      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $ck3 = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
+      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
+      $ck = ($ck == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
+      $illegal = $product["Illegal"] ?? 0;
+      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+      $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
+      if($bl == 0 && $ck == 1 && $illegal == 0) {
+       $options = $_Product["ListItem"]["Options"];
+       array_push($msg, [
+        "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
+        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
+        "[X.LI.DT]" => base64_encode($options["View"]),
+        "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"])
        ]);
-       if($_Shop["Empty"] == 0) {
-        $b2 = $b2 ?? "Products";
-        $shop = $_Shop["DataModel"];
-        $products = $shop["Products"] ?? [];
-        foreach($products as $id => $product) {
-         $bl = $this->core->CheckBlocked([$y, "Products", $product]);
-         $_Product = $this->core->GetContentData([
-          "BackTo" => $b2,
-          "Blacklisted" => $bl,
-          "ID" => base64_encode("Product;$product"),
-          "Owner" => $them
-         ]);
-         if($_Product["Empty"] == 0) {
-          $product = $_Product["DataModel"];
-          $usernamee = base64_encode($them);
-          $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-          $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
-          $ck3 = $value["Subscriptions"]["Artist"]["A"] ?? 0;
-          $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-          $ck = ($ck == 1 || $them == $this->core->ShopID) ? 1 : 0;
-          $illegal = $product["Illegal"] ?? 0;
-          $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-          $illegal = ($them != $this->core->ShopID) ? 1 : 0;
-          if($bl == 0 && $ck == 1 && $illegal == 0) {
-           $options = $_Product["ListItem"]["Options"];
-           array_push($msg, [
-            "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
-            "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
-            "[X.LI.DT]" => base64_encode($options["View"]),
-            "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"])
-           ]);
-          }
-         }
-        }
-       }
       }
      }
     }
@@ -2818,30 +2815,41 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("6d8aedce27f06e675566fd1d553c5d92");
     if($notAnon == 1) {
+     $_Query = "SELECT M.*, S.* FROM Shops S
+                         JOIN Members M
+                         ON M.Member_Username=S.Shop_Username
+                         WHERE S.Shop_Description LIKE :Search OR
+                                       S.Shop_Title LIKE :Search OR
+                                       S.Shop_Welcome LIKE :Search
+                         ORDER BY S.Shop_Created DESC
+                         LIMIT $limit
+                         OFFSET $offset
+     ";
      $b2 = $b2 ?? "Artists";
-     $card = base64_encode("Shop:Home");
-     $shops = $this->core->RenderSearchIndex("Shop");
-     foreach($shops as $key => $value) {
-      $t = (md5($you) == $value) ? $y : $this->core->Data("Get", ["mbr", $value]);
-      $them = $t["Login"]["Username"];
-      $bl = $this->core->CheckBlocked([$y, "Members", $them]);
+     $sql->query($_Query, [
+      ":Search" => $querysql
+     ]);
+     $sql = $sql->set();
+     foreach($sql as $sql) {
+      $bl = $this->core->CheckBlocked([$y, "Members", $sql["Shop_Username"]]);
       $_Shop = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Shop;$value"),
-       "Owner" => $them
+       "ID" => base64_encode("Shop;".$sql["Shop_ID"]),
+       "Owner" => $sql["Shop_Username"]
       ]);
       if($_Shop["Empty"] == 0) {
-       $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", $sql["Shop_ID"]]) ?? [];
        $cms = $cms["Contacts"] ?? [];
-       $ck = $this->core->CheckPrivacy([
+       $t = $this->core->Member($sql["Shop_Username"]);
+       $check = $this->core->CheckPrivacy([
         "Contacts" => $cms,
         "Privacy" => $t["Privacy"]["Shop"],
-        "UN" => $them,
+        "UN" => $sql["Shop_Username"],
         "Y" => $you
        ]);
        $shop = $_Shop["DataModel"];
-       $ck2 = $shop["Open"] ?? 0;
-       if(($bl == 0 && $ck == 1 && $ck2 == 1) || $them == $you) {
+       $check2 = $shop["Open"] ?? 0;
+       if(($bl == 0 && $check == 1 && $check2 == 1) || $sql["Shop_Username"] == $you) {
         array_push($msg, [
          "[Shop.CoverPhoto]" => base64_encode($_Shop["ListItem"]["CoverPhoto"]),
          "[Shop.Description]" => base64_encode($_Shop["ListItem"]["Description"]),
@@ -2922,20 +2930,32 @@
      }
     }
    } elseif($searchType == "SHOP-Products") {
+    $_Query = "SELECT M.*, P.* FROM Products P
+                        JOIN Members M
+                        ON M.Member_Username=P.Product_Username
+                        WHERE (P.Product_Description LIKE :Search OR
+                                      P.Product_Title LIKE :Search)
+                        AND P.Product_Shop=:Shop
+                        ORDER BY P.Product_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
-    $home = base64_encode("Product:Home");
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
-    $t = ($username == $you) ? $y : $this->core->Member($username);
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
-    $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
-    $products = $shop["Products"] ?? [];
-    foreach($products as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Products", $value]);
+    $sql->query($_Query, [
+     ":Search" => $querysql,
+     ":Shop" => md5($username)
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Product;$value"),
-      "Owner" => $username
+      "ID" => base64_encode("Product;".$sql["Product_ID"]),
+      "Owner" => $sql["Product_Username"]
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];
@@ -2943,17 +2963,17 @@
       $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
       $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-      $ck = ($ck == 1 || $this->core->ShopID == $username) ? 1 : 0;
+      $ck = ($ck == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      $illegal = ($this->core->ShopID != $username) ? 1 : 0;
+      $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($msg, [
         "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
         "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
         "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode(base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$value&UN=".base64_encode($username)))
+        "[X.LI.DT]" => base64_encode($options["View"])
        ]);
       }
      }

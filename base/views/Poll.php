@@ -258,7 +258,7 @@
      :Username
     )";
     $sql->query($query, [
-     ":Created" => $created,
+     ":Created" => $poll["Created"],
      ":Description" => $poll["Description"],
      ":ID" => $id,
      ":NSFW" => $poll["NSFW"],
@@ -267,16 +267,16 @@
      ":Username" => $poll["UN"]
     ]);
     $sql->execute();
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
-    #$this->core->Data("Save", ["poll", $id, $poll]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["poll", $id, $poll]);
     foreach($contacts as $key => $member) {
-     /*--$this->core->SendBulletin([
+     $this->core->SendBulletin([
       "Data" => [
        "PollID" => $id
       ],
       "To" => $member,
       "Type" => "NewPoll"
-     ]);--*/
+     ]);
     }
     $r = [
      "Body" => "Your new poll has been saved.",

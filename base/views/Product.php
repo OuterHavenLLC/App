@@ -606,6 +606,37 @@
        "Title" => $title,
        "UN" => $username
       ];
+      $sql = New SQL($this->core->cypher->SQLCredentials());
+      $query = "REPLACE INTO Products(
+       Product_Created,
+       Product_Description,
+       Product_ID,
+       Product_NSFW,
+       Product_Privacy,
+       Product_Shop,
+       Product_Title,
+       Product_Username
+      ) VALUES(
+       :Created,
+       :Description,
+       :ID,
+       :NSFW,
+       :Privacy,
+       :Shop,
+       :Title,
+       :Username
+      )";
+      $sql->query($query, [
+       ":Created" => $created,
+       ":Description" => $product["Description"],
+       ":ID" => $id,
+       ":NSFW" => $product["NSFW"],
+       ":Privacy" => $product["Privacy"],
+       ":Shop" => $shopID,
+       ":Title" => $product["Title"],
+       ":Username" => $product["UN"]
+      ]);
+      $sql->execute();
       $this->core->Data("Save", ["product", $id, $product]);
       $this->core->Data("Save", ["shop", $shopID, $shop]);
       if($new == 1) {

@@ -83,6 +83,7 @@
    $r = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $username = $data["Username"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
@@ -105,7 +106,7 @@
     $action = $this->core->Element(["button", "Update", [
      "class" => "CardButton SendData",
      "data-form" => ".Shop$id",
-     "data-processor" => base64_encode("v=".base64_encode("Shop:Save"))
+     "data-processor" => base64_encode("v=".base64_encode("Shop:Save")."&Username=$username")
     ]]);
     $coverPhoto = $shop["CoverPhotoSource"] ?? "";
     $designViewEditor = "UIE$id";
@@ -1471,6 +1472,7 @@
   function Save(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $username = $data["Username"] ?? "";
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [
@@ -1501,7 +1503,8 @@
      ];
     } else {
      $accessCode = "Accepted";
-     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+     $owner = $this->core->Data("Get", ["mbr", $id]);
+     $shop = $this->core->Data("Get", ["shop", $id]);
      $coverPhoto = "";
      $coverPhotoSource = "";
      foreach($data as $key => $value) {
@@ -1541,6 +1544,8 @@
     $invoices = $shop["Invoices"] ?? [];
     $live = $data["Live"] ?? 0;
     $now = $this->core->timestamp;
+    $created = $owner["Activity"]["Registered"] ?? $now;
+    $created = $shop["Created"] ?? $created;
     $modifiedBy = $shop["ModifiedBy"] ?? [];
     $modifiedBy[$now] = $you;
     $nsfw = $data["nsfw"] ?? 0;
@@ -1555,6 +1560,7 @@
     $title = $title ?? $shop["Title"];
     $welcome = $data["Welcome"] ?? "";
     $shop = [
+     "Created" => $created,
      "Contributors" => $contributors,
      "CoverPhoto" => $coverPhoto,
      "CoverPhotoSource" => base64_encode($coverPhotoSource),
@@ -1585,6 +1591,31 @@
       "HTMLEncode" => 1
      ])
     ];
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "REPLACE INTO Shops(
+     Shop_Created,
+     Shop_Description,
+     Shop_ID,
+     Shop_Title,
+     Shop_Username,
+     Shop_Welcome
+    ) VALUES(
+     :Created,
+     :Description,
+     :ID,
+     :Title,
+     :Username,
+     :Welcome
+    )";
+    $sql->query($query, [
+     ":Created" => $created,
+     ":Description" => $shop["Description"],
+     ":ID" => $id,
+     ":Title" => $shop["Title"],
+     ":Username" => base64_decode($username),
+     ":Welcome" => $welcome
+    ]);
+    $sql->execute();
     $this->core->Data("Save", ["shop", $id, $shop]);
     $r = [
      "Body" => "$title has been updated.",
