@@ -60,7 +60,7 @@
       $statistics = "";
       $statisticsList = $config["Statistics"] ?? [];
       foreach($mediaList as $key => $info) {
-       $addTo = base64_encode("Link to ".str_replace(":", "&colon;", $info["Name"]).":.AddTo$key");
+       $addTo = base64_encode("Attach to ".str_replace(":", "&colon;", $info["Name"]).":.AddTo$key");
        $added = base64_encode("Added! Feel free to close this card.");
        $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
        $media .= $this->core->Change([[

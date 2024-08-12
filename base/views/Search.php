@@ -848,7 +848,6 @@
                         OFFSET $offset
     ";
     $accessCode = "Accepted";
-    $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $sql->query($_Query, [
      ":Search" => $querysql
@@ -2438,14 +2437,28 @@
      }
     }
    } elseif($searchType == "MBR-Polls") {
+    $_Query = "SELECT M.*, P.* FROM Polls P
+                        JOIN Members M
+                        ON M.Member_Username=P.Poll_Username
+                        WHERE (P.Poll_Description LIKE :Search OR
+                                      P.Poll_Title LIKE :Search)
+                        AND P.Poll_Username=:Username
+                        ORDER BY P.Poll_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
-    $polls = $y["Polls"] ?? [];
-    foreach($polls as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Polls", $value]);
+    $sql->query($_Query, [
+     ":Search" => $querysql,
+     ":Username" => $you
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Poll;$value")
+      "ID" => base64_encode("Poll;".$sql["Poll_ID"])
      ]);
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
@@ -2453,10 +2466,10 @@
       if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element([
-        "div", $extension, ["class" => "FrostedBright Poll$value Rounded"]
+        "div", $extension, ["class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"]
        ]);
        $options = $_Poll["ListItem"]["Options"];
-       $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
+       $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", $blockCommand, [
          "class" => "UpdateButton v2 v2w",
          "data-processor" => $options["Block"]
@@ -2490,8 +2503,8 @@
         if($notAnon == 0 || $youVoted == 0) {
          $option = $this->core->Element(["button", $option, [
           "class" => "LI UpdateContent",
-          "data-container" => ".Poll$value",
-          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($value))
+          "data-container" => ".Poll".$sql["Poll_ID"],
+          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($sql["Poll_ID"]))
          ]]);
         }
         $vote .= $option;
@@ -2499,7 +2512,7 @@
        array_push($msg, [
         "[Poll.BlockOrDelete]" => base64_encode($blockOrDelete),
         "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
-        "[Poll.ID]" => base64_encode($value),
+        "[Poll.ID]" => base64_encode($sql["Poll_ID"]),
         "[Poll.Share]" => base64_encode($options["Share"]),
         "[Poll.Title]" => base64_encode($_Poll["ListItem"]["Title"]),
         "[Poll.Vote]" => base64_encode($vote)
@@ -2666,14 +2679,27 @@
      }
     }
    } elseif($searchType == "Polls") {
+    $_Query = "SELECT M.*, P.* FROM Polls P
+                        JOIN Members M
+                        ON M.Member_Username=P.Poll_Username
+                        WHERE P.Poll_Description LIKE :Search OR
+                                      P.Poll_Title LIKE :Search
+                        ORDER BY P.Poll_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
-    $polls = $this->core->RenderSearchIndex("Poll");
-    foreach($polls as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Polls", $value]);
+    $sql->query($_Query, [
+     ":Search" => $querysql,
+     ":Username" => $you
+    ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Poll;$value")
+      "ID" => base64_encode("Poll;".$sql["Poll_ID"])
      ]);
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
@@ -2681,10 +2707,10 @@
       if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element([
-        "div", $extension, ["class" => "FrostedBright Poll$value Rounded"]
+        "div", $extension, ["class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"]
        ]);
        $options = $_Poll["ListItem"]["Options"];
-       $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
+       $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", $blockCommand, [
          "class" => "UpdateButton v2 v2w",
          "data-processor" => $options["Block"]
@@ -2718,8 +2744,8 @@
         if($notAnon == 0 || $youVoted == 0) {
          $option = $this->core->Element(["button", $option, [
           "class" => "LI UpdateContent",
-          "data-container" => ".Poll$value",
-          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($value))
+          "data-container" => ".Poll".$sql["Poll_ID"],
+          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($sql["Poll_ID"]))
          ]]);
         }
         $vote .= $option;
@@ -2727,7 +2753,7 @@
        array_push($msg, [
         "[Poll.BlockOrDelete]" => base64_encode($blockOrDelete),
         "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
-        "[Poll.ID]" => base64_encode($value),
+        "[Poll.ID]" => base64_encode($sql["Poll_ID"]),
         "[Poll.Share]" => base64_encode($options["Share"]),
         "[Poll.Title]" => base64_encode($_Poll["ListItem"]["Title"]),
         "[Poll.Vote]" => base64_encode($vote)

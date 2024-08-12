@@ -239,16 +239,44 @@
     $polls = $y["Polls"] ?? [];
     array_push($polls, $id);
     $y["Polls"] = array_unique($polls);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["poll", $id, $poll]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "REPLACE INTO Polls(
+     Poll_Created,
+     Poll_Description,
+     Poll_ID,
+     Poll_NSFW,
+     Poll_Privacy,
+     Poll_Title,
+     Poll_Username
+    ) VALUES(
+     :Created,
+     :Description,
+     :ID,
+     :NSFW,
+     :Privacy,
+     :Title,
+     :Username
+    )";
+    $sql->query($query, [
+     ":Created" => $created,
+     ":Description" => $poll["Description"],
+     ":ID" => $id,
+     ":NSFW" => $poll["NSFW"],
+     ":Privacy" => $poll["Privacy"],
+     ":Title" => $poll["Title"],
+     ":Username" => $poll["UN"]
+    ]);
+    $sql->execute();
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Save", ["poll", $id, $poll]);
     foreach($contacts as $key => $member) {
-     $this->core->SendBulletin([
+     /*--$this->core->SendBulletin([
       "Data" => [
        "PollID" => $id
       ],
       "To" => $member,
       "Type" => "NewPoll"
-     ]);
+     ]);--*/
     }
     $r = [
      "Body" => "Your new poll has been saved.",
