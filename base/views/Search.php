@@ -1708,6 +1708,18 @@
      }
     }
    } elseif($searchType == "Forums-Posts") {
+    $_Query = "SELECT F.*, FP.*, M.* FROM ForumPosts FP
+                        JOIN Forums F
+                        ON F.Forum_ID=FP.ForumPost_Forum
+                        JOIN Members M
+                        ON M.Member_Username=FP.ForumPost_Username
+                        WHERE (FP.ForumPost_Body LIKE :Search OR
+                                      FP.ForumPost_Title LIKE :Search)
+                        AND FP.ForumPost_Forum=:Forum
+                        ORDER BY FP.ForumPost_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $active = 0;
     $admin = 0;
@@ -1723,24 +1735,28 @@
       }
      }
     }
-    $posts = $forum["Posts"] ?? [];
     if($active == 1 || $admin == 1 || $forum["Type"] == "Public") {
-     foreach($posts as $key => $value) {
-      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $value]);
+     $sql->query($_Query, [
+      ":Forum" => $id,
+      ":Search" => $querysql
+     ]);
+     $sql = $sql->set();
+     foreach($sql as $sql) {
+      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("ForumPost;$id;$value")
+       "ID" => base64_encode("ForumPost;$id;".$sql["ForumPost_ID"])
       ]);
       if($_ForumPost["Empty"] == 0) {
        $actions = "";
        $active = 0;
        $post = $_ForumPost["DataModel"];
-       $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($sql["ForumPost_Username"])]) ?? [];
        $illegal = $post["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       $op = ($forum["UN"] == $you) ? $y : $this->core->Member($post["From"]);
+       $op = ($sql["ForumPost_Username"] == $you) ? $y : $this->core->Member($sql["ForumPost_Username"]);
        $options = $_ForumPost["ListItem"]["Options"];
-       $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
+       $ck = ($sql["Forum_Username"] == $you || $post["From"] == $you) ? 1 : 0;
        $ck2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
        $ck3 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
@@ -1750,7 +1766,7 @@
        ]);
        $passPhrase = $post["PassPhrase"] ?? "";
        if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
-        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $id]);
+        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
         $actions = ($post["From"] != $you) ? $this->core->Element([
@@ -1791,7 +1807,7 @@
          "[ForumPost.Body]" => base64_encode($body),
          "[ForumPost.Comment]" => base64_encode($options["View"]),
          "[ForumPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
-         "[ForumPost.ID]" => base64_encode($value),
+         "[ForumPost.ID]" => base64_encode($sql["ForumPost_ID"]),
          "[ForumPost.MemberRole]" => base64_encode($memberRole),
          "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
          "[ForumPost.Notes]" => base64_encode($options["Notes"]),
@@ -1805,6 +1821,19 @@
      }
     }
    } elseif($searchType == "Forums-Topic") {
+    $_Query = "SELECT F.*, FP.*, M.* FROM ForumPosts FP
+                        JOIN Forums F
+                        ON F.Forum_ID=FP.ForumPost_Forum
+                        JOIN Members M
+                        ON M.Member_Username=FP.ForumPost_Username
+                        WHERE (FP.ForumPost_Body LIKE :Search OR
+                                      FP.ForumPost_Title LIKE :Search)
+                        AND FP.ForumPost_Forum=:Forum
+                        AND FP.ForumPost_Topic=:Topic
+                        ORDER BY FP.ForumPost_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
     $accessCode = "Accepted";
     $active = 0;
     $admin = 0;
@@ -1829,12 +1858,17 @@
      $now = $this->core->timestamp;
      $topics = $forum["Topics"] ?? [];
      $topic = $topics[$topicID] ?? [];
-     $posts = $topic["Posts"] ?? [];
-     foreach($posts as $key => $postID) {
-      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $postID]);
+     $sql->query($_Query, [
+      ":Forum" => $id,
+      ":Search" => $querysql,
+      ":Topic" => $topicID
+     ]);
+     $sql = $sql->set();
+     foreach($sql as $sql) {
+      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
        "Blacklisted" => $bl,
-       "ID" => base64_encode("ForumPost;$forumID;$postID")
+       "ID" => base64_encode("ForumPost;$forumID;".$sql["ForumPost_ID"])
       ]);
       if($_ForumPost["Empty"] == 0 && $i <= 5) {
        $actions = "";
@@ -1843,7 +1877,7 @@
        $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
        $illegal = $post["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       $op = ($forum["UN"] == $you) ? $y : $this->core->Member($post["From"]);
+       $op = ($sql["ForumPost_Username"] == $you) ? $y : $this->core->Member($sql["ForumPost_ID"]);
        $options = $_ForumPost["ListItem"]["Options"];
        $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
        $ck2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
@@ -1855,7 +1889,6 @@
        ]);
        $passPhrase = $post["PassPhrase"] ?? "";
        if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
-        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $postID]);
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
         $actions = ($post["From"] != $you) ? $this->core->Element([
@@ -1896,7 +1929,7 @@
          "[ForumPost.Body]" => base64_encode($body),
          "[ForumPost.Comment]" => base64_encode($options["View"]),
          "[ForumPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
-         "[ForumPost.ID]" => base64_encode($postID),
+         "[ForumPost.ID]" => base64_encode($sql["ForumPost_ID"]),
          "[ForumPost.MemberRole]" => base64_encode($memberRole),
          "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
          "[ForumPost.Notes]" => base64_encode($options["Notes"]),

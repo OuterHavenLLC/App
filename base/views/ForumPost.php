@@ -411,8 +411,43 @@
      "Title" => $title,
      "Topic" => $topic
     ];
-    $this->core->Data("Save", ["pf", $fid, $forum]);
-    $this->core->Data("Save", ["post", $id, $post]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $query = "REPLACE INTO ForumPosts(
+     Forum_Body,
+     Forum_Created,
+     Forum_ID,
+     Forum_NSFW,
+     Forum_Privacy,
+     Forum_Title,
+     Forum_Topic,
+     Forum_Username
+    ) VALUES(
+     :Body,
+     :Created,
+     :ID,
+     :NSFW,
+     :Privacy,
+     :Title,
+     :Topic,
+     :Username
+    )";
+    $sql->query($query, [
+     ":Body" => $this->core->PlainText([
+      "Data" => $data["Body"],
+      "HTMLDecode" => 1
+     ]),
+     ":Created" => $created,
+     ":Forum" => $fid,
+     ":ID" => $id,
+     ":NSFW" => $post["NSFW"],
+     ":Privacy" => $post["Privacy"],
+     ":Title" => $post["Title"],
+     ":Topic" => $post["Topic"],
+     ":Username" => $post["From"]
+    ]);
+    $sql->execute();
+    #$this->core->Data("Save", ["pf", $fid, $forum]);
+    #$this->core->Data("Save", ["post", $id, $post]);
     $r = [
      "Body" => "Your post has been $actionTaken.",
      "Header" => "Done"
