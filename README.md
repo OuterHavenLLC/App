@@ -149,10 +149,12 @@ MAILTO=""
 MAILTO=""
 @daily /usr/bin/php /var/www/html/base/crontab/purge.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.blog.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.blogpost.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.chat.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.extension.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.feedback.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.forum.php
+@hourly /usr/bin/php /var/www/html/base/crontab/search.forumpost.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.link.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.media.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.member.php
