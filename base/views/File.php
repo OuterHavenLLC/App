@@ -672,12 +672,14 @@
          ];
          $files[$id] = $file;
          if($_HC == 1) {
+          $database = "CoreMedia";
           $files[$id]["UN"] = $you;
           $this->core->Data("Save", ["app", "fs", $files]);
          } else {
           $_FileSystem = $_FileSystem ?? [];
           $_FileSystem["Albums"] = $albums;
           $_FileSystem["Files"] = $files;
+          $database = "Media";
           if(in_array($ext, $this->core->config["XFS"]["FT"]["P"])) {
            $thumbnail = $this->core->Thumbnail([
             "File" => $name,
@@ -690,6 +692,34 @@
           $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
           $this->core->Data("Save", ["mbr", md5($you), $y]);
          }
+         $sql = New SQL($this->core->cypher->SQLCredentials());
+         $query = "REPLACE INTO $database(
+          Media_Created,
+          Media_Description,
+          Media_ID,
+          Media_NSFW,
+          Media_Privacy,
+          Media_Title,
+          Media_Username
+         ) VALUES(
+          :Created,
+          :Description,
+          :ID,
+          :NSFW,
+          :Privacy,
+          :Title,
+          :Username
+         )";
+         $sql->query($query, [
+          ":Created" => $now,
+          ":Description" => "",
+          ":ID" => $id,
+          ":NSFW" => $file["NSFW"],
+          ":Privacy" => $file["Privacy"],
+          ":Title" => $file["Title"],
+          ":Username" => $you
+         ]);
+         $sql->execute();
          array_push($_Passed, [
           "HTML" => $this->core->Element([
            "div", $this->core->GetAttachmentPreview([

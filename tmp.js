@@ -1069,13 +1069,9 @@ function Upload(Button) {
     console.log("The media file " + Files[i].name + " comes in at " + Files[i].size + ". The maximum allowed file size is 500MB.");
    } else {
     Data.append("Uploads[" + i + "]", Files[i]);
-    console.log("Added file:");//TEMP
-    console.log(Files[i]);//TEMP
    }
   } for(var i = 0; i < Inputs.length; i++) {
    Data.append(Inputs[i].name, $.b64.e(encodeURIComponent(Inputs[i].value)));
-   console.log("Added Input:");//TEMP
-   console.log(Inputs[i].name + " --> " + Inputs[i].value);//TEMP
   }
   Request.upload.addEventListener("progress", function(event) {
    var Percent = Math.round((event.loaded / event.total) * 100),
@@ -1086,7 +1082,6 @@ function Upload(Button) {
   }, false);
   Request.addEventListener("load", function(event) {
    var data = event.target.responseText;
-   console.log(data);//TEMP
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
     return false;
