@@ -127,13 +127,14 @@
   function CheckBlocked(array $a) {
    $r = 0;
    if(!empty($a[1]) && !empty($a[2])) {
-    $x = $a[0]["Blocked"][$a[1]] ?? [];
-    foreach($x as $k => $v) {
-     if($v == $a[2]) {
+    $blacklist = $a[0]["Blocked"][$a[1]] ?? [];
+    foreach($blacklist as $key => $id) {
+     if($a[2] == $id) {
       $r++;
      }
     }
    }
+   $r = ($a[0]["Login"]["Username"] == $this->ID) ? 0 : $r;
    return $r;
   }
   function CheckFileType(array $a) {
@@ -1040,7 +1041,7 @@
     "ProfilePicture",
     "SubscribeStar"
    ]);
-   $age = $a["Age"] ?? $this->config["minRegAge"];
+   $age = $a["Age"] ?? $this->config["minAge"];
    $birthMonth = $a["BirthMonth"] ?? 10;
    $birthYear = $a["BirthYear"] ?? 1995;
    $blogs = $a["Blogs"] ?? [];

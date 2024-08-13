@@ -1947,14 +1947,12 @@ $(document).on("keyup", ".LinkData", function() {
 $(document).on("keyup", ".ReSearch", function() {
  ReSearch($(this));
 });
-$(document).on("keyup", ".TopBar .SearchBar", function() {
+$(document).on("keyup", ".TopBar input", function() {
  var Bar = $(this),
        Content = DefaultContainer,
        DocumentWidth = $(document).width();
-       Query;
  if(getFSTvisibility() === "Accepted") {
   CloseNetMap();
-  Query = $.b64.e($(Bar).val());
   $.ajax({
    headers: {
     Language: $.b64.e(LocalData("Get", "Language")),
@@ -1965,7 +1963,7 @@ $(document).on("keyup", ".TopBar .SearchBar", function() {
     $(Content).html($.b64.d(data));
     $(".Menu").slideUp(500);
    },
-   url: base + $.b64.d($(Bar).attr("data-u")) + Query
+   url: base + $.b64.d($(Bar).attr("data-u")) + $.b64.e($(Bar).val())
   });
  }
 });
