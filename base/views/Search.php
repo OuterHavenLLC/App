@@ -23,7 +23,7 @@
    $query = $data["query"] ?? "";
    $ck = (!empty($searchType) && in_array($searchType, $searchLists)) ? 1 : 0;
    $list = "v=".$this->lists."&query=$query&st=$searchType";
-   $lit = md5($searchType.$this->core->timestamp.rand(0, 1776));
+   $lit = uniqid(md5($searchType.$this->core->timestamp));
    $options = "";
    $r = [
     "Body" => "The List Type is missing.",
@@ -33,7 +33,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
-   foreach($searchLists as $key => $list) {
+   foreach($searchLists as $key => $info) {
     if($key == $searchType) {
      $ck++;
     }
@@ -401,11 +401,10 @@
      $list .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
      $searchBarText = "Search Files";
     }
-    $list = base64_encode($li);
     $r = $this->core->Change([[
      "[Search.Header]" => $header,
      "[Search.ID]" => uniqid("ReSearch".md5($this->core->timestamp)),
-     "[Search.List]" => $list,
+     "[Search.List]" => base64_encode($list),
      "[Search.Options]" => $options,
      "[Search.ParentPage]" => $parentView,
      "[Search.Text]" => $searchBarText
@@ -3197,6 +3196,7 @@
    return $r;
   }
   function ReSearch(array $a) {
+   $_ViewTitle = "Re:Search";
    $data = $a["Data"] ?? [];
    $pub = $data["pub"] ?? 0;
    $goHome = ($pub == 1) ? $this->core->Element(["button", "Go Home", [
@@ -3205,31 +3205,37 @@
    ]]) : "";
    $query = $data["query"] ?? base64_encode("");
    $query = base64_decode(htmlentities($query));
+   $_ViewTitle .= (!empty($data["query"])) ? " $query" : "";
    $search = $this->lists;
    $secureQuery = base64_encode($query);
    $r = $this->core->Change([[
-    "[ReSearch.GoHome]" => $goHome
-   ], $this->core->Extension("df4f7bc99b9355c34b571946e76b8481")]);
-   if(!empty($query)) {
-    $r = $this->core->Change([[
-     "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
-     "[ReSearch.Artists]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=SHOP"),
-     "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
-     "[ReSearch.Chat]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
-     "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
-     "[ReSearch.Links]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Links"),
-     "[ReSearch.Media]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Media"),
-     "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
-     "[ReSearch.Query]" => $query,
-     "[ReSearch.Polls]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Polls"),
-     "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products"),
-     "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates")
-    ], $this->core->Extension("bae5cdfa85bf2c690cbff302ba193b0b")]);
-   } if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
+    "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
+    "[ReSearch.Artists]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=SHOP"),
+    "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
+    "[ReSearch.Chat]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
+    "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
+    "[ReSearch.Links]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Links"),
+    "[ReSearch.Media]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Media"),
+    "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
+    "[ReSearch.Query]" => $query,
+    "[ReSearch.Polls]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Polls"),
+    "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products"),
+    "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates")
+   ], $this->core->Extension("bae5cdfa85bf2c690cbff302ba193b0b")]);
+   if($pub == 1) {
+    $r = $this->view(base64_encode("WebUI:Containers"), ["Data" => [
+     "Content" => $r,
+     "Type" => "ReSearch"
+    ]]);
+    $r = $this->core->JSONResponse([
+     "AccessCode" => "Accepted",
+     "Response" => [
+      "JSON" => "",
+      "Web" => $this->core->RenderView($r)
+     ],
+     "ResponseType" => "View",
+     "Title" => $_ViewTitle
     ]);
-    $r = $this->core->RenderView($r);
    }
    return $r;
   }

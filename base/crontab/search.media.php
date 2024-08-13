@@ -2,7 +2,6 @@
  # Re:Search Index
  require_once("/var/www/html/base/Bootloader.php");
  $category = "Media";
- $categorySQL = $category;
  $newRows = 0;
  $oh = New OH;
  $r = $oh->core->Element([
@@ -30,7 +29,7 @@
  )";
  $sql->query($query, []);
  $sql->execute();
- $query = "CREATE TABLE IF NOT EXISTS $categorySQL(
+ $query = "CREATE TABLE IF NOT EXISTS $category(
   Media_AlbumID text not null,
   Media_Created text not null,
   Media_Description text not null,
@@ -88,7 +87,7 @@
      $dataID = $file;
      if(!empty($info)) {
       $created = $info["Created"] ?? $oh->core->timestamp;
-      $query = "REPLACE INTO $categorySQL(
+      $query = "REPLACE INTO $category(
        Media_AlbumID,
        Media_Created,
        Media_Description,
@@ -120,6 +119,13 @@
       $sql->execute();
       $r .= $oh->core->Element(["p", "$dataID... OK"]);
       $newRows++;
+     } else {
+      $sql = New SQL($oh->core->cypher->SQLCredentials());
+      $sql->query("DELETE FROM $category WHERE Media_ID=:ID", [
+       ":ID" => $dataID
+      ]);
+      $sql->execute();
+      $r .= $oh->core->Element(["p", "$dataID... PURGE"]);
      }
     }
    }

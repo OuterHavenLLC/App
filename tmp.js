@@ -2017,28 +2017,26 @@ $(document).ready(function() {
    },
    method: "POST",
    success: function(data) {
-    if($(location).attr("href") === "[App.Base]/") {
-     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
-      Crash(data);
-      return false;
+    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
+     Crash(data);
+     return false;
+    } else {
+     var Data = RenderView(data),
+           AccessCode = Data["AccessCode"],
+           Response = Data["Response"];
+     if(AccessCode === "Denied") {
+      Dialog(Response);
      } else {
-      var Data = RenderView(data),
-            AccessCode = Data["AccessCode"],
-            Response = Data["Response"];
-      if(AccessCode === "Denied") {
-       Dialog(Response);
-      } else {
-       $("body > div").each(function() {
-        if(!$(this).hasClass("Boot") && !$(this).hasClass("RegSel")) {
-         $(this).remove();
-        }
-       });
-       setTimeout(function() {
-        $("body").append(Response);
-        AddContent();
-        Bulletins();
-       }, 10);
-      }
+      $("body > div").each(function() {
+       if(!$(this).hasClass("Boot") && !$(this).hasClass("RegSel")) {
+        $(this).remove();
+       }
+      });
+      setTimeout(function() {
+       $("body").append(Response);
+       AddContent();
+       Bulletins();
+      }, 10);
      }
     }
    },

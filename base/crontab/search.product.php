@@ -44,40 +44,47 @@
      $product = $oh->core->Data("Get", ["product", $productID]);
      $productPurge = $product["Purge"] ?? 0;
      if(!empty($product) && $productPurge == 0) {
-     $created = $product["Created"] ?? $oh->core->timestamp;
-     $query = "REPLACE INTO $categorySQL(
-      Product_Created,
-      Product_Description,
-      Product_ID,
-      Product_NSFW,
-      Product_Privacy,
-      Product_Shop,
-      Product_Title,
-      Product_Username
-     ) VALUES(
-      :Created,
-      :Description,
-      :ID,
-      :NSFW,
-      :Privacy,
-      :Shop,
-      :Title,
-      :Username
-     )";
-     $sql->query($query, [
-      ":Created" => $created,
-      ":Description" => $product["Description"],
-      ":ID" => $productID,
-      ":NSFW" => $product["NSFW"],
-      ":Privacy" => $product["Privacy"],
-      ":Shop" => $database[3],
-      ":Title" => $product["Title"],
-      ":Username" => $product["UN"]
-     ]);
-     $sql->execute();
-     $r .= $oh->core->Element(["p", "$productID... OK"]);
-     $newRows++;
-    }
+      $created = $product["Created"] ?? $oh->core->timestamp;
+      $query = "REPLACE INTO $categorySQL(
+       Product_Created,
+       Product_Description,
+       Product_ID,
+       Product_NSFW,
+       Product_Privacy,
+       Product_Shop,
+       Product_Title,
+       Product_Username
+      ) VALUES(
+       :Created,
+       :Description,
+       :ID,
+       :NSFW,
+       :Privacy,
+       :Shop,
+       :Title,
+       :Username
+      )";
+      $sql->query($query, [
+       ":Created" => $created,
+       ":Description" => $product["Description"],
+       ":ID" => $productID,
+       ":NSFW" => $product["NSFW"],
+       ":Privacy" => $product["Privacy"],
+       ":Shop" => $database[3],
+       ":Title" => $product["Title"],
+       ":Username" => $product["UN"]
+      ]);
+      $sql->execute();
+      $r .= $oh->core->Element(["p", "$productID... OK"]);
+      $newRows++;
+     } else {
+      $sql = New SQL($oh->core->cypher->SQLCredentials());
+      $sql->query("DELETE FROM $categorySQL WHERE Product_ID=:ID", [
+       ":ID" => $productID
+      ]);
+      $sql->execute();
+      $r .= $oh->core->Element(["p", "$productID... PURGE"]);
+     }
     }
    }
   }

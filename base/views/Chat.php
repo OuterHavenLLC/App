@@ -609,9 +609,11 @@
    $r = [
     "Body" => "We could not find the Group Chat you were looking for."
    ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($callSign) || !empty($id)) {
     $accessCode = "Accepted";
-    $chats = $this->core->DatabaseSet("Chat") ?? [];
+    $chats = $this->core->DatabaseSet("Chat");
     foreach($chats as $key => $value) {
      $value = str_replace("nyc.outerhaven.chat.", "", $value);
      $chat = $this->core->Data("Get", ["chat", $value]) ?? [];
@@ -624,7 +626,7 @@
       $r = $this->core->RenderView($r);
      }
     }
-   } if($y["Login"]["Username"] == $this->core->ID && $data["pub"] == 1) {
+   } if($data["pub"] == 1 && $this->core->ID == $you) {
     $r = $this->view(base64_encode("WebUI:OptIn"), []);
     $r = $this->core->RenderView($r);
    }

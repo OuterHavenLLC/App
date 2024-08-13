@@ -114,6 +114,11 @@
      $extension["Purge"] = 1;
      $this->core->Data("Save", ["extension", $id, $extension]);
     }
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM Extensions WHERE Extension_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
     $r = $this->core->Element([
      "p", "The App Extension was marked for purging.",
      ["class" => "CenterText"]
@@ -170,12 +175,14 @@
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Extensions(
      Extension_Body,
+     Extension_Created,
      Extension_Description,
      Extension_ID,
      Extension_Title,
      Extension_Username
     ) VALUES(
      :Body,
+     :Created,
      :Description,
      :ID,
      :Title,
@@ -187,6 +194,7 @@
       "Display" => 1,
       "HTMLDecode" => 1
      ]), 1000),
+     ":Created" => $created,
      ":Description" => $extension["Description"],
      ":ID" => $id,
      ":Title" => $extension["Title"],

@@ -68,6 +68,13 @@
     $sql->execute();
     $r .= $oh->core->Element(["p", "$dataID... OK"]);
     $newRows++;
+   } else {
+    $sql = New SQL($oh->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM $category WHERE Chat_ID=:ID", [
+     ":ID" => $dataID
+    ]);
+    $sql->execute();
+    $r .= $oh->core->Element(["p", "$dataID... PURGE"]);
    }
   }
  }

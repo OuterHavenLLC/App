@@ -85,6 +85,13 @@
       $sql->execute();
       $r .= $oh->core->Element(["p", "$postID... OK"]);
       $newRows++;
+     } else {
+      $sql = New SQL($oh->core->cypher->SQLCredentials());
+      $sql->query("DELETE FROM $categorySQL WHERE ForumPost_ID=:ID", [
+       ":ID" => $postID
+      ]);
+      $sql->execute();
+      $r .= $oh->core->Element(["p", "$postID... PURGE"]);
      }
     }
    }

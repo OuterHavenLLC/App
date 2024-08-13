@@ -52,8 +52,8 @@
    $r = $oh->view($view, ["Data" => $data]);
   }
  } else {
-  $command = $data["_cmd"] ?? "";
-  $command = (!empty($command)) ? explode("/", urldecode($command)) : [$command];
+  $command = $data["_cmd"] ?? [];
+  $command = (!empty($command)) ? explode("/", urldecode($command)) : $command;
   $command = $oh->core->FixMissing($command, [0, 1, 2, 3]);
   if($command[0] == "Errors") {
    # ERRORS
@@ -135,9 +135,9 @@
    $content = "v=".base64_encode("Company:Statistics")."&pub=1";
   } elseif($command[0] == "topics") {
    # TOPICS
-   $content = "v=".base64_encode("Search:ReSearch")."&pub=1&q=".base64_encode("#FreedomAlwaysWins");
+   $content = "v=".base64_encode("Search:ReSearch")."&pub=1&query=".base64_encode("#FreedomAlwaysWins");
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&q=".base64_encode($command[1]);
+    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&query=".base64_encode($command[1]);
    }
   } else {
    $oh->core->Statistic("Visits");
