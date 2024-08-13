@@ -246,26 +246,6 @@
     }
    }
   }
-  function DataIndex(string $action, string $index, $data = []) {
-   if(!empty($action) && !empty($index)) {
-    $dataFile = $this->DocumentRoot."/data/nyc.outerhaven.app.search-".strtolower($index);
-    if($action == "Get") {
-     if(!file_exists($dataFile)) {
-      $r = json_encode([]);
-     } else {
-      $r = fopen($dataFile, "r");
-      $r = fread($r, filesize($dataFile)) ?? json_encode([]);
-     }
-     return json_decode($r, true);
-    } elseif($action == "Save") {
-     if(!empty($data)) {
-      $r = fopen($dataFile, "w+");
-      fwrite($r, json_encode($data, true));
-      fclose($r);
-     }
-    }
-   }
-  }
   function DatabaseSet($a = NULL) {
    $domain = "nyc.outerhaven";
    $list = array_diff(scandir($this->DocumentRoot."/data/"), [
@@ -1325,14 +1305,6 @@
    $r = curl_getinfo($url, CURLINFO_HTTP_CODE);
    curl_close($url);
    return $r;
-  }
-  function RenderSearchIndex(string $index) {
-   if(empty($index)) {
-    $index = [];
-   } else {
-    $index = $this->DataIndex("Get", $index);
-   }
-   return $index;
   }
   function RenderView(string $data) {
    $r = json_decode($data, true);
