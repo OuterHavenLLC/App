@@ -359,6 +359,11 @@
        }
       }
      } if($this->core->ID == $username) {
+      $sql = New SQL($this->core->cypher->SQLCredentials());
+      $sql->query("DELETE FROM CoreMedia WHERE Media_ID=:ID", [
+       ":ID" => $id
+      ]);
+      $sql->execute();
       $this->core->Data("Save", ["app", "fs", $newFiles]);
      } else {
       $fileSystem["Albums"] = $albums;

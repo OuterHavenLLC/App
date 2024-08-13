@@ -137,7 +137,7 @@
    # TOPICS
    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&query=".base64_encode("#FreedomAlwaysWins");
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&query=".base64_encode($command[1]);
+    $content = "v=".base64_encode("Search:ReSearch")."&pub=1&query=".base64_encode("#".$command[1]);
    }
   } else {
    $oh->core->Statistic("Visits");
