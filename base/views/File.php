@@ -672,14 +672,12 @@
          ];
          $files[$id] = $file;
          if($_HC == 1) {
-          $database = "CoreMedia";
           $files[$id]["UN"] = $you;
           $this->core->Data("Save", ["app", "fs", $files]);
          } else {
           $_FileSystem = $_FileSystem ?? [];
           $_FileSystem["Albums"] = $albums;
           $_FileSystem["Files"] = $files;
-          $database = "Media";
           if(in_array($ext, $this->core->config["XFS"]["FT"]["P"])) {
            $thumbnail = $this->core->Thumbnail([
             "File" => $name,
@@ -692,6 +690,7 @@
           $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
           $this->core->Data("Save", ["mbr", md5($you), $y]);
          }
+         $database = ($_HC == 1) ? "CoreMedia" : "Media";
          $sql = New SQL($this->core->cypher->SQLCredentials());
          $query = "REPLACE INTO $database(
           Media_Created,
@@ -717,7 +716,7 @@
           ":NSFW" => $file["NSFW"],
           ":Privacy" => $file["Privacy"],
           ":Title" => $file["Title"],
-          ":Username" => $you
+          ":Username" => $username
          ]);
          $sql->execute();
          array_push($_Passed, [
