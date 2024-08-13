@@ -11,7 +11,8 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 ### Platform Improvements
 * Revised the media upload process.
 * Added automatic redirects for protected directories.
-* Other bug fixes.
+* Revised the cron jobs to automatically purge tuples from the Re:Search database where the data file or list item has been marked for purging, except in the case of Core Media whcih is handled via the Media Purge view.
+* More platform-wide optimization and bug fixes.
 
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
