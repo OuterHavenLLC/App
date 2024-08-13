@@ -14,6 +14,8 @@
    ]).$oh->core->Element([
     "p", "&bull; Blog Index"
    ]).$oh->core->Element([
+    "p", "&bull; Blog Post Index"
+   ]).$oh->core->Element([
     "p", "&bull; Chat Index"
    ]).$oh->core->Element([
     "p", "&bull; Extension Index"
@@ -21,6 +23,8 @@
     "p", "&bull; Feedback Index"
    ]).$oh->core->Element([
     "p", "&bull; Forum Index"
+   ]).$oh->core->Element([
+    "p", "&bull; Forum Post Index"
    ]).$oh->core->Element([
     "p", "&bull; Links Index"
    ]).$oh->core->Element([
