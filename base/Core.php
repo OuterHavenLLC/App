@@ -116,10 +116,10 @@
   }
   function Change(array $a) {
    $r = $a[1] ?? "";
-   $ls = $a[0] ?? "";
-   foreach($ls as $k => $v) {
-    if(!is_array($k) && !is_array($v)) {
-     $r = str_replace($k, $v, $r);
+   $list = $a[0] ?? [];
+   foreach($list as $key => $value) {
+    if(!is_array($key) && !is_array($value)) {
+     $r = str_replace($key, $value, $r);
     }
    }
    return $r;

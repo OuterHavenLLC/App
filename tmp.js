@@ -1758,6 +1758,29 @@ $(document).on("click", ".SendData", function(event) {
   });
  }
 });
+$(document).on("click", ".ToggleElement", function() {
+ var Button = $(this),
+       Delete = $(Button).attr("data-delete") || "off",
+       Elements = $(Button).attr("data-elements").split(";") || {},
+       Time = 500;
+       Toggle = $(Button).attr("data-toggle") || "on";
+ $.each(Elements, function(key, element) {
+  Time += 500;
+  setTimeout(function() {
+   if(Toggle == "on") {
+    $(element).slideDown(500);
+   } else {
+    $(element).slideUp(500);
+   }
+  }, Time);
+ });
+ if(Delete === "on") {
+  $(Button).slideUp(500);
+  setTimeout(function() {
+   $(Button).remove();
+  }, 600);
+ }
+});
 $(document).on("click", ".ToggleMenu", function() {
  var Content = DefaultContainer;
  if($(".FST").is(":visible")) {
@@ -2045,4 +2068,13 @@ $(document).ready(function() {
  setTimeout(function() {
   $(".Boot").fadeOut(500);
  }, 1000);
+});
+$(window).scroll(function() {
+ var Offset = $(".ToggleElementOnScroll").offset().top,
+       Top = $(window).scrollTop();
+ if(Top < Offset) {
+  $(".ToggleElementOnScroll").slideUp(500);
+ } else {
+  $(".ToggleElementOnScroll").slideDown(500);
+ }
 });
