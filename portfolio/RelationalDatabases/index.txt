@@ -36,7 +36,6 @@
      </div>
      <h3 class="CenterText S1Header h">Design the Database</h3>
      <p class="CenterText S1Text h">The following is a screen shot which illustrates the conceptual design for the database via an Enhanced Entity Relationship Diagram created via the <em>SmartDraw</em> web app.</p>
-     <!--REF: https://www.smartdraw.com/entity-relationship-diagram/er-diagram-tool.htm-->
      <img class="Frosted Rounded S1Media Shadowed h" src="./Media/1-Diagram.png" style="width:calc(100% - 2em);"/>
       <button class="BigButton S1Next ToggleElement h" data-delete="on" data-elements=".S2Header;.S2Text;.S2Media;.S2Next;.S2Margin" data-toggle="on">Next</button>
      <div class="S1Margin h" style="height:8em"></div>
