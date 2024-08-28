@@ -599,15 +599,15 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
-     $_Query = "SELECT E.*, M.* FROM Extensions E
-                         JOIN Members M
-                         ON M.Member_Username=E.Extension_Username
-                         WHERE E.Extension_Body LIKE :Search OR
-                                       E.Extension_Description LIKE :Search OR
-                                       E.Extension_ID LIKE :Search OR
-                                       E.Extension_Title LIKE :Search OR
-                                       E.Extension_Username LIKE :Search
-                         ORDER BY E.Extension_Created DESC
+     $_Query = "SELECT * FROM Extensions
+                         JOIN Members
+                         ON Member_Username=Extension_Username
+                         WHERE Extension_Body LIKE :Search OR
+                                       Extension_Description LIKE :Search OR
+                                       Extension_ID LIKE :Search OR
+                                       Extension_Title LIKE :Search OR
+                                       Extension_Username LIKE :Search
+                         ORDER BY Extension_Created DESC
                          LIMIT $limit
                          OFFSET $offset
      ";
@@ -641,16 +641,16 @@
     $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     $extension = $this->core->Extension("dba88e1a123132be03b9a2e13995306d");
     if($notAnon == 1) {
-     $_Query = "SELECT B.*, BP.*, M.* FROM BlogPosts BP
-                         JOIN Blogs B
-                         ON B.Blog_ID=BP.BlogPost_Blog
+     $_Query = "SELECT * FROM BlogPosts 
+                         JOIN Blogs
+                         ON Blog_ID=BlogPost_Blog
                          JOIN Members M
-                         ON M.Member_Username=BP.BlogPost_Username
-                         WHERE (BP.BlogPost_Body LIKE :Search OR
-                                       BP.BlogPost_Description LIKE :Search OR
-                                       BP.BlogPost_Title LIKE :Search)
-                         AND BP.BlogPost_Blog=:Blog
-                         ORDER BY BP.BlogPost_Created DESC
+                         ON Member_Username=BlogPost_Username
+                         WHERE (BlogPost_Body LIKE :Search OR
+                                       BlogPost_Description LIKE :Search OR
+                                       BlogPost_Title LIKE :Search)
+                         AND BlogPost_Blog=:Blog
+                         ORDER BY BlogPost_Created DESC
                          LIMIT $limit
                          OFFSET $offset
      ";
@@ -854,12 +854,12 @@
      }
     }
    } elseif($searchType == "BLG") {
-    $_Query = "SELECT B.*, M.* FROM Blogs B
-                        JOIN Members M
-                        ON M.Member_Username=B.Blog_Username
-                        WHERE B.Blog_Description LIKE :Search OR
-                                      B.Blog_Title LIKE :Search
-                        ORDER BY B.Blog_Created DESC
+    $_Query = "SELECT * FROM Blogs
+                        JOIN Members
+                        ON Member_Username=Blog_Username
+                        WHERE Blog_Description LIKE :Search OR
+                                      Blog_Title LIKE :Search
+                        ORDER BY Blog_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -932,13 +932,13 @@
    } elseif($searchType == "CA" || $searchType == "PR") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
-    $_Query = "SELECT A.*, M.* FROM Articles A
-                        JOIN Members M
-                        ON M.Member_Username=A.Article_Username
-                        WHERE A.Article_Body LIKE :Search OR
-                                      A.Article_Description LIKE :Search OR
-                                      A.Article_Title LIKE :Search
-                        ORDER BY A.Article_Created DESC
+    $_Query = "SELECT * FROM Articles
+                        JOIN Members
+                        ON Member_Username=Article_Username
+                        WHERE Article_Body LIKE :Search OR
+                                      Article_Description LIKE :Search OR
+                                      Article_Title LIKE :Search
+                        ORDER BY Article_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -1025,12 +1025,12 @@
     $integrated = $data["Integrated"] ?? 0;
     $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
     if($notAnon == 1) {
-     $_Query = "SELECT C.*, M.* FROM Chat C
-                         JOIN Members M
-                         ON M.Member_Username=C.Chat_Username
-                         WHERE C.Chat_Description LIKE :Search OR
-                                       C.Chat_Title LIKE :Search
-                         ORDER BY C.Chat_Created DESC
+     $_Query = "SELECT * FROM Chat
+                         JOIN Members
+                         ON Member_Username=Chat_Username
+                         WHERE Chat_Description LIKE :Search OR
+                                       Chat_Title LIKE :Search
+                         ORDER BY Chat_Created DESC
                          LIMIT $limit
                          OFFSET $offset
      ";
@@ -1584,13 +1584,13 @@
      }
     }
    } elseif($searchType == "Feedback") {
-    $_Query = "SELECT F.*, M.* FROM Feedback F
-                        JOIN Members M
-                        ON M.Member_Username=F.Feedback_Username
-                        WHERE F.Feedback_Message LIKE :Search OR
-                                      F.Feedback_ParaphrasedQuestion LIKE :Search OR
-                                      F.Feedback_Subject LIKE :Search
-                        ORDER BY F.Feedback_Created DESC
+    $_Query = "SELECT * FROM Feedback
+                        JOIN Members
+                        ON Member_Username=Feedback_Username
+                        WHERE Feedback_Message LIKE :Search OR
+                                      Feedback_ParaphrasedQuestion LIKE :Search OR
+                                      Feedback_Subject LIKE :Search
+                        ORDER BY Feedback_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -1631,12 +1631,12 @@
      ]);
     }
    } elseif($searchType == "Forums") {
-    $_Query = "SELECT F.*, M.* FROM Forums F
-                        JOIN Members M
-                        ON M.Member_Username=F.Forum_Username
-                        WHERE F.Forum_Description LIKE :Search OR
-                                      F.Forum_Title LIKE :Search
-                        ORDER BY F.Forum_Created DESC
+    $_Query = "SELECT * FROM Forums
+                        JOIN Members
+                        ON Member_Username=Forum_Username
+                        WHERE Forum_Description LIKE :Search OR
+                                      Forum_Title LIKE :Search
+                        ORDER BY Forum_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -1724,15 +1724,15 @@
      }
     }
    } elseif($searchType == "Forums-Posts") {
-    $_Query = "SELECT F.*, FP.*, M.* FROM ForumPosts FP
-                        JOIN Forums F
-                        ON F.Forum_ID=FP.ForumPost_Forum
+    $_Query = "SELECT * FROM ForumPosts
+                        JOIN Forums
+                        ON Forum_ID=ForumPost_Forum
                         JOIN Members M
-                        ON M.Member_Username=FP.ForumPost_Username
-                        WHERE (FP.ForumPost_Body LIKE :Search OR
-                                      FP.ForumPost_Title LIKE :Search)
-                        AND FP.ForumPost_Forum=:Forum
-                        ORDER BY FP.ForumPost_Created DESC
+                        ON Member_Username=ForumPost_Username
+                        WHERE (ForumPost_Body LIKE :Search OR
+                                      ForumPost_Title LIKE :Search)
+                        AND ForumPost_Forum=:Forum
+                        ORDER BY ForumPost_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -1837,16 +1837,16 @@
      }
     }
    } elseif($searchType == "Forums-Topic") {
-    $_Query = "SELECT F.*, FP.*, M.* FROM ForumPosts FP
-                        JOIN Forums F
-                        ON F.Forum_ID=FP.ForumPost_Forum
-                        JOIN Members M
-                        ON M.Member_Username=FP.ForumPost_Username
-                        WHERE (FP.ForumPost_Body LIKE :Search OR
-                                      FP.ForumPost_Title LIKE :Search)
-                        AND FP.ForumPost_Forum=:Forum
-                        AND FP.ForumPost_Topic=:Topic
-                        ORDER BY FP.ForumPost_Created DESC
+    $_Query = "SELECT * FROM ForumPosts
+                        JOIN Forum
+                        ON Forum_ID=ForumPost_Forum
+                        JOIN Members
+                        ON Member_Username=ForumPost_Username
+                        WHERE (ForumPost_Body LIKE :Search OR
+                                      ForumPost_Title LIKE :Search)
+                        AND ForumPost_Forum=:Forum
+                        AND ForumPost_Topic=:Topic
+                        ORDER BY ForumPost_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2050,13 +2050,13 @@
     $edit = base64_encode("StatusUpdate:Edit");
     $attlv = base64_encode("LiveView:InlineMossaic");
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
-    $_Query = "SELECT M.*, U.* FROM StatusUpdates U
-                        JOIN Members M
-                        ON M.Member_Username=U.StatusUpdate_Username
-                        WHERE (U.StatusUpdate_Body LIKE :Body OR
-                                      U.StatusUpdate_Username LIKE :Username)
-                        AND U.StatusUpdate_Privacy=:Privacy
-                        ORDER BY U.StatusUpdate_Created DESC
+    $_Query = "SELECT * FROM StatusUpdates
+                        JOIN Members
+                        ON Member_Username=StatusUpdate_Username
+                        WHERE (StatusUpdate_Body LIKE :Body OR
+                                      StatusUpdate_Username LIKE :Username)
+                        AND StatusUpdate_Privacy=:Privacy
+                        ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2236,13 +2236,13 @@
     $home = base64_encode("Blog:Home");
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     if($notAnon == 1) {
-     $_Query = "SELECT B.*, M.* FROM Blogs B
-                         JOIN Members M
-                         ON M.Member_Username=B.Blog_Username
-                         WHERE (B.Blog_Description LIKE :Search OR
-                                       B.Blog_Title LIKE :Search)
-                         AND B.Blog_Username=:Username
-                         ORDER BY B.Blog_Created DESC
+     $_Query = "SELECT * FROM Blogs
+                         JOIN Members
+                         ON Member_Username=Blog_Username
+                         WHERE (Blog_Description LIKE :Search OR
+                                       Blog_Title LIKE :Search)
+                         AND Blog_Username=:Username
+                         ORDER BY Blog_Created DESC
                          LIMIT $limit
                          OFFSET $offset
      ";
@@ -2282,14 +2282,14 @@
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $bl = $this->core->CheckBlocked([$t, "Members", $you]);
     $extension = $this->core->Extension("90bfbfb86908fdc401c79329bedd7df5");
-    $_Query = "SELECT A.*, M.* FROM Articles A
-                        JOIN Members M
-                        ON M.Member_Username=A.Article_Username
-                        WHERE (A.Article_Body LIKE :Search OR
-                                      A.Article_Description LIKE :Search OR
-                                      A.Article_Title LIKE :Search)
-                        AND A.Article_Username=:Username
-                        ORDER BY A.Article_Created DESC
+    $_Query = "SELECT * FROM Articles
+                        JOIN Members
+                        ON M.Member_Username=Article_Username
+                        WHERE (Article_Body LIKE :Search OR
+                                      Article_Description LIKE :Search OR
+                                      Article_Title LIKE :Search)
+                        AND Article_Username=:Username
+                        ORDER BY Article_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2349,13 +2349,13 @@
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
      $extension = $this->core->Extension($extension);
      if($group == 1) {
-      $_Query = "SELECT C.*, M.* FROM Chat C
-                          JOIN Members M
-                          ON M.Member_Username=C.Chat_Username
-                          WHERE (C.Chat_Description LIKE :Search OR
-                                        C.Chat_Title LIKE :Search)
-                          AND C.Chat_Username=:Username
-                          ORDER BY C.Chat_Created DESC
+      $_Query = "SELECT * FROM Chat
+                          JOIN Members
+                          ON Member_Username=Chat_Username
+                          WHERE (Chat_Description LIKE :Search OR
+                                        Chat_Title LIKE :Search)
+                          AND Chat_Username=:Username
+                          ORDER BY Chat_Created DESC
                           LIMIT $limit
                           OFFSET $offset
       ";
@@ -2433,13 +2433,13 @@
      }
     }
    } elseif($searchType == "MBR-Forums") {
-    $_Query = "SELECT F.*, M.* FROM Forums F
-                        JOIN Members M
-                        ON M.Member_Username=F.Forum_Username
-                        WHERE (F.Forum_Description LIKE :Search OR
-                                      F.Forum_Title LIKE :Search)
-                        AND F.Forum_Username=:Username
-                        ORDER BY F.Forum_Created DESC
+    $_Query = "SELECT * FROM Forums
+                        JOIN Members
+                        ON Member_Username=Forum_Username
+                        WHERE (Forum_Description LIKE :Search OR
+                                      Forum_Title LIKE :Search)
+                        AND Forum_Username=:Username
+                        ORDER BY Forum_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2499,13 +2499,13 @@
      }
     }
    } elseif($searchType == "MBR-Polls") {
-    $_Query = "SELECT M.*, P.* FROM Polls P
-                        JOIN Members M
-                        ON M.Member_Username=P.Poll_Username
-                        WHERE (P.Poll_Description LIKE :Search OR
-                                      P.Poll_Title LIKE :Search)
-                        AND P.Poll_Username=:Username
-                        ORDER BY P.Poll_Created DESC
+    $_Query = "SELECT * FROM Polls
+                        JOIN Members
+                        ON Member_Username=Poll_Username
+                        WHERE (Poll_Description LIKE :Search OR
+                                      Poll_Title LIKE :Search)
+                        AND Poll_Username=:Username
+                        ORDER BY Poll_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2585,13 +2585,13 @@
    } elseif($searchType == "MBR-SU") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
-    $_Query = "SELECT M.*, U.* FROM StatusUpdates U
-                        JOIN Members M
-                        ON M.Member_Username=U.StatusUpdate_Username
-                        WHERE U.StatusUpdate_Body LIKE :Body
-                        AND (U.StatusUpdate_To=:Username OR
-                                 U.StatusUpdate_Username=:Username)
-                        ORDER BY U.StatusUpdate_Created DESC
+    $_Query = "SELECT * FROM StatusUpdates
+                        JOIN Members
+                        ON Member_Username=StatusUpdate_Username
+                        WHERE StatusUpdate_Body LIKE :Body
+                        AND (StatusUpdate_To=:Username OR
+                                 StatusUpdate_Username=:Username)
+                        ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2664,13 +2664,13 @@
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $database = ($t["Login"]["Username"] == $this->core->ID) ? "CoreMedia" : "Media";
-    $_Query = "SELECT F.*, M.* FROM $database F
-                        JOIN Members M
-                        ON M.Member_Username=F.Media_Username
-                        WHERE (F.Media_Description LIKE :Search OR
-                                      F.Media_Title LIKE :Search)
-                        AND F.Media_Username=:Username
-                        ORDER BY F.Media_Created DESC
+    $_Query = "SELECT * FROM $database
+                        JOIN Members
+                        ON Member_Username=Media_Username
+                        WHERE (Media_Description LIKE :Search OR
+                                      Media_Title LIKE :Search)
+                        AND Media_Username=:Username
+                        ORDER BY Media_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2703,13 +2703,13 @@
      }
     }
    } elseif($searchType == "Media") {
-    $_Query = "SELECT F.*, M.* FROM Media F
-                        JOIN Members M
-                        ON M.Member_Username=F.Media_Username
-                        WHERE F.Media_Description LIKE :Search OR
-                                      F.Media_Title LIKE :Search OR
-                                      F.Media_Username LIKE :Search
-                        ORDER BY F.Media_Created DESC
+    $_Query = "SELECT * FROM Media
+                        JOIN Members
+                        ON Member_Username=Media_Username
+                        WHERE Media_Description LIKE :Search OR
+                                      Media_Title LIKE :Search OR
+                                      Media_Username LIKE :Search
+                        ORDER BY Media_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2741,12 +2741,12 @@
      }
     }
    } elseif($searchType == "Polls") {
-    $_Query = "SELECT M.*, P.* FROM Polls P
-                        JOIN Members M
-                        ON M.Member_Username=P.Poll_Username
-                        WHERE P.Poll_Description LIKE :Search OR
-                                      P.Poll_Title LIKE :Search
-                        ORDER BY P.Poll_Created DESC
+    $_Query = "SELECT * FROM Polls
+                        JOIN Members
+                        ON Member_Username=Poll_Username
+                        WHERE Poll_Description LIKE :Search OR
+                                      Poll_Title LIKE :Search
+                        ORDER BY Poll_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2823,12 +2823,12 @@
      }
     }
    } elseif($searchType == "Products") {
-    $_Query = "SELECT M.*, P.* FROM Products P
-                        JOIN Members M
-                        ON M.Member_Username=P.Product_Username
-                        WHERE P.Product_Description LIKE :Search OR
-                                      P.Product_Title LIKE :Search
-                        ORDER BY P.Product_Created DESC
+    $_Query = "SELECT * FROM Products
+                        JOIN Members
+                        ON Member_Username=Product_Username
+                        WHERE Product_Description LIKE :Search OR
+                                      Product_Title LIKE :Search
+                        ORDER BY Product_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -2877,13 +2877,13 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("6d8aedce27f06e675566fd1d553c5d92");
     if($notAnon == 1) {
-     $_Query = "SELECT M.*, S.* FROM Shops S
-                         JOIN Members M
-                         ON M.Member_Username=S.Shop_Username
-                         WHERE S.Shop_Description LIKE :Search OR
-                                       S.Shop_Title LIKE :Search OR
-                                       S.Shop_Welcome LIKE :Search
-                         ORDER BY S.Shop_Created DESC
+     $_Query = "SELECT * FROM Shops
+                         JOIN Members
+                         ON Member_Username=Shop_Username
+                         WHERE Shop_Description LIKE :Search OR
+                                       Shop_Title LIKE :Search OR
+                                       Shop_Welcome LIKE :Search
+                         ORDER BY Shop_Created DESC
                          LIMIT $limit
                          OFFSET $offset
      ";
@@ -2992,13 +2992,13 @@
      }
     }
    } elseif($searchType == "SHOP-Products") {
-    $_Query = "SELECT M.*, P.* FROM Products P
-                        JOIN Members M
-                        ON M.Member_Username=P.Product_Username
-                        WHERE (P.Product_Description LIKE :Search OR
-                                      P.Product_Title LIKE :Search)
-                        AND P.Product_Shop=:Shop
-                        ORDER BY P.Product_Created DESC
+    $_Query = "SELECT * FROM Products
+                        JOIN Members
+                        ON Member_Username=Product_Username
+                        WHERE (Product_Description LIKE :Search OR
+                                      Product_Title LIKE :Search)
+                        AND Product_Shop=:Shop
+                        ORDER BY Product_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -3043,12 +3043,12 @@
    } elseif($searchType == "StatusUpdates") {
     $accessCode = "Accepted";
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
-    $_Query = "SELECT M.*, U.* FROM StatusUpdates U
-                        JOIN Members M
-                        ON M.Member_Username=U.StatusUpdate_Username
-                        WHERE U.StatusUpdate_Body LIKE :Body OR
-                                      U.StatusUpdate_Username LIKE :Username
-                        ORDER BY U.StatusUpdate_Created DESC
+    $_Query = "SELECT * FROM StatusUpdates
+                        JOIN Members
+                        ON Member_Username=StatusUpdate_Username
+                        WHERE StatusUpdate_Body LIKE :Body OR
+                                      StatusUpdate_Username LIKE :Username
+                        ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
@@ -3130,13 +3130,13 @@
      }
     }
    } elseif($searchType == "XFS") {
-    $_Query = "SELECT F.*, M.* FROM :Database F
-                        JOIN Members M
-                        ON M.Member_Username=F.Media_Username
-                        WHERE (F.Media_Description LIKE :Search OR
-                                      F.Media_Title LIKE :Search)
-                        AND F.Media_Username=:Username
-                        ORDER BY F.Media_Created DESC
+    $_Query = "SELECT * FROM :Database F
+                        JOIN Members
+                        ON Member_Username=Media_Username
+                        WHERE (Media_Description LIKE :Search OR
+                                      Media_Title LIKE :Search)
+                        AND Media_Username=:Username
+                        ORDER BY Media_Created DESC
                         LIMIT $limit
                         OFFSET $offset
     ";
