@@ -19,8 +19,8 @@
   if($view == "Cypher") {
    $r = $oh->core->Extension("06dfe9b3d6b9fdab588c1eabfce275fd");
   } elseif($view == "Client") {
-   #$r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
-   $r = file_get_contents("./tmp.js");//TEMP
+   $r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
+   #$r = file_get_contents("./tmp.js");//TEMP
   }
   $r = $oh->core->Change([[
    "[App.AddContent]" => base64_encode("v=".base64_encode("Profile:AddContentCheck")),

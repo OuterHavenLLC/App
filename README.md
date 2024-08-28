@@ -12,6 +12,9 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Revised the media upload process.
 * Added automatic redirects for protected directories.
 * Revised the cron jobs to automatically purge tuples from the Re:Search database where the data file or list item has been marked for purging, except in the case of Core Media which is handled via the Media Purge view.
+* Addressed several rendering issues regarding Public Event banners and the Free America Broadcasting Annex.
+* Members may now choose UI varients.
+* When a new Member signs up, there is now an integrated tutorial presentation in the success view.
 * More platform-wide optimization and bug fixes.
 
 ### Re:Search

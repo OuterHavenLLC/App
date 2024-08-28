@@ -76,6 +76,8 @@
     "[App.Content]" => $content
    ], $this->core->Extension("606c44e9e7eac67c34c5ad8d1062b003")]);
    $type = $data["Type"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
    if($type == "Chat") {
     $r = $this->core->Change([[
      "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))
@@ -86,13 +88,15 @@
      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
     ], $this->core->Extension("937560239a386533aecf5017371f4d34")]);
    }
+   $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "SetUIVariant" => $setUIvariant
    ]);
   }
   function DesignView(array $a) {
@@ -395,6 +399,7 @@
    $content = base64_encode("v=".base64_encode("WebUI:OptIn"));
    $headers = apache_request_headers();
    $language = $headers["Language"] ?? $this->core->language;
+   $setUIvariant = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
@@ -429,6 +434,7 @@
     $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
     $y["Inactive"] = 0;
     $y["Personal"]["Language"] = $language;
+    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["shop", md5($you), $shop]);
    }
@@ -443,7 +449,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "View"
+    "ResponseType" => "View",
+    "SetUIVariant" => $setUIvariant
    ]);
   }
   function WYSIWYG(array $a) {

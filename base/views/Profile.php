@@ -1395,6 +1395,7 @@
    $members = $this->core->DatabaseSet("MBR") ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   $_UIVariant = $y["Personal"]["UIVariant"] ?? 0;
    foreach($members as $key => $value) {
     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];

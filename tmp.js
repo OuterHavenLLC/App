@@ -18,8 +18,8 @@ function AddContent() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       if($(".AddContent").is(":visible")) {
        $(".AddContent").fadeOut(500);
@@ -73,8 +73,8 @@ function Bulletins() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else if(Response > 0) {
@@ -108,10 +108,10 @@ function Bulletins() {
 }
 function Card(data) {
  var Data = data || {},
-       Action = Data["Action"] || "",
-       Front = Data["Front"] || "",
+       Action = Data.Action || "",
+       Front = Data.Front || "",
        Card = "",
-       ID = Data["ID"] || Date.now();
+       ID = Data.ID || Date.now();
  $(".CloseCard, .OpenCard").each(function() {
   this.disabled = true;
  });
@@ -252,8 +252,8 @@ function LightSearch(input) {
       return false;
      } else {
       var Data = RenderView(data),
-            AccessCode = Data["AccessCode"],
-            Response = Data["Response"];
+            AccessCode = Data.AccessCode,
+            Response = Data.Response;
       if(AccessCode === "Denied") {
        Dialog(Response);
       } else {
@@ -285,8 +285,8 @@ function LiveView(input) {
       return false;
      } else {
       var Data = RenderView(data),
-            AccessCode = Data["AccessCode"],
-            Response = Data["Response"];
+            AccessCode = Data.AccessCode,
+            Response = Data.Response;
       if(AccessCode === "Denied") {
        Dialog(Response);
       } else {
@@ -338,13 +338,13 @@ function DeleteContainer(button) {
 function Dialog(data) {
  var Data = data || {},
        Actions = "",
-       ActionsList = Data["Actions"] || "",
-       Body = Data["Body"] || "",
+       ActionsList = Data.Actions || "",
+       Body = Data.Body || "",
        Dialog = "",
-       Header = Data["Header"] || "Error",
-       ID = Data["ID"] || Date.now(),
-       NoClose = Data["NoClose"] || 0,
-       Scrollable = Data["Scrollable"] || "";
+       Header = Data.Header || "Error",
+       ID = Data.ID || Date.now(),
+       NoClose = Data.NoClose || 0,
+       Scrollable = Data.Scrollable || "";
  $(".CloseDialog, .OpenDialog").each(function() {
   this.disabled = true;
  });
@@ -390,7 +390,7 @@ function Encode(data) {
 }
 function FST(data) {
  var Data = data || {},
-       ID = Data["ID"] || Date.now();
+       ID = Data.ID || Date.now();
  $("body").append("<div class='Frosted FST FST" + ID + " RoundedLarge Shadowed h scr'></div>");
  $(".FST" + ID).html(Data);
  setTimeout(function() {
@@ -417,8 +417,8 @@ function OpenCard(View) {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+          AccessCode = Data.AccessCode,
+          Response = Data.Response;
     if(AccessCode === "Denied") {
      Dialog(Response);
     } else {
@@ -442,8 +442,8 @@ function OpenDialog(View) {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+          AccessCode = Data.AccessCode,
+          Response = Data.Response;
     Dialog(Response);
    }
   },
@@ -464,8 +464,8 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -488,8 +488,8 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -518,8 +518,8 @@ function OpenNetMap(a) {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+          AccessCode = Data.AccessCode,
+          Response = Data.Response;
     if(AccessCode === "Denied") {
      Dialog(Response);
     } else {
@@ -554,8 +554,8 @@ function RenderDesignView(container) {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -636,8 +636,8 @@ function RenderInputs(Container, Data) {
           return false;
          } else {
           var WData = RenderView(data),
-                AccessCode = WData["AccessCode"],
-                WYSIWYG = WData["Response"];
+                AccessCode = WData.AccessCode,
+                Response = WData.Response;
           if(AccessCode === "Denied") {
            Dialog(WYSIWYG);
           } else {
@@ -666,26 +666,29 @@ function RenderInputs(Container, Data) {
 }
 function RenderView(data) {
  var Data = JSON.parse($.b64.d(data)),
-       AccessCode = Data["AccessCode"] || "Denied",
-       Response = Data["Response"]["Web"] || "",
-       ResponseType = Data["ResponseType"] || "Dialog",
-       Success = Data["Success"] || "",
-       SetUIVariant = Data["SetUIVariant"] || UIVariant,
-       Title = Data["Title"] || "[App.Name]";
+       AccessCode = Data.AccessCode || "Denied",
+       Response = Data.Response.Web || "",
+       ResponseType = Data.ResponseType || "Dialog",
+       Success = Data.Success || "",
+       SetUIVariant = Data.SetUIVariant,
+       Title = Data.Title || "[App.Name]",
+       UIVariantIsEmpty;
+ UIVariantIsEmpty = (SetUIVariant === "" || typeof(SetUIVariant) === "undefined") ? 1 : 0;
  $(document).prop("title", Title);
- if(SetUIVariant !== UIVariant) {
-  UIVariant = SetUIVariant;
-  $(".SideBar").hide("slide", {direction: "left"}, 500);
-  $(".Top").hide("slide", {direction: "up"}, 500);
-  $(".TopBar").hide("slide", {direction: "up"}, 500);
-  setTimeout(function() {
-   if(UIVariant === 1) {
-    $(".SideBar").show("slide", {direction: "left"}, 500);
-    $(".Top").show("slide", {direction: "down"}, 500);
-   } else {
-    $(".TopBar").show("slide", {direction: "down"}, 500);
-   }
-  }, 600);
+ if(UIVariantIsEmpty === 0) {
+  if($(location).attr("href") === "[App.Base]/" && SetUIVariant !== UIVariant) {
+   UIVariant = SetUIVariant;
+   $(".SideBar").hide("slide", {direction: "left"}, 500);
+   setTimeout(function() {
+    if(SetUIVariant === "0") {
+     $(".Top").hide("slide", {direction: "up"}, 500);
+     $(".TopBar").show("slide", {direction: "up"}, 500);
+    } else if(SetUIVariant === "1") {
+     $(".Top").show("slide", {direction: "up"}, 500);
+     $(".TopBar").hide("slide", {direction: "up"}, 500);
+    }
+   }, 600);
+  }
  }
  return {
   "AccessCode": AccessCode,
@@ -699,11 +702,11 @@ function RenderVisibilityFilter(Container, Data) {
        Data = Data || {},
        Response = {};
  if(Data !== {}) {
-  var Filter = Data["Filter"] || "Privacy",
-      Name = Data["Name"] || "Privacy",
+  var Filter = Data.Filter || "Privacy",
+      Name = Data.Name || "Privacy",
       OptionGroup = {},
-      Title = Data["Title"] || "Content Visibility",
-      Value = Data["Value"] || "";
+      Title = Data.Title || "Content Visibility",
+      Value = Data.Value || "";
   if(Filter === "NSFW") {
    OptionGroup = {
     "0": "Kid-Friendly",
@@ -890,8 +893,8 @@ function SignIn() {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+          AccessCode = Data.AccessCode,
+          Response = Data.Response;
     if(AccessCode === "Denied") {
      Dialog(Response);
     } else {
@@ -927,8 +930,8 @@ function SignOut() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -948,8 +951,8 @@ function UpdateButton(button, data) {
      Data = data || {},
      Text = $(button).text() || "Error";
  if(Button !== {} && Data !== {}) {
-  Attributes = Data["Attributes"] || {};
-  Text = Data["Text"] || Text;
+  Attributes = Data.Attributes || {};
+  Text = Data.Text || Text;
   if(Attributes !== {}) {
    $.each(Attributes, function(key, value) {
     $(Button).attr(key, value);
@@ -974,8 +977,8 @@ function UpdateContent(Container, View, Debug = 0) {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -1003,8 +1006,8 @@ function UpdateContentRecursive(Container, View, Interval) {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+          AccessCode = Data.AccessCode,
+          Response = Data.Response;
     if(AccessCode === "Denied") {
      Dialog(Response);
     } else {
@@ -1033,8 +1036,8 @@ function UpdateContentRecursive(Container, View, Interval) {
       return false;
      } else {
       var Data = RenderView(data),
-            AccessCode = Data["AccessCode"],
-            Response = Data["Response"];
+            AccessCode = Data.AccessCode,
+            Response = Data.Response;
       if(AccessCode === "Denied") {
        Dialog(Response);
       } else {
@@ -1108,11 +1111,11 @@ function Upload(Button) {
           Response,
           Success,
           Type = "Dialog",
-          data = JSON.parse($.b64.d(data));
-    AccessCode = data["AccessCode"] || AccessCode;
-    Response = data["Response"]["JSON"] || {};
-    Success = data["Success"] || "";
-    Type = data["ResponseType"] || Type;
+          Data = JSON.parse($.b64.d(data));
+    AccessCode = Data.AccessCode || AccessCode;
+    Response = Data.Response.JSON || {};
+    Success = Data.Success || "";
+    Type = Data.ResponseType || Type;
     if(Response === "" || typeof(Response) === "undefined") {
      Dialog({
       "Body": "<em>[App.Name]</em> returned an empty response. Check the processor within the following URI fragment: " + Processor + "."
@@ -1329,8 +1332,8 @@ $(document).on("click", ".CreditExchange", function() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      Dialog(Response);
      if(AccessCode === "Denied") {
       $(Button).attr("disabled", false);
@@ -1362,8 +1365,8 @@ $(document).on("click", ".Delete", function() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       $(Button).text("Try Later");
      } else {
@@ -1477,8 +1480,8 @@ $(document).on("click", ".GoToView", function() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -1510,7 +1513,8 @@ $(document).on("click", ".MarkAsRead", function() {
  });
 });
 $(document).on("click", ".Menu button", function() {
- $(".Menu").slideUp(500);
+ $(".MenuContainer").slideUp(500);
+ $(".SideBar").hide("slide", {direction: "left"}, 500);
 });
 $(document).on("click", ".OpenBottomBar", function() {
  var View = $(this).attr("data-view") || "";
@@ -1527,8 +1531,8 @@ $(document).on("click", ".OpenBottomBar", function() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -1635,8 +1639,8 @@ $(document).on("click", ".ReportContent", function() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -1695,11 +1699,11 @@ $(document).on("click", ".SendData", function(event) {
     } else {
      var Class,
            Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
+           AccessCode = Data.AccessCode,
            Processor = $.b64.d(Processor),
-           Response = Data["Response"],
-           Success = Data["Success"],
-           Type = Data["ResponseType"];
+           Response = Data.Response,
+           Success = Data.Success,
+           Type = Data.ResponseType;
      if(Response === "" || typeof(Response) === "undefined") {
       Dialog({
        "Body": "<em>Outer Haven</em> returned an empty response. Check the following Processor view: " + Processor + "."
@@ -1879,8 +1883,8 @@ $(document).on("click", ".UpdateButton", function() {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
     if(AccessCode === "Denied") {
      Dialog(Response);
     } else {
@@ -1978,8 +1982,8 @@ $(document).on("keyup", ".LinkData", function() {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+          AccessCode = Data.AccessCode,
+          Response = Data.Response;
     if(AccessCode === "Denied") {
      Dialog(Response);
     } else {
@@ -1993,7 +1997,7 @@ $(document).on("keyup", ".LinkData", function() {
 $(document).on("keyup", ".ReSearch", function() {
  ReSearch($(this));
 });
-$(document).on("keyup", ".TopBar input", function() {
+$(document).on("keyup", ".SearchBar", function() {
  var Bar = $(this),
        Content = DefaultContainer,
        DocumentWidth = $(document).width();
@@ -2030,8 +2034,8 @@ $(document).on("keyup", ".UnlockProtectedContent", function() {
     return false;
    } else {
     var Data = RenderView(data),
-          AccessCode = Data["AccessCode"],
-          Response = Data["Response"];
+          AccessCode = Data.AccessCode,
+          Response = Data.Response;
     if(AccessCode === "Accepted") {
      $(Input).attr("disabled", true);
      setTimeout(function() {
@@ -2066,8 +2070,8 @@ $(document).ready(function() {
      return false;
     } else {
      var Data = RenderView(data),
-           AccessCode = Data["AccessCode"],
-           Response = Data["Response"];
+           AccessCode = Data.AccessCode,
+           Response = Data.Response;
      if(AccessCode === "Denied") {
       Dialog(Response);
      } else {
@@ -2095,6 +2099,15 @@ $(document).ready(function() {
  }, 15);
  setTimeout(function() {
   $(".Boot").fadeOut(500);
+  setTimeout(function() {
+   if(UIVariant === 0) {
+    $(".Top").hide("slide", {direction: "up"}, 500);
+    $(".TopBar").show("slide", {direction: "up"}, 500);
+   } else if(UIVariant === 1) {
+    $(".Top").show("slide", {direction: "up"}, 500);
+    $(".TopBar").hide("slide", {direction: "up"}, 500);
+   }
+  }, 600);
  }, 1000);
 });
 $(window).scroll(function() {
