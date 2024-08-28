@@ -3130,7 +3130,7 @@
      }
     }
    } elseif($searchType == "XFS") {
-    $_Query = "SELECT * FROM :Database F
+    $_Query = "SELECT * FROM :Database
                         JOIN Members
                         ON Member_Username=Media_Username
                         WHERE (Media_Description LIKE :Search OR
