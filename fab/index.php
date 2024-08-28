@@ -4,13 +4,13 @@
  $broadcastViewEnabled = 0;
  $oh = New OH;
  $description = $oh->core->config["App"]["Description"] ?? "";
- $events = $oh->core->config["App"]["PublicEvents"] ?? [];
+ $events = $oh->core->config["PublicEvents"] ?? [];
  $selectedEvent = [];
  $title = "Free America Broadcasting";
  foreach($events as $event => $info) {
   if($info["Active"] == 1) {
    $activeEvent = 1;
-   $broadcastViewEnabled = $info["EnablePublicBroadcast"];
+   $broadcastViewEnabled = $info["EnablePublicBroadcast"] ?? 0;
    $selectedEvent = $info;
    break;
   }

@@ -289,7 +289,7 @@
   }
   function OptIn(array $a) {
    $accessCode = "Accepted";
-   $eventMedia = $this->core->RenderEventMedia() ?? [];
+   $eventMedia = $this->core->RenderEventMedia();
    $r = $this->core->Change([[
     "[Gateway.Company]" => base64_encode("v=".base64_encode("Company:Home")."&Card=1"),
     "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),

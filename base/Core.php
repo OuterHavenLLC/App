@@ -1276,18 +1276,19 @@
    return $ghost;
   }
   function RenderEventMedia() {
-   $events = $this->config["App"]["PublicEvents"] ?? [];
+   $events = $this->config["PublicEvents"] ?? [];
    $r = [
     "Banner" => "",
     "CoverPhoto" => $this->PlainText([
      "BBCodes" => 1,
      "Data" => "[Media:CP]"
-    ])
+    ]),
+    "Events" => $events
    ];
    foreach($events as $event => $info) {
     if($info["Active"] == 1) {
      $r["Banner"] = $this->Change([[
-      "[Banner.Link]" => $info["BannerLink"],
+      "[Banner.Link]" => $info["Link"],
       "[Banner.Text]" => $info["BannerText"],
      ], $this->Extension("af8e6cb7d85b8131980d9e6b69fc5a1f")]);
      if(!empty($info["CoverPhoto"])) {

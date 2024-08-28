@@ -282,23 +282,21 @@
      $r = [
       "Body" => "Active events require both Banner Text and Link to be populated."
      ];
-    } else {
-     if($activeEvents == 1) {
-      $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
-      $now = $this->core->timestamp;
-      $chat["Description"] = $activeEvent["Description"];
-      $chat["Messages"] = [];
-      $chat["Modified"] = $now;
-      $chat["ModifiedBy"][$now] = $you;
-      $chat["Title"] = $activeEvent["Title"];
-      $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
-     }
-     $this->core->Data("Save", ["app", md5("config"), $config]);
-     $r = [
-      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-      "Header" => "Done"
-     ];
+    } elseif($activeEvents == 1) {
+     $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
+     $now = $this->core->timestamp;
+     $chat["Description"] = $activeEvent["Description"];
+     $chat["Messages"] = [];
+     $chat["Modified"] = $now;
+     $chat["ModifiedBy"][$now] = $you;
+     $chat["Title"] = $activeEvent["Title"];
+     $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
     }
+    $this->core->Data("Save", ["app", md5("config"), $config]);
+    $r = [
+     "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+     "Header" => "Done"
+    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
