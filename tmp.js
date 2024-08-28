@@ -2,6 +2,7 @@ var DefaultContainer = ".Content",
       Inputs = "input, number, select, textarea",
       Language = "[App.Language]",
       Loading = "&bull; &bull; &bull;",
+      UIVariant = 0,
       base = "[App.Base]/?_API=Web&";
 function AddContent() {
  var Daemon = function() {
@@ -669,8 +670,23 @@ function RenderView(data) {
        Response = Data["Response"]["Web"] || "",
        ResponseType = Data["ResponseType"] || "Dialog",
        Success = Data["Success"] || "",
+       SetUIVariant = Data["SetUIVariant"] || UIVariant,
        Title = Data["Title"] || "[App.Name]";
  $(document).prop("title", Title);
+ if(SetUIVariant !== UIVariant) {
+  UIVariant = SetUIVariant;
+  $(".SideBar").hide("slide", {direction: "left"}, 500);
+  $(".Top").hide("slide", {direction: "up"}, 500);
+  $(".TopBar").hide("slide", {direction: "up"}, 500);
+  setTimeout(function() {
+   if(UIVariant === 1) {
+    $(".SideBar").show("slide", {direction: "left"}, 500);
+    $(".Top").show("slide", {direction: "down"}, 500);
+   } else {
+    $(".TopBar").show("slide", {direction: "down"}, 500);
+   }
+  }, 600);
+ }
  return {
   "AccessCode": AccessCode,
   "Response": Response,
@@ -1790,9 +1806,9 @@ $(document).on("click", ".ToggleMenu", function() {
    CloseNetMap();
   } else {
    if($(".Menu").is(":visible")) {
-    $(".Menu").slideUp(500);
+    $(".MenuContainer").slideUp(500);
    } else {
-    $(".Menu").slideDown(500);
+    $(".MenuContainer").slideDown(500);
    }
   }
  }
@@ -1805,6 +1821,18 @@ $(document).on("click", ".ToggleNetMap", function() {
    CloseNetMap();
   } else {
    OpenNetMap($(this).attr("data-map"));
+  }
+ }
+});
+$(document).on("click", ".ToggleSideBar", function() {
+ var Content = DefaultContainer;
+ if($(".FST").is(":visible")) {
+  CloseFirSTEPTool();
+ } else {
+  if($(".NetMap").is(":visible")) {
+   CloseNetMap();
+  } else {
+   $(".SideBar").toggle("slide", {direction: "left"}, 500);
   }
  }
 });
