@@ -1105,6 +1105,7 @@
       $passPhrase = $y["Privacy"]["PassPhrase"] ?? "";
       $polls = $y["Privacy"]["Posts"] ?? md5("Public");
       $relationshipWith = $y["Personal"]["RelationshipWith"] ?? "";
+      $setUIVariant = $y["Personal"]["UIVariant"] ?? 0;
       for($i = 1; $i <= 12; $i++) {
        $birthMonths[$i] = $i;
       } for($i = 1776; $i <= date("Y"); $i++) {
@@ -1134,6 +1135,7 @@
        "[Preferences.Personal.AutoResponse]" => base64_encode($autoResponse),
        "[Preferences.Personal.Electable]" => $chooseElectable,
        "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
+       "[Preferences.Personal.UIVariant]" => $setUIVariant,
        "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
        "[Preferences.Privacy.Archive]" => $y["Privacy"]["Archive"],
        "[Preferences.Privacy.Articles]" => $y["Privacy"]["Articles"],
@@ -1412,6 +1414,7 @@
    } elseif($this->core->ID == $you) {
     $r = "You must be signed in to continue.";
    } else {
+    $_UIVariant = $data["SetUIVariant"] ?? 0;
     $accessCode = "Accepted";
     $header = "Done";
     $newMember = $this->core->NewMember(["Username" => $you]);
@@ -1457,6 +1460,7 @@
     $newMember["Personal"]["Electable"] = $data["Electable"] ?? 0;
     $newMember["Personal"]["FirstName"] = $firstName;
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
+    $newMember["Personal"]["UIVariant"] = $_UIVariant;
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
@@ -1473,7 +1477,8 @@
       "Header" => $header
      ]
     ],
-    "ResponseType" => "Dialog"
+    "ResponseType" => "Dialog",
+    "SetUIVariant" => $_UIVariant
    ]);
   }
   function SavePassword(array $a) {
@@ -1584,6 +1589,7 @@
    ]);
   }
   function SaveSignIn(array $a) {
+   $_UIVariant = 0;
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -1618,6 +1624,7 @@
      $member = $this->core->Data("Get", ["mbr", md5($username)]) ?? [];
      $password = md5($password);
      if($password == $member["Login"]["Password"]) {
+      $_UIVariant = $member["Personal"]["UIVariant"] ?? 0;
       $accessCode = "Accepted";
       $responseType = "SignIn";
       $this->core->Statistic("Sign In");
@@ -1647,7 +1654,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => $responseType
+    "ResponseType" => $responseType,
+    "SetUIVariant" => $_UIVariant
    ]);
   }
   function SaveSignUp(array $a) {

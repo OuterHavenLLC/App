@@ -1100,7 +1100,8 @@
      "MinimalDesign" => 0,
      "ProfilePicture" => $a["ProfilePicture"],
      "RelationshipStatus" => $relationshipStatus,
-     "RelationshipWith" => ""
+     "RelationshipWith" => "",
+     "UIVariant" => 0
     ],
     "Points" => 1000,
     "Polls" => $polls,
