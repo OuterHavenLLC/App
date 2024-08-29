@@ -2,7 +2,7 @@ var DefaultContainer = ".Content",
       Inputs = "input, number, select, textarea",
       Language = "[App.Language]",
       Loading = "&bull; &bull; &bull;",
-      UIVariant = 0,
+      UIVariant = "0",
       base = "[App.Base]/?_API=Web&";
 function AddContent() {
  var Daemon = function() {
@@ -223,6 +223,84 @@ function Crash(data) {
   "Scrollable": Data
  });
 }
+function DeleteContainer(button) {
+ var Button = button,
+       Container = $(Button).closest($(Button).attr("data-target"));
+ $(Container).slideUp(500);
+ setTimeout(function() {
+  $(Container).remove();
+ }, 500);
+}
+function Dialog(data) {
+ var Data = data || {},
+       Actions = "",
+       ActionsList = Data.Actions || "",
+       Body = Data.Body || "",
+       Dialog = "",
+       Header = Data.Header || "Error",
+       ID = Data.ID || Date.now(),
+       NoClose = Data.NoClose || 0,
+       Scrollable = Data.Scrollable || "";
+ $(".CloseDialog, .OpenDialog").each(function() {
+  this.disabled = true;
+ });
+ $("body").append("<div class='DialogOverlay DialogOverlay" + ID + " Overlay h'></div>");
+ $(".DialogOverlay" + ID).fadeIn(500);
+ if(ActionsList !== "" && typeof(ActionsList) !== "undefined") {
+  $(ActionsList).each(function(key, value) {
+   Actions += value;
+  });
+ } if(NoClose === 0) {
+  Actions += "<button class='CloseDialog v2 v2w' data-id='" + ID + "'>Cancel</button>\r\n";
+ } setTimeout(function() {
+  Dialog = "<div class='Frosted Dialog Rounded Shadowed h scr'>\r\n";
+  if(Header !== "" && typeof(Header) !== "undefined") {
+   Dialog += "<h3 class='CenterText'>" + Header + "</h3>\r\n";
+  } if(Body !== "" && typeof(Body) !== "undefined") {
+   Dialog += "<p class='CenterText'>" + Body + "</p>\r\n";
+  } if(Scrollable !== "" && typeof(Scrollable) !== "undefined") {
+   Dialog += "<div class='NONAME scr' style='max-height:400px'>\r\n";
+   Dialog += Scrollable + "\r\n";
+   Dialog += "</div>\r\n";
+  }
+  Dialog += Actions + "\r\n";
+  Dialog += "</div>";
+  $(".DialogOverlay" + ID).html(Dialog);
+  $(".DialogOverlay" + ID + " .Dialog").show("scale");
+  $(".CloseDialog, .OpenDialog").each(function() {
+   this.disabled = false;
+  });
+ }, 600);
+}
+function Encode(data) {
+ if($.isArray(data) && typeof(data) !== "undefined") {
+  $.each(data, function(key, input) {
+   input.value = $.b64.e(encodeURIComponent(input.value));
+  });
+  return data;
+ } else {
+  Dialog({
+   "Body": "Encoder expects a populated list."
+  });
+ }
+}
+function FST(data) {
+ var Data = data || {},
+       ID = Data.ID || Date.now();
+ $("body").append("<div class='Frosted FST FST" + ID + " RoundedLarge Shadowed h scr'></div>");
+ $(".FST" + ID).html(Data);
+ setTimeout(function() {
+  $(".FST" + ID).show("slide", {
+   direction: "right"
+  }, 500);
+ }, 600);
+}
+function InstantSignOut() {
+ setTimeout(function() {
+  LocalData("Purge", "SecurityKey");
+  SetUIVariant("0");
+ }, 1000);
+}
 function LightSearch(input) {
  var Input = input || {},
        List = $(Input).attr("data-list") || "",
@@ -326,83 +404,6 @@ function LocalData(action = "Get", identifier = "", data = {}) {
    window.localStorage.setItem(identifier, data);
   }
  }
-}
-function DeleteContainer(button) {
- var Button = button,
-       Container = $(Button).closest($(Button).attr("data-target"));
- $(Container).slideUp(500);
- setTimeout(function() {
-  $(Container).remove();
- }, 500);
-}
-function Dialog(data) {
- var Data = data || {},
-       Actions = "",
-       ActionsList = Data.Actions || "",
-       Body = Data.Body || "",
-       Dialog = "",
-       Header = Data.Header || "Error",
-       ID = Data.ID || Date.now(),
-       NoClose = Data.NoClose || 0,
-       Scrollable = Data.Scrollable || "";
- $(".CloseDialog, .OpenDialog").each(function() {
-  this.disabled = true;
- });
- $("body").append("<div class='DialogOverlay DialogOverlay" + ID + " Overlay h'></div>");
- $(".DialogOverlay" + ID).fadeIn(500);
- if(ActionsList !== "" && typeof(ActionsList) !== "undefined") {
-  $(ActionsList).each(function(key, value) {
-   Actions += value;
-  });
- } if(NoClose === 0) {
-  Actions += "<button class='CloseDialog v2 v2w' data-id='" + ID + "'>Cancel</button>\r\n";
- } setTimeout(function() {
-  Dialog = "<div class='Frosted Dialog Rounded Shadowed h scr'>\r\n";
-  if(Header !== "" && typeof(Header) !== "undefined") {
-   Dialog += "<h3 class='CenterText'>" + Header + "</h3>\r\n";
-  } if(Body !== "" && typeof(Body) !== "undefined") {
-   Dialog += "<p class='CenterText'>" + Body + "</p>\r\n";
-  } if(Scrollable !== "" && typeof(Scrollable) !== "undefined") {
-   Dialog += "<div class='NONAME scr' style='max-height:400px'>\r\n";
-   Dialog += Scrollable + "\r\n";
-   Dialog += "</div>\r\n";
-  }
-  Dialog += Actions + "\r\n";
-  Dialog += "</div>";
-  $(".DialogOverlay" + ID).html(Dialog);
-  $(".DialogOverlay" + ID + " .Dialog").show("scale");
-  $(".CloseDialog, .OpenDialog").each(function() {
-   this.disabled = false;
-  });
- }, 600);
-}
-function Encode(data) {
- if($.isArray(data) && typeof(data) !== "undefined") {
-  $.each(data, function(key, input) {
-   input.value = $.b64.e(encodeURIComponent(input.value));
-  });
-  return data;
- } else {
-  Dialog({
-   "Body": "Encoder expects a populated list."
-  });
- }
-}
-function FST(data) {
- var Data = data || {},
-       ID = Data.ID || Date.now();
- $("body").append("<div class='Frosted FST FST" + ID + " RoundedLarge Shadowed h scr'></div>");
- $(".FST" + ID).html(Data);
- setTimeout(function() {
-  $(".FST" + ID).show("slide", {
-   direction: "right"
-  }, 500);
- }, 600);
-}
-function InstantSignOut() {
- setTimeout(function() {
-  LocalData("Purge", "SecurityKey");
- }, 1000);
 }
 function OpenCard(View) {
  $.ajax({
@@ -667,29 +668,13 @@ function RenderInputs(Container, Data) {
 function RenderView(data) {
  var Data = JSON.parse($.b64.d(data)),
        AccessCode = Data.AccessCode || "Denied",
+       NewUIVariant = Data.SetUIVariant,
        Response = Data.Response.Web || "",
        ResponseType = Data.ResponseType || "Dialog",
        Success = Data.Success || "",
-       SetUIVariant = Data.SetUIVariant,
-       Title = Data.Title || "[App.Name]",
-       UIVariantIsEmpty;
- UIVariantIsEmpty = (SetUIVariant === "" || typeof(SetUIVariant) === "undefined") ? 1 : 0;
+       Title = Data.Title || "[App.Name]";
  $(document).prop("title", Title);
- if(UIVariantIsEmpty === 0) {
-  if($(location).attr("href") === "[App.Base]/" && SetUIVariant !== UIVariant) {
-   UIVariant = SetUIVariant;
-   $(".SideBar").hide("slide", {direction: "left"}, 500);
-   setTimeout(function() {
-    if(SetUIVariant === "0") {
-     $(".Top").hide("slide", {direction: "up"}, 500);
-     $(".TopBar").show("slide", {direction: "up"}, 500);
-    } else if(SetUIVariant === "1") {
-     $(".Top").show("slide", {direction: "up"}, 500);
-     $(".TopBar").hide("slide", {direction: "up"}, 500);
-    }
-   }, 600);
-  }
- }
+ SetUIVariant(NewUIVariant);
  return {
   "AccessCode": AccessCode,
   "Response": Response,
@@ -880,6 +865,24 @@ function Search(input) {
   }
  }
 }
+function SetUIVariant(NewVariant = "") {
+ var UIVariantIsEmpty = (NewVariant === "" || typeof(NewVariant) === "undefined") ? 1 : 0;
+ if(UIVariantIsEmpty === 0) {
+  if($(location).attr("href") === "[App.Base]/" && NewVariant !== UIVariant) {
+   UIVariant = NewVariant;
+   $(".SideBar").hide("slide", {direction: "left"}, 500);
+   setTimeout(function() {
+    if(NewVariant === "0") {
+     $(".Top").hide("slide", {direction: "up"}, 500);
+     $(".TopBar").show("slide", {direction: "down"}, 500);
+    } else if(NewVariant === "1") {
+     $(".Top").show("slide", {direction: "up"}, 500);
+     $(".TopBar").hide("slide", {direction: "up"}, 500);
+    }
+   }, 600);
+  }
+ }
+}
 function SignIn() {
  $.ajax({
   headers: {
@@ -937,7 +940,8 @@ function SignOut() {
      } else {
       $(DefaultContainer).html(Response).prepend("<div class='TopBarMargin'></div>");
       UpdateContent(".Menu", "[App.Menu]");
-      $(".Menu").slideUp(500);
+      $(".SideBar").hide("slide", {direction: "left"}, 500);
+      $(".TopBar .MenuContainer").slideUp(500);
      }
     }
    },
@@ -1513,8 +1517,8 @@ $(document).on("click", ".MarkAsRead", function() {
  });
 });
 $(document).on("click", ".Menu button", function() {
- $(".MenuContainer").slideUp(500);
  $(".SideBar").hide("slide", {direction: "left"}, 500);
+ $(".TopBar .MenuContainer").slideUp(500);
 });
 $(document).on("click", ".OpenBottomBar", function() {
  var View = $(this).attr("data-view") || "";
@@ -1802,17 +1806,18 @@ $(document).on("click", ".ToggleElement", function() {
  }
 });
 $(document).on("click", ".ToggleMenu", function() {
- var Content = DefaultContainer;
+ var Content = DefaultContainer
+       Menu = ".TopBar .MenuContainer";
  if($(".FST").is(":visible")) {
   CloseFirSTEPTool();
  } else {
   if($(".NetMap").is(":visible")) {
    CloseNetMap();
   } else {
-   if($(".Menu").is(":visible")) {
-    $(".MenuContainer").slideUp(500);
+   if($(Menu).is(":visible")) {
+    $(Menu).slideUp(500);
    } else {
-    $(".MenuContainer").slideDown(500);
+    $(Menu).slideDown(500);
    }
   }
  }
@@ -2011,7 +2016,8 @@ $(document).on("keyup", ".SearchBar", function() {
    method: "POST",
    success: function(data) {
     $(Content).html($.b64.d(data));
-    $(".Menu").slideUp(500);
+    $(".SideBar").hide("slide", {direction: "left"}, 500);
+    $(".TopBar .MenuContainer").slideUp(500);
    },
    url: base + $.b64.d($(Bar).attr("data-u")) + $.b64.e($(Bar).val())
   });
@@ -2099,15 +2105,7 @@ $(document).ready(function() {
  }, 15);
  setTimeout(function() {
   $(".Boot").fadeOut(500);
-  setTimeout(function() {
-   if(UIVariant === 0) {
-    $(".Top").hide("slide", {direction: "up"}, 500);
-    $(".TopBar").show("slide", {direction: "up"}, 500);
-   } else if(UIVariant === 1) {
-    $(".Top").show("slide", {direction: "up"}, 500);
-    $(".TopBar").hide("slide", {direction: "up"}, 500);
-   }
-  }, 600);
+  SetUIVariant(UIVariant);
  }, 1000);
 });
 $(window).scroll(function() {
