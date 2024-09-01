@@ -3130,6 +3130,8 @@
      }
     }
    } elseif($searchType == "XFS") {
+    $_Username = $data["UN"] ?? base64_encode("");
+    $_Username = base64_decode($_Username);
     $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
     $_Query = "SELECT * FROM $_Database
                         JOIN Members
@@ -3141,8 +3143,6 @@
                         LIMIT $limit
                         OFFSET $offset
     ";
-    $_Username = $data["UN"] ?? base64_encode("");
-    $_Username = base64_decode($_Username);
     $accessCode = "Accepted";
     $added = $data["Added"] ?? "";
     $addTo = $data["AddTo"] ?? "";
