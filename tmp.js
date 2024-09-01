@@ -1063,6 +1063,11 @@ function UpdateCoverPhoto(Container, Photo) {
   });
  }
 }
+function UpdateUIVariant(NewUIVariant) {
+ var NewUIVariant = NewUIVariant || "0";
+ SetUIVariant(NewUIVariant);
+ $(".PersonalUIVariant").val(NewUIVariant);
+}
 function Upload(Button) {
  var Form = $(Button).attr("data-form"),
        Inputs = "input, number, select, textarea",

@@ -1408,14 +1408,11 @@
     $r = "Your Display Name is missing.";
    } elseif(empty($email)) {
     $r = "Your E-Mail is missing.";
-   } elseif(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = "The PINs do not match.";
    } elseif($emailIsTaken > 0) {
     $r = "Another Member is already using <em>$email</em>.";
    } elseif($this->core->ID == $you) {
     $r = "You must be signed in to continue.";
    } else {
-    $_UIVariant = $data["SetUIVariant"] ?? 0;
     $accessCode = "Accepted";
     $header = "Done";
     $newMember = $this->core->NewMember(["Username" => $you]);
@@ -1461,7 +1458,6 @@
     $newMember["Personal"]["Electable"] = $data["Electable"] ?? 0;
     $newMember["Personal"]["FirstName"] = $firstName;
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
-    $newMember["Personal"]["UIVariant"] = $_UIVariant;
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
