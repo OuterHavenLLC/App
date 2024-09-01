@@ -3130,7 +3130,8 @@
      }
     }
    } elseif($searchType == "XFS") {
-    $_Query = "SELECT * FROM :Database
+    $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
+    $_Query = "SELECT * FROM $_Database
                         JOIN Members
                         ON Member_Username=Media_Username
                         WHERE (Media_Description LIKE :Search OR
@@ -3145,7 +3146,6 @@
     $accessCode = "Accepted";
     $added = $data["Added"] ?? "";
     $addTo = $data["AddTo"] ?? "";
-    $database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $mediaType = $data["ftype"] ?? "";
     $sql->query($_Query, [

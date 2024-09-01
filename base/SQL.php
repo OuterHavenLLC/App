@@ -15,7 +15,7 @@
    try {
     $this->data = new PDO($connection, $username, $password, $options);
    } catch(PDOException $error) {
-    $this->error = "<h1>Database Error</h1>\r\n<p>".$error->getMessage()."</p>\r\n";
+    $this->error = "<h4>Database Error</h4>\r\n<p>".$error->getMessage()."</p>\r\n";
    }
   }
   public function debugDumpParams() {
@@ -28,7 +28,7 @@
    try {
     return $this->statement->execute();
    } catch(PDOException $error) {
-    $this->error = "<h1>Query Execution Error</h1>\r\n";
+    $this->error = "<h4>Query Execution Error</h4>\r\n";
     $this->error .= "<p>An error ocurred while attempting to execute the query:</p>\r\n";
     $this->error .= "<p><strong>Message</strong>: $error</p>\r\n";
     $this->error .= "<p><strong>Query Data</strong>: ".json_encode($queryData, true)."</p>\r\n";
@@ -55,7 +55,7 @@
      } try {
       $this->statement->bindValue($value, $info, $_ValueType);
      } catch(PDOException $error) {
-      $this->error = "<h1>Bind Error</h1>\r\n";
+      $this->error = "<h4>Bind Error</h4>\r\n";
       $this->error .= "<p>An error ocurred while attempting to bind values to the query:</p>\r\n";
       $this->error .= "<p><strong>Message</strong>: $error</p>\r\n";
       $this->error .= "<p><strong>Query</strong>: $query</p>\r\n";
@@ -64,7 +64,7 @@
      }
     }
    } catch(PDOException $error) {
-    $this->error = "<h1>Query Preparation Error</h1>\r\n";
+    $this->error = "<h4>Query Preparation Error</h4>\r\n";
     $this->error .= "<p>An error ocurred while attempting to prepare the query:</p>\r\n";
     $this->error .= "<p><strong>Message</strong>: $error</p>\r\n";
     $this->error .= "<p><strong>Query</strong>: $query</p>\r\n";
