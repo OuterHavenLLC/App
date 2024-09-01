@@ -51,7 +51,7 @@
       $eventsList = $config["PublicEvents"] ?? [];
       $media = "";
       $mediaList = $config["Media"] ?? [];
-      $previewQuantity = base64_encode("Single");
+      $previewQuantity = "Single";
       $responseType = "View";
       $saveFirst = base64_encode("v=".base64_encode("ControlPanel:SaveFirst"));
       $search = "";

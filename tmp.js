@@ -349,7 +349,8 @@ function LiveView(input) {
   var Input = $(document).find(input),
         DLC = $(Input).val(),
         Preview = $(Input).attr("data-preview-destination"),
-        Quantity = $(Input).attr("data-quantity") || $.b64.e("Single");
+        Quantity = $(Input).attr("data-quantity") || "";
+  Quantity = $.b64.e(Quantity);
   if($(Input).length) {
    $.ajax({
     headers: {

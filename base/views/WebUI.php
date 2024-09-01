@@ -27,7 +27,7 @@
     $at4 = base64_encode("Add to Demo Files:$at4input");
     $at5input = ".Products$id";
     $at5 = base64_encode("Add to Product Bundle:$at5input");
-    $coverPhoto = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at2input)."&MediaType=".base64_encode("Files")."&ID=");
+    $coverPhoto = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at2input)."&MediaType=".base64_encode("CoverPhoto")."&ID=");
     $demoFiles = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at4input)."&MediaType=".base64_encode("Files")."&ID=");
     $dlc = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at3input)."&MediaType=".base64_encode("Files")."&ID=");
     $products = base64_encode("v=".base64_encode("LiveView:Editor")."&AddTo=".base64_encode($at5input)."&MediaType=".base64_encode("Products")."&ID=");
@@ -36,7 +36,7 @@
       [
        "[Extras.BundledProducts]" => base64_encode("#"),# CREATE PASS-THROUGH DATA FOR PRODUCTS, BASED ON EXISTING MEDIA LIBRARY CONNECTION
        "[Extras.BundledProducts.LiveView]" => $products,
-       "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at2&Added=$at&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
+       "[Extras.CoverPhoto]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$at2&Added=$at&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]))),
        "[Extras.CoverPhoto.LiveView]" => $coverPhoto,
        "[Extras.DemoFiles]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=$at4&Added=$at&UN=".base64_encode($you)),
        "[Extras.DemoFiles.LiveView]" => $demoFiles,

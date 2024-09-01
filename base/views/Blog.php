@@ -118,7 +118,7 @@
      "data-form" => ".EditBlog$id",
      "data-processor" => base64_encode("v=".base64_encode("Blog:Save"))
     ]]);
-    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]);
     $author = $blog["UN"] ?? $you;
     $coverPhotoSource = $blog["ICO-SRC"] ?? "";
     $description = $blog["Description"] ?? "";

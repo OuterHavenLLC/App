@@ -2698,7 +2698,7 @@
       array_push($list, [
        "[File.CoverPhoto]" => base64_encode($source),
        "[File.Title]" => base64_encode($file["Title"]),
-       "[File.View]" => base64_encode("Files;".$options["View"])
+       "[File.View]" => base64_encode($options["View"])
       ]);
      }
     }
@@ -2736,7 +2736,7 @@
       array_push($list, [
        "[File.CoverPhoto]" => base64_encode($source),
        "[File.Title]" => base64_encode($file["Title"]),
-       "[File.View]" => base64_encode("Files;".$options["View"])
+       "[File.View]" => base64_encode($options["View"])
       ]);
      }
     }
@@ -3149,7 +3149,7 @@
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $mediaType = $data["ftype"] ?? "";
     $sql->query($_Query, [
-     ":Database" => $database,
+     ":Database" => $_Database,
      ":Search" => $querysql,
      ":Username" => $_Username
     ]);
@@ -3161,8 +3161,7 @@
       "Added" => $added,
       "AddTo" => $addTo,
       "Blacklisted" => $bl,
-      "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"]),
-      "ParentView" => "Files"
+      "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
      if($_File["Empty"] == 0 && $bl == 0) {
       $file = $_File["DataModel"];
@@ -3171,7 +3170,7 @@
       $media = [
        "[File.CoverPhoto]" => base64_encode($source),
        "[File.Title]" => base64_encode($file["Title"]),
-       "[File.View]" => base64_encode("$searchType;".$options["View"])
+       "[File.View]" => base64_encode($options["View"])
       ];
       if(empty($mediaType)) {
        array_push($list, $media);

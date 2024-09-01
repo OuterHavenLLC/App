@@ -630,7 +630,7 @@
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("File;$contentID;$additionalContentID")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
        "Source" => $this->GetSourceFromExtension([$contentID, $data]),
-       "View" => base64_encode("v=".base64_encode("File:Home")."&Added=$added&AddTo=$addTo&ID=$additionalContentID&UN=$contentID&ParentView=$parentView&ViewData=$viewData"),
+       "View" => "$parentView;".base64_encode("v=".base64_encode("File:Home")."&Added=$added&AddTo=$addTo&ID=$additionalContentID&UN=$contentID&ParentView=$parentView&ViewData=$viewData"),
        "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";

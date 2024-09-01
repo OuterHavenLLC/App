@@ -15,6 +15,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Addressed several rendering issues regarding Public Event banners and the Free America Broadcasting Annex.
 * Members may now choose UI varients.
 * When a new Member signs up, there is now an integrated tutorial presentation in the success view.
+* Attached content previews now properly render in content editors.
 * More platform-wide optimization and bug fixes.
 
 ### Re:Search
