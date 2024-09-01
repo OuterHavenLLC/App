@@ -286,6 +286,11 @@
      }
     }
     $forumPost = $this->core->Data("Get", ["post", $postID]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM ForumPosts WHERE ForumPost_ID=:ID", [
+     ":ID" => $postID
+    ]);
+    $sql->execute();
     if(!empty($forumPost)) {
      $forumPost["Purge"] = 1;
      $this->core->Data("Save", ["post", $postID, $forumPost]);

@@ -664,7 +664,12 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $chat = $this->core->Data("Get", ["chat", $id]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM Chat WHERE Chat_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
     $chats = $y["GroupChats"] ?? [];
     $newChats = [];
     foreach($chats as $key => $value) {

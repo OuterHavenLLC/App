@@ -272,7 +272,7 @@
     ];
    } elseif(!empty($blogID) && !empty($postID)) {
     $accessCode = "Accepted";
-    $blog = $this->core->Data("Get", ["blg", $blogID]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $blogID]);
     $blog["Modified"] = $now;
     $blog["ModifiedBy"][$now] = $you;
     $newPosts = [];
@@ -284,6 +284,11 @@
     }
     $blog["Posts"] = $newPosts;
     $blogPost = $this->core->Data("Get", ["bp", $postID]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM BlogPosts WHERE BlogPost_ID=:ID", [
+     ":ID" => $postID
+    ]);
+    $sql->execute();
     if(!empty($blogPost)) {
      $blogPost["Purge"] = 1;
      $this->core->Data("Save", ["bp", $postID, $blogPost]);

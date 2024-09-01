@@ -449,6 +449,11 @@
     }
     $y["Blogs"] = $newBlogs;
     $blog = $this->core->Data("Get", ["blg", $id]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM Blogs WHERE Blog_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
     if(!empty($blog)) {
      $blog["Purge"] = 1;
      $this->core->Data("Save", ["blg", $id, $blog]);

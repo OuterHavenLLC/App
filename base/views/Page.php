@@ -486,6 +486,11 @@
     }
     $y["Pages"] = $newArticles;
     $article = $this->core->Data("Get", ["pg", $id]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM Articles WHERE Article_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
     if(!empty($article)) {
      $article["Purge"] = 1;
      $this->core->Data("Save", ["pg", $id, $article]);

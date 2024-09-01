@@ -110,15 +110,15 @@
    } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $extension = $this->core->Data("Get", ["extension", $id]);
-    if(!empty($extension)) {
-     $extension["Purge"] = 1;
-     $this->core->Data("Save", ["extension", $id, $extension]);
-    }
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $sql->query("DELETE FROM Extensions WHERE Extension_ID=:ID", [
      ":ID" => $id
     ]);
     $sql->execute();
+    if(!empty($extension)) {
+     $extension["Purge"] = 1;
+     $this->core->Data("Save", ["extension", $id, $extension]);
+    }
     $r = $this->core->Element([
      "p", "The App Extension was marked for purging.",
      ["class" => "CenterText"]

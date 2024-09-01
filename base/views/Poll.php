@@ -163,6 +163,11 @@
     }
     $y["Polls"] = array_unique($newPolls);
     $poll = $this->core->Data("Get", ["poll", $id]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM Polls WHERE Poll_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
     if(!empty($poll)) {
      $poll["Purge"] = 1;
      $this->core->Data("Save", ["poll", $id, $poll]);

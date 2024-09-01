@@ -390,6 +390,11 @@
      $this->core->Data("Save", ["conversation", $id, $conversation]);
     }
     $product = $this->core->Data("Get", ["product", $id]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM Products WHERE Product_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
     if(!empty($product)) {
      $product["Purge"] = 1;
      $this->core->Data("Save", ["product", $id, $product]);

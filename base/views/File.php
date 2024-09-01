@@ -327,9 +327,15 @@
       if($id != $value["ID"]) {
        $newFiles[$key] = $value;
       } else {
+       $_Database = ($this->core->ID == $username) ? "CoreMedia" : "Media";
        $_Name = $value["Name"] ?? $_Name;
        $coverPhoto = $albums[$albumID]["ICO"] ?? "";
        $baseName = explode(".", $_Name)[0];
+       $sql = New SQL($this->core->cypher->SQLCredentials());
+       $sql->query("DELETE FROM $_Database WHERE Media_ID=:ID", [
+        ":ID" => $id
+       ]);
+       $sql->execute();
        if($this->core->ID != $username) {
         if($_Name == $coverPhoto && $username == $you) {
          $albums[$albumID]["ICO"] = "";

@@ -611,6 +611,11 @@
      foreach($forumPosts as $key => $value) {
       $forumPost = $this->core->Data("Get", ["post", $value]);
       if(!empty($forumPost)) {
+       $sql = New SQL($this->core->cypher->SQLCredentials());
+       $sql->query("DELETE FROM ForumPosts WHERE ForumPost_ID=:ID", [
+        ":ID" => $value
+       ]);
+       $sql->execute();
        $this->view(base64_encode("ForumPost:Purge"), ["Data" => [
         "Key" => $passPhrase,
         "ID" => base64_encode($value),
@@ -633,6 +638,11 @@
       $this->core->Data("Save", ["conversation", $id, $conversation]);
      }
      $forum = $this->core->Data("Get", ["pf", $id]);
+     $sql = New SQL($this->core->cypher->SQLCredentials());
+     $sql->query("DELETE FROM Forum WHERE Forum_ID=:ID", [
+      ":ID" => $id
+     ]);
+     $sql->execute();
      if(!empty($forum)) {
       $forum["Purge"] = 1;
       $this->core->Data("Save", ["pf", $id, $forum]);

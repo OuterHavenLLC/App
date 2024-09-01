@@ -360,6 +360,11 @@
      $this->core->Data("Save", ["conversation", $id, $conversation]);
     }
     $statusUpdate = $this->core->Data("Get", ["su", $id]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM StatusUpdates WHERE StatusUpdate_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
     if(!empty($statusUpdate)) {
      $statusUpdate["Purge"] = 1;
      $this->core->Data("Save", ["su", $id, $statusUpdate]);
