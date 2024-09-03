@@ -227,7 +227,7 @@
        ]) : "";
       }
       $nsfw = ($nsfw == 1) ? "Adults Only" : "Kid-Friendly";
-      $share = ($t["Login"]["Username"] == $you || $file["Privacy"] == md5("Public")) ? 1 : 0;
+      $share = ($file["Privacy"] == md5("Public") || $t["Login"]["Username"] == $you) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([
        "button", "Share", [
         "class" => "OpenCard Small v2",

@@ -387,18 +387,6 @@
     "ResponseType" => "Dialog"
    ]);
   }
-  function SaveFirst() {
-   return $this->core->JSONResponse([
-    "AccessCode" => "Denied",
-    "Response" => [
-     "JSON" => "",
-     "Web" => [
-      "Body" => "Please save the configuration and re-load the Control Panel to continue."
-     ]
-    ],
-    "ResponseType" => "Dialog"
-   ]);
-  }
   function SaveMedia(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];

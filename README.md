@@ -16,6 +16,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Members may now choose UI varients.
 * When a new Member signs up, there is now an integrated tutorial presentation in the success view.
 * Attached content previews now properly render in content editors.
+* Administrators may now set the default platform-wide UI variant and modify allowed media file extensions.
 * More platform-wide optimization and bug fixes.
 
 ### Re:Search

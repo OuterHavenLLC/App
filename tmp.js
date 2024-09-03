@@ -134,11 +134,11 @@ function Card(data) {
  $(".CardOverlay" + ID).html(Card);
  $(".CardOverlay" + ID + " .CardFront").fadeIn(500);
  $(".CardOverlay" + ID).find(".ToggleAnimation").slideUp(500);
- $(".CardOverlay" + ID).find(":input:enabled:visible:first").focus();
  setTimeout(function() {
   $(".CloseCard, .OpenCard").each(function() {
    this.disabled = false;
   });
+  $(".CardOverlay" + ID).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
  }, 600);
 }
 function CloseCard(ID) {
@@ -268,10 +268,12 @@ function Dialog(data) {
   Dialog += "</div>";
   $(".DialogOverlay" + ID).html(Dialog);
   $(".DialogOverlay" + ID + " .Dialog").show("scale");
-  $(".DialogOverlay" + ID).find(":input:enabled:visible:first").focus();
-  $(".CloseDialog, .OpenDialog").each(function() {
-   this.disabled = false;
-  });
+  setTimeout(function() {
+   $(".CloseDialog, .OpenDialog").each(function() {
+    this.disabled = false;
+   });
+   $(".DialogOverlay" + ID).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
+  }, 600);
  }, 600);
 }
 function Encode(data) {
@@ -576,22 +578,22 @@ function RenderDesignView(container) {
 }
 function RenderInputs(Container, Data) {
  var Container = Container || DefaultContainer,
-     Data = Data || {};
+       Data = Data || {};
  if(Container !== "" && Data !== {}) {
   $(Container).html("");
-  $.each(Data, function(key, input) {
+  $(Data).each(function(key, input) {
    var Attributes,
-       Input = input || {},
-       OptionGroup = Input["OptionGroup"] || {},
-       OptionGroupLabel,
-       Options = Input["Options"] || {},
-       Type = Input["Type"] || "Text";
+         Input = input || {},
+         OptionGroup = Input["OptionGroup"] || {},
+         OptionGroupLabel,
+         Options = Input["Options"] || {},
+         Type = Input["Type"] || "Text";
    Attributes = Input["Attributes"] || {};
    setTimeout(function() {
     if(Attributes !== {} && Type !== "") {
      var RenderInput = "",
-         RenderInputAttributes = "",
-         RenderOptionGroup = "";
+           RenderInputAttributes = "",
+           RenderOptionGroup = "";
      if(Type !== "Select") {
       $.each(Attributes, function(attribute, value) {
        RenderInputAttributes += " " + attribute + "='" + value + "'";
@@ -622,7 +624,7 @@ function RenderInputs(Container, Data) {
       RenderInput += "</select>\r\n";
      } else if(Type === "Text") {
       var TextType = Attributes["type"] || "",
-          TextValue = (TextType === "hidden") ? Input["Value"] : $.b64.d(Input["Value"]);
+            TextValue = (TextType === "hidden") ? Input["Value"] : $.b64.d(Input["Value"]);
       RenderInput = "<input" + RenderInputAttributes + " value='" + TextValue + "'/>\r\n";
      } else if(Type === "TextBox") {
       RenderInput = "<textarea " + RenderInputAttributes + ">" + $.b64.d(Input["Value"]) + "</textarea>\r\n";
@@ -664,6 +666,10 @@ function RenderInputs(Container, Data) {
      }
     }
     $(Container).append(RenderInput);
+   }, 500);
+  }).promise().done(function() {
+   setTimeout(function() {
+    $(Container).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
    }, 500);
   });
  }
@@ -1561,6 +1567,11 @@ $(document).on("click", ".OpenCard", function() {
  var Button = $(this),
        View = $(Button).attr("data-view");
  OpenCard(View);
+});
+$(document).on("click", ".OpenCardFromJSON", function() {
+ var Button = $(this),
+       Data = $(Button).attr("data-json") || $.b64.e({});
+ Card($.b64.d(Data));
 });
 $(document).on("click", ".OpenDialog", function() {
  var Button = $(this),
