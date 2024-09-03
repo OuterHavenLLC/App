@@ -1136,6 +1136,7 @@
        "[Preferences.Personal.Electable]" => $chooseElectable,
        "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
        "[Preferences.Personal.UIVariant]" => $setUIVariant,
+       "[Preferences.Personal.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
        "[Preferences.Privacy.Albums]" => $y["Privacy"]["Albums"],
        "[Preferences.Privacy.Archive]" => $y["Privacy"]["Archive"],
        "[Preferences.Privacy.Articles]" => $y["Privacy"]["Articles"],

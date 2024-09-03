@@ -1202,6 +1202,7 @@
      "[App.Constitution]" => base64_encode("v=$articleCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
      "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
      "[App.CurrentYear]" => date("Y"),
+     "[App.DefaultUI]" => 0,
      "[App.Name]" => $this->config["App"]["Name"],
      "[App.Username]" => $this->config["App"]["Name"],
      "[base]" => $this->base,

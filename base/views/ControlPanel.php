@@ -59,23 +59,45 @@
       $shopID = $config["App"]["ShopID"] ?? "Mike";
       $statistics = "";
       $statisticsList = $config["Statistics"] ?? [];
-      foreach($mediaList as $key => $info) {
-       $addTo = base64_encode("Attach to ".str_replace(":", "&colon;", $info["Name"]).":.AddTo$key");
-       $added = base64_encode("Added! Feel free to close this card.");
-       $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
-       $media .= $this->core->Change([[
-        "[Clone.ID]" => $key,
-        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
-        "[Media.File]" => $file,
-        "[Media.File.Quantity]" => $previewQuantity,
-        "[Media.ID]" => $key,
-        "[Media.Input]" => "MediaFile[]",
-        "[Media.Input.LiveView]" => $_LiveView,
-        "[Media.Name]" => $info["Name"]
-       ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
+      foreach($allowedAudio as $allowedAudio) {
+       $allowedAudioList .= $this->core->Change([[
+        "[Clone.ID]" => md5($allowedAudio),
+        "[Input.Name]" => "AllowedAudio",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => $allowedAudio
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")]);
+      } foreach($allowedDocuments as $allowedDocuments) {
+       $allowedDocumentsList .= $this->core->Change([[
+        "[Clone.ID]" => md5($allowedDocuments),
+        "[Input.Name]" => "AllowedDocuments",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => $allowedDocuments
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")]);
+      } foreach($allowedPhotos as $allowedPhotos) {
+       $allowedPhotosList .= $this->core->Change([[
+        "[Clone.ID]" => md5($allowedPhotos),
+        "[Input.Name]" => "AllowedPhotos",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => $allowedPhotos
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")]);
+      } foreach($allowedVideos as $allowedVideos) {
+       $allowedVideosList .= $this->core->Change([[
+        "[Clone.ID]" => md5($allowedVideos),
+        "[Input.Name]" => "AllowedVideos",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => $allowedVideos
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")]);
       } foreach($eventsList as $event => $info) {
        $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
        $added = base64_encode("Added! Feel free to close this card.");
+       $allowedAudio = $config["XFS"]["FT"]["A"] ?? [];
+       $allowedAudioList = "";
+       $allowedDocuments = $config["XFS"]["FT"]["D"] ?? [];
+       $allowedDocumentsList = "";
+       $allowedPhotos = $config["XFS"]["FT"]["P"] ?? [];
+       $allowedPhotosList = "";
+       $allowedVideos = $config["XFS"]["FT"]["V"] ?? [];
+       $allowedVideosList = "";
        $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
        $domains_base = $config["App"]["Domains_Base"] ?? "outerhaven.nyc";
        $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
@@ -92,6 +114,20 @@
         "[Media.Input]" => "EventCoverPhoto[]",
         "[Media.Input.LiveView]" => $_LiveView
        ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]);
+      } foreach($mediaList as $key => $info) {
+       $addTo = base64_encode("Attach to ".str_replace(":", "&colon;", $info["Name"]).":.AddTo$key");
+       $added = base64_encode("Added! Feel free to close this card.");
+       $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
+       $media .= $this->core->Change([[
+        "[Clone.ID]" => $key,
+        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
+        "[Media.File]" => $file,
+        "[Media.File.Quantity]" => $previewQuantity,
+        "[Media.ID]" => $key,
+        "[Media.Input]" => "MediaFile[]",
+        "[Media.Input.LiveView]" => $_LiveView,
+        "[Media.Name]" => $info["Name"]
+       ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")]);
       } foreach($searchLists as $list => $info) {
        $search .= $this->core->Change([[
         "[Clone.ID]" => $list,
@@ -122,6 +158,7 @@
        "[Configuration.App.Maintenance]" => $config["Maintenance"],
        "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
        "[Configuration.App.ShopID]" => base64_encode($shopID),
+       "[Configuration.App.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
        "[Configuration.Events]" => $events,
        "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
         "[Event.BannerText]" => "",
@@ -135,6 +172,30 @@
         "[Media.Input]" => "EventCoverPhoto[]",
         "[Media.Input.LiveView]" => $_LiveView
        ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
+       "[Configuration.FileSystem.AllowedAudio]" => $allowedAudioList,
+       "[Configuration.FileSystem.AllowedAudio.Clone]" => base64_encode($this->core->Change([[
+        "[Input.Name]" => "AllowedAudio",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => ""
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
+       "[Configuration.FileSystem.AllowedDocuments]" => $allowedDocumentsList,
+       "[Configuration.FileSystem.AllowedDocuments.Clone]" => base64_encode($this->core->Change([[
+        "[Input.Name]" => "AllowedDocuments",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => ""
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
+       "[Configuration.FileSystem.AllowedPhotos]" => $allowedPhotosList,
+       "[Configuration.FileSystem.AllowedPhotos.Clone]" => base64_encode($this->core->Change([[
+        "[Input.Name]" => "AllowedPhotos",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => ""
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
+       "[Configuration.FileSystem.AllowedVideos]" => $allowedVideosList,
+       "[Configuration.FileSystem.AllowedVideos.Clone]" => base64_encode($this->core->Change([[
+        "[Input.Name]" => "AllowedVideos",
+        "[Input.Placeholder]" => "New Extension",
+        "[Input.Value]" => ""
+       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
        "[Configuration.Media]" => $media,
        "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
         "[Media.Add]" => $saveFirst,
@@ -197,7 +258,21 @@
     $domains_fileSystem = $data["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
     $keywords = $data["Keywords"] ?? $app["Keywords"];
     $name = $data["Name"] ?? $app["Name"];
+    $newAudio = [];
+    $newDocuments = [];
+    $newPhotos = [];
+    $newVideos = [];
+    $setUIVariant = $data["UIVariant"] ?? 0;
     $shopID = $data["ShopID"] ?? "Mike";
+    for($i = 0; $i < count($data["NewAudio"]); $i++) {
+     array_push($newAudio, $data["NewAudio"][$i]);
+    } for($i = 0; $i < count($data["NewDocuments"]); $i++) {
+     array_push($newDocuments, $data["NewDocuments"][$i]);
+    } for($i = 0; $i < count($data["NewPhotos"]); $i++) {
+     array_push($newPhotos, $data["NewPhotos"][$i]);
+    } for($i = 0; $i < count($data["NewVideos"]); $i++) {
+     array_push($newVideos, $data["NewVideos"][$i]);
+    }
     $app = [
      "Description" => $description,
      "Domains_Base" => $domains_base,
@@ -205,14 +280,20 @@
      "Keywords" => $keywords,
      "Name" => $name,
      "Search" => $search,
-     "ShopID" => $shopID
+     "ShopID" => $shopID,
+     "UIVariant" => $setUIVariant
     ];
     $config["App"] = $app;
     $config["Maintenance"] = $data["Maintenance"] ?? 0;
-    $this->core->Data("Save", ["app", md5("config"), $config]);
+    $config["XFS"]["FT"]["A"] = $newAudio;
+    $config["XFS"]["FT"]["D"] = $newDocuments;
+    $config["XFS"]["FT"]["P"] = $newPhotos;
+    $config["XFS"]["FT"]["V"] = $newVideos;
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($config["XFS"], true)
     ];
    }
    return $this->core->JSONResponse([

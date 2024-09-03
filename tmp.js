@@ -2,7 +2,7 @@ var DefaultContainer = ".Content",
       Inputs = "input, number, select, textarea",
       Language = "[App.Language]",
       Loading = "&bull; &bull; &bull;",
-      UIVariant = "0",
+      UIVariant = "[App.DefaultUI",
       base = "[App.Base]/?_API=Web&";
 function AddContent() {
  var Daemon = function() {
@@ -134,6 +134,7 @@ function Card(data) {
  $(".CardOverlay" + ID).html(Card);
  $(".CardOverlay" + ID + " .CardFront").fadeIn(500);
  $(".CardOverlay" + ID).find(".ToggleAnimation").slideUp(500);
+ $(".CardOverlay" + ID).find(":input:enabled:visible:first").focus();
  setTimeout(function() {
   $(".CloseCard, .OpenCard").each(function() {
    this.disabled = false;
@@ -142,7 +143,7 @@ function Card(data) {
 }
 function CloseCard(ID) {
  var ID = ID || "",
-     Overlay = ".CardOverlay" + ID;
+       Overlay = ".CardOverlay" + ID;
  if(ID === "" || typeof(ID) === "undefined") {
   Overlay = ".CardOverlay:last"
  }
@@ -267,6 +268,7 @@ function Dialog(data) {
   Dialog += "</div>";
   $(".DialogOverlay" + ID).html(Dialog);
   $(".DialogOverlay" + ID + " .Dialog").show("scale");
+  $(".DialogOverlay" + ID).find(":input:enabled:visible:first").focus();
   $(".CloseDialog, .OpenDialog").each(function() {
    this.disabled = false;
   });
@@ -1564,6 +1566,11 @@ $(document).on("click", ".OpenDialog", function() {
  var Button = $(this),
        View = $(Button).attr("data-view");
  OpenDialog(View);
+});
+$(document).on("click", ".OpenDialogFromJSON", function() {
+ var Button = $(this),
+       Data = $(Button).attr("data-json") || $.b64.e({});
+ Dialog($.b64.d(Data));
 });
 $(document).on("click", ".OpenFirSTEPTool", function() {
  var Button = $(this),
