@@ -47,6 +47,14 @@
       $r = $this->core->Element(["p", "The Keys do not match."]);
      } else {
       $accessCode = "Accepted";
+      $allowedAudio = $config["XFS"]["FT"]["A"] ?? [];
+      $allowedAudioList = "";
+      $allowedDocuments = $config["XFS"]["FT"]["D"] ?? [];
+      $allowedDocumentsList = "";
+      $allowedPhotos = $config["XFS"]["FT"]["P"] ?? [];
+      $allowedPhotosList = "";
+      $allowedVideos = $config["XFS"]["FT"]["V"] ?? [];
+      $allowedVideosList = "";
       $events = "";
       $eventsList = $config["PublicEvents"] ?? [];
       $media = "";
@@ -90,14 +98,6 @@
       } foreach($eventsList as $event => $info) {
        $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
        $added = base64_encode("Added! Feel free to close this card.");
-       $allowedAudio = $config["XFS"]["FT"]["A"] ?? [];
-       $allowedAudioList = "";
-       $allowedDocuments = $config["XFS"]["FT"]["D"] ?? [];
-       $allowedDocumentsList = "";
-       $allowedPhotos = $config["XFS"]["FT"]["P"] ?? [];
-       $allowedPhotosList = "";
-       $allowedVideos = $config["XFS"]["FT"]["V"] ?? [];
-       $allowedVideosList = "";
        $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
        $domains_base = $config["App"]["Domains_Base"] ?? "outerhaven.nyc";
        $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
@@ -264,14 +264,14 @@
     $newVideos = [];
     $setUIVariant = $data["UIVariant"] ?? 0;
     $shopID = $data["ShopID"] ?? "Mike";
-    for($i = 0; $i < count($data["NewAudio"]); $i++) {
-     array_push($newAudio, $data["NewAudio"][$i]);
-    } for($i = 0; $i < count($data["NewDocuments"]); $i++) {
-     array_push($newDocuments, $data["NewDocuments"][$i]);
-    } for($i = 0; $i < count($data["NewPhotos"]); $i++) {
-     array_push($newPhotos, $data["NewPhotos"][$i]);
-    } for($i = 0; $i < count($data["NewVideos"]); $i++) {
-     array_push($newVideos, $data["NewVideos"][$i]);
+    for($i = 0; $i < count($data["AllowedAudio"]); $i++) {
+     array_push($newAudio, $data["AllowedAudio"][$i]);
+    } for($i = 0; $i < count($data["AllowedDocuments"]); $i++) {
+     array_push($newDocuments, $data["AllowedDocuments"][$i]);
+    } for($i = 0; $i < count($data["AllowedPhotos"]); $i++) {
+     array_push($newPhotos, $data["AllowedPhotos"][$i]);
+    } for($i = 0; $i < count($data["AllowedVideos"]); $i++) {
+     array_push($newVideos, $data["AllowedVideos"][$i]);
     }
     $app = [
      "Description" => $description,
@@ -289,11 +289,10 @@
     $config["XFS"]["FT"]["D"] = $newDocuments;
     $config["XFS"]["FT"]["P"] = $newPhotos;
     $config["XFS"]["FT"]["V"] = $newVideos;
-    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($config["XFS"], true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
