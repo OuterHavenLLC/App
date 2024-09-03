@@ -1,8 +1,9 @@
 var DefaultContainer = ".Content",
+      DefaultUI = "[App.DefaultUI]",
       Inputs = "input, number, select, textarea",
       Language = "[App.Language]",
       Loading = "&bull; &bull; &bull;",
-      UIVariant = "[App.DefaultUI",
+      UIVariant = "[App.DefaultUI]",
       base = "[App.Base]/?_API=Web&";
 function AddContent() {
  var Daemon = function() {
@@ -302,7 +303,7 @@ function FST(data) {
 function InstantSignOut() {
  setTimeout(function() {
   LocalData("Purge", "SecurityKey");
-  SetUIVariant("0");
+  SetUIVariant(DefaultUI);
  }, 1000);
 }
 function LightSearch(input) {
@@ -677,7 +678,7 @@ function RenderInputs(Container, Data) {
 function RenderView(data) {
  var Data = JSON.parse($.b64.d(data)),
        AccessCode = Data.AccessCode || "Denied",
-       NewUIVariant = Data.SetUIVariant,
+       NewUIVariant = Data.SetUIVariant || "",
        Response = Data.Response.Web || "",
        ResponseType = Data.ResponseType || "Dialog",
        Success = Data.Success || "",
@@ -874,22 +875,22 @@ function Search(input) {
   }
  }
 }
-function SetUIVariant(NewVariant = "") {
- var UIVariantIsEmpty = (NewVariant === "" || typeof(NewVariant) === "undefined") ? 1 : 0;
- if(UIVariantIsEmpty === 0) {
-  if($(location).attr("href") === "[App.Base]/" && NewVariant !== UIVariant) {
-   UIVariant = NewVariant;
-   $(".SideBar").hide("slide", {direction: "left"}, 500);
-   setTimeout(function() {
-    if(NewVariant === "0") {
-     $(".Top").hide("slide", {direction: "up"}, 500);
-     $(".TopBar").show("slide", {direction: "down"}, 500);
-    } else if(NewVariant === "1") {
-     $(".Top").show("slide", {direction: "up"}, 500);
-     $(".TopBar").hide("slide", {direction: "up"}, 500);
-    }
-   }, 600);
-  }
+function SetUIVariant(NewVariant = DefaultUI) {
+ if($(location).attr("href") === "[App.Base]/" && NewVariant !== UIVariant) {
+  UIVariant = NewVariant;
+  $(".SideBar").hide("slide", {direction: "left"}, 500);
+  $(".TopBar .MenuContainer").hide("slide", {direction: "up"}, 500);
+  setTimeout(function() {
+   if(NewVariant === "0") {
+    $(".SideBar").hide("slide", {direction: "left"}, 500);
+    $(".Top").hide("slide", {direction: "up"}, 500);
+    $(".TopBar").show("slide", {direction: "down"}, 500);
+   } else if(NewVariant === "1") {
+    $(".Top").show("slide", {direction: "up"}, 500);
+    $(".TopBar .MenuContainer").hide("slide", {direction: "up"}, 500);
+    $(".TopBar").hide("slide", {direction: "up"}, 500);
+   }
+  }, 600);
  }
 }
 function SignIn() {
@@ -1073,7 +1074,7 @@ function UpdateCoverPhoto(Container, Photo) {
  }
 }
 function UpdateUIVariant(NewUIVariant) {
- var NewUIVariant = NewUIVariant || "0";
+ var NewUIVariant = NewUIVariant || UIVariant;
  SetUIVariant(NewUIVariant);
  $(".PersonalUIVariant").val(NewUIVariant);
 }
@@ -2129,7 +2130,7 @@ $(document).ready(function() {
  }, 15);
  setTimeout(function() {
   $(".Boot").fadeOut(500);
-  SetUIVariant(UIVariant);
+  SetUIVariant(DefaultUI);
  }, 1000);
 });
 $(window).scroll(function() {

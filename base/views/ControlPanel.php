@@ -55,6 +55,7 @@
       $allowedPhotosList = "";
       $allowedVideos = $config["XFS"]["FT"]["V"] ?? [];
       $allowedVideosList = "";
+      $defaultUI = $this->config["App"]["UIVariant"] ?? 0;
       $events = "";
       $eventsList = $config["PublicEvents"] ?? [];
       $media = "";
@@ -158,6 +159,7 @@
        "[Configuration.App.Maintenance]" => $config["Maintenance"],
        "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
        "[Configuration.App.ShopID]" => base64_encode($shopID),
+       "[Configuration.App.UIVariant]" => $defaultUI,
        "[Configuration.App.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
        "[Configuration.Events]" => $events,
        "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
