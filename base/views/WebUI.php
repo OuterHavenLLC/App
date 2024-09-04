@@ -305,6 +305,7 @@
    ], $this->core->Extension("db69f503c7c6c1470bd9620b79ab00d7")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "CoverPhoto" => 1,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -397,6 +398,7 @@
   function UIContainers(array $a) {
    $accessCode = "Accepted";
    $content = base64_encode("v=".base64_encode("WebUI:OptIn"));
+   $hasCoverPhoto = 1;
    $headers = apache_request_headers();
    $language = $headers["Language"] ?? $this->core->language;
    $setUIvariant = 0;
@@ -432,6 +434,7 @@
      }
     }
     $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
+    $hasCoverPhoto = 0;
     $y["Inactive"] = 0;
     $y["Personal"]["Language"] = $language;
     $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
@@ -445,6 +448,7 @@
    ], $this->core->Extension("dd5e4f7f995d5d69ab7f696af4786c49")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "CoverPhoto" => $hasCoverPhoto,
     "Response" => [
      "JSON" => "",
      "Web" => $r

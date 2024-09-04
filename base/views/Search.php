@@ -253,7 +253,7 @@
      $integrated = $data["Integrated"] ?? 0;
      $oneOnOne = $data["1on1"] ?? 0;
      $header = "1:1 Chat";
-     $header = ($group == 1) ? "Group Chat" : $h;
+     $header = ($group == 1) ? "Group Chat" : $header;
      $list .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
      $searchBarText = "Search $header";
      $extension = "e3de2c4c383d11d97d62a198f15ee885";

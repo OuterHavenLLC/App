@@ -68,6 +68,7 @@
    $chambers = $data["Chambers"] ?? 0;
    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
    $congressmen = $congress["Members"] ?? [];
+   $hasCoverPhoto = 1;
    $houseRepresentatives = 0;
    $pub = $data["pub"] ?? 0;
    $senators = 0;
@@ -82,6 +83,7 @@
      $senators++;
     }
    } if(!empty($chamber) && $chambers == 1) {
+    $hasCoverPhoto = 0;
     $options = "";
     $search = base64_encode("Search:Containers");
     $options = ($notAnon == 1) ? $this->core->Element(["button", "Ballot", [
@@ -140,8 +142,7 @@
       "Display" => 1
      ])
     ], $this->core->Extension("8a38a3053ce5449ca2d321719f5aea0f")]);
-   }
-   if($pub == 1) {
+   } if($pub == 1) {
     $r = $this->view(base64_encode("WebUI:Containers"), [
      "Data" => ["Content" => $r]
     ]);
@@ -149,6 +150,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "CoverPhoto" => $hasCoverPhoto,
     "Response" => [
      "JSON" => "",
      "Web" => $r
