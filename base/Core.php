@@ -1311,7 +1311,7 @@
    return $r;
   }
   function RenderSearchUI(string $variantID) {
-   $id = uniqid("ReSearch".md5($this->core->timestamp));
+   $id = uniqid("ReSearch".md5($this->timestamp));
    $variants = $this->Data("Get", ["app", md5("SearchUI")]);
    $variant = $this->Element(["p", "No Search UI found for <em>$variantID</em>."]);
    for($i = 0; $i < count($variants); $i++) {
@@ -1324,7 +1324,7 @@
    return $this->Change([[
     "[Search.ID]" => $id,
     "[Search.UI]" => $this->Change([[
-     "[List.ID]" => $id
+     "[Search.ID]" => $id
     ], $variant])
    ], $this->Extension("caa64184e321777584508a3e89bd6aea")]);
   }
