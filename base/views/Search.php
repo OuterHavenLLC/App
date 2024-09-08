@@ -396,9 +396,10 @@
      $_Added = $data["Added"] ?? "";
      $header = "Files";
      $parentView = $data["lPG"] ?? $searchType;
+     $searchBarText = "Search Files";
+     $variant = "3Column";
      $list .= "&AddTo=$_AddTo&Added=$_Added&ParentView=$parentView&UN=".$data["UN"];
      $list .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
-     $searchBarText = "Search Files";
     }
     $r = $this->core->Change([[
      "[Search.Header]" => $header,
