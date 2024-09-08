@@ -1310,6 +1310,36 @@
    curl_close($url);
    return $r;
   }
+  function RenderSearchUI(string $variantID) {
+   $id = uniqid("ReSearch".md5($this->core->timestamp));
+   $variants = $this->Data("Get", ["app", md5("SearchUI")]);
+   $variant = $this->Element(["p", "No Search UI found for <em>$variantID</em>."]);
+   for($i = 0; $i < count($variants); $i++) {
+    $info = $variants[$i] ?? [];
+    if(!empty($info["UI"]) && $info["ID"] == $variantID) {
+     $variant = base64_decode($info["UI"]);
+     break;
+    }
+   }
+   return $this->Change([[
+    "[Search.ID]" => $id,
+    "[Search.UI]" => $this->Change([[
+     "[List.ID]" => $id
+    ], $variant])
+   ], $this->Extension("caa64184e321777584508a3e89bd6aea")]);
+  }
+  function RenderUI(string $variantID) {
+   $variants = $this->Data("Get", ["app", md5("MainUI")]);
+   $variant = $this->Element(["p", "No UI found for <em>$variantID</em>."]);
+   for($i = 0; $i < count($variants); $i++) {
+    $info = $variants[$i] ?? [];
+    if(!empty($info["UI"]) && $info["ID"] == $variantID) {
+     $variant = base64_decode($info["UI"]);
+     break;
+    }
+   }
+   return $variant;
+  }
   function RenderView(string $data) {
    $r = json_decode($data, true);
    $r = $r["Response"] ?? [];

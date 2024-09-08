@@ -21,7 +21,8 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
-* Client-side pagination renders up to 30 more results when Members scroll to the bottom of the rendered list. (working on it...)
+* Core objects now render the search and UI variants: RenderSearchUI() and RenderUI(), respectively.
+* A new consolidated Search() object now renders the initial search listing, scroll-based pagination, and accounts for inpute-based keyup events to update the search listing in real-time. (working on it...)
 
 ### Heath Kit
 * Coming soon...

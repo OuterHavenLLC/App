@@ -74,19 +74,19 @@
    $content = $data["Content"] ?? $content;
    $r = $this->core->Change([[
     "[App.Content]" => $content
-   ], $this->core->Extension("606c44e9e7eac67c34c5ad8d1062b003")]);
+   ], $this->core->RenderUI("Public")]);
    $type = $data["Type"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($type == "Chat") {
     $r = $this->core->Change([[
      "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))
-    ], $this->core->Extension("988e96fd9025b718f43ad357dc25247d")]);
+    ], $this->core->RenderUI("Chat")]);
    } elseif($type == "ReSearch") {
     $r = $this->core->Change([[
      "[App.Content]" => $content,
      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
-    ], $this->core->Extension("937560239a386533aecf5017371f4d34")]);
+    ], $this->core->RenderUI("Search")]);
    }
    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
    return $this->core->JSONResponse([
@@ -445,7 +445,7 @@
     "[App.Content]" => $content,
     "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
     "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
-   ], $this->core->Extension("dd5e4f7f995d5d69ab7f696af4786c49")]);
+   ], $this->core->RenderUI("Main")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "CoverPhoto" => $hasCoverPhoto,

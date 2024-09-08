@@ -29,7 +29,7 @@
     "Body" => "The List Type is missing.",
     "Header" => "Not Found"
    ];
-   $extension = "6dc4eecde24bf5f5e70da253aaac2b68";
+   $variant = "Default";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
@@ -58,12 +58,11 @@
      $header = "$bl Blacklist";
      $list .= "&BL=".$data["BL"];
      $searchBarText = "Search $bl Blacklist";
-     $extension = "6dc4eecde24bf5f5e70da253aaac2b68";
     } elseif($searchType == "BLG") {
      $header = "Blogs";
      $list .= "&b2=Blogs&lPG=$searchType";
      $searchBarText = "Search Blogs";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "Bulletins") {
      $header = "Bulletins";
      $searchBarText = "Search Bulletins";
@@ -71,37 +70,37 @@
      $header = "Community Archive";
      $list .= "&b2=".urlencode("the Archive")."&lPG=$parentView";
      $searchBarText = "Search Articles";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "CART") {
-     $extension = "e58b4fc5070b14c01c88c28050547285";
      $username = $data["Username"] ?? $you;
      $shopID = md5($username);
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
      $list .= "&ID=$shopID&Username=".base64_encode($username);
      $searchBarText = "Search ".$shop["Title"];
+     $variant = "Minimal";
     } elseif($searchType == "Chat") {
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $header = "Group Chats";
      $integrated = $data["Integrated"] ?? 0;
      $list .= "&Integrated=$integrated";
      $searchBarText = "Search $header";
+     $variant = "3Column";
     } elseif($searchType == "Congress") {
      $chamber = $data["Chamber"] ?? "";
-     $extension = "8568ac7727dae51ee4d96334fa891395";
      $header = "Content Moderation";
      $list .= "&Chamber=$chamber";
      $searchBarText = "Search Content";
+     $variant = "2Column";
     } elseif($searchType == "CongressionalBallot") {
      $chamber = $data["Chamber"] ?? "";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $header = "Congressional $chamber Ballot";
      $list .= "&Chamber=$chamber";
      $searchBarText = "Search Candidates";
+     $variant = "3Column";
     } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
      $chamber = $data["Chamber"] ?? "";
-     $extension = "e58b4fc5070b14c01c88c28050547285";
      $list .= "&Chamber=$chamber";
      $searchBarText = "Search  $chamber Staff";
+     $variant = "Minimal";
     } elseif($searchType == "Contacts") {
      $header = "Contact Manager";
      $searchBarText = "Search Contacts";
@@ -117,11 +116,11 @@
      $header = "Contact Requests";
      $searchBarText = "Search Contact Requests";
     } elseif($searchType == "Contributors") {
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
      $id = $data["ID"] ?? "";
      $list .= "&ID=$id&Type=".$data["Type"];
      $searchBarText = "Search Contributors";
      $type = base64_decode($data["Type"]);
+     $variant = "3Column";
      if($type == "Article") {
       $header = "Article Contributors";
       $id = base64_decode($id);
@@ -178,12 +177,12 @@
      $header = "Forums";
      $list .= "&lPG=$parentView";
      $searchBarText = "Search Private and Public Forums";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "Forums-Admin") {
      $header = "Administrators";
      $list .= "&ID=".$data["ID"];
      $searchBarText = "Search Administrators";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "Forums-Posts") {
      $forumID = $data["ID"] ?? "";
      $forumID = base64_decode($forumID);
@@ -192,7 +191,6 @@
      $list .= "&ID=$forumID";
      $searchBarText = "Search all Posts from ".$forum["Title"];
     } elseif($searchType == "Forums-Topic") {
-     $extension = "e58b4fc5070b14c01c88c28050547285";
      $forumID = $data["Forum"] ?? "";
      $topicID = $data["Topic"] ?? "";
      $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
@@ -200,32 +198,33 @@
      $topic = $forum["Topics"][$topicID] ?? [];
      $topic = $topic["Title"] ?? "Untitled";
      $searchBarText = "Search Posts from $topic";
+     $variant = "Minimal";
     } elseif($searchType == "Forums-Topics") {
-     $extension = "e58b4fc5070b14c01c88c28050547285";
      $forumID = $data["Forum"] ?? "";
      $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
      $list .= "&Forum=$forumID";
      $searchBarText = "Search Topics from ".$forum["Title"];
+     $variant = "Minimal";
     } elseif($searchType == "Knowledge") {
-     $extension = "8568ac7727dae51ee4d96334fa891395";
      $header = "Knowledge Base";
      $searchBarText = "Search Q&As";
+     $variant = "2Column";
     } elseif($searchType == "Links") {
-     $extension = "f2513ac8d0389416b680c75ed5667774";
      $header = "Links";
      $searchBarText = "Search Links";
+     $variant = "3Column";
     } elseif($searchType == "Mainstream") {
-     $extension = "f2513ac8d0389416b680c75ed5667774";
      $header = "The ".$searchType;
      $searchBarText = "Search the Mainstream";
      $options = $this->core->Element(["button", "Say Something", [
       "class" => "BBB MobileFull OpenCard v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
      ]]);
+     $variant = "2Column";
     } elseif($searchType == "MBR") {
      $header = "Members";
      $searchBarText = "Search Members";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "MBR-ALB") {
      $ae = base64_encode("Album:Edit");
      $username = base64_decode($data["UN"]);
@@ -256,12 +255,12 @@
      $header = ($group == 1) ? "Group Chat" : $header;
      $list .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
      $searchBarText = "Search $header";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "MBR-Forums") {
      $header = "Your Forums";
      $list .= "&lPG=$parentView";
      $searchBarText = "Search Your Private and Public Forums";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "MBR-JE") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
@@ -294,7 +293,7 @@
        "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($t["Login"]["Username"]))
       ]
      ]) : "";
-     $extension = "8568ac7727dae51ee4d96334fa891395";
+     $variant = "2Column";
     } elseif($searchType == "MBR-XFS") {
      $aid = $data["AID"] ?? md5("unsorted");
      $fs = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
@@ -337,16 +336,16 @@
        "[Album.Owner]" => $display
       ], $this->core->Extension("af26c6866abb335fb69327ed3963a182")]);
      }
-     $extension = "46ef1d0890a2a5639f67bfda1634ca82";
+     $variant = "Album";
     } elseif($searchType == "Media") {
      $header = "Media";
      $list .= "&lPG=Files";
      $searchBarText = "Search Files";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "Polls") {
      $header = "Polls";
      $searchBarText = "Search Polls";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "PR") {
      $header = "Press Releases";
      $list .= "&b2=".urlencode("Press Releases")."&lPG=$parentView";
@@ -355,12 +354,12 @@
      $header = "Products";
      $list .= "&lPG=$parentView&st=$searchType";
      $searchBarText = "Search Products";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "SHOP") {
      $header = "Artists";
      $list .= "&lPG=$parentView&st=$searchType";
      $searchBarText = "Search Shops";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "SHOP-InvoicePresets") {
      $header = "Services";
      $shop = $data["Shop"] ?? "";
@@ -388,10 +387,10 @@
        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&st=DC")
       ]
      ]) : "";
-     $extension = "e3de2c4c383d11d97d62a198f15ee885";
+     $variant = "3Column";
     } elseif($searchType == "SHOP-Orders") {
      $searchBarText = "Search Orders";
-     $extension = "e58b4fc5070b14c01c88c28050547285";
+     $variant = "Minimal";
     } elseif($searchType == "XFS") {
      $_AddTo = $data["AddTo"] ?? "";
      $_Added = $data["Added"] ?? "";
@@ -403,12 +402,11 @@
     }
     $r = $this->core->Change([[
      "[Search.Header]" => $header,
-     "[Search.ID]" => uniqid("ReSearch".md5($this->core->timestamp)),
      "[Search.List]" => base64_encode($list),
      "[Search.Options]" => $options,
      "[Search.ParentPage]" => $parentView,
      "[Search.Text]" => $searchBarText
-    ], $this->core->Extension($extension)]);
+    ], $this->core->RenderSearchUI($variant)]);
    } if(in_array($searchType, [
      "DC",
      "SHOP-InvoicePresets",

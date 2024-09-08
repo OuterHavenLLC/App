@@ -58,6 +58,8 @@
       $defaultUI = $this->config["App"]["UIVariant"] ?? 0;
       $events = "";
       $eventsList = $config["PublicEvents"] ?? [];
+      $mainUI = $this->core->Data("Get", ["app", md5("MainUI")]);
+      $mainUIvariants = "";
       $media = "";
       $mediaList = $config["Media"] ?? [];
       $previewQuantity = "Single";
@@ -65,6 +67,8 @@
       $saveFirst = base64_encode("v=".base64_encode("ControlPanel:SaveFirst"));
       $search = "";
       $searchLists = $config["App"]["Search"] ?? [];
+      $searchUI = $this->core->Data("Get", ["app", md5("SearchUI")]);
+      $searchUIvariants = "";
       $shopID = $config["App"]["ShopID"] ?? "Mike";
       $statistics = "";
       $statisticsList = $config["Statistics"] ?? [];
@@ -115,6 +119,14 @@
         "[Media.Input]" => "EventCoverPhoto[]",
         "[Media.Input.LiveView]" => $_LiveView
        ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]);
+      } foreach($mainUI as $key => $info) {
+       $mainUIvariants .= $this->core->Change([[
+        "[Clone.ID]" => md5(uniqid($key)),
+        "[UI.Body]" => base64_decode($info["UI"]),
+        "[UI.Description]" => $info["Description"],
+        "[UI.ID]" => $info["ID"],
+        "[UI.Name]" => "MainUI"
+       ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")]);
       } foreach($mediaList as $key => $info) {
        $addTo = base64_encode("Attach to ".str_replace(":", "&colon;", $info["Name"]).":.AddTo$key");
        $added = base64_encode("Added! Feel free to close this card.");
@@ -136,6 +148,14 @@
         "[List.ID]" => $list,
         "[List.Title]" => $info["Title"]
        ], $this->core->Extension("3777f71aa914041840ead48e3a259866")]);
+      } foreach($searchUI as $key => $info) {
+       $searchUIvariants .= $this->core->Change([[
+        "[Clone.ID]" => md5(uniqid($key)),
+        "[UI.Body]" => base64_decode($info["UI"]),
+        "[UI.Description]" => $info["Description"],
+        "[UI.ID]" => $info["ID"],
+        "[UI.Name]" => "SearchUI"
+       ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")]);
       } foreach($statisticsList as $stat => $name) {
        $statistics .= $this->core->Change([[
         "[Clone.ID]" => $stat,
@@ -161,6 +181,20 @@
        "[Configuration.App.ShopID]" => base64_encode($shopID),
        "[Configuration.App.UIVariant]" => $defaultUI,
        "[Configuration.App.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
+       "[Configuration.App.SearchUI]" => $searchUIvariants,
+       "[Configuration.App.SearchUI.Clone]" => base64_encode($this->core->Change([[
+        "[UI.Body]" => "",
+        "[UI.Description]" => "",
+        "[UI.ID]" => "",
+        "[UI.Name]" => "SearchUI"
+       ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")])),
+       "[Configuration.App.UI]" => $mainUIvariants,
+       "[Configuration.App.UI.Clone]" => base64_encode($this->core->Change([[
+        "[UI.Body]" => "",
+        "[UI.Description]" => "",
+        "[UI.ID]" => "",
+        "[UI.Name]" => "MainUI"
+       ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")])),
        "[Configuration.Events]" => $events,
        "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
         "[Event.BannerText]" => "",
@@ -213,6 +247,7 @@
        "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveMedia")),
        "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearch")),
        "[Configuration.Save.Statistics]" => base64_encode("v=".base64_encode("ControlPanel:SaveStatistics")),
+       "[Configuration.Save.UI]" => base64_encode("v=".base64_encode("ControlPanel:SaveUI")),
        "[Configuration.Search]" => $search,
        "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
         "[List.Description]" => "",
@@ -223,7 +258,7 @@
        "[Configuration.Statistics.Clone]" => base64_encode($this->core->Change([[
         "[Statistic.ID]" => "",
         "[Statistic.Name]" => ""
-       ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")]))
+       ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")])),
       ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
      }
     }
@@ -500,6 +535,52 @@
     $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
+     "Header" => "Done"
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $accessCode,
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
+  function SaveUI(array $a) {
+   $accessCode = "Denied";
+   $data = $a["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $r = [
+    "Body" => "You do not have permission to access this resource.",
+    "Header" => "Unauthorized"
+   ];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $r = [
+     "Body" => "You must be signed in to continue."
+    ];
+   } elseif($y["Rank"] == md5("High Command")) {
+    $newUI = [];
+    $newSearchUI = [];
+    for($i = 0; $i < count($data["MainUIID"]); $i++) {
+     array_push($newUI, [
+      "Description" => $data["MainUIDescription"][$i],
+      "ID" => $data["MainUIID"][$i],
+      "UI" => base64_encode($data["MainUIBody"][$i])
+     ]);
+    } for($i = 0; $i < count($data["SearchUIID"]); $i++) {
+     array_push($newSearchUI, [
+      "Description" => $data["SearchUIDescription"][$i],
+      "ID" => $data["SearchUIID"][$i],
+      "UI" => base64_encode($data["SearchUIBody"][$i])
+     ]);
+    }
+    $this->core->Data("Save", ["app", md5("MainUI"), $newUI]);
+    $this->core->Data("Save", ["app", md5("SearchUI"), $newSearchUI]);
+    $r = [
+     "Body" => "The UI Variants were updated!",
      "Header" => "Done"
     ];
    }
