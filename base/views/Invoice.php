@@ -334,14 +334,11 @@
       $data = $this->core->DecodeBridgeData($data);
       $saveJob = $data["SaveJob"] ?? 0;
       if($saveJob == 1) {
-       $preset = $this->core->Data("Get", [
-        "invoice-preset",
-        $data["Service"]
-       ]) ?? [];
+       $preset = $this->core->Data("Get", ["invoice-preset", $data["Service"]]);
        $chargeTo = $data["ChargeTo"] ?? "";
        $charges = [];
        array_push($charges, $preset["Charges"]);
-       $id = md5("Invoice$you".uniqid());
+       $id = md5(uniqid("Invoice$you"));
        $invoice = [
         "ChargeTo" => $chargeTo,
         "Charges" => $charges,
@@ -358,7 +355,10 @@
        $invoices = array_unique($invoices);
        $name = $chargeTo ?? $data["Email"];
        $success = "CloseCard";
-       if(!empty($data["Email"])) {
+       if(md5($you) == $id && $id = $this->core->ShopID && $y["Subscriptions"]["VIP"]["A"] == 1) {
+        $invoice["Charges"][0]["Paid"] = 1;
+        $preset["Charges"]["Value"] = 0;
+       } if(!empty($data["Email"])) {
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",

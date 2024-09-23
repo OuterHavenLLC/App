@@ -19,6 +19,11 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Administrators may now set the default platform-wide UI variant and modify allowed media file extensions.
 * More platform-wide optimization and bug fixes.
 
+### Artists
+* Up to 100 new jobs may be active while the Hire section is enabled. After this new limit is reached, no new jobs may be created.
+* Shop Partners may add media attachments to invoice notes. (coming soon...)
+* VIP Members are no longer required to pay the initial invoice (pre-set) charge if the shop identifier is that of the platform shop.
+
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
 * Core objects now render the search and UI variants: RenderSearchUI() and RenderUI(), respectively.

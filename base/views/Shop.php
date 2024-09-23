@@ -93,7 +93,7 @@
      "ID" => $id
     ]);
     $additionalContent = $this->core->RenderView($additionalContent);
-    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $id]);
     $owner = $shop["Contributors"] ?? [];
     $owner = array_key_first($owner);
     $shop = $this->core->FixMissing($shop, [
@@ -113,6 +113,10 @@
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $header = "Edit ".$shop["Title"];
     $hireLimit = $shop["HireLimit"] ?? 5;
+    $hireLimits = [];
+    for($i = 1; $i < 100; $i++) {
+     $hireLimits[$i] = $i;
+    }
     $hireTerms = $shop["HireTerms"] ?? $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $shop["PassPhrase"] ?? "";
@@ -154,14 +158,7 @@
       "Data" => $hireTerms
      ])),
      "[Shop.HireLimit]" => $hireLimit,
-     "[Shop.HireLimits]" => json_encode([
-      5 => 5,
-      10 => 10,
-      15 => 15,
-      20 => 20,
-      25 => 25,
-      30 => 30
-     ], true),
+     "[Shop.HireLimits]" => json_encode($hireLimits, true),
      "[Shop.ID]" => $id,
      "[Shop.Header]" => $header,
      "[Shop.PassPhrase]" => base64_encode($passPhrase),

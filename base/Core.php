@@ -1191,7 +1191,7 @@
     $r = html_entity_decode($r);
    } if($a["Display"] == 1) {
     $articleCard = base64_encode("Page:Card");
-    $defaultUI = $this->config["App"]["UIVariant"] ?? 0;
+    $defaultUI = $this->config["App"]["UIVariant"] ?? 2;
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
     $r = preg_replace_callback("/\[Embed:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
