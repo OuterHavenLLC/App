@@ -2283,7 +2283,7 @@
     $extension = $this->core->Extension("90bfbfb86908fdc401c79329bedd7df5");
     $_Query = "SELECT * FROM Articles
                         JOIN Members
-                        ON M.Member_Username=Article_Username
+                        ON Member_Username=Article_Username
                         WHERE (Article_Body LIKE :Search OR
                                       Article_Description LIKE :Search OR
                                       Article_Title LIKE :Search)

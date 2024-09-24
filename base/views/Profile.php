@@ -608,7 +608,7 @@
    } elseif($_Member["Empty"] == 0) {
     $id = $member["Login"]["Username"];
     $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]) ?? [];
-    $_TheyBlockedYou = $this->core->CheckBlocked([$id, "Members", $you]);
+    $_TheyBlockedYou = $this->core->CheckBlocked([$_Member["DataModel"], "Members", $you]);
     $_YouBlockedThem = $this->core->CheckBlocked([$y, "Members", $id]);
     $displayName = $_Member["ListItem"]["Title"];
     $b2 = ($id == $you) ? "Your Profile" : "$displayName's Profile";
