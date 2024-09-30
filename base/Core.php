@@ -222,7 +222,7 @@
   function Data(string $action, array $data) {
    if(!empty($data)) {
     $dataFile = $this->DocumentRoot."/data/nyc.outerhaven.".$data[0];
-    $dataFile .= (!empty($data[1])) ? ".".$data[1] : "";
+    $dataFile .= (!empty($data[1]) && !is_array($data[1])) ? ".".$data[1] : "";
     if($action == "Get") {
      if(!file_exists($dataFile)) {
       $r = json_encode([]);

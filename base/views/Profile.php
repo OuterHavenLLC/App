@@ -59,7 +59,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -73,7 +73,7 @@
    $accessCode = ($this->core->ID != $you) ? "Accepted" : "Denied";
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $this->core->Element(["button", NULL, [
@@ -138,7 +138,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -159,7 +159,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -176,6 +176,7 @@
    ], $this->core->Extension("03d53918c3da9fbc174f94710182a8f2")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -192,6 +193,7 @@
    ], $this->core->Extension("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -239,7 +241,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $message
@@ -428,7 +430,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -459,7 +461,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => "$i"
@@ -498,7 +500,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -529,7 +531,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -577,8 +579,7 @@
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -983,6 +984,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => $manifest,
      "Web" => $r
@@ -1033,6 +1035,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1060,6 +1063,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1189,7 +1193,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1395,6 +1399,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1484,6 +1489,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => [
@@ -1539,7 +1545,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1595,6 +1601,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1665,6 +1672,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1810,6 +1818,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1823,6 +1832,7 @@
    ], $this->core->Extension("ff434d30a54ee6d6bbe5e67c261b2005")]);
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1841,6 +1851,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => [

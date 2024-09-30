@@ -40,6 +40,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -69,6 +70,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -185,6 +187,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -249,6 +252,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -291,6 +295,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -390,6 +395,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -418,15 +424,18 @@
    $r = $this->core->RenderView($r);
    $username = $data["UN"] ?? base64_encode("");
    $username = base64_decode($username);
+   $id = md5($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($pub == 1) {
+    $callSign = $data["CallSign"] ?? "";
+    $callSign = $this->core->CallSign($callSign);
     $shops = $this->core->DatabaseSet("Shop");
     foreach($shops as $key => $value) {
      $shop = str_replace("nyc.outerhaven.shop.", "", $value);
      $shop = $this->core->Data("Get", ["shop", $shop]) ?? [];
      $t = $this->core->Data("Get", ["mbr", $shop]) ?? [];
-     $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($shop["Title"])) ? 1 : 0;
+     $callSignsMatch = ($callSign == $this->core->CallSign($shop["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
       $id = $value;
@@ -435,7 +444,6 @@
     }
    } if(!empty($username) || $i > 0) {
     $bl = $this->core->CheckBlocked([$y, "Members", $username]);
-    $id = md5($username);
     $_Shop = $this->core->GetContentData([
      "Blacklisted" => $bl,
      "ID" => base64_encode("Shop;$id"),
@@ -600,6 +608,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -641,6 +650,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1294,6 +1304,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1621,6 +1632,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1671,6 +1683,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1720,6 +1733,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1765,6 +1779,7 @@
    }
    return $this->core->JSONResponse([
     $accessCode,
+    "AddTopMargin" => "0",
     $this->core->Element(["p", $r, ["class" => "CenterText"]])
    ]);
   }
@@ -1839,6 +1854,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1887,6 +1903,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r

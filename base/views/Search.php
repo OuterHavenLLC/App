@@ -3291,6 +3291,7 @@
     ]]);
     $r = $this->core->JSONResponse([
      "AccessCode" => "Accepted",
+     "AddTopMargin" => "0",
      "Response" => [
       "JSON" => "",
       "Web" => $this->core->RenderView($r)

@@ -63,7 +63,7 @@
    if(!empty($command[1])) {
     $content = "v=".base64_encode("Shop:Home")."&UN=".base64_encode($command[1])."&pub=1";
     if(!empty($command[2])) {
-     $content = "v=".base64_encode("Product:Home")."&CallSign=".$command[2]."&UN=".base64_encode($command[1])."&pub=1";
+     $content = "v=".base64_encode("Product:Home")."&CallSign=".urlencode($command[2])."&UN=".base64_encode($command[1])."&pub=1";
     }
    }
   } elseif($command[0] == "Member") {
