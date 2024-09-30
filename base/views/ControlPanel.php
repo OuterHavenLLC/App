@@ -6,6 +6,7 @@
   }
   function Home(array $a) {
    $accessCode = "Denied";
+   $addTopMargin = 1;
    $data = $a["Data"] ?? [];
    $r = [
     "Body" => "You do not have permission to access this resource.",
@@ -47,6 +48,7 @@
       $r = $this->core->Element(["p", "The Keys do not match."]);
      } else {
       $accessCode = "Accepted";
+      $addTopMargin = "0";
       $allowedAudio = $config["XFS"]["FT"]["A"] ?? [];
       $allowedAudioList = "";
       $allowedDocuments = $config["XFS"]["FT"]["D"] ?? [];
@@ -265,6 +267,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -334,6 +337,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -417,6 +421,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -461,6 +466,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -503,6 +509,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -540,6 +547,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -586,6 +594,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r

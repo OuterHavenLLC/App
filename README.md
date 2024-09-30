@@ -27,7 +27,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
 * Core objects now render the search and UI variants: RenderSearchUI() and RenderUI(), respectively.
-* A new consolidated Search() object now renders the initial search listing, scroll-based pagination, and accounts for inpute-based keyup events to update the search listing in real-time. (working on it...)
+* A new consolidated ReSearch() object now renders the initial search listing, automated pagination to append groups of results while the container exists, and accounts for input-based keyup events to update the search listing in real-time.
 
 ### Heath Kit
 * Coming soon...

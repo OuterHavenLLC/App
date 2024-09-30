@@ -11,6 +11,7 @@
   }
   function Containers(array $a) {
    $accessCode = "Denied";
+   $addTopMargin = "0";
    $data = $a["Data"] ?? [];
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
@@ -41,7 +42,7 @@
     $accessCode = "Accepted";
     if($searchType == "ADM-LLP") {
      $header = "App Extensions";
-     $searchBarText = "Search Extensions";
+     $searchBarText = "Extensions";
      $options =  ($notAnon == 1) ? $this->core->Element([
       "button", "+", [
        "class" => "OpenCard v2",
@@ -52,58 +53,58 @@
      $data = $this->core->FixMissing($data, ["BLG"]);
      $header = "Blog Posts";
      $list .= "&ID=".$data["ID"];
-     $searchBarText = "Search Posts";
+     $searchBarText = "Posts";
     } elseif($searchType == "BL") {
      $bl = base64_decode($data["BL"]);
      $header = "$bl Blacklist";
      $list .= "&BL=".$data["BL"];
-     $searchBarText = "Search $bl Blacklist";
+     $searchBarText = "$bl Blacklist";
     } elseif($searchType == "BLG") {
      $header = "Blogs";
      $list .= "&b2=Blogs&lPG=$searchType";
-     $searchBarText = "Search Blogs";
+     $searchBarText = "Blogs";
      $variant = "3Column";
     } elseif($searchType == "Bulletins") {
      $header = "Bulletins";
-     $searchBarText = "Search Bulletins";
+     $searchBarText = "Bulletins";
     } elseif($searchType == "CA") {
      $header = "Community Archive";
      $list .= "&b2=".urlencode("the Archive")."&lPG=$parentView";
-     $searchBarText = "Search Articles";
+     $searchBarText = "Articles";
      $variant = "3Column";
     } elseif($searchType == "CART") {
      $username = $data["Username"] ?? $you;
      $shopID = md5($username);
      $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
      $list .= "&ID=$shopID&Username=".base64_encode($username);
-     $searchBarText = "Search ".$shop["Title"];
+     $searchBarText = "".$shop["Title"];
      $variant = "Minimal";
     } elseif($searchType == "Chat") {
      $header = "Group Chats";
      $integrated = $data["Integrated"] ?? 0;
      $list .= "&Integrated=$integrated";
-     $searchBarText = "Search $header";
+     $searchBarText = "$header";
      $variant = "3Column";
     } elseif($searchType == "Congress") {
      $chamber = $data["Chamber"] ?? "";
      $header = "Content Moderation";
      $list .= "&Chamber=$chamber";
-     $searchBarText = "Search Content";
+     $searchBarText = "Content";
      $variant = "2Column";
     } elseif($searchType == "CongressionalBallot") {
      $chamber = $data["Chamber"] ?? "";
      $header = "Congressional $chamber Ballot";
      $list .= "&Chamber=$chamber";
-     $searchBarText = "Search Candidates";
+     $searchBarText = "Candidates";
      $variant = "3Column";
     } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
      $chamber = $data["Chamber"] ?? "";
      $list .= "&Chamber=$chamber";
-     $searchBarText = "Search  $chamber Staff";
+     $searchBarText = " $chamber Staff";
      $variant = "Minimal";
     } elseif($searchType == "Contacts") {
      $header = "Contact Manager";
-     $searchBarText = "Search Contacts";
+     $searchBarText = "Contacts";
     } elseif($searchType == "ContactsProfileList") {
      $data = $this->core->FixMissing($data, ["UN"]);
      $username = base64_decode($data["UN"]);
@@ -111,14 +112,14 @@
      $t = ($ck == 1) ? $y : $this->core->Member($username);
      $header = ($ck == 1) ? "Your Contacts" : $t["Personal"]["DisplayName"]."'s Contacts";
      $list .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
-     $searchBarText = "Search Contacts";
+     $searchBarText = "Contacts";
     } elseif($searchType == "ContactsRequests") {
      $header = "Contact Requests";
-     $searchBarText = "Search Contact Requests";
+     $searchBarText = "Contact Requests";
     } elseif($searchType == "Contributors") {
      $id = $data["ID"] ?? "";
      $list .= "&ID=$id&Type=".$data["Type"];
-     $searchBarText = "Search Contributors";
+     $searchBarText = "Contributors";
      $type = base64_decode($data["Type"]);
      $variant = "3Column";
      if($type == "Article") {
@@ -157,12 +158,12 @@
       ]) : "";
      } else {
       $header = "Contributors";
-      $searchBarText = "Search Contributors";
+      $searchBarText = "Contributors";
      }
     } elseif($searchType == "DC") {
      $dce = base64_encode("DiscountCode:Edit");
      $header = "Discount Codes";
-     $searchBarText = "Search Codes";
+     $searchBarText = "Codes";
      $options = ($notAnon == 1) ? $this->core->Element([
       "button", "+", [
        "class" => "OpenCard v2",
@@ -172,16 +173,16 @@
     } elseif($searchType == "Feedback") {
      $header = "Feedback";
      $list .= "&lPG=$parentView";
-     $searchBarText = "Search Feedback";
+     $searchBarText = "Feedback";
     } elseif($searchType == "Forums") {
      $header = "Forums";
      $list .= "&lPG=$parentView";
-     $searchBarText = "Search Private and Public Forums";
+     $searchBarText = "Private and Public Forums";
      $variant = "3Column";
     } elseif($searchType == "Forums-Admin") {
      $header = "Administrators";
      $list .= "&ID=".$data["ID"];
-     $searchBarText = "Search Administrators";
+     $searchBarText = "Administrators";
      $variant = "3Column";
     } elseif($searchType == "Forums-Posts") {
      $forumID = $data["ID"] ?? "";
@@ -189,7 +190,7 @@
      $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
      $header = "All Posts";
      $list .= "&ID=$forumID";
-     $searchBarText = "Search all Posts from ".$forum["Title"];
+     $searchBarText = "all Posts from ".$forum["Title"];
     } elseif($searchType == "Forums-Topic") {
      $forumID = $data["Forum"] ?? "";
      $topicID = $data["Topic"] ?? "";
@@ -197,33 +198,34 @@
      $list .= "&Forum=$forumID&Topic=$topicID";
      $topic = $forum["Topics"][$topicID] ?? [];
      $topic = $topic["Title"] ?? "Untitled";
-     $searchBarText = "Search Posts from $topic";
+     $searchBarText = "Posts from $topic";
      $variant = "Minimal";
     } elseif($searchType == "Forums-Topics") {
      $forumID = $data["Forum"] ?? "";
      $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
      $list .= "&Forum=$forumID";
-     $searchBarText = "Search Topics from ".$forum["Title"];
+     $searchBarText = "Topics from ".$forum["Title"];
      $variant = "Minimal";
     } elseif($searchType == "Knowledge") {
      $header = "Knowledge Base";
-     $searchBarText = "Search Q&As";
+     $searchBarText = "Q&As";
      $variant = "2Column";
     } elseif($searchType == "Links") {
      $header = "Links";
-     $searchBarText = "Search Links";
+     $searchBarText = "Links";
      $variant = "3Column";
     } elseif($searchType == "Mainstream") {
+     $addTopMargin = 1;
      $header = "The ".$searchType;
-     $searchBarText = "Search the Mainstream";
+     $searchBarText = "the Mainstream";
      $options = $this->core->Element(["button", "Say Something", [
-      "class" => "BBB MobileFull OpenCard v2 v2w",
+      "class" => "BBB MobileFull OpenCard v2",
       "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
      ]]);
      $variant = "2Column";
     } elseif($searchType == "MBR") {
      $header = "Members";
-     $searchBarText = "Search Members";
+     $searchBarText = "Members";
      $variant = "3Column";
     } elseif($searchType == "MBR-ALB") {
      $ae = base64_encode("Album:Edit");
@@ -234,19 +236,19 @@
      $b2 = $b2 ?? $h;
      $b2 = urlencode($b2);
      $list .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$parentView";
-     $searchBarText = "Search Albums";
+     $searchBarText = "Albums";
     } elseif($searchType == "MBR-BLG") {
      $bd = base64_encode("Authentication:DeleteBlogs");
      $be = base64_encode("Blog:Edit");
      $header = "Your Blogs";
      $list .= "&b2=Blogs&lPG=$parentView";
-     $searchBarText = "Search your Blogs";
+     $searchBarText = "your Blogs";
     } elseif($searchType == "MBR-CA") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $header = ($ck == 1) ? "Your Contributions" : $t["Personal"]["DisplayName"]."'s Contributions";
      $list .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
-     $searchBarText = "Search the Archive";
+     $searchBarText = "the Archive";
     } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
      $group = $data["Group"] ?? 0;
      $integrated = $data["Integrated"] ?? 0;
@@ -254,26 +256,26 @@
      $header = "1:1 Chat";
      $header = ($group == 1) ? "Group Chat" : $header;
      $list .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
-     $searchBarText = "Search $header";
+     $searchBarText = "$header";
      $variant = "3Column";
     } elseif($searchType == "MBR-Forums") {
      $header = "Your Forums";
      $list .= "&lPG=$parentView";
-     $searchBarText = "Search Your Private and Public Forums";
+     $searchBarText = "Your Private and Public Forums";
      $variant = "3Column";
     } elseif($searchType == "MBR-JE") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $header = ($ck == 1) ? "Your Journal" : $t["Personal"]["DisplayName"]."'s Journal";
      $list .= "&b2=$b2&lPG=$parentView";
-     $searchBarText = "Search Entries";
+     $searchBarText = "Entries";
     } elseif($searchType == "MBR-LLP") {
      $header = "Your Articles";
      $list .= "&b2=$b2&lPG=$parentView";
-     $searchBarText = "Search Articles";
+     $searchBarText = "Articles";
     } elseif($searchType == "MBR-Polls") {
      $header = "Your Polls";
-     $searchBarText = "Search Polls";
+     $searchBarText = "Polls";
     } elseif($searchType == "MBR-SU") {
      $t = base64_decode($data["UN"]);
      $t = ($t != $you) ? $this->core->Member($t) : $y;
@@ -286,7 +288,7 @@
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $header = ($ck == 1) ? "Your Stream" : $display."'s Stream";
      $list .= "&UN=".base64_encode($t["Login"]["Username"]);
-     $searchBarText = "Search Posts";
+     $searchBarText = "Posts";
      $options = (($bl == 0 || $ck == 1) && $notAnon == 1) ? $this->core->Element([
       "button", "Say Something", [
        "class" => "OpenCard v2",
@@ -319,7 +321,7 @@
      $header = $alb["Title"] ?? "Unsorted";
      $header = ($ck2 == 1) ? "System Media Library" : $header;
      $list .= "&AID=$aid&UN=".$data["UN"];
-     $searchBarText = "Search $header";
+     $searchBarText = "$header";
      $usernamelimitedFiles = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
      $usernamelimitedFiles = ($ck2 == 1) ? "No Upload Limit" : $usernamelimitedFiles;
      $ck = ($ck == 1 || $usage < $limit) ? 1 : 0;
@@ -340,41 +342,41 @@
     } elseif($searchType == "Media") {
      $header = "Media";
      $list .= "&lPG=Files";
-     $searchBarText = "Search Files";
+     $searchBarText = "Files";
      $variant = "3Column";
     } elseif($searchType == "Polls") {
      $header = "Polls";
-     $searchBarText = "Search Polls";
+     $searchBarText = "Polls";
      $variant = "3Column";
     } elseif($searchType == "PR") {
      $header = "Press Releases";
      $list .= "&b2=".urlencode("Press Releases")."&lPG=$parentView";
-     $searchBarText = "Search Articles";
+     $searchBarText = "Articles";
     } elseif($searchType == "Products") {
      $header = "Products";
      $list .= "&lPG=$parentView&st=$searchType";
-     $searchBarText = "Search Products";
+     $searchBarText = "Products";
      $variant = "3Column";
     } elseif($searchType == "SHOP") {
      $header = "Artists";
      $list .= "&lPG=$parentView&st=$searchType";
-     $searchBarText = "Search Shops";
+     $searchBarText = "Shops";
      $variant = "3Column";
     } elseif($searchType == "SHOP-InvoicePresets") {
      $header = "Services";
      $shop = $data["Shop"] ?? "";
      $list .= "&Shop=$shop&st=$searchType";
-     $searchBarText = "Search Services";
+     $searchBarText = "Services";
     } elseif($searchType == "SHOP-Invoices") {
      $header = "Invoices";
      $shop = $data["Shop"] ?? "";
      $list .= "&Shop=$shop&st=$searchType";
-     $searchBarText = "Search Invoices";
+     $searchBarText = "Invoices";
     } elseif($searchType == "SHOP-Products") {
      $header = "Products";
      $username = $data["UN"] ?? base64_encode($you);
      $list .= "&UN=$username&b2=$b2&lPG=$parentView&pub=$pub&st=$searchType";
-     $searchBarText = "Search $b2";
+     $searchBarText = "$b2";
      $t = base64_decode($data["UN"]);
      $t = $this->core->Member($t);
      $isArtist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
@@ -389,14 +391,14 @@
      ]) : "";
      $variant = "3Column";
     } elseif($searchType == "SHOP-Orders") {
-     $searchBarText = "Search Orders";
+     $searchBarText = "Orders";
      $variant = "Minimal";
     } elseif($searchType == "XFS") {
      $_AddTo = $data["AddTo"] ?? "";
      $_Added = $data["Added"] ?? "";
      $header = "Files";
      $parentView = $data["lPG"] ?? $searchType;
-     $searchBarText = "Search Files";
+     $searchBarText = "Files";
      $variant = "3Column";
      $list .= "&AddTo=$_AddTo&Added=$_Added&ParentView=$parentView&UN=".$data["UN"];
      $list .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
@@ -428,6 +430,7 @@
    ] : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -579,6 +582,7 @@
    $base = $this->core->base;
    $data = $a["Data"] ?? [];
    $b2 = $data["b2"] ?? "Search";
+   $end = 0;
    $i = 0;
    $list = [];
    $na = "No Results";
@@ -614,7 +618,9 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     foreach($sql as $sql) {
+     if(count($sql) <= $limit) {
+      $end = 1;
+     } foreach($sql as $sql) {
       $_Extension = $this->core->GetContentData([
        "Blacklisted" => 0,
        "ID" => base64_encode("Extension;".$sql["Extension_ID"])
@@ -661,7 +667,9 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     foreach($sql as $sql) {
+     if(count($sql) <= $limit) {
+      $end = 1;
+     } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Blog Posts", $sql["BlogPost_ID"]]);
       $_BlogPost = $this->core->GetContentData([
        "BackTo" => $title,
@@ -793,7 +801,9 @@
         ":ID" => $value
        ]);
        $sql = $sql->single();
-       foreach($sql as $sql) {
+       if(count($sql) <= $limit) {
+        $end = 1;
+       } foreach($sql as $sql) {
         $de = $sql["Link_Description"] ?? "No Description";
         $title = $sql["Link_Title"] ?? "Untitled";
         $vi = $this->core->Element(["button", "Visit <em>$title</em>", [
@@ -868,7 +878,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -945,7 +957,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Pages", $sql["Article_ID"]]);
      $_Article = $this->core->GetContentData([
       "BackTo" => $b2,
@@ -1041,7 +1055,9 @@
       ":Username" => $you
      ]);
      $sql = $sql->set();
-     foreach($sql as $sql) {
+     if(count($sql) <= $limit) {
+      $end = 1;
+     } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -1600,7 +1616,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $feedback = $this->core->Data("Get", ["feedback", $sql["Feedback_ID"]]) ?? [];
      $mesasge = $feedback["Thread"] ?? [];
      $mesasge = $feedback["Thread"][0] ?? [];
@@ -1645,7 +1663,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);
      $_Forum = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -1756,7 +1776,9 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     foreach($sql as $sql) {
+     if(count($sql) <= $limit) {
+      $end = 1;
+     } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -1879,7 +1901,9 @@
       ":Topic" => $topicID
      ]);
      $sql = $sql->set();
-     foreach($sql as $sql) {
+     if(count($sql) <= $limit) {
+      $end = 1;
+     } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -2027,7 +2051,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $icon = parse_url($sql["Link_ID"], PHP_URL_SCHEME)."://".parse_url($sql["Link_ID"], PHP_URL_HOST); 
      $icon = trim($icon, "/");
      $icon = "$icon/apple-touch-icon.png";
@@ -2065,7 +2091,9 @@
      ":Username" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2151,7 +2179,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2250,7 +2280,9 @@
       ":Username" => $you
      ]);
      $sql = $sql->set();
-     foreach($sql as $sql) {
+     if(count($sql) <= $limit) {
+      $end = 1;
+     } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -2297,7 +2329,9 @@
      ":Username" => $t["Login"]["Username"]
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
      $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
      $_Article = $this->core->GetContentData([
@@ -2363,7 +2397,9 @@
        ":Username" => $you
       ]);
       $sql = $sql->set();
-      foreach($sql as $sql) {
+      if(count($sql) <= $limit) {
+       $end = 1;
+      } foreach($sql as $sql) {
        $active = 0;
        $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
        $_Chat = $this->core->GetContentData([
@@ -2450,7 +2486,9 @@
      ":Username" => $you
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);;
      $_Forum = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2515,7 +2553,9 @@
      ":Username" => $you
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2599,7 +2639,9 @@
      ":Username" => base64_decode($data["UN"])
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $id = $value["UpdateID"] ?? "";
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
@@ -2683,7 +2725,9 @@
      ":Username" => $t["Login"]["Username"]
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
@@ -2718,7 +2762,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
@@ -2755,7 +2801,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -2837,7 +2885,9 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $b2 = $b2 ?? "Products";
      $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
@@ -2891,7 +2941,9 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     foreach($sql as $sql) {
+     if(count($sql) <= $limit) {
+      $end = 1;
+     } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Members", $sql["Shop_Username"]]);
       $_Shop = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -3011,7 +3063,9 @@
      ":Shop" => md5($username)
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -3056,7 +3110,9 @@
      ":Username" => $querysql
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "Blacklisted" => $bl,
@@ -3153,7 +3209,9 @@
      ":Username" => $_Username
     ]);
     $sql = $sql->set();
-    foreach($sql as $sql) {
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
@@ -3184,24 +3242,20 @@
      }
     }
    }
-   $v2 = $data["v2"] ?? 0;//TEMP
-   $r = ($v2 == 1) ? $this->core->JSONResponse([
+   return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "Response" => [
+     "End" => "$end",
+     "Extension" => base64_encode($extension),
      "Limit" => $limit,
      "List" => $list,
+     "NoResults" => base64_encode($this->core->Element([
+      "h3", $na, ["class" => "CenterText InnerMargin UpperCase"]
+     ])),
      "Offset" => $offset
     ],
     "ResponseType" => "View"
-   ]) : $this->core->JSONResponse([
-    $accessCode,
-    base64_encode($this->core->JSONResponse($list)),
-    base64_encode($extension),
-    base64_encode($this->core->Element([
-     "h3", $na, ["class" => "CenterText InnerMargin UpperCase"]
-    ]))
    ]);
-   return $r;
   }
   function ReSearch(array $a) {
    $_ViewTitle = "Re:Search";

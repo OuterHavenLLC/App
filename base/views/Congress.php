@@ -54,6 +54,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -68,7 +69,7 @@
    $chambers = $data["Chambers"] ?? 0;
    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
    $congressmen = $congress["Members"] ?? [];
-   $hasCoverPhoto = 1;
+   $addTopMargin = "0";
    $houseRepresentatives = 0;
    $pub = $data["pub"] ?? 0;
    $senators = 0;
@@ -83,7 +84,7 @@
      $senators++;
     }
    } if(!empty($chamber) && $chambers == 1) {
-    $hasCoverPhoto = 0;
+    $addTopMargin = "1";
     $options = "";
     $search = base64_encode("Search:Containers");
     $options = ($notAnon == 1) ? $this->core->Element(["button", "Ballot", [
@@ -150,7 +151,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "CoverPhoto" => $hasCoverPhoto,
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -230,6 +231,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -324,6 +326,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -554,6 +557,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -615,6 +619,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -778,6 +783,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -901,6 +907,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -943,6 +950,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r

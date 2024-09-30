@@ -59,6 +59,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -72,6 +73,7 @@
    $accessCode = ($this->core->ID != $you) ? "Accepted" : "Denied";
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $this->core->Element(["button", NULL, [
@@ -136,6 +138,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -156,6 +159,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -235,6 +239,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $message
@@ -423,6 +428,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -453,6 +459,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => "$i"
@@ -491,6 +498,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -521,6 +529,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -568,6 +577,8 @@
    ];
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -578,8 +589,8 @@
   function Home(array $a) {
    $_ViewTitle = $this->core->config["App"]["Name"];
    $accessCode = "Denied";
+   $addTopMargin = "0";
    $data = $a["Data"] ?? [];
-   $hasCoverPhoto = 1;
    $member = $data["UN"] ?? "";
    $_Member = $this->core->GetContentData([
     "ID" => base64_encode("Member;".md5(base64_decode($member)))
@@ -636,11 +647,11 @@
      $_ViewTitle = "$displayName @ ".$_ViewTitle;
      $_VIP = $member["Subscriptions"]["VIP"]["A"] ?? 0;
      $accessCode = "Accepted";
+     $addTopMargin = "1";
      $passPhrase = $member["Privacy"]["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $hasCoverPhoto = 0;
       $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
@@ -656,7 +667,7 @@
       $r = $this->core->RenderView($r);
      } elseif($verifyPassPhrase == 1) {
       $accessCode = "Denied";
-      $hasCoverPhoto = 0;
+      $addTopMargin = "0";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $r = $this->core->Element(["p", "The Key is missing."]);
@@ -666,7 +677,6 @@
        $r = $this->core->Element(["p", "The Keys do not match."]);
       } else {
        $accessCode = "Accepted";
-       $hasCoverPhoto = 1;
        $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
         "UN" => base64_encode($id),
         "ViewProtectedContent" => 1
@@ -918,7 +928,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "CoverPhoto" => $hasCoverPhoto,
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1179,6 +1189,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1528,6 +1539,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => 0,
     "Response" => [
      "JSON" => "",
      "Web" => $r

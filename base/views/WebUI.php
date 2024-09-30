@@ -91,6 +91,7 @@
    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -284,6 +285,7 @@
    ]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -305,7 +307,7 @@
    ], $this->core->Extension("db69f503c7c6c1470bd9620b79ab00d7")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "CoverPhoto" => 1,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -398,13 +400,15 @@
   function UIContainers(array $a) {
    $accessCode = "Accepted";
    $content = base64_encode("v=".base64_encode("WebUI:OptIn"));
-   $hasCoverPhoto = 1;
+   $addTopMargin = "0";
    $headers = apache_request_headers();
    $language = $headers["Language"] ?? $this->core->language;
    $setUIvariant = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
+    $addTopMargin = 1;
+    $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
     foreach($y["Subscriptions"] as $subscription => $data) {
      if(strtotime($data["B"]) > $data["E"]) {
@@ -433,11 +437,9 @@
       $this->core->Data("Save", ["pfmanifest", $sonsOfLiberty, $manifest]);
      }
     }
-    $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
-    $hasCoverPhoto = 0;
+    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
     $y["Inactive"] = 0;
     $y["Personal"]["Language"] = $language;
-    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["shop", md5($you), $shop]);
    }
@@ -448,13 +450,14 @@
    ], $this->core->RenderUI("Main")]);
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "CoverPhoto" => $hasCoverPhoto,
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
     "ResponseType" => "View",
-    "SetUIVariant" => $setUIvariant
+    "SetUIVariant" => $setUIvariant,
+    "UIContainers" => 1
    ]);
   }
   function WYSIWYG(array $a) {
