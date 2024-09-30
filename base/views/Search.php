@@ -11,8 +11,8 @@
   }
   function Containers(array $a) {
    $accessCode = "Denied";
-   $addTopMargin = "0";
    $data = $a["Data"] ?? [];
+   $addTopMargin = $data["AddTopMargin"] ?? "0";
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
    $header = "";
@@ -571,6 +571,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r

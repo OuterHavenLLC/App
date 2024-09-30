@@ -7,6 +7,7 @@
   function FABPlayer() {
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $this->core->Change([[
@@ -136,6 +137,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -167,6 +169,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
+    "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
