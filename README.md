@@ -23,6 +23,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Up to 100 new jobs may be active while the Hire section is enabled. After this new limit is reached, no new jobs may be created.
 * Shop Partners may add media attachments to invoice notes. (coming soon...)
 * VIP Members are no longer required to pay the initial invoice (pre-set) charge if the shop identifier is that of the platform shop.
+* Charts are now used to graphically represent current sales data, comparisons, and platform statistics. (coming soon...)
 
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
