@@ -12,7 +12,7 @@
   function Containers(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $addTopMargin = $data["AddTopMargin"] ?? "0";
+   $addTopMargin = "0";
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
    $header = "";
@@ -259,6 +259,7 @@
      $searchBarText = "$header";
      $variant = "3Column";
     } elseif($searchType == "MBR-Forums") {
+     $addTopMargin = 1;
      $header = "Your Forums";
      $list .= "&lPG=$parentView";
      $searchBarText = "Your Private and Public Forums";

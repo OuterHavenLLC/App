@@ -16,10 +16,12 @@
   $r = $oh->core->Extension("d4efcd44be4b2ef2a395f0934a9e446a");
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
-  if($view == "Cypher") {
-   $r = $oh->core->Extension("06dfe9b3d6b9fdab588c1eabfce275fd");
+  if($view == "Chart") {
+   $r = $oh->core->Extension("b3463a420fd60fccd6f06727860ba860");
   } elseif($view == "Client") {
    $r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
+  } elseif($view == "Cypher") {
+   $r = $oh->core->Extension("06dfe9b3d6b9fdab588c1eabfce275fd");
   }
   $r = $oh->core->Change([[
    "[App.AddContent]" => base64_encode("v=".base64_encode("Profile:AddContentCheck")),
