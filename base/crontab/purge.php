@@ -12,7 +12,7 @@
  foreach($databases as $key => $database) {
   $database = explode(".", $database);
   if(!empty($database[3])) {
-   $data = $oh->core->Data("Get", [$database[2], $database[3]]) ?? [];
+   $data = $oh->core->Data("Get", [$database[2], $database[3]]);
    $purge = $data["Purge"] ?? 0;
    if(empty($data) || $purge == 1) {
     $purged++;
@@ -20,12 +20,20 @@
      "p", "Purging data and dependencies for ".implode(".", $database)."..."
     ]);
     $oh->core->Data("Purge", [$database[2], $database[3]]);
-    if(!empty($oh->core->Data("Get", ["chat", $database[3]]))) {
+    if($database[2] == "conversation") {
+     foreach($data as $comment => $info) {
+      $this->core->Data("Purge", ["votes", $comment]);
+     }
+    } if(!empty($oh->core->Data("Get", ["chat", $database[3]]))) {
      $r .= "<p>Chat...";
      $oh->core->Data("Purge", ["chat", $database[3]]);
      $r .= "OK</p>\r\n";
     } if(!empty($oh->core->Data("Get", ["conversation", $database[3]]))) {
+     $conversation = $oh->core->Data("Get", ["conversation", $database[3]]);
      $r .= "<p>Conversation...";
+     foreach($conversation as $comment => $info) {
+      $this->core->Data("Purge", ["votes", $comment]);
+     }
      $oh->core->Data("Purge", ["conversation", $database[3]]);
      $r .= "OK</p>\r\n";
     } if(!empty($oh->core->Data("Get", ["translate", $database[3]]))) {

@@ -17,6 +17,8 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * When a new Member signs up, there is now an integrated tutorial presentation in the success view.
 * Attached content previews now properly render in content editors.
 * Administrators may now set the default platform-wide UI variant and modify allowed media file extensions.
+* When purging conversation data, the vote databases for all comments are also purged.
+* Members may now purge media currently attached to primary content. (coming soon...)
 * More platform-wide optimization and bug fixes.
 
 ### Artists

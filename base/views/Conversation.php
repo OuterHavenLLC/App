@@ -7,8 +7,8 @@
   function Edit(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $commentID = $data["CommentID"] ?? base64_encode("");
-   $conversationID = $data["ConversationID"] ?? base64_encode("");
+   $commentID = $data["CommentID"] ?? "";
+   $conversationID = $data["ConversationID"] ?? "";
    $level = $data["Level"] ?? base64_encode(1);
    $new = $data["new"] ?? 0;
    $r = [
@@ -82,8 +82,8 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $commentID = $data["CommentID"] ?? base64_encode("");
-   $conversationID = $data["CRID"] ?? base64_encode("");
+   $commentID = $data["CommentID"] ?? "";
+   $conversationID = $data["CRID"] ?? "";
    $edit = base64_encode("Conversation:Edit");
    $hide = base64_encode("Conversation:MarkAsHidden");
    $i = 0;
@@ -102,7 +102,7 @@
     $conversationID = base64_decode($conversationID);
     $level = base64_decode($level);
     $level = $level ?? 1;
-    $conversation = $this->core->Data("Get", ["conversation", $conversationID]) ?? [];
+    $conversation = $this->core->Data("Get", ["conversation", $conversationID]);
     $home = base64_encode("Conversation:Home");
     $im = base64_encode("LiveView:InlineMossaic");
     $vote = base64_encode("Vote:Containers");
@@ -385,8 +385,8 @@
   function MarkAsHidden(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $commentID = $data["CommentID"] ?? base64_encode("");
-   $conversationID = $data["ConversationID"] ?? base64_encode("");
+   $commentID = $data["CommentID"] ?? "";
+   $conversationID = $data["ConversationID"] ?? "";
    $r = [
     "Body" => "The Conversation or comment Identifier are missing."
    ];
