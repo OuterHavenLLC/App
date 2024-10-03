@@ -20,7 +20,15 @@
      "p", "Purging data and dependencies for ".implode(".", $database)."..."
     ]);
     $oh->core->Data("Purge", [$database[2], $database[3]]);
-    if($database[2] == "conversation") {
+    if($database[2] == "fs") {
+     $albums = $data["Albums"] ?? [];
+     $media = $data["Files"] ?? [];
+     foreach($albums as $key => $info) {
+      $this->core->Data("Purge", ["votes", $key]);
+     } foreach($media as $key => $info) {
+      $this->core->Data("Purge", ["votes", $key]);
+     }
+    } elseif($database[2] == "conversation") {
      foreach($data as $comment => $info) {
       $this->core->Data("Purge", ["votes", $comment]);
      }
