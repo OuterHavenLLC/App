@@ -64,7 +64,6 @@
       $mainUIvariants = "";
       $media = "";
       $mediaList = $config["Media"] ?? [];
-      $previewQuantity = "Single";
       $responseType = "View";
       $saveFirst = base64_encode("v=".base64_encode("ControlPanel:SaveFirst"));
       $search = "";
@@ -117,7 +116,6 @@
         "[Event.Title]" => $info["Title"],
         "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&Added=$added&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $coverPhoto,
-        "[Media.File.Quantity]" => $previewQuantity,
         "[Media.Input]" => "EventCoverPhoto[]",
         "[Media.Input.LiveView]" => $_LiveView
        ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")]);
@@ -137,7 +135,6 @@
         "[Clone.ID]" => $key,
         "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $file,
-        "[Media.File.Quantity]" => $previewQuantity,
         "[Media.ID]" => $key,
         "[Media.Input]" => "MediaFile[]",
         "[Media.Input.LiveView]" => $_LiveView,
@@ -206,7 +203,6 @@
         "[Event.Title]" => "",
         "[Media.Add]" => $saveFirst,
         "[Media.File]" => "",
-        "[Media.File.Quantity]" => $previewQuantity,
         "[Media.Input]" => "EventCoverPhoto[]",
         "[Media.Input.LiveView]" => $_LiveView
        ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
@@ -238,7 +234,6 @@
        "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
         "[Media.Add]" => $saveFirst,
         "[Media.File]" => "",
-        "[Media.File.Quantity]" => $previewQuantity,
         "[Media.Input]" => "MediaFile[]",
         "[Media.Input.LiveView]" => $_LiveView,
         "[Media.ID]" => "",

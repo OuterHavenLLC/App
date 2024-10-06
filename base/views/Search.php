@@ -52,7 +52,8 @@
     } elseif($searchType == "BGP") {
      $data = $this->core->FixMissing($data, ["BLG"]);
      $header = "Blog Posts";
-     $list .= "&ID=".$data["ID"];
+     $id = $data["ID"] ?? "";
+     $list .= "&ID=$id";
      $searchBarText = "Posts";
     } elseif($searchType == "BL") {
      $bl = base64_decode($data["BL"]);
@@ -187,10 +188,11 @@
     } elseif($searchType == "Forums-Posts") {
      $forumID = $data["ID"] ?? "";
      $forumID = base64_decode($forumID);
-     $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+     $forum = $this->core->Data("Get", ["pf", $forumID]);
      $header = "All Posts";
      $list .= "&ID=$forumID";
-     $searchBarText = "all Posts from ".$forum["Title"];
+     $title = $forum["Title"] ?? "";
+     $searchBarText = (!empty($title)) ? "All Posts from $title" : $header;
     } elseif($searchType == "Forums-Topic") {
      $forumID = $data["Forum"] ?? "";
      $topicID = $data["Topic"] ?? "";
@@ -642,10 +644,9 @@
      }
     }
    } elseif($searchType == "BGP") {
-    $_BlogID = base64_decode($data["ID"]);
+    $_BlogID = $data["ID"] ?? base64_encode("");
+    $_BlogID = base64_decode($_BlogID);
     $accessCode = "Accepted";
-    $blog = $this->core->Data("Get", ["blg", $_BlogID]) ?? [];
-    $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
     $extension = $this->core->Extension("dba88e1a123132be03b9a2e13995306d");
     if($notAnon == 1) {
      $_Query = "SELECT * FROM BlogPosts 
@@ -661,9 +662,6 @@
                          LIMIT $limit
                          OFFSET $offset
      ";
-     $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
-     $title = $blog["Title"];
-     $title = urlencode($title);
      $sql->query($_Query, [
       ":Blog" => $_BlogID,
       ":Search" => $querysql
@@ -672,6 +670,11 @@
      if(count($sql) <= $limit) {
       $end = 1;
      } foreach($sql as $sql) {
+      $blog = $this->core->Data("Get", ["blg", $sql["BlogPost_Blog"]]);
+      $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
+      $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
+      $title = $blog["Title"] ?? "";
+      $title = urlencode($title);
       $bl = $this->core->CheckBlocked([$y, "Blog Posts", $sql["BlogPost_ID"]]);
       $_BlogPost = $this->core->GetContentData([
        "BackTo" => $title,

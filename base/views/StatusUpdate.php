@@ -30,32 +30,45 @@
      "data-form" => ".EditStatusUpdate$id",
      "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
     ]]);
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $attachments = "";
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
-    $update = $this->core->Data("Get", ["su", $id]) ?? [];
+    $update = $this->core->Data("Get", ["su", $id]);
+    $attachments = $update["Attachments"] ?? [];
     $body = $update["Body"] ?? "";
     $body = (!empty($data["Body"])) ? base64_decode($data["Body"]) : $body;
-    if(!empty($update["Attachments"])) {
-     $attachments = base64_encode(implode(";", $update["Attachments"]));
-    }
+    $blogs = $update["Blogs"] ?? [];
+    $blogPosts = $update["BlogPosts"] ?? [];
+    $coverPhoto = $update["CoverPhoto"] ?? [];
+    $forums = $update["Forums"] ?? [];
+    $forumPosts = $update["ForumPosts"] ?? [];
     $nsfw = $update["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $update["PassPhrase"] ?? "";
     $privacy = $update["Privacy"] ?? $y["Privacy"]["Posts"];
+    $products = $update["Products"] ?? [];
+    $shops = $update["Shops"] ?? [];
     $to = (!empty($to)) ? base64_decode($to) : $to;
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Attachments" => $attachments,
+      "Blogs" => $blogs,
+      "BlogPosts" => $blogPosts,
+      "CoverPhoto" => $coverPhoto,
+      "Forums" => $forums,
+      "ForumPosts" => $forumPosts,
+      "Products" => $products,
+      "Shops" => $shops
+     ]
+    ]);
+    $attachments = $this->core->RenderView($attachments);
     $r = $this->core->Change([[
-     "[Update.AdditionalContent]" => $additionalContent["Extension"],
+     "[Update.Attachments]" => $attachments,
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
      "[Update.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body
      ])),
      "[Update.DesignView]" => "Edit$id",
-     "[Update.Downloads]" => $attachments,
-     "[Update.Downloads.LiveView]" => $additionalContent["LiveView"]["DLC"],
      "[Update.From]" => $you,
      "[Update.ID]" => $id,
      "[Update.New]" => $new,
@@ -216,29 +229,89 @@
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
     $update = $this->core->Data("Get", ["su", $id]) ?? [];
-    $att = $update["Attachments"] ?? [];
+    $attachments = [];
+    $attachmentsData = $data["Attachments"] ?? [];
+    $blogs = [];
+    $blogsData = $data["Blogs"] ?? [];
+    $blogPosts = [];
+    $blogPostsData = $data["BlogPosts"] ?? [];
+    $coverPhoto = [];
+    $coverPhotoData = $data["CoverPhoto"] ?? [];
     $created = $update["Created"] ?? $this->core->timestamp;
+    $forums = [];
+    $forumPosts = [];
     $illegal = $update["Illegal"] ?? 0;
     $notes = $update["Notes"] ?? [];
     $now = $this->core->timestamp;
     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $data["PassPhrase"] ?? "";
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
+    $products = [];
     $purge = $data["Purge"] ?? 0;
-    if(!empty($data["rATTF"])) {
-     $dlc = array_reverse(explode(";", base64_decode($data["rATTF"])));
-     foreach($dlc as $dlc) {
-      if(!empty($dlc)) {
-       $f = explode("-", base64_decode($dlc));
-       if(!empty($f[0]) && !empty($f[1])) {
-        array_push($att, base64_encode($f[0]."-".$f[1]));
-       }
+    $shops = [];
+    if(!empty($attachmentsData)) {
+     $media = array_reverse($attachmentsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($attachments, $media[$i]);
+      }
+     }
+    } if(!empty($blogsData)) {
+     $media = array_reverse($blogsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($blogs, $media[$i]);
+      }
+     }
+    } if(!empty($blogPostsData)) {
+     $media = array_reverse($blogPostsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($blogPosts, $media[$i]);
+      }
+     }
+    } if(!empty($coverPhotoData)) {
+     $media = trim(base64_decode($coverPhotoData), ";");
+     array_push($coverPhoto, $media);
+    } if(!empty($forumsData)) {
+     $media = array_reverse($forumsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($forums, $media[$i]);
+      }
+     }
+    } if(!empty($forumPostsData)) {
+     $media = array_reverse($forumPostsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($forumPosts, $media[$i]);
+      }
+     }
+    } if(!empty($productsData)) {
+     $media = array_reverse($productsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($products, $media[$i]);
+      }
+     }
+    } if(!empty($shopsData)) {
+     $media = array_reverse($shopsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($shops, $media[$i]);
       }
      }
     } if($new == 1) {
      $mainstream = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
      array_push($mainstream, $id);
-     $this->core->Data("Save", ["app", "mainstream", $mainstream]);
+     #$this->core->Data("Save", ["app", "mainstream", $mainstream]);
      $update = [
       "From" => $you,
       "To" => $to,
@@ -247,19 +320,24 @@
      if(!empty($to) && $to != $you) {
       $stream = $this->core->Data("Get", ["stream", md5($to)]) ?? [];
       $stream[$created] = $update;
-      $this->core->Data("Save", ["stream", md5($to), $stream]);
+      #$this->core->Data("Save", ["stream", md5($to), $stream]);
      }
      $stream = $this->core->Data("Get", ["stream", md5($you)]) ?? [];
      $stream[$created] = $update;
-     $this->core->Data("Save", ["stream", md5($you), $stream]);
+     #$this->core->Data("Save", ["stream", md5($you), $stream]);
     }
     $update = [
-     "Attachments" => array_unique($att),
+     "Attachments" => $attachments,
+     "Blogs" => $blogs,
+     "BlogPosts" => $blogPosts,
      "Body" => $this->core->PlainText([
       "Data" => $data["Body"],
       "HTMLEncode" => 1
      ]),
+     "CoverPhoto" => end($coverPhoto),
      "Created" => $created,
+     "Forums" => $forums,
+     "ForumPosts" => $forumPosts,
      "From" => $you,
      "ID" => $id,
      "Illegal" => $illegal,
@@ -268,7 +346,9 @@
      "NSFW" => $nsfw,
      "PassPhrase" => $passPhrase,
      "Privacy" => $privacy,
+     "Products" => $products,
      "Purge" => $purge,
+     "Shops" => $shops,
      "To" => $to
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
@@ -298,19 +378,20 @@
      ":To" => $update["To"],
      ":Username" => $update["From"]
     ]);
-    $sql->execute();
+    #$sql->execute();
     $y["Activity"]["LastActivity"] = $this->core->timestamp;
     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-    $this->core->Data("Save", ["su", $update["ID"], $update]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    #$this->core->Data("Save", ["su", $update["ID"], $update]);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [
      "Body" => "The Status Update was $actionTaken.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($update, true)
     ];
     if($new == 1) {
-     $this->core->Statistic("New Status Update");
+     #$this->core->Statistic("New Status Update");
     } else {
-     $this->core->Statistic("Edit Status Update");
+     #$this->core->Statistic("Edit Status Update");
     }
    }
    return $this->core->JSONResponse([
@@ -321,7 +402,7 @@
      "Web" => $r
     ],
     "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    #"Success" => "CloseCard"
    ]);
   }
   function Purge(array $a) {

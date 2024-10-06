@@ -20,33 +20,16 @@
     $dlc = (str_ends_with($dlc, ";")) ? rtrim($dlc, ";") : $dlc;
     $dlc = explode(";", $dlc);
     $fileSystem = $this->core->Data("Get", ["app", "fs"]) ?? [];
-    $quantity = $data["PreviewQuantity"] ?? base64_encode("Single");
-    $quantity = base64_decode($quantity);
     $username = $this->core->ID;
-    if($quantity == "Single") {
-     $dlc = explode(".", end($dlc));
-     $dlc = $fileSystem[$dlc[0]] ?? [];
-     if(!empty($dlc)) {
-      $i++;
-      $r = $this->core->GetAttachmentPreview([
-       "DLL" => $dlc,
-       "T" => $username,
-       "Y" => $you
-      ]);
-     }
-    } elseif($quantity == "Multiple") {
-     foreach($dlc as $dlc) {
-      $dlc = explode(".", end($dlc));
-      $dlc = $fileSystem[$dlc[0]] ?? [];
-      if(!empty($dlc)) {
-       $i++;
-       $r = $this->core->GetAttachmentPreview([
-        "DLL" => $dlc,
-        "T" => $username,
-        "Y" => $you
-       ]);
-      }
-     }
+    $dlc = explode(".", end($dlc));
+    $dlc = $fileSystem[$dlc[0]] ?? [];
+    if(!empty($dlc)) {
+     $i++;
+     $r = $this->core->GetAttachmentPreview([
+      "DLL" => $dlc,
+      "T" => $username,
+      "Y" => $you
+     ]);
     }
    }
    $r = ($i == 0) ? $this->NoMedia : $r;
@@ -69,81 +52,46 @@
    $mediaType = base64_decode($mediaType);
    $i = 0;
    $id = $data["ID"] ?? "";
-   $quantity = $data["PreviewQuantity"] ?? base64_encode("Single");
-   $quantity = base64_decode($quantity);
    $r = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
+    $addTo = $data["AddTo"] ?? "";
     $attachments = base64_decode($id);
     $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
     $attachments = explode(";", $attachments);
-    if(!empty($attachments)) {
-     if($quantity == "Single") {
-      if($mediaType == "CoverPhoto") {
-       $attachment = explode("-", base64_decode(end($attachments)));
-       $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
-       $i++;
-       $r = $this->core->GetAttachmentPreview([
-        "DLL" => $efs[$attachment[1]],
-        "T" => $attachment[0],
-        "Y" => $you
-       ]);
-      } elseif($mediaType == "Files") {
-       $attachment = explode("-", base64_decode(end($attachments)));
-       $member = $this->core->GetContentData([
-        "Blacklisted" => 0,
-        "ID" => base64_encode("Member;".md5($attachment[0]))
-       ]);
-       if($member["Empty"] == 0) {
-        $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
-        $i++;
-        $member = $member["DataModel"];
-        $r = $this->core->Change([[
-         "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=".$attachment[1]."&Type=ATT",
-         "[Attachment.Description]" => $efs[$attachment[1]]["Description"],
-         "[Attachment.DN]" => $member["Personal"]["DisplayName"],
-         "[Attachment.ID]" => $attachment[1],
-         "[Attachment.Input]" => $data["AddTo"],
-         "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
-          "DLL" => $efs[$attachment[1]],
-          "T" => $attachment[0],
-          "Y" => $you
-         ]),
-         "[Attachment.Title]" => $efs[$attachment[1]]["Title"],
-         "[Attachment.View]" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$attachment[1]."&UN=".$attachment[0])
-        ], $this->core->Extension("63668c4c623066fa275830696fda5b4a")]);
-       }
-      } elseif($mediaType == "Products") {
-       $r = $this->core->Element(["p", "Product #".end($attachments)]);
-      }
-     }
-    } elseif($quantity == "Multiple") {
-     if($mediaType == "Files") {
-      foreach($attachments as $dlc) {
-       $dlc = explode("-", base64_decode($dlc));
-       if(!empty($f[0]) && !empty($f[1])) {
-        $efs = $this->core->Data("Get", ["fs", md5($dlc[0])])["Files"] ?? [];
-        $r = $this->core->Change([[
-         "[Attachment.CodeProcessor]" => "v=".base64_encode("LiveView:GetCode")."&Code=".$attachments[$i]."&Type=ATT",
-         "[Attachment.Description]" => $efs[$f[1]]["Description"],
-         "[Attachment.DN]" => $t["Personal"]["DisplayName"],
-         "[Attachment.ID]" => $attachments[$i],
-         "[Attachment.Input]" => $data["AddTo"],
-         "[Attachment.Preview]" => $this->core->GetAttachmentPreview([
-          "DLL" => $efs[$f[1]],
-          "T" => $f[0],
-          "Y" => $you
-         ]),
-         "[Attachment.Title]" => $efs[$f[1]]["Title"],
-         "[Attachment.View]" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
-        ], $this->core->Extension("63668c4c623066fa275830696fda5b4a")]);
-       }
-      }
+    foreach($attachments as $attachment) {
+     $attachment = explode("-", base64_decode($attachment));
+     if($mediaType == "Attachments") {
+      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
+      $i++;
+      $r = $this->core->GetAttachmentPreview([
+       "DLL" => $efs[$attachment[1]],
+       "T" => $attachment[0],
+       "Y" => $you
+      ]).$this->core->Element([
+       "p", "[Attachment:".$attachment[1]."]", ["class" => "CenterText"]
+      ]);
+     } elseif($mediaType == "Blogs") {
+      $r = $this->core->Element(["p", "Blog #".end($attachments)]);
+     } elseif($mediaType == "BlogPosts") {
+      $r = $this->core->Element(["p", "Blog Post #".end($attachments)]);
+     } elseif($mediaType == "CoverPhoto") {
+      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
+      $i++;
+      $r = $this->core->GetAttachmentPreview([
+       "DLL" => $efs[$attachment[1]],
+       "T" => $attachment[0],
+       "Y" => $you
+      ]);
+     } elseif($mediaType == "Forums") {
+      $r = $this->core->Element(["p", "Forum #".end($attachments)]);
+     } elseif($mediaType == "ForumPosts") {
+      $r = $this->core->Element(["p", "Forum Post #".end($attachments)]);
      } elseif($mediaType == "Products") {
-      foreach($attachments as $product) {
-       $r = $this->core->Element(["p", "Product #$product"]);
-      }
+      $r = $this->core->Element(["p", "Product #".end($attachments)]);
+     } elseif($mediaType == "Shops") {
+      $r = $this->core->Element(["p", "Shop #".end($attachments)]);
      }
     }
    }
