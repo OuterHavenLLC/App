@@ -5,35 +5,9 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Attachments(array $data) {
-   $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=[Link.AddTo]&CARD=1&st=";
-   $_Translate = "";
-   $_ViewDesign = "";
-   $added = base64_encode("Added! Feel free to close this card.");
-   $clone = $this->core->Element([
-    "div", $this->core->Element([
-     "button", "X", [
-      "class" => "Delete v1",
-      "data-target" => ".[Clone.ID]"
-     ]
-    ]).$this->core->Element([
-     "div", "[Clone.Content]", [
-      "class" => "NONAME"
-     ]
-    ]), [
-     "class" => "[Clone.ID]"
-    ]
-   ]);
    $header = $data["Header"] ?? "";
    $id = $data["ID"] ?? "";
    $media = $data["Media"] ?? [];
-   $mediaUI = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
-   $r = (!empty($header)) ? $this->core->Element(["h2", $header]) : "";
-   $section = $this->core->Element(["button", "[Section.Name]", [
-    "class" => "LI PSAccordion",
-    "data-type" => ".Attachments$id;.AttachmentType;.AttachmentGroup[Section.ID]"
-   ]]).$this->core->Element(["div", "[Section.Content]", [
-    "class" => "AttachmentGroup[Section.ID] AttachmentType NONAME h"
-   ]]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(empty($id)) {
@@ -41,6 +15,32 @@
    } elseif(empty($media)) {
     $r .= $this->core->Element(["p", "The media identifiers are missing."]);
    } else {
+    $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=[Link.AddTo]&CARD=1&st=";
+    $_Translate = "";
+    $_ViewDesign = "";
+    $added = base64_encode("Added! Feel free to close this card.");
+    $clone = $this->core->Element([
+     "div", $this->core->Element([
+      "button", "X", [
+       "class" => "Delete v1",
+       "data-target" => ".[Clone.ID]"
+      ]
+     ]).$this->core->Element([
+      "div", "[Clone.Content]", [
+       "class" => "NONAME"
+      ]
+     ]), [
+      "class" => "[Clone.ID]"
+     ]
+    ]);
+    $mediaUI = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
+    $r = (!empty($header)) ? $this->core->Element(["h2", $header]) : "";
+    $section = $this->core->Element(["button", "[Section.Name]", [
+     "class" => "LI PSAccordion",
+     "data-type" => ".Attachments$id;.AttachmentType;.AttachmentGroup[Section.ID]"
+    ]]).$this->core->Element(["div", "[Section.Content]", [
+     "class" => "AttachmentGroup[Section.ID] AttachmentType NONAME h"
+    ]]);
     $symbolicLinks = [
      "Albums" => "MBR-ALB",
      "Blogs" => "BLG",
