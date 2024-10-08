@@ -91,10 +91,6 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $shop = $this->core->Data("Get", ["shop", $id]);
     $owner = $shop["Contributors"] ?? [];
     $owner = array_key_first($owner);
@@ -141,7 +137,7 @@
     $search = base64_encode("Search:Containers");
     $tax = $shop["Tax"] ?? 10.00;
     $r = $this->core->Change([[
-     "[Shop.AdditionalContent]" => $additionalContent["Extension"],
+     "[Shop.Attachments]" => "",
      "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
      "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
      "[Shop.Braintree.Live.PublicKey]" => $processing["BraintreePublicKeyLive"],
@@ -151,8 +147,6 @@
      "[Shop.Braintree.Sandbox.PublicKey]" => $processing["BraintreePublicKey"],
      "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
      "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
-     "[Shop.CoverPhoto]" => $coverPhoto,
-     "[Shop.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Shop.Description]" => base64_encode($shop["Description"]),
      "[Shop.DesignView]" => $designViewEditor,
      "[Shop.EnableHireSection]" => $enableHireSection,

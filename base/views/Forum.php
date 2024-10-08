@@ -105,10 +105,6 @@
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($y["Login"]["Username"]."_FORUM_".$now) : $id;
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
     $about = $forum["About"] ?? "";
     $author = $forum["UN"] ?? $you;
@@ -125,12 +121,9 @@
     $title = $forum["Title"] ?? "My Forum";
     $type = $forum["Type"] ?? $y["Privacy"]["ForumsType"];
     $r = $this->core->Change([[
-     "[Forum.About]" => $about,
-     "[Forum.AdditionalContent]" => $additionalContent["Extension"],
+     "[Forum.Attachments]" => "",
      "[Forum.About]" => base64_encode($about),
      "[Forum.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
-     "[Forum.CoverPhoto]" => $coverPhoto,
-     "[Forum.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Forum.Created]" => $created,
      "[Forum.Description]" => base64_encode($description),
      "[Forum.Header]" => $header,

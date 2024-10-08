@@ -37,26 +37,21 @@
     $passPhrase = $album["PassPhrase"] ?? "";
     $privacy = $album["Privacy"] ?? $y["Privacy"]["Albums"];
     $title = $album["Title"] ?? "";
+    $translate = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => []
+     ]
+    ]);
     $header = ($new == 1) ? "Create New Album" : "Edit $title";
     $r = $this->core->Change([[
-     "[Album.AdditionalContent]" => $this->core->Change([
-      [
-       "[Extras.ContentType]" => "Album",
-       "[Extras.CoverPhoto.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=N/A&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($you)),
-       "[Extras.DesignView.Origin]" => "NA",
-       "[Extras.DesignView.Destination]" => "UIV$id",
-       "[Extras.DesignView.Processor]" => base64_encode("v=".base64_encode("Common:DesignView")."&DV="),
-       "[Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&st=XFS&AddTo=NA&Added=NA&UN=".base64_encode($you)),
-       "[Extras.ID]" => $id,
-       "[Extras.Translate]" => base64_encode("v=".base64_encode("Translate:Edit")."&ID=".base64_encode($id))
-      ], $this->core->Extension("257b560d9c9499f7a0b9129c2a63492c")
-     ]),
      "[Album.Description]" => base64_encode($description),
      "[Album.Header]" => $header,
      "[Album.ID]" => $id,
      "[Album.New]" => $new,
      "[Album.PassPhrase]" => base64_encode($passPhrase),
      "[Album.Title]" => base64_encode($title),
+     "[Album.Translate]" => $this->core->RenderView($translate),
      "[Album.Visibility.NSFW]" => $nsfw,
      "[Album.Visibility.Privacy]" => $privacy
     ], $this->core->Extension("760cd577207eb0d2121509d7212038d4")]);

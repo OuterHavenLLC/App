@@ -24,10 +24,6 @@
    } elseif((!empty($blog) && !empty($post)) || $new == 1) {
     $accessCode = "Accepted";
     $id = ($new == 1) ? md5($you."_BP_".uniqid()) : $post;
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
@@ -62,15 +58,11 @@
     $title = $post["Title"] ?? "";
     $r = $this->core->Change([[
      "[Blog.ID]" => $blog["ID"],
-     "[BlogPost.AdditionalContent]" => $additionalContent["Extension"],
-     "[BlogPost.Attachments]" => $attachments,
-     "[BlogPost.Attachments.LiveView]" => $additionalContent["LiveView"]["DLC"],
+     "[BlogPost.Attachments]" => "",
      "[BlogPost.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body,
       "Decode" => 1
      ])),
-     "[BlogPost.CoverPhoto]" => $coverPhoto,
-     "[BlogPost.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[BlogPost.Description]" => base64_encode($description),
      "[BlogPost.DesignView]" => $header,
      "[BlogPost.Header]" => $header,

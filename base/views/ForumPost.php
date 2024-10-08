@@ -29,10 +29,6 @@
      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
     ]]);
     $id = ($new == 1) ? md5($you."_Post_".$this->core->timestamp) : $id;
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $attachments = "";
     $dv = base64_encode("Common:DesignView");
     $em = base64_encode("LiveView:EditorMossaic");
@@ -57,9 +53,7 @@
     }
     $topic = $post["Topic"] ?? $topic;
     $r = $this->core->Change([[
-     "[ForumPost.AdditionalContent]" => $additionalContent["Extension"],
-     "[ForumPost.Attachments]" => $attachments,
-     "[ForumPost.Attachments.LiveView]" => $additionalContent["LiveView"]["DLC"],
+     "[ForumPost.Attachments]" => "",
      "[ForumPost.Body]" => base64_encode($this->core->PlainText([
       "Data" => $post["Body"]
      ])),

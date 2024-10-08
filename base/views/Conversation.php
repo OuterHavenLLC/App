@@ -24,10 +24,6 @@
     $commentID = ($new == 1) ? md5($you."CR".$this->core->timestamp) : $commentID;
     $conversationID = base64_decode($conversationID);
     $action = ($new == 1) ? "Post" : "Update";
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $conversationID
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $level = base64_decode($level);
     $commentType = ($level == 1) ? "Comment" : "Reply";
     $conversation = $this->core->Data("Get", ["conversation", $conversationID]) ?? [];
@@ -43,9 +39,7 @@
     $privacy = $conversation["Privacy"] ?? $y["Privacy"]["Comments"];
     $replyingTo = base64_decode($replyingTo);
     $r = $this->core->Change([[
-     "[Conversation.AdditionalContent]" => $additionalContent["Extension"],
-     "[Conversation.Attachments]" => $attachments,
-     "[Conversation.Attachments.LiveView]" => $additionalContent["LiveView"]["DLC"],
+     "[Conversation.Attachments]" => "",
      "[Conversation.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body,
       "Decode" => 1,

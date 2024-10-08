@@ -161,10 +161,6 @@
      "ICO-SRC",
      "Title"
     ]);
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $attachments = "";
     $author = $article["UN"] ?? $you;
     $designViewEditor = "ArticleEditor$id".md5($time);
@@ -188,7 +184,7 @@
     $passPhrase = $article["PassPhrase"] ?? "";
     $privacy = $article["Privacy"] ?? $y["Privacy"]["Posts"];
     $r = $this->core->Change([[
-     "[Article.AdditionalContent]" => $additionalContent["Extension"],
+     "[Article.Attachments]" => "",
      "[Article.Body]" => base64_encode($this->core->PlainText([
       "Data" => $article["Body"],
       "Decode" => 1
@@ -199,15 +195,11 @@
      "[Article.CoverPhoto]" => $article["ICO-SRC"],
      "[Article.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Article.Description]" => base64_encode($article["Description"]),
-     "[Article.DesignView]" => $designViewEditor,
-     "[Article.Downloads]" => $attachments,
-     "[Article.Downloads.LiveView]" => $additionalContent["LiveView"]["DLC"],
+     "[Article.DesignView]" => $designViewEditor,// TO BE DISOLVED
      "[Article.Header]" => $header,
      "[Article.ID]" => $id,
      "[Article.New]" => $new,
      "[Article.PassPhrase]" => base64_encode($passPhrase),
-     "[Article.Products]" => $products,
-     "[Article.Products.LiveView]" => $additionalContent["LiveView"]["Products"],
      "[Article.Title]" => base64_encode($article["Title"]),
      "[Article.Visibility.NSFW]" => $nsfw,
      "[Article.Visibility.Privacy]" => $privacy

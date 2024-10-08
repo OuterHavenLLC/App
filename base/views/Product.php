@@ -37,10 +37,6 @@
    } elseif(!empty($editor)) {
     $action = ($new == 1) ? "Post" : "Update";
     $attachments = "";
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $back = (!empty($parentView)) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
      "data-type" => $parentView
@@ -95,26 +91,18 @@
     }
     $changeData = [
      "[Product.Action]" => $action,
-     "[Product.AdditionalContent]" => $additionalContent["Extension"],
-     "[Product.Attachments]" => $attachments,
-     "[Product.Attachments.LiveView]" => $additionalContent["LiveView"]["DemoFiles"],
+     "[Product.Attachments]" => "",
      "[Product.Back]" => $back,
      "[Product.Body]" => base64_encode($this->core->PlainText([
       "Data" => $product["Body"],
       "Decode" => 1
      ])),
-     "[Product.BundledProducts]" => $bundledProducts,
-     "[Product.BundledProducts.LiveView]" => $additionalContent["LiveView"]["Products"],
      "[Product.Category]" => $category,
      "[Product.Cost]" => base64_encode($cost),
-     "[Product.CoverPhoto]" => $coverPhoto,
-     "[Product.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Product.Created]" => $created,
      "[Product.Description]" => base64_encode($product["Description"]),
      "[Product.DesignView]" => "Edit$id",
      "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
-     "[Product.Downloads]" => $dlc,
-     "[Product.Downloads.LiveView]" => $additionalContent["LiveView"]["DLC"],
      "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
      "[Product.Header]" => $header,
      "[Product.ID]" => $id,

@@ -111,10 +111,6 @@
     $accessCode = "Accepted";
     $action = ($new == 1) ? "Post" : "Update";
     $id = ($new == 1) ? md5($you."_BLG_".uniqid()) : $id;
-    $additionalContent = $this->view(base64_encode("WebUI:AdditionalContent"), [
-     "ID" => $id
-    ]);
-    $additionalContent = $this->core->RenderView($additionalContent);
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditBlog$id",
@@ -140,9 +136,7 @@
      }
     }
     $r = $this->core->Change([[
-     "[Blog.AdditionalContent]" => $additionalContent["Extension"],
-     "[Blog.CoverPhoto]" => $coverPhotoSource,
-     "[Blog.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
+     "[Blog.Attachments]" => "",
      "[Blog.Description]" => base64_encode($description),
      "[Blog.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
      "[Blog.Header]" => $header,
