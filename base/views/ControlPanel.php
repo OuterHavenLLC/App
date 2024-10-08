@@ -103,7 +103,6 @@
        ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")]);
       } foreach($eventsList as $event => $info) {
        $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
-       $added = base64_encode("Added! Feel free to close this card.");
        $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
        $domains_base = $config["App"]["Domains_Base"] ?? "outerhaven.nyc";
        $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
@@ -114,7 +113,7 @@
         "[Event.ID]" => $event,
         "[Event.Link]" => $info["Link"],
         "[Event.Title]" => $info["Title"],
-        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&Added=$added&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($this->core->ID)),
+        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $coverPhoto,
         "[Media.Input]" => "EventCoverPhoto[]",
         "[Media.Input.LiveView]" => $_LiveView
@@ -129,11 +128,10 @@
        ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")]);
       } foreach($mediaList as $key => $info) {
        $addTo = base64_encode("Attach to ".str_replace(":", "&colon;", $info["Name"]).":.AddTo$key");
-       $added = base64_encode("Added! Feel free to close this card.");
        $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
        $media .= $this->core->Change([[
         "[Clone.ID]" => $key,
-        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($this->core->ID)),
+        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $file,
         "[Media.ID]" => $key,
         "[Media.Input]" => "MediaFile[]",

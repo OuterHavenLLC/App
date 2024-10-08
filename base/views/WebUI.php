@@ -5,6 +5,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Attachments(array $data) {
+   $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=[Link.AddTo]&CARD=1&st=";
    $_Translate = "";
    $_ViewDesign = "";
    $added = base64_encode("Added! Feel free to close this card.");
@@ -26,7 +27,6 @@
    $id = $data["ID"] ?? "";
    $media = $data["Media"] ?? [];
    $mediaUI = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
-   $search = base64_encode("Search:Containers");
    $r = (!empty($header)) ? $this->core->Element(["h2", $header]) : "";
    $section = $this->core->Element(["button", "[Section.Name]", [
     "class" => "LI PSAccordion",
@@ -41,6 +41,17 @@
    } elseif(empty($media)) {
     $r .= $this->core->Element(["p", "The media identifiers are missing."]);
    } else {
+    $symbolicLinks = [
+     "Albums" => "MBR-ALB",
+     "Blogs" => "BLG",
+     "BlogPosts" => "BGP",
+     "Default" => "XFS&lPG=Files&UN=".base64_encode($you),
+     "Forums" => "Forums",
+     "ForumPosts" => "Forums-Posts",
+     "Polls" => "Polls",
+     "Products" => "Products",
+     "Shops" => "Shops"
+    ];
     foreach($media as $key => $attachments) {
      if($key == "Translate") {
       $_Translate = $this->core->Element([
@@ -63,21 +74,15 @@
       $sectionName = ($key == "CoverPhoto") ? "Cover Photo" : $sectionName;
       $sectionName = ($key == "ForumPosts") ? "Forum Posts" : $sectionName;
       for($i = 0; $i < $mediaCount; $i++) {
+       $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
        $cloneID = uniqid("AttachmentMedia".rand(100, 999));
        $addTo = base64_encode("Attach:.AddTo$cloneID");
-       $addMedia = base64_encode("v=$search&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($you));
-       $addMedia = ($mediaType == "Blogs") ? base64_encode("v=$search&st=BLG&AddTo=$addTo&Added=$added") : $addMedia;
-       $addMedia = ($mediaType == "BlogPosts") ? base64_encode("v=$search&st=BGP&AddTo=$addTo&Added=$added") : $addMedia;
-       $addMedia = ($mediaType == "Forums") ? base64_encode("v=$search&st=Forums&AddTo=$addTo&Added=$added") : $addMedia;
-       $addMedia = ($mediaType == "ForumPosts") ? base64_encode("v=$search&st=Forums-Posts&AddTo=$addTo&Added=$added") : $addMedia;
-       $addMedia = ($mediaType == "Polls") ? base64_encode("v=$search&st=Polls&AddTo=$addTo&Added=$added") : $addMedia;
-       $addMedia = ($mediaType == "Products") ? base64_encode("v=$search&st=Products&AddTo=$addTo&Added=$added") : $addMedia;
-       $addMedia = ($mediaType == "Shops") ? base64_encode("v=$search&st=SHOP&AddTo=$addTo&Added=$added") : $addMedia;
+       $addMedia = str_replace("[Link.AddTo]", $addTo, $addMedia);
        $liveView = "v=".base64_encode("LiveView:Editor")."&ID=".$attachments[$i];
        $liveView = base64_encode("$liveView&MediaType=".base64_encode($key));
        $changeData = [
         "[Clone.ID]" => $cloneID,
-        "[Media.Add]" => $addMedia,
+        "[Media.Add]" => base64_encode($_SymbolicLink.$addMedia),
         "[Media.File]" => $attachments[$i],
         "[Media.ID]" => $cloneID,
         "[Media.Input]" => $mediaInput,
@@ -99,14 +104,8 @@
        ], $clone]) : "";
       }
       $addTo = base64_encode("Attach:.AddTo[Clone.ID]");
-      $addMedia = base64_encode("v=$search&lPG=Files&st=XFS&AddTo=$addTo&Added=$added&UN=".base64_encode($you));
-      $addMedia = ($mediaType == "Blogs") ? base64_encode("v=$search&st=BLG&AddTo=$addTo&Added=$added") : $addMedia;
-      $addMedia = ($mediaType == "BlogPosts") ? base64_encode("v=$search&st=BGP&AddTo=$addTo&Added=$added") : $addMedia;
-      $addMedia = ($mediaType == "Forums") ? base64_encode("v=$search&st=Forums&AddTo=$addTo&Added=$added") : $addMedia;
-      $addMedia = ($mediaType == "ForumPosts") ? base64_encode("v=$search&st=Forums-Posts&AddTo=$addTo&Added=$added") : $addMedia;
-      $addMedia = ($mediaType == "Polls") ? base64_encode("v=$search&st=Polls&AddTo=$addTo&Added=$added") : $addMedia;
-      $addMedia = ($mediaType == "Products") ? base64_encode("v=$search&st=Products&AddTo=$addTo&Added=$added") : $addMedia;
-      $addMedia = ($mediaType == "Shops") ? base64_encode("v=$search&st=SHOP&AddTo=$addTo&Added=$added") : $addMedia;
+      $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
+      $addMedia = str_replace("[Link.AddTo]", $addTo, $addMedia);
       $mediaCount = count($attachments);
       $cloneSourceID = uniqid("CloneSource".md5($key));
       $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&ID=");
@@ -114,7 +113,7 @@
       $mediaListIDSS = ($key != "CoverPhoto") ? "$mediaListID SideScroll" : $mediaListID;
       $mediaClone = $this->core->Change([
        [
-        "[Media.Add]" => $addMedia,
+        "[Media.Add]" => base64_encode($_SymbolicLink.$addMedia),
         "[Media.File]" => "",
         "[Media.ID]" => "[Clone.ID]",
         "[Media.Input]" => $mediaInput,

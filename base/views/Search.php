@@ -12,6 +12,7 @@
   function Containers(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
    $addTopMargin = "0";
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
@@ -23,7 +24,9 @@
    $searchLists = $this->core->config["App"]["Search"];
    $query = $data["query"] ?? "";
    $ck = (!empty($searchType) && in_array($searchType, $searchLists)) ? 1 : 0;
-   $list = "v=".$this->lists."&query=$query&st=$searchType";
+   $list = "v=".$this->lists;
+   $list .= (!empty($addTo)) ? "&AddTo=$addTo" : "";
+   $list .= "&query=$query&st=$searchType";
    $lit = uniqid(md5($searchType.$this->core->timestamp));
    $options = "";
    $r = [
@@ -397,13 +400,11 @@
      $searchBarText = "Orders";
      $variant = "Minimal";
     } elseif($searchType == "XFS") {
-     $_AddTo = $data["AddTo"] ?? "";
-     $_Added = $data["Added"] ?? "";
      $header = "Files";
      $parentView = $data["lPG"] ?? $searchType;
      $searchBarText = "Files";
      $variant = "3Column";
-     $list .= "&AddTo=$_AddTo&Added=$_Added&ParentView=$parentView&UN=".$data["UN"];
+     $list .= "&ParentView=$parentView&UN=".$data["UN"];
      $list .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
     }
     $r = $this->core->Change([[
