@@ -44,10 +44,12 @@
     $nsfw = $update["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $update["PassPhrase"] ?? "";
     $privacy = $update["Privacy"] ?? $y["Privacy"]["Posts"];
+    $polls = $update["Polls"] ?? [];
     $products = $update["Products"] ?? [];
     $shops = $update["Shops"] ?? [];
     $to = (!empty($to)) ? base64_decode($to) : $to;
     $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
      "ID" => $id,
      "Media" => [
       "Attachments" => $attachments,
@@ -56,13 +58,20 @@
       "CoverPhoto" => $coverPhoto,
       "Forums" => $forums,
       "ForumPosts" => $forumPosts,
+      "Polls" => $polls,
       "Products" => $products,
       "Shops" => $shops
      ]
     ]);
-    $attachments = $this->core->RenderView($attachments);
+    $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => [],
+      "ViewDesign" => []
+     ]
+    ]);
     $r = $this->core->Change([[
-     "[Update.Attachments]" => $attachments,
+     "[Update.Attachments]" => $this->core->RenderView($attachments),
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
      "[Update.Body]" => base64_encode($this->core->PlainText([
@@ -74,6 +83,7 @@
      "[Update.New]" => $new,
      "[Update.PassPhrase]" => base64_encode($passPhrase),
      "[Update.To]" => $to,
+     "[Update.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
      "[Update.Visibility.NSFW]" => $nsfw,
      "[Update.Visibility.Privacy]" => $privacy
     ], $this->core->Extension("7cc50dca7d9bbd7b7d0e3dd7e2450112")]);
@@ -235,20 +245,26 @@
     $blogsData = $data["Blogs"] ?? [];
     $blogPosts = [];
     $blogPostsData = $data["BlogPosts"] ?? [];
-    $coverPhoto = [];
+    $coverPhoto = "";
     $coverPhotoData = $data["CoverPhoto"] ?? [];
     $created = $update["Created"] ?? $this->core->timestamp;
     $forums = [];
+    $forumsData = $data["Forums"] ?? [];
     $forumPosts = [];
+    $forumPostsData = $data["ForumPosts"] ?? [];
     $illegal = $update["Illegal"] ?? 0;
     $notes = $update["Notes"] ?? [];
     $now = $this->core->timestamp;
     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $data["PassPhrase"] ?? "";
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
+    $polls = []; 
+    $pollsData = $data["Polls"] ?? [];
     $products = [];
+    $productsData = $data["Products"] ?? [];
     $purge = $data["Purge"] ?? 0;
     $shops = [];
+    $shopsData = $data["Shops"] ?? [];
     if(!empty($attachmentsData)) {
      $media = array_reverse($attachmentsData);
      for($i = 0; $i < count($media); $i++) {
@@ -261,7 +277,7 @@
      $media = array_reverse($blogsData);
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = trim(base64_decode($media[$i]), ";");
+       $media[$i] = base64_decode($media[$i]);
        array_push($blogs, $media[$i]);
       }
      }
@@ -269,18 +285,17 @@
      $media = array_reverse($blogPostsData);
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = trim(base64_decode($media[$i]), ";");
+       $media[$i] = base64_decode($media[$i]);
        array_push($blogPosts, $media[$i]);
       }
      }
     } if(!empty($coverPhotoData)) {
-     $media = trim(base64_decode($coverPhotoData), ";");
-     array_push($coverPhoto, $media);
+     $coverPhoto = base64_decode($media[$i]);
     } if(!empty($forumsData)) {
      $media = array_reverse($forumsData);
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = trim(base64_decode($media[$i]), ";");
+       $media[$i] = base64_decode($media[$i]);
        array_push($forums, $media[$i]);
       }
      }
@@ -288,15 +303,23 @@
      $media = array_reverse($forumPostsData);
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = trim(base64_decode($media[$i]), ";");
+       $media[$i] = base64_decode($media[$i]);
        array_push($forumPosts, $media[$i]);
+      }
+     }
+    } if(!empty($pollsData)) {
+     $media = array_reverse($pollsData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = base64_decode($media[$i]);
+       array_push($polls, $media[$i]);
       }
      }
     } if(!empty($productsData)) {
      $media = array_reverse($productsData);
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = trim(base64_decode($media[$i]), ";");
+       $media[$i] = base64_decode($media[$i]);
        array_push($products, $media[$i]);
       }
      }
@@ -304,7 +327,7 @@
      $media = array_reverse($shopsData);
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = trim(base64_decode($media[$i]), ";");
+       $media[$i] = base64_decode($media[$i]);
        array_push($shops, $media[$i]);
       }
      }

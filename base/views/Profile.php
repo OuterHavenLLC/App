@@ -443,7 +443,8 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
-    $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]) ?? [];
+    $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
+    $newBulletins = [];
     if(!empty($bulletins)) {
      foreach($bulletins as $key => $value) {
       if($key != "Purge") {
@@ -452,11 +453,12 @@
         $i++;
         $bulletin = $bulletins[$key] ?? [];
         $bulletin["Seen"] = 1;
-        $bulletins[$key] = $bulletin;
+        $newBulletins[$key] = $bulletin;
        }
       }
+     } if($bulletins != $newBulletins) {
+      $this->core->Data("Save", ["bulletins", md5($you), $newBulletins]);
      }
-     $this->core->Data("Save", ["bulletins", md5($you), $bulletins]);
     }
    }
    return $this->core->JSONResponse([

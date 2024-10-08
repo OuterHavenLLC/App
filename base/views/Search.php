@@ -915,7 +915,7 @@
      }
     }
    } elseif($searchType == "Bulletins") {
-    $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]) ?? [];
+    $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
     foreach($bulletins as $key => $value) {

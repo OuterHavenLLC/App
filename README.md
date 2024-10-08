@@ -19,6 +19,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Administrators may now set the default platform-wide UI variant and modify allowed media file extensions.
 * When purging album, conversation, and media data, the vote databases for all comments are also purged.
 * A revamped attachments UI allows Members unprecedented control over media attached to primary content. (pending full adoption...)
+* Streamlined the Attachments UI.
 * More platform-wide optimization and bug fixes.
 
 ### Artists

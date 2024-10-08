@@ -424,6 +424,20 @@
     "ResponseType" => "Dialog"
    ]);
   }
+  function SaveFirst(array $a) {
+   return $this->core->JSONResponse([
+    "AccessCode" => "Accepted",
+    "AddTopMargin" => "0",
+    "Response" => [
+     "JSON" => "",
+     "Web" => [
+      "Body" => "Please save the configuration and reload the Control Panel first.",
+      "Header" => "Action Required"
+     ]
+    ],
+    "ResponseType" => "Dialog"
+   ]);
+  }
   function SaveMedia(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
@@ -445,10 +459,8 @@
     for($i = 0; $i < count($data["MediaID"]); $i++) {
      $file = $data["MediaFile"][$i] ?? base64_encode("");
      $file = base64_decode($file);
-     $file = (str_ends_with($file, ";")) ? rtrim($file, ";") : $file;
-     $file = explode(";", $file);
      $newMedia[$data["MediaID"][$i]] = [
-      "File" => end($file),
+      "File" => $file,
       "Name" => $data["MediaName"][$i]
      ];
     }

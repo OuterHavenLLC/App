@@ -17,11 +17,9 @@
    $you = $y["Login"]["Username"];
    if(!empty($dlc)) {
     $dlc = base64_decode($dlc);
-    $dlc = (str_ends_with($dlc, ";")) ? rtrim($dlc, ";") : $dlc;
-    $dlc = explode(";", $dlc);
-    $fileSystem = $this->core->Data("Get", ["app", "fs"]) ?? [];
+    $fileSystem = $this->core->Data("Get", ["app", "fs"]);
     $username = $this->core->ID;
-    $dlc = explode(".", end($dlc));
+    $dlc = explode(".", $dlc);
     $dlc = $fileSystem[$dlc[0]] ?? [];
     if(!empty($dlc)) {
      $i++;
@@ -58,8 +56,6 @@
    if(!empty($id)) {
     $addTo = $data["AddTo"] ?? "";
     $attachments = base64_decode($id);
-    $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
-    $attachments = explode(";", $attachments);
     foreach($attachments as $attachment) {
      $attachment = explode("-", base64_decode($attachment));
      if($mediaType == "Attachments") {
@@ -73,9 +69,9 @@
        "p", "[Attachment:".$attachment[1]."]", ["class" => "CenterText"]
       ]);
      } elseif($mediaType == "Blogs") {
-      $r = $this->core->Element(["p", "Blog #".end($attachments)]);
+      $r = $this->core->Element(["p", "Blog #$attachments"]);
      } elseif($mediaType == "BlogPosts") {
-      $r = $this->core->Element(["p", "Blog Post #".end($attachments)]);
+      $r = $this->core->Element(["p", "Blog Post #".$attachments]);
      } elseif($mediaType == "CoverPhoto") {
       $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
       $i++;
@@ -85,13 +81,15 @@
        "Y" => $you
       ]);
      } elseif($mediaType == "Forums") {
-      $r = $this->core->Element(["p", "Forum #".end($attachments)]);
+      $r = $this->core->Element(["p", "Forum #$attachments"]);
      } elseif($mediaType == "ForumPosts") {
-      $r = $this->core->Element(["p", "Forum Post #".end($attachments)]);
+      $r = $this->core->Element(["p", "Forum Post #$attachments"]);
+     } elseif($mediaType == "Polls") {
+      $r = $this->core->Element(["p", "Poll #$attachments"]);
      } elseif($mediaType == "Products") {
-      $r = $this->core->Element(["p", "Product #".end($attachments)]);
+      $r = $this->core->Element(["p", "Product #$attachments"]);
      } elseif($mediaType == "Shops") {
-      $r = $this->core->Element(["p", "Shop #".end($attachments)]);
+      $r = $this->core->Element(["p", "Shop #$attachments"]);
      }
     }
    }

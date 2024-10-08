@@ -181,7 +181,7 @@
       $addToMedia = ($ck == 1) ? $file["Name"] : $attachmentID;
       $actions .= (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
-        "class" => "AddTo Small v2",
+        "class" => "Attach Small v2",
         "data-added" => $added,
         "data-dlc" => $addToMedia,
         "data-input" => base64_encode($addToData[1])

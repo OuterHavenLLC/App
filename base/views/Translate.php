@@ -34,7 +34,7 @@
     $accessCode = "Accepted";
     $clone = $this->RenderClone();
     $id = base64_decode($id);
-    $translations = $this->core->Data("Get", ["translate", $id]) ?? [];
+    $translations = $this->core->Data("Get", ["translate", $id]);
     $translationsList = "";
     foreach($translations as $translationID => $package) {
      $packageClone = $clone;
