@@ -83,7 +83,7 @@
        $changeData = [
         "[Clone.ID]" => $cloneID,
         "[Media.Add]" => base64_encode($_SymbolicLink.$addMedia),
-        "[Media.File]" => $attachments[$i],
+        "[Media.File]" => base64_encode($attachments[$i]),
         "[Media.ID]" => $cloneID,
         "[Media.Input]" => $mediaInput,
         "[Media.Input.LiveView]" => $liveView,
