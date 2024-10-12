@@ -49,16 +49,19 @@
    $mediaType = $data["MediaType"] ?? base64_encode("");
    $mediaType = base64_decode($mediaType);
    $i = 0;
-   $id = $data["ID"] ?? "";
+   $media = $data["Media"] ?? "";
    $r = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($id)) {
+   if(!empty($media) && !empty($mediaType)) {
+      $r = $this->core->Element([
+       "p", "[Attachment:$media]", ["class" => "CenterText"]
+      ]);//TEMP
     $addTo = $data["AddTo"] ?? "";
-    $attachments = base64_decode($id);
-    foreach($attachments as $attachment) {
-     $attachment = explode("-", base64_decode($attachment));
-     if($mediaType == "Attachments") {
+    $attachment = base64_decode($media);
+    #foreach($attachments as $attachment) {
+     if($mediaType == "Attachment") {
+      $attachment = explode("-", $attachment);
       $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
       $i++;
       $r = $this->core->GetAttachmentPreview([
@@ -66,13 +69,14 @@
        "T" => $attachment[0],
        "Y" => $you
       ]).$this->core->Element([
-       "p", "[Attachment:".$attachment[1]."]", ["class" => "CenterText"]
+       "p", "[Attachment:$media]", ["class" => "CenterText"]
       ]);
-     } elseif($mediaType == "Blogs") {
-      $r = $this->core->Element(["p", "Blog #$attachments"]);
-     } elseif($mediaType == "BlogPosts") {
-      $r = $this->core->Element(["p", "Blog Post #".$attachments]);
+     } elseif($mediaType == "Blog") {
+      $r = $this->core->Element(["p", "Blog #$attachment"]);
+     } elseif($mediaType == "BlogPost") {
+      $r = $this->core->Element(["p", "Blog Post #".$attachment]);
      } elseif($mediaType == "CoverPhoto") {
+      $attachment = explode("-", $attachment);
       $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
       $i++;
       $r = $this->core->GetAttachmentPreview([
@@ -80,18 +84,18 @@
        "T" => $attachment[0],
        "Y" => $you
       ]);
-     } elseif($mediaType == "Forums") {
-      $r = $this->core->Element(["p", "Forum #$attachments"]);
-     } elseif($mediaType == "ForumPosts") {
-      $r = $this->core->Element(["p", "Forum Post #$attachments"]);
-     } elseif($mediaType == "Polls") {
-      $r = $this->core->Element(["p", "Poll #$attachments"]);
-     } elseif($mediaType == "Products") {
-      $r = $this->core->Element(["p", "Product #$attachments"]);
-     } elseif($mediaType == "Shops") {
-      $r = $this->core->Element(["p", "Shop #$attachments"]);
+     } elseif($mediaType == "Forum") {
+      $r = $this->core->Element(["p", "Forum #$attachment"]);
+     } elseif($mediaType == "ForumPost") {
+      $r = $this->core->Element(["p", "Forum Post #$attachment"]);
+     } elseif($mediaType == "Poll") {
+      $r = $this->core->Element(["p", "Poll #$attachment"]);
+     } elseif($mediaType == "Product") {
+      $r = $this->core->Element(["p", "Product #$attachment"]);
+     } elseif($mediaType == "Shop") {
+      $r = $this->core->Element(["p", "Shop #$attachment"]);
      }
-    }
+    #}
    }
    $r = ($i == 0) ? $this->NoMedia : $r;
    return $this->core->JSONResponse([

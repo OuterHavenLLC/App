@@ -93,7 +93,6 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $added = $data["Added"] ?? "";
    $addTo = $data["AddTo"] ?? "";
    $card = $data["CARD"] ?? 0;
    $parentView = $data["ParentView"] ?? "Files";
@@ -182,9 +181,8 @@
       $actions .= (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
         "class" => "Attach Small v2",
-        "data-added" => $added,
-        "data-dlc" => $addToMedia,
-        "data-input" => base64_encode($addToData[1])
+        "data-input" => base64_encode($addToData[1]),
+        "data-media" => base64_encode($addToMedia)
        ]
       ]) : "";
       $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([

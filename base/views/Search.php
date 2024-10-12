@@ -16,6 +16,12 @@
    $addTopMargin = "0";
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
+   $cardSearchTypes = [
+    "DC",
+    "SHOP-InvoicePresets",
+    "SHOP-Invoices",
+    "XFS"
+   ];
    $header = "";
    $i = 0;
    $pub = $data["pub"] ?? 0;
@@ -401,8 +407,9 @@
      $parentView = $data["lPG"] ?? $searchType;
      $searchBarText = "Files";
      $variant = "3Column";
-     $list .= "&ParentView=$parentView&UN=".$data["UN"];
-     $list .= (isset($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
+     $list .= "&ParentView=$parentView";
+     $list .= (!empty($data["UN"])) ? "&UN=".$data["UN"] : "";
+     $list .= (!empty($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
     }
     $r = $this->core->Change([[
      "[Search.Header]" => $header,
@@ -411,12 +418,7 @@
      "[Search.ParentPage]" => $parentView,
      "[Search.Text]" => $searchBarText
     ], $this->core->RenderSearchUI($variant)]);
-   } if(in_array($searchType, [
-     "DC",
-     "SHOP-InvoicePresets",
-     "SHOP-Invoices",
-     "XFS"
-    ])) {
+   } if(in_array($searchType, $cardSearchTypes) || $card == 1) {
     $r = [
      "Front" => $r
     ];
@@ -426,9 +428,6 @@
     ]);
     $r = $this->core->RenderView($r);
    }
-   $r = ($card == 1) ? [
-    "Front" => $r
-   ] : $r;
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "AddTopMargin" => $addTopMargin,
@@ -3202,7 +3201,6 @@
                         OFFSET $offset
     ";
     $accessCode = "Accepted";
-    $added = $data["Added"] ?? "";
     $addTo = $data["AddTo"] ?? "";
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $mediaType = $data["ftype"] ?? "";
@@ -3218,7 +3216,6 @@
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
-      "Added" => $added,
       "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])

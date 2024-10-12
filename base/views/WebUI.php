@@ -35,22 +35,25 @@
     ]);
     $mediaUI = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
     $r = (!empty($header)) ? $this->core->Element(["h2", $header]) : "";
-    $section = $this->core->Element(["button", "<h3>[Section.Name]</h3>", [
+    $section = $this->core->Element([
+     "div", NULL, ["class" => "NONAME"]
+    ]).$this->core->Element(["button", "<h3>[Section.Name]</h3>", [
      "class" => "PSAccordion",
      "data-type" => ".Attachments$id;.AttachmentType;.AttachmentGroup[Section.ID]"
     ]]).$this->core->Element(["div", "[Section.Content]", [
      "class" => "AttachmentGroup[Section.ID] AttachmentType NONAME h"
     ]]);
     $symbolicLinks = [
-     "Albums" => "MBR-ALB",
-     "Blogs" => "BLG",
-     "BlogPosts" => "BGP",
+     "Article" => "CA",
+     "Album" => "MBR-ALB",
+     "Blog" => "BLG",
+     "BlogPost" => "BGP",
      "Default" => "XFS&lPG=Files&UN=".base64_encode($you),
-     "Forums" => "Forums",
-     "ForumPosts" => "Forums-Posts",
-     "Polls" => "Polls",
-     "Products" => "Products",
-     "Shops" => "Shops"
+     "Forum" => "Forums",
+     "ForumPost" => "Forums-Posts",
+     "Poll" => "Polls",
+     "Product" => "Products",
+     "Shop" => "Shops"
     ];
     foreach($media as $key => $attachments) {
      if($key == "Translate") {
@@ -70,19 +73,26 @@
       $mediaInput = ($key == "CoverPhoto") ? "CoverPhoto" : $key."[]";
       $mediaType = $key;
       $sectionName = $key;
-      $sectionName = ($key == "BlogPosts") ? "Blog Posts" : $sectionName;
+      $sectionName = ($key == "Article") ? "Articles" : $sectionName;
+      $sectionName = ($key == "Attachment") ? "Attachments" : $sectionName;
+      $sectionName = ($key == "Blog") ? "Blogs" : $sectionName;
+      $sectionName = ($key == "BlogPost") ? "Blog Posts" : $sectionName;
       $sectionName = ($key == "CoverPhoto") ? "Cover Photo" : $sectionName;
-      $sectionName = ($key == "ForumPosts") ? "Forum Posts" : $sectionName;
+      $sectionName = ($key == "Forum") ? "Forums" : $sectionName;
+      $sectionName = ($key == "ForumPost") ? "Forum Posts" : $sectionName;
+      $sectionName = ($key == "Poll") ? "Polls" : $sectionName;
+      $sectionName = ($key == "Product") ? "Products" : $sectionName;
+      $sectionName = ($key == "Shop") ? "Shops" : $sectionName;
       for($i = 0; $i < $mediaCount; $i++) {
        $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
        $cloneID = uniqid("AttachmentMedia".rand(100, 999));
        $addTo = base64_encode("Attach:.AddTo$cloneID");
-       $addMedia = str_replace("[Link.AddTo]", $addTo, $addMedia);
-       $liveView = "v=".base64_encode("LiveView:Editor")."&ID=".$attachments[$i];
+       $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
+       $liveView = "v=".base64_encode("LiveView:Editor")."&Media=".$attachments[$i];
        $liveView = base64_encode("$liveView&MediaType=".base64_encode($key));
        $changeData = [
         "[Clone.ID]" => $cloneID,
-        "[Media.Add]" => base64_encode($_SymbolicLink.$addMedia),
+        "[Media.Add]" => base64_encode($addMedia),
         "[Media.File]" => base64_encode($attachments[$i]),
         "[Media.ID]" => $cloneID,
         "[Media.Input]" => $mediaInput,
@@ -105,7 +115,7 @@
       }
       $addTo = base64_encode("Attach:.AddTo[Clone.ID]");
       $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
-      $addMedia = str_replace("[Link.AddTo]", $addTo, $addMedia);
+      $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
       $mediaCount = count($attachments);
       $cloneSourceID = uniqid("CloneSource".md5($key));
       $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&ID=");
@@ -113,7 +123,7 @@
       $mediaListIDSS = ($key != "CoverPhoto") ? "$mediaListID SideScroll" : $mediaListID;
       $mediaClone = $this->core->Change([
        [
-        "[Media.Add]" => base64_encode($_SymbolicLink.$addMedia),
+        "[Media.Add]" => base64_encode($addMedia),
         "[Media.File]" => "",
         "[Media.ID]" => "[Clone.ID]",
         "[Media.Input]" => $mediaInput,

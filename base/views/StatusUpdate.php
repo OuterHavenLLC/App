@@ -33,6 +33,7 @@
     $attachments = "";
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->core->Data("Get", ["su", $id]);
+    $articles = $update["Articles"] ?? [];
     $attachments = $update["Attachments"] ?? [];
     $body = $update["Body"] ?? "";
     $body = (!empty($data["Body"])) ? base64_decode($data["Body"]) : $body;
@@ -52,15 +53,16 @@
      "Header" => "Attachments",
      "ID" => $id,
      "Media" => [
-      "Attachments" => $attachments,
-      "Blogs" => $blogs,
-      "BlogPosts" => $blogPosts,
+      "Article" => $articles,
+      "Attachment" => $attachments,
+      "Blog" => $blogs,
+      "BlogPost" => $blogPosts,
       "CoverPhoto" => $coverPhoto,
-      "Forums" => $forums,
-      "ForumPosts" => $forumPosts,
-      "Polls" => $polls,
-      "Products" => $products,
-      "Shops" => $shops
+      "Forum" => $forums,
+      "ForumPost" => $forumPosts,
+      "Poll" => $polls,
+      "Product" => $products,
+      "Shop" => $shops
      ]
     ]);
     $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
@@ -238,20 +240,22 @@
    if(!empty($id)) {
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
-    $update = $this->core->Data("Get", ["su", $id]) ?? [];
+    $update = $this->core->Data("Get", ["su", $id]);
+    $articles = [];
+    $articlesData = $data["Article"] ?? [];
     $attachments = [];
-    $attachmentsData = $data["Attachments"] ?? [];
+    $attachmentsData = $data["Attachment"] ?? [];
     $blogs = [];
-    $blogsData = $data["Blogs"] ?? [];
+    $blogsData = $data["Blog"] ?? [];
     $blogPosts = [];
-    $blogPostsData = $data["BlogPosts"] ?? [];
+    $blogPostsData = $data["BlogPost"] ?? [];
     $coverPhoto = "";
     $coverPhotoData = $data["CoverPhoto"] ?? [];
     $created = $update["Created"] ?? $this->core->timestamp;
     $forums = [];
-    $forumsData = $data["Forums"] ?? [];
+    $forumsData = $data["Forum"] ?? [];
     $forumPosts = [];
-    $forumPostsData = $data["ForumPosts"] ?? [];
+    $forumPostsData = $data["ForumPost"] ?? [];
     $illegal = $update["Illegal"] ?? 0;
     $notes = $update["Notes"] ?? [];
     $now = $this->core->timestamp;
@@ -259,13 +263,21 @@
     $passPhrase = $data["PassPhrase"] ?? "";
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
     $polls = []; 
-    $pollsData = $data["Polls"] ?? [];
+    $pollsData = $data["Poll"] ?? [];
     $products = [];
-    $productsData = $data["Products"] ?? [];
+    $productsData = $data["Product"] ?? [];
     $purge = $data["Purge"] ?? 0;
     $shops = [];
-    $shopsData = $data["Shops"] ?? [];
-    if(!empty($attachmentsData)) {
+    $shopsData = $data["Shop"] ?? [];
+    if(!empty($articlesData)) {
+     $media = array_reverse($articlesData);
+     for($i = 0; $i < count($media); $i++) {
+      #if(!empty($media[$i])) {
+       $media[$i] = trim(base64_decode($media[$i]), ";");
+       array_push($articles, $media[$i]);
+      #}
+     }
+    } if(!empty($attachmentsData)) {
      $media = array_reverse($attachmentsData);
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
@@ -276,60 +288,60 @@
     } if(!empty($blogsData)) {
      $media = array_reverse($blogsData);
      for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
+      #if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($blogs, $media[$i]);
-      }
+      #}
      }
     } if(!empty($blogPostsData)) {
      $media = array_reverse($blogPostsData);
      for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
+      #if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($blogPosts, $media[$i]);
-      }
+      #}
      }
     } if(!empty($coverPhotoData)) {
      $coverPhoto = base64_decode($media[$i]);
     } if(!empty($forumsData)) {
      $media = array_reverse($forumsData);
      for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
+      #if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($forums, $media[$i]);
-      }
+      #}
      }
     } if(!empty($forumPostsData)) {
      $media = array_reverse($forumPostsData);
      for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
+      #if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($forumPosts, $media[$i]);
-      }
+      #}
      }
     } if(!empty($pollsData)) {
      $media = array_reverse($pollsData);
      for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
+      #if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($polls, $media[$i]);
-      }
+      #}
      }
     } if(!empty($productsData)) {
      $media = array_reverse($productsData);
      for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
+      #if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($products, $media[$i]);
-      }
+      #}
      }
     } if(!empty($shopsData)) {
      $media = array_reverse($shopsData);
      for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
+      #if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($shops, $media[$i]);
-      }
+      #}
      }
     } if($new == 1) {
      $mainstream = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
@@ -357,7 +369,7 @@
       "Data" => $data["Body"],
       "HTMLEncode" => 1
      ]),
-     "CoverPhoto" => end($coverPhoto),
+     "CoverPhoto" => $coverPhoto,
      "Created" => $created,
      "Forums" => $forums,
      "ForumPosts" => $forumPosts,

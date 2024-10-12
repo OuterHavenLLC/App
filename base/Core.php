@@ -384,7 +384,7 @@
    ]).$this->Element([
     "p", "It may have been removed or its visibility reduced by the owner."
    ]), [
-    "class" => "K4i"
+    "class" => "FrostedBright RoundedLarge"
    ]]);
    $source = $this->efs.$a["T"]."/".$a["DLL"]["Name"];
    $readEFS = curl_init($source);
@@ -392,7 +392,7 @@
    curl_exec($readEFS);
    $efsResponse = curl_getinfo($readEFS, CURLINFO_HTTP_CODE);
    curl_close($readEFS);
-   if($efsResponse == 200) {
+   if(!empty($a["T"]) && $efsResponse == 200) {
     if($type == "Audio") {
      $cover = $this->efs."A.jpg";
      $r = $this->Element(["source", NULL, [
@@ -601,7 +601,6 @@
      $data = $data[$additionalContentID] ?? [];
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $added = $content["Added"] ?? "";
       $addTo = $content["AddTo"] ?? "";
       $attachments = $this->GetAttachmentPreview([
        "DisableButtons" => 1,
@@ -615,7 +614,6 @@
       $description = $data["Description"] ?? "";
       $parentView = $content["ParentView"] ?? "Files";
       $viewData = json_encode([
-       "Added" => $added,
        "AddTo" => $addTo,
        "ParentView" => $parentView,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
@@ -630,7 +628,7 @@
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("File;$contentID;$additionalContentID")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
        "Source" => $this->GetSourceFromExtension([$contentID, $data]),
-       "View" => "$parentView;".base64_encode("v=".base64_encode("File:Home")."&Added=$added&AddTo=$addTo&ID=$additionalContentID&UN=$contentID&ParentView=$parentView&ViewData=$viewData"),
+       "View" => "$parentView;".base64_encode("v=".base64_encode("File:Home")."&AddTo=$addTo&ID=$additionalContentID&UN=$contentID&ParentView=$parentView&ViewData=$viewData"),
        "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
