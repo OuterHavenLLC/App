@@ -27,7 +27,6 @@
    $list = "v=".$this->lists;
    $list .= (!empty($addTo)) ? "&AddTo=$addTo" : "";
    $list .= "&query=$query&st=$searchType";
-   $lit = uniqid(md5($searchType.$this->core->timestamp));
    $options = "";
    $r = [
     "Body" => "The List Type is missing.",
@@ -53,15 +52,13 @@
       ]
      ]) : "";
     } elseif($searchType == "BGP") {
-     $data = $this->core->FixMissing($data, ["BLG"]);
      $header = "Blog Posts";
-     $id = $data["ID"] ?? "";
-     $list .= "&ID=$id";
+     $list .= (!empty($data["ID"])) ? "&ID=".$data["ID"] : "";
      $searchBarText = "Posts";
     } elseif($searchType == "BL") {
      $bl = base64_decode($data["BL"]);
      $header = "$bl Blacklist";
-     $list .= "&BL=".$data["BL"];
+     $list .= (!empty($data["BL"])) ? "&BL=".$data["BL"] : "";
      $searchBarText = "$bl Blacklist";
     } elseif($searchType == "BLG") {
      $header = "Blogs";

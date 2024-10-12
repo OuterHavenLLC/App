@@ -35,8 +35,8 @@
     ]);
     $mediaUI = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
     $r = (!empty($header)) ? $this->core->Element(["h2", $header]) : "";
-    $section = $this->core->Element(["button", "[Section.Name]", [
-     "class" => "LI PSAccordion",
+    $section = $this->core->Element(["button", "<h3>[Section.Name]</h3>", [
+     "class" => "PSAccordion",
      "data-type" => ".Attachments$id;.AttachmentType;.AttachmentGroup[Section.ID]"
     ]]).$this->core->Element(["div", "[Section.Content]", [
      "class" => "AttachmentGroup[Section.ID] AttachmentType NONAME h"
