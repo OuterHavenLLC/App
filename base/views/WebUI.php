@@ -51,6 +51,7 @@
      "Default" => "XFS&lPG=Files&UN=".base64_encode($you),
      "Forum" => "Forums",
      "ForumPost" => "Forums-Posts",
+     "Member" => "MBR",
      "Poll" => "Polls",
      "Product" => "Products",
      "Shop" => "Shops"
@@ -80,6 +81,7 @@
       $sectionName = ($key == "CoverPhoto") ? "Cover Photo" : $sectionName;
       $sectionName = ($key == "Forum") ? "Forums" : $sectionName;
       $sectionName = ($key == "ForumPost") ? "Forum Posts" : $sectionName;
+      $sectionName = ($key == "Member") ? "Members" : $sectionName;
       $sectionName = ($key == "Poll") ? "Polls" : $sectionName;
       $sectionName = ($key == "Product") ? "Products" : $sectionName;
       $sectionName = ($key == "Shop") ? "Shops" : $sectionName;

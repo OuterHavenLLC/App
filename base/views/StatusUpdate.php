@@ -42,6 +42,7 @@
     $coverPhoto = $update["CoverPhoto"] ?? [];
     $forums = $update["Forums"] ?? [];
     $forumPosts = $update["ForumPosts"] ?? [];
+    $members = $update["Members"] ?? [];
     $nsfw = $update["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $update["PassPhrase"] ?? "";
     $privacy = $update["Privacy"] ?? $y["Privacy"]["Posts"];
@@ -60,6 +61,7 @@
       "CoverPhoto" => $coverPhoto,
       "Forum" => $forums,
       "ForumPost" => $forumPosts,
+      "Member" => $members,
       "Poll" => $polls,
       "Product" => $products,
       "Shop" => $shops
@@ -257,6 +259,8 @@
     $forumPosts = [];
     $forumPostsData = $data["ForumPost"] ?? [];
     $illegal = $update["Illegal"] ?? 0;
+    $members = []; 
+    $membersData = $data["Member"] ?? [];
     $notes = $update["Notes"] ?? [];
     $now = $this->core->timestamp;
     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
@@ -317,6 +321,14 @@
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($forumPosts, $media[$i]);
+      }
+     }
+    } if(!empty($membersData)) {
+     $media = array_reverse($membersData);
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = base64_decode($media[$i]);
+       array_push($members, $media[$i]);
       }
      }
     } if(!empty($pollsData)) {

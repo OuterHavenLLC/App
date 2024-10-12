@@ -109,15 +109,15 @@
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $i = 0;
-   $id = $data["ID"] ?? base64_encode("");
+   $media = $data["ID"] ?? base64_encode("");
+   $media = base64_decode($media);
    $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
-   $type = $data["Type"] ?? base64_encode("DLC");
+   $type = $data["Type"] ?? base64_encode("");
    $type = base64_decode($type);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($id)) {
-    $attachments = base64_decode($id);
-    $attachments = (str_ends_with($attachments, ";")) ? rtrim($attachments, ";") : $attachments;
+   if(!empty($media) && !empty($type)) {
+    $attachments = (str_ends_with($media, ";")) ? rtrim($media, ";") : $media;
     $attachments = explode(";", $attachments);
     $count = count($attachments);
     $r = "";
@@ -167,6 +167,26 @@
        "div", $r, ["class" => "SideScroll"]
       ]);
      }
+    } elseif($type == "Member") {
+     for($i = 0; $i < $count; $i++) {
+      if(!empty($attachments[$i])) {
+       $member = base64_decode($attachments[$i]);
+       if(!empty($member)) {
+        $t = ($member == $you) ? $y : $this->core->Member($mbr);
+        $r .= $this->core->Element([
+         "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
+          "class" => "OpenCard Small",
+          "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($f[0]))
+         ]
+        ]);
+       }
+      }
+     }
+     $r = $this->core->Element([
+      "h4", "Featured Members", ["class" => "UpperCase"]
+     ]).$this->core->Element([
+      "div", $r, ["class" => "SideScroll"]
+     ]);
     } elseif($type == "Product") {
      $coverPhoto = $this->core->PlainText([
       "Data" => "[Media:MiNY]",
@@ -195,26 +215,6 @@
      }
      $r = $this->core->Element([
       "h4", "Included in this Bundle", ["class" => "UpperCase"]
-     ]).$this->core->Element([
-      "div", $r, ["class" => "SideScroll"]
-     ]);
-    } elseif($type == "Profile") {
-     for($i = 0; $i < $count; $i++) {
-      if(!empty($attachments[$i])) {
-       $member = base64_decode($attachments[$i]);
-       if(!empty($member)) {
-        $t = ($member == $you) ? $y : $this->core->Member($mbr);
-        $r .= $this->core->Element([
-         "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
-          "class" => "OpenCard Small",
-          "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($f[0]))
-         ]
-        ]);
-       }
-      }
-     }
-     $r = $this->core->Element([
-      "h4", "Featured Members", ["class" => "UpperCase"]
      ]).$this->core->Element([
       "div", $r, ["class" => "SideScroll"]
      ]);
