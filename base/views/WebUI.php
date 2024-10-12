@@ -118,7 +118,7 @@
       $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
       $mediaCount = count($attachments);
       $cloneSourceID = uniqid("CloneSource".md5($key));
-      $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&ID=");
+      $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
       $mediaListID = uniqid("MediaList".md5($key));
       $mediaListIDSS = ($key != "CoverPhoto") ? "$mediaListID SideScroll" : $mediaListID;
       $mediaClone = $this->core->Change([
