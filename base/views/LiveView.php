@@ -56,24 +56,7 @@
    $you = $y["Login"]["Username"];
    if(!empty($media) && !empty($mediaType)) {
     $addTo = $data["AddTo"] ?? "";
-    if($mediaType == "Article") {
-     $r = $this->core->Element(["p", "[Article:$media]"]);
-    } elseif($mediaType == "Attachment") {
-     $attachment = explode("-", base64_decode($media));
-     $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
-     $i++;
-     $r = $this->core->GetAttachmentPreview([
-      "DLL" => $efs[$attachment[1]],
-      "T" => $attachment[0],
-      "Y" => $you
-     ]).$this->core->Element([
-      "p", "[Attachment:$media]", ["class" => "CenterText"]
-     ]);
-    } elseif($mediaType == "Blog") {
-     $r = $this->core->Element(["p", "[Blog:$media]"]);
-    } elseif($mediaType == "BlogPost") {
-     $r = $this->core->Element(["p", "[BlogPost:$media]"]);
-    } elseif($mediaType == "CoverPhoto") {
+    if($mediaType == "Attachment" || $mediaType == "CoverPhoto") {
      $attachment = explode("-", base64_decode($media));
      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
      $i++;
@@ -82,16 +65,13 @@
       "T" => $attachment[0],
       "Y" => $you
      ]);
-    } elseif($mediaType == "Forum") {
-     $r = $this->core->Element(["p", "[Forum:$media]"]);
-    } elseif($mediaType == "ForumPost") {
-     $r = $this->core->Element(["p", "[ForumPost:$media]"]);
-    } elseif($mediaType == "Poll") {
-     $r = $this->core->Element(["p", "[Poll:$media]"]);
-    } elseif($mediaType == "Product") {
-     $r = $this->core->Element(["p", "[Product:$media]"]);
-    } elseif($mediaType == "Shop") {
-     $r = $this->core->Element(["p", "[Shop:$media]"]);
+     if($mediaType == "Attachment") {
+      $r .= $this->core->Element([
+       "p", "[Attachment:$media]", ["class" => "CenterText"]
+      ]);
+     }
+    } else {
+     $r = $this->core->Element(["p", "[$mediaType:$media]"]);
     }
    }
    $r = ($i == 0) ? $this->NoMedia : $r;
@@ -112,36 +92,43 @@
    $media = $data["ID"] ?? base64_encode("");
    $media = base64_decode($media);
    $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
-   $type = $data["Type"] ?? base64_encode("");
-   $type = base64_decode($type);
+   $mediaType = $data["Type"] ?? base64_encode("");
+   $mediaType = base64_decode($mediaType);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($media) && !empty($type)) {
+   if(!empty($media) && !empty($mediaType)) {
     $attachments = (str_ends_with($media, ";")) ? rtrim($media, ";") : $media;
     $attachments = explode(";", $attachments);
     $count = count($attachments);
     $r = "";
-    if($type == "Artist") {
+    if($mediaType == "Artist" || $mediaType == "Member") {
      for($i = 0; $i < $count; $i++) {
       if(!empty($attachments[$i])) {
        $member = base64_decode($attachments[$i]);
-       if(!empty($member)) {
-        $t = ($member == $you) ? $y : $this->core->Member($mbr);
+       $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
+       $member = $this->core->GetContentData([
+        "Blacklisted" => $bl,
+        "ID" => base64_encode("Member;".md5($member))
+       ]);
+       if($member["Empty"] == 0) {
+        $_Member = $member["DataModel"];
+        $view = "v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($_Member["Login"]["Username"]);
+        $view = ($mediaType == "Member") ? "v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($_Member["Login"]["Username"]) : $view;
         $r .= $this->core->Element([
          "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
           "class" => "Small OpenCard",
-          "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($f[0]))
+          "data-view" => base64_encode($view)
          ]
         ]);
        }
       }
      }
      $r = $this->core->Element([
-      "h4", "Featured Artists", ["class" => "UpperCase"]
+      "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
      ]).$this->core->Element([
       "div", $r, ["class" => "SideScroll"]
      ]);
-    } elseif($type == "DLC") {
+    } elseif($mediaType == "DLC") {
      foreach($attachments as $dlc) {
       if(!empty($dlc)) {
        $f = explode("-", base64_decode($dlc));
@@ -167,27 +154,7 @@
        "div", $r, ["class" => "SideScroll"]
       ]);
      }
-    } elseif($type == "Member") {
-     for($i = 0; $i < $count; $i++) {
-      if(!empty($attachments[$i])) {
-       $member = base64_decode($attachments[$i]);
-       if(!empty($member)) {
-        $t = ($member == $you) ? $y : $this->core->Member($mbr);
-        $r .= $this->core->Element([
-         "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
-          "class" => "OpenCard Small",
-          "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&CARD=1&UN=".base64_encode($f[0]))
-         ]
-        ]);
-       }
-      }
-     }
-     $r = $this->core->Element([
-      "h4", "Featured Members", ["class" => "UpperCase"]
-     ]).$this->core->Element([
-      "div", $r, ["class" => "SideScroll"]
-     ]);
-    } elseif($type == "Product") {
+    } elseif($mediaType == "Product") {
      $coverPhoto = $this->core->PlainText([
       "Data" => "[Media:MiNY]",
       "Display" => 1

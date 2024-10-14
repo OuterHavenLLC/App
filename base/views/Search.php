@@ -916,7 +916,7 @@
     $accessCode = "Accepted";
     $extension = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
     foreach($bulletins as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Members", md5($value["From"])]);;
+     $bl = $this->core->CheckBlocked([$y, "Members", $value["From"]]);;
      $_Member = $this->core->GetContentData([
       "Blacklisted" => $bl,
       "ID" => base64_encode("Member;".md5($value["From"]))
@@ -2444,7 +2444,7 @@
       }
       $contacts = array_unique($contacts);
       foreach($contacts as $key => $member) {
-       $bl = $this->core->CheckBlocked([$y, "Members", md5($member)]);;
+       $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
        $_Member = $this->core->GetContentData([
         "Blacklisted" => $bl,
         "ID" => base64_encode("Member;".md5($member))
