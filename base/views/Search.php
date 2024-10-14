@@ -808,7 +808,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forums") {
-       $forum = $this->core->Data("Get", ["pf", $value]) ?? [];
+       $forum = $this->core->Data("Get", ["pf", $value]);
        $de = $forum["Description"];
        $header = "<em>".$forum["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [

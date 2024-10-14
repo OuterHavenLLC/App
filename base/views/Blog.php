@@ -173,6 +173,7 @@
     "back",
     "lPG"
    ]);
+   $addTo = $data["AddTo"] ?? "";
    $bck = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back to Blogs", [
      "class" => "GoToParent LI",
@@ -234,6 +235,7 @@
        ])),
        "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Blog["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
+        "AddTo" => $addTo,
         "SecureKey" => base64_encode($passPhrase),
         "ID" => $id,
         "VerifyPassPhrase" => 1,
@@ -255,6 +257,7 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("Blog:Home"), ["Data" => [
+        "AddTo" => $addTo,
         "ID" => $id,
         "ViewProtectedContent" => 1
        ]]);
@@ -263,9 +266,17 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
       $actions = "";
+      $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
       $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+      $chat = $this->core->Data("Get", ["chat", $id]);
+      $actions = (!empty($addToData)) ? $this->core->Element([
+       "button", "Attach", [
+        "class" => "Attach Small v2",
+        "data-input" => base64_encode($addToData[1]),
+        "data-media" => base64_encode($id)
+       ]
+      ]) : "";
       $actions .= ($blog["UN"] != $you) ? $this->core->Element([
        "button", $blockCommand, [
         "class" => "Small UpdateButton v2",

@@ -236,6 +236,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
    $card = $data["CARD"] ?? 0;
    $id = $data["ID"] ?? "";
    $lpg = $data["lPG"] ?? "";
@@ -274,6 +275,7 @@
        ])),
        "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Forum["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
+        "AddTo" => $addTo,
         "SecureKey" => base64_encode($passPhrase),
         "ID" => $data["ID"],
         "VerifyPassPhrase" => 1,
@@ -293,6 +295,7 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("Forum:Home"), ["Data" => [
+        "AddTo" => $addTo,
         "ID" => $data["ID"],
         "ViewProtectedContent" => 1
        ]]);
@@ -322,7 +325,15 @@
       if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
        $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
        $accessCode = "Accepted";
-       $actions = ($bl == 0 && $ck == 0) ? $this->core->Element([
+       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+       $actions = ($_SonsOfLiberty != $forum["ID"]) ? $this->core->Element([
+        "button", "Attach", [
+         "class" => "Attach Small v2",
+         "data-input" => base64_encode($addToData[1]),
+         "data-media" => base64_encode($forum["ID"])
+        ]
+       ]) : "";
+       $actions .= ($bl == 0 && $ck == 0) ? $this->core->Element([
         "button", "Block", [
          "class" => "CloseCard Small UpdateButton v2 v2w",
          "data-view" => $options["Block"]

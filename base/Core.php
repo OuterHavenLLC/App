@@ -486,6 +486,8 @@
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
+      $attachments = $data["CoverPhoto"] ?? "";
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
