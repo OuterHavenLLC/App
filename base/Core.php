@@ -1195,10 +1195,22 @@
    } if($a["Display"] == 1) {
     $articleCard = base64_encode("Page:Card");
     $defaultUI = $this->config["App"]["UIVariant"] ?? 2;
+    $r = preg_replace_callback("/\[Album:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
+    $r = preg_replace_callback("/\[Attachment:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[Blog:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[BlogPost:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[Chat:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[Forum:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[ForumPost:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Embed:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
     $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
+    $r = preg_replace_callback("/\[Member:(.*?)\]/i", array(&$this, "Media"), $r);
+    $r = preg_replace_callback("/\[Poll:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[Product:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[Shop:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[StatusUpdate:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Translate:(.*?)\]/i", array(&$this, "Translate"), $r);
     $r = $this->Change([[
      "[App.Base]" => $this->base,

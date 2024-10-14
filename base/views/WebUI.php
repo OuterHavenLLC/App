@@ -7,6 +7,7 @@
   function Attachments(array $data) {
    $header = $data["Header"] ?? "";
    $id = $data["ID"] ?? "";
+   $id = $this->core->UUID($id);
    $media = $data["Media"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -44,7 +45,6 @@
     ]]);
     $symbolicLinks = [
      "Article" => "CA",
-     "Album" => "MBR-ALB",
      "Blog" => "BLG",
      "BlogPost" => "BGP",
      "Default" => "XFS&lPG=Files&UN=".base64_encode($you),
