@@ -802,19 +802,22 @@
      }
     } elseif($type == "Shop") {
      $data = $this->Data("Get", ["shop", $contentID]);
+     $owner = $this->Data("Get", ["mbr", $contentID]);
      $empty = $data["Purge"] ?? 0;
-     $empty = (empty($data) || $empty == 1) ? 1 : 0;
+     $empty2 = $owner["Purge"] ?? 0;
+     $empty = (empty($data) || empty($owner) || $empty == 1 || $empty2 == 1) ? 1 : 0;
      if($empty == 0) {
+      $attachments = $data["CoverPhoto"] ?? "";
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $description = $data["Description"] ?? "";
-      $coverPhoto = $data["CoverPhoto"] ?? "";
       $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Shops")),
        "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
-       "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($content["Owner"])),
-       "Revenue" => base64_encode("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($content["Owner"])),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($content["Owner"])),
-       "View" => base64_encode("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($content["Owner"])),
+       "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($owner["Login"]["Username"])),
+       "Revenue" => base64_encode("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($owner["Login"]["Username"])),
+       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($owner["Login"]["Username"])),
+       "View" => base64_encode("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($owner["Login"]["Username"])),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";

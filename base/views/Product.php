@@ -148,6 +148,7 @@
     "b2",
     "back",
    ]);
+   $addTo = $data["AddTo"] ?? "";
    $card = $data["CARD"] ?? 0;
    $i = 0;
    $id = $data["ID"] ?? "";
@@ -226,37 +227,30 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
       $options = $_Product["ListItem"]["Options"];
-      $shop = $this->core->Data("Get", ["shop", md5($username)]) ?? [];
+      $shop = $this->core->Data("Get", ["shop", md5($username)]);
       $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
       $t = ($username == $you) ? $y : $this->core->Member($username);
       $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
+      $ck = (!empty($shop) && $ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal < $this->illegal) ? 1 : 0;
       $illegal = ($illegal == 1 && $t["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
-       $actions = "";
+       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+       $actions = (!empty($addToData)) ? $this->core->Element([
+        "button", "Attach", [
+         "class" => "Attach Small v2",
+         "data-input" => base64_encode($addToData[1]),
+         "data-media" => base64_encode($id)
+        ]
+       ]) : "";
        $active = 0;
        $partners = $shop["Contributors"] ?? [];
        foreach($partners as $member => $role) {
         if($active == 0 && $member == $you) {
          $active++;
         }
-       }
-       $addTo = $data["AddTo"] ?? base64_encode("");
-       $addTo = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-       if(!empty($data["AddTo"]) && $t["Login"]["Username"] == $you) {
-        $actions .= $this->core->Element(["button", $addTo[0], [
-         "class" => "AddTo Small v2",
-         "data-a" => base64_encode("$username-$value"),
-         "data-c" => $data["Added"],
-         "data-f" => base64_encode($addTo[1]),
-         "data-m" => base64_encode(json_encode([
-          "t" => $t["Login"]["Username"],
-          "y" => $you
-         ]))
-        ]]);
        }
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $actions .= ($username == $you) ? $this->core->Element([

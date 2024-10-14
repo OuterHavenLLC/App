@@ -406,6 +406,7 @@
     "back",
     "lPG",
    ]);
+   $addTo = $data["AddTo"] ?? "";
    $back = ($data["back"] == 1) ? $this->core->Element([
     "button", "Back", [
      "class" => "GoToParent LI head",
@@ -440,8 +441,7 @@
     $bl = $this->core->CheckBlocked([$y, "Members", $username]);
     $_Shop = $this->core->GetContentData([
      "Blacklisted" => $bl,
-     "ID" => base64_encode("Shop;$id"),
-     "Owner" => $username
+     "ID" => base64_encode("Shop;$id")
     ]);
     if($_Shop["Empty"] == 0) {
      $shop = $_Shop["DataModel"];
@@ -455,6 +455,7 @@
        ])),
        "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Shop["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
+        "AddTo" => $addTo,
         "SecureKey" => base64_encode($passPhrase),
         "UN" => $data["UN"],
         "VerifyPassPhrase" => 1,
@@ -474,6 +475,7 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("Shop:Home"), ["Data" => [
+        "AddTo" => $addTo,
         "UN" => $data["UN"],
         "ViewProtectedContent" => 1
        ]]);
@@ -502,6 +504,7 @@
        $services = $shop["InvoicePresets"] ?? [];
        if($ck == 1 || $ck2 == 1 && $shop["Open"] == 1) {
         $active = 0;
+        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
         foreach($partners as $member => $role) {
          if($active == 0 && $member == $you) {
           $active++;
@@ -509,7 +512,14 @@
         }
         $blockCommand = ($bl == 0) ? "Block" : "Unblock";
         $ck = ($active == 1 || $username == $you) ? 1 : 0;
-        $block = ($ck == 0) ? $this->core->Element([
+        $block = (!empty($addToData)) ? $this->core->Element([
+         "button", "Attach", [
+          "class" => "Attach Small v2",
+          "data-input" => base64_encode($addToData[1]),
+          "data-media" => base64_encode(md5($username))
+         ]
+        ]) : "";
+        $block .= ($ck == 0) ? $this->core->Element([
          "button", $blockCommand, [
           "class" => "Small UpdateButton v2",
           "data-processor" => $options["Block"]

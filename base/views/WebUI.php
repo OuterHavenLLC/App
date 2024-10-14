@@ -53,7 +53,7 @@
      "Member" => "MBR",
      "Poll" => "Polls",
      "Product" => "Products",
-     "Shop" => "Shops",
+     "Shop" => "SHOP",
      "Update" => "StatusUpdates"
     ];
     foreach($media as $key => $attachments) {

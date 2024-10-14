@@ -858,7 +858,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Products") {
-       $product = $this->core->Data("Get", ["product", $value]) ?? [];
+       $product = $this->core->Data("Get", ["product", $value]);
        $de = $product["Description"];
        $header = "<em>".$product["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
@@ -3023,8 +3023,7 @@
       $_Shop = $this->core->GetContentData([
        "AddTo" => $addTo,
        "Blacklisted" => $bl,
-       "ID" => base64_encode("Shop;".$sql["Shop_ID"]),
-       "Owner" => $sql["Shop_Username"]
+       "ID" => base64_encode("Shop;".$sql["Shop_ID"])
       ]);
       if($_Shop["Empty"] == 0) {
        $cms = $this->core->Data("Get", ["cms", $sql["Shop_ID"]]) ?? [];
