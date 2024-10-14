@@ -18,7 +18,6 @@
     $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=[Link.AddTo]&CARD=1&st=";
     $_Translate = "";
     $_ViewDesign = "";
-    $added = base64_encode("Added! Feel free to close this card.");
     $clone = $this->core->Element([
      "div", $this->core->Element([
       "button", "X", [
@@ -34,12 +33,12 @@
      ]
     ]);
     $mediaUI = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
-    $r = (!empty($header)) ? $this->core->Element(["h2", $header]) : "";
+    $r = (!empty($header)) ? $this->core->Element(["h3", $header]) : "";
     $section = $this->core->Element([
      "div", NULL, ["class" => "NONAME"]
-    ]).$this->core->Element(["button", "<h3>[Section.Name]</h3>", [
+    ]).$this->core->Element(["button", "<h4>[Section.Name]</h4>", [
      "class" => "PSAccordion",
-     "data-type" => ".Attachments$id;.AttachmentType;.AttachmentGroup[Section.ID]"
+     "data-type" => ".ContentAttachments$id;.AttachmentType;.AttachmentGroup[Section.ID]"
     ]]).$this->core->Element(["div", "[Section.Content]", [
      "class" => "AttachmentGroup[Section.ID] AttachmentType NONAME h"
     ]]);
@@ -54,7 +53,8 @@
      "Member" => "MBR",
      "Poll" => "Polls",
      "Product" => "Products",
-     "Shop" => "Shops"
+     "Shop" => "Shops",
+     "Update" => "Mainstream"
     ];
     foreach($media as $key => $attachments) {
      if($key == "Translate") {
@@ -85,6 +85,7 @@
       $sectionName = ($key == "Poll") ? "Polls" : $sectionName;
       $sectionName = ($key == "Product") ? "Products" : $sectionName;
       $sectionName = ($key == "Shop") ? "Shops" : $sectionName;
+      $sectionName = ($key == "Update") ? "Status Updates" : $sectionName;
       for($i = 0; $i < $mediaCount; $i++) {
        $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
        $cloneID = uniqid("AttachmentMedia".rand(100, 999));
@@ -169,7 +170,7 @@
      "[Section.ID]" => md5("ViewDesign$id"),
      "[Section.Name]" => "View Design"
     ], $section]) : "";
-    $r = $this->core->Element(["div", $r, ["class" => "Attachments$id NONAME"]]);
+    $r = $this->core->Element(["div", $r, ["class" => "ContentAttachments$id NONAME"]]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",

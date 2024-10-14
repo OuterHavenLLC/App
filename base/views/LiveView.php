@@ -71,7 +71,22 @@
       ]);
      }
     } else {
-     $r = $this->core->Element(["p", "[$mediaType:$media]"]);
+     $_BlackListID = ($mediaType == "BlogPost") ? explode(";", $media)[1] : $media;
+     $_BlackListID = ($mediaType == "ForumPost") ? explode(";", $_BlackListID)[1] : $_BlackListID;
+     $bl = $this->core->CheckBlocked([$y, $mediaType."s", $_BlackListID]);
+     $contentID = ($mediaType == "Member") ? md5($media) : $media;
+     $mediaType = ($mediaType == "Article") ? "Page" : $mediaType;
+     $_Media = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("$mediaType;$contentID")
+     ]);
+     if($_Media["Empty"] == 0) {
+      $i++;
+      $r = $_Media["Preview"]["Content"] ?? "";
+      $r .= $this->core->Element([
+       "h4", "Embed Code<br/>[$mediaType:$media]", ["class" => "CenterText"]
+      ]);
+     }
     }
    }
    $r = ($i == 0) ? $this->NoMedia : $r;
@@ -127,6 +142,15 @@
       "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
      ]).$this->core->Element([
       "div", $r, ["class" => "SideScroll"]
+     ]);
+    } elseif($mediaType == "CoverPhoto") {
+     $attachment = explode("-", base64_decode($media));
+     $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
+     $i++;
+     $r = $this->core->GetAttachmentPreview([
+      "DLL" => $efs[$attachment[1]],
+      "T" => $attachment[0],
+      "Y" => $you
      ]);
     } elseif($mediaType == "DLC") {
      foreach($attachments as $dlc) {

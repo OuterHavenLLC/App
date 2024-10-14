@@ -223,6 +223,7 @@
    $_ViewTitle = $this->core->config["App"]["Name"];
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
    $backTo = $data["BackTo"] ?? "the Archive";
    $base = $this->core->efs;
    $card = $data["CARD"] ?? 0;
@@ -258,6 +259,7 @@
        "ParentPage" => $parentPage,
        "Text" => base64_encode("Please enter the Pass Phrase the Author gave you to access <em>".$_Article["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
+        "AddTo" => $addTo,
         "BackTo" => $backTo,
         "SecureKey" => base64_encode($passPhrase),
         "ID" => $id,
@@ -279,6 +281,7 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("Page:Home"), ["Data" => [
+        "AddTo" => $addTo,
         "BackTo" => $backTo,
         "ID" => $id,
         "ParentPage" => $parentPage,
@@ -289,7 +292,7 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_ViewTitle = $_Article["ListItem"]["Title"] ?? $_ViewTitle;
       $options = $_Article["ListItem"]["Options"];
-      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+      $chat = $this->core->Data("Get", ["chat", $id]);
       $contributors = $article["Contributors"] ?? [];
       $ck = ($article["UN"] == $you) ? 1 : 0;
       if(in_array($article["Category"], ["CA", "JE"]) && $bl == 0) {
@@ -302,7 +305,15 @@
         }
        }
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-       $actions = ($ck == 0) ? $this->core->Element([
+       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+       $actions = (!empty($addToData)) ? $this->core->Element([
+        "button", "Attach", [
+         "class" => "Attach Small v2",
+         "data-input" => base64_encode($addToData[1]),
+         "data-media" => base64_encode($id)
+        ]
+       ]) : "";
+       $actions .= ($ck == 0) ? $this->core->Element([
         "button", $blockCommand, [
          "class" => "Small UpdateButton v2",
          "data-processor" => $options["Block"]

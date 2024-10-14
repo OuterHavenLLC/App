@@ -49,6 +49,7 @@
     $polls = $update["Polls"] ?? [];
     $products = $update["Products"] ?? [];
     $shops = $update["Shops"] ?? [];
+    $updates = $update["Updates"] ?? [];
     $to = (!empty($to)) ? base64_decode($to) : $to;
     $attachments = $this->view(base64_encode("WebUI:Attachments"), [
      "Header" => "Attachments",
@@ -64,7 +65,8 @@
       "Member" => $members,
       "Poll" => $polls,
       "Product" => $products,
-      "Shop" => $shops
+      "Shop" => $shops,
+      "Update" => $updates
      ]
     ]);
     $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
@@ -273,8 +275,10 @@
     $purge = $data["Purge"] ?? 0;
     $shops = [];
     $shopsData = $data["Shop"] ?? [];
+    $updates = [];
+    $updatesData = $data["Update"] ?? [];
     if(!empty($articlesData)) {
-     $media = array_reverse($articlesData);
+     $media = $articlesData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -282,7 +286,7 @@
       }
      }
     } if(!empty($attachmentsData)) {
-     $media = array_reverse($attachmentsData);
+     $media = $attachmentsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -290,7 +294,7 @@
       }
      }
     } if(!empty($blogsData)) {
-     $media = array_reverse($blogsData);
+     $media = $blogsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -298,7 +302,7 @@
       }
      }
     } if(!empty($blogPostsData)) {
-     $media = array_reverse($blogPostsData);
+     $media = $blogPostsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -316,7 +320,7 @@
       }
      }
     } if(!empty($forumPostsData)) {
-     $media = array_reverse($forumPostsData);
+     $media = $forumPostsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -324,7 +328,7 @@
       }
      }
     } if(!empty($membersData)) {
-     $media = array_reverse($membersData);
+     $media = $membersData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -332,7 +336,7 @@
       }
      }
     } if(!empty($pollsData)) {
-     $media = array_reverse($pollsData);
+     $media = $pollsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -340,7 +344,7 @@
       }
      }
     } if(!empty($productsData)) {
-     $media = array_reverse($productsData);
+     $media = $productsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
@@ -348,11 +352,19 @@
       }
      }
     } if(!empty($shopsData)) {
-     $media = array_reverse($shopsData);
+     $media = $shopsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        $media[$i] = base64_decode($media[$i]);
        array_push($shops, $media[$i]);
+      }
+     }
+    } if(!empty($updatesData)) {
+     $media = $updatesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = base64_decode($media[$i]);
+       array_push($updates, $media[$i]);
       }
      }
     } if($new == 1) {

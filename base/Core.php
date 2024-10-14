@@ -421,6 +421,7 @@
    return $r;
   }
   function GetContentData(array $content) {
+   $addTo = $content["AddTo"] ?? "";
    $attachments = "";
    $backTo = $content["BackTo"] ?? "";
    $body = "";
@@ -452,7 +453,7 @@
     $contentID = $id[1] ?? "";
     $additionalContentID = $id[2] ?? "";
     if($type == "Album" && !empty($additionalContentID)) {
-     $data = $this->Data("Get", ["fs", md5($contentID)]) ?? [];
+     $data = $this->Data("Get", ["fs", md5($contentID)]);
      $empty = $data["Purge"] ?? 0;
      $data = $data["Albums"][$additionalContentID] ?? [];
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
@@ -476,12 +477,12 @@
        "Edit" => base64_encode("v=".base64_encode("Album:Edit")."&AID=$additionalContentID&UN=".base64_encode($contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("Album")."&Username=".base64_encode($contentID)),
        "Upload" => base64_encode("v=".base64_encode("File:Upload")."&AID=$additionalContentID&UN=$contentID"),
-       "View" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$additionalContentID&UN=".$contentID)),
+       "View" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$additionalContentID&UN=".$contentID)),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
      }
     } elseif($type == "Blog") {
-     $data = $this->Data("Get", ["blg", $contentID]) ?? [];
+     $data = $this->Data("Get", ["blg", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
@@ -502,12 +503,12 @@
        "Post" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Blog"),
-       "View" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=$contentID"),
+       "View" => base64_encode("v=".base64_encode("Blog:Home")."&AddTo=$addTo&CARD=1&ID=$contentID"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
      }
     } elseif($type == "BlogPost" && !empty($additionalContentID)) {
-     $data = $this->Data("Get", ["bp", $additionalContentID]) ?? [];
+     $data = $this->Data("Get", ["bp", $additionalContentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
@@ -538,13 +539,13 @@
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID;$additionalContentID")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$additionalContentID&Type=BlogPost"),
-       "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&Blog=$contentID&Post=$additionalContentID&b2=$backTo&back=1"),
+       "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&AddTo=$addTo&Blog=$contentID&Post=$additionalContentID&b2=$backTo&back=1"),
        "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=2")
       ];
      }
     } elseif($type == "Chat") {
      $active = 0;
-     $data = $this->Data("Get", ["chat", $contentID]) ?? [];
+     $data = $this->Data("Get", ["chat", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
@@ -563,7 +564,7 @@
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Chat:Purge")
       ], true);
-      $view = "v=".base64_encode("Chat:Home")."&Group=1&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
+      $view = "v=".base64_encode("Chat:Home")."&AddTo=$addTo&Group=1&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
       $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Group Chats")),
@@ -576,7 +577,7 @@
       ];
      }
     } elseif($type == "Extension") {
-     $data = $this->Data("Get", ["extension", $contentID]) ?? [];
+     $data = $this->Data("Get", ["extension", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      $viewData = json_encode([
@@ -589,19 +590,12 @@
       "Edit" => base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($contentID))
      ];
     } elseif($type == "File" && !empty($additionalContentID)) {
-     $data = $this->Data("Get", [
-      "fs",
-      md5($contentID)
-     ]) ?? [];
-     $data = ($contentID == $this->ID) ? $this->Data("Get", [
-      "app",
-      "fs"
-     ]) : $data["Files"];
+     $data = $this->Data("Get", ["fs", md5($contentID)]);
+     $data = ($contentID == $this->ID) ? $this->Data("Get", ["app", "fs"]) : $data["Files"];
      $empty = $data["Purge"] ?? 0;
      $data = $data[$additionalContentID] ?? [];
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $addTo = $content["AddTo"] ?? "";
       $attachments = $this->GetAttachmentPreview([
        "DisableButtons" => 1,
        "DLL" => $data,
@@ -634,10 +628,13 @@
       $title = $data["Title"] ?? "";
      }
     } elseif($type == "Forum") {
-     $data = $this->Data("Get", ["pf", $contentID]) ?? [];
+     $data = $this->Data("Get", ["pf", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
+      $attachments = $data["CoverPhoto"] ?? "";
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $body = "";
       $description = $data["Description"] ?? "";
       $viewData = json_encode([
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
@@ -652,13 +649,13 @@
        "Invite" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
        "Post" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".base64_encode($contentID)),
+       "View" => base64_encode("v=".base64_encode("Forum:Home")."&AddTo=$addTo&CARD=1&ID=".base64_encode($contentID)),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
      }
     } elseif($type == "ForumPost" && !empty($additionalContentID)) {
-     $data = $this->Data("Get", ["post", $additionalContentID]) ?? [];
+     $data = $this->Data("Get", ["post", $additionalContentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
@@ -684,43 +681,44 @@
        "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("post")),
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$contentID;$additionalContentID")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode("$contentID-$additionalContentID")."&Type=".base64_encode($type)."&Username=".base64_encode($data["From"])),
-       "View" => base64_encode("v=".base64_encode("ForumPost:Home")."&FID=$contentID&ID=$additionalContentID"),
+       "View" => base64_encode("v=".base64_encode("ForumPost:Home")."&AddTo=$addTo&FID=$contentID&ID=$additionalContentID"),
        "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
      }
     } elseif($type == "Member") {
-     $data = $this->Data("Get", ["mbr", $contentID]) ?? [];
+     $data = $this->Data("Get", ["mbr", $contentID]);
      $empty = $data["Inactive"] ?? 0;
      $empty = $data["Purge"] ?? $empty;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
+     $them = $data["Login"]["Username"] ?? "";
      if($empty == 0) {
-      $them = $data["Login"]["Username"] ?? "";
-      if($empty == 0) {
-       $coverPhoto = base64_decode($data["Personal"]["CoverPhoto"]);
-       $description = "You have not added a Description.";
-       $displayName = $data["Personal"]["DisplayName"] ?? $them;
-       $description = ($them != $you) ? "$displayName has not added a Description." : $description;
-       $description = (!empty($data["Personal"]["Description"])) ? $data["Personal"]["Description"] : $description;
-       $title = ($them == $this->ID) ? "Anonymous" : $displayName;
-       $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
-       $options = [
-        "Blcok" => "",
-        "Edit" => base64_encode("v=".base64_encode("Profile:Preferences")),
-        "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
-        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
-        "View" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($them)),
-        "Vote" => base64_encode("v=$vote&ID=".md5($them)."&Type=4")
-       ];
-      }
+      $attachments = $data["CoverPhoto"] ?? "";
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $body = "";
+      $coverPhoto = base64_decode($data["Personal"]["CoverPhoto"]);
+      $description = "You have not added a Description.";
+      $displayName = $data["Personal"]["DisplayName"] ?? $them;
+      $description = ($them != $you) ? "$displayName has not added a Description." : $description;
+      $description = (!empty($data["Personal"]["Description"])) ? $data["Personal"]["Description"] : $description;
+      $title = ($them == $this->ID) ? "Anonymous" : $displayName;
+      $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
+      $options = [
+       "Blcok" => "",
+       "Edit" => base64_encode("v=".base64_encode("Profile:Preferences")),
+       "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
+       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
+       "View" => base64_encode("v=".base64_encode("Profile:Home")."&AddTo=$addTo&Card=1&UN=".base64_encode($them)),
+       "Vote" => base64_encode("v=$vote&ID=".md5($them)."&Type=4")
+      ];
      }
     } elseif($type == "Page") {
-     $data = $this->Data("Get", ["pg", $contentID]) ?? [];
+     $data = $this->Data("Get", ["pg", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = $data["Attachments"] ?? [];
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+      $attachments = $data["CoverPhoto"] ?? "";
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
@@ -745,16 +743,16 @@
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;".$contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Article"),
-       "View" => base64_encode("v=".base64_encode("Page:Home")."&BackTo=$backTo&ID=$contentID&ParentPage=$parentView"),
+       "View" => base64_encode("v=".base64_encode("Page:Home")."&AddTo=$addTo&BackTo=$backTo&ID=$contentID&ParentPage=$parentView"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
       ];
      }
     } elseif($type == "Poll") {
-     $data = $this->Data("Get", ["poll", $contentID]) ?? [];
+     $data = $this->Data("Get", ["poll", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", []))."&Type=".base64_encode("DLC"));
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode("")."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
@@ -767,11 +765,11 @@
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Polls")),
        "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => base64_encode("v=".base64_encode("Poll:Home")."&ID=$contentID")
+       "View" => base64_encode("v=".base64_encode("Poll:Home")."&AddTo=$addTo&ID=$contentID")
       ];
      }
     } elseif($type == "Product") {
-     $data = $this->Data("Get", ["product", $contentID]) ?? [];
+     $data = $this->Data("Get", ["product", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
@@ -796,7 +794,7 @@
        "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("Product:Edit")."&ParentView=Product$contentID&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".$data["UN"]),
-       "View" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=$contentID&UN=".base64_encode($data["UN"])),
+       "View" => base64_encode("v=".base64_encode("Product:Home")."&AddTo=$addTo&CARD=1&ID=$contentID&UN=".base64_encode($data["UN"])),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
      }
@@ -814,13 +812,13 @@
        "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($content["Owner"])),
        "Revenue" => base64_encode("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($content["Owner"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($content["Owner"])),
-       "View" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($content["Owner"])),
+       "View" => base64_encode("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($content["Owner"])),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
      }
     } elseif($type == "StatusUpdate") {
-     $data = $this->Data("Get", ["su", $contentID]) ?? [];
+     $data = $this->Data("Get", ["su", $contentID]);
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
@@ -845,7 +843,7 @@
        "Edit" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
        "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
-       "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&SU=$contentID"),
+       "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
      }
@@ -1568,6 +1566,14 @@
     }
    }
    return $r;
+  }
+  function UUID($data = null) {
+   $data = $data ?? random_bytes(16);
+   assert(strlen($data) == 16);
+   $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+   $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+   $data = vsprintf("%s%s-%s-%s-%s-%s%s%s-", str_split(bin2hex($data), 4));
+   return uniqid($data);
   }
   function VerificationBadge() {
    return $this->Element(["span", NULL, [

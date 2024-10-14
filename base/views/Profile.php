@@ -592,12 +592,10 @@
   function Home(array $a) {
    $_ViewTitle = $this->core->config["App"]["Name"];
    $accessCode = "Denied";
-   $addTopMargin = "0";
    $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
+   $addTopMargin = "0";
    $member = $data["UN"] ?? "";
-   $_Member = $this->core->GetContentData([
-    "ID" => base64_encode("Member;".md5(base64_decode($member)))
-   ]);
    $parentPage = $data["lPG"] ?? "";
    $b2 = $data["b2"] ?? "";
    $back = $data["back"] ?? 0;
@@ -607,7 +605,6 @@
    ]]) : "";
    $card = $data["Card"] ?? 0;
    $chat = $data["Chat"] ?? 0;
-   $member = $_Member["DataModel"];
    $pub = $data["pub"] ?? 0;
    $r = [
     "Body" => "The requested Member could not be found.",
@@ -615,6 +612,12 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   $bl = $this->core->CheckBlocked([$y, "Members", $member]);
+   $_Member = $this->core->GetContentData([
+    "Blacklisted" => $bl,
+    "ID" => base64_encode("Member;".md5(base64_decode($member)))
+   ]);
+   $member = $_Member["DataModel"];
    if(strpos(base64_decode($data["UN"]), "Ghost_")) {
     $r = [
      "Body" => "You cannot talk to ghosts."
@@ -661,6 +664,7 @@
        ])),
        "Text" => base64_encode("Please enter the Pass Phrase given to you by <em>$displayName</em> to access their Profile."),
        "ViewData" => base64_encode(json_encode([
+        "AddTo" => $addTo,
         "SecureKey" => base64_encode($passPhrase),
         "UN" => base64_encode($id),
         "VerifyPassPhrase" => 1,
@@ -681,6 +685,7 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
+        "AddTo" => $addTo,
         "UN" => base64_encode($id),
         "ViewProtectedContent" => 1
        ]]);
@@ -708,7 +713,15 @@
        "data-form" => ".Profile$id",
        "data-processor" => base64_encode("v=".base64_encode("Profile:MakeVIP")."&ID=".base64_encode($id))
       ]]) : "";
-      $actions = ($id != $you) ? $actions : "";
+      $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+      $addTo = (!empty($addToData) && $id != $this->core->ID) ? $this->core->Element([
+       "button", "Attach", [
+        "class" => "Attach Small v2",
+        "data-input" => base64_encode($addToData[1]),
+        "data-media" => base64_encode($id)
+       ]
+      ]) : "";
+      $actions = ($id != $you) ? $addTo.$actions : $addTo;
       $addContact = "";
       $albums = $this->core->Change([[
        "[Error.Back]" => "",

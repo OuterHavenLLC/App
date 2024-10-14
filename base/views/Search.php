@@ -28,11 +28,12 @@
    $searchType = $data["st"] ?? "";
    $parentView = $data["lPG"] ?? $searchType;
    $searchLists = $this->core->config["App"]["Search"];
+   $check = (!empty($searchType) && in_array($searchType, $searchLists)) ? 1 : 0;
    $query = $data["query"] ?? "";
-   $ck = (!empty($searchType) && in_array($searchType, $searchLists)) ? 1 : 0;
    $list = "v=".$this->lists;
    $list .= (!empty($addTo)) ? "&AddTo=$addTo" : "";
-   $list .= "&query=$query&st=$searchType";
+   $list .= (!empty($query)) ? "&query=$query" : "";
+   $list .= (!empty($searchType)) ? "&st=$searchType" : "";
    $options = "";
    $r = [
     "Body" => "The List Type is missing.",
@@ -44,9 +45,9 @@
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
    foreach($searchLists as $key => $info) {
     if($key == $searchType) {
-     $ck++;
+     $check++;
     }
-   } if($ck == 1) {
+   } if($check == 1) {
     $accessCode = "Accepted";
     if($searchType == "ADM-LLP") {
      $header = "App Extensions";
@@ -196,7 +197,7 @@
      $forumID = base64_decode($forumID);
      $forum = $this->core->Data("Get", ["pf", $forumID]);
      $header = "All Posts";
-     $list .= "&ID=$forumID";
+     $list .= (!empty($forumID)) ? "&ID=$forumID" : "";
      $title = $forum["Title"] ?? "";
      $searchBarText = (!empty($title)) ? "All Posts from $title" : $header;
     } elseif($searchType == "Forums-Topic") {
@@ -219,17 +220,17 @@
      $searchBarText = "Q&As";
      $variant = "2Column";
     } elseif($searchType == "Links") {
-     $header = "Links";
-     $searchBarText = "Links";
+     $header = $searchType;
+     $searchBarText = $searchType;
      $variant = "3Column";
     } elseif($searchType == "Mainstream") {
-     $addTopMargin = 1;
+     $addTopMargin = ($card ==1) ? 0 : 1;
      $header = "The ".$searchType;
-     $searchBarText = "the Mainstream";
-     $options = $this->core->Element(["button", "Say Something", [
+     $searchBarText = "the ".$searchType;
+     $options = ($card == 0) ? $this->core->Element(["button", "Say Something", [
       "class" => "BBB MobileFull OpenCard v2",
       "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
-     ]]);
+     ]]) : "";
      $variant = "2Column";
     } elseif($searchType == "MBR") {
      $header = "Members";
@@ -582,6 +583,7 @@
   function Lists(array $a) {
    $base = $this->core->base;
    $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
    $b2 = $data["b2"] ?? "Search";
    $end = 0;
    $i = 0;
@@ -623,6 +625,7 @@
       $end = 1;
      } foreach($sql as $sql) {
       $_Extension = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => 0,
        "ID" => base64_encode("Extension;".$sql["Extension_ID"])
       ]);
@@ -659,6 +662,18 @@
                          LIMIT $limit
                          OFFSET $offset
      ";
+     $_Query = (!empty($addTo)) ? "SELECT * FROM BlogPosts 
+                         JOIN Blogs
+                         ON Blog_ID=BlogPost_Blog
+                         JOIN Members M
+                         ON Member_Username=BlogPost_Username
+                         WHERE (BlogPost_Body LIKE :Search OR
+                                       BlogPost_Description LIKE :Search OR
+                                       BlogPost_Title LIKE :Search)
+                         ORDER BY BlogPost_Created DESC
+                         LIMIT $limit
+                         OFFSET $offset
+     " : $_Query;
      $sql->query($_Query, [
       ":Blog" => $_BlogID,
       ":Search" => $querysql
@@ -687,7 +702,15 @@
          "data-processor" => $options["Block"]
         ]
        ]) : "";
-       $actions = ($this->core->ID != $you) ? $actions : "";
+       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+       $addTo = (!empty($addToData)) ? $this->core->Element([
+        "button", "Attach", [
+         "class" => "Attach InnerMargin",
+         "data-input" => base64_encode($addToData[1]),
+         "data-media" => base64_encode($sql["BlogPost_Blog"].";".$sql["BlogPost_ID"])
+        ]
+       ]) : "";
+       $actions = ($this->core->ID != $you) ? $addTo.$actions : $addTo;
        $admin = ($blog["UN"] == $you || $post["UN"] == $you) ? 1 : 0;
        $cms = $this->core->Data("Get", ["cms", md5($post["UN"])]) ?? [];
        $ck = $this->core->CheckPrivacy([
@@ -885,6 +908,7 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Blog;".$sql["Blog_ID"])
      ]);
@@ -964,6 +988,7 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Pages", $sql["Article_ID"]]);
      $_Article = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "BackTo" => $b2,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Page;".$sql["Article_ID"]),
@@ -1062,6 +1087,7 @@
      } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => $bl,
        "ID" => base64_encode("Chat;".$sql["Chat_ID"]),
        "Integrated" => $integrated
@@ -1452,11 +1478,12 @@
        }
       }
      } elseif($type == "Shop") {
-      $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+      $shop = $this->core->Data("Get", ["shop", $id]);
       $contributors = $shop["Contributors"] ?? [];
      } foreach($contributors as $member => $role) {
       $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
       $_Member = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => $bl,
        "ID" => base64_encode("Member;".md5($member))
       ]);
@@ -1670,6 +1697,7 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);
      $_Forum = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Forum;".$sql["Forum_ID"])
      ]);
@@ -1711,7 +1739,7 @@
     if(!empty($id)) {
      $admin = base64_decode($admin);
      $id = base64_decode($id);
-     $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
      foreach($manifest as $member => $role) {
       if($member == $admin || $role == "Admin") {
        $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
@@ -1757,13 +1785,25 @@
                         LIMIT $limit
                         OFFSET $offset
     ";
+    $_Query = (!empty($addTo)) ? "SELECT * FROM ForumPosts
+                        JOIN Forums
+                        ON Forum_ID=ForumPost_Forum
+                        JOIN Members M
+                        ON Member_Username=ForumPost_Username
+                        WHERE (ForumPost_Body LIKE :Search OR
+                                      ForumPost_Title LIKE :Search)
+                        ORDER BY ForumPost_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    " : $query;
     $accessCode = "Accepted";
     $active = 0;
     $admin = 0;
     $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
     $id = $data["ID"] ?? "";
-    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-    $manifest = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]);
+    $forumType = $forum["Type"] ?? "Private";
+    $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
     foreach($manifest as $member => $role) {
      if($active == 0 && $member == $you) {
       $active = 0;
@@ -1771,8 +1811,7 @@
        $admin++;
       }
      }
-    }
-    if($active == 1 || $admin == 1 || $forum["Type"] == "Public") {
+    } if($active == 1 || $admin == 1 || $forumType == "Public") {
      $sql->query($_Query, [
       ":Forum" => $id,
       ":Search" => $querysql
@@ -1783,9 +1822,11 @@
      } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => $bl,
-       "ID" => base64_encode("ForumPost;$id;".$sql["ForumPost_ID"])
+       "ID" => base64_encode("ForumPost;".$sql["ForumPost_Forum"].";".$sql["ForumPost_ID"])
       ]);
+      $forum = $this->core->Data("Get", ["pf", $sql["ForumPost_Forum"]]);
       if($_ForumPost["Empty"] == 0) {
        $actions = "";
        $active = 0;
@@ -1808,14 +1849,22 @@
         $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
-        $actions = ($post["From"] != $you) ? $this->core->Element([
+        $actions .= ($post["From"] != $you) ? $this->core->Element([
          "button", "Block", [
           "class" => "InnerMargin",
           "data-cmd" => base64_encode("B"),
           "data-u" => $options["Block"]
          ]
         ]) : "";
-        $actions = ($this->core->ID != $you) ? $actions : "";
+        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+        $addTo = (!empty($addToData)) ? $this->core->Element([
+         "button", "Attach", [
+          "class" => "Attach InnerMargin",
+          "data-input" => base64_encode($addToData[1]),
+          "data-media" => base64_encode($sql["ForumPost_Forum"].";".$sql["ForumPost_ID"])
+         ]
+        ]) : "";
+        $actions = ($this->core->ID != $you) ? $addTo.$actions : $addTo;
         if($ck == 1) {
          $actions .= $this->core->Element([
           "button", "Delete", [
@@ -1830,7 +1879,7 @@
           ]
          ]) : "";
         }
-        $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
+        $actions .= ($forumType == "Public") ? $this->core->Element([
          "button", "Share", [
           "class" => "InnerMargin OpenCard",
           "data-view" => $options["Share"]
@@ -1878,7 +1927,7 @@
     $admin = 0;
     $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
     $forumID = $data["Forum"] ?? "";
-    $manifest = $this->core->Data("Get", ["pfmanifest", $forumID]) ?? [];
+    $manifest = $this->core->Data("Get", ["pfmanifest", $forumID]);
     foreach($manifest as $member => $role) {
      if($active == 0 && $member == $you) {
       $active = 0;
@@ -1908,6 +1957,7 @@
      } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => $bl,
        "ID" => base64_encode("ForumPost;$forumID;".$sql["ForumPost_ID"])
       ]);
@@ -2074,8 +2124,6 @@
     }
    } elseif($searchType == "Mainstream") {
     $accessCode = "Accepted";
-    $edit = base64_encode("StatusUpdate:Edit");
-    $attlv = base64_encode("LiveView:InlineMossaic");
     $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
@@ -2119,7 +2167,7 @@
         $attachments = $this->core->RenderView($attachments);
        }
        $op = ($from == $you) ? $y : $this->core->Member($from);
-       $cms = $this->core->Data("Get", ["cms", md5($from)]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($from)]);
        $privacy = $op["Privacy"]["Posts"] ?? md5("Public");
        $check = $update["NSFW"] ?? 0;
        $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $check == 0) ? 1 : 0;
@@ -2132,10 +2180,18 @@
        ]);
        $passPhrase = $update["PassPhrase"] ?? "";
        if($check == 1 && $check2 == 1) {
+        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+        $edit = (!empty($addToData)) ? $this->core->Element([
+         "button", "Attach", [
+          "class" => "Attach InnerMargin",
+          "data-input" => base64_encode($addToData[1]),
+          "data-media" => base64_encode($sql["StatusUpdate_ID"])
+         ]
+        ]) : "";
         $options = $_StatusUpdate["ListItem"]["Options"];
-        $edit = ($from == $you) ? $this->core->Element([
+        $edit .= ($from == $you) ? $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
           "data-view" => $options["Delete"]
@@ -2186,13 +2242,14 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Member;".md5($sql["Member_Username"]))
      ]);
      $member = $_Member["DataModel"];
      if($_Member["Empty"] == 0) {
       $them = $member["Login"]["Username"];
-      $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($them)]);
       $contacts = $cms["Contacts"] ?? [];
       $check = $this->core->CheckPrivacy([
        "Contacts" => $contacts,
@@ -2287,6 +2344,7 @@
      } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => $bl,
        "ID" => base64_encode("Blog;".$sql["Blog_ID"])
       ]);
@@ -2337,6 +2395,7 @@
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
      $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
      $_Article = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "BackTo" => $backTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Page;".$sql["Article_ID"]),
@@ -2405,6 +2464,7 @@
        $active = 0;
        $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
        $_Chat = $this->core->GetContentData([
+        "AddTo" => $addTo,
         "Blacklisted" => $bl,
         "ID" => base64_encode("Chat;".$sql["Chat_ID"]),
         "Integrated" => $integrated
@@ -2436,7 +2496,7 @@
        }
       }
      } elseif($oneOnOne == 1) {
-      $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+      $chat = $this->core->Data("Get", ["chat", md5($you)]);
       $contacts = [];
       $messages = $chat["Messages"] ?? [];
       foreach($messages as $key => $message) {
@@ -2493,6 +2553,7 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);;
      $_Forum = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Forum;".$sql["Forum_ID"])
      ]);
@@ -2520,6 +2581,7 @@
      foreach($articles as $key => $value) {
       $bl = $this->core->CheckBlocked([$y, "Pages", $value]);;
       $_Article = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => $bl,
        "ID" => base64_encode("Page;$value")
       ]);
@@ -2560,6 +2622,7 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Poll;".$sql["Poll_ID"])
      ]);
@@ -2647,6 +2710,7 @@
      $id = $value["UpdateID"] ?? "";
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
@@ -2733,6 +2797,7 @@
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
@@ -2770,6 +2835,7 @@
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
@@ -2831,6 +2897,15 @@
          "data-view" => $options["Delete"]
         ]]), ["class" => "Desktop33"]
        ]) : "";
+       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+       $addTo = (!empty($addToData)) ? $this->core->Element([
+        "div", $this->core->Element(["button", "Attach", [
+         "class" => "Attach v2 v2w",
+         "data-input" => base64_encode($addToData[1]),
+         "data-media" => base64_encode($sql["Poll_ID"])
+        ]]), ["class" => "Desktop33"]
+       ]) : "";
+       $blockOrDelete = ($this->core->ID != $you) ? $addTo.$blockOrDelete : $blockOrDelete;
        $vote = "";
        $voteCounts = [];
        $votes = 0;
@@ -2893,6 +2968,7 @@
      $b2 = $b2 ?? "Products";
      $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "BackTo" => $b2,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Product;".$sql["Product_ID"]),
@@ -2948,6 +3024,7 @@
      } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Members", $sql["Shop_Username"]]);
       $_Shop = $this->core->GetContentData([
+       "AddTo" => $addTo,
        "Blacklisted" => $bl,
        "ID" => base64_encode("Shop;".$sql["Shop_ID"]),
        "Owner" => $sql["Shop_Username"]
@@ -3070,6 +3147,7 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("Product;".$sql["Product_ID"]),
       "Owner" => $sql["Product_Username"]
@@ -3117,6 +3195,7 @@
     } foreach($sql as $sql) {
      $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
+      "AddTo" => $addTo,
       "Blacklisted" => $bl,
       "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
@@ -3201,7 +3280,6 @@
                         OFFSET $offset
     ";
     $accessCode = "Accepted";
-    $addTo = $data["AddTo"] ?? "";
     $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
     $mediaType = $data["ftype"] ?? "";
     $sql->query($_Query, [
