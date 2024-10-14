@@ -54,7 +54,7 @@
      "Poll" => "Polls",
      "Product" => "Products",
      "Shop" => "Shops",
-     "Update" => "Mainstream"
+     "Update" => "StatusUpdates"
     ];
     foreach($media as $key => $attachments) {
      if($key == "Translate") {

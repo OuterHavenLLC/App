@@ -76,6 +76,7 @@
      $bl = $this->core->CheckBlocked([$y, $mediaType."s", $_BlackListID]);
      $contentID = ($mediaType == "Member") ? md5($media) : $media;
      $mediaType = ($mediaType == "Article") ? "Page" : $mediaType;
+     $mediaType = ($mediaType == "Update") ? "StatusUpdate" : $mediaType;
      $_Media = $this->core->GetContentData([
       "Blacklisted" => $bl,
       "ID" => base64_encode("$mediaType;$contentID")

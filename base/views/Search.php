@@ -27,8 +27,8 @@
    $pub = $data["pub"] ?? 0;
    $searchType = $data["st"] ?? "";
    $parentView = $data["lPG"] ?? $searchType;
-   $searchLists = $this->core->config["App"]["Search"];
-   $check = (!empty($searchType) && in_array($searchType, $searchLists)) ? 1 : 0;
+   $searchLists = $this->core->config["App"]["Search"] ?? [];
+   $check = 0;
    $query = $data["query"] ?? "";
    $list = "v=".$this->lists;
    $list .= (!empty($addTo)) ? "&AddTo=$addTo" : "";
@@ -46,6 +46,7 @@
    foreach($searchLists as $key => $info) {
     if($key == $searchType) {
      $check++;
+     break;
     }
    } if($check == 1) {
     $accessCode = "Accepted";
@@ -403,6 +404,10 @@
     } elseif($searchType == "SHOP-Orders") {
      $searchBarText = "Orders";
      $variant = "Minimal";
+    } elseif($searchType == "StatusUpdates") {
+     $header = "Status Updates";
+     $searchBarText = "Updates";
+     $variant = "2Column";
     } elseif($searchType == "XFS") {
      $header = "Files";
      $parentView = $data["lPG"] ?? $searchType;
@@ -2180,18 +2185,10 @@
        ]);
        $passPhrase = $update["PassPhrase"] ?? "";
        if($check == 1 && $check2 == 1) {
-        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
-        $edit = (!empty($addToData)) ? $this->core->Element([
-         "button", "Attach", [
-          "class" => "Attach InnerMargin",
-          "data-input" => base64_encode($addToData[1]),
-          "data-media" => base64_encode($sql["StatusUpdate_ID"])
-         ]
-        ]) : "";
         $options = $_StatusUpdate["ListItem"]["Options"];
-        $edit .= ($from == $you) ? $this->core->Element([
+        $edit = ($from == $you) ? $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
           "data-view" => $options["Delete"]
@@ -3230,12 +3227,20 @@
        ]);
        $passPhrase = $update["PassPhrase"] ?? "";
        if($check == 1 && $check2 == 1) {
+        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $created = $update["Created"] ?? $this->core->timestamp;
         $options = $_StatusUpdate["ListItem"]["Options"];
         $display = $op["Personal"]["DisplayName"] ?? $from;
         $display = ($from == $this->core->ID) ? "Anonymous" : $display;
-        $edit = ($from == $you) ? $this->core->Element([
+        $edit = (!empty($addToData)) ? $this->core->Element([
+         "button", "Attach", [
+          "class" => "Attach InnerMargin",
+          "data-input" => base64_encode($addToData[1]),
+          "data-media" => base64_encode($sql["StatusUpdate_ID"])
+         ]
+        ]) : "";
+        $edit .= ($from == $you) ? $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
           "data-view" => $options["Delete"]

@@ -822,15 +822,17 @@
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = $data["Attachments"] ?? [];
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+      $attachments = $data["CoverPhoto"] ?? "";
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
        "Display" => 1,
        "HTMLDecode" => 1
       ]);
+      $description = "";
       $from = $data["From"] ?? "";
+      $title = "Update from ".$this->TimeAgo($data["Created"]);
       $viewData = json_encode([
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
