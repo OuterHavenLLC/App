@@ -71,7 +71,6 @@
        "[DesignView.Processor]" => base64_encode("v=".base64_encode("WebUI:DesignView")."&DV=")
       ], $this->core->Extension("14a059ccc9de46edbfca01da0e06b12f")]);
      } else {
-      $mediaCount = count($attachments);
       $mediaList = "";
       $mediaInput = ($key == "CoverPhoto") ? "CoverPhoto" : $key."[]";
       $mediaType = $key;
@@ -90,55 +89,58 @@
       $sectionName = ($key == "Product") ? "Products" : $sectionName;
       $sectionName = ($key == "Shop") ? "Shops" : $sectionName;
       $sectionName = ($key == "Update") ? "Status Updates" : $sectionName;
-      for($i = 0; $i < $mediaCount; $i++) {
+      if($key == "CoverPhoto") {
        $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
-       $cloneID = uniqid("AttachmentMedia".rand(100, 999));
+       $cloneID = $this->core->UUID("AttachmentMedia".rand(100, 999));
        $addTo = base64_encode("Attach:.AddTo$cloneID");
        $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
-       $liveView = "v=".base64_encode("LiveView:Editor")."&Media=".$attachments[$i];
-       $liveView = base64_encode("$liveView&MediaType=".base64_encode($key));
-       $changeData = [
+       $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
+       $mediaList .= $this->core->Change([[
         "[Clone.ID]" => $cloneID,
         "[Media.Add]" => base64_encode($addMedia),
-        "[Media.File]" => base64_encode($attachments[$i]),
+        "[Media.File]" => base64_decode($attachments),
         "[Media.ID]" => $cloneID,
         "[Media.Input]" => $mediaInput,
         "[Media.Input.LiveView]" => $liveView,
         "[Media.Name]" => $mediaType
-       ];
-       if($attachments[$i] == $mediaCount && $mediaType == "CoverPhoto") {
-        $mediaList .= $this->core->Change([
-         $changeData,
-         $mediaUI
-        ]);
+       ], $mediaUI]);
+      } else {
+       $mediaCount = count($attachments);
+       for($i = 0; $i < $mediaCount; $i++) {
+        $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
+        $cloneID = $this->core->UUID("AttachmentMedia".rand(100, 999));
+        $addTo = base64_encode("Attach:.AddTo$cloneID");
+        $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
+        $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
+        $mediaList .= $this->core->Change([[
+         "[Clone.Content]" => $this->core->Change([[
+          "[Clone.ID]" => $cloneID,
+          "[Media.Add]" => base64_encode($addMedia),
+          "[Media.File]" => $attachments[$i],
+          "[Media.ID]" => $cloneID,
+          "[Media.Input]" => $mediaInput,
+          "[Media.Input.LiveView]" => $liveView,
+          "[Media.Name]" => $mediaType
+         ], $mediaUI]),
+         "[Clone.ID]" => $cloneID
+        ], $clone]);
        }
-       $mediaList .= ($mediaType != "CoverPhoto") ? $this->core->Change([[
-        "[Clone.Content]" => $this->core->Change([
-         $changeData,
-         $mediaUI
-        ]),
-        "[Clone.ID]" => $cloneID
-       ], $clone]) : "";
       }
       $addTo = base64_encode("Attach:.AddTo[Clone.ID]");
       $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
       $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
-      $mediaCount = count($attachments);
       $cloneSourceID = uniqid("CloneSource".md5($key));
       $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
       $mediaListID = uniqid("MediaList".md5($key));
       $mediaListIDSS = ($key != "CoverPhoto") ? "$mediaListID SideScroll" : $mediaListID;
-      $mediaClone = $this->core->Change([
-       [
-        "[Media.Add]" => base64_encode($addMedia),
-        "[Media.File]" => "",
-        "[Media.ID]" => "[Clone.ID]",
-        "[Media.Input]" => $mediaInput,
-        "[Media.Input.LiveView]" => $liveView,
-        "[Media.Name]" => $mediaType
-       ],
-       $mediaUI
-      ]);
+      $mediaClone = $this->core->Change([[
+       "[Media.Add]" => base64_encode($addMedia),
+       "[Media.File]" => "",
+       "[Media.ID]" => "[Clone.ID]",
+       "[Media.Input]" => $mediaInput,
+       "[Media.Input.LiveView]" => $liveView,
+       "[Media.Name]" => $mediaType
+      ], $mediaUI]);
       $mediaClone = ($mediaType != "CoverPhoto") ? $this->core->Change([[
        "[Clone.Content]" => $mediaClone
       ], $clone]) : $mediaClone;
@@ -147,14 +149,15 @@
        "class" => $mediaListIDSS
       ]]).$this->core->Element(["div", base64_encode($mediaClone), [
        "class" => "$cloneSourceID h"
-      ]]).$this->core->Element([
+      ]]);
+      $mediaList .= ($key != "CoverPhoto") ? $this->core->Element([
        "button", "Add Media", [
         "class" => "CloneAttachments v2 v2w",
         "data-destination" => ".$mediaListID",
         "data-remove" => $removeAfterUse,
         "data-source" => ".$cloneSourceID"
        ]
-      ]);
+      ]) : "";
       if(!in_array($key, ["Translate", "ViewDesign"])) {
        $r .= $this->core->Change([[
         "[Section.Content]" => $mediaList,

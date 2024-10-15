@@ -334,17 +334,19 @@
   }
   function Excerpt(string $data, $limit = 180) {
    if(strlen($data) <= $limit) {
-    return strip_tags($data);
+    $r = strip_tags($data);
+   } else {
+    $excerpt = substr($data, 0, $limit);
+    $lastSpace = strrpos($excerpt, " ");
+    if($lastSpace !== false) {
+     $excerpt = substr($excerpt, 0, $lastSpace);
+    }
+    $r = strip_tags($excerpt)."...";
    }
-   $excerpt = substr($data, 0, $limit);
-   $lastSpace = strrpos($excerpt, " ");
-   if($lastSpace !== false) {
-    $excerpt = substr($excerpt, 0, $lastSpace);
-   }
-   return strip_tags($excerpt);
+   return $r;
   }
   function Extension(string $id) {
-   $extension = $this->Data("Get", ["extension", $id]) ?? [];
+   $extension = $this->Data("Get", ["extension", $id]);
    $r = "";
    if(empty($extension)) {
     $r = $this->Change([[
@@ -445,7 +447,7 @@
      "h4", "Content Unavailable"
     ]).$this->Element([
      "p", "The Identifier or Type are missing."
-    ]), ["class" => "K4i"]
+    ]), ["class" => "FrostedBright Rounded"]
    ]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -838,11 +840,11 @@
       $attachments = $data["Attachments"] ?? [];
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
-      $body = $this->PlainText([
-       "Data" => $body,
+      $body = $this->Excerpt($this->PlainText([
+       "Data" => base64_decode($body),
        "Display" => 1,
        "HTMLDecode" => 1
-      ]);
+      ]), 180);
       $description = "";
       $from = $data["From"] ?? "";
       $title = "Update by <em>$from</em> from ".$this->TimeAgo($data["Created"]);
@@ -1225,23 +1227,24 @@
      "[space]" => "&nbsp;",
      "[percent]" => "%"
     ], $r]);
-   } if($a["Display"] == 1 && $a["BBCodes"] == 1) {
-    $r = $this->RecursiveChange([[
-     "/\[b\](.*?)\[\/b\]/is" => "<strong>$1</strong>",
-     "/\[d:.(.*?)\](.*?)\[\/d\]/is" => "<div class=\"$1\">$2</div>\r\n",
-     "/\[d:#(.*?)\](.*?)\[\/d\]/is" => "<div id=\"$1\">$2</div>\r\n",
-     "/\[i\](.*?)\[\/i\]/is" => "<em>$1</em>",
-     "/\[u\](.*?)\[\/u\]/is" => "<u>$1</u>",
-     "/\[(.*?)\[(.*?)\]:(.*?)\]/is" => "<$1 $2>$3</$1>",
-     "/\[IMG:s=(.*?)&w=(.*?)\]/is" => "<img src=\"$1\" style=\"width:$2\"/>",
-     "/\[P:(.*?)\]/is" => "<p>$1</p>",
-     "/@+([A-Za-z0-9_]+)/" => $this->Element(["button", "@$1", [
-      "onclick" => "W('".$this->base."/@$1', '_blank');"
-     ]]),
-     "/#+([A-Za-z0-9_]+)/" => $this->Element(["button", "#$1", [
-      "onclick" => "W('".$this->base."/topics/$1', '_blank');"
-     ]])
-    ], $r, 0]);
+    if($a["BBCodes"] == 1) {
+     $r = $this->RecursiveChange([[
+      "/\[b\](.*?)\[\/b\]/is" => "<strong>$1</strong>",
+      "/\[d:.(.*?)\](.*?)\[\/d\]/is" => "<div class=\"$1\">$2</div>\r\n",
+      "/\[d:#(.*?)\](.*?)\[\/d\]/is" => "<div id=\"$1\">$2</div>\r\n",
+      "/\[i\](.*?)\[\/i\]/is" => "<em>$1</em>",
+      "/\[u\](.*?)\[\/u\]/is" => "<u>$1</u>",
+      "/\[(.*?)\[(.*?)\]:(.*?)\]/is" => "<$1 $2>$3</$1>",
+      "/\[IMG:s=(.*?)&w=(.*?)\]/is" => "<img src=\"$1\" style=\"width:$2\"/>",
+      "/\[P:(.*?)\]/is" => "<p>$1</p>",
+      "/@+([A-Za-z0-9_]+)/" => $this->Element(["button", "@$1", [
+       "onclick" => "W('".$this->base."/@$1', '_blank');"
+      ]]),
+      "/\#+([A-Za-z0-9_]+)/" => $this->Element(["button", "#$1", [
+       "onclick" => "W('".$this->base."/topics/$1', '_blank');"
+      ]])
+     ], $r, 0]);
+    }
    } if($a["HTMLEncode"] == 1) {
     $r = htmlentities($r);
    } if($a["Encode"] == 1) {

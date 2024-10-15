@@ -177,12 +177,12 @@
       ]) : "";
       $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-      $addToMedia = ($ck == 1) ? $file["Name"] : $attachmentID;
+      $addToMedia = ($ck == 1) ? base64_encode($file["Name"]) : $attachmentID;
       $actions .= (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
         "class" => "Attach Small v2",
         "data-input" => base64_encode($addToData[1]),
-        "data-media" => base64_encode($addToMedia)
+        "data-media" => $addToMedia
        ]
       ]) : "";
       $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([

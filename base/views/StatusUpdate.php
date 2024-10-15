@@ -30,7 +30,6 @@
      "data-form" => ".EditStatusUpdate$id",
      "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
     ]]);
-    $attachments = "";
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->core->Data("Get", ["su", $id]);
     $albums = $update["Albums"] ?? [];
@@ -84,9 +83,7 @@
      "[Update.Attachments]" => $this->core->RenderView($attachments),
      "[Update.Header]" => $header,
      "[Update.ID]" => $id,
-     "[Update.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $body
-     ])),
+     "[Update.Body]" => $body,
      "[Update.DesignView]" => "Edit$id",
      "[Update.From]" => $you,
      "[Update.ID]" => $id,
@@ -196,9 +193,8 @@
        "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
        "[StatusUpdate.Body]" => $this->core->PlainText([
         "BBCodes" => 1,
-        "Data" => $update["Body"],
-        "Display" => 1,
-        "HTMLDecode" => 1
+        "Data" => base64_decode($update["Body"]),
+        "Display" => 1
        ]),
        "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
        "[StatusUpdate.Conversation]" => $this->core->Change([[
@@ -259,6 +255,7 @@
     $blogsData = $data["Blog"] ?? [];
     $blogPosts = [];
     $blogPostsData = $data["BlogPost"] ?? [];
+    $body = $data["Body"] ?? "";
     $chats = [];
     $chatsData = $data["Chat"] ?? [];
     $coverPhoto = $data["CoverPhoto"] ?? "";
@@ -285,10 +282,9 @@
     $updates = [];
     $updatesData = $data["Update"] ?? [];
     if(!empty($albumsData)) {
-     $media = $articlesData;
+     $media = $albumsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($albums, $media[$i]);
       }
      }
@@ -296,7 +292,6 @@
      $media = $articlesData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($articles, $media[$i]);
       }
      }
@@ -304,7 +299,6 @@
      $media = $attachmentsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($attachments, $media[$i]);
       }
      }
@@ -312,7 +306,6 @@
      $media = $blogsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($blogs, $media[$i]);
       }
      }
@@ -320,7 +313,6 @@
      $media = $blogPostsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($blogPosts, $media[$i]);
       }
      }
@@ -328,15 +320,13 @@
      $media = $chatsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($chats, $media[$i]);
       }
      }
     } if(!empty($forumsData)) {
-     $media = array_reverse($forumsData);
+     $media = $forumsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($forums, $media[$i]);
       }
      }
@@ -344,7 +334,6 @@
      $media = $forumPostsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($forumPosts, $media[$i]);
       }
      }
@@ -352,7 +341,6 @@
      $media = $membersData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($members, $media[$i]);
       }
      }
@@ -360,7 +348,6 @@
      $media = $pollsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($polls, $media[$i]);
       }
      }
@@ -368,7 +355,6 @@
      $media = $productsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($products, $media[$i]);
       }
      }
@@ -376,7 +362,6 @@
      $media = $shopsData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($shops, $media[$i]);
       }
      }
@@ -384,14 +369,13 @@
      $media = $updatesData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
-       $media[$i] = base64_decode($media[$i]);
        array_push($updates, $media[$i]);
       }
      }
     } if($new == 1) {
-     $mainstream = $this->core->Data("Get", ["app", "mainstream"]) ?? [];
+     $mainstream = $this->core->Data("Get", ["app", "mainstream"]);
      array_push($mainstream, $id);
-     #$this->core->Data("Save", ["app", "mainstream", $mainstream]);
+     $this->core->Data("Save", ["app", "mainstream", $mainstream]);
      $update = [
       "From" => $you,
       "To" => $to,
@@ -400,11 +384,11 @@
      if(!empty($to) && $to != $you) {
       $stream = $this->core->Data("Get", ["stream", md5($to)]);
       $stream[$created] = $update;
-      #$this->core->Data("Save", ["stream", md5($to), $stream]);
+      $this->core->Data("Save", ["stream", md5($to), $stream]);
      }
      $stream = $this->core->Data("Get", ["stream", md5($you)]);
      $stream[$created] = $update;
-     #$this->core->Data("Save", ["stream", md5($you), $stream]);
+     $this->core->Data("Save", ["stream", md5($you), $stream]);
     }
     $update = [
      "Albums" => $albums,
@@ -412,13 +396,9 @@
      "Attachments" => $attachments,
      "Blogs" => $blogs,
      "BlogPosts" => $blogPosts,
-     "Body" => $this->core->PlainText([
-      "Data" => $data["Body"],
-      "HTMLEncode" => 1
-     ]),
+     "Body" => base64_encode($body),
      "Chats" => $chats,
-     "CoverPhoto" => base64_decode($coverPhoto),
-     #"CoverPhoto" => $coverPhoto,
+     "CoverPhoto" => $coverPhoto,
      "Created" => $created,
      "Forums" => $forums,
      "ForumPosts" => $forumPosts,
@@ -435,7 +415,7 @@
      "Products" => $products,
      "Purge" => $purge,
      "Shops" => $shops,
-     "StatusUpdates" => $updates,
+     "Updates" => $updates,
      "To" => $to
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
@@ -465,20 +445,19 @@
      ":To" => $update["To"],
      ":Username" => $update["From"]
     ]);
-    #$sql->execute();
+    $sql->execute();
     $y["Activity"]["LastActivity"] = $this->core->timestamp;
     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-    #$this->core->Data("Save", ["su", $update["ID"], $update]);
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["su", $update["ID"], $update]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [
      "Body" => "The Status Update was $actionTaken.",
-     "Header" => "Done",
-     #"Scrollable" => json_encode($update, true)
+     "Header" => "Done"
     ];
     if($new == 1) {
-     #$this->core->Statistic("New Status Update");
+     $this->core->Statistic("New Status Update");
     } else {
-     #$this->core->Statistic("Edit Status Update");
+     $this->core->Statistic("Edit Status Update");
     }
    }
    return $this->core->JSONResponse([
@@ -488,9 +467,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog"
-    #"ResponseType" => "Dialog",
-    #"Success" => "CloseCard"
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
    ]);
   }
   function Purge(array $a) {

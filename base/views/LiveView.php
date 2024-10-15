@@ -57,20 +57,22 @@
    if(!empty($media) && !empty($mediaType)) {
     $addTo = $data["AddTo"] ?? "";
     if($mediaType == "Attachment" || $mediaType == "CoverPhoto") {
-     $attachment = explode("-", base64_decode($media));
+     $attachment = explode("-", $media);
      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
-     $i++;
-     $r = $this->core->GetAttachmentPreview([
-      "DLL" => $efs[$attachment[1]],
-      "T" => $attachment[0],
-      "Y" => $you
-     ]);
-     if($mediaType == "Attachment") {
-      $r .= $this->core->Element([
-       "h4", "Embed Code", ["class" => "CenterText"]
-      ]).$this->core->Element([
-       "p", "[Embed&colon;".base64_encode(implode(";", $attachment))."]", ["class" => "CenterText"]
+     if(!empty($attachment[1])) {
+      $i++;
+      $r = $this->core->GetAttachmentPreview([
+       "DLL" => $efs[$attachment[1]],
+       "T" => $attachment[0],
+       "Y" => $you
       ]);
+      if($mediaType == "Attachment") {
+       $r .= $this->core->Element([
+        "h4", "Embed Code", ["class" => "CenterText"]
+       ]).$this->core->Element([
+        "p", "[Embed&colon;".base64_encode(implode(";", $attachment))."]", ["class" => "CenterText"]
+       ]);
+      }
      }
     } else {
      $contentID = base64_encode($media);
@@ -155,18 +157,18 @@
     } elseif($mediaType == "DLC") {
      foreach($attachments as $dlc) {
       if(!empty($dlc)) {
-       $f = explode("-", base64_decode($dlc));
-       if(!empty($f[0]) && !empty($f[1])) {
-        $efs = $this->core->Data("Get", ["fs", md5($f[0])])["Files"] ?? [];
+       $attachment = explode("-", base64_decode($dlc));
+       if(!empty($attachment[0]) && !empty($attachment[1])) {
+        $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
         $i++;
         $r .= $this->core->Element([
          "button", $this->core->GetAttachmentPreview([
-          "DLL" => $efs[$f[1]],
-          "T" => $f[0],
+          "DLL" => $efs[$attachment[1]],
+          "T" => $attachment[0],
           "Y" => $you
          ]), [
           "class" => "FrostedBright Medium OpenCard Rounded",
-          "data-view" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$f[1]."&UN=".$f[0])
+          "data-view" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$attachment[1]."&UN=".$attachment[0])
          ]
         ]);
        }
