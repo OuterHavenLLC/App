@@ -516,7 +516,7 @@
          "button", "Attach", [
           "class" => "Attach Small v2",
           "data-input" => base64_encode($addToData[1]),
-          "data-media" => base64_encode(md5($username))
+          "data-media" => base64_encode("Shop;".md5($username))
          ]
         ]) : "";
         $block .= ($ck == 0) ? $this->core->Element([

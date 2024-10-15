@@ -78,6 +78,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
    $id = $data["AID"] ?? "";
    $b2 = $data["b2"] ?? "Albums";
    $b2 = urlencode($b2);
@@ -118,6 +119,7 @@
        ])),
        "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Album["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
+        "AddTo" => $addTo,
         "SecureKey" => base64_encode($passPhrase),
         "AID" => $id,
         "UN" => $username,
@@ -140,6 +142,7 @@
       } else {
        $accessCode = "Accepted";
        $r = $this->view(base64_encode("Album:Home"), ["Data" => [
+        "AddTo" => $addTo,
         "AID" => $id,
         "EmbeddedView" => 1,
         "UN" => $username,
@@ -149,6 +152,7 @@
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
+      $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $options = $_Album["ListItem"]["Options"];
       $t = ($username == $you) ? $y : $this->core->Member($username);
@@ -156,7 +160,14 @@
       $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
       $ck2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
       $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
-      $actions = ($ck == 0) ? $this->core->Element([
+      $actions = (!empty($addToData)) ? $this->core->Element([
+       "button", "Attach", [
+        "class" => "Attach Small v2",
+        "data-input" => base64_encode($addToData[1]),
+        "data-media" => base64_encode("Album;$username;$id")
+       ]
+      ]) : "";
+      $actions .= ($ck == 0) ? $this->core->Element([
        "button", "Block", [
         "class" => "Small UpdateButton v2",
         "data-processor" => $options["Block"]

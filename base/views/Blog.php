@@ -274,7 +274,7 @@
        "button", "Attach", [
         "class" => "Attach Small v2",
         "data-input" => base64_encode($addToData[1]),
-        "data-media" => base64_encode($id)
+        "data-media" => base64_encode("Blog;$id")
        ]
       ]) : "";
       $actions .= ($blog["UN"] != $you) ? $this->core->Element([

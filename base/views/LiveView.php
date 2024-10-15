@@ -67,25 +67,24 @@
      ]);
      if($mediaType == "Attachment") {
       $r .= $this->core->Element([
-       "p", "[Attachment:$media]", ["class" => "CenterText"]
+       "h4", "Embed Code", ["class" => "CenterText"]
+      ]).$this->core->Element([
+       "p", "[Embed&colon;".base64_encode(implode(";", $attachment))."]", ["class" => "CenterText"]
       ]);
      }
     } else {
-     $_BlackListID = ($mediaType == "BlogPost") ? explode(";", $media)[1] : $media;
-     $_BlackListID = ($mediaType == "ForumPost") ? explode(";", $_BlackListID)[1] : $_BlackListID;
-     $bl = $this->core->CheckBlocked([$y, $mediaType."s", $_BlackListID]);
-     $contentID = ($mediaType == "Member") ? md5($media) : $media;
-     $mediaType = ($mediaType == "Article") ? "Page" : $mediaType;
-     $mediaType = ($mediaType == "Update") ? "StatusUpdate" : $mediaType;
+     $contentID = base64_encode($media);
      $_Media = $this->core->GetContentData([
-      "Blacklisted" => $bl,
-      "ID" => base64_encode("$mediaType;$contentID")
+      "Blacklisted" => 0,
+      "ID" => $contentID
      ]);
      if($_Media["Empty"] == 0) {
       $i++;
       $r = $_Media["Preview"]["Content"] ?? "";
       $r .= $this->core->Element([
-       "h4", "Embed Code<br/>[$mediaType:$media]", ["class" => "CenterText"]
+       "h4", "Embed Code", ["class" => "CenterText"]
+      ]).$this->core->Element([
+       "p", "[Embed&colon;$contentID]", ["class" => "CenterText"]
       ]);
      }
     }

@@ -201,6 +201,7 @@
   function Home(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
+   $addTo = $data["AddTo"] ?? "";
    $body = $data["Body"] ?? base64_encode("");
    $card = $data["Card"] ?? 0;
    $chatID = $data["ID"] ?? "";
@@ -253,6 +254,7 @@
          ])),
          "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Chat["ListItem"]["Title"]."</em>."),
          "ViewData" => base64_encode(json_encode([
+          "AddTo" => $addTo,
           "SecureKey" => base64_encode($passPhrase),
           "ID" => $chatID,
           "VerifyPassPhrase" => 1,
@@ -272,6 +274,7 @@
         } else {
          $accessCode = "Accepted";
          $r = $this->view(base64_encode("Chat:Home"), ["Data" => [
+          "AddTo" => $addTo,
           "ID" => $chatID,
           "ViewProtectedContent" => 1
          ]]);
@@ -297,7 +300,14 @@
         $delete = (!in_array($id, $doNotShare) && $chat["UN"] == $you) ? 1 : 0;
         $privacy = ($chat["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"]) && $chat["Privacy"] != md5("Private")) ? 1 : 0;
         $share = (!in_array($id, $doNotShare) && ($chat["UN"] == $you || $active == 1)) ? 1 : 0;
-        $actions = ($chat["UN"] != $you) ? $this->core->Element([
+        $actions = (!empty($addToData)) ? $this->core->Element([
+         "button", "Attach", [
+          "class" => "Attach Small v2",
+          "data-input" => base64_encode($addToData[1]),
+          "data-media" => base64_encode("Chat;$id")
+         ]
+        ]) : "";
+        $actions .= ($chat["UN"] != $you) ? $this->core->Element([
          "button", $blockCommand, [
           "class" => "Small UpdateButton v2",
           "data-processor" => $options["Block"]

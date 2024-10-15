@@ -718,7 +718,7 @@
        "button", "Attach", [
         "class" => "Attach Small v2",
         "data-input" => base64_encode($addToData[1]),
-        "data-media" => base64_encode($id)
+        "data-media" => base64_encode("Member;".md5($id)),
        ]
       ]) : "";
       $actions = ($id != $you) ? $addTo.$actions : $addTo;

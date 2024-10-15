@@ -7,8 +7,8 @@
   function Attachments(array $data) {
    $header = $data["Header"] ?? "";
    $id = $data["ID"] ?? "";
-   $id = $this->core->UUID($id);
    $media = $data["Media"] ?? [];
+   $uiid = $this->core->UUID($id);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(empty($id)) {
@@ -39,14 +39,16 @@
      "div", NULL, ["class" => "NONAME"]
     ]).$this->core->Element(["button", "<h4>[Section.Name]</h4>", [
      "class" => "PSAccordion",
-     "data-type" => ".ContentAttachments$id;.AttachmentType;.AttachmentGroup[Section.ID]"
+     "data-type" => ".ContentAttachments$uiid;.AttachmentType;.AttachmentGroup[Section.ID]"
     ]]).$this->core->Element(["div", "[Section.Content]", [
      "class" => "AttachmentGroup[Section.ID] AttachmentType NONAME h"
     ]]);
     $symbolicLinks = [
+     "Album" => "MBR-ALB&UN=".base64_encode($you),
      "Article" => "CA",
      "Blog" => "BLG",
      "BlogPost" => "BGP",
+     "Chat" => "Chat",
      "Default" => "XFS&lPG=Files&UN=".base64_encode($you),
      "Forum" => "Forums",
      "ForumPost" => "Forums-Posts",
@@ -74,10 +76,12 @@
       $mediaInput = ($key == "CoverPhoto") ? "CoverPhoto" : $key."[]";
       $mediaType = $key;
       $sectionName = $key;
+      $sectionName = ($key == "Album") ? "Albums" : $sectionName;
       $sectionName = ($key == "Article") ? "Articles" : $sectionName;
       $sectionName = ($key == "Attachment") ? "Attachments" : $sectionName;
       $sectionName = ($key == "Blog") ? "Blogs" : $sectionName;
       $sectionName = ($key == "BlogPost") ? "Blog Posts" : $sectionName;
+      $sectionName = ($key == "Chat") ? "Chats" : $sectionName;
       $sectionName = ($key == "CoverPhoto") ? "Cover Photo" : $sectionName;
       $sectionName = ($key == "Forum") ? "Forums" : $sectionName;
       $sectionName = ($key == "ForumPost") ? "Forum Posts" : $sectionName;
@@ -154,7 +158,7 @@
       if(!in_array($key, ["Translate", "ViewDesign"])) {
        $r .= $this->core->Change([[
         "[Section.Content]" => $mediaList,
-        "[Section.ID]" => md5($mediaType.$id),
+        "[Section.ID]" => $uiid.$mediaType,
         "[Section.Name]" => $sectionName
        ], $section]);
       }
@@ -162,15 +166,15 @@
     }
     $r .= (!empty($_Translate)) ? $this->core->Change([[
      "[Section.Content]" => $_Translate,
-     "[Section.ID]" => md5("Translate$id"),
+     "[Section.ID]" => $uiid."Translate",
      "[Section.Name]" => "Translate"
     ], $section]) : "";
     $r .= (!empty($_ViewDesign)) ? $this->core->Change([[
      "[Section.Content]" => $_ViewDesign,
-     "[Section.ID]" => md5("ViewDesign$id"),
+     "[Section.ID]" => $uiid."ViewDesign",
      "[Section.Name]" => "View Design"
     ], $section]) : "";
-    $r = $this->core->Element(["div", $r, ["class" => "ContentAttachments$id NONAME"]]);
+    $r = $this->core->Element(["div", $r, ["class" => "ContentAttachments$uiid NONAME"]]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",

@@ -458,6 +458,8 @@
      $data = $data["Albums"][$additionalContentID] ?? [];
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode("")."&Type=".base64_encode("DLC"));
+      $body = "";
       $coverPhoto = $data["ICO"] ?? $coverPhoto;
       $coverPhoto = $this->GetSourceFromExtension([
        $contentID,
@@ -562,6 +564,7 @@
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
+       "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Chat:Purge")
@@ -639,6 +642,7 @@
       $body = "";
       $description = $data["Description"] ?? "";
       $viewData = json_encode([
+       "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Forum:Purge")
@@ -670,6 +674,7 @@
       ]);
       $description = $data["Description"] ?? "";
       $viewData = json_encode([
+       "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ForumID" => base64_encode($contentID),
        "PostID" => base64_encode($additionalContentID),
@@ -719,8 +724,8 @@
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = $data["CoverPhoto"] ?? "";
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $attachments = $data["Attachments"] ?? [];
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
@@ -730,6 +735,7 @@
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
+       "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Page:Purge")
@@ -759,6 +765,7 @@
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
+       "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Poll:Purge")
@@ -775,7 +782,7 @@
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = $data["Attachments"] ?? [];
+      $attachments = $data["DemoFiles"] ?? [];
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
@@ -786,6 +793,7 @@
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
+       "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Product:Purge")
@@ -827,8 +835,8 @@
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = $data["CoverPhoto"] ?? "";
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $attachments = $data["Attachments"] ?? [];
+      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
@@ -837,8 +845,9 @@
       ]);
       $description = "";
       $from = $data["From"] ?? "";
-      $title = "Update from ".$this->TimeAgo($data["Created"]);
+      $title = "Update by <em>$from</em> from ".$this->TimeAgo($data["Created"]);
       $viewData = json_encode([
+       "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($contentID),
        "v" => base64_encode("StatusUpdate:Purge")
@@ -877,6 +886,7 @@
     "Data" => $this->Excerpt($description, 180),
     "HTMLDecode" => 1
    ]);
+   $id = $this->UUID();
    return [
     "DataModel" => $data,
     "Empty" => $empty,
@@ -910,10 +920,10 @@
       ]).$this->Element(["div",
        $this->Element([
         "h4", "&bull; &bull; &bull;"
-       ]), ["class" => "Attachments".md5($contentID)." SideScroll"]
+       ]), ["class" => "Attachments$id SideScroll"]
       ]).$this->Element([
-       "script", "UpdateContent('.Attachments".md5($contentID)."', '$attachments');"
-      ]), ["class" => "InnerMargin K4i"]
+       "script", "UpdateContent('.Attachments$id', '$attachments');"
+      ]), ["class" => "InnerMargin FrostedBright Rounded"]
      ])
     ]
    ];
@@ -1195,22 +1205,10 @@
    } if($a["Display"] == 1) {
     $articleCard = base64_encode("Page:Card");
     $defaultUI = $this->config["App"]["UIVariant"] ?? 2;
-    $r = preg_replace_callback("/\[Album:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
-    $r = preg_replace_callback("/\[Attachment:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[Blog:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[BlogPost:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[Chat:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[Forum:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[ForumPost:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Embed:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
     $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
-    $r = preg_replace_callback("/\[Member:(.*?)\]/i", array(&$this, "Media"), $r);
-    $r = preg_replace_callback("/\[Poll:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[Product:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[Shop:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
-    $r = preg_replace_callback("/\[StatusUpdate:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
     $r = preg_replace_callback("/\[Translate:(.*?)\]/i", array(&$this, "Translate"), $r);
     $r = $this->Change([[
      "[App.Base]" => $this->base,
@@ -1612,14 +1610,12 @@
    $oh = New Core;
    $r = "";
    if(!empty($a)) {
-    $data = explode("-", base64_decode($a[1]));
-    $contentID = $data[1] ?? "";
-    $username = $data[0] ?? "";
-    if(!empty($contentID) && !empty($username)) {
+    $contentID = $a[1] ?? "";
+    if(!empty($contentID) ) {
+     $contentID = base64_decode($contentID);
      $content = $oh->GetContentData([
       "Blacklisted" => 0,
-      "ID" => $contentID,
-      "Owner" => $username
+      "ID" => base64_encode($contentID)
      ]);
      $preview = $content["Preview"] ?? [];
      $r = $preview["Empty"];
@@ -1631,7 +1627,7 @@
       ]).$oh->Element([
        "p", "View in Full", ["class" => "CenterText"]
       ]), [
-       "class" => "K4i OpenCard",
+       "class" => "FrostedBright OpenCard Rounded",
        "data-view" => $options["View"]
       ]]) : $r;
      }

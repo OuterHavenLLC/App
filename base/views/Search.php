@@ -712,7 +712,7 @@
         "button", "Attach", [
          "class" => "Attach InnerMargin",
          "data-input" => base64_encode($addToData[1]),
-         "data-media" => base64_encode($sql["BlogPost_Blog"].";".$sql["BlogPost_ID"])
+         "data-media" => base64_encode("BlogPost;".$sql["BlogPost_Blog"].";".$sql["BlogPost_ID"])
         ]
        ]) : "";
        $actions = ($this->core->ID != $you) ? $addTo.$actions : $addTo;
@@ -1827,7 +1827,6 @@
      } foreach($sql as $sql) {
       $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
-       "AddTo" => $addTo,
        "Blacklisted" => $bl,
        "ID" => base64_encode("ForumPost;".$sql["ForumPost_Forum"].";".$sql["ForumPost_ID"])
       ]);
@@ -1866,7 +1865,7 @@
          "button", "Attach", [
           "class" => "Attach InnerMargin",
           "data-input" => base64_encode($addToData[1]),
-          "data-media" => base64_encode($sql["ForumPost_Forum"].";".$sql["ForumPost_ID"])
+          "data-media" => base64_encode("ForumPost;".$sql["ForumPost_Forum"].";".$sql["ForumPost_ID"])
          ]
         ]) : "";
         $actions = ($this->core->ID != $you) ? $addTo.$actions : $addTo;
@@ -2278,11 +2277,11 @@
     $extension = $this->core->Extension("b6728e167b401a5314ba47dd6e4a55fd");
     if($notAnon == 1) {
      $username = base64_decode($data["UN"]);
-     $t = ($username != $you) ? $this->core->Member($username) : $y;
+     $t = ($username == $you) ? $y : $this->core->Member($username);
      $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
      $albums = $fs["Albums"] ?? [];
      foreach($albums as $key => $value) {
-      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
       $tP = $t["Privacy"];
       $nsfw = $value["NSFW"] ?? $t["Privacy"]["NSFW"];
       $privacy = $value["Privacy"] ?? $t["Privacy"]["Albums"];
@@ -2310,7 +2309,7 @@
        array_push($list, [
         "[Album.CRID]" => base64_encode($key),
         "[Album.CoverPhoto]" => base64_encode($coverPhoto),
-        "[Album.Lobby]" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AID=$key&UN=$username")),
+        "[Album.Lobby]" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$key&UN=$username")),
         "[Album.Title]" => base64_encode($value["Title"])
        ]);
       }
@@ -2899,7 +2898,7 @@
         "div", $this->core->Element(["button", "Attach", [
          "class" => "Attach v2 v2w",
          "data-input" => base64_encode($addToData[1]),
-         "data-media" => base64_encode($sql["Poll_ID"])
+         "data-media" => base64_encode("Poll;".$sql["Poll_ID"])
         ]]), ["class" => "Desktop33"]
        ]) : "";
        $blockOrDelete = ($this->core->ID != $you) ? $addTo.$blockOrDelete : $blockOrDelete;
@@ -3236,7 +3235,7 @@
          "button", "Attach", [
           "class" => "Attach InnerMargin",
           "data-input" => base64_encode($addToData[1]),
-          "data-media" => base64_encode($sql["StatusUpdate_ID"])
+          "data-media" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
          ]
         ]) : "";
         $edit .= ($from == $you) ? $this->core->Element([

@@ -33,12 +33,14 @@
     $attachments = "";
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->core->Data("Get", ["su", $id]);
+    $albums = $update["Albums"] ?? [];
     $articles = $update["Articles"] ?? [];
     $attachments = $update["Attachments"] ?? [];
     $body = $update["Body"] ?? "";
     $body = (!empty($data["Body"])) ? base64_decode($data["Body"]) : $body;
     $blogs = $update["Blogs"] ?? [];
     $blogPosts = $update["BlogPosts"] ?? [];
+    $chats = $update["Chat"] ?? [];
     $coverPhoto = $update["CoverPhoto"] ?? [];
     $forums = $update["Forums"] ?? [];
     $forumPosts = $update["ForumPosts"] ?? [];
@@ -55,10 +57,12 @@
      "Header" => "Attachments",
      "ID" => $id,
      "Media" => [
+      "Album" => $albums,
       "Article" => $articles,
       "Attachment" => $attachments,
       "Blog" => $blogs,
       "BlogPost" => $blogPosts,
+      "Chat" => $chats,
       "CoverPhoto" => $coverPhoto,
       "Forum" => $forums,
       "ForumPost" => $forumPosts,
@@ -245,6 +249,8 @@
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
     $update = $this->core->Data("Get", ["su", $id]);
+    $albums = [];
+    $albumsData = $data["Album"] ?? [];
     $articles = [];
     $articlesData = $data["Article"] ?? [];
     $attachments = [];
@@ -253,8 +259,9 @@
     $blogsData = $data["Blog"] ?? [];
     $blogPosts = [];
     $blogPostsData = $data["BlogPost"] ?? [];
-    $coverPhoto = "";
-    $coverPhotoData = $data["CoverPhoto"] ?? [];
+    $chats = [];
+    $chatsData = $data["Chat"] ?? [];
+    $coverPhoto = $data["CoverPhoto"] ?? "";
     $created = $update["Created"] ?? $this->core->timestamp;
     $forums = [];
     $forumsData = $data["Forum"] ?? [];
@@ -277,7 +284,15 @@
     $shopsData = $data["Shop"] ?? [];
     $updates = [];
     $updatesData = $data["Update"] ?? [];
-    if(!empty($articlesData)) {
+    if(!empty($albumsData)) {
+     $media = $articlesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = base64_decode($media[$i]);
+       array_push($albums, $media[$i]);
+      }
+     }
+    } if(!empty($articlesData)) {
      $media = $articlesData;
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
@@ -309,8 +324,14 @@
        array_push($blogPosts, $media[$i]);
       }
      }
-    } if(!empty($coverPhotoData)) {
-     $coverPhoto = base64_decode($media[$i]);
+    } if(!empty($chatsData)) {
+     $media = $chatsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       $media[$i] = base64_decode($media[$i]);
+       array_push($chats, $media[$i]);
+      }
+     }
     } if(!empty($forumsData)) {
      $media = array_reverse($forumsData);
      for($i = 0; $i < count($media); $i++) {
@@ -377,15 +398,17 @@
       "UpdateID" => $id
      ];
      if(!empty($to) && $to != $you) {
-      $stream = $this->core->Data("Get", ["stream", md5($to)]) ?? [];
+      $stream = $this->core->Data("Get", ["stream", md5($to)]);
       $stream[$created] = $update;
       #$this->core->Data("Save", ["stream", md5($to), $stream]);
      }
-     $stream = $this->core->Data("Get", ["stream", md5($you)]) ?? [];
+     $stream = $this->core->Data("Get", ["stream", md5($you)]);
      $stream[$created] = $update;
      #$this->core->Data("Save", ["stream", md5($you), $stream]);
     }
     $update = [
+     "Albums" => $albums,
+     "Articles" => $articles,
      "Attachments" => $attachments,
      "Blogs" => $blogs,
      "BlogPosts" => $blogPosts,
@@ -393,6 +416,7 @@
       "Data" => $data["Body"],
       "HTMLEncode" => 1
      ]),
+     "Chats" => $chats,
      "CoverPhoto" => $coverPhoto,
      "Created" => $created,
      "Forums" => $forums,
@@ -400,14 +424,17 @@
      "From" => $you,
      "ID" => $id,
      "Illegal" => $illegal,
+     "Members" => $members,
      "Modified" => $now,
      "Notes" => $notes,
      "NSFW" => $nsfw,
      "PassPhrase" => $passPhrase,
      "Privacy" => $privacy,
+     "Polls" => $polls,
      "Products" => $products,
      "Purge" => $purge,
      "Shops" => $shops,
+     "StatusUpdates" => $updates,
      "To" => $to
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
