@@ -417,7 +417,8 @@
       "HTMLEncode" => 1
      ]),
      "Chats" => $chats,
-     "CoverPhoto" => $coverPhoto,
+     "CoverPhoto" => base64_decode($coverPhoto),
+     #"CoverPhoto" => $coverPhoto,
      "Created" => $created,
      "Forums" => $forums,
      "ForumPosts" => $forumPosts,
@@ -472,7 +473,7 @@
     $r = [
      "Body" => "The Status Update was $actionTaken.",
      "Header" => "Done",
-     "Scrollable" => json_encode($update, true)
+     #"Scrollable" => json_encode($update, true)
     ];
     if($new == 1) {
      #$this->core->Statistic("New Status Update");
@@ -487,7 +488,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
+    "ResponseType" => "Dialog"
+    #"ResponseType" => "Dialog",
     #"Success" => "CloseCard"
    ]);
   }
