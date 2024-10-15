@@ -361,6 +361,18 @@
        if(md5($you) == $id && $id = $this->core->ShopID && $y["Subscriptions"]["VIP"]["A"] == 1) {
         $invoice["Charges"][0]["Paid"] = 1;
         $preset["Charges"]["Value"] = 0;
+        $this->core->SendEmail([
+         "Message" => $this->core->Change([[
+          "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below. Thank you for being a V.I.P. Member, we covered your deposit!",
+          "[Mail.Invoice]" => "Total due: $0.00",
+          "[Mail.Name]" => $name,
+          "[Mail.Link]" => $this->core->base."/invoice/$id",
+          "[Mail.Shop.Name]" => $shop["Title"],
+          "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+         "Title" => $shop["Title"].": Invoice $id",
+         "To" => $data["Email"]
+        ]);
        } if(!empty($data["Email"])) {
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
