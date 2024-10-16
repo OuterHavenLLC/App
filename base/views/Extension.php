@@ -21,14 +21,14 @@
     ];
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
-    $id = ($new == 1) ? md5($you."Extension".$time) : base64_decode($id);
+    $id = ($new == 1) ? $this->core->UUID($you."Extension") : base64_decode($id);
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditExtension$id",
      "data-processor" => base64_encode("v=".base64_encode("Extension:Save"))
     ]]);
-    $extension = $this->core->Data("Get", ["extension", $id]) ?? [];
+    $extension = $this->core->Data("Get", ["extension", $id]);
     $body = $extension["Body"] ?? "";
     $categories = [
      "ArticleTemplate" => "Article Template",
@@ -39,9 +39,15 @@
     $created = $extension["Created"] ?? $this->core->timestamp;
     $description = $extension["Description"] ?? "";
     $title = $extension["Title"] ?? "";
+    $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => [],
+      "ViewDesign" => []
+     ]
+    ]);
     $header = ($new == 1) ? "New Extension" : "Edit $title";
     $r = $this->core->Change([[
-     "[Extension.Attachments]" => "",
      "[Extension.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body
      ])),
@@ -52,7 +58,8 @@
      "[Extension.Header]" => $header,
      "[Extension.ID]" => $id,
      "[Extension.New]" => $new,
-     "[Extension.Title]" => base64_encode($title)
+     "[Extension.Title]" => base64_encode($title),
+     "[Extension.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
     ], $this->core->Extension("5f7686825eb763cda93b62656a96a05f")]);
     $r = [
      "Action" => $action,

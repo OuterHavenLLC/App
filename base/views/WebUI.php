@@ -82,6 +82,7 @@
       $sectionName = ($key == "BlogPost") ? "Blog Posts" : $sectionName;
       $sectionName = ($key == "Chat") ? "Chats" : $sectionName;
       $sectionName = ($key == "CoverPhoto") ? "Cover Photo" : $sectionName;
+      $sectionName = ($key == "DemoFile") ? "Demo Files" : $sectionName;
       $sectionName = ($key == "Forum") ? "Forums" : $sectionName;
       $sectionName = ($key == "ForumPost") ? "Forum Posts" : $sectionName;
       $sectionName = ($key == "Member") ? "Members" : $sectionName;

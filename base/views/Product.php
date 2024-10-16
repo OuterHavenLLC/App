@@ -36,7 +36,6 @@
     ];
    } elseif(!empty($editor)) {
     $action = ($new == 1) ? "Post" : "Update";
-    $attachments = "";
     $back = (!empty($parentView)) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
      "data-type" => $parentView
@@ -45,10 +44,8 @@
      "class" => "GoToParent v2 v2w",
      "data-type" => "ProductEditors"
     ]]) : $back;
-    $bundledProducts = "";
-    $dlc = "";
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
-    $product = $this->core->Data("Get", ["product", $id]) ?? [];
+    $product = $this->core->Data("Get", ["product", $id]);
     $product = $this->core->FixMissing($product, [
      "Description",
      "Disclaimer",
@@ -58,9 +55,15 @@
      "Price",
      "Title"
     ]);
+    $albums = $product["Albums"] ?? [];
+    $articles = $product["Articles"] ?? [];
+    $attachments = $product["Attachments"] ?? [];
+    $blogs = $product["Blogs"] ?? [];
+    $blogPosts = $product["BlogPosts"] ?? [];
     $category = $product["Category"] ?? $editor;
+    $chats = $product["Chat"] ?? [];
     $cost = $product["Cost"] ?? 0.00;
-    $coverPhoto = $product["ICO-SRC"] ?? "";
+    $coverPhoto = $product["CoverPhoto"] ?? "";
     $created = $product["Created"] ?? $this->core->timestamp;
     $expirationQuantities = [];
     $extension = "3e5dc31db9719800f28abbaa15ce1a37";
@@ -68,30 +71,58 @@
     $extension = ($editor == "Donation") ? "6f4772a067646699073521d87b943433" : $extension;
     $extension = ($editor == "Download") ? "5921c3ce04d9a878055ebc691b9f445a" : $extension;
     $extension = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $extension;
+    $forums = $product["Forums"] ?? [];
+    $forumPosts = $product["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
+    $members = $product["Members"] ?? [];
     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $product["PassPhrase"] ?? "";
     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
+    $polls = $product["Polls"] ?? [];
+    $products = $product["Products"] ?? [];
     $profit = $product["Profit"] ?? 0.00;
     $quantities = [];
     $quantities["-1"] = "Unlimited";
     $quantity = $product["Quantity"] ?? "-1";
     $search = base64_encode("Search:Containers");
+    $shops = $product["Shops"] ?? [];
     $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
+    $updates = $product["Updates"] ?? [];
     for($i = 1; $i <= 100; $i++) {
      $expirationQuantities[$i] = $i;
     } for($i = 0; $i <= 100; $i++) {
      $quantities[$i] = $i;
-    } if(!empty($product["Attachments"])) {
-     $attachments = base64_encode(implode(";", $product["Attachments"]));
-    } if(!empty($product["Bundled"])) {
-     $bundledProducts = base64_encode(implode(";", $product["Bundled"]));
-    } if(!empty($product["DLC"])) {
-     $dlc = base64_encode(implode(";", $product["DLC"]));
     }
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
+     "ID" => $id,
+     "Media" => [
+      "Album" => $albums,
+      "Article" => $articles,
+      "Attachment" => $attachments,
+      "Blog" => $blogs,
+      "BlogPost" => $blogPosts,
+      "Chat" => $chats,
+      "CoverPhoto" => $coverPhoto,
+      "Forum" => $forums,
+      "ForumPost" => $forumPosts,
+      "Member" => $members,
+      "Poll" => $polls,
+      "Product" => $products,
+      "Shop" => $shops,
+      "Update" => $updates
+     ]
+    ]);
+    $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => [],
+      "ViewDesign" => []
+     ]
+    ]);
     $changeData = [
      "[Product.Action]" => $action,
-     "[Product.Attachments]" => "",
+     "[Product.Attachments]" => $this->core->RenderView($attachments),
      "[Product.Back]" => $back,
      "[Product.Body]" => base64_encode($this->core->PlainText([
       "Data" => $product["Body"],
@@ -117,6 +148,7 @@
      "[Product.Shop]" => $shop,
      "[Product.SubscriptionTerm]" => $subscriptionTerm,
      "[Product.Title]" => base64_encode($product["Title"]),
+     "[Product.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
      "[Product.Visibility.NSFW]" => $nsfw,
      "[Product.Visibility.Privacy]" => $privacy
     ];
@@ -418,7 +450,7 @@
    $r = [
     "Body" => "The Product or Shop Identifiers are missing."
    ];
-   $shopID = $data["Shop"] ?? "";
+   $shopID = $data["ShopID"] ?? "";
    $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -465,11 +497,22 @@
      } else {
       $accessCode = "Accepted";
       $actionTaken = ($new == 1) ? "posted" : "updated";
+      $albums = [];
+      $albumsData = $data["Album"] ?? [];
+      $articles = [];
+      $articlesData = $data["Article"] ?? [];
+      $attachments = [];
+      $attachmentsData = $data["Attachment"] ?? [];
+      $blogs = [];
+      $blogsData = $data["Blog"] ?? [];
+      $blogPosts = [];
+      $blogPostsData = $data["BlogPost"] ?? [];
+      $chats = [];
+      $chatsData = $data["Chat"] ?? [];
+      $coverPhoto = $data["CoverPhoto"] ?? "";
       $id = $data["ID"] ?? "";
       $now = $this->core->timestamp;
-      $product = $this->core->Data("Get", ["product", $id]) ?? [];
-      $attachments = [];
-      $bundle = [];
+      $product = $this->core->Data("Get", ["product", $id]);
       $category = $data["Category"] ?? "Product";
       $categories = [
        "Architecture",
@@ -481,79 +524,130 @@
       $cost = $data["Cost"] ?? 0;
       $cost = ($cost == "") ? 0 : $cost;
       $cost = ($cost > 0) ? number_format(str_replace(",", "", $cost), 2) : $cost;
-      $coverPhoto = "";
-      $coverPhotoSource = "";
       $created = $product["Created"] ?? $now;
       $dlc = [];
       $expirationQuantity = $data["ExpirationQuantity"] ?? 1;
       $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
+      $forums = [];
+      $forumsData = $data["Forum"] ?? [];
+      $forumPosts = [];
+      $forumPostsData = $data["ForumPost"] ?? [];
       $illegal = $product["Illegal"] ?? 0;
       $instructions = $data["Instructions"] ?? 0;
       $instructions = ($category == "Product") ? 1 : $instructions;
+      $members = []; 
+      $membersData = $data["Member"] ?? [];
       $modifiedBy = $product["ModifiedBy"] ?? [];
       $modifiedBy[$now] = $you;
       $newProducts = $shop["Products"] ?? [];
       $passPhrase = $data["PassPhrase"] ?? "";
       $points = $this->core->config["PTS"];
+      $polls = []; 
+      $pollsData = $data["Poll"] ?? [];
+      $products = [];
+      $productsData = $data["Product"] ?? [];
       $profit = $data["Profit"] ?? 0;
       $profit = ($profit == "") ? 0 : $profit;
       $profit = ($profit > 0) ? number_format(str_replace(",", "", $profit), 2) : $profit;
       $purge = $product["Purge"] ?? 0;
       $quantity = $data["Quantity"] ?? "-1";
       $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
+      $shops = [];
+      $shopsData = $data["Shop"] ?? [];
       $subscriptionTerm = $data["SubscriptionTerm"] ?? "";
       $success = ($new == 1) ? "CloseCard" : "";
+      $updates = [];
+      $updatesData = $data["Update"] ?? [];
       $username = $product["UN"] ?? $you;
-      if(!empty($data["rATT$id"])) {
-       $db = explode(";", base64_decode($data["rATT$id"]));
-       $dbc = count($db);
-       for($i = 0; $i < $dbc; $i++) {
-        if(!empty($db[$i])) {
-         $dbi = explode("-", base64_decode($db[$i]));
-         if(!empty($dbi[0]) && !empty($dbi[1])) {
-          array_push($attachments, base64_encode($dbi[0]."-".$dbi[1]));
-         }
+      if(!empty($albumsData)) {
+       $media = $albumsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($albums, $media[$i]);
         }
        }
-      } if(!empty($data["rATTDLC$id"])) {
-       $db = explode(";", base64_decode($data["rATTDLC$id"]));
-       $dbc = count($db);
-       for($i = 0; $i < $dbc; $i++) {
-        if(!empty($db[$i])) {
-         $dbi = explode("-", base64_decode($db[$i]));
-         if(!empty($dbi[0]) && !empty($dbi[1])) {
-          array_push($dlc, base64_encode($dbi[0]."-".$dbi[1]));
-         }
+      } if(!empty($articlesData)) {
+       $media = $articlesData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($articles, $media[$i]);
         }
        }
-      } if(!empty($data["rATTI$id"])) {
-       $db = explode(";", base64_decode($data["rATTI$id"]));
-       $dbc = count($db);
-       $i2 = 0;
-       for($i = 0; $i < $dbc; $i++) {
-        if(!empty($db[$i]) && $i2 == 0) {
-         $dbi = explode("-", base64_decode($db[$i]));
-         if(!empty($dbi[0]) && !empty($dbi[1])) {
-          $t = $this->core->Member($dbi[0]);
-          $efs = $this->core->Data("Get", [
-           "fs",
-           md5($t["Login"]["Username"])
-          ]) ?? [];
-          $fileName = $efs["Files"][$dbi[1]]["Name"] ?? "";
-          if(!empty($fileName)) {
-           $coverPhoto = $dbi[0]."/$fileName";
-           $coverPhotoSource = base64_encode($dbi[0]."-".$dbi[1]);
-           $i2++;
-          }
-         }
+      } if(!empty($attachmentsData)) {
+       $media = $attachmentsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($attachments, $media[$i]);
         }
        }
-      } if(!empty($data["rATTP$id"])) {
-       $db = explode(";", base64_decode($data["rATTP$id"]));
-       $dbc = count($db);
-       for($i = 0; $i < $dbc; $i++) {
-        if(!empty($db[$i])) {
-         array_push($bundle, $db[$i]);
+      } if(!empty($blogsData)) {
+     $media = $blogsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogs, $media[$i]);
+      }
+     }
+    } if(!empty($blogPostsData)) {
+     $media = $blogPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogPosts, $media[$i]);
+      }
+     }
+    } if(!empty($chatsData)) {
+     $media = $chatsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($chats, $media[$i]);
+      }
+     }
+    } if(!empty($forumsData)) {
+     $media = $forumsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forums, $media[$i]);
+      }
+     }
+    } if(!empty($forumPostsData)) {
+     $media = $forumPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forumPosts, $media[$i]);
+      }
+     }
+    } if(!empty($membersData)) {
+     $media = $membersData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($members, $media[$i]);
+      }
+     }
+    } if(!empty($pollsData)) {
+     $media = $pollsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($polls, $media[$i]);
+      }
+     }
+    } if(!empty($productsData)) {
+     $media = $productsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($products, $media[$i]);
+      }
+     }
+      } if(!empty($shopsData)) {
+       $media = $shopsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($shops, $media[$i]);
+        }
+       }
+      } if(!empty($updatesData)) {
+       $media = $updatesData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($updates, $media[$i]);
         }
        }
       } if(in_array($category, $categories)) {
@@ -565,35 +659,45 @@
        $shop["Products"] = array_unique($newProducts);
       }
       $product = [
+       "Albums" => $albums,
+       "Articles" => $articles,
        "Attachments" => $attachments,
+       "Blogs" => $blogs,
+       "BlogPosts" => $blogPosts,
        "Body" => $this->core->PlainText([
         "Data" => $data["Body"],
         "Encode" => 1
        ]),
-       "Bundled" => $bundle,
+       "Bundled" => $products,
        "Category" => $category,
+       "Chats" => $chats,
        "Cost" => str_replace(",", "", $cost),
+       "CoverPhoto" => $coverPhoto,
        "Created" => $created,
        "Description" => htmlentities($data["Description"]),
        "Disclaimer" => $data["Disclaimer"],
        "Expires" => $this->core->TimePlus($now, $expirationQuantity, $expirationTimeSpan),
-       "DLC" => $dlc,
-       "ICO" => $coverPhoto,
-       "ICO-SRC" => base64_encode($coverPhotoSource),
+       "Forums" => $forums,
+       "ForumPosts" => $forumPosts,
        "ID" => $id,
        "Illegal" => $illegal,
        "Instructions" => $instructions,
+       "Members" => $members,
        "ModifiedBy" => $modifiedBy,
        "NSFW" => $data["nsfw"],
        "PassPhrase" => $passPhrase,
        "Points" => $points,
+       "Polls" => $polls,
        "Privacy" => $data["Privacy"],
+       "Products" => $products,
        "Profit" => str_replace(",", "", $profit),
        "Purge" => $purge,
        "Quantity" => $quantity,
        "Role" => $data["Role"],
+       "Shops" => $shops,
        "SubscriptionTerm" => $subscriptionTerm,
        "Title" => $title,
+       "Updates" => $updates,
        "UN" => $username
       ];
       $sql = New SQL($this->core->cypher->SQLCredentials());
@@ -626,14 +730,14 @@
        ":Title" => $product["Title"],
        ":Username" => $product["UN"]
       ]);
-      $sql->execute();
-      $this->core->Data("Save", ["product", $id, $product]);
-      $this->core->Data("Save", ["shop", $shopID, $shop]);
+      #$sql->execute();
+      #$this->core->Data("Save", ["product", $id, $product]);
+      #$this->core->Data("Save", ["shop", $shopID, $shop]);
       if($new == 1) {
        $subscribers = $shop["Subscribers"] ?? [];
        $y["Points"] = $y["Points"] + $points;
-       $this->core->Data("Save", ["mbr", md5($you), $y]);
-       foreach($subscribers as $key => $value) {
+       #$this->core->Data("Save", ["mbr", md5($you), $y]);
+       /*--foreach($subscribers as $key => $value) {
         $this->core->SendBulletin([
          "Data" => [
           "ProductID" => $id,
@@ -643,13 +747,14 @@
          "Type" => "NewProduct"
         ]);
        }
-       $this->core->Statistic("New Product");
+       $this->core->Statistic("New Product");--*/
       } else {
-       $this->core->Statistic("Edit Product");
+       #$this->core->Statistic("Edit Product");
       }
       $r = [
        "Body" => "The Product <em>$title</em> has been $actionTaken!",
-       "Header" => "Done"
+       "Header" => "Done",
+       "Scrollable" => json_encode($product, true)
       ];
      }
     }
@@ -661,8 +766,9 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog",
-    "Success" => $success
+    "ResponseType" => "Dialog"
+    #"ResponseType" => "Dialog",
+    #"Success" => $success
    ]);
   }
   function __destruct() {
