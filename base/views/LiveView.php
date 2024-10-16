@@ -56,7 +56,12 @@
    $you = $y["Login"]["Username"];
    if(!empty($media) && !empty($mediaType)) {
     $addTo = $data["AddTo"] ?? "";
-    if($mediaType == "Attachment" || $mediaType == "CoverPhoto") {
+    $downloads = [
+     "Attachment",
+     "CoverPhoto",
+     "DemoFile"
+    ];
+    if(in_array($mediaType, $downloads)) {
      $attachment = explode("-", $media);
      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
      if(!empty($attachment[1])) {

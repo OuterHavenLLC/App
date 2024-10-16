@@ -65,6 +65,7 @@
     $cost = $product["Cost"] ?? 0.00;
     $coverPhoto = $product["CoverPhoto"] ?? "";
     $created = $product["Created"] ?? $this->core->timestamp;
+    $demoFiles = $product["DemoFiles"] ?? [];
     $expirationQuantities = [];
     $extension = "3e5dc31db9719800f28abbaa15ce1a37";
     $extension = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $extension;
@@ -104,6 +105,7 @@
       "BlogPost" => $blogPosts,
       "Chat" => $chats,
       "CoverPhoto" => $coverPhoto,
+      "DemoFile" => $demoFiles,
       "Forum" => $forums,
       "ForumPost" => $forumPosts,
       "Member" => $members,
@@ -510,6 +512,12 @@
       $chats = [];
       $chatsData = $data["Chat"] ?? [];
       $coverPhoto = $data["CoverPhoto"] ?? "";
+      $demoFiles = [];
+      $demoFilesData = $data["DemoFile"] ?? [];
+      $forums = [];
+      $forumsData = $data["Forum"] ?? [];
+      $forumPosts = [];
+      $forumPostsData = $data["ForumPost"] ?? [];
       $id = $data["ID"] ?? "";
       $now = $this->core->timestamp;
       $product = $this->core->Data("Get", ["product", $id]);
@@ -528,10 +536,6 @@
       $dlc = [];
       $expirationQuantity = $data["ExpirationQuantity"] ?? 1;
       $expirationTimeSpan = $data["ExpirationTimeSpan"] ?? "year";
-      $forums = [];
-      $forumsData = $data["Forum"] ?? [];
-      $forumPosts = [];
-      $forumPostsData = $data["ForumPost"] ?? [];
       $illegal = $product["Illegal"] ?? 0;
       $instructions = $data["Instructions"] ?? 0;
       $instructions = ($category == "Product") ? 1 : $instructions;
@@ -599,6 +603,13 @@
      for($i = 0; $i < count($media); $i++) {
       if(!empty($media[$i])) {
        array_push($chats, $media[$i]);
+      }
+     }
+    } if(!empty($demoFilesData)) {
+     $media = $demoFilesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($demoFiles, $media[$i]);
       }
      }
     } if(!empty($forumsData)) {
@@ -674,6 +685,7 @@
        "Cost" => str_replace(",", "", $cost),
        "CoverPhoto" => $coverPhoto,
        "Created" => $created,
+       "DemoFiles" => $demoFiles,
        "Description" => htmlentities($data["Description"]),
        "Disclaimer" => $data["Disclaimer"],
        "Expires" => $this->core->TimePlus($now, $expirationQuantity, $expirationTimeSpan),
