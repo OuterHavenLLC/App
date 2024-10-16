@@ -112,7 +112,7 @@
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($username)) {
     $t = ($username == $you) ? $y : $this->core->Member($username);
-    $attachmentID = base64_encode($t["Login"]["Username"]."-".$id);
+    $attachmentID = $t["Login"]["Username"]."-".$id;
     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $_File = $this->core->GetContentData([
@@ -177,12 +177,12 @@
       ]) : "";
       $ck = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-      $addToMedia = ($ck == 1) ? base64_encode($file["Name"]) : $attachmentID;
+      $addToMedia = ($ck == 1) ? $file["Name"] : $attachmentID;
       $actions .= (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
         "class" => "Attach Small v2",
         "data-input" => base64_encode($addToData[1]),
-        "data-media" => $addToMedia
+        "data-media" => base64_encode($addToMedia)
        ]
       ]) : "";
       $actions .= ($ck == 1 || $username == $you) ? $this->core->Element([
@@ -213,7 +213,7 @@
        if($httpResponse != 200) {
         $_Source = $this->core->efs."D.jpg";
        }
-       list($height, $width) = getimagesize($_Source);
+       list($width, $height) = getimagesize($_Source);
        $_Size = ($height <= ($width / 1.5) || $height == $width) ? 1 : 0;
        $cp = ($height <= ($width / 1.5)) ? "Cover Photo" : "Profile Picture";
        $type = ($height <= ($width / 1.5)) ? "CoverPhoto" : "ProfilePicture";
@@ -221,7 +221,7 @@
        $setAsProfileImage = ($_Size == 1) ? $this->core->Element([
         "button", "Set as Your $cp", [
          "class" => "OpenDialog Disable v2",
-         "data-view" => base64_encode("v=".base64_encode("File:SaveProfileImage")."&DLC=$attachmentID&FT=$type")
+         "data-view" => base64_encode("v=".base64_encode("File:SaveProfileImage")."&DLC=".base64_encode($attachmentID)."&FT=$type")
         ]
        ]) : "";
       }
@@ -487,11 +487,11 @@
   function SaveProfileImage(array $a) {
    $accessCode = "Denied";
    $data = $a["Data"];
-   $file = $data["DLC"] ?? "";
-   $type = $data["FT"] ?? "";
+   $media = $data["DLC"] ?? "";
    $r = [
     "Body" => "The Photo type is missing."
    ];
+   $type = $data["FT"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -499,25 +499,26 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($file) && !empty($type)) {
+   } elseif(!empty($media) && !empty($type)) {
     $accessCode = "Accepted";
+    $media = explode("-", base64_decode($media));
     $type = base64_decode($type);
-    $cp = ($type == "CoverPhoto") ? "Cover Photo" : "Profile Picture";
-    $dbi = explode("-", base64_decode($file));
-    if(!empty($dbi[0]) && !empty($dbi[1])) {
-     $t = $this->core->Member($dbi[0]);
-     $fs = $this->core->Data("Get", [
-      "fs",
-      md5($t["Login"]["Username"])
-     ]) ?? [];
-     $image = $dbi[0]."/".$fs["Files"][$dbi[1]]["Name"];
-     $y["Personal"][$type] = base64_encode($image);
+    $imageType = ($type == "CoverPhoto") ? "Cover Photo" : "Profile Picture";
+    if(!empty($media[0]) && !empty($media[1])) {
+     $t = $this->core->Member($media[0]);
+     $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
+     $image = $fs["Files"][$media[1]]["Name"] ?? "";
+     if(!empty($image)) {
+      $newImage = $media[0]."/$image";
+      $newImage = ($type == "CoverPhoto") ? $media[0]."-".$media[1] : $newImage;
+      $y["Personal"][$type] = base64_encode($newImage);
+      $this->core->Data("Save", ["mbr", md5($you), $y]);
+     }
     }
     $r = [
-     "Body" => "The Photo was set as your $cp.<br/>".json_encode($y["Personal"], true),
+     "Body" => "The Photo was set as your $imageType.",
      "Header" => "Done"
     ];
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

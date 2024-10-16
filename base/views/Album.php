@@ -26,10 +26,7 @@
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
-    $fileSystem = $this->core->Data("Get", [
-     "fs",
-     md5($t["Login"]["Username"])
-    ]) ?? [];
+    $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
     $id = ($new == 1) ? md5($t["Login"]["Username"].$this->core->timestamp) : $id;
     $album = $fileSystem["Albums"][$id] ?? [];
     $description = $album["Description"] ?? "";

@@ -17,7 +17,7 @@
    if(!empty($id) && !empty($mbr)) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+    $blog = $this->core->Data("Get", ["blg", $id]);
     $mbr = base64_decode($mbr);
     $r = [
      "Body" => "You cannot banish yourself."

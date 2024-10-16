@@ -208,14 +208,21 @@
    $r = (!empty($r) && $r == "on") ? "https" : "http";
    return "$r://";
   }
-  function CoverPhoto(string $a) {
+  function CoverPhoto(string $id) {
    $efs = $this->efs;
    $r = $this->PlainText([
     "Data" => "[Media:CP]",
     "Display" => 1
    ]);
-   if(!empty($a)) {
-    $r = $efs.base64_decode($a);
+   if(!empty($id)) {
+    $id = explode("-", base64_decode($id));
+    if(!empty($id[0]) && !empty($id[1])) {
+     $coverPhoto = $this->Data("Get", ["fs", md5($id[0])]);
+     $coverPhoto = $coverPhoto["Files"] ?? [];
+     $coverPhoto = $coverPhoto[$id[1]] ?? [];
+     $coverPhoto = $coverPhoto["Name"] ?? "";
+     $r = (!empty($coverPhoto)) ? $efs.$id[0]."/$coverPhoto" : $r;
+    }
    }
    return $r;
   }
@@ -867,8 +874,7 @@
      }
     }
    }
-   $coverPhoto = $data["ICO"] ?? $coverPhoto;
-   $coverPhoto = base64_encode($coverPhoto);
+   $coverPhoto = $data["CoverPhoto"] ?? "";
    $coverPhoto = $this->CoverPhoto($coverPhoto);
    $empty = $contnet["Blacklisted"] ?? $empty;
    $modified = $data["Modified"] ?? "";
@@ -918,7 +924,7 @@
       ]).$this->Element([
        "p", $description
       ]).$this->Element([
-       "p", $body
+       "p", $this->Excerpt($body, 200)
       ]).$this->Element(["div",
        $this->Element([
         "h4", "&bull; &bull; &bull;"
@@ -1254,17 +1260,17 @@
    }
    return $r;
   }
-  function ProfilePicture(array $a, $b = NULL) {
-   $b = (!empty($b)) ? " style=\"$b\"" : "";
+  function ProfilePicture(array $member, $style = NULL) {
+   $style = (!empty($style)) ? " style=\"$style\"" : "";
    $base = $this->efs;
-   $pp = $a["Personal"] ?? [];
-   $pp = $a["Personal"]["ProfilePicture"] ?? "";
-   $r = "[Media:LOGO]";
-   if(!empty($pp) && @fopen($base.base64_decode($pp), "r")) {
-    $r = $base.base64_decode($pp);
+   $profilePicture = $member["Personal"] ?? [];
+   $profilePicture = $member["Personal"]["ProfilePicture"] ?? "";
+   $source = "[Media:LOGO]";
+   if(!empty($profilePicture) && @fopen($base.base64_decode($profilePicture), "r")) {
+    $source = $base.base64_decode($profilePicture);
    }
    return $this->PlainText([
-    "Data" => "<img class=\"c2\" src=\"$r\"$b/>",
+    "Data" => "<img class=\"c2\" src=\"$source\"$style/>",
     "Display" => 1
    ]);
   }

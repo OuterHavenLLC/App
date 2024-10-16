@@ -40,7 +40,7 @@
     $blogs = $update["Blogs"] ?? [];
     $blogPosts = $update["BlogPosts"] ?? [];
     $chats = $update["Chat"] ?? [];
-    $coverPhoto = $update["CoverPhoto"] ?? [];
+    $coverPhoto = $update["CoverPhoto"] ?? "";
     $forums = $update["Forums"] ?? [];
     $forumPosts = $update["ForumPosts"] ?? [];
     $members = $update["Members"] ?? [];
@@ -168,6 +168,33 @@
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $accessCode = "Accepted";
+      $attachedAlbums = $update["Albums"] ?? [];
+      $attachedAlbums = base64_encode(implode(";", $attachedAlbums));
+      $attachedArticles = $update["Articles"] ?? [];
+      $attachedArticles = base64_encode(implode(";", $attachedArticles));
+      $attachedAttachments = $update["Attachments"] ?? [];
+      $attachedAttachments = base64_encode(implode(";", $attachedAttachments));
+      $attachedBlogs = $update["Blogs"] ?? [];
+      $attachedBlogs = base64_encode(implode(";", $attachedBlogs));
+      $attachedBlogPosts = $update["BlogPosts"] ?? [];
+      $attachedBlogPosts = base64_encode(implode(";", $attachedBlogPosts));
+      $attachedChats = $update["Chats"] ?? [];
+      $attachedChats = base64_encode(implode(";", $attachedChats));
+      $attachedForums = $update["Forums"] ?? [];
+      $attachedForums = base64_encode(implode(";", $attachedForums));
+      $attachedForumPosts = $update["ForumPosts"] ?? [];
+      $attachedForumPosts = base64_encode(implode(";", $attachedForumPosts));
+      $attachedLiveView = base64_encode("LiveView:InlineMossaic");
+      $attachedMembers = $update["Members"] ?? [];
+      $attachedMembers = base64_encode(implode(";", $attachedMembers));
+      $attachedPolls = $update["Polls"] ?? [];
+      $attachedPolls = base64_encode(implode(";", $attachedPolls));
+      $attachedProducts = $update["Products"] ?? [];
+      $attachedProducts = base64_encode(implode(";", $attachedProducts));
+      $attachedShops = $update["Shops"] ?? [];
+      $attachedShops = base64_encode(implode(";", $attachedShops));
+      $attachedUpdates = $update["Updates"] ?? [];
+      $attachedUpdates = base64_encode(implode(";", $attachedUpdates));
       $displayName = $update["From"];
       $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
       $embeddedView = $data["EmbeddedView"] ?? 0;
@@ -190,19 +217,32 @@
       $verified = $op["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $r = $this->core->Change([[
+       "[Attached.Albums]" => base64_encode("v=$attachedLiveView&ID=$attachedAlbums&Type=".base64_encode("Album")),
+       "[Attached.Articles]" => base64_encode("v=$attachedLiveView&ID=$attachedArticles&Type=".base64_encode("Article")),
+       "[Attached.Attachments]" => base64_encode("v=$attachedLiveView&ID=$attachedAttachments&Type=".base64_encode("DLC")),
+       "[Attached.Blogs]" => base64_encode("v=$attachedLiveView&ID=$attachedBlogs&Type=".base64_encode("Blog")),
+       "[Attached.BlogPosts]" => base64_encode("v=$attachedLiveView&ID=$attachedBlogPosts&Type=".base64_encode("BlogPost")),
+       "[Attached.Chats]" => base64_encode("v=$attachedLiveView&ID=$attachedChats&Type=".base64_encode("Chat")),
+       "[Attached.Forums]" => base64_encode("v=$attachedLiveView&ID=$attachedForums&Type=".base64_encode("Forum")),
+       "[Attached.ForumPosts]" => base64_encode("v=$attachedLiveView&ID=$attachedForumPosts&Type=".base64_encode("ForumPost")),
+       "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
+       "[Attached.Members]" => base64_encode("v=$attachedLiveView&ID=$attachedMembers&Type=".base64_encode("NonArtist")),
+       "[Attached.Polls]" => base64_encode("v=$attachedLiveView&ID=$attachedPolls&Type=".base64_encode("Poll")),
+       "[Attached.Products]" => base64_encode("v=$attachedLiveView&ID=$attachedProducts&Type=".base64_encode("ProductNotBundled")),
+       "[Attached.Shops]" => base64_encode("v=$attachedLiveView&ID=$attachedShops&Type=".base64_encode("Shop")),
+       "[Attached.Updates]" => base64_encode("v=$attachedLiveView&ID=$attachedUpdates&Type=".base64_encode("StatusUpdate")),
+       "[Conversation.CRID]" => $update["ID"],
+       "[Conversation.CRIDE]" => base64_encode($update["ID"]),
+       "[Conversation.Level]" => base64_encode(1),
+       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
        "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
        "[StatusUpdate.Body]" => $this->core->PlainText([
         "BBCodes" => 1,
         "Data" => base64_decode($update["Body"]),
         "Display" => 1
        ]),
+       "[StatusUpdate.CoverPhoto]" => $_StatusUpdate["ListItem"]["CoverPhoto"],
        "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
-       "[StatusUpdate.Conversation]" => $this->core->Change([[
-        "[Conversation.CRID]" => $update["ID"],
-        "[Conversation.CRIDE]" => base64_encode($update["ID"]),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
        "[StatusUpdate.DisplayName]" => $displayName.$verified,
        "[StatusUpdate.ID]" => $update["ID"],
        "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),

@@ -114,18 +114,61 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($media) && !empty($mediaType)) {
-    $attachments = (str_ends_with($media, ";")) ? rtrim($media, ";") : $media;
-    $attachments = explode(";", $attachments);
+    $attachments = explode(";", $media);
     $count = count($attachments);
+    $previewReady = [
+     "Album",
+     "Article",
+     "Blog",
+     "BlogPost",
+     "Chat",
+     "Forum",
+     "ForumPost",
+     "Poll",
+     "ProductNotBundled",
+     "Shop",
+     "StatusUpdate"
+    ];
     $r = "";
-    if($mediaType == "Artist" || $mediaType == "Member") {
-     for($i = 0; $i < $count; $i++) {
-      if(!empty($attachments[$i])) {
-       $member = base64_decode($attachments[$i]);
-       $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
+    if(in_array($mediaType, $previewReady)) {
+     foreach($attachments as $key => $attachment) {
+      if(!empty($attachment)) {
+       $_Media = $this->core->GetContentData([
+        "Blacklisted" => 0,
+        "ID" => $attachment
+       ]);
+       if($_Media["Empty"] == 0) {
+        $i++;
+        $options = $_Media["ListItem"]["Options"] ?? [];
+        $r = $_Media["Preview"]["Content"] ?? "";
+        $r = (!empty($options["View"])) ? $this->core->Element(["button", $this->core->Element([
+         "div", $r, ["class" => "NONAME"]
+        ]).$this->core->Element([
+         "p", "View in Full", ["class" => "CenterText"]
+        ]), [
+         "class" => "FrostedBright OpenCard Rounded",
+         "data-view" => $options["View"]
+        ]]) : $r;
+       }
+      }
+     } if($i > 0) {
+      $mediaType = ($mediaType == "BlogPost") ? "Blog Post" : $mediaType;
+      $mediaType = ($mediaType == "ForumPost") ? "Forum Post" : $mediaType;
+      $mediaType = ($mediaType == "ProductNotBundled") ? "Product" : $mediaType;
+      $mediaType = ($mediaType == "StatusUpdate") ? "Status Update" : $mediaType;
+      $r = $this->core->Element([
+       "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
+      ]).$this->core->Element([
+       "div", $r, ["class" => "SideScroll"]
+      ]);
+     }
+    } elseif($mediaType == "Artist" || $mediaType == "Member") {
+     foreach($attachments as $key => $attachment) {
+      if(!empty($attachment)) {
+       $i++;
        $member = $this->core->GetContentData([
-        "Blacklisted" => $bl,
-        "ID" => base64_encode("Member;".md5($member))
+        "Blacklisted" => 0,
+        "ID" => base64_encode("Member;".md5(base64_decode($attachment)))
        ]);
        if($member["Empty"] == 0) {
         $_Member = $member["DataModel"];
@@ -139,21 +182,24 @@
         ]);
        }
       }
+     } if($i > 0) {
+      $r = $this->core->Element([
+       "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
+      ]).$this->core->Element([
+       "div", $r, ["class" => "SideScroll"]
+      ]);
      }
-     $r = $this->core->Element([
-      "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
-     ]).$this->core->Element([
-      "div", $r, ["class" => "SideScroll"]
-     ]);
     } elseif($mediaType == "CoverPhoto") {
      $attachment = explode("-", base64_decode($media));
-     $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
-     $i++;
-     $r = $this->core->GetAttachmentPreview([
-      "DLL" => $efs[$attachment[1]],
-      "T" => $attachment[0],
-      "Y" => $you
-     ]);
+     if(!empty($attachment[0]) && !empty($attachment[1])) {
+      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
+      $i++;
+      $r = $this->core->GetAttachmentPreview([
+       "DLL" => $efs[$attachment[1]],
+       "T" => $attachment[0],
+       "Y" => $you
+      ]);
+     }
     } elseif($mediaType == "DLC") {
      foreach($attachments as $dlc) {
       if(!empty($dlc)) {
@@ -176,6 +222,26 @@
      } if($i > 0) {
       $r = $this->core->Element([
        "h4", "Attachments", ["class" => "UpperCase"]
+      ]).$this->core->Element([
+       "div", $r, ["class" => "SideScroll"]
+      ]);
+     }
+    } elseif($mediaType == "NonArtist") {
+     foreach($attachments as $key => $attachment) {
+     $i++;$r = base64_decode($attachment);
+      if(!empty($attachment)) {
+       $_Media = $this->core->GetContentData([
+        "Blacklisted" => 0,
+        "ID" => $attachment
+       ]);
+       if($_Media["Empty"] == 0) {
+        $i++;
+        $r = $_Media["Preview"]["Content"] ?? "";
+       }
+      }
+     } if($i > 0) {
+      $r = $this->core->Element([
+       "h4", "Featured Members", ["class" => "UpperCase"]
       ]).$this->core->Element([
        "div", $r, ["class" => "SideScroll"]
       ]);
@@ -205,12 +271,13 @@
         ], $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844")]);//NEW
        }
       }
+     } if($i > 0) {
+      $r = $this->core->Element([
+       "h4", "Included in this Bundle", ["class" => "UpperCase"]
+      ]).$this->core->Element([
+       "div", $r, ["class" => "SideScroll"]
+      ]);
      }
-     $r = $this->core->Element([
-      "h4", "Included in this Bundle", ["class" => "UpperCase"]
-     ]).$this->core->Element([
-      "div", $r, ["class" => "SideScroll"]
-     ]);
     }
    }
    return $this->core->JSONResponse([
