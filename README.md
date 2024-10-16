@@ -20,6 +20,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * When purging album, conversation, and media data, the vote databases for all comments are also purged.
 * A revamped attachments UI allows Members unprecedented control over media attached to primary content. (starting full adoption...)
 * Revised the means by which Cover Photos and Profile Pictures are handled at the Core level.
+* A new GetSymbolicLinks() object in the Core library now handles in-line Live View links, with more link types to be added as needed.
 * More platform-wide optimization and bug fixes.
 
 ### Artists

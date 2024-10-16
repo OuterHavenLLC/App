@@ -318,15 +318,15 @@
        }
       }
       $ck = ($admin == 1 || $forum["UN"] == $you) ? 1 : 0;
+      $doNotShare = $this->core->RestrictedIDs;
       $r = [
        "Body" => "<em>$title</em> is invite-only.",
        "Header" => "Private Forum"
       ];
       if($active == 1 || $ck == 1 || $forum["Type"] == "Public") {
-       $_SonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
        $accessCode = "Accepted";
        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-       $actions = ($_SonsOfLiberty != $forum["ID"]) ? $this->core->Element([
+       $actions = (!in_array($forum["ID"], $doNotShare)) ? $this->core->Element([
         "button", "Attach", [
          "class" => "Attach Small v2",
          "data-input" => base64_encode($addToData[1]),
@@ -345,7 +345,7 @@
          "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
         ]
        ]) : "";
-       $actions .= ($_SonsOfLiberty != $forum["ID"] && $forum["UN"] == $you && $pub == 0) ? $this->core->Element([
+       $actions .= (!in_array($forum["ID"], $doNotShare) && $forum["UN"] == $you && $pub == 0) ? $this->core->Element([
         "button", "Delete", [
          "class" => "CloseCard OpenDialog Small v2",
          "data-view" => $options["Delete"]
@@ -374,7 +374,7 @@
          "data-type" => "ForumTopics$id;".base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".$data["ID"])
         ]
        ]) : "";
-       $invite = ($active == 1 && $forum["ID"] != $_SonsOfLiberty) ? $this->core->Element([
+       $invite = (!in_array($forum["ID"], $doNotShare) && $active == 1) ? $this->core->Element([
         "button", "Invite", [
          "class" => "OpenCard v2",
          "data-view" => $options["Invite"]

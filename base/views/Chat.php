@@ -293,10 +293,7 @@
         $blockCommand = ($bl == 0) ? "Block" : "Unblock";
         $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
         $bookmarkCommand .= "Bookmark";
-        $doNotShare = [
-         "5ec1e051bf732d19e09ea9673cd7986b",
-         "7216072bbd437563e692cc7ff69cdb69"
-        ];
+        $doNotShare = $this->core->RestrictedIDs;
         $delete = (!in_array($id, $doNotShare) && $chat["UN"] == $you) ? 1 : 0;
         $privacy = ($chat["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"]) && $chat["Privacy"] != md5("Private")) ? 1 : 0;
         $share = (!in_array($id, $doNotShare) && ($chat["UN"] == $you || $active == 1)) ? 1 : 0;

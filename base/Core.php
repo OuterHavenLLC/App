@@ -1004,6 +1004,58 @@
    }
    return $r;
   }
+  function GetSymbolicLinks($data = [], string $type) {
+   $r = [];
+   $type = $type ?? "";
+   if($type == "LiveView") {
+    $_LiveView = base64_encode("LiveView:InlineMossaic");
+    $albums = $data["Albums"] ?? [];
+    $albums = base64_encode(implode(";", $albums));
+    $articles = $data["Articles"] ?? [];
+    $articles = base64_encode(implode(";", $articles));
+    $attachments = $data["Attachments"] ?? [];
+    $attachments = base64_encode(implode(";", $attachments));
+    $blogs = $data["Blogs"] ?? [];
+    $blogs = base64_encode(implode(";", $blogs));
+    $blogPosts = $data["BlogPosts"] ?? [];
+    $blogPosts = base64_encode(implode(";", $blogPosts));
+    $chats = $data["Chats"] ?? [];
+    $chats = base64_encode(implode(";", $chats));
+    $demoFiles = $data["DemoFiles"] ?? [];
+    $demoFiles = base64_encode(implode(";", $demoFiles));
+    $forums = $data["Forums"] ?? [];
+    $forums = base64_encode(implode(";", $forums));
+    $forumPosts = $data["ForumPosts"] ?? [];
+    $forumPosts = base64_encode(implode(";", $forumPosts));
+    $members = $data["Members"] ?? [];
+    $members = base64_encode(implode(";", $members));
+    $polls = $data["Polls"] ?? [];
+    $polls = base64_encode(implode(";", $polls));
+    $products = $data["Products"] ?? [];
+    $products = base64_encode(implode(";", $products));
+    $shops = $data["Shops"] ?? [];
+    $shops = base64_encode(implode(";", $shops));
+    $updates = $data["Updates"] ?? [];
+    $updates = base64_encode(implode(";", $updates));
+    $r = [
+     "Albums" => base64_encode("v=$_LiveView&ID=$albums&Type=".base64_encode("Album")),
+     "Articles" => base64_encode("v=$_LiveView&ID=$articles&Type=".base64_encode("Article")),
+     "Attachments" => base64_encode("v=$_LiveView&ID=$attachments&Type=".base64_encode("DLC")),
+     "Blogs" => base64_encode("v=$_LiveView&ID=$blogs&Type=".base64_encode("Blog")),
+     "BlogPosts" => base64_encode("v=$_LiveView&ID=$blogPosts&Type=".base64_encode("BlogPost")),
+     "Chats" => base64_encode("v=$_LiveView&ID=$chats&Type=".base64_encode("Chat")),
+     "DemoFiles" => base64_encode("v=$_LiveView&ID=$demoFiles&Type=".base64_encode("DLC")),
+     "Forums" => base64_encode("v=$_LiveView&ID=$forums&Type=".base64_encode("Forum")),
+     "ForumPosts" => base64_encode("v=$_LiveView&ID=$forumPosts&Type=".base64_encode("ForumPost")),
+     "Members" => base64_encode("v=$_LiveView&ID=$members&Type=".base64_encode("NonArtist")),
+     "Polls" => base64_encode("v=$_LiveView&ID=$polls&Type=".base64_encode("Poll")),
+     "Products" => base64_encode("v=$_LiveView&ID=$products&Type=".base64_encode("ProductNotBundled")),
+     "Shops" => base64_encode("v=$_LiveView&ID=$shops&Type=".base64_encode("Shop")),
+     "Updates" => base64_encode("v=$_LiveView&ID=$updates&Type=".base64_encode("StatusUpdate")),
+    ];
+   }
+   return $r;
+  }
   function JSONResponse(array $a) {
    return json_encode($a, true);
   }
