@@ -306,12 +306,6 @@
    $search = base64_encode("Search:Containers");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $admin = ($y["Rank"] == md5("High Command")) ? $this->core->Element([
-    "button", "Control Panel", [
-     "class" => "CloseNetMap LI UpdateContent",
-     "data-view" => base64_encode("v=".base64_encode("ControlPanel:Home"))
-    ]
-   ]) : "";
    if($this->core->ID == $you) {
     $accessCode = "Accepted";
     $changeData = [
@@ -333,6 +327,12 @@
     $extension = "73859ffa637c369b9fa88399a27b5598";
    } else {
     $accessCode = "Accepted";
+    $admin = ($y["Rank"] == md5("High Command")) ? $this->core->Element([
+     "button", "Control Panel", [
+      "class" => "CloseNetMap LI UpdateContent",
+      "data-view" => base64_encode("v=".base64_encode("ControlPanel:Home"))
+     ]
+    ]) : "";
     $bulletinBadge = $this->view(base64_encode("Profile:Bulletins"), []);
     $bulletinBadge = $this->core->RenderView($bulletinBadge);
     $bulletinBadge = ($bulletinBadge > 0) ? $this->core->Element([

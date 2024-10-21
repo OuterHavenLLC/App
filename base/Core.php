@@ -208,20 +208,15 @@
    $r = (!empty($r) && $r == "on") ? "https" : "http";
    return "$r://";
   }
-  function CoverPhoto(string $id) {
-   $efs = $this->efs;
+  function CoverPhoto(string $attachment) {
    $r = $this->PlainText([
     "Data" => "[Media:CP]",
     "Display" => 1
    ]);
-   if(!empty($id)) {
-    $id = explode("-", base64_decode($id));
-    if(!empty($id[0]) && !empty($id[1])) {
-     $coverPhoto = $this->Data("Get", ["fs", md5($id[0])]);
-     $coverPhoto = $coverPhoto["Files"] ?? [];
-     $coverPhoto = $coverPhoto[$id[1]] ?? [];
-     $coverPhoto = $coverPhoto["Name"] ?? "";
-     $r = (!empty($coverPhoto)) ? $efs.$id[0]."/$coverPhoto" : $r;
+   if(!empty($attachment)) {
+    $attachment = explode("-", base64_decode($attachment));
+    if(!empty($attachment[0]) && !empty($attachment[1])) {
+     $r = $this->efs.$attachment[0]."/".$attachment[1];
     }
    }
    return $r;
@@ -709,10 +704,10 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      $them = $data["Login"]["Username"] ?? "";
      if($empty == 0) {
-      $attachments = $data["CoverPhoto"] ?? "";
+      $attachments = $data["Personal"]["CoverPhoto"] ?? "";
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $body = "";
-      $coverPhoto = base64_decode($data["Personal"]["CoverPhoto"]);
+      $coverPhoto = $data["Personal"]["CoverPhoto"] ?? "";
       $description = "You have not added a Description.";
       $displayName = $data["Personal"]["DisplayName"] ?? $them;
       $description = ($them != $you) ? "$displayName has not added a Description." : $description;
@@ -874,7 +869,6 @@
      }
     }
    }
-   $coverPhoto = $data["CoverPhoto"] ?? "";
    $coverPhoto = $this->CoverPhoto($coverPhoto);
    $empty = $contnet["Blacklisted"] ?? $empty;
    $modified = $data["Modified"] ?? "";
