@@ -673,9 +673,15 @@
       } if(!in_array($id, $newProducts)) {
        array_push($newProducts, $id);
        $shop["Products"] = array_unique($newProducts);
+      } foreach($data as $key => $value) {
+       if(strpos($key, "Architecture_") !== false) {
+        $key = explode("_", $key);
+        $product["ArchitecturalScpecifications"][$key] = $value ?? "";
+       }
       }
       $product = [
        "Albums" => $albums,
+       "ArchitecturalScpecifications" => $architecture,
        "Articles" => $articles,
        "Attachments" => $attachments,
        "Blogs" => $blogs,
