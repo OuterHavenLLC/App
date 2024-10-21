@@ -80,7 +80,7 @@
     $passPhrase = $product["PassPhrase"] ?? "";
     $privacy = $product["Privacy"] ?? $y["Privacy"]["Products"];
     $polls = $product["Polls"] ?? [];
-    $products = $product["Products"] ?? [];
+    $products = $product["Bundled"] ?? [];
     $profit = $product["Profit"] ?? 0.00;
     $quantities = [];
     $quantities["-1"] = "Unlimited";
@@ -103,6 +103,7 @@
       "Attachment" => $attachments,
       "Blog" => $blogs,
       "BlogPost" => $blogPosts,
+      "BundledProduct" => $products,
       "Chat" => $chats,
       "CoverPhoto" => $coverPhoto,
       "DemoFile" => $demoFiles,
@@ -110,10 +111,10 @@
       "ForumPost" => $forumPosts,
       "Member" => $members,
       "Poll" => $polls,
-      "Product" => $products,
       "Shop" => $shops,
       "Update" => $updates
-     ]
+     ],
+     "ParentContentID" => $shopID
     ]);
     $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
      "ID" => $id,
@@ -549,7 +550,7 @@
       $polls = []; 
       $pollsData = $data["Poll"] ?? [];
       $products = [];
-      $productsData = $data["Product"] ?? [];
+      $productsData = $data["BundledProduct"] ?? [];
       $profit = $data["Profit"] ?? 0;
       $profit = ($profit == "") ? 0 : $profit;
       $profit = ($profit > 0) ? number_format(str_replace(",", "", $profit), 2) : $profit;

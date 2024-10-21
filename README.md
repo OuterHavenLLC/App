@@ -28,6 +28,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Shop Partners may add media attachments to invoice notes. (coming soon...)
 * VIP Members are no longer required to pay the initial invoice (pre-set) charge if the shop identifier is that of the platform shop.
 * Charts are now used to graphically represent current sales data, comparisons, and platform statistics. (coming soon...)
+* Revised the process for bundled products. (coming soon...)
 
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.

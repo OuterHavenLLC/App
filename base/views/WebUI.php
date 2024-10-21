@@ -8,6 +8,7 @@
    $header = $data["Header"] ?? "";
    $id = $data["ID"] ?? "";
    $media = $data["Media"] ?? [];
+   $parentContentID = $data["ParentContentID"] ?? "";
    $uiid = $this->core->UUID($id);
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -48,6 +49,7 @@
      "Article" => "CA",
      "Blog" => "BLG",
      "BlogPost" => "BGP",
+     "BundledProduct" => "SHOP-Products&UN=".base64_encode($parentContentID),
      "Chat" => "Chat",
      "Default" => "XFS&lPG=Files&UN=".base64_encode($you),
      "Forum" => "Forums",
@@ -358,7 +360,7 @@
      ]);
      $subscriptions .= $subscriptionsList;
      $subscriptions = $this->core->Element([
-      "div", $subscriptions, ["class" => "Medium scr"]
+      "div", $subscriptions, ["class" => "Desktop33 Medium SideBarFull scr"]
      ]);
     }
     $changeData = [
