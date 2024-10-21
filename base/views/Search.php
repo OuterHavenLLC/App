@@ -388,11 +388,11 @@
      $username = $data["UN"] ?? base64_encode($you);
      $list .= "&UN=$username&b2=$b2&lPG=$parentView&pub=$pub&st=$searchType";
      $searchBarText = "$b2";
-     $t = base64_decode($data["UN"]);
-     $t = $this->core->Member($t);
+     $t = base64_decode($username);
+     $t = ($t == $you) ? $y :  $this->core->Member($t);
      $isArtist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $shopID = md5($t["Login"]["Username"]);
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $shopID]);
      $ck = ($t["Login"]["Username"] == $you && $notAnon == 1) ? 1 : 0;
      $options .= ($isArtist == 1 && $ck == 1) ? $this->core->Element([
       "button", "Discount Codes", [

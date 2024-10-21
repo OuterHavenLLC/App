@@ -16,16 +16,18 @@
    $parentView = $data["ParentView"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $shop = $data["Shop"] ?? md5($you);
+   $shopID = $data["Shop"] ?? md5($you);
+   $shopOwner = $this->core->Data("Get", ["mbr", $shopID]);
+   $shopOwner = $shopOwner["Login"]["Username"] ?? "";
    $template = "00f3b49a6e3b39944e3efbcc98b4948d";
    $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
    $r = [
     "Front" => $this->core->Change([[
-     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&Shop=$shop&new=1"),
-     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&Shop=$shop&new=1"),
-     "[Product.Download]" => base64_encode("v=$edit&Editor=Download&Shop=$shop&new=1"),
-     "[Product.Product]" => base64_encode("v=$edit&Editor=Product&Shop=$shop&new=1"),
-     "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&Shop=$shop"),
+     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&Shop=$shopID&new=1"),
+     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&Shop=$shopID&new=1"),
+     "[Product.Download]" => base64_encode("v=$edit&Editor=Download&Shop=$shopID&new=1"),
+     "[Product.Product]" => base64_encode("v=$edit&Editor=Product&Shop=$shopID&new=1"),
+     "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&Shop=$shopID"),
      "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
     ], $this->core->Extension($template)])
    ];
@@ -114,7 +116,7 @@
       "Shop" => $shops,
       "Update" => $updates
      ],
-     "ParentContentID" => $shopID
+     "ParentContentID" => $shopOwner
     ]);
     $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
      "ID" => $id,
@@ -148,7 +150,7 @@
      "[Product.Quantities]" => json_encode($quantities, true),
      "[Product.Role]" => $product["Role"],
      "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
-     "[Product.Shop]" => $shop,
+     "[Product.Shop]" => $shopID,
      "[Product.SubscriptionTerm]" => $subscriptionTerm,
      "[Product.Title]" => base64_encode($product["Title"]),
      "[Product.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),

@@ -10,12 +10,11 @@
    $media = $data["Media"] ?? [];
    $parentContentID = $data["ParentContentID"] ?? "";
    $uiid = $this->core->UUID($id);
+   $r = $this->core->Element(["p", "The content identifier is missing."]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(empty($id)) {
-    $r .= $this->core->Element(["p", "The content identifier is missing."]);
-   } elseif(empty($media)) {
-    $r .= $this->core->Element(["p", "The media identifiers are missing."]);
+   if(empty($media)) {
+    $r = $this->core->Element(["p", "The media identifiers are missing."]);
    } else {
     $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=[Link.AddTo]&CARD=1&st=";
     $_Translate = "";
@@ -82,6 +81,7 @@
       $sectionName = ($key == "Attachment") ? "Attachments" : $sectionName;
       $sectionName = ($key == "Blog") ? "Blogs" : $sectionName;
       $sectionName = ($key == "BlogPost") ? "Blog Posts" : $sectionName;
+      $sectionName = ($key == "BundledProduct") ? "Bundled Products" : $sectionName;
       $sectionName = ($key == "Chat") ? "Chats" : $sectionName;
       $sectionName = ($key == "CoverPhoto") ? "Cover Photo" : $sectionName;
       $sectionName = ($key == "DemoFile") ? "Demo Files" : $sectionName;
