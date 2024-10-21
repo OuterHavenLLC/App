@@ -524,6 +524,8 @@
       $id = $data["ID"] ?? "";
       $now = $this->core->timestamp;
       $product = $this->core->Data("Get", ["product", $id]);
+      $bundledProducts = [];
+      $bundledProducts = $data["BundledProduct"] ?? [];
       $category = $data["Category"] ?? "Product";
       $categories = [
        "Architecture",
@@ -552,7 +554,7 @@
       $polls = []; 
       $pollsData = $data["Poll"] ?? [];
       $products = [];
-      $productsData = $data["BundledProduct"] ?? [];
+      $productsData = $data["Product"] ?? [];
       $profit = $data["Profit"] ?? 0;
       $profit = ($profit == "") ? 0 : $profit;
       $profit = ($profit > 0) ? number_format(str_replace(",", "", $profit), 2) : $profit;
@@ -588,68 +590,68 @@
         }
        }
       } if(!empty($blogsData)) {
-     $media = $blogsData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($blogs, $media[$i]);
-      }
-     }
-    } if(!empty($blogPostsData)) {
-     $media = $blogPostsData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($blogPosts, $media[$i]);
-      }
-     }
-    } if(!empty($chatsData)) {
-     $media = $chatsData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($chats, $media[$i]);
-      }
-     }
-    } if(!empty($demoFilesData)) {
-     $media = $demoFilesData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($demoFiles, $media[$i]);
-      }
-     }
-    } if(!empty($forumsData)) {
-     $media = $forumsData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($forums, $media[$i]);
-      }
-     }
-    } if(!empty($forumPostsData)) {
-     $media = $forumPostsData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($forumPosts, $media[$i]);
-      }
-     }
-    } if(!empty($membersData)) {
-     $media = $membersData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($members, $media[$i]);
-      }
-     }
-    } if(!empty($pollsData)) {
-     $media = $pollsData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($polls, $media[$i]);
-      }
-     }
-    } if(!empty($productsData)) {
-     $media = $productsData;
-     for($i = 0; $i < count($media); $i++) {
-      if(!empty($media[$i])) {
-       array_push($products, $media[$i]);
-      }
-     }
+       $media = $blogsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($blogs, $media[$i]);
+        }
+       }
+      } if(!empty($blogPostsData)) {
+       $media = $blogPostsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($blogPosts, $media[$i]);
+        }
+       }
+      } if(!empty($bundledProductsData)) {
+       $media = $bundledProductsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+        array_push($bundledProducts, $media[$i]);
+        }
+       }
+      } if(!empty($chatsData)) {
+       $media = $chatsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($chats, $media[$i]);
+        }
+       }
+      } if(!empty($demoFilesData)) {
+       $media = $demoFilesData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($demoFiles, $media[$i]);
+        }
+       }
+      } if(!empty($forumsData)) {
+       $media = $forumsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($forums, $media[$i]);
+        }
+       }
+      } if(!empty($forumPostsData)) {
+       $media = $forumPostsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($forumPosts, $media[$i]);
+        }
+       }
+      } if(!empty($membersData)) {
+       $media = $membersData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($members, $media[$i]);
+        }
+       }
+      } if(!empty($pollsData)) {
+       $media = $pollsData;
+       for($i = 0; $i < count($media); $i++) {
+        if(!empty($media[$i])) {
+         array_push($polls, $media[$i]);
+        }
+       }
       } if(!empty($shopsData)) {
        $media = $shopsData;
        for($i = 0; $i < count($media); $i++) {
@@ -682,7 +684,7 @@
         "Data" => $data["Body"],
         "Encode" => 1
        ]),
-       "Bundled" => $products,
+       "Bundled" => $bundledProducts,
        "Category" => $category,
        "Chats" => $chats,
        "Cost" => str_replace(",", "", $cost),
@@ -704,7 +706,7 @@
        "Points" => $points,
        "Polls" => $polls,
        "Privacy" => $data["Privacy"],
-       "Products" => $products,
+       "Products" => $bundledProducts,
        "Profit" => str_replace(",", "", $profit),
        "Purge" => $purge,
        "Quantity" => $quantity,
