@@ -1432,8 +1432,6 @@
        $this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
-      $r.=$this->core->Element(["p", $bundled]);
-      $r.=$this->core->Element(["p", base64_decode($bundled)]);
       $_Product = $this->core->GetContentData([
        "Blacklisted" => 0,
        "ID" => $bundled
