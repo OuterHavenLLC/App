@@ -1315,6 +1315,7 @@
   }
   function ProcessCartOrder(array $a) {
    $accessCode = "Accepted";
+   $isBundled = $a["IsBundled"] ?? 0;
    $orderID = $a["OrderID"] ?? $this->core->UUID("CartOrder");
    $physicalOrders = $a["PhysicalOrders"] ?? [];
    $purchaseQuantity = $a["Product"]["Quantity"] ?? 1;
@@ -1419,16 +1420,17 @@
       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
-      $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
-       "Cost" => $product["Cost"],
-       "OrderID" => $orderID,
-       "Profit" => $product["Profit"],
-       "Quantity" => $purchaseQuantity,
-       "Shop" => $shopOwner,
-       "Title" => $product["Title"],
-       "Type" => "Sale"
-      ]]);
-      if($product["Quantity"] > 0) {
+      if($isBundled == 0) {
+       $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+        "Cost" => $product["Cost"],
+        "OrderID" => $orderID,
+        "Profit" => $product["Profit"],
+        "Quantity" => $purchaseQuantity,
+        "Shop" => $shopOwner,
+        "Title" => $product["Title"],
+        "Type" => "Sale"
+       ]]);
+      } if($product["Quantity"] > 0) {
        $this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
@@ -1441,6 +1443,7 @@
        $bundledProduct = $_Product["ID"] ?? "";
        $bundledProductShopOwner = $_Product["UN"] ?? "";
        $cartOrder = $this->ProcessCartOrder([
+        "IsBundled" => 1,
         "OrderID" => $orderID,
         "PhysicalOrders" => $physicalOrders,
         "Product" => [
