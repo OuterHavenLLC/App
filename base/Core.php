@@ -794,6 +794,7 @@
        "Decode" => 1,
        "HTMLDecode" => 1
       ]);
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
@@ -847,6 +848,7 @@
        "Display" => 1,
        "HTMLDecode" => 1
       ]), 180);
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;;
       $description = "";
       $from = $data["From"] ?? "";
       $title = "Update by <em>$from</em> from ".$this->TimeAgo($data["Created"]);
@@ -998,7 +1000,7 @@
    }
    return $r;
   }
-  function GetSymbolicLinks($data = [], string $type) {
+  function GetSymbolicLinks($data = [], string $type, $extras = []) {
    $r = [];
    $type = $type ?? "";
    if($type == "LiveView") {
@@ -1027,6 +1029,7 @@
     $polls = base64_encode(implode(";", $polls));
     $products = $data["Products"] ?? [];
     $products = base64_encode(implode(";", $products));
+    $productType = $extras["ProductType"] ?? "ProductNotBundled";
     $shops = $data["Shops"] ?? [];
     $shops = base64_encode(implode(";", $shops));
     $updates = $data["Updates"] ?? [];
@@ -1038,12 +1041,12 @@
      "Blogs" => base64_encode("v=$_LiveView&ID=$blogs&Type=".base64_encode("Blog")),
      "BlogPosts" => base64_encode("v=$_LiveView&ID=$blogPosts&Type=".base64_encode("BlogPost")),
      "Chats" => base64_encode("v=$_LiveView&ID=$chats&Type=".base64_encode("Chat")),
-     "DemoFiles" => base64_encode("v=$_LiveView&ID=$demoFiles&Type=".base64_encode("DLC")),
+     "DemoFiles" => base64_encode("v=$_LiveView&ID=$demoFiles&Type=".base64_encode("DemoFile")),
      "Forums" => base64_encode("v=$_LiveView&ID=$forums&Type=".base64_encode("Forum")),
      "ForumPosts" => base64_encode("v=$_LiveView&ID=$forumPosts&Type=".base64_encode("ForumPost")),
      "Members" => base64_encode("v=$_LiveView&ID=$members&Type=".base64_encode("NonArtist")),
      "Polls" => base64_encode("v=$_LiveView&ID=$polls&Type=".base64_encode("Poll")),
-     "Products" => base64_encode("v=$_LiveView&ID=$products&Type=".base64_encode("ProductNotBundled")),
+     "Products" => base64_encode("v=$_LiveView&ID=$products&Type=".base64_encode($productType)),
      "Shops" => base64_encode("v=$_LiveView&ID=$shops&Type=".base64_encode("Shop")),
      "Updates" => base64_encode("v=$_LiveView&ID=$updates&Type=".base64_encode("StatusUpdate")),
     ];
@@ -1678,7 +1681,7 @@
       $options = $content["ListItem"]["Options"] ?? [];
       $r = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
       $r = (!empty($options["View"])) ? $oh->Element(["button", $oh->Element([
-       "div", $r, ["class" => "NONAME"]
+       "p", $r, ["class" => "InnerMargin"]
       ]).$oh->Element([
        "p", "View in Full", ["class" => "CenterText"]
       ]), [

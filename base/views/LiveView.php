@@ -129,7 +129,9 @@
      "Chat",
      "Forum",
      "ForumPost",
+     "NonArtist",
      "Poll",
+     "Product",
      "ProductNotBundled",
      "Shop",
      "StatusUpdate"
@@ -145,9 +147,9 @@
        if($_Media["Empty"] == 0) {
         $i++;
         $options = $_Media["ListItem"]["Options"] ?? [];
-        $r = $_Media["Preview"]["Content"] ?? "";
-        $r = (!empty($options["View"])) ? $this->core->Element(["button", $this->core->Element([
-         "div", $r, ["class" => "NONAME"]
+        $preview = $_Media["Preview"]["Content"] ?? "";
+        $r .= (!empty($options["View"])) ? $this->core->Element(["button", $this->core->Element([
+         "div", $preview, ["class" => "NONAME"]
         ]).$this->core->Element([
          "p", "View in Full", ["class" => "CenterText"]
         ]), [
@@ -157,12 +159,13 @@
        }
       }
      } if($i > 0) {
-      $mediaType = ($mediaType == "BlogPost") ? "Blog Post" : $mediaType;
-      $mediaType = ($mediaType == "ForumPost") ? "Forum Post" : $mediaType;
-      $mediaType = ($mediaType == "ProductNotBundled") ? "Product" : $mediaType;
-      $mediaType = ($mediaType == "StatusUpdate") ? "Status Update" : $mediaType;
+      $mediaType = ($mediaType == "BlogPost") ? "Blog Posts" : $mediaType;
+      $mediaType = ($mediaType == "ForumPost") ? "Forum Posts" : $mediaType;
+      $mediaType = ($mediaType == "Product") ? "Bundled Products" : $mediaType;
+      $mediaType = ($mediaType == "ProductNotBundled") ? "Products" : $mediaType;
+      $mediaType = ($mediaType == "StatusUpdate") ? "Status Updates" : $mediaType;
       $r = $this->core->Element([
-       "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
+       "h4", $mediaType, ["class" => "UpperCase"]
       ]).$this->core->Element([
        "div", $r, ["class" => "SideScroll"]
       ]);
@@ -173,7 +176,7 @@
        $i++;
        $member = $this->core->GetContentData([
         "Blacklisted" => 0,
-        "ID" => base64_encode("Member;".md5(base64_decode($attachment)))
+        "ID" => $attachment
        ]);
        if($member["Empty"] == 0) {
         $_Member = $member["DataModel"];
@@ -205,10 +208,10 @@
        "Y" => $you
       ]);
      }
-    } elseif($mediaType == "DLC") {
-     foreach($attachments as $dlc) {
-      if(!empty($dlc)) {
-       $attachment = explode("-", base64_decode($dlc));
+    } elseif($mediaType == "DemoFile" || $mediaType == "DLC") {
+     foreach($attachments as $attachment) {
+      if(!empty($attachment)) {
+       $attachment = explode("-", base64_decode($attachment));
        if(!empty($attachment[0]) && !empty($attachment[1])) {
         $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
         $i++;
@@ -225,15 +228,15 @@
        }
       }
      } if($i > 0) {
+      $mediaType = ($mediaType == "DemoFile") ? "Demo Media" : "Attachments";
       $r = $this->core->Element([
-       "h4", "Attachments", ["class" => "UpperCase"]
+       "h4", $mediaType, ["class" => "UpperCase"]
       ]).$this->core->Element([
        "div", $r, ["class" => "SideScroll"]
       ]);
      }
     } elseif($mediaType == "NonArtist") {
      foreach($attachments as $key => $attachment) {
-     $i++;$r = base64_decode($attachment);
       if(!empty($attachment)) {
        $_Media = $this->core->GetContentData([
         "Blacklisted" => 0,
@@ -247,38 +250,6 @@
      } if($i > 0) {
       $r = $this->core->Element([
        "h4", "Featured Members", ["class" => "UpperCase"]
-      ]).$this->core->Element([
-       "div", $r, ["class" => "SideScroll"]
-      ]);
-     }
-    } elseif($mediaType == "Product") {
-     $coverPhoto = $this->core->PlainText([
-      "Data" => "[Media:MiNY]",
-      "Display" => 1
-     ]);
-     for($i = 0; $i < $count; $i++) {
-      if(!empty($attachments[$i])) {
-       $p = explode("-", base64_decode($attachments[$i]));
-       if(!empty($p[0]) && !empty($p[1])) {
-        $product = $this->core->Data("Get", ["miny", $p[1]]) ?? [];
-        $coverPhoto = $product["ICO"] ?? $coverPhoto;
-        $coverPhoto = base64_encode($coverPhoto);
-        $r .= $this->core->Change([[
-         "[X.LI.I]" => $this->core->CoverPhoto($coverPhoto),
-         "[X.LI.T]" => $product["Title"],
-         "[X.LI.D]" => $this->core->PlainText([
-          "BBCodes" => 1,
-          "Data" => $product["Description"],
-          "Display" => 1,
-          "HTMLDecode" => 1
-         ]),
-         "[X.LI.DT]" => base64_encode("v=".base64_encode("Product:Home")."&CS=".$this->core->CallSign($product["Title"])."&CARD=1&UN=".base64_encode($p[0]))
-        ], $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844")]);//NEW
-       }
-      }
-     } if($i > 0) {
-      $r = $this->core->Element([
-       "h4", "Included in this Bundle", ["class" => "UpperCase"]
       ]).$this->core->Element([
        "div", $r, ["class" => "SideScroll"]
       ]);

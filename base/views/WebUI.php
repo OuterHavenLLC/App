@@ -101,7 +101,7 @@
        $mediaList .= $this->core->Change([[
         "[Clone.ID]" => $cloneID,
         "[Media.Add]" => base64_encode($addMedia),
-        "[Media.File]" => base64_decode($attachments),
+        "[Media.File]" => $attachments,
         "[Media.ID]" => $cloneID,
         "[Media.Input]" => $mediaInput,
         "[Media.Input.LiveView]" => $liveView,

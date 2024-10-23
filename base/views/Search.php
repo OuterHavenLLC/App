@@ -84,7 +84,7 @@
     } elseif($searchType == "CART") {
      $username = $data["Username"] ?? $you;
      $shopID = md5($username);
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $shopID]);
      $list .= "&ID=$shopID&Username=".base64_encode($username);
      $searchBarText = "".$shop["Title"];
      $variant = "Minimal";
@@ -1042,8 +1042,7 @@
      $bl = $this->core->CheckBlocked([$y, "Products", $key]);;
      $_Product = $this->core->GetContentData([
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Product;$key"),
-      "Owner" => $username
+      "ID" => base64_encode("Product;$key")
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];
@@ -2967,8 +2966,7 @@
       "AddTo" => $addTo,
       "BackTo" => $b2,
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Product;".$sql["Product_ID"]),
-      "Owner" => $sql["Product_Username"]
+      "ID" => base64_encode("Product;".$sql["Product_ID"])
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];
@@ -3144,8 +3142,7 @@
      $_Product = $this->core->GetContentData([
       "AddTo" => $addTo,
       "Blacklisted" => $bl,
-      "ID" => base64_encode("Product;".$sql["Product_ID"]),
-      "Owner" => $sql["Product_Username"]
+      "ID" => base64_encode("Product;".$sql["Product_ID"])
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];

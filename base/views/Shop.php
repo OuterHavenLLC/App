@@ -689,8 +689,8 @@
      $_Braintree = $this->core->DocumentRoot."/base/pay/Braintree.php";
      $accessCode = "Accepted";
      $changeData = [];
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-     $shopOwner = $this->core->Data("Get", ["mbr", $shopID]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $shopID]);
+     $shopOwner = $this->core->Data("Get", ["mbr", $shopID]);
      $step = $data["Step"] ?? 0;
      $live = $shop["Live"] ?? 0;
      $payments = $shop["Processing"] ?? [];
@@ -740,7 +740,7 @@
      } if(in_array($paymentProcessor, $paymentProcessors)) {
       $check = 0;
       $message = "";
-      $orderID = $data["OrderID"] ?? "";
+      $orderID = $data["OrderID"] ?? $this->core->UUID("Order$shopID");
       $paymentNonce = $data["payment_method_nonce"] ?? "";
       $data["ViewPairID"] = ($type == "Checkout") ?  base64_encode("Shop$shopID") : $data["ViewPairID"];
       $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type&ViewPairID=".$data["ViewPairID"];
@@ -823,17 +823,17 @@
           $history = $y["Shopping"]["History"][$shopID] ?? [];
           $message = "";
           $points = $y["Points"] ?? 0;
-          $physicalOrders = $this->core->Data("Get", ["po", $shopID]) ?? [];
-          foreach($cart as $key => $value) {
-           $product = $this->core->Data("Get", ["product", $key]) ?? [];
+          $physicalOrders = $this->core->Data("Get", ["po", $shopID]);
+          foreach($cart as $key => $info) {
+           $product = $this->core->Data("Get", ["product", $key]);
            if(!empty($product)) {
-            $bundle = $value["Bundled"] ?? [];
+            $bundle = $info["Bundled"] ?? [];
             $isActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
             $isInStock = $product["Quantity"] ?? 0;
             $isInStock = ($isInStock != 0) ? 1 : 0;
-            $quantity = $value["Quantity"] ?? 1;
-            $value["ID"] = $value["ID"] ?? $key;
-            $value["Quantity"] = $quantity;
+            $quantity = $info["Quantity"] ?? 1;
+            $info["ID"] = $info["ID"] ?? $key;
+            $info["Quantity"] = $quantity;
             if($isActive == 0 || $isInStock == 0) {
              $price = str_replace(",", "", $product["Cost"]);
              $price = $price + str_replace(",", "", $product["Profit"]);
@@ -845,23 +845,25 @@
               "Quantity" => $quantity
              ]);
              foreach($bundle as $bundleID => $bundledProductID) {
-              $bundledProductID = explode("-", base64_decode($bundledProductID));
-              $bundledProductID = $bundledProductID[1] ?? "";
+              $bundledProductID = explode(";", base64_decode($bundledProductID));
+              $bundledProductID = end($bundledProductID) ?? "";
               array_push($history, [
                "ID" => $bundledProductID,
                "Quantity" => 1
               ]);
              }
              $cartOrder = $this->ProcessCartOrder([
-              "Bundled" => $bundle,
               "OrderID" => $orderID,
               "PhysicalOrders" => $physicalOrders,
-              "Product" => $value,
+              "Product" => $info,
               "UN" => $shopOwner["Login"]["Username"],
               "You" => $y
              ]);
              $physicalOrders = ($cartOrder["ERR"] == 0) ? $cartOrder["PhysicalOrders"] : $physicalOrders;
-             $message .= $cartOrder["Response"];
+             $message .= $cartOrder["Response"].$this->core->Element([//TEMP
+              "p", json_encode($cartOrder, true)
+             ]);//TEMP
+             #$message .= $cartOrder["Response"];
              $y = $cartOrder["Member"];
             }
            }
@@ -872,8 +874,8 @@
           $y["Shopping"]["Cart"][$shopID]["Products"] = [];
           $y["Shopping"]["History"][$shopID] = $history;
           $y["Verified"] = 1;
-          $this->core->Data("Save", ["mbr", md5($you), $y]);
-          $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
+          #$this->core->Data("Save", ["mbr", md5($you), $y]);
+          #$this->core->Data("Save", ["po", $shopID, $physicalOrders]);
          }
         }
        } else {
@@ -1319,8 +1321,7 @@
   }
   function ProcessCartOrder(array $a) {
    $accessCode = "Accepted";
-   $bundled = $a["Bundled"] ?? 0;
-   $orderID = $a["OrderID"] ?? "N/A";
+   $orderID = $a["OrderID"] ?? $this->core->UUID("CartOrder");
    $physicalOrders = $a["PhysicalOrders"] ?? [];
    $purchaseQuantity = $a["Product"]["Quantity"] ?? 1;
    $r = "";
@@ -1331,9 +1332,9 @@
    if(!empty($shopOwner) && is_array($a["Product"])) {
     $history = $y["Shopping"]["History"][$shopID] ?? [];
     $id = $a["Product"]["ID"] ?? "";
-    $product = $this->core->Data("Get", ["product", $id]) ?? [];
+    $product = $this->core->Data("Get", ["product", $id]);
     $quantity = $product["Quantity"] ?? 0;
-    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $shopID]);
     $t = ($shopOwner == $you) ? $y : $this->core->Member($shopOwner);
     if(!empty($product) && $quantity != 0) {
      $bundledProducts = $product["Bundled"] ?? [];
@@ -1372,7 +1373,12 @@
       } elseif($category == "Subscription") {
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
         # V.I.P. Subscription
-        foreach($y["Subscriptions"] as $sk => $sv) {
+        $y["Subscriptions"]["VIP"] = [
+         "A" => 1,
+         "B" => $now,
+         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
+        ];
+        /*--foreach($y["Subscriptions"] as $sk => $sv) {
          if($sk != "Developer") {
           $y["Subscriptions"][$sk] = [
            "A" => 1,
@@ -1380,7 +1386,7 @@
            "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
           ];
          }
-        }
+        }--*/
        } elseif($id == "c7054e9c7955203b721d142dedc9e540") {
         $y["Subscriptions"]["Artist"] = [
          "A" => 1,
@@ -1407,7 +1413,7 @@
         ];
        }
       }
-      $history[md5($id.$now.rand(0, 1776))] = [
+      $history[$this->core->UUID($id)] = [
        "ID" => $id,
        "Instructions" => $a["Product"]["Instructions"],
        "Quantity" => $purchaseQuantity,
@@ -1428,26 +1434,30 @@
       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
-      if($bundled == 0) {
-       $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
-        "Cost" => $product["Cost"],
-        "OrderID" => $orderID,
-        "Profit" => $product["Profit"],
-        "Quantity" => $purchaseQuantity,
-        "Shop" => $shopOwner,
-        "Title" => $product["Title"],
-        "Type" => "Sale"
-       ]]);
-      } if($product["Quantity"] > 0) {
-       $this->core->Data("Save", ["product", $id, $product]);
+      /*--$this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+       "Cost" => $product["Cost"],
+       "OrderID" => $orderID,
+       "Profit" => $product["Profit"],
+       "Quantity" => $purchaseQuantity,
+       "Shop" => $shopOwner,
+       "Title" => $product["Title"],
+       "Type" => "Sale"
+      ]]);--*/
+      if($product["Quantity"] > 0) {
+       #$this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
-      $bundled = explode("-", base64_decode($bundled));
-      $bundledProduct = $bundled[1] ?? "";
-      $bundledProductShopOwner = $bundled[0] ?? "";
-      if(!empty($bundledProduct) && !empty($bundledProductShopOwner)) {
+      $r.=$this->core->Element(["p", $bundled]);
+      $r.=$this->core->Element(["p", base64_decode($bundled)]);
+      $_Product = $this->core->GetContentData([
+       "Blacklisted" => 0,
+       "ID" => $bundled
+      ]);
+      if($_Product["Empty"] == 0) {
+       $_Product = $_Product["DataModel"];
+       $bundledProduct = $_Product["ID"] ?? "";
+       $bundledProductShopOwner = $_Product["UN"] ?? "";
        $cartOrder = $this->ProcessCartOrder([
-        "Bundled" => 1,
         "OrderID" => $orderID,
         "PhysicalOrders" => $physicalOrders,
         "Product" => [

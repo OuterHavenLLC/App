@@ -313,7 +313,7 @@
          "onclick" => "W('$base/MadeInNewYork/".$t["Login"]["Username"]."/', '_top');"
         ]
        ]) : $back;
-       $bundle = "";
+       $product["Attachments"] = [];
        $share = ($product["UN"] == $you || $product["Privacy"] == md5("Public")) ? 1 : 0;
        $share = ($share == 1) ? $this->core->Element([
         "button", "Share", [
@@ -321,7 +321,29 @@
          "data-view" => $options["Share"]
         ]
        ]) : "";
+       $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($product, "LiveView", [
+        "ProductType" => "Product"
+       ]);
        $r = $this->core->Change([[
+        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+        "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
+        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+        "[Conversation.CRID]" => $id,
+        "[Conversation.CRIDE]" => base64_encode($id),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
         "[Product.Actions]" => $actions,
         "[Product.Back]" => $back,
         "[Product.Body]" => $this->core->PlainText([
@@ -337,15 +359,8 @@
         ]),
         "[Product.Brief.Description]" => $_Product["ListItem"]["Description"],
         "[Product.Brief.Icon]" => "{product_category}",
-        "[Product.Bundled]" => $bundle,
-        "[Product.Conversation]" => $this->core->Change([[
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-        ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
         "[Product.Created]" => $this->core->TimeAgo($product["Created"]),
-        "[Product.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Product.CoverPhoto]"  => $_Product["ListItem"]["CoverPhoto"],
         "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
         "[Product.ID]" => $id,
         "[Product.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
@@ -504,6 +519,7 @@
       $actionTaken = ($new == 1) ? "posted" : "updated";
       $albums = [];
       $albumsData = $data["Album"] ?? [];
+      $architecture = [];
       $articles = [];
       $articlesData = $data["Article"] ?? [];
       $attachments = [];
@@ -561,13 +577,14 @@
       $purge = $product["Purge"] ?? 0;
       $quantity = $data["Quantity"] ?? "-1";
       $quantity = ($quantity == "-1") ? $quantity : number_format($quantity);
+      $shopOwner = $this->core->Data("Get", ["mbr", $shopID]);
+      $shopOwner = $shopOwner["Login"]["Username"] ?? $you;
       $shops = [];
       $shopsData = $data["Shop"] ?? [];
       $subscriptionTerm = $data["SubscriptionTerm"] ?? "";
       $success = ($new == 1) ? "CloseCard" : "";
       $updates = [];
       $updatesData = $data["Update"] ?? [];
-      $username = $product["UN"] ?? $you;
       if(!empty($albumsData)) {
        $media = $albumsData;
        for($i = 0; $i < count($media); $i++) {
@@ -676,7 +693,7 @@
       } foreach($data as $key => $value) {
        if(strpos($key, "Architecture_") !== false) {
         $key = explode("_", $key);
-        $product["ArchitecturalScpecifications"][$key] = $value ?? "";
+        $architecture[$key] = $value ?? "";
        }
       }
       $product = [
@@ -721,7 +738,7 @@
        "SubscriptionTerm" => $subscriptionTerm,
        "Title" => $title,
        "Updates" => $updates,
-       "UN" => $username
+       "UN" => $shopOwner
       ];
       $sql = New SQL($this->core->cypher->SQLCredentials());
       $query = "REPLACE INTO Products(
@@ -753,14 +770,14 @@
        ":Title" => $product["Title"],
        ":Username" => $product["UN"]
       ]);
-      #$sql->execute();
-      #$this->core->Data("Save", ["product", $id, $product]);
-      #$this->core->Data("Save", ["shop", $shopID, $shop]);
+      $sql->execute();
+      $this->core->Data("Save", ["product", $id, $product]);
+      $this->core->Data("Save", ["shop", $shopID, $shop]);
       if($new == 1) {
        $subscribers = $shop["Subscribers"] ?? [];
        $y["Points"] = $y["Points"] + $points;
-       #$this->core->Data("Save", ["mbr", md5($you), $y]);
-       /*--foreach($subscribers as $key => $value) {
+       $this->core->Data("Save", ["mbr", md5($you), $y]);
+       foreach($subscribers as $key => $value) {
         $this->core->SendBulletin([
          "Data" => [
           "ProductID" => $id,
@@ -770,14 +787,13 @@
          "Type" => "NewProduct"
         ]);
        }
-       $this->core->Statistic("New Product");--*/
+       $this->core->Statistic("New Product");
       } else {
-       #$this->core->Statistic("Edit Product");
+       $this->core->Statistic("Edit Product");
       }
       $r = [
        "Body" => "The Product <em>$title</em> has been $actionTaken!",
-       "Header" => "Done",
-       "Scrollable" => json_encode($product, true)
+       "Header" => "Done"
       ];
      }
     }
@@ -789,9 +805,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog"
-    #"ResponseType" => "Dialog",
-    #"Success" => $success
+    "ResponseType" => "Dialog",
+    "Success" => $success
    ]);
   }
   function __destruct() {
