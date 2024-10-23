@@ -762,7 +762,7 @@
        $credits = number_format($credits, 2);
        $discountCode = $y["Shopping"]["Cart"][$shopID]["DiscountCode"] ?? 0;
        foreach($cart as $key => $value) {
-        $product = $this->core->Data("Get", ["product", $key]) ?? [];
+        $product = $this->core->Data("Get", ["product", $key]);
         $quantity = $product["Quantity"] ?? 0;
         if(!empty($product) && $quantity != 0) {
          $productIsActive = (strtotime($now) < $product["Expires"]) ? 1 : 0;
@@ -860,10 +860,7 @@
               "You" => $y
              ]);
              $physicalOrders = ($cartOrder["ERR"] == 0) ? $cartOrder["PhysicalOrders"] : $physicalOrders;
-             $message .= $cartOrder["Response"].$this->core->Element([//TEMP
-              "p", json_encode($cartOrder, true)
-             ]);//TEMP
-             #$message .= $cartOrder["Response"];
+             $message .= $cartOrder["Response"];
              $y = $cartOrder["Member"];
             }
            }
@@ -874,8 +871,8 @@
           $y["Shopping"]["Cart"][$shopID]["Products"] = [];
           $y["Shopping"]["History"][$shopID] = $history;
           $y["Verified"] = 1;
-          #$this->core->Data("Save", ["mbr", md5($you), $y]);
-          #$this->core->Data("Save", ["po", $shopID, $physicalOrders]);
+          $this->core->Data("Save", ["mbr", md5($you), $y]);
+          $this->core->Data("Save", ["po", $shopID, $physicalOrders]);
          }
         }
        } else {
@@ -1109,10 +1106,7 @@
        $charge = $data["Charge"] ?? "";
        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $invoiceID = $data["Invoice"] ?? "";
-       $invoice = $this->core->Data("Get", [
-        "invoice",
-        $invoiceID
-       ]) ?? [];
+       $invoice = $this->core->Data("Get", ["invoice", $invoiceID]);
        $charges = $invoice["Charges"] ?? [];
        $payInFull = $data["PayInFull"] ?? 0;
        $unpaid = 0;
@@ -1378,15 +1372,6 @@
          "B" => $now,
          "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
         ];
-        /*--foreach($y["Subscriptions"] as $sk => $sv) {
-         if($sk != "Developer") {
-          $y["Subscriptions"][$sk] = [
-           "A" => 1,
-           "B" => $now,
-           "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
-          ];
-         }
-        }--*/
        } elseif($id == "c7054e9c7955203b721d142dedc9e540") {
         $y["Subscriptions"]["Artist"] = [
          "A" => 1,
@@ -1434,7 +1419,7 @@
       ], $this->core->Extension("4c304af9fcf2153e354e147e4744eab6")]);
       $y["Shopping"]["History"][$shopID] = $history;
       $y["Points"] = $y["Points"] + $points[$category];
-      /*--$this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
+      $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
        "Cost" => $product["Cost"],
        "OrderID" => $orderID,
        "Profit" => $product["Profit"],
@@ -1442,9 +1427,9 @@
        "Shop" => $shopOwner,
        "Title" => $product["Title"],
        "Type" => "Sale"
-      ]]);--*/
+      ]]);
       if($product["Quantity"] > 0) {
-       #$this->core->Data("Save", ["product", $id, $product]);
+       $this->core->Data("Save", ["product", $id, $product]);
       }
      } foreach($bundledProducts as $bundled) {
       $r.=$this->core->Element(["p", $bundled]);
