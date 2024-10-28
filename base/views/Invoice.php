@@ -31,7 +31,7 @@
       "Body" => "You are not authorized to add a $type.",
       "Header" => "Forbidden"
      ];
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $shopID]);
      foreach($shop["Contributors"] as $member => $role) {
       if($check == 0 && $member == $you) {
        $check++;
@@ -44,7 +44,7 @@
        $accessCode = "Accepted";
        $viewCharges = $data["ViewCharges"] ?? 0;
        if($viewCharges == 1) {
-        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+        $invoice = $this->core->Data("Get", ["invoice", $id]);
         $chargeList = "";
         $charges = $invoice["Charges"] ?? [];
         $r = $this->core->Element(["h4", "No Charges", [
@@ -79,7 +79,7 @@
        $accessCode = "Accepted";
        $viewNotes = $data["ViewNotes"] ?? 0;
        if($viewNotes == 1) {
-        $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+        $invoice = $this->core->Data("Get", ["invoice", $id]);
         $noteList = "";
         $notes = $invoice["Notes"] ?? [];
         $notes = array_reverse($notes);
@@ -87,16 +87,56 @@
          "class" => "CenterText UpperCase"
         ]]);
         foreach($notes as $key => $note) {
-         $noteList .= $this->core->Element([
-          "h4", $note["Created"]
-         ]).$this->core->Element([
-          "p", $note["Note"]
-         ]);
+         $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($note, "LiveView");
+         $noteList .= $this->core->Change([[
+          "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+          "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+          "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+          "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+          "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+          "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+          "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+          "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+          "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+          "[Attached.ID]" => $this->core->UUID("NoteAttachments"),
+          "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+          "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+          "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+          "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+          "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"]
+         ], $this->core->PlainText([
+          "Data" => $this->core->Element([
+           "h4", $note["Created"]
+          ]).$this->core->Element([
+           "p", $note["Note"]
+          ]).$this->core->Element([
+           "div", "[Extension:af6c0c610ebcc5e110fccec405b9dbf4]", ["class" => "NONAME"]
+          ]),
+          "Display" => 1
+         ])]);
         } if(!empty($noteList)) {
          $r = $noteList;
         }
        } else {
+        $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+         "ID" => $id,
+         "Media" => [
+          "Album" => [],
+          "Article" => [],
+          "Attachment" => [],
+          "Blog" => [],
+          "BlogPost" => [],
+          "Chat" => [],
+          "Forum" => [],
+          "ForumPost" => [],
+          "Member" => [],
+          "Poll" => [],
+          "Product" => [],
+          "Update" => []
+         ]
+        ]);
         $r = $this->core->Change([[
+         "[Invoice.Attachments]" => $this->core->RenderView($attachments),
          "[Invoice.ID]" => $id,
          "[Invoice.Notes]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Note&ViewNotes=1"),
          "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
@@ -897,10 +937,12 @@
       "Body" => "You are not authorized to manage Invoices.",
       "Header" => "Forbidden"
      ];
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
-     foreach($shop["Contributors"] as $member => $role) {
+     $shop = $this->core->Data("Get", ["shop", $shopID]);
+     $shopContributors = $shop["Contributors"] ?? [];
+     foreach($shopContributors as $member => $role) {
       if($check == 0 && $member == $you) {
        $check++;
+       break;
       }
      } if($check == 1 && $isAdmin == 1) {
       $chargeList = "";
@@ -916,7 +958,7 @@
       if($isCharge == 1) {
        $accessCode = "Accepted";
        $bulletin = "";
-       $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+       $invoice = $this->core->Data("Get", ["invoice", $id]);
        $member = $invoice["ChargeTo"] ?? "";
        $name = $member ?? $invoice["Email"];
        $chargeData = $data["ChargeTitle"] ?? [];
@@ -997,7 +1039,7 @@
        $responseType = "ReplaceContent";
       } elseif($isForwarding == 1) {
        $email = $data["Email"] ?? "";
-       $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+       $invoice = $this->core->Data("Get", ["invoice", $id]);
        $member = $data["Username"] ?? "";
        $r = [
         "Body" => "An e-mail address or username are required."
@@ -1047,8 +1089,9 @@
          foreach($members as $key => $value) {
           $value = str_replace("nyc.outerhaven.mbr.", "", $value);
           if($check == 0) {
-           $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
-           if($member == $t["Login"]["Username"]) {
+           $them = $this->core->Data("Get", ["mbr", $value]);
+           $them = $t["Login"]["Username"] ?? "";
+           if($member == $them) {
             $check++;
            }
           }
@@ -1071,12 +1114,133 @@
        }
        $success = "CloseCard";
       } elseif($isNote == 1) {
-       $accessCode = "Accepted";
-       $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+       #$accessCode = "Accepted";
+       $invoice = $this->core->Data("Get", ["invoice", $id]);
+       $albums = [];
+       $albumsData = $data["Album"] ?? [];
+       $articles = [];
+       $articlesData = $data["Article"] ?? [];
+       $attachments = [];
+       $attachmentsData = $data["Attachment"] ?? [];
+       $blogs = [];
+       $blogsData = $data["Blog"] ?? [];
+       $blogPosts = [];
+       $blogPostsData = $data["BlogPost"] ?? [];
+       $chats = [];
+       $chatsData = $data["Chat"] ?? [];
+       $forums = [];
+       $forumsData = $data["Forum"] ?? [];
+       $forumPosts = [];
+       $forumPostsData = $data["ForumPost"] ?? [];
+       $members = []; 
+       $membersData = $data["Member"] ?? [];
        $notes = $invoice["Notes"] ?? [];
+       $polls = []; 
+       $pollsData = $data["Poll"] ?? [];
+       $products = [];
+       $productsData = $data["Product"] ?? [];
+       $updates = [];
+       $updatesData = $data["Update"] ?? [];
+       if(!empty($albumsData)) {
+        $media = $albumsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($albums, $media[$i]);
+         }
+        }
+       } if(!empty($articlesData)) {
+        $media = $articlesData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($articles, $media[$i]);
+         }
+        }
+       } if(!empty($attachmentsData)) {
+        $media = $attachmentsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($attachments, $media[$i]);
+         }
+        }
+       } if(!empty($blogsData)) {
+        $media = $blogsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($blogs, $media[$i]);
+         }
+        }
+       } if(!empty($blogPostsData)) {
+        $media = $blogPostsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($blogPosts, $media[$i]);
+         }
+        }
+       } if(!empty($chatsData)) {
+        $media = $chatsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($chats, $media[$i]);
+         }
+        }
+       } if(!empty($forumsData)) {
+        $media = $forumsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($forums, $media[$i]);
+         }
+        }
+       } if(!empty($forumPostsData)) {
+        $media = $forumPostsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($forumPosts, $media[$i]);
+         }
+        }
+       } if(!empty($membersData)) {
+        $media = $membersData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($members, $media[$i]);
+         }
+        }
+       } if(!empty($pollsData)) {
+        $media = $pollsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($polls, $media[$i]);
+         }
+        }
+       } if(!empty($productsData)) {
+        $media = $productsData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($products, $media[$i]);
+         }
+        }
+       } if(!empty($updatesData)) {
+        $media = $updatesData;
+        for($i = 0; $i < count($media); $i++) {
+         if(!empty($media[$i])) {
+          array_push($updates, $media[$i]);
+         }
+        }
+       }
        array_push($notes, [
+        "Albums" => $albums,
+        "Articles" => $articles,
+        "Attachments" => $attachments,
+        "Blogs" => $blogs,
+        "BlogPosts" => $blogPosts,
+        "Chats" => $chats,
         "Created" => $this->core->timestamp,
-        "Note" => $data["InvoiceNote"]
+        "Forums" => $forums,
+        "ForumPosts" => $forumPosts,
+        "Members" => $members,
+        "Note" => $data["InvoiceNote"],
+        "Polls" => $polls,
+        "Products" => $products,
+        "Updates" => $updates
        ]);
        $invoice["Notes"] = $notes;
        $this->core->Data("Save", ["invoice", $id, $invoice]);
@@ -1087,7 +1251,7 @@
       } elseif(!empty($title) && $isPreset == 1) {
        $accessCode = "Accepted";
        $description = $data["ChargeDescription"][0] ?? "Unknown";
-       $service = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
+       $service = $this->core->Data("Get", ["invoice-preset", $id]);
        $serviceTitle = $title ?? "New Service";
        $title = $data["ChargeTitle"][0] ?? "Unknown";
        $value = $data["ChargeValue"][0] ?? 0.00;
@@ -1123,8 +1287,9 @@
        foreach($members as $key => $value) {
         $value = str_replace("nyc.outerhaven.mbr.", "", $value);
         if($check == 0) {
-         $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
-         if($member == $t["Login"]["Username"]) {
+         $them = $this->core->Data("Get", ["mbr", $value]);
+         $them -= $t["Login"]["Username"] ?? "";
+         if($member == $them) {
           $check++;
          }
         }

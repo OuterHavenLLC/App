@@ -27,7 +27,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Up to 100 new jobs may be active while the Hire section is enabled. After this new limit is reached, no new jobs may be created.
 * VIP Members are no longer required to pay the initial invoice (pre-set) charge if the shop identifier is that of the platform shop.
 * Revised the process for bundled products.
-* Shop Partners may add media attachments to invoice notes. (coming soon...)
+* Shop Partners may add media attachments to invoice notes.
 * Charts are now used to graphically represent current sales data, comparisons, and platform statistics. (coming soon...)
 
 ### Re:Search

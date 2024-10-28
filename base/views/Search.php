@@ -1027,7 +1027,6 @@
        ]);
       }
      }
-     #$na.=" ".$query.json_encode($extensions, true);//TEMP
     }
    } elseif($searchType == "CART") {
     $accessCode = "Accepted";
