@@ -101,14 +101,21 @@
      "Title",
      "Welcome"
     ]);
+    $albums = $shop["Albums"] ?? [];
     $action = $this->core->Element(["button", "Update", [
      "class" => "CardButton SendData",
-     "data-form" => ".Shop$id",
+     "data-form" => ".EditShop$id",
      "data-processor" => base64_encode("v=".base64_encode("Shop:Save")."&Username=$username")
     ]]);
-    $coverPhoto = $shop["CoverPhotoSource"] ?? "";
-    $designViewEditor = "UIE$id";
+    $articles = $shop["Articles"] ?? [];
+    $attachments = $shop["Attachments"] ?? [];
+    $blogs = $shop["Blogs"] ?? [];
+    $blogPosts = $shop["BlogPosts"] ?? [];
+    $chats = $shop["Chat"] ?? [];
+    $coverPhoto = $shop["CoverPhoto"] ?? "";
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
+    $forums = $shop["Forums"] ?? [];
+    $forumPosts = $shop["ForumPosts"] ?? [];
     $header = "Edit ".$shop["Title"];
     $hireLimit = $shop["HireLimit"] ?? 5;
     $hireLimits = [];
@@ -116,6 +123,7 @@
      $hireLimits[$i] = $i;
     }
     $hireTerms = $shop["HireTerms"] ?? $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
+    $members = $shop["Members"] ?? [];
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $shop["PassPhrase"] ?? "";
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
@@ -123,6 +131,7 @@
     for($i = 1; $i < 100; $i++) {
      $percentages[$i] = "$i%";
     }
+    $polls = $shop["Polls"] ?? [];
     $privacy = $shop["Privacy"] ?? $y["Privacy"]["Shop"];
     $processing = $shop["Processing"] ?? [];
     $processing = $this->core->FixMissing($processing, [
@@ -134,10 +143,38 @@
      "PayPalClientIDLive",
      "PayPalEmailLive"
     ]);
+    $products = $shop["Products"] ?? [];
     $search = base64_encode("Search:Containers");
+    $shops = $shop["Shops"] ?? [];
     $tax = $shop["Tax"] ?? 10.00;
+    $translate = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => []
+     ]
+    ]);
+    $updates = $shop["Updates"] ?? [];
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
+     "ID" => $id,
+     "Media" => [
+      "Album" => $albums,
+      "Article" => $articles,
+      "Attachment" => $attachments,
+      "Blog" => $blogs,
+      "BlogPost" => $blogPosts,
+      "Chat" => $chats,
+      "CoverPhoto" => $coverPhoto,
+      "Forum" => $forums,
+      "ForumPost" => $forumPosts,
+      "Member" => $members,
+      "Poll" => $polls,
+      "Shop" => $shops,
+      "Update" => $updates
+     ]
+    ]);
     $r = $this->core->Change([[
-     "[Shop.Attachments]" => "",
+     "[Shop.Attachments]" => $this->core->RenderView($attachments),
      "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
      "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
      "[Shop.Braintree.Live.PublicKey]" => $processing["BraintreePublicKeyLive"],
@@ -148,7 +185,6 @@
      "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
      "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
      "[Shop.Description]" => base64_encode($shop["Description"]),
-     "[Shop.DesignView]" => $designViewEditor,
      "[Shop.EnableHireSection]" => $enableHireSection,
      "[Shop.HireTerms]" => base64_encode($this->core->PlainText([
       "Data" => $hireTerms
@@ -166,6 +202,7 @@
      "[Shop.Tax]" => $tax,
      "[Shop.Tax.Percentages]" => json_encode($percentages, true),
      "[Shop.Title]" => base64_encode($shop["Title"]),
+     "[Shop.Translate]" => $this->core->RenderView($translate),
      "[Shop.Visibility.Live]" => $shop["Live"],
      "[Shop.Visibility.NSFW]" => $nsfw,
      "[Shop.Visibility.Open]" => $shop["Open"],
@@ -558,6 +595,7 @@
           "data-view" => $options["Edit"]
          ]
         ]) : "";
+        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
         $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
         $share = ($share == 1) ? $this->core->Element([
          "button", "Share", [
@@ -565,16 +603,30 @@
           "data-view" => $options["Share"]
          ]
         ]) : "";
+        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
         $r = $this->core->Change([[
+         "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+         "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+         "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+         "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+         "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+         "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+         "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+         "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+         "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+         "[Attached.ID]" => $this->core->UUID("ShopAttachments"),
+         "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+         "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+         "[Conversation.CRID]" => $id,
+         "[Conversation.CRIDE]" => base64_encode($id),
+         "[Conversation.Level]" => base64_encode(1),
+         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
          "[Shop.Back]" => $back,
          "[Shop.Block]" => $block,
          "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
-         "[Shop.Conversation]" => $this->core->Change([[
-          "[Conversation.CRID]" => $id,
-          "[Conversation.CRIDE]" => base64_encode($id),
-          "[Conversation.Level]" => base64_encode(1),
-          "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-         ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
          "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
          "[Shop.Dashboard]" => $dashboard,
          "[Shop.DashboardView]" => $dashboardView,
@@ -1484,7 +1536,7 @@
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [
-    "Body" => "The Shop Identifier is missing.."
+    "Body" => "The Shop Identifier is missing."
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1499,7 +1551,7 @@
     $i = 0;
     foreach($shops as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-     $shop = $this->core->Data("Get", ["shop", $value]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $value]);
      $ttl = $shop["Title"] ?? "";
      if($id != $value && $title == $ttl) {
       $i++;
@@ -1513,122 +1565,222 @@
      $accessCode = "Accepted";
      $owner = $this->core->Data("Get", ["mbr", $id]);
      $shop = $this->core->Data("Get", ["shop", $id]);
-     $coverPhoto = "";
-     $coverPhotoSource = "";
+     $albums = [];
+     $albumsData = $data["Album"] ?? [];
+     $articles = [];
+     $articlesData = $data["Article"] ?? [];
+     $attachments = [];
+     $attachmentsData = $data["Attachment"] ?? [];
+     $blogs = [];
+     $blogsData = $data["Blog"] ?? [];
+     $blogPosts = [];
+     $blogPostsData = $data["BlogPost"] ?? [];
+     $chats = [];
+     $chatsData = $data["Chat"] ?? [];
+     $coverPhoto = $data["CoverPhoto"] ?? "";
+     $contributors = $shop["Contributors"] ?? [];
+     $description = $data["Description"] ?? $shop["Description"];
+     $enableHireSection = $data["EnableHireSection"] ?? 0;
+     $forums = [];
+     $forumsData = $data["Forum"] ?? [];
+     $forumPosts = [];
+     $forumPostsData = $data["ForumPost"] ?? [];
+     $hireLimit = $data["HireLimit"] ?? 5;
+     $hireTerms = $data["HireTerms"] ?? "";
+     $invoicePresets = $shop["InvoicePresets"] ?? [];
+     $invoices = $shop["Invoices"] ?? [];
+     $live = $data["Live"] ?? 0;
+     $members = []; 
+     $membersData = $data["Member"] ?? [];
+     $now = $this->core->timestamp;
+     $created = $owner["Activity"]["Registered"] ?? $now;
+     $created = $shop["Created"] ?? $created;
+     $modifiedBy = $shop["ModifiedBy"] ?? [];
+     $modifiedBy[$now] = $you;
+     $nsfw = $data["nsfw"] ?? 0;
+     $open = $data["Open"] ?? 0;
+     $passPhrase = $data["PassPhrase"] ?? "";
+     $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
+     $privacy = $data["Privacy"] ?? $y["Privacy"]["Shop"];
+     $polls = []; 
+     $pollsData = $data["Poll"] ?? [];
+     $purge = $shop["Purge"] ?? 0;
+     $processing = $shop["Processing"] ?? [];
+     $products = $shop["Products"] ?? [];
+     $shops = [];
+     $shopsData = $data["Shop"] ?? [];
+     $tax = $data["Tax"] ?? 10.00;
+     $title = $title ?? $shop["Title"];
+     $updates = [];
+     $updatesData = $data["Update"] ?? [];
+     $welcome = $data["Welcome"] ?? "";
      foreach($data as $key => $value) {
       if(strpos($key, "Processing_") !== false) {
        $key = explode("_", $key);
        $shop["Processing"][$key[1]] = base64_encode($value);
       }
-     } if(!empty($data["CoverPhoto"])) {
-      $dlc = array_filter(explode(";", base64_decode($data["CoverPhoto"])));
-      $dlc = array_reverse($dlc);
-      foreach($dlc as $dlc) {
-       if(!empty($dlc) && $i == 0) {
-        $f = explode("-", base64_decode($dlc));
-        if(!empty($f[0]) && !empty($f[1])) {
-         $t = $this->core->Member($f[0]);
-         $efs = $this->core->Data("Get", [
-          "fs",
-          md5($t["Login"]["Username"])
-         ]) ?? [];
-         $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
-         if(!empty($fileName)) {
-          $coverPhoto = $f[0]."/$fileName";
-          $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
-          $i++;
-         }
-        }
+     } if(!empty($albumsData)) {
+      $media = $albumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($albums, $media[$i]);
+       }
+      }
+     } if(!empty($articlesData)) {
+      $media = $articlesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($articles, $media[$i]);
+       }
+      }
+     } if(!empty($attachmentsData)) {
+      $media = $attachmentsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($attachments, $media[$i]);
+       }
+      }
+     } if(!empty($blogsData)) {
+      $media = $blogsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogs, $media[$i]);
+       }
+      }
+     } if(!empty($blogPostsData)) {
+      $media = $blogPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogPosts, $media[$i]);
+       }
+      }
+     } if(!empty($chatsData)) {
+      $media = $chatsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($chats, $media[$i]);
+       }
+      }
+     } if(!empty($forumsData)) {
+      $media = $forumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forums, $media[$i]);
+       }
+      }
+     } if(!empty($forumPostsData)) {
+      $media = $forumPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forumPosts, $media[$i]);
+       }
+      }
+     } if(!empty($membersData)) {
+      $media = $membersData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($members, $media[$i]);
+       }
+      }
+     } if(!empty($pollsData)) {
+      $media = $pollsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($polls, $media[$i]);
+       }
+      }
+     } if(!empty($shopsData)) {
+      $media = $shopsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($shops, $media[$i]);
+       }
+      }
+     } if(!empty($updatesData)) {
+      $media = $updatesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($updates, $media[$i]);
        }
       }
      }
+     $shop = [
+      "Albums" => $albums,
+      "Articles" => $articles,
+      "Attachments" => $attachments,
+      "Blogs" => $blogs,
+      "BlogPosts" => $blogPosts,
+      "Chats" => $chats,
+      "CoverPhoto" => $coverPhoto,
+      "Created" => $created,
+      "Contributors" => $contributors,
+      "CoverPhoto" => $coverPhoto,
+      "Description" => $description,
+      "EnableHireSection" => $enableHireSection,
+      "Forums" => $forums,
+      "ForumPosts" => $forumPosts,
+      "HireLimit" => $hireLimit,
+      "HireTerms" => $this->core->PlainText([
+       "Data" => $hireTerms,
+       "HTMLEncode" => 1
+      ]),
+      "InvoicePresets" => $invoicePresets,
+      "Invoices" => $invoices,
+      "Live" => $live,
+      "Members" => $members,
+      "Modified" => $now,
+      "ModifiedBy" => $modifiedBy,
+      "NSFW" => $nsfw,
+      "Open" => $open,
+      "PassPhrase" => $passPhrase,
+      "PaymentProcessor" => $paymentProcessor,
+      "Privacy" => $privacy,
+      "Processing" => $processing,
+      "Products" => $products,
+      "Polls" => $polls,
+      "Purge" => $purge,
+      "Shops" => $shops,
+      "Tax" => $tax,
+      "Title" => $title,
+      "Welcome" => $this->core->PlainText([
+       "Data" => $welcome,
+       "HTMLEncode" => 1
+      ]),
+      "Updates" => $updates,
+      "Username" => base64_decode($username)
+     ];
+     $sql = New SQL($this->core->cypher->SQLCredentials());
+     $query = "REPLACE INTO Shops(
+      Shop_Created,
+      Shop_Description,
+      Shop_ID,
+      Shop_Title,
+      Shop_Username,
+      Shop_Welcome
+     ) VALUES(
+      :Created,
+      :Description,
+      :ID,
+      :Title,
+      :Username,
+      :Welcome
+     )";
+     $sql->query($query, [
+      ":Created" => $created,
+      ":Description" => $shop["Description"],
+      ":ID" => $id,
+      ":Title" => $shop["Title"],
+      ":Username" => $shop["Username"],
+      ":Welcome" => $welcome
+     ]);
+     $sql->execute();
+     $this->core->Data("Save", ["shop", $id, $shop]);
+     $this->core->Statistic("Edit Shop");
+     $r = [
+      "Body" => "<em>$title</em> has been updated.",
+      "Header" => "Done"
+     ];
     }
-    $contributors = $shop["Contributors"] ?? [];
-    $description = $data["Description"] ?? $shop["Description"];
-    $enableHireSection = $data["EnableHireSection"] ?? 0;
-    $hireLimit = $data["HireLimit"] ?? 5;
-    $hireTerms = $data["HireTerms"] ?? "";
-    $invoicePresets = $shop["InvoicePresets"] ?? [];
-    $invoices = $shop["Invoices"] ?? [];
-    $live = $data["Live"] ?? 0;
-    $now = $this->core->timestamp;
-    $created = $owner["Activity"]["Registered"] ?? $now;
-    $created = $shop["Created"] ?? $created;
-    $modifiedBy = $shop["ModifiedBy"] ?? [];
-    $modifiedBy[$now] = $you;
-    $nsfw = $data["nsfw"] ?? 0;
-    $open = $data["Open"] ?? 0;
-    $passPhrase = $data["PassPhrase"] ?? "";
-    $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
-    $privacy = $data["Privacy"] ?? $y["Privacy"]["Shop"];
-    $purge = $shop["Purge"] ?? 0;
-    $processing = $shop["Processing"] ?? [];
-    $products = $shop["Products"] ?? [];
-    $tax = $data["Tax"] ?? 10.00;
-    $title = $title ?? $shop["Title"];
-    $welcome = $data["Welcome"] ?? "";
-    $shop = [
-     "Created" => $created,
-     "Contributors" => $contributors,
-     "CoverPhoto" => $coverPhoto,
-     "CoverPhotoSource" => base64_encode($coverPhotoSource),
-     "Description" => $description,
-     "EnableHireSection" => $enableHireSection,
-     "HireLimit" => $hireLimit,
-     "HireTerms" => $this->core->PlainText([
-      "Data" => $hireTerms,
-      "HTMLEncode" => 1
-     ]),
-     "InvoicePresets" => $invoicePresets,
-     "Invoices" => $invoices,
-     "Live" => $live,
-     "Modified" => $now,
-     "ModifiedBy" => $modifiedBy,
-     "NSFW" => $nsfw,
-     "Open" => $open,
-     "PassPhrase" => $passPhrase,
-     "PaymentProcessor" => $paymentProcessor,
-     "Privacy" => $privacy,
-     "Processing" => $processing,
-     "Products" => $products,
-     "Purge" => $purge,
-     "Tax" => $tax,
-     "Title" => $title,
-     "Welcome" => $this->core->PlainText([
-      "Data" => $welcome,
-      "HTMLEncode" => 1
-     ])
-    ];
-    $sql = New SQL($this->core->cypher->SQLCredentials());
-    $query = "REPLACE INTO Shops(
-     Shop_Created,
-     Shop_Description,
-     Shop_ID,
-     Shop_Title,
-     Shop_Username,
-     Shop_Welcome
-    ) VALUES(
-     :Created,
-     :Description,
-     :ID,
-     :Title,
-     :Username,
-     :Welcome
-    )";
-    $sql->query($query, [
-     ":Created" => $created,
-     ":Description" => $shop["Description"],
-     ":ID" => $id,
-     ":Title" => $shop["Title"],
-     ":Username" => base64_decode($username),
-     ":Welcome" => $welcome
-    ]);
-    $sql->execute();
-    $this->core->Data("Save", ["shop", $id, $shop]);
-    $r = [
-     "Body" => "$title has been updated.",
-     "Header" => "Done"
-    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

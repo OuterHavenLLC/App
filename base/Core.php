@@ -822,6 +822,7 @@
      if($empty == 0) {
       $attachments = $data["CoverPhoto"] ?? "";
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
@@ -848,7 +849,7 @@
        "Display" => 1,
        "HTMLDecode" => 1
       ]), 180);
-      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;;
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = "";
       $from = $data["From"] ?? "";
       $title = "Update by <em>$from</em> from ".$this->TimeAgo($data["Created"]);
