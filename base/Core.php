@@ -494,6 +494,7 @@
      if($empty == 0) {
       $attachments = $data["CoverPhoto"] ?? "";
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
@@ -528,6 +529,7 @@
        "Decode" => 1,
        "HTMLDecode" => 1
       ]);
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
@@ -565,6 +567,7 @@
       }
       $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
       $bookmarkCommand .= "Bookmark";
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
@@ -644,6 +647,7 @@
       $attachments = $data["CoverPhoto"] ?? "";
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $body = "";
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $viewData = json_encode([
        "AddTo" => $addTo,
@@ -676,6 +680,7 @@
        "Data" => $body,
        "HTMLDecode" => 1
       ]);
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $viewData = json_encode([
        "AddTo" => $addTo,
@@ -707,7 +712,7 @@
       $attachments = $data["Personal"]["CoverPhoto"] ?? "";
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $body = "";
-      $coverPhoto = $data["Personal"]["CoverPhoto"] ?? "";
+      $coverPhoto = $data["Personal"]["CoverPhoto"] ?? $coverPhoto;
       $description = "You have not added a Description.";
       $displayName = $data["Personal"]["DisplayName"] ?? $them;
       $description = ($them != $you) ? "$displayName has not added a Description." : $description;
