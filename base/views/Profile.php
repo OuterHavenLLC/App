@@ -228,6 +228,8 @@
     $message = "Forwarded an Invoice to you.";
    } elseif($type == "InvoiceUpdate") {
     $message = "Updated your Invoice.";
+   } elseif($type == "NewArticle") {
+    $message = "Wrote a new Artcile.";
    } elseif($type == "NewBlogPost") {
     $message = "Posted to their blog.";
    } elseif($type == "NewJob") {
@@ -262,7 +264,7 @@
     $data = $bulletin["Data"] ?? [];
     $mar = "v=".base64_encode("Profile:MarkBulletinAsRead")."&ID=$id";
     if($bulletin["Type"] == "ArticleUpdate") {
-     $article = $this->core->Data("Get", ["pg", $data["ArticleID"]]) ?? [];
+     $article = $this->core->Data("Get", ["pg", $data["ArticleID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$article["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
@@ -271,9 +273,8 @@
        "data-target" => ".Bulletin$id .Options"
       ]
      ]);
-     $r = "Button";
     } elseif($bulletin["Type"] == "BlogUpdate") {
-     $blog = $this->core->Data("Get", ["blg", $data["BlogID"]]) ?? [];
+     $blog = $this->core->Data("Get", ["blg", $data["BlogID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$blog["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
@@ -282,9 +283,8 @@
        "data-target" => ".Bulletin$id .Options"
       ]
      ]);
-     $r = "Button";
     } elseif($bulletin["Type"] == "BlogPostUpdate") {
-     $post = $this->core->Data("Get", ["bp", $data["PostID"]]) ?? [];
+     $post = $this->core->Data("Get", ["bp", $data["PostID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$post["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
@@ -293,7 +293,6 @@
        "data-target" => ".Bulletin$id .Options"
       ]
      ]);
-     $r = "Button";
     } if($bulletin["Type"] == "ContactRequest") {
      $contactStatus = $this->view(base64_encode("Contact:Status"), [
       "Them" => $bulletin["Data"]["From"],
@@ -384,6 +383,16 @@
       "button", "View Updated Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
+      ]
+     ]);
+    } elseif($bulletin["Type"] == "NewArticle") {
+     $article = $this->core->Data("Get", ["pg", $data["ArticleID"]]);
+     $r = $this->core->Element([
+      "button", "Take me to <em>".$article["Title"]."</em>", [
+       "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Page:Home")."&CARD=1&ID=".$data["ArticleID"]),
+       "data-MAR" => base64_encode($mar),
+       "data-target" => ".Bulletin$id .Options"
       ]
      ]);
     } elseif($bulletin["Type"] == "NewBlogPost") {

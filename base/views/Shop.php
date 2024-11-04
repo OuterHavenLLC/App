@@ -143,7 +143,6 @@
      "PayPalClientIDLive",
      "PayPalEmailLive"
     ]);
-    $products = $shop["Products"] ?? [];
     $search = base64_encode("Search:Containers");
     $shops = $shop["Shops"] ?? [];
     $tax = $shop["Tax"] ?? 10.00;

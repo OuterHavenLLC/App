@@ -146,31 +146,37 @@
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
     $id = base64_decode($id);
-    $id = ($new == 1) ? md5($you."_PG_".$time) : $id;
+    $id = ($new == 1) ? $this->core->UUID("ArticleBy$you") : $id;
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
      "data-form" => ".EditPage$id",
      "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
     ]]);
-    $article = $this->core->Data("Get", ["pg", $id]) ?? [];
+    $article = $this->core->Data("Get", ["pg", $id]);
     $article = $this->core->FixMissing($article, [
      "Body",
      "Category",
      "Description",
-     "ICO-SRC",
      "Title"
     ]);
-    $attachments = "";
+    $albums = $article["Albums"] ?? [];
+    $articles = $article["Articles"] ?? [];
+    $attachments = $article["Attachments"] ?? [];
     $author = $article["UN"] ?? $you;
-    $designViewEditor = "ArticleEditor$id".md5($time);
+    $blogs = $article["Blogs"] ?? [];
+    $blogPosts = $article["BlogPosts"] ?? [];
+    $chats = $article["Chat"] ?? [];
+    $coverPhoto = $article["CoverPhoto"] ?? "";
+    $designViewEditor = "ArticleEditor$id";
+    $forums = $article["Forums"] ?? [];
+    $forumPosts = $article["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Article" : "Edit ".$article["Title"];
-    $products = "";
-    if(!empty($article["Attachments"])) {
-     $attachments = base64_encode(implode(";", $article["Attachments"]));
-    } if(!empty($article["Products"])) {
-     $products = base64_encode(implode(";", $article["Products"]));
-    }
+    $members = $article["Members"] ?? [];
+    $polls = $article["Polls"] ?? [];
+    $products = $article["Products"] ?? [];
+    $shops = $article["Shops"] ?? [];
+    $updates = $article["Updates"] ?? [];
     $categories = ($y["Rank"] == md5("High Command")) ? [
      "CA" => "Article",
      "JE" => "Journal Entry",
@@ -183,8 +189,35 @@
     $nsfw = $article["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $article["PassPhrase"] ?? "";
     $privacy = $article["Privacy"] ?? $y["Privacy"]["Posts"];
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
+     "ID" => $id,
+     "Media" => [
+      "Album" => $albums,
+      "Article" => $articles,
+      "Attachment" => $attachments,
+      "Blog" => $blogs,
+      "BlogPost" => $blogPosts,
+      "Chat" => $chats,
+      "CoverPhoto" => $coverPhoto,
+      "Forum" => $forums,
+      "ForumPost" => $forumPosts,
+      "Member" => $members,
+      "Poll" => $polls,
+      "Product" => $products,
+      "Shop" => $shops,
+      "Update" => $updates
+     ]
+    ]);
+    $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => [],
+      "ViewDesign" => []
+     ]
+    ]);
     $r = $this->core->Change([[
-     "[Article.Attachments]" => "",
+     "[Article.Attachments]" => $this->core->RenderView($attachments),
      "[Article.Body]" => base64_encode($this->core->PlainText([
       "Data" => $article["Body"],
       "Decode" => 1
@@ -192,8 +225,6 @@
      "[Article.Categories]" => json_encode($categories, true),
      "[Article.Category]" => $category,
      "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
-     "[Article.CoverPhoto]" => $article["ICO-SRC"],
-     "[Article.CoverPhoto.LiveView]" => $additionalContent["LiveView"]["CoverPhoto"],
      "[Article.Description]" => base64_encode($article["Description"]),
      "[Article.DesignView]" => $designViewEditor,// TO BE DISOLVED
      "[Article.Header]" => $header,
@@ -201,6 +232,7 @@
      "[Article.New]" => $new,
      "[Article.PassPhrase]" => base64_encode($passPhrase),
      "[Article.Title]" => base64_encode($article["Title"]),
+     "[Article.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
      "[Article.Visibility.NSFW]" => $nsfw,
      "[Article.Visibility.Privacy]" => $privacy
     ], $this->core->Extension("68526a90bfdbf5ea5830d216139585d7")]);
@@ -353,6 +385,7 @@
         "Display" => 1,
         "HTMLDecode" => 1
        ]) : $description;
+       $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($article, "LiveView");
        $share = ($ck == 1 || $article["Privacy"] == md5("Public")) ? 1 : 0;
        $share = ($share == 1) ? $this->core->Element(["button", "Share", [
         "class" => "OpenCard Small v2",
@@ -370,12 +403,6 @@
          "HTMLDecode" => 1
         ]),
         "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
-        "[Article.Conversation]" => $this->core->Change([[
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-        ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
         "[Article.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
         "[Article.Created]" => $this->core->TimeAgo($article["Created"]),
         "[Article.Description]" => $_Article["ListItem"]["Description"],
@@ -387,6 +414,25 @@
         "[Article.Subscribe]" => $options["Subscribe"],
         "[Article.Title]" => $_Article["ListItem"]["Title"],
         "[Article.Votes]" => $options["Vote"],
+        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+        "[Attached.ID]" => $this->core->UUID("ArticleAttachments"),
+        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+        "[Conversation.CRID]" => $id,
+        "[Conversation.CRIDE]" => base64_encode($id),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
         "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
         "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
         "[Member.Description]" => $description
@@ -567,6 +613,7 @@
      $article = $this->core->Data("Get", ["pg", $article]) ?? [];
      if($id != $article["ID"] && $article["Title"] == $title) {
       $i++;
+      break;
      }
     } if($i > 0) {
      $r = [
@@ -576,73 +623,138 @@
     } else {
      $accessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
-     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
-     $coverPhoto = "";
-     $coverPhotoSource = "";
-     $attachments = $article["Attachments"] ?? [];
+     $article = $this->core->Data("Get", ["pg", $id]);
+     $albums = [];
+     $albumsData = $data["Album"] ?? [];
+     $articles = [];
+     $articlesData = $data["Article"] ?? [];
+     $attachments = [];
+     $attachmentsData = $data["Attachment"] ?? [];
      $author = $article["UN"] ?? $you;
-     $newCategory = "Article";
-     $newCategory = ($category == "JE") ? "Journal Entry" : $newCategory;
+     $blogs = [];
+     $blogsData = $data["Blog"] ?? [];
+     $blogPosts = [];
+     $blogPostsData = $data["BlogPost"] ?? [];
+     $chats = [];
+     $chatsData = $data["Chat"] ?? [];
      $contributors = $article["Contributors"] ?? [];
      $contributors[$author] = "Admin";
+     $coverPhoto = $data["CoverPhoto"] ?? "";
      $created = $article["Created"] ?? $now;
-     $i = 0;
+     $forums = [];
+     $forumsData = $data["Forum"] ?? [];
+     $forumPosts = [];
+     $forumPostsData = $data["ForumPost"] ?? [];
      $illegal = $article["Illegal"] ?? 0;
+     $members = []; 
+     $membersData = $data["Member"] ?? [];
      $modifiedBy = $article["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
+     $newCategory = "Article";
+     $newCategory = ($category == "JE") ? "Journal Entry" : $newCategory;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["Posts"];
      $notes = $article["Notes"] ?? [];
      $passPhrase = $data["PassPhrase"] ?? "";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Articles"];
-     $products = $article["Products"] ?? [];
-     $purge = $article["Purge"] ?? 0;
+     $polls = []; 
+     $pollsData = $data["Poll"] ?? [];
+     $products = [];
+     $productsData = $data["Product"] ?? [];
+     $purge = $data["Purge"] ?? 0;
+     $shops = [];
+     $shopsData = $data["Shop"] ?? [];
+     $updates = [];
+     $updatesData = $data["Update"] ?? [];
      $subscribers = $article["Subscribers"] ?? [];
-     foreach($subscribers as $key => $value) {
-      $this->core->SendBulletin([
-       "Data" => [
-        "ArticleID" => $id
-       ],
-       "To" => $value,
-       "Type" => "ArticleUpdate"
-      ]);
-     } if(!empty($data["rATTI"])) {
-      $dlc = array_reverse(explode(";", base64_decode($data["rATTI"])));
-      foreach($dlc as $dlc) {
-       if(!empty($dlc) && $i == 0) {
-        $f = explode("-", base64_decode($dlc));
-        if(!empty($f[0]) && !empty($f[1])) {
-         $t = $this->core->Member($f[0]);
-         $efs = $this->core->Data("Get", [
-          "fs",
-          md5($t["Login"]["Username"])
-         ]) ?? [];
-         $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
-         if(!empty($fileName)) {
-          $coverPhoto = $f[0]."/$fileName";
-          $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
-          $i++;
-         }
-        }
+     if(!empty($albumsData)) {
+      $media = $albumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($albums, $media[$i]);
        }
       }
-     } if(!empty($data["rATTF"])) {
-      $dlc = array_reverse(explode(";", base64_decode($data["rATTF"])));
-      foreach($dlc as $dlc) {
-       if(!empty($dlc)) {
-        $f = explode("-", base64_decode($dlc));
-        if(!empty($f[0]) && !empty($f[1])) {
-         array_push($attachments, base64_encode($f[0]."-".$f[1]));
-        }
+     } if(!empty($articlesData)) {
+      $media = $articlesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($articles, $media[$i]);
        }
       }
-     } if(!empty($data["rATTP"])) {
-      $dlc = array_reverse(explode(";", base64_decode($data["rATTP"])));
-      foreach($dlc as $dlc) {
-       if(!empty($dlc)) {
-        $f = explode("-", base64_decode($dlc));
-        if(!empty($f[0]) && !empty($f[1])) {
-         array_push($prod, base64_encode($f[0]."-".$f[1]));
-        }
+     } if(!empty($attachmentsData)) {
+      $media = $attachmentsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($attachments, $media[$i]);
+       }
+      }
+     } if(!empty($blogsData)) {
+      $media = $blogsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogs, $media[$i]);
+       }
+      }
+     } if(!empty($blogPostsData)) {
+      $media = $blogPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogPosts, $media[$i]);
+       }
+      }
+     } if(!empty($chatsData)) {
+      $media = $chatsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($chats, $media[$i]);
+       }
+      }
+     } if(!empty($forumsData)) {
+      $media = $forumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forums, $media[$i]);
+       }
+      }
+     } if(!empty($forumPostsData)) {
+      $media = $forumPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forumPosts, $media[$i]);
+       }
+      }
+     } if(!empty($membersData)) {
+      $media = $membersData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($members, $media[$i]);
+       }
+      }
+     } if(!empty($pollsData)) {
+      $media = $pollsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($polls, $media[$i]);
+       }
+      }
+     } if(!empty($productsData)) {
+      $media = $productsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($products, $media[$i]);
+       }
+      }
+     } if(!empty($shopsData)) {
+      $media = $shopsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($shops, $media[$i]);
+       }
+      }
+     } if(!empty($updatesData)) {
+      $media = $updatesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($updates, $media[$i]);
        }
       }
      } if($isPublic == 1 && $new == 1) {
@@ -657,30 +769,40 @@
       }
      }
      $article = [
-      "Attachments" => array_unique($attachments),
+      "Albums" => $albums,
+      "Articles" => $articles,
+      "Attachments" => $attachments,
       "Body" => $this->core->PlainText([
        "Data" => $data["Body"],
        "Encode" => 1,
        "HTMLEncode" => 1
       ]),
+      "Blogs" => $blogs,
+      "BlogPosts" => $blogPosts,
       "Category" => $category,
+      "Chats" => $chats,
+      "CoverPhoto" => $coverPhoto,
       "Contributors" => $contributors,
       "Created" => $created,
       "Description" => htmlentities($data["Description"]),
-      "ICO" => $coverPhoto,
-      "ICO-SRC" => base64_encode($coverPhotoSource),
+      "Forums" => $forums,
+      "ForumPosts" => $forumPosts,
       "ID" => $id,
       "Illegal" => $illegal,
+      "Members" => $members,
       "Modified" => $now,
       "ModifiedBy" => $modifiedBy,
       "Notes" => $notes,
       "NSFW" => $nsfw,
       "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
+      "Polls" => $polls,
       "Products" => $products,
       "Purge" => $purge,
+      "Shops" => $shops,
       "Title" => $title,
-      "UN" => $author
+      "UN" => $author,
+      "Updates" => $updates
      ];
      $sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Articles(
@@ -719,12 +841,20 @@
      $sql->execute();
      $this->core->Data("Save", ["pg", $id, $article]);
      $this->core->Data("Save", ["mbr", md5($you), $y]);
-     $r = [
-      "Body" => "The $newCategory has been $actionTaken!",
-      "Header" => "Done"
-     ];
      if($new == 1) {
       $this->core->Statistic("New Article");
+      if($isPublic == 1) {
+       foreach($subscribers as $key => $value) {
+        $this->core->SendBulletin([
+         "Data" => [
+          "ArticleID" => $id,
+          "Author" => $you
+         ],
+         "To" => $value,
+         "Type" => "NewArticle"
+        ]);
+       }
+      }
      } else {
       $this->core->Statistic("Edit Article");
       if($isPublic == 1) {
@@ -740,6 +870,10 @@
        }
       }
      }
+     $r = [
+      "Body" => "The $newCategory has been $actionTaken!",
+      "Header" => "Done"
+     ];
     }
    }
    return $this->core->JSONResponse([

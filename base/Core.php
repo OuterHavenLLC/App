@@ -733,9 +733,9 @@
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
-       "Decode" => 1,
-       #"HTMLDecode" => 1
+       "Decode" => 1
       ]);
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
       $viewData = json_encode([
