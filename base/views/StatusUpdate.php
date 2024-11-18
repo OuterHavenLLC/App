@@ -388,14 +388,6 @@
       }
      }
     } if($new == 1) {
-     $mainstream = $this->core->Data("Get", ["app", "mainstream"]);
-     array_push($mainstream, $id);
-     $this->core->Data("Save", ["app", "mainstream", $mainstream]);
-     $update = [
-      "From" => $you,
-      "To" => $to,
-      "UpdateID" => $id
-     ];
      if(!empty($to) && $to != $you) {
       $stream = $this->core->Data("Get", ["stream", md5($to)]);
       $stream[$created] = $update;

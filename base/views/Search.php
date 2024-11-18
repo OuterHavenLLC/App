@@ -1128,7 +1128,7 @@
    } elseif($searchType == "Congress") {
     $accessCode = "Accepted";
     $chamber = $data["Chamber"] ?? "";
-    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+    $congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $congressmen = $congress["Members"] ?? [];
     $exclude = [
      "app",
