@@ -422,8 +422,8 @@
      "Products" => $products,
      "Purge" => $purge,
      "Shops" => $shops,
-     "Updates" => $updates,
-     "To" => $to
+     "To" => $to,
+     "Updates" => $updates
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO StatusUpdates(
@@ -453,19 +453,16 @@
      ":Username" => $update["From"]
     ]);
     $sql->execute();
+    $statistic = ($new == 1) ? "New Status Update" : "Edit Status Update";
     $y["Activity"]["LastActivity"] = $this->core->timestamp;
     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $this->core->Data("Save", ["su", $update["ID"], $update]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Statistic($statistic);
     $r = [
      "Body" => "The Status Update was $actionTaken.",
      "Header" => "Done"
     ];
-    if($new == 1) {
-     $this->core->Statistic("New Status Update");
-    } else {
-     $this->core->Statistic("Edit Status Update");
-    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,

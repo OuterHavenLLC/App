@@ -28,36 +28,68 @@
      "data-form" => ".ForumPost$id",
      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
     ]]);
-    $id = ($new == 1) ? md5($you."_Post_".$this->core->timestamp) : $id;
-    $attachments = "";
-    $dv = base64_encode("Common:DesignView");
-    $em = base64_encode("LiveView:EditorMossaic");
-    $sc = base64_encode("Search:Containers");
-    $post = $this->core->Data("Get", ["post", $id]) ?? [];
+    $id = ($new == 1) ? $this->core->UUID("ForumPostBy$you") : $id;
+    $post = $this->core->Data("Get", ["post", $id]);
     $post = $this->core->FixMissing($post, ["Body", "Title"]);
+    $albums = $post["Albums"] ?? [];
+    $articles = $post["Articles"] ?? [];
+    $attachments = $post["Attachments"] ?? [];
+    $blogs = $post["Blogs"] ?? [];
+    $blogPosts = $post["BlogPosts"] ?? [];
     $body = $post["Body"] ?? "";
+    $chats = $post["Chat"] ?? [];
+    $coverPhoto = $post["CoverPhoto"] ?? "";
+    $forum = $this->core->Data("Get", ["pf", $forumID]);
+    $forums = $post["Forums"] ?? [];
+    $forumPosts = $post["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Post" : "Edit Post";
-    if(!empty($post["Attachments"])) {
-     $attachments = base64_encode(implode(";", $post["Attachments"]));
-    }
-    $designViewEditor = "UIE$id";
-    $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+    $members = $post["Members"] ?? [];
     $nsfw = $post["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $post["PassPhrase"] ?? "";
+    $polls = $post["Polls"] ?? [];
     $privacy = $post["Privacy"] ?? $y["Privacy"]["Posts"];
+    $products = $post["Products"] ?? [];
+    $shops = $post["Shops"] ?? [];
     $title = $post["Title"] ?? "";
     $topicOptions = $forum["Topics"] ?? [];
     $topics = [];
+    $updates = $post["Updates"] ?? [];
     foreach($topicOptions as $topicID => $info) {
      $topics[$topicID] = $info["Title"] ?? "Untitled";
     }
     $topic = $post["Topic"] ?? $topic;
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
+     "ID" => $id,
+     "Media" => [
+      "Album" => $albums,
+      "Article" => $articles,
+      "Attachment" => $attachments,
+      "Blog" => $blogs,
+      "BlogPost" => $blogPosts,
+      "Chat" => $chats,
+      "CoverPhoto" => $coverPhoto,
+      "Forum" => $forums,
+      "ForumPost" => $forumPosts,
+      "Member" => $members,
+      "Poll" => $polls,
+      "Product" => $products,
+      "Shop" => $shops,
+      "Update" => $updates
+     ]
+    ]);
+    $translateAndViewDeign = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => [],
+      "ViewDesign" => []
+     ]
+    ]);
     $r = $this->core->Change([[
-     "[ForumPost.Attachments]" => "",
+     "[ForumPost.Attachments]" => $this->core->RenderView($attachments),
      "[ForumPost.Body]" => base64_encode($this->core->PlainText([
       "Data" => $post["Body"]
      ])),
-     "[ForumPost.DesignView]" => $designViewEditor,
      "[ForumPost.Header]" => $header,
      "[ForumPost.ForumID]" => $forumID,
      "[ForumPost.ID]" => $id,
@@ -68,6 +100,7 @@
      "[ForumPost.Title]" => base64_encode($title),
      "[ForumPost.Topic]" => $topic,
      "[ForumPost.Topics]" => json_encode($topics, true),
+     "[ForumPost.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
      "[ForumPost.Visibility.NSFW]" => $nsfw,
      "[ForumPost.Visibility.Privacy]" => $privacy
     ], $this->core->Extension("cabbfc915c2edd4d4cba2835fe68b1cc")]);
@@ -105,7 +138,7 @@
     ]);
     if($_ForumPost["Empty"] == 0) {
      $accessCode = "Accepted";
-     $forum = $this->core->Data("Get", ["pf", $fid]) ?? [];
+     $forum = $this->core->Data("Get", ["pf", $fid]);
      $post = $_ForumPost["DataModel"];
      $passPhrase = $post["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
@@ -155,14 +188,14 @@
       ];
       $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
       $ck2 = ($active == 1 || $forum["Type"] == "Public") ? 1 : 0;
-      $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($post["From"])]);
       $ck3 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $post["Privacy"],
        "UN" => $post["From"],
        "Y" => $you
       ]);
-      $manifest = $this->core->Data("Get", ["pfmanifest", $fid]) ?? [];
+      $manifest = $this->core->Data("Get", ["pfmanifest", $fid]);
       foreach($manifest as $member => $role) {
        if($active == 0 && $member == $you) {
         $active++;
@@ -182,6 +215,7 @@
         "data-processor" => $options["Block"]
        ]]) : "";
        $embeddedView = $data["EmbeddedView"] ?? 0;
+       $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($post, "LiveView");
        $share = "";
        if($ck == 1) {
         $actions .= $this->core->Element(["button", "Delete", [
@@ -204,6 +238,25 @@
        $verified = $op["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
        $r = $this->core->Change([[
+        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+        "[Attached.ID]" => $this->core->UUID("ForumPostAttachments"),
+        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+        "[Conversation.CRID]" => $id,
+        "[Conversation.CRIDE]" => base64_encode($id),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
         "[ForumPost.Actions]" => $actions,
         "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
         "[ForumPost.Body]" => $this->core->PlainText([
@@ -212,13 +265,8 @@
          "Display" => 1,
          "HTMLDecode" => 1
         ]),
+        "[ForumPost.CoverPhoto]" => $_ForumPost["ListItem"]["CoverPhoto"],
         "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
-        "[ForumPost.Conversation]" => $this->core->Change([[
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-        ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
         "[ForumPost.ID]" => $id,
         "[ForumPost.Illegal]" => $options["Report"],
         "[ForumPost.MemberRole]" => $memberRole,
@@ -329,9 +377,8 @@
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["FID", "ID"]);
-   $fid = $data["FID"];
-   $id = $data["ID"];
+   $fid = $data["FID"] ?? "";
+   $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $r = [
     "Body" => "The Forum Post Identifier is missing."
@@ -343,75 +390,196 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif((!empty($fid) && !empty($id)) || $new == 1) {
+   } elseif(!empty($fid) && !empty($id)) {
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
     $attachments = [];
-    $forum = $this->core->Data("Get", ["pf", $fid]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $fid]);
     $i = 0;
     $now = $this->core->timestamp;
-    $post = $this->core->Data("Get", ["post", $id]) ?? [];
+    $post = $this->core->Data("Get", ["post", $id]);
     $posts = $forum["Posts"] ?? [];
     foreach($posts as $key => $value) {
      if($i == 0 && $id == $value) {
       $i++;
-     }
-    } if(!empty($data["rATTF"])) {
-     $dlc = array_reverse(explode(";", base64_decode($data["rATTF"])));
-     foreach($dlc as $dlc) {
-      if(!empty($dlc)) {
-       $f = explode("-", base64_decode($dlc));
-       if(!empty($f[0]) && !empty($f[1])) {
-        array_push($attachments, base64_encode($f[0]."-".$f[1]));
-       }
-      }
      }
     } if($i == 0) {
      array_push($posts, $id);
      $forum["Posts"] = $posts;
      $y["Activity"]["LastActive"] = $now;
      $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-     $this->core->Data("Save", ["mbr", md5($you), $y]);
+     #$this->core->Data("Save", ["mbr", md5($you), $y]);
     }
+    $albums = [];
+    $albumsData = $data["Album"] ?? [];
+    $articles = [];
+    $articlesData = $data["Article"] ?? [];
+    $attachments = [];
+    $attachmentsData = $data["Attachment"] ?? [];
+    $blogs = [];
+    $blogsData = $data["Blog"] ?? [];
+    $blogPosts = [];
+    $blogPostsData = $data["BlogPost"] ?? [];
+    $chats = [];
+    $chatsData = $data["Chat"] ?? [];
+    $coverPhoto = $data["CoverPhoto"] ?? "";
     $created = $post["Created"] ?? $now;
+    $forums = [];
+    $forumsData = $data["Forum"] ?? [];
+    $forumPosts = [];
+    $forumPostsData = $data["ForumPost"] ?? [];
     $from = $post["From"] ?? $y["Login"]["Username"];
     $illegal = $post["Illegal"] ?? 0;
     $modifiedBy = $post["ModifiedBy"] ?? [];
     $modifiedBy[$now] = $you;
+    $members = []; 
+    $membersData = $data["Member"] ?? [];
     $notes = $post["Notes"] ?? [];
     $nsfw = $data["NSFW"] ?? 0;
     $passPhrase = $data["PassPhrase"] ?? "";
     $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
-    $purge = $post["Purge"] ?? 0;
+    $polls = []; 
+    $pollsData = $data["Poll"] ?? [];
+    $products = [];
+    $productsData = $data["Product"] ?? [];
+    $purge = $data["Purge"] ?? 0;
+    $shops = [];
+    $shopsData = $data["Shop"] ?? [];
     $title = $data["Title"] ?? "Untitled";
     $topic = $data["Topic"] ?? "";
+    $updates = [];
+    $updatesData = $data["Update"] ?? [];
     foreach($forum["Topics"] as $topicID => $info) {
      if(!in_array($id, $info["Posts"]) && $topic == $topicID) {
       array_push($forum["Topics"][$topicID]["Posts"], $id);
      } elseif(in_array($id, $info["Posts"]) && $topic != $topicID) {
       unset($forum["Topics"][$topicID]["Posts"][$id]);
      }
+    } if(!empty($albumsData)) {
+     $media = $albumsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($albums, $media[$i]);
+      }
+     }
+    } if(!empty($articlesData)) {
+     $media = $articlesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($articles, $media[$i]);
+      }
+     }
+    } if(!empty($attachmentsData)) {
+     $media = $attachmentsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($attachments, $media[$i]);
+      }
+     }
+    } if(!empty($blogsData)) {
+     $media = $blogsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogs, $media[$i]);
+      }
+     }
+    } if(!empty($blogPostsData)) {
+     $media = $blogPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogPosts, $media[$i]);
+      }
+     }
+    } if(!empty($chatsData)) {
+     $media = $chatsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($chats, $media[$i]);
+      }
+     }
+    } if(!empty($forumsData)) {
+     $media = $forumsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forums, $media[$i]);
+      }
+     }
+    } if(!empty($forumPostsData)) {
+     $media = $forumPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forumPosts, $media[$i]);
+      }
+     }
+    } if(!empty($membersData)) {
+     $media = $membersData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($members, $media[$i]);
+      }
+     }
+    } if(!empty($pollsData)) {
+     $media = $pollsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($polls, $media[$i]);
+      }
+     }
+    } if(!empty($productsData)) {
+     $media = $productsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($products, $media[$i]);
+      }
+     }
+    } if(!empty($shopsData)) {
+     $media = $shopsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($shops, $media[$i]);
+      }
+     }
+    } if(!empty($updatesData)) {
+     $media = $updatesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($updates, $media[$i]);
+      }
+     }
     }
     $post = [
+     "Albums" => $albums,
+     "Articles" => $articles,
      "Attachments" => $attachments,
+     "Blogs" => $blogs,
+     "BlogPosts" => $blogPosts,
      "Body" => $this->core->PlainText([
       "Data" => $data["Body"],
       "HTMLEncode" => 1
      ]),
+     "Chats" => $chats,
+     "CoverPhoto" => $coverPhoto,
      "Created" => $created,
      "ForumID" => $forum["ID"],
+     "Forums" => $forums,
+     "ForumPosts" => $forumPosts,
      "From" => $from,
      "ID" => $id,
      "Illegal" => $illegal,
+     "Members" => $members,
      "Modified" => $now,
      "ModifiedBy" => $modifiedBy,
      "Notes" => $notes,
      "NSFW" => $nsfw,
      "PassPhrase" => $passPhrase,
      "Privacy" => $privacy,
+     "Polls" => $polls,
+     "Products" => $products,
      "Purge" => $purge,
+     "Shops" => $shops,
      "Title" => $title,
-     "Topic" => $topic
+     "Topic" => $topic,
+     "Updates" => $updates
     ];
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO ForumPosts(

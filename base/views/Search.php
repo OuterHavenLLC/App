@@ -739,7 +739,7 @@
          ]]) : "";
         }
         $contributors = $post["Contributors"] ?? $blog["Contributors"];
-        $coverPhoto = (!empty($post["ICO"])) ? base64_encode($post["ICO"]) : $coverPhoto;
+        $coverPhoto = (!empty($post["CoverPhoto"])) ? base64_encode($post["CoverPhoto"]) : "";
         $op = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
         $display = ($post["UN"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $memberRole = ($blog["UN"] == $post["UN"]) ? "Owner" : $contributors[$author];
@@ -1798,7 +1798,7 @@
                         ORDER BY ForumPost_Created DESC
                         LIMIT $limit
                         OFFSET $offset
-    " : $query;
+    " : $_Query;
     $accessCode = "Accepted";
     $active = 0;
     $admin = 0;
