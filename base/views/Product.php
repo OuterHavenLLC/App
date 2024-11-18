@@ -742,6 +742,7 @@
       ];
       $sql = New SQL($this->core->cypher->SQLCredentials());
       $query = "REPLACE INTO Products(
+       Product_Category,
        Product_Created,
        Product_Description,
        Product_ID,
@@ -751,6 +752,7 @@
        Product_Title,
        Product_Username
       ) VALUES(
+       :Category,
        :Created,
        :Description,
        :ID,
@@ -761,6 +763,7 @@
        :Username
       )";
       $sql->query($query, [
+       ":Category" => $category,
        ":Created" => $created,
        ":Description" => $product["Description"],
        ":ID" => $id,

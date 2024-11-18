@@ -262,9 +262,13 @@
      "data-type" => $data["lPG"]
     ]
    ]) : "";
+   $portfolio = $this->view(base64_encode("Search:Containers"), ["Data" => [
+    "st" => "VVA"
+   ]]);
    $r = $this->core->Change([[
     "[VVA.Back]" => $back,
-    "[VVA.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID))
+    "[VVA.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
+    "[VVA.Portfolio]" => $this->core->RenderView($portfolio)
    ], $this->core->Extension("a7977ac51e7f8420f437c70d801fc72b")]);
    $r = ($data["CARD"] == 1) ? [
     "Front" => $r

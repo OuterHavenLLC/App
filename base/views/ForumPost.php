@@ -233,7 +233,7 @@
        }
        $actions = ($this->core->ID != $you) ? $actions : "";
        $op = ($post["From"] == $you) ? $y : $this->core->Member($post["From"]);
-       $display = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
+       $displayName = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $memberRole = $manifest[$op["Login"]["Username"]];
        $verified = $op["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
@@ -271,7 +271,7 @@
         "[ForumPost.Illegal]" => $options["Report"],
         "[ForumPost.MemberRole]" => $memberRole,
         "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
-        "[ForumPost.OriginalPoster]" => $display.$verified,
+        "[ForumPost.OriginalPoster]" => $displayName.$verified,
         "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
         "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
         "[ForumPost.Share]" => $share,

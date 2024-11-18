@@ -18,6 +18,7 @@
   "p", "Creating the $category Index if it does not exist..."
  ]);
  $query = "CREATE TABLE IF NOT EXISTS $categorySQL(
+  Product_Category text not null,
   Product_Created text not null,
   Product_Description text not null,
   Product_ID varchar(64) not null,
@@ -44,8 +45,10 @@
      $product = $oh->core->Data("Get", ["product", $productID]);
      $productPurge = $product["Purge"] ?? 0;
      if(!empty($product) && $productPurge == 0) {
+      $category = $product["Category"] ?? "Product";
       $created = $product["Created"] ?? $oh->core->timestamp;
       $query = "REPLACE INTO $categorySQL(
+       Product_Category,
        Product_Created,
        Product_Description,
        Product_ID,
@@ -55,6 +58,7 @@
        Product_Title,
        Product_Username
       ) VALUES(
+       :Category,
        :Created,
        :Description,
        :ID,
@@ -65,6 +69,7 @@
        :Username
       )";
       $sql->query($query, [
+       ":Category" => $category,
        ":Created" => $created,
        ":Description" => $product["Description"],
        ":ID" => $productID,

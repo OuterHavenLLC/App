@@ -408,6 +408,9 @@
      $header = "Status Updates";
      $searchBarText = "Updates";
      $variant = "2Column";
+    } elseif($searchType == "VVA") {
+     $searchBarText = "Portfolio";
+     $variant = "Minimal";
     } elseif($searchType == "XFS") {
      $header = "Files";
      $parentView = $data["lPG"] ?? $searchType;
@@ -3128,7 +3131,6 @@
     $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Shop" => md5($username)
@@ -3264,6 +3266,25 @@
       }
      }
     }
+   } elseif($searchType == "VVA") {
+    $_Query = "SELECT * FROM Products
+                        JOIN Members
+                        ON Member_Username=Product_Username
+                        WHERE (Product_Description LIKE :Search OR
+                                      Product_Title LIKE :Search)
+                        AND Product_Category='Architecture'
+                        AND Product_Shop=:Shop
+                        ORDER BY Product_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset
+    ";
+    $accessCode = "Accepted";
+    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+    $sql->query($_Query, [
+     ":Search" => $querysql,
+     ":Shop" => md5($this->core->ShopID)
+    ]);
+    $sql = $sql->set();
    } elseif($searchType == "XFS") {
     $_Username = $data["UN"] ?? base64_encode("");
     $_Username = base64_decode($_Username);
