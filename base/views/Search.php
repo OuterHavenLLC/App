@@ -3285,6 +3285,36 @@
      ":Shop" => md5($this->core->ShopID)
     ]);
     $sql = $sql->set();
+    if(count($sql) <= $limit) {
+     $end = 1;
+    } foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
+     $_Product = $this->core->GetContentData([
+      "AddTo" => $addTo,
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Product;".$sql["Product_ID"])
+     ]);
+     if($_Product["Empty"] == 0) {
+      $product = $_Product["DataModel"];
+      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
+      $ck = ($ck == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
+      $illegal = $product["Illegal"] ?? 0;
+      $illegal = ($illegal >= $this->illegal) ? 1 : 0;
+      $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
+      if($bl == 0 && $ck == 1 && $illegal == 0) {
+       $options = $_Product["ListItem"]["Options"];
+       array_push($list, [
+        "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
+        "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
+        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
+        "[X.LI.DT]" => base64_encode($options["View"])
+       ]);
+      }
+     }
+    }
    } elseif($searchType == "XFS") {
     $_Username = $data["UN"] ?? base64_encode("");
     $_Username = base64_decode($_Username);
