@@ -408,7 +408,7 @@
      $forum["Posts"] = $posts;
      $y["Activity"]["LastActive"] = $now;
      $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-     #$this->core->Data("Save", ["mbr", md5($you), $y]);
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
     }
     $albums = [];
     $albumsData = $data["Album"] ?? [];
