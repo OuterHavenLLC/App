@@ -132,9 +132,9 @@
       $addTo = base64_encode("Attach:.AddTo[Clone.ID]");
       $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
       $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
-      $cloneSourceID = uniqid("CloneSource".md5($key));
+      $cloneSourceID = $this->core->UUID("CloneSource".md5($key));
       $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
-      $mediaListID = uniqid("MediaList".md5($key));
+      $mediaListID = $this->core->UUID("MediaList".md5($key));
       $mediaListIDSS = ($key != "CoverPhoto") ? "$mediaListID SideScroll" : $mediaListID;
       $mediaClone = $this->core->Change([[
        "[Media.Add]" => base64_encode($addMedia),

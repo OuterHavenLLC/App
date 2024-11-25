@@ -880,6 +880,9 @@
         ], $this->core->Extension("914dd9428c38eecf503e3a5dda861559")]);
        }
       }
+      $coverPhotos = $member["Personal"]["CoverPhotos"] ?? [];
+      $coverPhotosSlideShowDisabled = $member["Personal"]["CoverPhotoSelection"] ?? "Single";
+      $coverPhotosSlideShowDisabled = ($coverPhotosSlideShowDisabled == "Multiple") ? "false" : "true";
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $gender = $member["Personal"]["Gender"] ?? "Male";
       $gender = $this->core->Gender($gender);
@@ -897,6 +900,7 @@
        ]]);
        $journal = $this->core->RenderView($journal);
       }
+      $newCoverPhotos = [];
       $options = $_Member["ListItem"]["Options"];
       $share = ($id == $you || $privacy["Profile"] == $public) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([
@@ -907,7 +911,14 @@
       ]) : "";
       $verified = $member["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+      foreach($coverPhotos as $key => $image) {
+       $newCoverPhotos[$key] = $this->core->CoverPhoto($image);
+      }
       $r = $this->core->Change([[
+       "[Conversation.CRID]" => md5($id),
+       "[Conversation.CRIDE]" => base64_encode(md5($id)),
+       "[Conversation.Level]" => base64_encode(1),
+       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
        "[Member.Actions]" => $actions,
        "[Member.AddContact]" => $addContact,
        "[Member.Albums]" => $albums,
@@ -916,13 +927,9 @@
        "[Member.Back]" => $back,
        "[Member.ChangeRank]" => $changeRank,
        "[Member.CoverPhoto]" => $_Member["ListItem"]["CoverPhoto"],
+       "[Member.CoverPhotos]" => json_encode($newCoverPhotos, true),
+       "[Member.CoverPhotos.DisableSlideShow]" => $coverPhotosSlideShowDisabled,
        "[Member.Contacts]" => $contacts,
-       "[Member.Conversation]" => $this->core->Change([[
-        "[Conversation.CRID]" => md5($id),
-        "[Conversation.CRIDE]" => base64_encode(md5($id)),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
        "[Member.Description]" => $_Member["ListItem"]["Description"],
        "[Member.DisplayName]" => $displayName.$verified,
        "[Member.Footer]" => $this->core->Extension("a095e689f81ac28068b4bf426b871f71"),
@@ -1097,6 +1104,7 @@
   }
   function Preferences(array $a) {
    $accessCode = "Denied";
+   $addTopMargin = 1;
    $data = $a["Data"] ?? [];
    $minAge = $this->core->config["minRegAge"] ?? 13;
    $y = $this->you;
@@ -1113,7 +1121,6 @@
     ];
    } else {
     $accessCode = "Accepted";
-    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
      "Header" => base64_encode($this->core->Element([
       "h1", "Preferences", ["class" => "CenterText"]
@@ -1126,6 +1133,7 @@
      ], true))
     ]]);
     $r = $this->core->RenderView($r);
+    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     if($verifyPassPhrase == 1) {
      $accessCode = "Denied";
      $key = $data["Key"] ?? base64_encode("");
@@ -1136,7 +1144,10 @@
      if(md5($key) != $secureKey) {
       $r = $this->core->Element(["p", "The Keys do not match."]);
      } else {
+      $_LiveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode("CoverPhoto")."&Media=");
+      $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=".base64_encode("Attach:.AddTo[Clone.ID]")."&CARD=1&lPG=Files&st=XFS&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]));
       $accessCode = "Accepted";
+      $addTopMargin = "0";
       $id = md5($you);
       $autoResponse = $y["Personal"]["AutoResponse"] ?? "";
       $birthMonths = [];
@@ -1144,6 +1155,9 @@
       $chooseElectable = $y["Personal"]["Electable"] ?? 0;
       $chooseMinimalDesign = $y["Personal"]["MinimalDesign"] ?? "";
       $chooseMinimalDesign = (!empty($chooseMinimalDesign)) ? 1 : 0;
+      $coverPhotos = $y["Personal"]["CoverPhotos"] ?? [];
+      $coverPhotosList = "";
+      $coverPhotosSelection = $y["Personal"]["CoverPhotoSelection"] ?? "Single";
       $nonEssentialCommunications = $y["Privacy"]["NonEssentialCommunications"] ?? 0;
       $passPhrase = $y["Privacy"]["PassPhrase"] ?? "";
       $polls = $y["Privacy"]["Posts"] ?? md5("Public");
@@ -1153,6 +1167,28 @@
        $birthMonths[$i] = $i;
       } for($i = 1776; $i <= date("Y"); $i++) {
        $birthYears[$i] = $i;
+      } foreach($coverPhotos as $key => $image) {
+       $cloneID = $this->core->UUID("CoverPhotos::$you::$key");
+       $coverPhotosList .= $this->core->Element([
+        "div", $this->core->Element(["button", "X", [
+         "class" => "Delete v1",
+         "data-target" => ".CoverPhotos$cloneID"
+        ]]).$this->core->Element([
+         "div", $this->core->Change([[
+          "[Clone.ID]" => $key,
+          "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=".base64_encode("Attach:.AddTo$key")."&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]))),
+          "[Media.File]" => $image,
+          "[Media.ID]" => $cloneID,
+          "[Media.Input]" => "CoverPhotos[]",
+          "[Media.Input.LiveView]" => $_LiveView,
+          "[Media.Name]" => "Cover Photo"
+         ], $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad")]), [
+          "class" => "NONAME"
+         ]
+        ]), [
+         "class" => "CoverPhotos$cloneID Frosted Rounded"
+        ]
+       ]);
       }
       $r = $this->core->Change([[
        "[Preferences.Birthday.Month]" => $y["Personal"]["Birthday"]["Month"],
@@ -1176,6 +1212,27 @@
        "[Preferences.Links.NewPassword]" => base64_encode("v=".base64_encode("Profile:NewPassword")),
        "[Preferences.Links.NewPIN]" => base64_encode("v=".base64_encode("Profile:NewPIN")),
        "[Preferences.Personal.AutoResponse]" => base64_encode($autoResponse),
+       "[Preferences.Personal.CoverPhotoSelection]" => $coverPhotosSelection,
+       "[Preferences.Personal.CoverPhotos]" => $coverPhotosList,
+       "[Preferences.Personal.CoverPhotos.Clone]" => base64_encode($this->core->Element([
+        "div", $this->core->Element(["button", "X", [
+         "class" => "Delete v1",
+         "data-target" => ".CoverPhotos[Clone.ID]"
+        ]]).$this->core->Element([
+         "div", $this->core->Change([[
+          "[Media.Add]" => base64_encode($_SymbolicLink),
+          "[Media.File]" => "",
+          "[Media.ID]" => "[Clone.ID]",
+          "[Media.Input]" => "CoverPhotos[]",
+          "[Media.Input.LiveView]" => $_LiveView,
+          "[Media.Name]" => "Cover Photo"
+         ], $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad")]), [
+          "class" => "NONAME"
+         ]
+        ]), [
+         "class" => "CoverPhotos[Clone.ID] Frosted Rounded"
+        ]
+       ])),
        "[Preferences.Personal.Electable]" => $chooseElectable,
        "[Preferences.Personal.MinimalDesign]" => $chooseMinimalDesign,
        "[Preferences.Personal.UIVariant]" => $setUIVariant,
@@ -1217,7 +1274,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
      "Web" => $r
@@ -1460,6 +1517,8 @@
     $r = "You must be signed in to continue.";
    } else {
     $accessCode = "Accepted";
+    $coverPhotos = [];
+    $coverPhotosData = $data["CoverPhotos"] ?? [];
     $header = "Done";
     $newMember = $this->core->NewMember(["Username" => $you]);
     $firstName = explode(" ", $data["name"])[0];
@@ -1473,6 +1532,10 @@
      } elseif(strpos($key, "Privacy_") !== false) {
       $k1 = explode("_", $key);
       $newMember["Privacy"][$k1[1]] = $value ?? $y["Privacy"][$k1[1]];
+     }
+    } foreach($coverPhotosData as $key => $image) {
+     if(!empty($image)) {
+      array_push($coverPhotos, $image);
      }
     } foreach($newMember["Blocked"] as $key => $value) {
      $newMember["Blocked"][$key] = $y["Blocked"][$key] ?? [];
@@ -1500,7 +1563,9 @@
      "Year" => $data["BirthYear"]
     ];
     $newMember["Personal"]["Age"] = date("Y") - $data["BirthYear"];
-    $newMember["Personal"]["CoverPhoto"] = $y["Personal"]["CoverPhoto"];
+    $newMember["Personal"]["CoverPhoto"] = $y["Personal"]["CoverPhoto"] ?? "";
+    $newMember["Personal"]["CoverPhotoSelection"] = $data["CoverPhotoSelection"] ?? "Single";
+    $newMember["Personal"]["CoverPhotos"] = $coverPhotos;
     $newMember["Personal"]["Electable"] = $data["Electable"] ?? 0;
     $newMember["Personal"]["FirstName"] = $firstName;
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
@@ -1508,6 +1573,7 @@
     $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
     $newMember["Verified"] = $y["Verified"] ?? 0;
+    $newMember["Personal"]["Age"] = date("Y") - $y["Personal"]["Birthday"]["Year"];
     $this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!";
    }
