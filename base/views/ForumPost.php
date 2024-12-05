@@ -430,10 +430,10 @@
     $forumPostsData = $data["ForumPost"] ?? [];
     $from = $post["From"] ?? $y["Login"]["Username"];
     $illegal = $post["Illegal"] ?? 0;
-    $modifiedBy = $post["ModifiedBy"] ?? [];
-    $modifiedBy[$now] = $you;
     $members = []; 
     $membersData = $data["Member"] ?? [];
+    $modifiedBy = $post["ModifiedBy"] ?? [];
+    $modifiedBy[$now] = $you;
     $notes = $post["Notes"] ?? [];
     $nsfw = $data["NSFW"] ?? 0;
     $passPhrase = $data["PassPhrase"] ?? "";

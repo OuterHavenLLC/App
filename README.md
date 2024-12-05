@@ -21,6 +21,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * A revamped attachments UI allows Members unprecedented control over media attached to primary content. (starting full adoption...)
 * Revised the means by which Cover Photos and Profile Pictures are handled at the Core level.
 * A new GetSymbolicLinks() object in the Core library now handles in-line Live View links, with more link types to be added as needed.
+* Members may now create a slide show of Cover Photos as an alternative to the traditional (default) Cover Photo.
 * More platform-wide optimization and bug fixes.
 
 ### Artists
