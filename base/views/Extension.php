@@ -368,12 +368,11 @@
      ":Title" => $extension["Title"],
      ":Username" => $extension["UN"]
     ]);
-    #$sql->execute();
-    #$this->core->Data("Save", ["extension", $id, $extension]);
+    $sql->execute();
+    $this->core->Data("Save", ["extension", $id, $extension]);
     $r = [
      "Body" => "The $newCategory has been saved!",
-     "Header" => "Done",
-     "Scrollable" => json_encode($extension, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
