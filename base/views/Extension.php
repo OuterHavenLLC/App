@@ -42,10 +42,10 @@
     ];
     $category = $extension["Category"] ?? "Extension";
     $chats = $extension["Chat"] ?? [];
-    $created = $extension["Created"] ?? $this->core->timestamp;
     $description = $extension["Description"] ?? "";
     $forums = $extension["Forums"] ?? [];
     $forumPosts = $extension["ForumPosts"] ?? [];
+    $members = $extension["Members"] ?? [];
     $polls = $extension["Polls"] ?? [];
     $products = $extension["Products"] ?? [];
     $shops = $extension["Shops"] ?? [];
@@ -85,7 +85,6 @@
      ])),
      "[Extension.Categories]" => json_encode($categories, true),
      "[Extension.Category]" => $category,
-     "[Extension.Created]" => $created,
      "[Extension.Description]" => base64_encode($description),
      "[Extension.Header]" => $header,
      "[Extension.ID]" => $id,
@@ -384,9 +383,8 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => "Dialog"
-    #"ResponseType" => "Dialog",
-    #"Success" => "CloseCard"
+    "ResponseType" => "Dialog",
+    "Success" => "CloseCard"
    ]);
   }
   function __destruct() {

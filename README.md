@@ -6,7 +6,7 @@ See GNU-GPL.md for licensing information.
 # Change Log
 ## 1.4: Safe Haven (coming soon…)
 ### Release Notes
-This release brings bug fixes to mission-critical experiences, a hybrid schema for data storage and indexing, and the first version of Heath Kits—an installation tool to help Developers deploy a copy of our platform onto their servers.
+This release brings bug fixes to mission-critical experiences, a hybrid schema for data storage and indexing, and the first version of Heath Kits—an installation tool to help Developers deploy a copy of our platform onto their servers. This is the recommended starting point for all developers.
 
 ### Platform Improvements
 * Revised the media upload process.
