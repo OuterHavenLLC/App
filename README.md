@@ -1,7 +1,7 @@
 # Outer Haven Web App
 Here you will find the up-to-date change log for all releases of the platform.
 See SETUP.md (coming soon...) for Heath Kit configuration and installation.
-See GNU-GPL.md for licensing information.
+See [here](https://www.gnu.org/licenses/gpl-3.0.en.html) or [here](https://archive.is/VGJCa) for licensing information.
 
 # Change Log
 ## 1.4: Safe Haven (coming soon…)
@@ -35,6 +35,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
 * Core objects now render the search and UI variants: RenderSearchUI() and RenderUI(), respectively.
 * A new consolidated ReSearch() object now renders the initial search listing, automated pagination to append groups of results while the container exists, and accounts for input-based keyup events to update the search listing in real-time.
+* Suggested Members are now rendered between the header and index menu.
 
 ### Heath Kit
 * Coming soon...

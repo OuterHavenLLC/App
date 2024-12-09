@@ -3388,6 +3388,8 @@
   function ReSearch(array $a) {
    $_ViewTitle = "Re:Search";
    $data = $a["Data"] ?? [];
+   $component = $data["Component"] ?? base64_encode("");
+   $component = base64_decode($component);
    $pub = $data["pub"] ?? 0;
    $goHome = ($pub == 1) ? $this->core->Element(["button", "Go Home", [
     "class" => "BBB v2 v2w",
@@ -3395,38 +3397,94 @@
    ]]) : "";
    $query = $data["query"] ?? base64_encode("");
    $query = base64_decode(htmlentities($query));
-   $_ViewTitle .= (!empty($data["query"])) ? " $query" : "";
-   $search = $this->lists;
-   $secureQuery = base64_encode($query);
-   $r = $this->core->Change([[
-    "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
-    "[ReSearch.Artists]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=SHOP"),
-    "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
-    "[ReSearch.Chat]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
-    "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
-    "[ReSearch.Links]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Links"),
-    "[ReSearch.Media]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Media"),
-    "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
-    "[ReSearch.Query]" => $query,
-    "[ReSearch.Polls]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Polls"),
-    "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products"),
-    "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates")
-   ], $this->core->Extension("bae5cdfa85bf2c690cbff302ba193b0b")]);
-   if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), ["Data" => [
-     "Content" => $r,
-     "Type" => "ReSearch"
-    ]]);
-    $r = $this->core->JSONResponse([
-     "AccessCode" => "Accepted",
-     "AddTopMargin" => "0",
-     "Response" => [
-      "JSON" => "",
-      "Web" => $this->core->RenderView($r)
-     ],
-     "ResponseType" => "View",
-     "Title" => $_ViewTitle
+   $y = $this->core->you;
+   $you = $y["Login"]["Username"];
+   if($component == "SuggestedMembers") {
+    $_Query = "SELECT * FROM Members
+                        WHERE Member_Description LIKE :Search OR
+                                      Member_DisplayName LIKE :Search OR
+                                      Member_Username LIKE :Search
+                        ORDER BY Member_Created DESC
+                        LIMIT 100
+    ";
+    $r = "&nbsp;";
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query($_Query, [
+     ":Search" => $query
     ]);
+    $sql = $sql->set();
+    foreach($sql as $sql) {
+     $bl = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
+     $_Member = $this->core->GetContentData([
+      "Blacklisted" => $bl,
+      "ID" => base64_encode("Member;".md5($sql["Member_Username"]))
+     ]);
+     $member = $_Member["DataModel"];
+     if($_Member["Empty"] == 0) {
+      $them = $member["Login"]["Username"];
+      $cms = $this->core->Data("Get", ["cms", md5($them)]);
+      $contacts = $cms["Contacts"] ?? [];
+      $check = $this->core->CheckPrivacy([
+       "Contacts" => $contacts,
+       "Privacy" => $member["Privacy"]["Profile"],
+       "UN" => $them,
+       "Y" => $you
+      ]);
+      $lookMeUp = $member["Privacy"]["LookMeUp"] ?? 0;
+      $theyBlockedYou = $this->core->CheckBlocked([$member, "Members", $you]);
+      $youBlockedThem = $this->core->CheckBlocked([$y, "Members", $them]);
+      if($theyBlockedYou == 0 && $youBlockedThem == 0 && $check == 1 && $lookMeUp == 1) {
+       $options = $_Member["ListItem"]["Options"];
+       $profilePicture = $this->core->ProfilePicture($member, "max-width:4em;width:100%");
+       $r .= $this->core->Element(["div", $this->core->Element([
+        "button", $profilePicture, [
+         "class" => "OpenCard v1",
+         "data-view" => $options["View"]
+        ]
+       ]), ["class" => "Small"]]);
+      }
+     }
+    }
+   } else {
+    $_ViewTitle .= (!empty($data["query"])) ? " $query" : "";
+    $search = $this->lists;
+    $secureQuery = base64_encode($query);
+    $suggestedMembers = $this->view(base64_encode("Search:ReSearch"), ["Data" => [
+     "Component" => base64_encode("SuggestedMembers"),
+     "query" => $data["query"]
+    ]]);
+    $r = $this->core->Change([[
+     "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
+     "[ReSearch.Artists]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=SHOP"),
+     "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
+     "[ReSearch.Chat]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
+     "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
+     "[ReSearch.Links]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Links"),
+     "[ReSearch.Media]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Media"),
+     "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
+     "[ReSearch.Query]" => $query,
+     "[ReSearch.Polls]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Polls"),
+     "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products"),
+     "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates"),
+     "[ReSearch.SuggestedMembers]" => $suggestedMembers
+     #"[ReSearch.SuggestedMembers]" => $this->core->RenderView($suggestedMembers)
+    ], $this->core->Extension("bae5cdfa85bf2c690cbff302ba193b0b")]);
+    if($pub == 1) {
+     $r = $this->view(base64_encode("WebUI:Containers"), ["Data" => [
+      "Content" => $r,
+      "Type" => "ReSearch"
+     ]]);
+     $r = $this->core->JSONResponse([
+      "AccessCode" => "Accepted",
+      "AddTopMargin" => "0",
+      "Response" => [
+       "JSON" => "",
+       "Web" => $this->core->RenderView($r)
+      ],
+      "ResponseType" => "View",
+      "Title" => $_ViewTitle
+     ]);
+    }
    }
    return $r;
   }
