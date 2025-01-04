@@ -1430,20 +1430,8 @@
          "B" => $now,
          "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
         ];
-       } elseif($id == "cc84143175d6ae2051058ee0079bd6b8") {
-        $y["Subscriptions"]["Blogger"] = [
-         "A" => 1,
-         "B" => $now,
-         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
-        ];
        } elseif($id == "e4302295d2812e4f374ef1035891c4d1") {
         $y["Subscriptions"]["Developer"] = [
-         "A" => 1,
-         "B" => $now,
-         "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)
-        ];
-       } elseif($id == "5bfb3f44cdb9d3f2cd969a23f0e37093") {
-        $y["Subscriptions"]["XFS"] = [
          "A" => 1,
          "B" => $now,
          "E" => $this->core->TimePlus($now, 1, $subscriptionTerm)

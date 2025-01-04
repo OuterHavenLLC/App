@@ -223,7 +223,8 @@
      }
     } if($_Blog["Empty"] == 0) {
      $_IsArtist = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
-     $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
+     $_IsVIP = $owner["Subscriptions"]["VIP"]["A"] ?? 0;
+     $_IsSubscribed = ($_IsArtist == 1 || $_IsVIP == 1) ? 1 : 0;
      $accessCode = "Accepted";
      $passPhrase = $blog["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
@@ -301,19 +302,17 @@
         "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($owner["Login"]["Username"]))
        ]
       ]) : "";
-      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
+      $actions .= ($_IsSubscribed == 1 && $admin == 1) ? $this->core->Element([
        "button", "Edit", [
         "class" => "OpenCard Small v2",
         "data-view" => $options["Edit"]
        ]
-      ]) : "";
-      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
+      ]).$this->core->Element([
        "button", "Invite", [
         "class" => "OpenCard Small v2",
         "data-view" => $options["Invite"]
        ]
-      ]) : "";
-      $actions .= ($_IsBlogger == 1 && $admin == 1) ? $this->core->Element([
+      ]).$this->core->Element([
        "button", "Post", [
         "class" => "OpenCard Small v2",
         "data-view" => $options["Post"]

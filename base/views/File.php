@@ -566,6 +566,7 @@
      ];
     } else {
      $_HC = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
+     $allowed = array_merge($_DLC["A"], $_DLC["D"], $_DLC["P"], $_DLC["V"]);
      $albums = $_FileSystem["Albums"] ?? [];
      $files = $_FileSystem["Files"] ?? [];
      if($_HC == 1) {
@@ -578,17 +579,17 @@
      $privacy = base64_decode($privacy);
      $root = $this->core->DocumentRoot."/efs/$username/";
      $uploads = $a["Files"] ?? [];
-     $xfsLimits = $this->core->config["XFS"]["limits"] ?? [];
-     $xfsLimit = str_replace(",", "", $xfsLimits["Total"]);
-     $xfsUsage = 0;
+     $uploadsAllowed = $y["Subscriptions"]["Artist"]["A"] ?? 0;
+     $uploadsAllowed = (($uploadsAllowed + $y["Subscriptions"]["VIP"]["A"]) > 0) ? 1 : 0;
+     $limits = $this->core->config["XFS"]["limits"] ?? [];
+     $limit = str_replace(",", "", $limits["Total"]);
+     $usage = 0;
      foreach($files as $key => $info) {
       $size = $info["Size"] ?? 0;
-      $xfsUsage = $xfsUsage + $size;
+      $usage = $usage + $size;
      }
-     $xfsUsage = str_replace(",", "", $this->core->ByteNotation($xfsUsage));
-     $ck = ($_HC == 1 || $xfsUsage < $xfsLimit) ? 1 : 0;
-     $ck = $y["Subscriptions"]["XFS"]["A"] ?? $ck;
-     $allowed = array_merge($_DLC["A"], $_DLC["D"], $_DLC["P"], $_DLC["V"]);
+     $usage = str_replace(",", "", $this->core->ByteNotation($usage));
+     $ck = ($_HC == 1 || $usage < $limit) ? 1 : $uploadsAllowed;
      for($key = 0; $key < count($uploads); $key++) {
       $n = $uploads["name"][$key] ?? "";
       if(!empty($n)) {
@@ -603,19 +604,19 @@
        $size2 = str_replace(",", "", $size);
        $tmp = $uploads["tmp_name"][$key];
        if(in_array($ext, $_DLC["A"])) {
-        $ck3 = ($size2 < $xfsLimits["Audio"]) ? 1 : 0;
+        $ck3 = ($size2 < $limits["Audio"]) ? 1 : 0;
         $type = $this->core->config["XFS"]["FT"]["_FT"][0];
        } elseif(in_array($ext, $_DLC["P"])) {
-        $ck3 = ($size2 < $xfsLimits["Images"]) ? 1 : 0;
+        $ck3 = ($size2 < $limits["Images"]) ? 1 : 0;
         $type = $this->core->config["XFS"]["FT"]["_FT"][2];
        } elseif(in_array($ext, $_DLC["D"])) {
-        $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
+        $ck3 = ($size2 < $limits["Documents"]) ? 1 : 0;
         $type = $this->core->config["XFS"]["FT"]["_FT"][1];
        } elseif(in_array($ext, $_DLC["V"])) {
-        $ck3 = ($size2 < $xfsLimits["Videos"]) ? 1 : 0;
+        $ck3 = ($size2 < $limits["Videos"]) ? 1 : 0;
         $type = $this->core->config["XFS"]["FT"]["_FT"][3];
        } else {
-        $ck3 = ($size2 < $xfsLimits["Documents"]) ? 1 : 0;
+        $ck3 = ($size2 < $limits["Documents"]) ? 1 : 0;
         $type = $this->core->config["XFS"]["FT"]["_FT"][1];
        }
        $fileCheck = [
@@ -628,20 +629,23 @@
           "Name" => $name,
           "Limits" => [
            "Categories" => [
-            "Audio" => $xfsLimits["Audio"],
-            "Documents" => $xfsLimits["Documents"],
-            "Images" => $xfsLimits["Images"],
-            "Videos" => $xfsLimits["Videos"]
+            "Audio" => $limits["Audio"],
+            "Documents" => $limits["Documents"],
+            "Images" => $limits["Images"],
+            "Videos" => $limits["Videos"]
            ],
            "Clearance" => $ck3,
            "Size" => $size2,
-           "Totals" => [$xfsUsage, $xfsLimit]
+           "Totals" => [$usage, $limit]
           ],
           "Size" => $size,
           "Type" => $type
          ],
          "MemberClearance" => $ck,
-         "Subscription" => $y["Subscriptions"]["XFS"]["A"]
+         "MemberIsSubscribed" => [
+          "Artist" => $y["Subscriptions"]["Artist"]["A"],
+          "VIP" => $y["Subscriptions"]["VIP"]["A"]
+         ]
         ],
         "UploadErrorStatus" => $uploads["error"][$key],
         "TemporaryName" => $uploads["tmp_name"][$key]
@@ -655,7 +659,7 @@
          $err = "File Clearance failed";
         } elseif($ck3 == 0) {
          $err = "File storage limit exceeded";
-        } elseif($xfsUsage > $xfsLimit) {
+        } elseif($usage > $limit) {
          $err = "Total storage limit exceeded";
         }
         array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
@@ -777,19 +781,20 @@
     $username = $data["UN"] ?? $you;
     $fileSystem = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
     $files = $fileSystem["Files"] ?? [];
-    $xfsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
-    $xfsLimit = $xfsLimit."MB";
-    $xfsUsage = 0;
+    $limit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
+    $limit = $limit."MB";
+    $usage = 0;
     foreach($files as $key => $value) {
-     $xfsUsage = $xfsUsage + $value["Size"];
+     $usage = $usage + $value["Size"];
     }
-    $xfsUsage = $this->core->ByteNotation($xfsUsage)."MB";
-    $limit = $this->core->Change([["MB" => "", "," => ""], $xfsLimit]);
+    $usage = $this->core->ByteNotation($usage)."MB";
+    $limit = $this->core->Change([["MB" => "", "," => ""], $limit]);
     $r = [
-     "Body" => "You have reached your upload limit. You have used $xfsUsage and exceeded the limit of $xfsLimit."
+     "Body" => "You have reached your upload limit. You have used $usage and exceeded the limit of $limit."
     ];
-    $used = $this->core->Change([["MB" => "", "," => ""], $xfsUsage]);
-    $uploadsAllowed = $y["Subscriptions"]["XFS"]["A"] ?? 0;
+    $used = $this->core->Change([["MB" => "", "," => ""], $usage]);
+    $uploadsAllowed = $y["Subscriptions"]["Artist"]["A"] ?? 0;
+    $uploadsAllowed = (($uploadsAllowed + $y["Subscriptions"]["VIP"]["A"]) > 0) ? 1 : 0;
     $uploadsAllowed = ($_HC == 1 || $used < $limit) ? 1 : $uploadsAllowed;
     if(!empty($username) && $uploadsAllowed == 1) {
      $ck = ($_HC == 1 && $this->core->ID == $username) ? 1 : 0;
@@ -804,7 +809,7 @@
      ];
      if($ck == 1 || $ck2 == 1) {
       $accessCode = "Accepted";
-      $limit = ($ck == 1 || $y["Subscriptions"]["Artist"]["A"] == 1) ? "You do not have a cumulative upload limit" : "Your cumulative file upload limit is $xfsLimit";
+      $limit = ($ck == 1 || $y["Subscriptions"]["Artist"]["A"] == 1) ? "You do not have a cumulative upload limit" : "Your cumulative file upload limit is $limit";
       $options = "<input name=\"UN\" type=\"hidden\" value=\"$username\"/>\r\n";
       if($ck == 1) {
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"".md5("unsorted")."\"/>\r\n";
