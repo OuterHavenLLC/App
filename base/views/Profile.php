@@ -14,9 +14,9 @@
     ];
    } else {
     $accessCode = "Accepted";
-    $isArtist = $y["Subscriptions"]["Artist"]["A"] ?? 0;
-    $isBlogger = $y["Subscriptions"]["Blogger"]["A"] ?? 0;
-    $isVIP = $y["Subscriptions"]["VIP"]["A"] ?? 0;
+    $_IsArtist = $y["Subscriptions"]["Artist"]["A"] ?? 0;
+    $_IsVIP = $y["Subscriptions"]["VIP"]["A"] ?? 0;
+    $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
     $r = $this->core->Element([
      "h1", "Create Content", ["class" => "CenterText UpperCase"]
     ]).$this->core->Element([
@@ -28,14 +28,14 @@
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
     ]]);
-    $r .= ($isArtist == 1 || $isBlogger == 1 || $isVIP == 1) ? $this->core->Element(["button", "Blog", [
+    $r .= ($_IsSubscribed == 1) ? $this->core->Element(["button", "Blog", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&Member=".base64_encode($you)."&new=1")
-    ]]) : "";
-    $r .= $this->core->Element(["button", "Forum", [
+    ]]).$this->core->Element(["button", "Forum", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Forum:Edit")."&new=1")
-    ]]).$this->core->Element(["button", "Group Chat", [
+    ]]) : "";
+    $r .= $this->core->Element(["button", "Group Chat", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you))
     ]]).$this->core->Element(["button", "Link", [
@@ -48,7 +48,7 @@
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
     ]]);
-    $r .= ($isArtist == 1 || $isVIP == 1) ? $this->core->Element(["button", "Product or Service", [
+    $r .= ($_IsArtist == 1) ? $this->core->Element(["button", "Product or Service", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1")
     ]]) : "";
@@ -658,9 +658,10 @@
      "Y" => $you
     ]);
     if($_TheyBlockedYou == 0 && $_YouBlockedThem == 0 && ($ck == 1 || $ck2 == 1 || $visible == 1)) {
-     $_Artist = $member["Subscriptions"]["Artist"]["A"] ?? 0;
+     $_IsArtist = $member["Subscriptions"]["Artist"]["A"] ?? 0;
+     $_IsVIP = $member["Subscriptions"]["VIP"]["A"] ?? 0;
+     $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
      $_ViewTitle = "$displayName @ ".$_ViewTitle;
-     $_VIP = $member["Subscriptions"]["VIP"]["A"] ?? 0;
      $accessCode = "Accepted";
      $addTopMargin = "1";
      $passPhrase = $member["Privacy"]["PassPhrase"] ?? "";
@@ -713,11 +714,11 @@
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($id))
       ]]) : "";
-      $actions .= ($_Artist == 1) ? $this->core->Element(["button", "Donate", [
+      $actions .= ($_isArtist == 1) ? $this->core->Element(["button", "Donate", [
        "class" => "OpenCardSmall Small v2",
        "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id))
       ]]) : "";
-      $actions .= ($_VIP == 0 && $y["Rank"] == md5("High Command")) ? $this->core->Element(["button", "Make VIP", [
+      $actions .= ($_IsVIP == 0 && $y["Rank"] == md5("High Command")) ? $this->core->Element(["button", "Make VIP", [
        "class" => "SendData Small v2",
        "data-form" => ".Profile$id",
        "data-processor" => base64_encode("v=".base64_encode("Profile:MakeVIP")."&ID=".base64_encode($id))
@@ -990,7 +991,7 @@
      $_VIPForum = "cb3e432f76b38eaa66c7269d658bd7ea";
      $accessCode = "Accepted";
      $t["Points"] = $t["Points"] + 1000000;
-     $manifest = $this->core->Data("Get", ["pfmanifest", $_VIPForum]) ?? [];
+     $manifest = $this->core->Data("Get", ["pfmanifest", $_VIPForum]);
      array_push($manifest, [$t["Login"]["Username"] => "Member"]);
      foreach($t["Subscriptions"] as $key => $value) {
       if(!in_array($key, ["Artist", "Developer"])) {
@@ -1002,11 +1003,7 @@
       }
      }
      $this->core->Data("Save", ["pfmanifest", $_VIPForum, $manifest]);
-     $this->core->Data("Save", [
-      "mbr",
-      md5($t["Login"]["Username"]),
-      $t
-     ]);
+     $this->core->Data("Save", ["mbr", md5($t["Login"]["Username"]), $t]);
      $r = [
       "Body" => "$display is now a VIP Member.",
       "Header" => "Done"
