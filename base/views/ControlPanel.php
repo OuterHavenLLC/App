@@ -57,7 +57,7 @@
       $allowedPhotosList = "";
       $allowedVideos = $config["XFS"]["FT"]["V"] ?? [];
       $allowedVideosList = "";
-      $defaultUI = $this->config["App"]["UIVariant"] ?? 0;
+      $defaultUI = $config["App"]["UIVariant"] ?? 0;
       $events = "";
       $eventsList = $config["PublicEvents"] ?? [];
       $mainUI = $this->core->Data("Get", ["app", md5("MainUI")]);
@@ -176,6 +176,12 @@
        "[Configuration.App.Maintenance]" => $config["Maintenance"],
        "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
        "[Configuration.App.ShopID]" => base64_encode($shopID),
+       "[Configuration.App.UploadLimits]" => json_encode($config["XFS"], true),
+       "[Configuration.App.UploadLimits.Audio]" => $config["XFS"]["limits"]["Audio"],
+       "[Configuration.App.UploadLimits.Documents]" => $config["XFS"]["limits"]["Documents"],
+       "[Configuration.App.UploadLimits.Photos]" => $config["XFS"]["limits"]["Images"],
+       "[Configuration.App.UploadLimits.Total]" => $config["XFS"]["limits"]["Total"],
+       "[Configuration.App.UploadLimits.Videos]" => $config["XFS"]["limits"]["Videos"],
        "[Configuration.App.UIVariant]" => $defaultUI,
        "[Configuration.App.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
        "[Configuration.App.SearchUI]" => $searchUIvariants,
@@ -322,6 +328,11 @@
     $config["XFS"]["FT"]["D"] = $newDocuments;
     $config["XFS"]["FT"]["P"] = $newPhotos;
     $config["XFS"]["FT"]["V"] = $newVideos;
+    $config["XFS"]["limits"]["Audio"] = $data["UploadLimits_Audio"];
+    $config["XFS"]["limits"]["Documents"] = $data["UploadLimits_Documents"];
+    $config["XFS"]["limits"]["Images"] = $data["UploadLimits_Images"];
+    $config["XFS"]["limits"]["Total"] = $data["UploadLimits_Total"];
+    $config["XFS"]["limits"]["Videos"] = $data["UploadLimits_Videos"];
     $this->core->Data("Save", ["app", md5("config"), $config]);
     $r = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",

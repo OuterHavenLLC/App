@@ -1224,11 +1224,6 @@
       "B" => $now,
       "E" => $now
      ],
-     "Blogger" => [
-      "A" => 1,
-      "B" => $now,
-      "E" => $this->TimePlus($now, 1, "month")
-     ],
      "Developer" => [
       "A" => 1,
       "B" => $now,
@@ -1238,11 +1233,6 @@
       "A" => 0,
       "B" => $now,
       "E" => $this->TimePlus($now, 1, "month")
-     ],
-     "XFS" => [
-      "A" => 0,
-      "B" => $now,
-      "E" => $now
      ]
     ],
     "Verified" => 0

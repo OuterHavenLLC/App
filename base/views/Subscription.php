@@ -74,16 +74,6 @@
        ]]);
        $r = $this->core->RenderView($r);
       }
-     } elseif($s == "Blogger") {
-      $changeData = [
-       "[Blogger.CoverPhoto]" => $this->core->PlainText([
-        "Data" => "[Media:CP]",
-        "Display" => 1
-       ]),
-       "[Blogger.Stream]" => base64_encode("v=$search&UN=".base64_encode($you)."&st=MBR-BLG"),
-       "[Blogger.Title]" => $sub["Title"]
-      ];
-      $extension = "566f9967f00f97350e54b0ee14faef36";
      } elseif($s == "Developer") {
       $heathKits = [
        base64_encode("App/1c48161334e41522f112494baf2c8a60.jpg"),
@@ -113,14 +103,6 @@
        "[VIP.Mail]" => "W('https://mail.outerhaven.nyc/mail/', '_blank');"
       ];
       $extension = "89d36f051962ca4bbfbcb1dc2bd41f60";
-     } elseif($s == "XFS") {
-      $changeData = [
-       "[XFS.CoverPhoto]" => $this->core->PlainText([
-        "Data" => "[Media:CP]",
-        "Display" => 1
-       ])
-      ];
-      $extension = "dad7bf9214d25c12fa8a4543bbdb9d23";
      } if(strtotime($this->core->timestamp) > $y["Subscriptions"][$s]["E"]) {
       $y["Subscriptions"][$s]["A"] = 0;
       $this->core->Data("Save", ["mbr", md5($you), $y]);
