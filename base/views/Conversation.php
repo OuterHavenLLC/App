@@ -21,25 +21,59 @@
     $accessCode = "Accepted";
     $attachments = "";
     $commentID = base64_decode($commentID);
-    $commentID = ($new == 1) ? md5($you."CR".$this->core->timestamp) : $commentID;
+    $commentID = ($new == 1) ? $this->core->UUID("CommentOrReplyBy$you") : $commentID;
     $conversationID = base64_decode($conversationID);
     $action = ($new == 1) ? "Post" : "Update";
     $level = base64_decode($level);
     $commentType = ($level == 1) ? "Comment" : "Reply";
-    $conversation = $this->core->Data("Get", ["conversation", $conversationID]) ?? [];
+    $conversation = $this->core->Data("Get", ["conversation", $conversationID]);
     $comment = $cconversation[$commentID] ?? [];
-    if(!empty($conversation["Attachments"])) {
-     $attachments = base64_encode(implode(";", $conversation["Attachments"]));
-    }
-    $body = $data["Body"] ?? base64_encode("");
-    $body = $conversation["Body"] ?? $body;
+    $albums = $comment["Albums"] ?? [];
+    $articles = $comment["Articles"] ?? [];
+    $attachments = $comment["Attachments"] ?? [];
+    $blogs = $comment["Blogs"] ?? [];
+    $blogPosts = $post["BlogPosts"] ?? [];
+    $body = $comment["Body"] ?? base64_encode("");
     $body = base64_decode($body);
+    $chats = $comment["Chat"] ?? [];
+    $forums = $comment["Forums"] ?? [];
+    $forumPosts = $comment["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New $commentType" : "Edit $commentType";
-    $nsfw = $conversation["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $privacy = $conversation["Privacy"] ?? $y["Privacy"]["Comments"];
+    $members = $comment["Members"] ?? [];
+    $nsfw = $comment["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $polls = $comment["Polls"] ?? [];
+    $privacy = $comment["Privacy"] ?? $y["Privacy"]["Comments"];
+    $products = $comment["Products"] ?? [];
     $replyingTo = base64_decode($replyingTo);
+    $shops = $comment["Shops"] ?? [];
+    $updates = $comment["Updates"] ?? [];
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
+     "ID" => $commentID,
+     "Media" => [
+      "Album" => $albums,
+      "Article" => $articles,
+      "Attachment" => $attachments,
+      "Blog" => $blogs,
+      "BlogPost" => $blogPosts,
+      "Chat" => $chats,
+      "Forum" => $forums,
+      "ForumPost" => $forumPosts,
+      "Member" => $members,
+      "Poll" => $polls,
+      "Product" => $products,
+      "Shop" => $shops,
+      "Update" => $updates
+     ]
+    ]);
+    $translate = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $commentID,
+     "Media" => [
+      "Translate" => []
+     ]
+    ]);
     $r = $this->core->Change([[
-     "[Conversation.Attachments]" => "",
+     "[Conversation.Attachments]" => $this->core->RenderView($attachments),
      "[Conversation.Body]" => base64_encode($this->core->PlainText([
       "Data" => $body,
       "Decode" => 1,
@@ -51,6 +85,7 @@
      "[Conversation.Level]" => $level,
      "[Conversation.New]" => $new,
      "[Conversation.ReplyingTo]" => $replyingTo,
+     "[Conversation.Translate]" => $this->core->RenderView($translate),
      "[Conversation.Visibility.NSFW]" => $nsfw,
      "[Conversation.Visibility.Privacy]" => $privacy
     ], $this->core->Extension("0426a7fc6b31e5034b6c2cec489ea638")]);
@@ -320,41 +355,158 @@
    if(!empty($commentID) && !empty($id)) {
     $accessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
+    $albums = [];
+    $albumsData = $data["Album"] ?? [];
+    $articles = [];
+    $articlesData = $data["Article"] ?? [];
     $attachments = [];
+    $attachmentsData = $data["Attachment"] ?? [];
+    $blogs = [];
+    $blogsData = $data["Blog"] ?? [];
+    $blogPosts = [];
+    $blogPostsData = $data["BlogPost"] ?? [];
     $cc = ($level > 1) ? "Comment$commentID" : "Conversation$id";
-    $conversation = $this->core->Data("Get", ["conversation", $id]) ?? [];
+    $chats = [];
+    $chatsData = $data["Chat"] ?? [];
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
     $comment = $conversation[$commentID] ?? [];
     $created = $conversation["Created"] ?? $this->core->timestamp;
+    $forums = [];
+    $forumsData = $data["Forum"] ?? [];
+    $forumPosts = [];
+    $forumPostsData = $data["ForumPost"] ?? [];
     $home = base64_encode("Conversation:Home");
+    $members = []; 
+    $membersData = $data["Member"] ?? [];
     $nsfw = $conversation["NSFW"] ?? $y["Privacy"]["NSFW"];
     $nsfw = $data["NSFW"] ?? $nsfw;
+    $polls = []; 
+    $pollsData = $data["Poll"] ?? [];
     $privacy = $conversation["Privacy"] ?? $y["Privacy"]["Comments"];
     $privacy = $data["Privacy"] ?? $privacy;
+    $products = [];
+    $productsData = $data["Product"] ?? [];
     $purge = $conversation["Privacy"] ?? 0;
-    if(!empty($data["rATTDLC"])) {
-     $attachments = array_reverse(explode(";", base64_decode($data["rATTDLC"])));
-     foreach($attachments as $attachments) {
-      if(!empty($attachments)) {
-       $f = explode("-", base64_decode($attachments));
-       if(!empty($f[0]) && !empty($f[1])) {
-        array_push($attachments, base64_encode($f[0]."-".$f[1]));
-       }
+    $shops = [];
+    $shopsData = $data["Shop"] ?? [];
+    $updates = [];
+    $updatesData = $data["Update"] ?? [];
+    if(!empty($albumsData)) {
+     $media = $albumsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($albums, $media[$i]);
+      }
+     }
+    } if(!empty($articlesData)) {
+     $media = $articlesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($articles, $media[$i]);
+      }
+     }
+    } if(!empty($attachmentsData)) {
+     $media = $attachmentsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($attachments, $media[$i]);
+      }
+     }
+    } if(!empty($blogsData)) {
+     $media = $blogsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogs, $media[$i]);
+      }
+     }
+    } if(!empty($blogPostsData)) {
+     $media = $blogPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogPosts, $media[$i]);
+      }
+     }
+    } if(!empty($chatsData)) {
+     $media = $chatsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($chats, $media[$i]);
+      }
+     }
+    } if(!empty($forumsData)) {
+     $media = $forumsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forums, $media[$i]);
+      }
+     }
+    } if(!empty($forumPostsData)) {
+     $media = $forumPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forumPosts, $media[$i]);
+      }
+     }
+    } if(!empty($membersData)) {
+     $media = $membersData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($members, $media[$i]);
+      }
+     }
+    } if(!empty($pollsData)) {
+     $media = $pollsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($polls, $media[$i]);
+      }
+     }
+    } if(!empty($productsData)) {
+     $media = $productsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($products, $media[$i]);
+      }
+     }
+    } if(!empty($shopsData)) {
+     $media = $shopsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($shops, $media[$i]);
+      }
+     }
+    } if(!empty($updatesData)) {
+     $media = $updatesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($updates, $media[$i]);
       }
      }
     }
-    $attachments = array_unique($attachments);
     $conversation[$commentID] = [
+     "Albums" => $albums,
+     "Articles" => $articles,
      "Attachments" => $attachments,
+     "Blogs" => $blogs,
+     "BlogPosts" => $blogPosts,
      "Body" => $this->core->PlainText([
       "Data" => $data["Body"],
       "HTMLEncode" => 1
      ]),
+     "Chats" => $chats,
      "CommentID" => $replyingTo,
      "Created" => $created,
+     "Forums" => $forums,
+     "ForumPosts" => $forumPosts,
      "From" => $you,
+     "Members" => $members,
      "Modified" => $this->core->timestamp,
      "NSFW" => $nsfw,
-     "Privacy" => $privacy
+     "Polls" => $polls,
+     "Privacy" => $privacy,
+     "Products" => $products,
+     "Shops" => $shops,
+     "Updates" => $updates
     ];
     if($purge != 0) {
      $conversation["Purge"] = $purge;

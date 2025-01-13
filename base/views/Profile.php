@@ -633,13 +633,14 @@
     ];
    } elseif($_Member["Empty"] == 0) {
     $id = $member["Login"]["Username"];
-    $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]) ?? [];
+    $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]);
     $_TheyBlockedYou = $this->core->CheckBlocked([$_Member["DataModel"], "Members", $you]);
     $_YouBlockedThem = $this->core->CheckBlocked([$y, "Members", $id]);
     $displayName = $_Member["ListItem"]["Title"];
     $b2 = ($id == $you) ? "Your Profile" : "$displayName's Profile";
     $lpg = "Profile".md5($id);
     $privacy = $member["Privacy"] ?? [];
+    $subscriptions = $member["Subscriptions"] ?? [];
     $ck = ($id == $you) ? 1 : 0;
     $ck2 = ($privacy["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->config["minAge"])) ? 1 : 0;
     $ckart = 0;
@@ -658,8 +659,8 @@
      "Y" => $you
     ]);
     if($_TheyBlockedYou == 0 && $_YouBlockedThem == 0 && ($ck == 1 || $ck2 == 1 || $visible == 1)) {
-     $_IsArtist = $member["Subscriptions"]["Artist"]["A"] ?? 0;
-     $_IsVIP = $member["Subscriptions"]["VIP"]["A"] ?? 0;
+     $_IsArtist = $subscriptions["Artist"]["A"] ?? 0;
+     $_IsVIP = $subscriptions["VIP"]["A"] ?? 0;
      $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
      $_ViewTitle = "$displayName @ ".$_ViewTitle;
      $accessCode = "Accepted";
@@ -714,7 +715,7 @@
        "class" => "OpenCard Small v2",
        "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($id))
       ]]) : "";
-      $actions .= ($_isArtist == 1) ? $this->core->Element(["button", "Donate", [
+      $actions .= ($_IsArtist == 1) ? $this->core->Element(["button", "Donate", [
        "class" => "OpenCardSmall Small v2",
        "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id))
       ]]) : "";
