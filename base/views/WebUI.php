@@ -546,29 +546,15 @@
     "data-type" => $parentView
    ]]);
    if(!empty($data["Email"]) && $check == 0) {
-    $email = $data["Email"];
-    $emailIsRegistered = 0;
-    $r = $this->core->Element([
-     "h1", "Authentication Error", ["class" => "UpperCase"]
-    ]).$this->core->Element([
-     "p", "The email <strong>$email</strong> is not registered to any Member."
-    ]).$this->core->Element([
-     "p", "View Data: ".json_encode($data)
-    ]).$this->core->Element(["button", "Back", [
-     "class" => "GoToParent v2",
-     "data-type" => $parentView
-    ]]);
-    $members = $this->core->DatabaseSet("Member");
-    foreach($members as $key => $value) {
-     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-     $member = $this->core->Data("Get", ["mbr", $value]);
-     if($email == $member["Personal"]["Email"]) {
-      $emailIsRegistered++;
-     }
-    } if($emailIsRegistered > 0) {
+    $_VerificationCode = uniqid("OH");
+    $_SecureVerificationCode = md5($_VerificationCode);
+    $email = $data["Email"] ?? "";
+    $r = [
+     "Body" => "An email address is required.",
+     "Header" => "Error"
+    ];
+    if(!empty($email)) {
      $accessCode = "Accepted";
-     $_VerificationCode = uniqid("OH");
-     $_SecureVerificationCode = md5($_VerificationCode);
      $this->core->SendEmail([
       "Message" => $this->core->Element([
        "p", "Use the code below to verify your email address:"
