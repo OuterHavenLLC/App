@@ -13,6 +13,7 @@
     "2FAconfirm",
     "Email",
     "ReturnView",
+    "ViewData",
     "ViewPairID"
    ]);
    $ck = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
@@ -35,7 +36,7 @@
      }
     } if($emailIsRegistered > 0) {
      $accessCode = "Accepted";
-     $_VerificationCode = uniqid("OH-");
+     $_VerificationCode = uniqid("OH");
      $_SecureVerificationCode = md5($_VerificationCode);
      $this->core->SendEmail([
       "Message" => $this->core->Element([

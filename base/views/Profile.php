@@ -77,7 +77,7 @@
     "Response" => [
      "JSON" => "",
      "Web" => $this->core->Element(["button", NULL, [
-      "class" => "AddContent OpenFirSTEPTool c2 h",
+      "class" => "AddContent OpenFirSTEPTool h",
       "data-fst" => base64_encode("v=".base64_encode("Profile:AddContent"))
      ]])
     ],
@@ -1926,6 +1926,79 @@
      "Web" => $r
     ],
     "ResponseType" => "View"
+   ]);
+  }
+  function SignIn2(array $a) {
+   $data = $a["Data"] ?? [];
+   $responseType = "GoToView";
+   $securityKey = "";
+   $step = $data["Step"] ?? base64_encode(1);
+   $step = base64_decode($step);
+   if($step == 2) {
+    $data = $this->core->DecodeBridgeData($data);
+    $username = $data["Username"] ?? "";
+    $viewData = $data["ViewData"] ?? base64_encode(json_encode([], true));
+    $viewData = json_decode(base64_decode($viewData), true);
+    $parentView = $viewData["ParentView"] ?? "SignIn";
+    $member = $this->core->GetContentData([
+     "Blacklisted" => 0,
+     "ID" => base64_encode("Member;".md5($username))
+    ]);
+    $r = $this->core->Element([
+     "h1", "Sorry!", ["class" => "CenterText UpperCase"]
+    ]).$this->core->Element([
+     "p", "We could not find the username you entered.", ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "p", "View Data: ".json_encode($viewData)
+    ]).$this->core->Element(["button", "Back", [
+     "class" => "GoToParent v2",
+     "data-type" => $parentView
+    ]]);
+    if($member["Empty"] == 0) {
+     $data = [];
+     $member = $member["DataModel"];
+     $newData = [];
+     $data["Email"] = $member["Personal"]["Email"] ?? "";
+     $data["ParentView"] = $parentView;
+     $data["ReturnView"] = "MainView";
+     $viewData["Username"] = $member["Login"]["Username"] ?? "";
+     $data["ViewData"] = base64_encode(json_encode($viewData, true));
+     foreach($data as $key => $value) {
+      $newData[$key] = $this->core->PlainText([
+       "Data" => $value,
+       "Encode" => 1
+      ]);
+     }
+     $r = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $newData]);
+     $r = $this->core->RenderView($r);
+     $r .= $this->core->Element(["p", json_encode($newData, true)]);
+    }
+   } elseif($step == 3) {
+    # PASSWORD IF ELECTED, ELSE EXECUTE SignIn2(SecurityKey) CLIENT FUNCTION
+    $r = $this->core->Element([
+     "h1", "Signing in...", ["class" => "CenterText UpperCase"]
+    ]);
+    $securityKey = "NewKey";
+   } else {
+    $responseType = "View";
+    $r = $this->core->Change([[
+     "[SignIn.ParentView]" => "MainView",
+     "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn2")."&Step=".base64_encode(2)),
+     "[SignIn.ViewData]" => base64_encode(json_encode([
+      "v" => base64_encode("WebUI:TwoFactorAuthentication"),
+      "Step" => base64_encode(3)
+     ], true))
+    ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67a2fadba8755")]);
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => "Accepted",
+    "AddTopMargin" => "0",
+    "Response" => [
+     "JSON" => "",
+     "Web" => $r
+    ],
+    "ResponseType" => $responseType,
+    "SecurityKey" => $securityKey
    ]);
   }
   function SignUp(array $a) {

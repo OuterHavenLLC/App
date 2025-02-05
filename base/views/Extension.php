@@ -21,7 +21,7 @@
     ];
    } elseif(!empty($id) || $new == 1) {
     $accessCode = "Accepted";
-    $id = ($new == 1) ? $this->core->UUID($you."Extension") : base64_decode($id);
+    $id = ($new == 1) ? $this->core->UUID("ExtensionBy$you") : base64_decode($id);
     $action = ($new == 1) ? "Post" : "Update";
     $action = $this->core->Element(["button", $action, [
      "class" => "CardButton SendData",
