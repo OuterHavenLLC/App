@@ -1315,7 +1315,7 @@
     $source = $base.base64_decode($profilePicture);
    }
    return $this->PlainText([
-    "Data" => "<img class=\"c2\" src=\"$source\"$style/>",
+    "Data" => "<img src=\"$source\"$style/>",
     "Display" => 1
    ]);
   }
