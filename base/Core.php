@@ -1238,6 +1238,12 @@
     "Verified" => 0
    ];
   }
+  function ObfuscateEmail($email) {
+   $email = explode("@", $email);
+   $name = implode("@", array_slice($email, 0, count($email) - 1));
+   $length  = floor(strlen($name) / 2);
+   return substr($name, 0, $length).str_repeat("*", $length)."@".end($email);   
+  }
   function PlainText(array $a) {
    $ck = [
     "BBCodes",
@@ -1463,7 +1469,7 @@
       "Message" => base64_encode($message),
       "Password" => $data["Password"],
       "Title" => base64_encode($a["Title"]),
-      "To" => base64_encode($a["To"]),
+      "To" => base64_encode(filter_var($a["To"], FILTER_VALIDATE_EMAIL)),
       "Username" => $data["Username"]
      ];
      $cURL = curl_init("https://mail.outerhaven.nyc/send.php");

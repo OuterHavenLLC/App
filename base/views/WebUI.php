@@ -321,7 +321,6 @@
      "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
      "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
      "[Menu.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-     "[Menu.SignIn2]" => "MainView;".base64_encode("v=".base64_encode("Profile:SignIn2")),//TEMP
      "[Menu.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp")),
      "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
     ];
@@ -522,83 +521,76 @@
   }
   function TwoFactorAuthentication(array $data) {
    $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   #$data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "2FA",
-    "2FAconfirm",
-    "Email",
-    "ParentView",
-    "ReturnView"
-   ]);
-   $check = (!empty($data["2FA"]) && !empty($data["2FAconfirm"])) ? 1 : 0;
-   $viewData = $data["ViewData"] ?? base64_encode(json_encode([], true));
+   $addTopMargin = "1";
+   $data = $data["Data"] ?? [];
+   $_2FA = $data["2FA"] ?? "";
+   $_2FAconfirm = $data["2FAconfirm"] ?? "";
+   $email = $data["Email"] ?? "";
+   $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
    $viewData = json_decode(base64_decode($viewData), true);
    $parentView = $viewData["ParentView"] ?? "SignIn";
    $r = $this->core->Element([
     "h1", "Authentication Error", ["class" => "UpperCase"]
    ]).$this->core->Element([
     "p", "An email address is required in order for us to continue the verification process."
-   ]).$this->core->Element([
-    "p", "View Data: ".json_encode($data)
    ]).$this->core->Element(["button", "Back", [
     "class" => "GoToParent v2",
     "data-type" => $parentView
    ]]);
-   if(!empty($data["Email"]) && $check == 0) {
-    $_VerificationCode = uniqid("OH");
-    $_SecureVerificationCode = md5($_VerificationCode);
-    $email = $data["Email"] ?? "";
+   if(!empty($_2FA) && !empty($_2FAconfirm)) {
+    $addTopMargin = "1";
+    $data = $this->core->DecodeBridgeData($data);
+    $_2FA = $data["2FA"] ?? "";
+    $_2FA = md5($_2FA);
+    $_2FAconfirm = $data["2FAconfirm"] ?? "";
+    $returnView = $data["ReturnView"] ?? "";
+    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
+    $viewData = json_decode(base64_decode($viewData), true);
     $r = [
-     "Body" => "An email address is required.",
+     "Body" => "The code you entered does not match the one we sent you."
+    ];
+    if($_2FA == $_2FAconfirm) {
+     $r = [
+      "Body" => "The Return View ID is missing."
+     ];
+     if(!empty($returnView)) {
+      $accessCode = "Accepted";
+      $viewData["ViewData"] = $viewData;
+      $r = $this->view($returnView, ["Data" => $viewData]);
+      $r = $this->core->RenderView($r);
+     }
+    }
+   } elseif(!empty($email)) {
+    $_2FA = uniqid("OH");
+    $_2FAconfirm = md5($_2FA);
+    $email = base64_decode($email);
+    $r = [
+     "Body" => "A valid email address is required.",
      "Header" => "Error"
     ];
-    if(!empty($email)) {
+    if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
      $accessCode = "Accepted";
+     $returnView = $data["ReturnView"] ?? base64_encode("");
      $this->core->SendEmail([
       "Message" => $this->core->Element([
-       "p", "Use the code below to verify your email address:"
-      ]).$this->core->Element([
-       "h4", $_VerificationCode
+       "p", "Use this code to verify your email address: ".$_2FA
       ]),
-      "Title" => "Your Verification Code: $_VerificationCode",
+      "Title" => "Your Verification Code",
       "To" => $email
      ]);
      $r = $this->core->Change([[
-      "[2FA.Confirm]" => $_SecureVerificationCode,
-      "[2FA.Email]" => $email,
+      "[2FA.Confirm]" => $_2FAconfirm,
+      "[2FA.Email]" => $this->core->ObfuscateEmail($email),
       "[2FA.Step2]" => base64_encode("v=".base64_encode("WebUI:TwoFactorAuthentication")),
-      "[2FA.ReturnView]" => $data["ReturnView"],
+      "[2FA.ReturnView]" => base64_decode($returnView),
       "[2FA.ViewData]" => $data["ViewData"],
       "[2FA.ViewPairID]" => $parentView
      ], $this->core->Extension("ab9d092807adfadc3184c8ab844a1406")]);
     }
-   } elseif($check == 1) {
-    $_VerificationCode = md5($data["2FA"]);
-    $_SecureVerificationCode = $data["2FAconfirm"];
-    $r = [
-     "Body" => "The code you entered does not match the one we sent you."
-    ];
-    if($_VerificationCode == $_SecureVerificationCode) {
-     $r = [
-      "Body" => "The Return View ID is missing."
-     ];
-     if(!empty($data["ReturnView"])) {
-      $_ViewData = $data["ViewData"] ?? base64_decode(json_decode($data["ViewData"]));
-      $accessCode = "Accepted";
-      $returnView = base64_decode($data["ReturnView"]);
-      $returnView = json_decode($returnView, true);
-      $viewData = $this->core->DecodeBridgeData($_ViewData);
-      $viewData["2FAReturn"] = 1;
-      $viewData["Email"] = base64_encode($data["Email"]);
-      $r = $this->view($data["ReturnView"], ["Data" => $viewData]);
-      $r = $this->core->RenderView($r);
-     }
-    }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
      "Web" => $r

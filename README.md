@@ -24,6 +24,12 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Members may now create a slide show of Cover Photos as an alternative to the traditional (default) Cover Photo.
 * Administrators may now change media upload limites.
 * More platform-wide optimization and bug fixes.
+* Logos and Profile Pictures are now free-form if the image format supports the opacity filter.
+
+### 2FA and Sign In
+* A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.
+* We streamlined the 2FA process and how this hooks into other experiences.
+* The legacy 2FA view group was deprecated and replaced by 2FAv2 for the remaining associated experiences. (coming soon...)
 
 ### Artists
 * Up to 100 new jobs may be active while the Hire section is enabled. After this new limit is reached, no new jobs may be created.
