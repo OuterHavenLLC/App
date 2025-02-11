@@ -1730,8 +1730,10 @@
     if($i == 0 && $member["Login"]["Username"] == $username) {
      $i++;
     }
-   } if(empty($email)) {
-    $r = "An Email address is required.";
+   } if(1==2) {//TEMP
+    $r = "This experience is temporarily disabled while we upgrade the 2FA integration.";//TEMP
+   } if(empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $r = "A valid Email address is required.";
    } elseif(empty($password)) {
     $r = "A Password is required.";
    } elseif($password != $data["Password2"]) {
@@ -1757,7 +1759,7 @@
     $birthMonth = $data["BirthMonth"] ?? 10;
     $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
     $now = $this->core->timestamp;
-    $this->core->Data("Save", ["cms", md5($username), [
+    /*--$this->core->Data("Save", ["cms", md5($username), [
      "Contacts" => [],
      "Requests" => []
     ]]);
@@ -1825,7 +1827,7 @@
       "To" => $data["Email"]
      ]);
     }
-    $this->core->Statistic("New Member");
+    $this->core->Statistic("New Member");--*/
     $r = $this->core->Change([[
      "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
      "[Success.Username]" => $username
@@ -1905,7 +1907,7 @@
     ]]);
     if($member["Empty"] == 0) {
      $member = $member["DataModel"];
-     $passwordRequired = $member["Login"]["RequirePassword"] ?? "No";
+     $passwordRequired = $member["Login"]["RequirePassword"] ?? "Yes";
      if(empty($password) && $passwordRequired == "Yes") {
       $r = $this->core->Change([[
        "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(3)),

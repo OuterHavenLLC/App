@@ -1151,13 +1151,14 @@
      "SubscribeStar" => $a["SubscribeStar"]
     ],
     "Forums" => $forums,
+    "GroupChats" => [],
+    "Inactive" => 0,
     "Login" => [
      "Password" => md5($password),
      "PIN" => md5($pin),
+     "RequirePassword" => "Yes",
      "Username" => $username
     ],
-    "GroupChats" => [],
-    "Inactive" => 0,
     "Pages" => $pages,
     "Personal" => [
      "Age" => $age,
