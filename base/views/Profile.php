@@ -1719,14 +1719,10 @@
      "Blacklisted" => 0,
      "ID" => base64_encode("Member;".md5($username))
     ]);
-    $r = $this->core->Element([
-     "h1", "Sorry!", ["class" => "CenterText UpperCase"]
-    ]).$this->core->Element([
-     "p", "We could not find the username you entered.", ["class" => "CenterText"]
-    ]).$this->core->Element(["button", "Back", [
-     "class" => "GoToParent v2",
-     "data-type" => base64_decode($parentView)
-    ]]);
+    $r = $this->core->Change([[
+     "[Error.Message]" => "We could not find the username you entered.",
+     "[Error.ParentView]" => base64_decode($parentView)
+    ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     if($member["Empty"] == 0) {
      $data = [];
      $member = $member["DataModel"];
@@ -1750,14 +1746,10 @@
      "Blacklisted" => 0,
      "ID" => base64_encode("Member;".md5($username))
     ]);
-    $r = $this->core->Element([
-     "h1", "Sorry!", ["class" => "CenterText UpperCase"]
-    ]).$this->core->Element([
-     "p", "We could not find the username you entered.", ["class" => "CenterText"]
-    ]).$this->core->Element(["button", "Back", [
-     "class" => "GoToParent v2",
-     "data-type" => base64_decode($parentView)
-    ]]);
+    $r = $this->core->Change([[
+     "[Error.Message]" => "We could not find the username you entered.",
+     "[Error.ParentView]" => base64_decode($parentView)
+    ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     if($member["Empty"] == 0) {
      $member = $member["DataModel"];
      $passwordRequired = $member["Login"]["RequirePassword"] ?? "Yes";
@@ -1784,7 +1776,6 @@
      "[SignIn.ParentView]" => "MainView",
      "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(2)),
      "[SignIn.ViewData]" => base64_encode(json_encode([
-      "v" => base64_encode("WebUI:TwoFactorAuthentication"),
       "Step" => base64_encode(3)
      ], true))
     ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67a2fadba8755")]);
@@ -1810,6 +1801,7 @@
    $step = base64_decode($step);
    if($step == 2) {
     $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
+    $accessCode = "Denied";
     $addTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
     $birthMonth = $data["BirthMonth"] ?? 10;
@@ -1818,7 +1810,7 @@
     $ck = ($age > $_MinimumAge) ? 1 : 0;
     $email = $data["Email"] ?? "";
     $gender = $data["Gender"] ?? "Male";
-    $firstName = ($gender == "Male") ? "John" : "Jane";
+    $name = $data["Name"] ?? "John";
     $i = 0;
     $members = $this->core->DatabaseSet("Member");
     $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
@@ -1836,7 +1828,7 @@
      if($i == 0 && $member["Login"]["Username"] == $username) {
       $i++;
      }
-    } if(empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
      $r = "A valid Email address is required.";
     } elseif(empty($password)) {
      $r = "A Password is required.";
@@ -1859,24 +1851,54 @@
     } elseif($i > 0) {
      $r = "The Username <em>$username</em> is already in use.";
     } else {
-     $viewData = json_encode($viewData, true);
-     // PACKAGE DATA INTO $viewData
-     // LOAD 2FA
-     $r = $this->core->Element(["p", "This experience is temporarily disabled while we upgrade the 2FA integration.<br/>$viewData"]);
+     $accessCode = "Accepted";
+     $data = [];
+     $data["Email"] = base64_encode($email);
+     $data["ReturnView"] = base64_encode(base64_encode("Profile:SignUp"));
+     $viewData["Age"] = base64_encode($age);
+     $viewData["BirthMonth"] = base64_encode($birthMonth);
+     $viewData["BirthYear"] = base64_encode($birthYear);
+     $viewData["Gender"] = base64_encode($gender);
+     $viewData["Email"] = base64_encode($email);
+     $viewData["Name"] = base64_encode($name);
+     $viewData["ParentView"] = "SignUp";
+     $viewData["Password"] = base64_encode($password);
+     $viewData["PIN"] = base64_encode($pin);
+     $viewData["Username"] = base64_encode($username);
+     $data["ViewData"] = base64_encode(json_encode($viewData));
+     $r = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
+     $r = $this->core->RenderView($r);
+    } if($accessCode != "Accepted") {
+     $r = $this->core->Change([[
+      "[Error.Message]" => $r,
+      "[Error.ParentView]" => "SignUp"
+     ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     }
    } elseif($step == 3) {
+    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
+    $accessCode = "Denied";
     $addTopMargin = "1";
-    $data = $this->core->FixMissing($data, [
-     "BirthMonth",
-     "BirthYear",
-     "Name",
-     "Password2",
-     "Gender",
-     "PIN2"
-    ]);
+    $birthMonth = $data["BirthMonth"] ?? base64_encode(10);
+    $birthMonth = base64_decode($birthMonth);
+    $birthYear = $data["BirthYear"] ?? base64_encode(1995);
+    $birthYear = base64_decode($birthYear);
+    $age = date("Y") - $birthYear;
+    $ck = ($age > $_MinimumAge) ? 1 : 0;
+    $email = $data["Email"] ?? base64_encode("");
+    $email = base64_decode($email);
+    $gender = $data["Gender"] ?? base64_encode("Male");
+    $gender = base64_decode($gender);
+    $firstName = $data["Name"] ?? base64_encode("John");
+    $firstName = explode(" ", base64_decode($firstName))[0];
     $i = 0;
+    $members = $this->core->DatabaseSet("Member");
     $now = $this->core->timestamp;
-    $username = $data["Username"] ?? "";
+    $password = $data["Password"] ?? base64_encode("");
+    $password = base64_decode($password);
+    $pin = $data["PIN"] ?? base64_encode("");
+    $pin = base64_decode($pin);
+    $username = $data["Username"] ?? base64_encode("");
+    $username = base64_decode($username);
     $usernameID = md5($username);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
@@ -1884,87 +1906,90 @@
      if($i == 0 && $member["Login"]["Username"] == $username) {
       $i++;
      }
-    } if($i == 0) {
-     // SAVE NEW MEMBER
-     /*--$this->core->Data("Save", ["cms", $usernameID, [
+    } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+     $r = "A valid Email address is required.";
+    } if($i > 0) {
+     $r = "The Username <em>$username</em> is already in use.";
+    } else {
+     $accessCode = "Accepted";
+     $this->core->Data("Save", ["cms", $usernameID, [
       "Contacts" => [],
       "Requests" => []
      ]]);
-    $this->core->Data("Save", ["fs", $usernameID, [
-     "Albums" => [
-      md5("unsorted") => [
-       "ID" => md5("unsorted"),
-       "Created" => $this->core->timestamp,
-       "ICO" => "",
-       "Modified" => $this->core->timestamp,
-       "Title" => "Unsorted",
-       "Description" => "Files are uploaded here by default.",
-       "NSFW" => 0,
-       "Privacy" => md5("Public")
-      ]
-     ],
-     "Files" => []
-    ]]);
-    $this->core->Data("Save", [
-     "mbr", $usernameID, $this->core->NewMember([
-      "Age" => $age,
-      "BirthMonth" => $birthMonth,
-      "BirthYear" => $birthYear,
-      "DisplayName" => $username,
-      "Email" => $email,
-      "FirstName" => $firstName,
-      "Gender" => $data["Gender"],
-      "NonEssentialCommunications" => $nonEssentialCommunications,
-      "Password" => $password,
-      "PIN" => md5($pin),
-      "Username" => $username
-     ])
-    ]);
-    $this->core->Data("Save", ["stream", $usernameID, []]);
-    $this->core->Data("Save", ["shop", $usernameID, [
-     "Contributors" => [
-      $username => [
-       "Company" => "$username's Company",
-       "Description" => "Oversees general operations and administrative duties.",
-       "Hired" => $now,
-       "Paid" => 0,
-       "Title" => "CEO"
-      ]
-     ],
-     "CoverPhoto" => "",
-     "CoverPhotoSource" => "",
-     "Description" => "",
-     "HireTerms" => "",
-     "Live" => 0,
-     "Modified" => $now,
-     "Open" => 1,
-     "Privacy" => md5("Private"),
-     "Processing" => [],
-     "Products" => [],
-     "Tax" => 0,
-     "Title" => "$username's Shop",
-     "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
-    ]]);
-     if(!empty($data["Email"])) {
+     $this->core->Data("Save", ["fs", $usernameID, [
+      "Albums" => [
+       md5("unsorted") => [
+        "ID" => md5("unsorted"),
+        "Created" => $this->core->timestamp,
+        "ICO" => "",
+        "Modified" => $this->core->timestamp,
+        "Title" => "Unsorted",
+        "Description" => "Files are uploaded here by default.",
+        "NSFW" => 0,
+        "Privacy" => md5("Public")
+       ]
+      ],
+      "Files" => []
+     ]]);
+     $this->core->Data("Save", [
+      "mbr", $usernameID, $this->core->NewMember([
+       "Age" => $age,
+       "BirthMonth" => $birthMonth,
+       "BirthYear" => $birthYear,
+       "DisplayName" => $username,
+       "Email" => $email,
+       "FirstName" => $firstName,
+       "Gender" => $gender,
+       "NonEssentialCommunications" => $nonEssentialCommunications,
+       "Password" => $password,
+       "PIN" => md5($pin),
+       "Username" => $username
+      ])
+     ]);
+     $this->core->Data("Save", ["stream", $usernameID, []]);
+     $this->core->Data("Save", ["shop", $usernameID, [
+      "Contributors" => [
+       $username => [
+        "Company" => "$username's Company",
+        "Description" => "Oversees general operations and administrative duties.",
+        "Hired" => $now,
+        "Paid" => 0,
+        "Title" => "CEO"
+       ]
+      ],
+      "CoverPhoto" => "",
+      "CoverPhotoSource" => "",
+      "Description" => "",
+      "HireTerms" => "",
+      "Live" => 0,
+      "Modified" => $now,
+      "Open" => 1,
+      "Privacy" => md5("Private"),
+      "Processing" => [],
+      "Products" => [],
+      "Tax" => 0,
+      "Title" => "$username's Shop",
+      "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
+     ]]);
+     if(!empty($email)) {
       $this->core->SendEmail([
        "Message" => $this->core->Change([[
-        "[Mail.Name]" => $name
+        "[Mail.Name]" => $firstName
        ], $this->core->Extension("35fb42097f5a625e9bd0a38554226743")]),
        "Title" => "Welcome to ".$this->core->config["App"]["Name"]."!",
-       "To" => $data["Email"]
+       "To" => $email
       ]);
      }
-     $this->core->Statistic("New Member");--*/
-     // END SAVE NEW MEMBER
+     $this->core->Statistic("New Member");
      $r = $this->core->Change([[
       "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
       "[Success.Username]" => $username
      ], $this->core->Extension("872fd40c7c349bf7220293f3eb64ab45")]);
     } if($accessCode != "Accepted") {
      $r = $this->core->Change([[
-      "[2FA.Error.Message]" => $r,
-      "[2FA.Error.ViewPairID]" => "MainView"
-     ], $this->core->Extension("ef055d5546ab5fead63311a3113f3f5f")]);
+      "[Error.Message]" => $r,
+      "[Error.ParentView]" => "SignUp"
+     ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     }
    } else {
     $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
@@ -1984,7 +2009,6 @@
      "[SignUp.Processor]" => base64_encode("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2)),
      "[SignUp.ReturnView]" => base64_encode("Profile:SignUp"),
      "[SignUp.ViewData]" => base64_encode(json_encode([
-      "v" => base64_encode("WebUI:TwoFactorAuthentication"),
       "Step" => base64_encode(3)
      ], true))
     ], $this->core->Extension("c48eb7cf715c4e41e2fb62bdfa60f198")]);
