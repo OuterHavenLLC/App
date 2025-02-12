@@ -30,12 +30,17 @@
    }
   }
   function AESdecrypt(string $data) {
-   $key = base64_decode($this->cypher->DITkey);
-   return $data;
+   $key = substr(hash("sha256", base64_decode($this->cypher->DITkey)), 0, 32);
+   $data = base64_decode($data);
+   $iv = substr($data, 0, 16);
+   $data = substr($data, 16);
+   return openssl_decrypt($data, "AES-256-CBC", $key, 0, $iv);
   }
   function AESencrypt(string $data) {
-   $key = base64_decode($this->cypher->DITkey);
-   return $data;
+   $key = substr(hash("sha256", base64_decode($this->cypher->DITkey)), 0, 32);
+   $iv = openssl_random_pseudo_bytes(16);
+   $data = openssl_encrypt($data, "AES-256-CBC", $key, 0, $iv);
+   return base64_encode($iv.$data);
   }
   function Article(string $id) {
    $article = $this->Data("Get", ["pg", $id]) ?? [];
