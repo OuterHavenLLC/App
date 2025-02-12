@@ -86,7 +86,7 @@
     if(!empty($body)) {
      $accessCode = "Accepted";
      $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
-     $groups = $this->core->DatabaseSet("Chat") ?? [];
+     $groups = $this->core->DatabaseSet("Chat");
      $i = 0;
      $id = base64_decode($id);
      $r = "";

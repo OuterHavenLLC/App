@@ -1093,7 +1093,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id) && !empty($mbr)) {
-    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+    $forum = $this->core->Data("Get", ["pf", $id]);
     $members = $this->core->DatabaseSet("Member");
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);

@@ -1085,7 +1085,7 @@
          ]);
         } if(!empty($member)) {
          $check = 0;
-         $members = $this->core->DatabaseSet("MBR");
+         $members = $this->core->DatabaseSet("Member");
          foreach($members as $key => $value) {
           $value = str_replace("nyc.outerhaven.mbr.", "", $value);
           if($check == 0) {
@@ -1280,7 +1280,7 @@
       } elseif($isPreset == 0) {
        $check = 0;
        $member = $data["ChargeTo"] ?? "";
-       $members = $this->core->DatabaseSet("MBR");
+       $members = $this->core->DatabaseSet("Member");
        $r = [
         "Body" => "We could not find the Member <strong>$member</strong>."
        ];

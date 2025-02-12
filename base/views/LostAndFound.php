@@ -34,7 +34,7 @@
    if($isBackFrom2FA == 1) {
     $email = base64_decode($data["Email"]);
     $username = "";
-    $x = $this->core->DatabaseSet("MBR") ?? [];
+    $x = $this->core->DatabaseSet("Member");
     foreach($x as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
@@ -82,7 +82,7 @@
    if($isBackFrom2FA == 1) {
     $email = base64_decode($data["Email"]);
     $username = "";
-    $x = $this->core->DatabaseSet("MBR") ?? [];
+    $x = $this->core->DatabaseSet("Member");
     foreach($x as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
@@ -130,7 +130,7 @@
    if($isBackFrom2FA == 1) {
     $email = base64_decode($data["Email"]);
     $username = "";
-    $x = $this->core->DatabaseSet("MBR") ?? [];
+    $x = $this->core->DatabaseSet("Member");
     foreach($x as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]) ?? [];

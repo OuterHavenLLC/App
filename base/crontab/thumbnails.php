@@ -30,7 +30,7 @@
  $r .= $oh->core->Element([
   "p", "Working on the Member Libraries..."
  ]);
- $db = $oh->core->DatabaseSet("Files") ?? [];
+ $db = $oh->core->DatabaseSet("Files");
  foreach($db as $key => $library) {
   $library = str_replace("nyc.outerhaven.fs.", "", $library);
   $member = $oh->core->Data("Get", ["mbr", $library]) ?? [];

@@ -287,8 +287,6 @@
       $a = "$domain.fs.";
      } elseif($a == "Forum") {
       $a = "$domain.pf.";
-     } elseif($a == "MBR") {
-      $a = "$domain.mbr.";
      } elseif($a == "Member") {
       $a = "$domain.mbr.";
      } elseif($a == "Poll") {

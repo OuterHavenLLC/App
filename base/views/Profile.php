@@ -1495,7 +1495,7 @@
    $email = $data["Personal_Email"] ?? "";
    $emailIsTaken = 0;
    $header = "Error";
-   $members = $this->core->DatabaseSet("MBR") ?? [];
+   $members = $this->core->DatabaseSet("Member");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $_UIVariant = $y["Personal"]["UIVariant"] ?? 0;
@@ -1701,153 +1701,6 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function SaveSignUp(array $a) {
-   $_MinimumAge = $this->core->config["minRegAge"];
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "BirthMonth",
-    "BirthYear",
-    "Name",
-    "Password2",
-    "Gender",
-    "PIN2"
-   ]);
-   $birthYear = $data["BirthYear"] ?? 1995;
-   $age = date("Y") - $birthYear;
-   $ck = ($age > $_MinimumAge) ? 1 : 0;
-   $email = $data["Email"] ?? "";
-   $firstName = ($data["Gender"] == "Male") ? "John" : "Jane";
-   $i = 0;
-   $members = $this->core->DatabaseSet("MBR");
-   $password = $data["Password"] ?? "";
-   $pin = $data["PIN"] ?? "";
-   $r = "Internal Error";
-   $username = $data["Username"] ?? "";
-   foreach($members as $key => $value) {
-    $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-    $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
-    if($i == 0 && $member["Login"]["Username"] == $username) {
-     $i++;
-    }
-   } if(1==2) {//TEMP
-    $r = "This experience is temporarily disabled while we upgrade the 2FA integration.";//TEMP
-   } if(empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $r = "A valid Email address is required.";
-   } elseif(empty($password)) {
-    $r = "A Password is required.";
-   } elseif($password != $data["Password2"]) {
-    $r = "Your Passwords must match.";
-   } elseif(empty($pin)) {
-    $r = "A PIN is required.";
-   } elseif(!is_numeric($pin) || !is_numeric($data["PIN2"])) {
-    $r = "Your PINs must be numeric.";
-   } elseif($pin != $data["PIN2"]) {
-    $r = "Your PINs must match.";
-   } elseif(empty($username)) {
-    $r = "A Username is required.";
-   } elseif(strpos($username, "Ghost_")) {
-    $r = "You cannot be a ghost.";
-   } elseif($username == $this->core->ID) {
-    $r = $this->core->ID." is the system profile and cannot be used.";
-   } elseif($ck == 0) {
-    $r = "You must be $_MinimumAge or older to sign up.";
-   } elseif($i > 0) {
-    $r = "The Username <em>$username</em> is already in use.";
-   } else {
-    $accessCode = "Accepted";
-    $birthMonth = $data["BirthMonth"] ?? 10;
-    $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
-    $now = $this->core->timestamp;
-    /*--$this->core->Data("Save", ["cms", md5($username), [
-     "Contacts" => [],
-     "Requests" => []
-    ]]);
-    $this->core->Data("Save", ["fs", md5($username), [
-     "Albums" => [
-      md5("unsorted") => [
-       "ID" => md5("unsorted"),
-       "Created" => $this->core->timestamp,
-       "ICO" => "",
-       "Modified" => $this->core->timestamp,
-       "Title" => "Unsorted",
-       "Description" => "Files are uploaded here by default.",
-       "NSFW" => 0,
-       "Privacy" => md5("Public")
-      ]
-     ],
-     "Files" => []
-    ]]);
-    $this->core->Data("Save", [
-     "mbr", md5($username), $this->core->NewMember([
-      "Age" => $age,
-      "BirthMonth" => $birthMonth,
-      "BirthYear" => $birthYear,
-      "DisplayName" => $username,
-      "Email" => $email,
-      "FirstName" => $firstName,
-      "Gender" => $data["Gender"],
-      "NonEssentialCommunications" => $nonEssentialCommunications,
-      "Password" => $password,
-      "PIN" => md5($pin),
-      "Username" => $username
-     ])
-    ]);
-    $this->core->Data("Save", ["stream", md5($username), []]);
-    $this->core->Data("Save", ["shop", md5($username), [
-     "Contributors" => [
-      $username => [
-       "Company" => "$username's Company",
-       "Description" => "Oversees general operations and administrative duties.",
-       "Hired" => $now,
-       "Paid" => 0,
-       "Title" => "CEO"
-      ]
-     ],
-     "CoverPhoto" => "",
-     "CoverPhotoSource" => "",
-     "Description" => "",
-     "HireTerms" => "",
-     "Live" => 0,
-     "Modified" => $now,
-     "Open" => 1,
-     "Privacy" => md5("Private"),
-     "Processing" => [],
-     "Products" => [],
-     "Tax" => 0,
-     "Title" => "$username's Shop",
-     "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
-    ]]);
-    if(!empty($data["Email"])) {
-     $this->core->SendEmail([
-      "Message" => $this->core->Change([[
-       "[Mail.Name]" => $name
-      ], $this->core->Extension("35fb42097f5a625e9bd0a38554226743")]),
-      "Title" => "Welcome to ".$this->core->config["App"]["Name"]."!",
-      "To" => $data["Email"]
-     ]);
-    }
-    $this->core->Statistic("New Member");--*/
-    $r = $this->core->Change([[
-     "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-     "[Success.Username]" => $username
-    ], $this->core->Extension("872fd40c7c349bf7220293f3eb64ab45")]);
-   } if($accessCode != "Accepted") {
-    $r = $this->core->Change([[
-     "[2FA.Error.Message]" => $r,
-     "[2FA.Error.ViewPairID]" => "2FAStep1"
-    ], $this->core->Extension("ef055d5546ab5fead63311a3113f3f5f")]);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
-   ]);
-  }
   function SignIn(array $a) {
    $addTopMargin = "0";
    $data = $a["Data"] ?? [];
@@ -1948,33 +1801,199 @@
    ]);
   }
   function SignUp(array $a) {
-   $birthMonths = [];
-   $birthYears = [];
-   $minAge = $this->core->config["minRegAge"] ?? 13;
-   for($i = 1; $i <= 12; $i++) {
-    $birthMonths[$i] = $i;
-   } for($i = 1776; $i <= (date("Y") - $minAge); $i++) {
-    $birthYears[$i] = $i;
+   $addTopMargin = "0";
+   $data = $a["Data"] ?? [];
+   $responseType = "GoToView";
+   $securityKey = "";
+   $parentView = $viewData["ParentView"] ?? base64_encode("SignUp");
+   $step = $data["Step"] ?? base64_encode(1);
+   $step = base64_decode($step);
+   if($step == 2) {
+    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
+    $addTopMargin = "1";
+    $data = $this->core->DecodeBridgeData($data);
+    $data = $a["Data"] ?? [];
+    $data = $this->core->FixMissing($data, [
+     "BirthMonth",
+     "BirthYear",
+     "Name",
+     "Password2",
+     "Gender",
+     "PIN2"
+    ]);
+    $birthMonth = $data["BirthMonth"] ?? 10;
+    $birthYear = $data["BirthYear"] ?? 1995;
+    $age = date("Y") - $birthYear;
+    $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
+    $ck = ($age > $_MinimumAge) ? 1 : 0;
+    $email = $data["Email"] ?? "";
+    $firstName = ($data["Gender"] == "Male") ? "John" : "Jane";
+    $i = 0;
+    $members = $this->core->DatabaseSet("Member");
+    $password = $data["Password"] ?? "";
+    $pin = $data["PIN"] ?? "";
+    $r = "Internal Error";
+    $username = $data["Username"] ?? "";
+    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
+    $viewData = json_decode(base64_decode($viewData), true);
+    foreach($members as $key => $value) {
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
+     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
+     if($i == 0 && $member["Login"]["Username"] == $username) {
+      $i++;
+     }
+    } if(empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+     $r = "A valid Email address is required.";
+    } elseif(empty($password)) {
+     $r = "A Password is required.";
+    } elseif($password != $data["Password2"]) {
+     $r = "Your Passwords must match.";
+    } elseif(empty($pin)) {
+     $r = "A PIN is required.";
+    } elseif(!is_numeric($pin) || !is_numeric($data["PIN2"])) {
+     $r = "Your PINs must be numeric.";
+    } elseif($pin != $data["PIN2"]) {
+     $r = "Your PINs must match.";
+    } elseif(empty($username)) {
+     $r = "A Username is required.";
+    } elseif(strpos($username, "Ghost_")) {
+     $r = "You cannot be a ghost.";
+    } elseif($username == $this->core->ID) {
+     $r = $this->core->ID." is the system profile and cannot be used.";
+    } elseif($ck == 0) {
+     $r = "You must be $_MinimumAge or older to sign up.";
+    } elseif($i > 0) {
+     $r = "The Username <em>$username</em> is already in use.";
+    } else {
+     $viewData = json_encode($viewData, true);
+     // PACKAGE DATA INTO $viewData
+     // LOAD 2FA
+     $r = $this->core->Element(["p", "This experience is temporarily disabled while we upgrade the 2FA integration.<br/>$viewData"]);
+    }
+   } elseif($step == 3) {
+    $addTopMargin = "1";
+    $i = 0;
+    $now = $this->core->timestamp;
+    $username = $data["Username"] ?? "";
+    $usernameID = md5($username);
+    foreach($members as $key => $value) {
+     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
+     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
+     if($i == 0 && $member["Login"]["Username"] == $username) {
+      $i++;
+     }
+    } if($i == 0) {
+     // SAVE NEW MEMBER
+     /*--$this->core->Data("Save", ["cms", $usernameID, [
+      "Contacts" => [],
+      "Requests" => []
+     ]]);
+    $this->core->Data("Save", ["fs", $usernameID, [
+     "Albums" => [
+      md5("unsorted") => [
+       "ID" => md5("unsorted"),
+       "Created" => $this->core->timestamp,
+       "ICO" => "",
+       "Modified" => $this->core->timestamp,
+       "Title" => "Unsorted",
+       "Description" => "Files are uploaded here by default.",
+       "NSFW" => 0,
+       "Privacy" => md5("Public")
+      ]
+     ],
+     "Files" => []
+    ]]);
+    $this->core->Data("Save", [
+     "mbr", $usernameID, $this->core->NewMember([
+      "Age" => $age,
+      "BirthMonth" => $birthMonth,
+      "BirthYear" => $birthYear,
+      "DisplayName" => $username,
+      "Email" => $email,
+      "FirstName" => $firstName,
+      "Gender" => $data["Gender"],
+      "NonEssentialCommunications" => $nonEssentialCommunications,
+      "Password" => $password,
+      "PIN" => md5($pin),
+      "Username" => $username
+     ])
+    ]);
+    $this->core->Data("Save", ["stream", $usernameID, []]);
+    $this->core->Data("Save", ["shop", $usernameID, [
+     "Contributors" => [
+      $username => [
+       "Company" => "$username's Company",
+       "Description" => "Oversees general operations and administrative duties.",
+       "Hired" => $now,
+       "Paid" => 0,
+       "Title" => "CEO"
+      ]
+     ],
+     "CoverPhoto" => "",
+     "CoverPhotoSource" => "",
+     "Description" => "",
+     "HireTerms" => "",
+     "Live" => 0,
+     "Modified" => $now,
+     "Open" => 1,
+     "Privacy" => md5("Private"),
+     "Processing" => [],
+     "Products" => [],
+     "Tax" => 0,
+     "Title" => "$username's Shop",
+     "Welcome" => "<h1>Welcome</h1>\r\n<p>Welcome to my shop!</p>"
+    ]]);
+     if(!empty($data["Email"])) {
+      $this->core->SendEmail([
+       "Message" => $this->core->Change([[
+        "[Mail.Name]" => $name
+       ], $this->core->Extension("35fb42097f5a625e9bd0a38554226743")]),
+       "Title" => "Welcome to ".$this->core->config["App"]["Name"]."!",
+       "To" => $data["Email"]
+      ]);
+     }
+     $this->core->Statistic("New Member");--*/
+     // END SAVE NEW MEMBER
+     $r = $this->core->Change([[
+      "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
+      "[Success.Username]" => $username
+     ], $this->core->Extension("872fd40c7c349bf7220293f3eb64ab45")]);
+    } if($accessCode != "Accepted") {
+     $r = $this->core->Change([[
+      "[2FA.Error.Message]" => $r,
+      "[2FA.Error.ViewPairID]" => "MainView"
+     ], $this->core->Extension("ef055d5546ab5fead63311a3113f3f5f")]);
+    }
+   } else {
+    $birthMonths = [];
+    $birthYears = [];
+    $responseType = "View";
+    for($i = 1; $i <= 12; $i++) {
+     $birthMonths[$i] = $i;
+    } for($i = 1776; $i <= (date("Y") - $minAge); $i++) {
+     $birthYears[$i] = $i;
+    }
+    $r = $this->core->Change([[
+     "[SignUp.BirthMonths]" => json_encode($birthMonths, true),
+     "[SignUp.BirthYears]" => json_encode($birthYears, true),
+     "[SignUp.MinimumAge]" => $this->core->config["minAge"],
+     "[SignUp.ParentView]" => "MainView",
+     "[SignUp.Processor]" => base64_encode("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2)),
+     "[SignUp.ReturnView]" => base64_encode("Profile:SignUp"),
+     "[SignUp.ViewData]" => base64_encode(json_encode([
+      "v" => base64_encode("WebUI:TwoFactorAuthentication"),
+      "Step" => base64_encode(3)
+     ], true))
+    ], $this->core->Extension("c48eb7cf715c4e41e2fb62bdfa60f198")]);
    }
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
-     "Web" => [
-      "Front" => $this->core->Change([[
-       "[SignUp.2FA]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:FirstTime")),
-       "[SignUp.BirthMonths]" => json_encode($birthMonths, true),
-       "[SignUp.BirthYears]" => json_encode($birthYears, true),
-       "[SignUp.MinimumAge]" => $this->core->config["minAge"],
-       "[SignUp.ReturnView]" => base64_encode(json_encode([
-        "Group" => "Profile",
-        "View" => "SaveSignUp"
-       ], true))
-      ], $this->core->Extension("c48eb7cf715c4e41e2fb62bdfa60f198")])
-     ]
+     "Web" => $r
     ],
-    "ResponseType" => "Card"
+    "ResponseType" => $responseType
    ]);
   }
   function __destruct() {
