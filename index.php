@@ -22,11 +22,14 @@
    $r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
   } elseif($view == "Cypher") {
    $r = $oh->core->Extension("06dfe9b3d6b9fdab588c1eabfce275fd");
+  } elseif($view == "Cypher2") {
+   $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67abee895c024");
   }
   $r = $oh->core->Change([[
    "[App.AddContent]" => base64_encode("v=".base64_encode("Profile:AddContentCheck")),
    "[App.Bulletin]" => base64_encode($oh->core->Extension("ae30582e627bc060926cfacf206920ce")),
    "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
+   "[App.DITKey]" => base64_decode($oh->core->cypher->DITkey),
    "[App.Language]" => $oh->core->language,
    "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
    "[App.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),

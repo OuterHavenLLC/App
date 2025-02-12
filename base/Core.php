@@ -29,6 +29,14 @@
     ]);
    }
   }
+  function AESdecrypt(string $data) {
+   $key = base64_decode($this->cypher->DITkey);
+   return $data;
+  }
+  function AESencrypt(string $data) {
+   $key = base64_decode($this->cypher->DITkey);
+   return $data;
+  }
   function Article(string $id) {
    $article = $this->Data("Get", ["pg", $id]) ?? [];
    $r = $this->Change([[
