@@ -1812,26 +1812,20 @@
     $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
     $addTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
-    $data = $a["Data"] ?? [];
-    $data = $this->core->FixMissing($data, [
-     "BirthMonth",
-     "BirthYear",
-     "Name",
-     "Password2",
-     "Gender",
-     "PIN2"
-    ]);
     $birthMonth = $data["BirthMonth"] ?? 10;
     $birthYear = $data["BirthYear"] ?? 1995;
     $age = date("Y") - $birthYear;
-    $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
     $ck = ($age > $_MinimumAge) ? 1 : 0;
     $email = $data["Email"] ?? "";
-    $firstName = ($data["Gender"] == "Male") ? "John" : "Jane";
+    $gender = $data["Gender"] ?? "Male";
+    $firstName = ($gender == "Male") ? "John" : "Jane";
     $i = 0;
     $members = $this->core->DatabaseSet("Member");
+    $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
     $password = $data["Password"] ?? "";
+    $password2 = $data["Password2"] ?? "";
     $pin = $data["PIN"] ?? "";
+    $pin2 = $data["PIN2"] ?? "";
     $r = "Internal Error";
     $username = $data["Username"] ?? "";
     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
@@ -1846,13 +1840,13 @@
      $r = "A valid Email address is required.";
     } elseif(empty($password)) {
      $r = "A Password is required.";
-    } elseif($password != $data["Password2"]) {
+    } elseif($password != $password2) {
      $r = "Your Passwords must match.";
     } elseif(empty($pin)) {
      $r = "A PIN is required.";
-    } elseif(!is_numeric($pin) || !is_numeric($data["PIN2"])) {
+    } elseif(!is_numeric($pin) || !is_numeric($pin2)) {
      $r = "Your PINs must be numeric.";
-    } elseif($pin != $data["PIN2"]) {
+    } elseif($pin != $pin2) {
      $r = "Your PINs must match.";
     } elseif(empty($username)) {
      $r = "A Username is required.";
@@ -1872,13 +1866,21 @@
     }
    } elseif($step == 3) {
     $addTopMargin = "1";
+    $data = $this->core->FixMissing($data, [
+     "BirthMonth",
+     "BirthYear",
+     "Name",
+     "Password2",
+     "Gender",
+     "PIN2"
+    ]);
     $i = 0;
     $now = $this->core->timestamp;
     $username = $data["Username"] ?? "";
     $usernameID = md5($username);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
+     $member = $this->core->Data("Get", ["mbr", $value]);
      if($i == 0 && $member["Login"]["Username"] == $username) {
       $i++;
      }
@@ -1965,12 +1967,13 @@
      ], $this->core->Extension("ef055d5546ab5fead63311a3113f3f5f")]);
     }
    } else {
+    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
     $birthMonths = [];
     $birthYears = [];
     $responseType = "View";
     for($i = 1; $i <= 12; $i++) {
      $birthMonths[$i] = $i;
-    } for($i = 1776; $i <= (date("Y") - $minAge); $i++) {
+    } for($i = 1776; $i <= (date("Y") - $_MinimumAge); $i++) {
      $birthYears[$i] = $i;
     }
     $r = $this->core->Change([[
