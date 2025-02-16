@@ -30,8 +30,8 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.
 * We streamlined the 2FA process and how this hooks into other experiences.
-* The legacy 2FA view group was deprecated and replaced by 2FAv2 for the Lost+Found and Sign Up experiences. (L+F pending...)
 * New Members may no longer have the same email address as existing Members to prevent Username recovery conflicts.
+* The legacy 2FA view group was deprecated and replaced by 2FAv2 for the Lost+Found and Sign Up experiences.
 
 ### Artists
 * Up to 100 new jobs may be active while the Hire section is enabled. After this new limit is reached, no new jobs may be created.
