@@ -1792,6 +1792,7 @@
    ]);
   }
   function SignUp(array $a) {
+   $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
    $addTopMargin = "0";
    $data = $a["Data"] ?? [];
    $responseType = "GoToView";
@@ -1800,7 +1801,6 @@
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
     $accessCode = "Denied";
     $addTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
@@ -1824,8 +1824,10 @@
     $viewData = json_decode(base64_decode($viewData), true);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
-     if($i == 0 && $member["Login"]["Username"] == $username) {
+     $member = $this->core->Data("Get", ["mbr", $value]);
+     $emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
+     $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
+     if(($usernameIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
      }
     } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -1875,7 +1877,6 @@
      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     }
    } elseif($step == 3) {
-    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
     $accessCode = "Denied";
     $addTopMargin = "1";
     $birthMonth = $data["BirthMonth"] ?? base64_encode(10);
@@ -1903,7 +1904,9 @@
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
-     if($i == 0 && $member["Login"]["Username"] == $username) {
+     $emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
+     $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
+     if(($usernameIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
      }
     } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -1992,7 +1995,6 @@
      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     }
    } else {
-    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
     $birthMonths = [];
     $birthYears = [];
     $responseType = "View";

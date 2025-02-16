@@ -26,12 +26,10 @@
   function RecoverPassword(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "2FAReturn",
-    "Email"
-   ]);
-   $isBackFrom2FA = $data["2FAReturn"] ?? 0;
-   if($isBackFrom2FA == 1) {
+   $step = $data["Step"] ?? base64_encode(1);
+   $step = base64_decode($step);
+   if($step == 2) {
+   } elseif($step == 3) {
     $email = base64_decode($data["Email"]);
     $username = "";
     $x = $this->core->DatabaseSet("Member");
@@ -46,7 +44,7 @@
     $password = uniqid();
     $you = $this->core->Member($username);
     $you["Login"]["Password"] = md5($password);
-    $this->core->Data("Save", ["mbr", md5($username), $you]);
+    #$this->core->Data("Save", ["mbr", md5($username), $you]);
     $r = $this->core->Change([[
      "[Success.Message]" => "Your provisional password is <strong>$password</strong>. We recommend changing this password as soon as possible for your security.",
      "[Success.ViewPairID]" => "LostAndFound",
@@ -54,10 +52,8 @@
    } else {
     $r = $this->core->Change([[
      "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("TwoFactorAuthentication:Email")),
-     "[LostAndFound.Recovery.ReturnView]" => base64_encode(json_encode([
-      "Group" => "LostAndFound",
-      "View" => "RecoverPassword"
-     ])),
+     "[LostAndFound.Recovery.ReturnView]" => base64_encode("LostAndFound:RecoverPassword"
+     ),
      "[LostAndFound.Recovery.Type]" => "Password"
     ], $this->core->Extension("84e04efba2e596a97d2ba5f2762dd60b")]);
    }
@@ -74,12 +70,10 @@
   function RecoverPIN(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "2FAReturn",
-    "Email"
-   ]);
-   $isBackFrom2FA = $data["2FAReturn"] ?? 0;
-   if($isBackFrom2FA == 1) {
+   $step = $data["Step"] ?? base64_encode(1);
+   $step = base64_decode($step);
+   if($step == 2) {
+   } elseif($step == 3) {
     $email = base64_decode($data["Email"]);
     $username = "";
     $x = $this->core->DatabaseSet("Member");
@@ -94,7 +88,7 @@
     $pin = rand(1000001, 9999999);
     $you = $this->core->Member($username);
     $you["Login"]["PIN"] = md5($pin);
-    $this->core->Data("Save", ["mbr", md5($username), $you]);
+    #$this->core->Data("Save", ["mbr", md5($username), $you]);
     $r = $this->core->Change([[
      "[Success.Message]" => "Use <strong>$pin</strong> the next time a PIN is required. We also recommend changing this provisional PIN as soon as possible for your security.",
      "[Success.ViewPairID]" => "LostAndFound",
@@ -122,18 +116,16 @@
   function RecoverUsername(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "2FAReturn",
-    "Email"
-   ]);
-   $isBackFrom2FA = $data["2FAReturn"] ?? 0;
-   if($isBackFrom2FA == 1) {
+   $step = $data["Step"] ?? base64_encode(1);
+   $step = base64_decode($step);
+   if($step == 2) {
+   } elseif($step == 3) {
     $email = base64_decode($data["Email"]);
     $username = "";
     $x = $this->core->DatabaseSet("Member");
     foreach($x as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-     $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
+     $member = $this->core->Data("Get", ["mbr", $value]);
      $memberEmail = $member["Personal"]["Email"];
      if($email == $memberEmail) {
       $username = $member["Login"]["Username"];
