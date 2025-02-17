@@ -15,7 +15,12 @@
    $refresh = $data["Refresh"] ?? 0;
    $type = $data["Type"] ?? 1;
    $you = $this->you["Login"]["Username"];
-   if(!empty($id)) {
+   $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
+   if($minimalDesign == 1) {
+    $r = $this->core->Element([
+     "div", "&nbsp;", ["class" => "NONAME"]
+    ]);
+   } elseif(!empty($id)) {
     $accessCode = "Accepted";
     $_VoteDown = 0;
     $_VoteUp = 0;

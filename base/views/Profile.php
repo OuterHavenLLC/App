@@ -451,7 +451,8 @@
    $i = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID != $you) {
+   $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
+   if($minimalDesign == 0 && $this->core->ID != $you) {
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
     $newBulletins = [];
     if(!empty($bulletins)) {

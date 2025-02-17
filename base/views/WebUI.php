@@ -561,7 +561,7 @@
      }
     }
    } elseif(!empty($email)) {
-    $_2FA = uniqid("OH");
+    $_2FA = rand(000000, 999999);
     $_2FAconfirm = md5($_2FA);
     $email = base64_decode($email);
     $r = [

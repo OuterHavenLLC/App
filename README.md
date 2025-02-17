@@ -26,6 +26,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * More platform-wide optimization and bug fixes.
 * Logos and Profile Pictures are now free-form if the image format supports the opacity filter.
 * Both client and server are now capable of AES data encryption.
+* The Minimal Design preference now disables Bulletin counts, conversations, and voting.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.

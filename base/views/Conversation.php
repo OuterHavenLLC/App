@@ -123,6 +123,7 @@
    ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
    if(!empty($conversationID)) {
     $accessCode = "Accepted";
     $anon = "Anonymous";
@@ -198,6 +199,9 @@
       "[Reply.Editor]" => base64_encode("v=$edit&CommentID=".base64_encode($commentID)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&new=1")
      ], $this->core->Extension("5efa423862a163dd55a2785bc7327727")]);
      $r = ($i > 0) ? $commentType : $r;
+     $r = ($minimalDesign == 1) ? $this->core->Element([
+      "div", "&nbsp;", ["class" => "NONAME"]
+     ]) : $r;
     } elseif($level == 2) {
      # REPLIES
      $extension = $this->core->Extension("ccf260c40f8fa63be5686f5ceb2b95b1");
