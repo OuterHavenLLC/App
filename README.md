@@ -29,6 +29,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * The Minimal Design preference now disables Bulletin counts, conversations, and voting.
 * A new Extension API allows the client to retrieve one or all extensions for caching.
 * A new client-side Database class enables caching for local data-at-rest.
+* The last password change is now logged in Member activity for an eventual password change policy to be implemented.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.

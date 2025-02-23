@@ -1157,6 +1157,7 @@
       $coverPhotos = $y["Personal"]["CoverPhotos"] ?? [];
       $coverPhotosList = "";
       $coverPhotosSelection = $y["Personal"]["CoverPhotoSelection"] ?? "Single";
+      $lastPasswordChange = $y["Activity"]["LastPasswordChange"] ?? $this->core->timestamp;
       $nonEssentialCommunications = $y["Privacy"]["NonEssentialCommunications"] ?? 0;
       $passPhrase = $y["Privacy"]["PassPhrase"] ?? "";
       $passwordOnSignIn = $y["Login"]["RequirePassword"] ?? "No";
@@ -1204,6 +1205,7 @@
        "[Preferences.General.DisplayName]" => base64_encode($y["Personal"]["DisplayName"]),
        "[Preferences.General.Email]" => base64_encode($y["Personal"]["Email"]),
        "[Preferences.General.Gender]" => $y["Personal"]["Gender"],
+       "[Preferences.General.LastPasswordChange]" => $lastPasswordChange,
        "[Preferences.General.OnlineStatus]" => $y["Activity"]["OnlineStatus"],
        "[Preferences.General.RelationshipStatus]" => $y["Personal"]["RelationshipStatus"],
        "[Preferences.General.RelationshipWith]" => base64_encode($relationshipWith),
@@ -1522,7 +1524,8 @@
     $coverPhotosData = $data["CoverPhotos"] ?? [];
     $header = "Done";
     $newMember = $this->core->NewMember(["Username" => $you]);
-    $firstName = explode(" ", $data["name"])[0];
+    $now -= $this->core->timestamp;
+    $firstName = $data["name"] ?? "";
     foreach($data as $key => $value) {
      if(strpos($key, "Donations_") !== false) {
       $k1 = explode("_", $key);
@@ -1552,6 +1555,7 @@
      $newMember["Subscriptions"][$key]["B"] = $begins;
      $newMember["Subscriptions"][$key]["E"] = $ends;
     }
+    $newMember["Activity"]["LastPasswordChange"] = $data["LastPasswordChange"] ?? $now;
     $newMember["Activity"]["OnlineStatus"] = $data["OnlineStatus"];
     $newMember["Activity"]["Registered"] = $y["Activity"]["Registered"];
     $newMember["ArtistCommissionsPaid"] = $y["ArtistCommissionsPaid"] ?? [];
@@ -1564,18 +1568,17 @@
      "Year" => $data["BirthYear"]
     ];
     $newMember["Login"]["RequirePassword"] = $data["RequirePassword"] ?? "No";
-    $newMember["Personal"]["Age"] = date("Y") - $data["BirthYear"];
+    $newMember["Personal"]["Age"] = date("Y") - $y["Personal"]["Birthday"]["Year"];
     $newMember["Personal"]["CoverPhoto"] = $y["Personal"]["CoverPhoto"] ?? "";
     $newMember["Personal"]["CoverPhotoSelection"] = $data["CoverPhotoSelection"] ?? "Single";
     $newMember["Personal"]["CoverPhotos"] = $coverPhotos;
     $newMember["Personal"]["Electable"] = $data["Electable"] ?? 0;
-    $newMember["Personal"]["FirstName"] = $firstName;
+    $newMember["Personal"]["FirstName"] = explode(" ", $firstName)[0];
     $newMember["Personal"]["ProfilePicture"] = $y["Personal"]["ProfilePicture"];
     $newMember["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
     $newMember["Verified"] = $y["Verified"] ?? 0;
-    $newMember["Personal"]["Age"] = date("Y") - $y["Personal"]["Birthday"]["Year"];
     $this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $r = "Your Preferences were saved!";
    }
@@ -1628,6 +1631,7 @@
     ];
    } else {
     $accessCode = "Accepted";
+    $y["Activity"]["LastPasswordChange"] = $this->core->timestamp;
     $y["Login"]["Password"] = md5($data["NewPassword"]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [

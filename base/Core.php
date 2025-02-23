@@ -1124,6 +1124,7 @@
    $history = $a["History"] ?? [];
    $now = $this->timestamp;
    $lastActive = $a["LastActive"] ?? $now;
+   $lastPasswordChange = $a["LastPasswordChange"] ?? $now;
    $nonEssentialCommunications = $a["NonEssentialCommunications"] ?? 0;
    $onlineStatus = $a["OnlineStatus"] ?? 1;
    $pages = $a["Pages"] ?? [];
@@ -1137,6 +1138,7 @@
    return [
     "Activity" => [
      "LastActive" => $lastActive,
+     "LastPasswordChange" => $lastPasswordChange,
      "OnlineStatus" => $onlineStatus,
      "Registered" => $registered
     ],
