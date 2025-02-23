@@ -735,6 +735,7 @@
        "Edit" => base64_encode("v=".base64_encode("Profile:Preferences")),
        "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
+       "ShareLink" => $this->base."/@$them",
        "View" => base64_encode("v=".base64_encode("Profile:Home")."&AddTo=$addTo&Card=1&UN=".base64_encode($them)),
        "Vote" => base64_encode("v=$vote&ID=".md5($them)."&Type=4")
       ];
@@ -847,6 +848,7 @@
        "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($owner["Login"]["Username"])),
        "Revenue" => base64_encode("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($owner["Login"]["Username"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($owner["Login"]["Username"])),
+       "ShareLink" => $this->base."/MadeInNewYork/".$owner["Login"]["Username"],
        "View" => base64_encode("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($owner["Login"]["Username"])),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
@@ -882,6 +884,7 @@
        "Edit" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
        "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
+       "ShareLink" => $this->base."/@$from/status/$contentID",
        "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];

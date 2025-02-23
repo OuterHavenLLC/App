@@ -267,6 +267,37 @@
     "ResponseType" => "View"
    ]);
   }
+  function Extensions(array $data) {
+   $clientExtensions = [];
+   $data = $data["Data"] ?? [];
+   $doNotIndex = [
+   ];
+   $id = $data["ID"] ?? base64_encode("");
+   $id = base64_decode($id);
+   if(!empty($id)) {
+    if(!in_array($id, $doNotIndex)) {
+     $extension = $this->core->Data("Get", ["extension", $id]);
+     $data = $extension["Body"] ?? "";
+     $clientExtensions = [
+      $id => $this->core->AESencrypt($data)
+     ];
+    }
+   } else {
+    $extensions = $this->core->DatabaseSet("Extension");
+    foreach($extensions as $key => $extension) {
+     if(!in_array($id, $doNotIndex)) {
+      $id = str_replace("nyc.outerhaven.extension.", "", $extension);
+      $extension = $this->core->Data("Get", ["extension", $id]);
+      $data = $extension["Body"] ?? "";
+      $clientExtensions[$id] = $this->core->AESencrypt($data);
+     }
+    }
+   }
+   return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
+    "JSON" => $clientExtensions
+   ]);
+  }
   function LockScreen(array $a) {
    $accessCode = "Denied";
    $y = $this->you;

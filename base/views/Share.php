@@ -199,6 +199,7 @@
      $description = $listItem["Description"] ?? "";
      $embed = base64_encode("$username-$contentID");
      $embedCode = "[Embed:$embed]";
+     $link = $content["ListItem"]["Options"]["ShareLink"] ?? "";
      $preview = $content["Preview"] ?? [];
      $preview = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
      $title = $listItem["Title"] ?? "";

@@ -29,7 +29,7 @@
    "[App.AddContent]" => base64_encode("v=".base64_encode("Profile:AddContentCheck")),
    "[App.Bulletin]" => base64_encode($oh->core->Extension("ae30582e627bc060926cfacf206920ce")),
    "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
-   "[App.DITKey]" => base64_decode($oh->core->cypher->DITkey),
+   "[App.DITkey]" => base64_decode($oh->core->cypher->DITkey),
    "[App.Language]" => $oh->core->language,
    "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
    "[App.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
@@ -59,9 +59,15 @@
   $command = $data["_cmd"] ?? [];
   $command = (!empty($command)) ? explode("/", urldecode($command)) : $command;
   $command = $oh->core->FixMissing($command, [0, 1, 2, 3]);
-  if($command[0] == "Errors") {
+  if($command[0] == "Error") {
    # ERRORS
    $content = "v=".base64_encode("WebUI:Error")."&Error=".$command[1];
+  } elseif($command[0] == "Extension") {
+   # EXTENSIONS
+   $content = "v=".base64_encode("WebUI:Extensions");
+   if(!empty($command[2])) {
+    $content = "v=".base64_encode("WebUI:Extensions")."&ID=".base64_encode($command[3]);
+   }
   } elseif($command[0] == "MadeInNY") {
    # MADE IN NEW YORK
    $content = "v=".base64_encode("Shop:MadeInNewYork")."&pub=1";
@@ -72,8 +78,11 @@
     }
    }
   } elseif($command[0] == "Member") {
-   # PROFILES
-   $content = "v=".base64_encode("Profile:Home")."&back=0&onProf=1&UN=".base64_encode($command[1])."&pub=1";
+   # MEMBERS
+   $content = "v=".base64_encode("Profile:Home")."&back=0&UN=".base64_encode($command[1])."&pub=1";
+   if(!empty($command[3]) && $command[2] == "status") {
+    $content = "v=".base64_encode("StstuaUpdate:Home")."&SU=".base64_encode($command[3])."&pub=1";
+   }
   } elseif($command[0] == "VVA") {
    # VISUAL VANGUARD ARCHITECTURE
    $content = "v=".base64_encode("Company:VVA")."&pub=1";
