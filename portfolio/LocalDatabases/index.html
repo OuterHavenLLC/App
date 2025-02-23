@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <title>Local Databases</title>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+  <meta name="author" content="Mike"/>
+  <meta name="description" content="A Demo for the storage and retrieval of local, encrypted data-at-rest."/>
+  <meta name="keywords" content="Outer, Haven, Slide, Show"/>
+  <meta property="og:description" content="A Demo consisting of a slide show, driven by loally stored data."/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Slide Show"/>
+  <meta property="og:url" content="https://outerhaven.nyc/"/>
+  <link href="https://outerhaven.nyc/?_API=Design" media="all" rel="stylesheet" type="text/css"/>
+  <link href="https://outerhaven.nyc/favicon.png" rel="shortcut icon" size="196x196" type="image/png"/>
+  <script src="https://outerhaven.nyc/base/jq.js" type="text/javascript"></script>
+  <script src="https://outerhaven.nyc/base/jq-UI.js" type="text/javascript"></script>
+  <script src="https://outerhaven.nyc/?_API=JS&v=Cypher" type="text/javascript"></script>
+  <script src="https://outerhaven.nyc/?_API=JS&v=Cypher2" type="text/javascript"></script>
+  <script src="https://outerhaven.nyc/?_API=JS&v=Client" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="Frosted RoundedLarge Shadowed TopBar">
+   <button class="Home" onclick="window.location='http://outerhaven.nyc';"></button>
+  </div>
+  <div class="Content scr">
+   <div class="TopBarMargin"></div>
+   <div class="CoverPhoto">
+    <div class="Desktop75 MobileFull">
+     <h1 class="UpperCase">Local Databases</h1>
+    </div>
+   </div>
+   <div class="Desktop75 MobileFull">
+    <div class="FrostedBright RoundedLarge ShadowedLarge">
+     <p>Loading... Please wait.</p>
+    </div>
+   </div>
+  </div>
+  <script>
+   try {
+    const Database = new Database("OuterHaven", "Extensions");
+    await Database.set("Extension", {data: AESencrypt("Data")});
+    await Database.set("Extension2", {data: AESencrypt("More Data")});
+    const Extension = await Database.get("Extension");
+    $(".FrostedBright").append("<p>Extension 1: " + AESdecrypt(Extension.data) + "</p>");
+    await Database.delete("Extension2");
+    await Database.clear();
+  } catch(error) {
+   $(".FrostedBright").appand("<p>Error: " + error + "</p>");
+  }
+  </script>
+ </body>
+</html>
