@@ -18,6 +18,7 @@
   <script src="https://outerhaven.nyc/?_API=JS&v=Cypher" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/?_API=JS&v=Cypher2" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/?_API=JS&v=Client" type="text/javascript"></script>
+  <script src="https://outerhaven.nyc/?_API=JS&v=Chart" type="text/javascript"></script>
  </head>
  <body>
   <div class="Frosted RoundedLarge Shadowed TopBar">
@@ -31,23 +32,25 @@
     </div>
    </div>
    <div class="Desktop75 MobileFull">
-    <div class="FrostedBright RoundedLarge ShadowedLarge">
+    <div class="Demo FrostedBright RoundedLarge ShadowedLarge">
      <p>Loading... Please wait.</p>
     </div>
    </div>
   </div>
   <script>
    try {
-    const Database = new Database("OuterHaven", "Extensions");
+    const Database = new SafeHaven("OuterHaven", "Extensions");
     await Database.set("Extension", {data: AESencrypt("Data")});
+    $(".Demo").append("<p>Saved Extension: Data.</p>");
     await Database.set("Extension2", {data: AESencrypt("More Data")});
+    $(".Demo").append("<p>Saved Extension2: More Data.</p>");
     const Extension = await Database.get("Extension");
-    $(".FrostedBright").append("<p>Extension 1: " + AESdecrypt(Extension.data) + "</p>");
+    $(".Demo").append("<p>Extension: " + AESdecrypt(Extension.data) + "</p>");
     await Database.delete("Extension2");
     await Database.clear();
-  } catch(error) {
-   $(".FrostedBright").appand("<p>Error: " + error + "</p>");
-  }
+   } catch(error) {
+    $(".Demo").html("<p>Error: " + error + "</p>");
+   }
   </script>
  </body>
 </html>

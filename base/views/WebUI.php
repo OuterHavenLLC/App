@@ -283,13 +283,13 @@
      $extension = $this->core->Data("Get", ["extension", $id]);
      $data = $extension["Body"] ?? "";
      if(empty($data)) {
-      $data = $this->Change([[
+      $data = $this->core->Change([[
        "[Error.Back]" => "",
        "[Error.Header]" => "Extension Not Found",
        "[Error.Message]" => "The Extension <em>$id</em> does not exist."
-      ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
      } else {
-      $data = $this->PlainText([
+      $data = $this->core->PlainText([
        "Data" => $data,
        "Display" => 1,
        "HTMLDecode" => 1
@@ -300,20 +300,20 @@
      ];
     }
    } else {
-    $extensions = $this->core->DatabaseSet("Extension");
+    $extensions = $this->core->DatabaseSet("Extensions");
     foreach($extensions as $key => $extension) {
+     $id = str_replace("nyc.outerhaven.extension.", "", $extension);
      if(!in_array($id, $doNotIndex)) {
-      $id = str_replace("nyc.outerhaven.extension.", "", $extension);
       $extension = $this->core->Data("Get", ["extension", $id]);
       $data = $extension["Body"] ?? "";
       if(empty($data)) {
-       $data = $this->Change([[
+       $data = $this->core->Change([[
         "[Error.Back]" => "",
         "[Error.Header]" => "Extension Not Found",
         "[Error.Message]" => "The Extension <em>$id</em> does not exist."
-       ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+       ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
       } else {
-       $data = $this->PlainText([
+       $data = $this->core->PlainText([
         "Data" => $data,
         "Display" => 1,
         "HTMLDecode" => 1
