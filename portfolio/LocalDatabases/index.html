@@ -32,58 +32,62 @@
    </div>
    <div class="Desktop75 MobileFull">
     <div class="Demo FrostedBright RoundedLarge ShadowedLarge">
-     <p>Creating local database...</p>
+     <p>Below is the output from the creation and population of an <em>OuterHaven</em> database. We also load all eligible extensions into the database for later use by the client, caching the encrypted extension data and reducing the server-side resource consumption going forward.</p>
     </div>
    </div>
   </div>
   <script>
 $(document).ready(function() {
-    const db = new Database("OuterHaven", 1),
-              Multiple = [
-               {
-                Data: AESencrypt("Data"),
-                ID: "Extension2"
-               },
-               {
-                Data: AESencrypt("Data"),
-                ID: "Extension3"
-               },
-               {
-                Data: AESencrypt("Data"),
-                ID: "Extension4"
-               },
-               {
-                Data: AESencrypt("Data"),
-                ID: "Extension5"
-               },
-               {
-                Data: AESencrypt("Data"),
-                ID: "Extension6"
-               }
-             ],
-             Single = {
-              Data: AESencrypt("Data"),
-              ID: "Extension"
-             };
+ const db = new Database("OuterHaven"),
+           Multiple = [
+            {
+             Data: AESencrypt("Data 2"),
+             ID: "Extension2"
+            },
+            {
+             Data: AESencrypt("Data 3"),
+             ID: "Extension3"
+            },
+            {
+             Data: AESencrypt("Data 4"),
+             ID: "Extension4"
+            },
+            {
+             Data: AESencrypt("Data 5"),
+             ID: "Extension5"
+            },
+            {
+             Data: AESencrypt("Data 6"),
+             ID: "Extension6"
+            }
+           ],
+           Single = {
+            Data: AESencrypt("Data"),
+            ID: "Extension"
+           };
     db.open("Extensions").then(() => {
-     $(".Demo").append("Saving single extension...");
+     $(".Demo").append("<p>Saving single extension...</p>");
      return db.save("Extensions", Single);
     }).then(extension => {
-     $(".Demo").append("Single extension saved with ID " + extension);
-     $(".Demo").append(db.get("Extensions", "Extension2").Data);
+     $(".Demo").append("<p>Single extension saved with ID " + extension + "</p>");
+     return db.get("Extensions", "Extension");
     }).then(extension => {
-     $(".Demo").append("Retrieved single extension " + extension);
-     $(".Demo").append("Saving multiple extensions...");
+     $(".Demo").append("<p>Retrieved extension " + extension.ID + ": " + extension.Data + "</p>");
+     $(".Demo").append("<p>Saving multiple extensions...</p>");
      return db.saveMultiple("Extensions", Multiple);
     }).then(extensions => {
-     $(".Demo").append("Multiple extensions saved with IDs " + extensions);
-     $(".Demo").append(db.getAll("Extensions"));
+     $(".Demo").append("<p>Multiple extensions saved with IDs " + extensions + "</p>");
+     return db.getAll("Extensions");
     }).then(allExtensions => {
-     $(".Demo").append("All extensions in database: " + allExtensions);
-     $(".Demo").append("Total extensions: " + allExtensions.length);
+     $(".Demo").append("<p>All extensions in database: " + allExtensions + "</p>");
+     allExtensions.forEach(function(extension) {
+      $(".Demo").append("<p>" + extension.ID + ": " + extension.Data + "</p>");
+     });
+     $(".Demo").append("<p>Total extensions: " + allExtensions.length + "</p>");
      db.close();
     }).catch(error => {
      $(".Demo").append("Database error: " + error);
+     db.deleteDatabase();
      db.close();
     });
    });
