@@ -16,13 +16,13 @@
   <script src="https://outerhaven.nyc/base/jq.js" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/base/jq-UI.js" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/?_API=JS&v=Cypher" type="text/javascript"></script>
+  <script src="https://outerhaven.nyc/?_API=JS&v=Cypher2" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/?_API=JS&v=Client" type="text/javascript"></script>
+  <script src="https://outerhaven.nyc/?_API=JS&v=Chart" type="text/javascript"></script>
  </head>
  <body>
   <div class="Boot NOSELECT"></div>
-  <div class="Frosted RoundedLarge Shadowed TopBar h">
-   <button class="Home" onclick="window.location='http://outerhaven.nyc';"></button>
-  </div>
+  <button class="TopHome" onclick="window.location='http://outerhaven.nyc';"></button>
   <div class="Content scr">
    <div class="TopBarMargin"></div>
    <div class="Desktop75 FixedHeight MobileFull">

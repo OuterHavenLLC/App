@@ -9,7 +9,7 @@
   <meta name="keywords" content="Outer, Haven, Slide, Show"/>
   <meta property="og:description" content="A Demo consisting of a slide show, driven by loally stored data."/>
   <meta property="og:type" content="article"/>
-  <meta property="og:title" content="Slide Show"/>
+  <meta property="og:title" content="Local Databases"/>
   <meta property="og:url" content="https://outerhaven.nyc/"/>
   <link href="https://outerhaven.nyc/?_API=Design" media="all" rel="stylesheet" type="text/css"/>
   <link href="https://outerhaven.nyc/favicon.png" rel="shortcut icon" size="196x196" type="image/png"/>
@@ -21,9 +21,8 @@
   <script src="https://outerhaven.nyc/?_API=JS&v=Chart" type="text/javascript"></script>
  </head>
  <body>
-  <div class="Frosted RoundedLarge Shadowed TopBar">
-   <button class="Home" onclick="window.location='http://outerhaven.nyc';"></button>
-  </div>
+  <div class="Boot NOSELECT"></div>
+  <button class="TopHome" onclick="window.location='http://outerhaven.nyc';"></button>
   <div class="Content scr">
    <div class="TopBarMargin"></div>
    <div class="CoverPhoto">
@@ -71,7 +70,7 @@ $(document).ready(function() {
      return db.save("Extensions", Single);
     }).then(extension => {
      $(".Demo").append("Single extension saved with ID " + extension);
-     $(".Demo").append(db.get("Extensions", "Extension2"));
+     $(".Demo").append(db.get("Extensions", "Extension2").Data);
     }).then(extension => {
      $(".Demo").append("Retrieved single extension " + extension);
      $(".Demo").append("Saving multiple extensions...");
