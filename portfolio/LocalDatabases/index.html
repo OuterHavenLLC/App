@@ -33,24 +33,61 @@
    </div>
    <div class="Desktop75 MobileFull">
     <div class="Demo FrostedBright RoundedLarge ShadowedLarge">
-     <p>Loading... Please wait.</p>
+     <p>Creating local database...</p>
     </div>
    </div>
   </div>
   <script>
-   try {
-    const Database = new SafeHaven("OuterHaven", "Extensions");
-    await Database.set("Extension", {data: AESencrypt("Data")});
-    $(".Demo").append("<p>Saved Extension: Data.</p>");
-    await Database.set("Extension2", {data: AESencrypt("More Data")});
-    $(".Demo").append("<p>Saved Extension2: More Data.</p>");
-    const Extension = await Database.get("Extension");
-    $(".Demo").append("<p>Extension: " + AESdecrypt(Extension.data) + "</p>");
-    await Database.delete("Extension2");
-    await Database.clear();
-   } catch(error) {
-    $(".Demo").html("<p>Error: " + error + "</p>");
-   }
+$(document).ready(function() {
+    const db = new Database("OuterHaven", 1),
+              Multiple = [
+               {
+                Data: AESencrypt("Data"),
+                ID: "Extension2"
+               },
+               {
+                Data: AESencrypt("Data"),
+                ID: "Extension3"
+               },
+               {
+                Data: AESencrypt("Data"),
+                ID: "Extension4"
+               },
+               {
+                Data: AESencrypt("Data"),
+                ID: "Extension5"
+               },
+               {
+                Data: AESencrypt("Data"),
+                ID: "Extension6"
+               }
+             ],
+             Single = {
+              Data: AESencrypt("Data"),
+              ID: "Extension"
+             };
+    db.open("Extensions").then(() => {
+     $(".Demo").append("Saving single extension...");
+     return db.save("Extensions", Single);
+    }).then(extension => {
+     $(".Demo").append("Single extension saved with ID " + extension);
+     $(".Demo").append(db.get("Extensions", "Extension2"));
+    }).then(extension => {
+     $(".Demo").append("Retrieved single extension " + extension);
+     $(".Demo").append("Saving multiple extensions...");
+     return db.saveMultiple("Extensions", Multiple);
+    }).then(extensions => {
+     $(".Demo").append("Multiple extensions saved with IDs " + extensions);
+     $(".Demo").append(db.getAll("Extensions"));
+    }).then(allExtensions => {
+     $(".Demo").append("All extensions in database: " + allExtensions);
+     $(".Demo").append("Total extensions: " + allExtensions.length);
+     db.close();
+    }).catch(error => {
+     $(".Demo").append("Database error: " + error);
+     db.close();
+    });
+   });
   </script>
  </body>
 </html>
