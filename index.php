@@ -14,6 +14,13 @@
  if($api == "Design") {
   header("content-type: text/CSS");
   $r = $oh->core->Extension("d4efcd44be4b2ef2a395f0934a9e446a");
+ } elseif($api == "Extensions") {
+  $r = $oh->view(base64_encode("WebUI:Extensions"), []);
+  if(!empty($view)) {
+   $r = $oh->view(base64_encode("WebUI:Extensions"), ["Data" => [
+     "ID"=>$view
+   ]]);
+  }
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
   if($view == "Chart") {
@@ -62,12 +69,6 @@
   if($command[0] == "Error") {
    # ERRORS
    $content = "v=".base64_encode("WebUI:Error")."&Error=".$command[1];
-  } elseif($command[0] == "Extension") {
-   # EXTENSIONS
-   $content = "v=".base64_encode("WebUI:Extensions");
-   if(!empty($command[2])) {
-    $content = "v=".base64_encode("WebUI:Extensions")."&ID=".base64_encode($command[3]);
-   }
   } elseif($command[0] == "MadeInNY") {
    # MADE IN NEW YORK
    $content = "v=".base64_encode("Shop:MadeInNewYork")."&pub=1";
