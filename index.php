@@ -18,7 +18,7 @@
   $r = $oh->view(base64_encode("WebUI:Extensions"), []);
   if(!empty($view)) {
    $r = $oh->view(base64_encode("WebUI:Extensions"), ["Data" => [
-     "ID"=>$view
+     "ID" => $view
    ]]);
   }
  } elseif($api == "JS") {

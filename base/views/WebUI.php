@@ -271,6 +271,10 @@
    $clientExtensions = [];
    $data = $data["Data"] ?? [];
    $doNotIndex = [
+    "45787465-6e73-496f-ae42-794d696b65-67abee895c024",
+    "97291f4b155f663aa79cc8b624323c5b",
+    "d4efcd44be4b2ef2a395f0934a9e446a",
+    "5b22de694d66b763c791395da1de58e1"
    ];
    $id = $data["ID"] ?? base64_encode("");
    $id = base64_decode($id);
@@ -278,6 +282,19 @@
     if(!in_array($id, $doNotIndex)) {
      $extension = $this->core->Data("Get", ["extension", $id]);
      $data = $extension["Body"] ?? "";
+     if(empty($data)) {
+      $data = $this->Change([[
+       "[Error.Back]" => "",
+       "[Error.Header]" => "Extension Not Found",
+       "[Error.Message]" => "The Extension <em>$id</em> does not exist."
+      ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+     } else {
+      $data = $this->PlainText([
+       "Data" => $data,
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ]);
+     }
      $clientExtensions = [
       $id => $this->core->AESencrypt($data)
      ];
@@ -289,6 +306,19 @@
       $id = str_replace("nyc.outerhaven.extension.", "", $extension);
       $extension = $this->core->Data("Get", ["extension", $id]);
       $data = $extension["Body"] ?? "";
+      if(empty($data)) {
+       $data = $this->Change([[
+        "[Error.Back]" => "",
+        "[Error.Header]" => "Extension Not Found",
+        "[Error.Message]" => "The Extension <em>$id</em> does not exist."
+       ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+      } else {
+       $data = $this->PlainText([
+        "Data" => $data,
+        "Display" => 1,
+        "HTMLDecode" => 1
+       ]);
+      }
       $clientExtensions[$id] = $this->core->AESencrypt($data);
      }
     }
