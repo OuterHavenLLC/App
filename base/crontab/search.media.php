@@ -79,9 +79,9 @@
  } foreach($databases as $key => $database) {
   $database = explode(".", $database);
   if(!empty($database[3])) {
-   $fileSystem = $oh->core->Data("Get", ["fs", $database[3]]) ?? [];
+   $fileSystem = $oh->core->Data("Get", ["fs", $database[3]]);
    $fileSystem = $fileSystem["Files"] ?? [];
-   $member = $oh->core->Data("Get", ["mbr", $database[3]]) ?? [];
+   $member = $oh->core->Data("Get", ["mbr", $database[3]]);
    if(!empty($fileSystem) && !empty($member)) {
     foreach($fileSystem as $file => $info) {
      $dataID = $file;

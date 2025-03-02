@@ -5,7 +5,7 @@
  $categorySQL = $category."s";
  $newRows = 0;
  $oh = New OH;
- $index = $oh->core->Data("Get", ["app", md5("Links")]) ?? [];
+ $index = $oh->core->Data("Get", ["app", md5("Links")]);
  $r = $oh->core->Element([
   "h1", $oh->core->config["App"]["Name"]."</em> Re:Search Index"
  ]).$oh->core->Element([

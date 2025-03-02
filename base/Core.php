@@ -74,7 +74,7 @@ function AESencrypt(string $data) {
  }
 }
   function Article(string $id) {
-   $article = $this->Data("Get", ["pg", $id]) ?? [];
+   $article = $this->Data("Get", ["pg", $id]);
    $r = $this->Change([[
     "[Error.Back]" => "",
     "[Error.Header]" => "Not Found",
@@ -1357,7 +1357,7 @@ function AESencrypt(string $data) {
    } if($a["Encode"] == 1) {
     $r = base64_encode(urlencode(urlencode($r)));
    } if($a["Processor"] == 1) {
-    $r = base64_encode(urlencode($r));
+    $r = $this->AESencrypt($r);
    }
    return $r;
   }

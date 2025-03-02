@@ -10,7 +10,7 @@
  ]).$oh->core->Element([
   "p", "Working on the System Library..."
  ]);
- $_FileSystem = $oh->core->Data("Get", ["app", "fs"]) ?? [];
+ $_FileSystem = $oh->core->Data("Get", ["app", "fs"]);
  foreach($_FileSystem as $key => $info) {
   $_File = $info["Name"];
   $extension = explode(".", $_File)[1];
@@ -33,10 +33,10 @@
  $db = $oh->core->DatabaseSet("Files");
  foreach($db as $key => $library) {
   $library = str_replace("nyc.outerhaven.fs.", "", $library);
-  $member = $oh->core->Data("Get", ["mbr", $library]) ?? [];
+  $member = $oh->core->Data("Get", ["mbr", $library]);
   if(!empty($member["Login"])) {
    $r .= $oh->core->Element(["p", "Opening Library $library:"]);
-   $library = $oh->core->Data("Get", ["fs", $library]) ?? [];
+   $library = $oh->core->Data("Get", ["fs", $library]);
    $library = $library["Files"] ?? [];
    if(empty($library)) {
     $r .= $oh->core->Element(["p", "This Library is empty."]);
