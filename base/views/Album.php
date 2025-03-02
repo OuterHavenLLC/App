@@ -196,7 +196,7 @@
         "data-view" => $options["Upload"]
        ]
       ]) : "";
-      $media = $this->core->Data("Get", ["fs", md5($username)]) ?? [];
+      $media = $this->core->Data("Get", ["fs", md5($username)]);
       $coverPhoto = $this->core->PlainText([
        "Data" => "[Media:CP]",
        "Display" => 1

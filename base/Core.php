@@ -31,29 +31,26 @@
    }
   }
 function AESdecrypt(string $data) {
- try {
-  $key = hash("sha256", base64_decode($this->DITkey), true);
-  if(empty($data)) {
-   return "";
-  }
-  $data = base64_decode($data);
-  if($data === false) {
-   throw new Exception("Base64 decoding failed");
-  }
-  $decrypted = openssl_decrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
-  if($decrypted === false) {
-   throw new Exception("Decryption failed: " . openssl_error_string());
-  }
-  $padLength = ord($decrypted[strlen($decrypted) - 1]);
-  if($padLength > 0 && $padLength <= 16) {
-   return substr($decrypted, 0, -$padLength);
-  } else {
-   throw new Exception("Invalid padding detected");
-  }
-  return substr($decrypted, 0, -$padLength);
- } catch(Exception $error) {
-  return "AES Decryption error: " . $error->getMessage();
- }
+    try {
+        $key = hash("sha256", base64_decode($this->DITkey), true); // "testkey" in base64
+        if(empty($data)) {
+            return $data;
+        }
+        $data = base64_decode($data);
+        if ($data === false) {
+            throw new Exception("Base64 decoding failed");
+        }
+        if (strlen($data) % 16 !== 0) {
+            throw new Exception("Decoded data length (" . strlen($data) . ") is not a multiple of AES block size (16)");
+        }
+        $decrypted = openssl_decrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA);
+        if ($decrypted === false) {
+            throw new Exception("Decryption failed: " . openssl_error_string());
+        }
+        return $decrypted;
+    } catch (Exception $error) {
+        return "AES Decryption error: " . $error->getMessage();
+    }
 }
 function AESencrypt(string $data) {
  try {
