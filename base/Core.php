@@ -3,11 +3,12 @@
   function __construct() {
    try {
     $this->cypher = New Cypher;
+    $this->DITkey = $this->cypher->DITkey;
     $this->DocumentRoot = "/var/www/html";
     $this->config = $this->Configuration();
     $this->ID = "App";
-    $this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
-    $this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+    #$this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
+    #$this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
     $this->RestrictedIDs = [
      "1a35f673a438987ec93ef5fd3605b796",
      "5ec1e051bf732d19e09ea9673cd7986b",
@@ -29,19 +30,49 @@
     ]);
    }
   }
-  function AESdecrypt(string $data) {
-   $key = substr(hash("sha256", base64_decode($this->cypher->DITkey)), 0, 32);
-   $data = base64_decode($data);
-   $iv = substr($data, 0, 16);
-   $data = substr($data, 16);
-   return openssl_decrypt($data, "AES-256-CBC", $key, 0, $iv);
+function AESdecrypt(string $data) {
+ try {
+  $key = hash("sha256", base64_decode($this->DITkey), true);
+  if(empty($data)) {
+   return "";
   }
-  function AESencrypt(string $data) {
-   $key = substr(hash("sha256", base64_decode($this->cypher->DITkey)), 0, 32);
-   $iv = openssl_random_pseudo_bytes(16);
-   $data = openssl_encrypt($data, "AES-256-CBC", $key, 0, $iv);
-   return base64_encode($iv.$data);
+  $data = base64_decode($data);
+  if($data === false) {
+   throw new Exception("Base64 decoding failed");
   }
+  $decrypted = openssl_decrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
+  if($decrypted === false) {
+   throw new Exception("Decryption failed: " . openssl_error_string());
+  }
+  $padLength = ord($decrypted[strlen($decrypted) - 1]);
+  if($padLength > 0 && $padLength <= 16) {
+   return substr($decrypted, 0, -$padLength);
+  } else {
+   throw new Exception("Invalid padding detected");
+  }
+  return substr($decrypted, 0, -$padLength);
+ } catch(Exception $error) {
+  return "AES Decryption error: " . $error->getMessage();
+ }
+}
+function AESencrypt(string $data) {
+ try {
+  $key = hash("sha256", base64_decode($this->DITkey), true);
+  if(empty($data)) {
+   return base64_encode("");
+  }
+  $blockSize = 16;
+  $padLength = $blockSize - (strlen($data) % $blockSize);
+  $data .= str_repeat(chr($padLength), $padLength);
+  $encrypted = openssl_encrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
+  if($encrypted === false) {
+   throw new Exception("Encryption failed: ".openssl_error_string());
+  }
+  return base64_encode($encrypted);
+ } catch(Exception $error) {
+  return "AES Encryption error: ".$error->getMessage();
+ }
+}
   function Article(string $id) {
    $article = $this->Data("Get", ["pg", $id]) ?? [];
    $r = $this->Change([[
@@ -65,10 +96,12 @@
    $r = "";
    if(!empty($action) && (empty($data) || is_array($data))) {
     if($action == "Get") {
-     $headers = (function_exists('apache_request_headers') ) ? apache_request_headers() : [];
+     $headers = (function_exists("apache_request_headers")) ? apache_request_headers() : [];
      $r = $this->ID;
-     $token = $headers["Token"] ?? base64_encode("");
-     $token = base64_decode($token);
+     #$token = $headers["Token"] ?? base64_encode("");//TEMP
+     #$token = base64_decode($token);//TEMP
+     $token = $headers["Token"] ?? $this->AESencrypt("");
+     $token = $this->AESdecrypt($token);
      if(!empty($token)) {
       $token = explode("|", $this->Decrypt($token));
       $login = $token[1] ?? "";
@@ -82,7 +115,7 @@
       $username = $login["Username"] ?? base64_encode($this->ID);
       $username = base64_decode($username);
       if(md5($this->cypher->key) == $secret) {
-       $you = $this->Data("Get", ["mbr", md5($username)]) ?? [];
+       $you = $this->Data("Get", ["mbr", md5($username)]);
        $you = $you["Login"] ?? [];
        if(!empty($you["Username"]) && $password == $you["Password"]) {
         $r = $username;

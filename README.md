@@ -1,7 +1,7 @@
 # Outer Haven Web App
 Here you will find the up-to-date change log for all releases of the platform.
 See SETUP.md (coming soon...) for Heath Kit configuration and installation.
-See [here](https://www.gnu.org/licenses/gpl-3.0.en.html) or [here](https://archive.is/VGJCa) for licensing information.
+See [here](https://www.gnu.org/licenses/gpl-3.0.en.html) or [here](https://archive.is/VGJCa) for licensing information. Feel free to [view](https://outerhaven.nyc/_API=JS&v=Client) the live client-side logic.
 
 # Change Log
 ## 1.4: Safe Haven (coming soon…)
@@ -18,7 +18,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Attached content previews now properly render in content editors.
 * Administrators may now set the default platform-wide UI variant and modify allowed media file extensions.
 * When purging album, conversation, and media data, the vote databases for all comments are also purged.
-* A revamped attachments UI allows Members unprecedented control over media attached to primary content. (starting full adoption...)
+* A revamped attachments UI allows Members unprecedented control over media attached to primary content. (pending adoption for Chat messages...)
 * Revised the means by which Cover Photos and Profile Pictures are handled at the Core level.
 * A new GetSymbolicLinks() object in the Core library now handles in-line Live View links, with more link types to be added as needed.
 * Members may now create a slide show of Cover Photos as an alternative to the traditional (default) Cover Photo.
@@ -30,6 +30,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * A new Extension API allows the client to retrieve one or all extensions for caching.
 * A new client-side Database class enables caching for local data-at-rest.
 * The last password change is now logged in Member activity for an eventual password change policy to be implemented.
+* AES encryption is now standard for all top-level data-in-transit.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.

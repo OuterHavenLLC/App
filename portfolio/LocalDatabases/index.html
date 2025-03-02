@@ -16,7 +16,6 @@
   <script src="https://outerhaven.nyc/base/jq.js" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/base/jq-UI.js" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/?_API=JS&v=Cypher" type="text/javascript"></script>
-  <script src="https://outerhaven.nyc/?_API=JS&v=Cypher2" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/?_API=JS&v=Client" type="text/javascript"></script>
   <script src="https://outerhaven.nyc/?_API=JS&v=Chart" type="text/javascript"></script>
  </head>
@@ -65,14 +64,15 @@ $(document).ready(function() {
             Data: AESencrypt("Data"),
             ID: "Extension"
            };
-    db.open("Extensions").then(() => {
+    $(".Boot").fadeIn(500);
+    /*--db.open("Extensions").then(() => {
      $(".Demo").append("<p>Saving single extension...</p>");
      return db.save("Extensions", Single);
     }).then(extension => {
      $(".Demo").append("<p>Single extension saved with ID " + extension + "</p>");
      return db.get("Extensions", "Extension");
     }).then(extension => {
-     $(".Demo").append("<p>Retrieved extension " + extension.ID + ": " + extension.Data + "</p>");
+     $(".Demo").append("<p>Retrieved extension " + extension.ID + ": " + extension.Data + ".</p>");
      $(".Demo").append("<p>Saving multiple extensions...</p>");
      return db.saveMultiple("Extensions", Multiple);
     }).then(extensions => {
@@ -85,11 +85,23 @@ $(document).ready(function() {
      });
      $(".Demo").append("<p>Total extensions: " + allExtensions.length + "</p>");
      db.close();
+    }).then(() => {--*/
+    // LOAD EXTENSIONS AND FADE OUT
+    db.open("Extensions").then(() => {
+     $(".Demo").append("<p>Loading Extensions...</p>");
+    }).then(() => {
+     // LOAD EXTENSIUONS
+     db.close();
+     $(".Boot").fadeOut(500);//MOVE TO END OF PROCESS
     }).catch(error => {
      $(".Demo").append("Database error: " + error);
      db.deleteDatabase();
      db.close();
     });
+    /*--}).catch(error => {
+     $(".Demo").append("Database error: " + error);
+     db.deleteDatabase();
+    });--*/
    });
   </script>
  </body>
