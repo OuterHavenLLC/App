@@ -25,7 +25,6 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Administrators may now change media upload limites.
 * More platform-wide optimization and bug fixes.
 * Logos and Profile Pictures are now free-form if the image format supports the opacity filter.
-* Both client and server are now capable of AES data encryption.
 * The Minimal Design preference now disables Bulletin counts, conversations, and voting.
 * A new Extension API allows the client to retrieve one or all extensions for caching.
 * A new client-side Database class enables caching for local data-at-rest.

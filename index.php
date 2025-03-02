@@ -31,16 +31,16 @@
    $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67abee895c024");
   }
   $r = $oh->core->Change([[
-   "[App.AddContent]" => base64_encode("v=".base64_encode("Profile:AddContentCheck")),
-   "[App.Bulletin]" => base64_encode($oh->core->Extension("ae30582e627bc060926cfacf206920ce")),
-   "[App.Bulletins]" => base64_encode("v=".base64_encode("Profile:Bulletins")),
+   "[App.AddContent]" => $oh->core->AESencrypt("v=".base64_encode("Profile:AddContentCheck")),
+   "[App.Bulletin]" => $oh->core->AESencrypt($oh->core->Extension("ae30582e627bc060926cfacf206920ce")),
+   "[App.Bulletins]" => $oh->core->AESencrypt("v=".base64_encode("Profile:Bulletins")),
    "[App.DITkey]" => $oh->core->DITkey,
+   "[App.Gateway]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:OptIn")),
    "[App.Language]" => $oh->core->language,
-   "[App.Mainstream]" => base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream"),
-   "[App.MainUI]" => base64_encode("v=".base64_encode("WebUI:UIContainers")),
-   "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
-   "[App.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
-   "[App.WYSIWYG]" => base64_encode("v=".base64_encode("WebUI:WYSIWYG"))
+   "[App.Mainstream]" => base64_encode("v=".$oh->core->AESencrypt("Search:Containers")."&st=Mainstream"),
+   "[App.MainUI]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:UIContainers")),
+   "[App.Menu]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:Menu")),
+   "[App.WYSIWYG]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:WYSIWYG"))
   ], $oh->core->PlainText([
    "Data" => $r,
    "Display" => 1,

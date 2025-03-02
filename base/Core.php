@@ -344,7 +344,7 @@ function AESencrypt(string $data) {
   function DecodeBridgeData(array $data) {
    foreach($data as $key => $value)  {
     if(!is_array($value)) {
-     $data[$key] = urldecode(base64_decode($value));
+     $data[$key] = $this->AESdecrypt($value);
     } else {
      $data[$key] = $this->DecodeBridgeData($value);
     }
