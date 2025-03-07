@@ -1158,7 +1158,6 @@
       $coverPhotosList = "";
       $coverPhotosSelection = $y["Personal"]["CoverPhotoSelection"] ?? "Single";
       $lastPasswordChange = $y["Activity"]["LastPasswordChange"] ?? $this->core->timestamp;
-      $nonEssentialCommunications = $y["Privacy"]["NonEssentialCommunications"] ?? 0;
       $passPhrase = $y["Privacy"]["PassPhrase"] ?? "";
       $passwordOnSignIn = $y["Login"]["RequirePassword"] ?? "No";
       $polls = $y["Privacy"]["Posts"] ?? md5("Public");
@@ -1251,7 +1250,7 @@
        "[Preferences.Privacy.Contributions]" => $y["Privacy"]["Contributions"],
        "[Preferences.Privacy.DLL]" => $y["Privacy"]["DLL"],
        "[Preferences.Privacy.ForumsType]" => $y["Privacy"]["ForumsType"],
-       "[Preferences.Privacy.NonEssentialCommunications]" => $nonEssentialCommunications,
+       "[Preferences.Privacy.NonEssentialCommunications]" => 0,//TEMP
        "[Preferences.Privacy.Gender]" => $y["Privacy"]["Gender"],
        "[Preferences.Privacy.Journal]" => $y["Privacy"]["Journal"],
        "[Preferences.Privacy.LastActivity]" => $y["Privacy"]["LastActivity"],
@@ -1818,7 +1817,6 @@
     $name = $data["Name"] ?? "John";
     $i = 0;
     $members = $this->core->DatabaseSet("Member");
-    $nonEssentialCommunications = $data["NonEssentialCommunications"] ?? 0;
     $password = $data["Password"] ?? "";
     $password2 = $data["Password2"] ?? "";
     $pin = $data["PIN"] ?? "";
@@ -1948,7 +1946,6 @@
        "Email" => $email,
        "FirstName" => $firstName,
        "Gender" => $gender,
-       "NonEssentialCommunications" => $nonEssentialCommunications,
        "Password" => $password,
        "PIN" => md5($pin),
        "Username" => $username

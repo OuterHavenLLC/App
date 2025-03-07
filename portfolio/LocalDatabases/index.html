@@ -64,7 +64,6 @@ $(document).ready(function() {
             Data: AESencrypt("Data"),
             ID: "Extension"
            };
-    $(".Boot").fadeIn(500);
     /*--db.open("Extensions").then(() => {
      $(".Demo").append("<p>Saving single extension...</p>");
      return db.save("Extensions", Single);
@@ -88,9 +87,11 @@ $(document).ready(function() {
     }).then(() => {--*/
     // LOAD EXTENSIONS AND FADE OUT
     db.open("Extensions").then(() => {
+     $(".Boot").fadeIn(500);
      $(".Demo").append("<p>Loading Extensions...</p>");
     }).then(() => {
      // LOAD EXTENSIUONS
+    }).then(() => {
      db.close();
      $(".Boot").fadeOut(500);//MOVE TO END OF PROCESS
     }).catch(error => {

@@ -7,8 +7,6 @@
     $this->DocumentRoot = "/var/www/html";
     $this->config = $this->Configuration();
     $this->ID = "App";
-    #$this->PayPalMID = base64_decode("Qk5aVjk0TkxYTDJESg==");
-    #$this->PayPalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
     $this->RestrictedIDs = [
      "1a35f673a438987ec93ef5fd3605b796",
      "5ec1e051bf732d19e09ea9673cd7986b",
@@ -1155,7 +1153,6 @@ function AESencrypt(string $data) {
    $now = $this->timestamp;
    $lastActive = $a["LastActive"] ?? $now;
    $lastPasswordChange = $a["LastPasswordChange"] ?? $now;
-   $nonEssentialCommunications = $a["NonEssentialCommunications"] ?? 0;
    $onlineStatus = $a["OnlineStatus"] ?? 1;
    $pages = $a["Pages"] ?? [];
    $password = $a["Password"] ?? md5("P@ssw0rd!");
@@ -1246,7 +1243,6 @@ function AESencrypt(string $data) {
      "Journal" => md5("Contacts"),
      "LastActivity" => md5("Close Contacts"),
      "LookMeUp" => 1,
-     "NonEssentialCommunications" => $nonEssentialCommunications,
      "OnlineStatus" => md5("Contacts"),
      "MSG" => md5("Close Contacts"),
      "NSFW" => 0,

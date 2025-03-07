@@ -296,7 +296,8 @@
       ]);
      }
      $clientExtensions = [
-      $id => $this->core->AESencrypt($data)
+      "Data" => $this->core->AESencrypt($data),
+      "ID" => $id
      ];
     }
    } else {
@@ -319,44 +320,16 @@
         "HTMLDecode" => 1
        ]);
       }
-      $clientExtensions[$id] = $this->core->AESencrypt($data);
+      $clientExtensions = [
+       "Data" => $this->core->AESencrypt($data),
+       "ID" => $id
+      ];
      }
     }
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "JSON" => $clientExtensions
-   ]);
-  }
-  function LockScreen(array $a) {
-   $accessCode = "Denied";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "If you are signed in, you can lock your session.",
-     "Header" => "Lock"
-    ];
-   } else {
-    $accessCode = "Accepted";
-    $r = [
-     "Header" => "Resume Session",
-     "NoClose" => 1,
-     "Scrollable" => $this->core->Change([[
-      "[Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:5%;width:90%"),
-      "[Member.DisplayName]" => $y["Personal"]["DisplayName"],
-      "[Member.PIN]" => $y["Login"]["PIN"]
-     ], $this->core->Extension("723a9e510879c2c16bf9690ffe7273b5")])
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function Menu(array $a) {
@@ -370,20 +343,20 @@
    if($this->core->ID == $you) {
     $accessCode = "Accepted";
     $changeData = [
-     "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-     "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
-     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
-     "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
-     "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
-     "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
-     "[Menu.Gateway]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
-     "[Menu.LostAndFound]" => base64_encode("v=".base64_encode("LostAndFound:Home")),
-     "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
-     "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
-     "[Menu.OptIn]" => base64_encode("v=".base64_encode("WebUI:OptIn")),
-     "[Menu.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-     "[Menu.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp")),
-     "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages"))
+     "[Menu.Company.Feedback]" => $this->core->AESencrypt("v=".base64_encode("Feedback:NewThread")),
+     "[Menu.Company.Home]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")),
+     "[Menu.Company.IncomeDisclosure]" => $this->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.PressReleases]" => $this->core->AESencrypt("v=$search&lPG=PG&st=PR"),
+     "[Menu.Company.Statistics]" => $this->core->AESencrypt("v=".base64_encode("Company:Statistics")),
+     "[Menu.Company.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")),
+     "[Menu.Gateway]" => $this->core->AESencrypt("v=".base64_encode("WebUI:OptIn")),
+     "[Menu.LostAndFound]" => $this->core->AESencrypt("v=".base64_encode("LostAndFound:Home")),
+     "[Menu.Mainstream]" => $this->core->AESencrypt("v=$search&st=Mainstream"),
+     "[Menu.MiNY]" => $this->core->AESencrypt("v=".base64_encode("Shop:MadeInNewYork")),
+     "[Menu.OptIn]" => $this->core->AESencrypt("v=".base64_encode("WebUI:OptIn")),
+     "[Menu.SignIn]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignIn")),
+     "[Menu.SignUp]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp")),
+     "[Menu.SwitchLanguages]" => $this->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages"))
     ];
     $extension = "73859ffa637c369b9fa88399a27b5598";
    } else {
@@ -391,7 +364,8 @@
     $admin = ($y["Rank"] == md5("High Command")) ? $this->core->Element([
      "button", "Control Panel", [
       "class" => "CloseNetMap LI UpdateContent",
-      "data-view" => base64_encode("v=".base64_encode("ControlPanel:Home"))
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt("v=".base64_encode("ControlPanel:Home"))
      ]
     ]) : "";
     $bulletinBadge = $this->view(base64_encode("Profile:Bulletins"), []);
@@ -427,35 +401,34 @@
     $changeData = [
      "[Menu.Administration]" => $admin,
      "[Menu.BulletinBadge]" => $bulletinBadge,
-     "[Menu.Company.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-     "[Menu.Company.Home]" => base64_encode("v=".base64_encode("Company:Home")),
-     "[Menu.Company.IncomeDisclosure]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
-     "[Menu.Company.PressReleases]" => base64_encode("v=$search&lPG=PG&st=PR"),
-     "[Menu.Company.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
-     "[Menu.Company.VVA]" => base64_encode("v=".base64_encode("Company:VVA")),
-     "[Menu.Congress]" => base64_encode("v=".base64_encode("Congress:Home")),
-     "[Menu.LockScreen]" => base64_encode("v=".base64_encode("WebUI:LockScreen")),
-     "[Menu.Mainstream]" => base64_encode("v=$search&st=Mainstream"),
-     "[Menu.Member.Articles]" => base64_encode("v=$search&st=MBR-LLP"),
-     "[Menu.Member.Blacklist]" => base64_encode("v=".base64_encode("Profile:Blacklists")),
-     "[Menu.Member.Blogs]" => base64_encode("v=$search&st=MBR-BLG"),
-     "[Menu.Member.BulletinCenter]" => base64_encode("v=".base64_encode("Profile:BulletinCenter")),
-     "[Menu.Member.Chat]" => base64_encode("v=".base64_encode("Chat:Menu")."&Integrated=1"),
-     "[Menu.Member.Contacts]" => base64_encode("v=$search&st=Contacts"),
+     "[Menu.Company.Feedback]" => $this->core->AESencrypt("v=".base64_encode("Feedback:NewThread")),
+     "[Menu.Company.Home]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")),
+     "[Menu.Company.IncomeDisclosure]" => $this->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.PressReleases]" => $this->core->AESencrypt("v=$search&lPG=PG&st=PR"),
+     "[Menu.Company.Statistics]" => $this->core->AESencrypt("v=".base64_encode("Company:Statistics")),
+     "[Menu.Company.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")),
+     "[Menu.Congress]" => $this->core->AESencrypt("v=".base64_encode("Congress:Home")),
+     "[Menu.Mainstream]" => $this->core->AESencrypt("v=$search&st=Mainstream"),
+     "[Menu.Member.Articles]" => $this->core->AESencrypt("v=$search&st=MBR-LLP"),
+     "[Menu.Member.Blacklist]" => $this->core->AESencrypt("v=".base64_encode("Profile:Blacklists")),
+     "[Menu.Member.Blogs]" => $this->core->AESencrypt("v=$search&st=MBR-BLG"),
+     "[Menu.Member.BulletinCenter]" => $this->core->AESencrypt("v=".base64_encode("Profile:BulletinCenter")),
+     "[Menu.Member.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Menu")."&Integrated=1"),
+     "[Menu.Member.Contacts]" => $this->core->AESencrypt("v=$search&st=Contacts"),
      "[Menu.Member.CoverPhoto]" => $this->core->CoverPhoto($y["Personal"]["CoverPhoto"]),
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"].$verified,
-     "[Menu.Member.Files]" => base64_encode("v=$search&UN=".base64_encode($you)."&st=XFS"),
-     "[Menu.Member.Forums]" => base64_encode("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
-     "[Menu.Member.Polls]" => base64_encode("v=$search&st=MBR-Polls"),
+     "[Menu.Member.Files]" => $this->core->AESencrypt("v=$search&UN=".base64_encode($you)."&st=XFS"),
+     "[Menu.Member.Forums]" => $this->core->AESencrypt("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
+     "[Menu.Member.Polls]" => $this->core->AESencrypt("v=$search&st=MBR-Polls"),
      "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:2em 30% 0em 30%;width:40%"),
-     "[Menu.Member.Library]" => base64_encode("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
-     "[Menu.Member.Preferences]" => base64_encode("v=".base64_encode("Profile:Preferences")),
-     "[Menu.Member.Profile]" => base64_encode("v=".base64_encode("Profile:Home")."&UN=".base64_encode($you)),
+     "[Menu.Member.Library]" => $this->core->AESencrypt("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
+     "[Menu.Member.Preferences]" => $this->core->AESencrypt("v=".base64_encode("Profile:Preferences")),
+     "[Menu.Member.Profile]" => $this->core->AESencrypt("v=".base64_encode("Profile:Home")."&UN=".base64_encode($you)),
      "[Menu.Member.Username]" => $you,
-     "[Menu.MiNY]" => base64_encode("v=".base64_encode("Shop:MadeInNewYork")),
-     "[Menu.MiNY.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=".md5($this->core->ShopID)),
-     "[Menu.Search.Chat]" => base64_encode("v=$search&Integrated=1&lPG=Chat&st=Chat"),
-     "[Menu.SwitchLanguages]" => base64_encode("v=".base64_encode("WebUI:SwitchLanguages")),
+     "[Menu.MiNY]" => $this->core->AESencrypt("v=".base64_encode("Shop:MadeInNewYork")),
+     "[Menu.MiNY.History]" => $this->core->AESencrypt("v=".base64_encode("Shop:History")."&ID=".md5($this->core->ShopID)),
+     "[Menu.Search.Chat]" => $this->core->AESencrypt("v=$search&Integrated=1&lPG=Chat&st=Chat"),
+     "[Menu.SwitchLanguages]" => $this->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages")),
      "[Menu.Subscriptions]" => $subscriptions
     ];
     $extension = "d14e3045df35f4d9784d45ac2c0fe73b";
