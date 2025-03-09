@@ -1847,6 +1847,8 @@
      $r = "Your PINs must match.";
     } elseif(empty($username)) {
      $r = "A Username is required.";
+    } elseif(!preg_match("/^[a-zA-Z0-9-_]+$/", $username)) {
+     $r = "Usernames may only contain letters, numbers, hyphens (-), and underscores (_).";
     } elseif(strpos($username, "Ghost_")) {
      $r = "You cannot be a ghost.";
     } elseif($username == $this->core->ID) {
