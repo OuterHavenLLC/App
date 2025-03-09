@@ -299,11 +299,16 @@
       "Data" => $this->core->AESencrypt($data),
       "ID" => $id
      ];
+    } else {
+     $clientExtensions = [
+      "Data" => $this->core->AESencrypt("Invalid Extension $id"),
+      "ID" => $id
+     ];
     }
    } else {
     $extensions = $this->core->DatabaseSet("Extensions");
-    foreach($extensions as $key => $extension) {
-     $id = str_replace("nyc.outerhaven.extension.", "", $extension);
+    foreach($extensions as $key => $id) {
+     $id = str_replace("nyc.outerhaven.extension.", "", $id);
      if(!in_array($id, $doNotIndex)) {
       $extension = $this->core->Data("Get", ["extension", $id]);
       $data = $extension["Body"] ?? "";
@@ -320,10 +325,10 @@
         "HTMLDecode" => 1
        ]);
       }
-      $clientExtensions = [
+      array_push($clientExtensions, [
        "Data" => $this->core->AESencrypt($data),
        "ID" => $id
-      ];
+      ]);
      }
     }
    }

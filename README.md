@@ -51,6 +51,11 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * A new consolidated ReSearch() object now renders the initial search listing, automated pagination to append groups of results while the container exists, and accounts for input-based keyup events to update the search listing in real-time.
 * Suggested Members are now rendered between the header and index menu.
 
+### Response Data
+* The client now stores and retrieves Extension data via the local browser database and an associated class.
+* Server responses are now capable of sending multiple view types via a single response. (coming soon...)
+* Revised client-side functionality allows the client to parse through data sets and execute counterparts to server-side ChangeData() and Extension() objects. This means that the client effectively assumes most rendering responsibilities, except for server-side callback functions.
+
 ### Heath Kit
 * Coming soon...
 

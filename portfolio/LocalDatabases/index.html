@@ -30,79 +30,54 @@
     </div>
    </div>
    <div class="Desktop75 MobileFull">
-    <div class="Demo FrostedBright RoundedLarge ShadowedLarge">
+    <div class="FrostedBright RoundedLarge ShadowedLarge">
      <p>Below is the output from the creation and population of an <em>OuterHaven</em> database. We also load all eligible extensions into the database for later use by the client, caching the encrypted extension data and reducing the server-side resource consumption going forward.</p>
     </div>
    </div>
   </div>
   <script>
-$(document).ready(function() {
- const db = new Database("OuterHaven"),
-           Multiple = [
-            {
-             Data: AESencrypt("Data 2"),
-             ID: "Extension2"
-            },
-            {
-             Data: AESencrypt("Data 3"),
-             ID: "Extension3"
-            },
-            {
-             Data: AESencrypt("Data 4"),
-             ID: "Extension4"
-            },
-            {
-             Data: AESencrypt("Data 5"),
-             ID: "Extension5"
-            },
-            {
-             Data: AESencrypt("Data 6"),
-             ID: "Extension6"
-            }
-           ],
-           Single = {
-            Data: AESencrypt("Data"),
-            ID: "Extension"
-           };
-    /*--db.open("Extensions").then(() => {
-     $(".Demo").append("<p>Saving single extension...</p>");
-     return db.save("Extensions", Single);
-    }).then(extension => {
-     $(".Demo").append("<p>Single extension saved with ID " + extension + "</p>");
-     return db.get("Extensions", "Extension");
-    }).then(extension => {
-     $(".Demo").append("<p>Retrieved extension " + extension.ID + ": " + extension.Data + ".</p>");
-     $(".Demo").append("<p>Saving multiple extensions...</p>");
-     return db.saveMultiple("Extensions", Multiple);
-    }).then(extensions => {
-     $(".Demo").append("<p>Multiple extensions saved with IDs " + extensions + "</p>");
-     return db.getAll("Extensions");
-    }).then(allExtensions => {
-     $(".Demo").append("<p>All extensions in database: " + allExtensions + "</p>");
-     allExtensions.forEach(function(extension) {
-      $(".Demo").append("<p>" + extension.ID + ": " + extension.Data + "</p>");
+   $.ajax({
+    error: function(error) {
+     Dialog({
+      "Body": "Data retrieval error, please see below.",
+      "Scrollable": JSON.stringify(error)
      });
-     $(".Demo").append("<p>Total extensions: " + allExtensions.length + "</p>");
-     db.close();
-    }).then(() => {--*/
-    // LOAD EXTENSIONS AND FADE OUT
-    db.open("Extensions").then(() => {
-     $(".Boot").fadeIn(500);
-     $(".Demo").append("<p>Loading Extensions...</p>");
-    }).then(() => {
-     // LOAD EXTENSIUONS
-    }).then(() => {
-     db.close();
-     $(".Boot").fadeOut(500);//MOVE TO END OF PROCESS
-    }).catch(error => {
-     $(".Demo").append("Database error: " + error);
-     db.deleteDatabase();
-     db.close();
-    });
-    /*--}).catch(error => {
-     $(".Demo").append("Database error: " + error);
-     db.deleteDatabase();
-    });--*/
+    },
+    success: function(data) {
+     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
+      Crash(data);
+      return false;
+     } else {
+      var data = JSON.parse(AESdecrypt(data));
+      data = data.JSON || {};
+      /*--Dialog({
+       "Body": "Retrieved all eligible Extension data, please see below.",
+       "Header": "Extensions",
+       "Scrollable": JSON.stringify(data)
+      });--*/
+      var db = new Database("OuterHaven");
+      db.open("Extensions", "ID", false).then(function() {
+       $(".Boot").fadeIn(500);
+       db.saveMultiple("Extensions", data).then(function() {
+        db.close();
+        $(".Boot").fadeOut(500);
+       }).catch(function(error) {
+        Dialog({
+         "Body": "Could not save data, please see below.",
+         "Scrollable": JSON.stringify(error)
+        });
+        $(".Boot").fadeOut(500);
+       });
+      }).catch(function(error) {
+       Dialog({
+        "Body": "Could not open the database, please see below.",
+        "Scrollable": JSON.stringify(error)
+       });
+       $(".Boot").fadeOut(500);
+      });
+     }
+    },
+    url: "https://outerhaven.nyc/extensions"
    });
   </script>
  </body>
