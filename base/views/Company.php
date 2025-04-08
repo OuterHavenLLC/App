@@ -38,6 +38,38 @@
     "Title" => "Donate to ".$this->core->config["App"]["Name"]
    ]);
   }
+  function FreeAmericaRadio() {
+   $_View = "";
+   $_ViewTitle = "Free America Radio";
+   $activeEvent = 0;
+   $broadcastViewEnabled = 0;
+   $description = $this->core->config["App"]["Description"] ?? "";
+   $events = $this->core->config["PublicEvents"] ?? [];
+   $selectedEvent = [];
+   foreach($events as $event => $info) {
+    if($info["Active"] == 1) {
+     $activeEvent = 1;
+     $broadcastViewEnabled = $info["EnablePublicBroadcast"] ?? 0;
+     $selectedEvent = $info;
+     break;
+    }
+   } if($broadcastViewEnabled == 1) {
+    $_ViewTitle = $selectedEvent["Title"] ?? $_ViewTitle;
+    $description = $selectedEvent["Description"] ?? $description;
+   }
+   $_ExtensionID = ($activeEvent == 1) ? "1870885288027c3d4bc0a29bdf5f7579" : "c0f79632dc2313352f92b41819fe4739";
+   $_View = [
+    "ChangeData" => [
+     "[FAB.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=7216072bbd437563e692cc7ff69cdb69"),
+     "[FAB.Listen]" => base64_encode("v=".base64_encode("Subscription:FABPlayer"))
+    ],
+    "ExtensionID" => $_ExtensionID
+   ];
+   return $this->core->JSONResponse([
+    "Title" => $_ViewTitle,
+    "View" => $_View
+   ]);
+  }
   function Home(array $a) {
    $_ViewTitle = "About ".$this->core->config["App"]["Name"];
    $accessCode = "Accepted";

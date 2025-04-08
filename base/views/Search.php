@@ -10,7 +10,12 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Containers(array $a) {
-   $accessCode = "Denied";
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The List Type is missing.",
+    "Header" => "Not Found"
+   ];
+   $_View = "";
    $data = $a["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $addTopMargin = "0";
@@ -35,10 +40,6 @@
    $list .= (!empty($query)) ? "&query=$query" : "";
    $list .= (!empty($searchType)) ? "&st=$searchType" : "";
    $options = "";
-   $r = [
-    "Body" => "The List Type is missing.",
-    "Header" => "Not Found"
-   ];
    $variant = "Default";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -420,31 +421,30 @@
      $list .= (!empty($data["UN"])) ? "&UN=".$data["UN"] : "";
      $list .= (!empty($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
     }
-    $r = $this->core->Change([[
-     "[Search.Header]" => $header,
-     "[Search.List]" => base64_encode($list),
-     "[Search.Options]" => $options,
-     "[Search.ParentPage]" => $parentView,
-     "[Search.Text]" => $searchBarText
-    ], $this->core->RenderSearchUI($variant)]);
-   } if(in_array($searchType, $cardSearchTypes) || $card == 1) {
-    $r = [
-     "Front" => $r
+    $_Card = "";
+    $_Dialog = "";
+    $_View = [
+     "ChangeData" => [
+      "[Search.Header]" => $header,
+      "[Search.List]" => base64_encode($list),
+      "[Search.Options]" => $options,
+      "[Search.ParentPage]" => $parentView,
+      "[Search.Text]" => $searchBarText
+     ],
+     "Extension" => $this->core->AESencrypt($this->core->RenderSearchUI($variant))
     ];
-   } elseif($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
+   } if(in_array($searchType, $cardSearchTypes) || $card == 1) {
+    $_Card = [
+     "Front" => $_View
+    ];
+    $_Dialog = "";
+    $_View = "";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => $addTopMargin,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function Links(array $a) {
@@ -3390,11 +3390,6 @@
    $data = $a["Data"] ?? [];
    $component = $data["Component"] ?? base64_encode("");
    $component = base64_decode($component);
-   $pub = $data["pub"] ?? 0;
-   $goHome = ($pub == 1) ? $this->core->Element(["button", "Go Home", [
-    "class" => "BBB v2 v2w",
-    "onclick" => "W('".$this->core->base."', '_top');"
-   ]]) : "";
    $query = $data["query"] ?? base64_encode("");
    $query = base64_decode(htmlentities($query));
    $y = $this->core->you;
@@ -3407,7 +3402,7 @@
                         ORDER BY Member_Created DESC
                         LIMIT 100
     ";
-    $r = "&nbsp;";
+    $_View = "&nbsp;";
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $sql->query($_Query, [
      ":Search" => $query
@@ -3436,7 +3431,7 @@
       if($theyBlockedYou == 0 && $youBlockedThem == 0 && $check == 1 && $lookMeUp == 1) {
        $options = $_Member["ListItem"]["Options"];
        $profilePicture = $this->core->ProfilePicture($member, "max-width:4em;width:100%");
-       $r .= $this->core->Element(["div", $this->core->Element([
+       $_View .= $this->core->Element(["div", $this->core->Element([
         "button", $profilePicture, [
          "class" => "OpenCard v1",
          "data-view" => $options["View"]
@@ -3453,40 +3448,30 @@
      "Component" => base64_encode("SuggestedMembers"),
      "query" => $data["query"]
     ]]);
-    $r = $this->core->Change([[
-     "[ReSearch.Archive]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=CA"),
-     "[ReSearch.Artists]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=SHOP"),
-     "[ReSearch.Blogs]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=BLG"),
-     "[ReSearch.Chat]" => base64_encode("v=$search&pub=1&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
-     "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
-     "[ReSearch.Links]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Links"),
-     "[ReSearch.Media]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Media"),
-     "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
-     "[ReSearch.Query]" => $query,
-     "[ReSearch.Polls]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Polls"),
-     "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products"),
-     "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates"),
-     "[ReSearch.SuggestedMembers]" => $suggestedMembers
-     #"[ReSearch.SuggestedMembers]" => $this->core->RenderView($suggestedMembers)
-    ], $this->core->Extension("bae5cdfa85bf2c690cbff302ba193b0b")]);
-    if($pub == 1) {
-     $r = $this->view(base64_encode("WebUI:Containers"), ["Data" => [
-      "Content" => $r,
-      "Type" => "ReSearch"
-     ]]);
-     $r = $this->core->JSONResponse([
-      "AccessCode" => "Accepted",
-      "AddTopMargin" => "0",
-      "Response" => [
-       "JSON" => "",
-       "Web" => $this->core->RenderView($r)
-      ],
-      "ResponseType" => "View",
-      "Title" => $_ViewTitle
-     ]);
-    }
+    $_View = [
+     "ChangeData" => [
+      "[ReSearch.Archive]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=CA"),
+      "[ReSearch.Artists]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=SHOP"),
+      "[ReSearch.Blogs]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=BLG"),
+      "[ReSearch.Chat]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Chat&Integrated=1"),
+      "[ReSearch.Forums]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Forums"),
+      "[ReSearch.Links]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Links"),
+      "[ReSearch.Media]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Media"),
+      "[ReSearch.Members]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=MBR"),
+      "[ReSearch.Query]" => $query,
+      "[ReSearch.Polls]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Polls"),
+      "[ReSearch.Products]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=Products"),
+      "[ReSearch.StatusUpdates]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=StatusUpdates"),
+      "[ReSearch.SuggestedMembers]" => $this->core->RenderView($suggestedMembers)
+     ],
+     "ExtensionID" => "bae5cdfa85bf2c690cbff302ba193b0b"
+    ];
    }
-   return $r;
+   return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
+    "Title" => $_ViewTitle,
+    "View" => $_View
+   ]);
   }
   function __destruct() {
    // DESTROYS THIS CLASS

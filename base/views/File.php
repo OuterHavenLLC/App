@@ -535,11 +535,11 @@
    $_Passed = [];
    $accessCode = "Denied";
    $data = $a["Data"] ?? [];
-   $albumID = $data["AID"] ?? base64_encode(md5("unsorted"));
-   $albumID = base64_decode($albumID);
+   $albumID = $data["AID"] ?? $this->core->AESencrypt(md5("unsorted"));
+   $albumID = $this->core->AESdecrypt($albumID);
    $err = "Internal Error";
-   $username = $data["UN"] ?? base64_encode("");
-   $username = base64_decode($username);
+   $username = $data["UN"] ?? $this->core->AESencrypt("");
+   $username = $this->core->AESdecrypt($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -556,7 +556,7 @@
     ];
    } else {
     header("Content-Type: application/json");
-    $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
+    $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]);
     $_DLC = $this->core->config["XFS"]["FT"] ?? [];
     if($this->core->ID == $username && $y["Rank"] != md5("High Command")) {
      $r = [
@@ -573,10 +573,10 @@
       $files = $this->core->Data("Get", ["app", "fs"]);
      }
      $now = $this->core->timestamp;
-     $nsfw = $data["NSFW"] ?? base64_encode($y["Privacy"]["NSFW"]);
-     $nsfw = base64_decode($nsfw);
-     $privacy = $data["Privacy"] ?? base64_encode($y["Privacy"]["DLL"]);
-     $privacy = base64_decode($privacy);
+     $nsfw = $data["NSFW"] ?? $this->core->AESencrypt($y["Privacy"]["NSFW"]);
+     $nsfw = $this->core->AESdecrypt($nsfw);
+     $privacy = $data["Privacy"] ?? $this->core->AESencrypt($y["Privacy"]["DLL"]);
+     $privacy = $this->core->AESdecrypt($privacy);
      $root = $this->core->DocumentRoot."/efs/$username/";
      $uploads = $a["Files"] ?? [];
      $uploadsAllowed = $y["Subscriptions"]["Artist"]["A"] ?? 0;
@@ -760,9 +760,7 @@
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => $r
-    ],
+    "JSON" => $r,
     "ResponseType" => "View"
    ]);
   }

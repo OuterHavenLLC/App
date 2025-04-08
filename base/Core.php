@@ -1337,7 +1337,7 @@ function AESencrypt(string $data) {
       "/\[(.*?)\[(.*?)\]:(.*?)\]/is" => "<$1 $2>$3</$1>",
       "/\[IMG:s=(.*?)&w=(.*?)\]/is" => "<img src=\"$1\" style=\"width:$2\"/>",
       "/\[P:(.*?)\]/is" => "<p>$1</p>",
-      "/@+([A-Za-z0-9_]+)/" => $this->Element(["button", "@$1", [
+      "/@+([A-Za-z0-9_]+)/" => $this->Element(["button", "&commat;$1", [
        "onclick" => "W('".$this->base."/@$1', '_blank');"
       ]]),
       "/\#+([A-Za-z0-9_]+)/" => $this->Element(["button", "#$1", [
@@ -1353,6 +1353,29 @@ function AESencrypt(string $data) {
     $r = $this->AESencrypt($r);
    }
    return $r;
+   // DISOLVE ALL ABOVE FUNCTIONALITY UPON MIGRATION TO CLIENT
+   /*--$articleCard = base64_encode("Page:Card");
+    $defaultUI = $this->config["App"]["UIVariant"] ?? 2;
+    $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
+    $r = preg_replace_callback("/\[Embed:(.*?)\]/i", array(&$this, "GetEmbeddedLink"), $r);
+    $r = preg_replace_callback("/\[Extension:(.*?)\]/i", array(&$this, "GetExtension"), $r);
+    $r = preg_replace_callback("/\[Media:(.*?)\]/i", array(&$this, "Media"), $r);
+    $r = preg_replace_callback("/\[Translate:(.*?)\]/i", array(&$this, "Translate"), $r);
+    return $this->Change([[
+     "[App.Base]" => $this->base,
+     "[App.BillOfRights]" => base64_encode("v=$articleCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
+     "[App.Constitution]" => base64_encode("v=$articleCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
+     "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
+     "[App.CurrentYear]" => date("Y"),
+     "[App.DefaultUI]" => $defaultUI,
+     "[App.Name]" => $this->config["App"]["Name"],
+     "[App.Username]" => $this->config["App"]["Name"],
+     "[base]" => $this->base,
+     "[efs]" => $this->efs,
+     "[plus]" => "+",
+     "[space]" => "&nbsp;",
+     "[percent]" => "%"
+    ], $r]);--*/
   }
   function ProfilePicture(array $member, $style = NULL) {
    $style = (!empty($style)) ? " style=\"$style\"" : "";
@@ -1457,12 +1480,17 @@ function AESencrypt(string $data) {
    return $variant;
   }
   function RenderView(string $data) {
-   $r = json_decode($data, true);
-   $r = $r["Response"] ?? [];
-   $r = $r["Web"] ?? $this->Element([
-    "p", "No View Data<br/>Source Data: $data"
+   $data = json_decode($data, true);
+   // BEGIN TEMP
+   $view = $data["Response"]["Web"] ?? $this->Element([
+    "p", "No View Data<br/>Source Data: ".json_encode($data, true)
    ]);
-   return $r;
+   $view = $data["View"] ?? $view;
+   // END TEMP
+   /*--$view = $data["View"] ?? $this->Element([
+    "p", "No View Data<br/>Source Data: $data"
+   ]);--*/
+   return $view;
   }
   function SendBulletin(array $a) {
    $data = $a["Data"] ?? "";

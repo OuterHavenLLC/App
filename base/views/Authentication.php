@@ -5,40 +5,36 @@
    $this->authID = md5($this->core->timestamp.uniqid());
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function ArticleChangeMemberRole(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $member = $data["Member"] ?? "";
-   $r = [
+  function ArticleChangeMemberRole(array $data) {
+   $_Dialog = [
     "Body" => "The Article Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
-    $r = $this->core->Change([[
-     "[Roles.ID]" => $Page["ID"],
-     "[Roles.Member]" => base64_decode($member),
-     "[Roles.Processor]" => base64_encode("v=".base64_encode("Page:ChangeMemberRole")),
-     "[Roles.Title]" => $Page["Title"]
-    ], $this->core->Extension("270d16c83b59b067231b0c6124a4038d")]);
+    $_Article = $this->core->Data("Get", ["pg", base64_decode($id)]);
+    $_View = [
+     "ChangeData" => [
+      "[Roles.ID]" => $_Article["ID"],
+      "[Roles.Member]" => base64_decode($member),
+      "[Roles.Processor]" => base64_encode("v=".base64_encode("Page:ChangeMemberRole")),
+      "[Roles.Title]" => $_Article["Title"]
+     ],
+     "ExtensionID" => "270d16c83b59b067231b0c6124a4038d"
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function BlogChangeMemberRole(array $a) {
@@ -113,27 +109,27 @@
     "ResponseType" => "View"
    ]);
   }
-  function ProtectedContent(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function ProtectedContent(array $data) {
+   $_Dialog = [
+    "Body" => "The View Data is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $dialog = $data["Dialog"] ?? 0;
    $header = $data["Header"] ?? base64_encode("");
    $parentPage = $data["ParentPage"] ?? "";
-   $r = [
-    "Body" => "The View Data is missing."
-   ];
    $responseType = "Dialog";
    $signOut = $data["SignOut"] ?? 0;
    $text = $data["Text"] ?? base64_encode("Please enter your PIN below to continue.");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } else {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $back = (!empty($parentPage)) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent LI",
      "data-type" => $parentPage
@@ -147,29 +143,29 @@
     foreach($viewData as $key => $value) {
      $view .= "$key=$value&";
     }
-    $r = $this->core->Change([[
-     "[ProtectedContent.Back]" => $back,
-     "[ProtectedContent.CloseDialog]" => $closeDialog,
-     "[ProtectedContent.Header]" => base64_decode($header),
-     "[ProtectedContent.SignOut]" => $signOut,
-     "[ProtectedContent.Text]" => base64_decode($text),
-     "[ProtectedContent.View]" => base64_encode(rtrim($view, "&"))
-    ], $this->core->Extension("a1f9348036f81e1e9b79550e03f825fb")]);
-    $r = ($dialog == 1) ? [
-     "Body" => $r,
-     "Header" => "Authentication Required",
-     "NoClose" => 1
-    ] : $r;
-    $responseType = ($dialog == 1) ? "Dialog" : "View";
+    $_View = [
+     "ChangeData" => [
+      "[ProtectedContent.Back]" => $back,
+      "[ProtectedContent.CloseDialog]" => $closeDialog,
+      "[ProtectedContent.Header]" => base64_decode($header),
+      "[ProtectedContent.SignOut]" => $signOut,
+      "[ProtectedContent.Text]" => base64_decode($text),
+      "[ProtectedContent.View]" => base64_encode(rtrim($view, "&"))
+     ],
+     "ExtensionID" => "a1f9348036f81e1e9b79550e03f825fb"
+    ];
+    if($dialog == 1) {
+     $_Dialog = [
+      "Body" => $_View,
+      "Header" => "Authentication Required",
+      "NoClose" => 1
+     ];
+     $_View = "";
+    }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function __destruct() {

@@ -193,37 +193,50 @@
    ]);
   }
   function Containers(array $a) {
-   $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
-   $content = $this->view(base64_encode("WebUI:OptIn"), []);
-   $content = $this->core->RenderView($content);
-   $content = $data["Content"] ?? $content;
-   $r = $this->core->Change([[
-    "[App.Content]" => $content
-   ], $this->core->RenderUI("Public")]);
+   $_Commands = [
+    [
+     "Name" => "UpdateContent",
+     "Parameters" => [
+      ".Content",
+      base64_encode("v=".base64_encode("WebUI:Gateway"))
+     ]
+    ]
+   ];
+   $_Content = $data["Content"] ?? "";
+   $_View = [
+    "ChangeData" => [
+     "[App.Content]" => $_Content
+    ],
+    "Extension" => $this->core->AESencrypt($this->core->RenderUI("Public"))
+   ];
    $type = $data["Type"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($type == "Chat") {
-    $r = $this->core->Change([[
-     "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))
-    ], $this->core->RenderUI("Chat")]);
+    $_Commands = [];
+    $_View = [
+     "ChangeData" => [
+      "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))//TEMP
+     ],
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Chat"))
+    ];
    } elseif($type == "ReSearch") {
-    $r = $this->core->Change([[
-     "[App.Content]" => $content,
-     "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
-    ], $this->core->RenderUI("Search")]);
+    $_Commands = [];
+    $_View = [
+     "ChangeData" => [
+      "[App.Content]" => $_Content,
+      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
+     ],
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Search"))
+    ];
    }
    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "SetUIVariant" => $setUIvariant
+    "Commands" => $_Commands,
+    "SetUIVariant" => $setUIvariant,
+    "View" => $_View
    ]);
   }
   function DesignView(array $a) {
@@ -301,7 +314,7 @@
      ];
     } else {
      $clientExtensions = [
-      "Data" => $this->core->AESencrypt("Invalid Extension $id"),
+      "Data" => $this->core->AESencrypt("Invalid Extension <em>$id</em>."),
       "ID" => $id
      ];
     }
@@ -337,35 +350,128 @@
     "JSON" => $clientExtensions
    ]);
   }
-  function Menu(array $a) {
-   $accessCode = "Denied";
-   $r = [
-    "Body" => "Could not load the Network Map..."
-   ];
+  function Gateway(array $a) {
+   $eventMedia = $this->core->RenderEventMedia();
+   return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
+    "View" => [
+     "ChangeData" => [
+      "[Gateway.Company]" => base64_encode("v=".base64_encode("Company:Home")."&Card=1"),
+      "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
+      "[Gateway.Banner]" => $eventMedia["Banner"],
+      "[Gateway.CoverPhoto]" => $eventMedia["CoverPhoto"],
+      "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($this->core->ShopID)),
+      "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
+      "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
+     ],
+     "ExtensionID" => "db69f503c7c6c1470bd9620b79ab00d7"
+    ]
+   ]);
+  }
+  function Landing(array $data) {
+   $content = "v=".base64_encode("WebUI:Gateway");
+   $headers = apache_request_headers();
+   $language = $headers["Language"] ?? $this->core->language;
+   $setUIvariant = 0;
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID != $you) {
+    $content = "v=".base64_encode("Search:Containers")."&st=Mainstream";
+    $shop = $this->core->Data("Get", ["shop", md5($you)]);
+    foreach($y["Subscriptions"] as $subscription => $info) {
+     if(strtotime($info["B"]) > $info["E"]) {
+      $info["A"] = 0;
+     } if($subscription == "Artist") {
+      $shop["Open"] = $info["A"] ?? 0;
+     } elseif($subscription == "VIP") {
+      $highCommand = ($y["Rank"] == md5("High Command")) ? 1 : 0;
+      $sonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
+      $manifest = $this->core->Data("Get", [
+       "pfmanifest",
+       $sonsOfLiberty
+      ]) ?? [];
+      if($info["A"] == 1) {
+       $role = ($highCommand == 1) ? "Admin" : "Member";
+       $manifest[$you] = $role;
+      } elseif($info["A"] == 0 && $highCommand == 0) {
+       $newManifest = [];
+       foreach($manifest as $member => $role) {
+        if($member != $you) {
+         $newManifest[$member] = $role;
+        }
+       }
+       $manifest = $newManifest;
+      }
+      $this->core->Data("Save", ["pfmanifest", $sonsOfLiberty, $manifest]);
+     }
+    }
+    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
+    $y["Inactive"] = 0;
+    $y["Personal"]["Language"] = $language;
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["shop", md5($you), $shop]);
+   }
+   return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
+    "Commands" => [
+     [
+      "Name" => "AddContent"
+     ],
+     [
+      "Name" => "Bulletins"
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".Content",
+       $this->core->AESencrypt($content),
+       "AES"
+      ]
+     ],
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".Menu",
+       $this->core->AESencrypt("v=".base64_encode("WebUI:Menu")),
+       6000,
+       "AES"
+      ]
+     ]
+    ],
+    "SetUIVariant" => $setUIvariant,
+    "View" => [
+     "ChangeData" => [
+      "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
+      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
+     ],
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Main"))
+    ]
+   ]);
+  }
+  function Menu() {
    $search = base64_encode("Search:Containers");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $accessCode = "Accepted";
     $changeData = [
      "[Menu.Company.Feedback]" => $this->core->AESencrypt("v=".base64_encode("Feedback:NewThread")),
+     "[Menu.Company.FreeAmericaRadio]" => $this->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio")),
      "[Menu.Company.Home]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")),
      "[Menu.Company.IncomeDisclosure]" => $this->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => $this->core->AESencrypt("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => $this->core->AESencrypt("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")),
-     "[Menu.Gateway]" => $this->core->AESencrypt("v=".base64_encode("WebUI:OptIn")),
+     "[Menu.Gateway]" => $this->core->AESencrypt("v=".base64_encode("WebUI:Gateway")),
      "[Menu.LostAndFound]" => $this->core->AESencrypt("v=".base64_encode("LostAndFound:Home")),
      "[Menu.Mainstream]" => $this->core->AESencrypt("v=$search&st=Mainstream"),
      "[Menu.MiNY]" => $this->core->AESencrypt("v=".base64_encode("Shop:MadeInNewYork")),
-     "[Menu.OptIn]" => $this->core->AESencrypt("v=".base64_encode("WebUI:OptIn")),
+     "[Menu.OptIn]" => $this->core->AESencrypt("v=".base64_encode("WebUI:Gateway")),
      "[Menu.SignIn]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignIn")),
      "[Menu.SignUp]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp")),
      "[Menu.SwitchLanguages]" => $this->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages"))
     ];
-    $extension = "73859ffa637c369b9fa88399a27b5598";
+    $extensionID = "73859ffa637c369b9fa88399a27b5598";
    } else {
-    $accessCode = "Accepted";
     $admin = ($y["Rank"] == md5("High Command")) ? $this->core->Element([
      "button", "Control Panel", [
       "class" => "CloseNetMap LI UpdateContent",
@@ -407,6 +513,7 @@
      "[Menu.Administration]" => $admin,
      "[Menu.BulletinBadge]" => $bulletinBadge,
      "[Menu.Company.Feedback]" => $this->core->AESencrypt("v=".base64_encode("Feedback:NewThread")),
+     "[Menu.Company.FreeAmericaRadio]" => $this->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio")),
      "[Menu.Company.Home]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")),
      "[Menu.Company.IncomeDisclosure]" => $this->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
      "[Menu.Company.PressReleases]" => $this->core->AESencrypt("v=$search&lPG=PG&st=PR"),
@@ -436,42 +543,71 @@
      "[Menu.SwitchLanguages]" => $this->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages")),
      "[Menu.Subscriptions]" => $subscriptions
     ];
-    $extension = "d14e3045df35f4d9784d45ac2c0fe73b";
+    $extensionID = "d14e3045df35f4d9784d45ac2c0fe73b";
    }
-   $r = $this->core->Change([
-    $changeData,
-    $this->core->Extension($extension)
-   ]);
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => $changeData,
+     "ExtensionID" => $extensionID
+    ]
    ]);
   }
-  function OptIn(array $a) {
-   $accessCode = "Accepted";
-   $eventMedia = $this->core->RenderEventMedia();
-   $r = $this->core->Change([[
-    "[Gateway.Company]" => base64_encode("v=".base64_encode("Company:Home")."&Card=1"),
-    "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
-    "[Gateway.Banner]" => $eventMedia["Banner"],
-    "[Gateway.CoverPhoto]" => $eventMedia["CoverPhoto"],
-    "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($this->core->ShopID)),
-    "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-    "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
-   ], $this->core->Extension("db69f503c7c6c1470bd9620b79ab00d7")]);
+  function Public(array $data) {
+   $_Commands = "";
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $type = $data["Type"] ?? $this->core->AESencrypt("");
+   $type = $this->core->AESdecrypt($type);
+   $view = $data["View"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($type == "Chat") {
+    $_Commands = [
+     "Name" => "UpdateContentRecursive",
+     "Parameters" => [
+      ".NetMap",
+      base64_encode("v=".base64_encode("Chat:Menu")),
+      10000
+     ]
+    ];
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Chat"))
+    ];
+   } elseif($type == "Public") {
+    $_Commands = [
+     "Name" => "UpdateContent",
+     "Parameters" => [
+      ".Content",
+      base64_encode($view)
+     ]
+    ];
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Public"))
+    ];
+   } elseif($type == "ReSearch") {
+    $_Commands = [
+     "Name" => "UpdateContent",
+     "Parameters" => [
+      ".Content",
+      base64_encode($view)
+     ]
+    ];
+    $_View = [
+     "ChangeData" => [
+      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
+     ],
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Search"))
+    ];
+   }
+   $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Commands" => $_Commands,
+    "SetUIVariant" => $setUIvariant,
+    "View" => $_View
    ]);
   }
   function SubscribeSection(array $a) {
@@ -491,13 +627,13 @@
     $r = "";
     $subscribers = [];
     if($type == "Article") {
-     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
+     $article = $this->core->Data("Get", ["pg", $id]);
      $check = ($article["UN"] != $you) ? 1 : 0;
      $processor = base64_encode("v=".base64_encode("Page:Subscribe"));
      $subscribers = $article["Subscribers"] ?? [];
      $title = $article["Title"];
     } elseif($type == "Blog") {
-     $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+     $blog = $this->core->Data("Get", ["blg", $id]);
      $check = ($blog["UN"] != $you) ? 1 : 0;
      $processor = base64_encode("v=".base64_encode("Blog:Subscribe"));
      $subscribers = $blog["Subscribers"] ?? [];
@@ -545,21 +681,23 @@
      ]]);
     }//TEMP
    }
-   $r = $this->core->Change([[
-    "[App.Languages]" => $options
-   ], $this->core->Extension("96021f84defa49827569f2aa1070755b")]);
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [
+      "[App.Languages]" => $options
+     ],
+     "ExtensionID" => "96021f84defa49827569f2aa1070755b"
+    ]
    ]);
   }
   function TwoFactorAuthentication(array $data) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "An email address is required for us to continue the verification process."
+   ];
+   $_ResponseType = "View";
+   $_View = "";
    $addTopMargin = "1";
    $data = $data["Data"] ?? [];
    $_2FA = $data["2FA"] ?? "";
@@ -568,15 +706,11 @@
    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
    $viewData = json_decode(base64_decode($viewData), true);
    $parentView = $viewData["ParentView"] ?? "SignIn";
-   $r = $this->core->Element([
-    "h1", "Authentication Error", ["class" => "UpperCase"]
-   ]).$this->core->Element([
-    "p", "An email address is required in order for us to continue the verification process."
-   ]).$this->core->Element(["button", "Back", [
-    "class" => "GoToParent v2",
-    "data-type" => $parentView
-   ]]);
    if(!empty($_2FA) && !empty($_2FAconfirm)) {
+    $_Dialog = [
+     "Body" => "The code you entered does not match the one we sent you."
+    ];
+    $_View = "";
     $addTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
     $_2FA = $data["2FA"] ?? "";
@@ -585,119 +719,61 @@
     $returnView = $data["ReturnView"] ?? "";
     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
     $viewData = json_decode(base64_decode($viewData), true);
-    $r = [
-     "Body" => "The code you entered does not match the one we sent you."
-    ];
     if($_2FA == $_2FAconfirm) {
-     $r = [
-      "Body" => "The Return View ID is missing."
+     $_Dialog = [
+      "Body" => "The Return View Identifier is missing."
      ];
+     $_View = "";
      if(!empty($returnView)) {
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
+      $_Dialog = "";
+      $_ResponseType = "GoToView";
       $viewData["ViewData"] = $viewData;
-      $r = $this->view($returnView, ["Data" => $viewData]);
-      $r = $this->core->RenderView($r);
+      $_View = $this->view($returnView, ["Data" => $viewData]);
+      $_View = $this->core->RenderView($_View);
      }
     }
    } elseif(!empty($email)) {
     $_2FA = rand(000000, 999999);
     $_2FAconfirm = md5($_2FA);
     $email = base64_decode($email);
-    $r = [
-     "Body" => "A valid email address is required.",
-     "Header" => "Error"
+    $_Dialog = [
+     "Body" => "A valid email address is required."
     ];
+    $_View = "";
     if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
+     $_Dialog = "";
+     $_ResponseType = "GoToView";
      $returnView = $data["ReturnView"] ?? base64_encode("");
      $this->core->SendEmail([
       "Message" => $this->core->Element([
-       "p", "Use this code to verify your email address: ".$_2FA
+       "p", "Use this code to verify your email address: "
+      ]).$this->core->Element([
+       "h3", $_2FA
       ]),
       "Title" => "Your Verification Code",
       "To" => $email
      ]);
-     $r = $this->core->Change([[
-      "[2FA.Confirm]" => $_2FAconfirm,
-      "[2FA.Email]" => $this->core->ObfuscateEmail($email),
-      "[2FA.Step2]" => base64_encode("v=".base64_encode("WebUI:TwoFactorAuthentication")),
-      "[2FA.ReturnView]" => base64_decode($returnView),
-      "[2FA.ViewData]" => $data["ViewData"],
-      "[2FA.ViewPairID]" => $parentView
-     ], $this->core->Extension("ab9d092807adfadc3184c8ab844a1406")]);
+     $_View = [
+      "ChangeData" => [
+       "[2FA.Confirm]" => $_2FAconfirm,
+       "[2FA.Email]" => $this->core->ObfuscateEmail($email),
+       "[2FA.Step2]" => base64_encode("v=".base64_encode("WebUI:TwoFactorAuthentication")),
+       "[2FA.ReturnView]" => base64_decode($returnView),
+       "[2FA.ViewData]" => $data["ViewData"],
+       "[2FA.ViewPairID]" => $parentView
+      ],
+      "ExtensionID" => "ab9d092807adfadc3184c8ab844a1406"
+     ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => $addTopMargin,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "GoToView"
-   ]);
-  }
-  function UIContainers(array $a) {
-   $accessCode = "Accepted";
-   $content = base64_encode("v=".base64_encode("WebUI:OptIn"));
-   $addTopMargin = "0";
-   $headers = apache_request_headers();
-   $language = $headers["Language"] ?? $this->core->language;
-   $setUIvariant = 0;
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID != $you) {
-    $addTopMargin = 1;
-    $content = base64_encode("v=".base64_encode("Search:Containers")."&st=Mainstream");
-    $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
-    foreach($y["Subscriptions"] as $subscription => $data) {
-     if(strtotime($data["B"]) > $data["E"]) {
-      $data["A"] = 0;
-     } if($subscription == "Artist") {
-      $shop["Open"] = $data["A"] ?? 0;
-     } elseif($subscription == "VIP") {
-      $highCommand = ($y["Rank"] == md5("High Command")) ? 1 : 0;
-      $sonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
-      $manifest = $this->core->Data("Get", [
-       "pfmanifest",
-       $sonsOfLiberty
-      ]) ?? [];
-      if($data["A"] == 1) {
-       $role = ($highCommand == 1) ? "Admin" : "Member";
-       $manifest[$you] = $role;
-      } elseif($data["A"] == 0 && $highCommand == 0) {
-       $newManifest = [];
-       foreach($manifest as $member => $role) {
-        if($member != $you) {
-         $newManifest[$member] = $role;
-        }
-       }
-       $manifest = $newManifest;
-      }
-      $this->core->Data("Save", ["pfmanifest", $sonsOfLiberty, $manifest]);
-     }
-    }
-    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
-    $y["Inactive"] = 0;
-    $y["Personal"]["Language"] = $language;
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["shop", md5($you), $shop]);
-   }
-   $r = $this->core->Change([[
-    "[App.Content]" => $content,
-    "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
-    "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
-   ], $this->core->RenderUI("Main")]);
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => $addTopMargin,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "SetUIVariant" => $setUIvariant,
-    "UIContainers" => 1
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "View" => $_View
    ]);
   }
   function WYSIWYG(array $a) {

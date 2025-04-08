@@ -5,19 +5,14 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function AddContent() {
-   $accessCode = "Denied";
+   $_View = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to create content."
-    ];
-   } else {
-    $accessCode = "Accepted";
+   if($this->core->ID != $you) {
     $_IsArtist = $y["Subscriptions"]["Artist"]["A"] ?? 0;
     $_IsVIP = $y["Subscriptions"]["VIP"]["A"] ?? 0;
     $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
-    $r = $this->core->Element([
+    $_View = $this->core->Element([
      "h1", "Create Content", ["class" => "CenterText UpperCase"]
     ]).$this->core->Element([
      "p", "Your central hub of content creation.", ["class" => "CenterText"]
@@ -28,14 +23,14 @@
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
     ]]);
-    $r .= ($_IsSubscribed == 1) ? $this->core->Element(["button", "Blog", [
+    $_View .= ($_IsSubscribed == 1) ? $this->core->Element(["button", "Blog", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&Member=".base64_encode($you)."&new=1")
     ]]).$this->core->Element(["button", "Forum", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Forum:Edit")."&new=1")
     ]]) : "";
-    $r .= $this->core->Element(["button", "Group Chat", [
+    $_View .= $this->core->Element(["button", "Group Chat", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you))
     ]]).$this->core->Element(["button", "Link", [
@@ -48,54 +43,45 @@
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
     ]]);
-    $r .= ($_IsArtist == 1) ? $this->core->Element(["button", "Product or Service", [
+    $_View .= ($_IsArtist == 1) ? $this->core->Element(["button", "Product or Service", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1")
     ]]) : "";
-    $r .= $this->core->Element(["button", "Status Update", [
+    $_View .= $this->core->Element(["button", "Status Update", [
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1")
     ]]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => $_View
    ]);
   }
   function AddContentCheck() {
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $accessCode = ($this->core->ID != $you) ? "Accepted" : "Denied";
+   $_View = ($this->core->ID != $you) ? $this->core->Element(["button", NULL, [
+    "class" => "AddContent OpenFirSTEPTool h",
+    "data-fst" => base64_encode("v=".base64_encode("Profile:AddContent"))
+   ]]) : "";
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $this->core->Element(["button", NULL, [
-      "class" => "AddContent OpenFirSTEPTool h",
-      "data-fst" => base64_encode("v=".base64_encode("Profile:AddContent"))
-     ]])
-    ],
-    "ResponseType" => "View"
+    "View" => $_View
    ]);
   }
   function Blacklist(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $missing = 0;
-   $r = [
+   $_Dialog = [
     "Body" => "Some required data is missing."
    ];
+   $_View = "";
+   $data = $a["Data"] ?? [];
+   $missing = 0;
    $requiredData = [
     "Command",
     "Content",
     "List"
    ];
+   $responseType = "Dialog";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    foreach($requiredData as $required) {
@@ -103,47 +89,45 @@
      $missing++;
     }
    } if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to subscribe.",
      "Header" => "Forbidden"
     ];
    } elseif($missing == 0) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $command = base64_decode($data["Command"]);
     $content = base64_decode($data["Content"]);
     $list = base64_decode($data["List"]);
     $blacklist = $y["Blocked"][$list] ?? [];
     $newBlacklist = [];
-    $r = "Error";
     $responseType = "UpdateText";
+    $text = "Error";
     foreach($blacklist as $key => $value) {
      if($content != $value) {
       array_push($newBlacklist, $value);
      }
     } if($command == "Block") {
      array_push($newBlacklist, $content);
-     $r = "Unblock";
+     $text = "Unblock";
     } elseif($command == "Unblock") {
-     $r = "Block";
+     $text = "Block";
     }
     $y["Blocked"][$list] = array_unique($newBlacklist);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = [
+    $_View = [
      "Attributes" => [
       "class" => "Small UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($r)."&Content=".$data["Content"]."&List=".$data["List"])
+      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($text)."&Content=".$data["Content"]."&List=".$data["List"])
      ],
-     "Text" => $r
+     "Text" => $text
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "ResponseType" => $responseType,
+    "View" => $_View
    ]);
   }
   function BlacklistCategories(array $a) {
@@ -448,7 +432,7 @@
    ]);
   }
   function Bulletins(array $a) {
-   $i = 0;
+   $count = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
@@ -460,7 +444,7 @@
       if($key != "Purge") {
        $seen = $value["Seen"] ?? 0;
        if($seen == 0) {
-        $i++;
+        $count++;
         $bulletin = $bulletins[$key] ?? [];
         $bulletin["Seen"] = 1;
         $newBulletins[$key] = $bulletin;
@@ -472,13 +456,8 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => "$i"
-    ],
-    "ResponseType" => "View"
+    "View" => $count
    ]);
   }
   function ChangeRank(array $a) {
@@ -534,7 +513,7 @@
     $accessCode = "Accepted";
     $y["Inactive"] = 1;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->view(base64_encode("WebUI:OptIn"), []);
+    $r = $this->view(base64_encode("WebUI:Gateway"), []);
     $r = $this->core->Element([
      "div", $this->core->Element([
       "p", "Your profile is now inactive and you can sign in at any time to activate it, we hope to see you again soon!"
@@ -953,7 +932,7 @@
    ] : $r;
    if($pub == 1) {
     if($this->core->ID == $you) {
-     $r = $this->view(base64_encode("WebUI:OptIn"), []);
+     $r = $this->view(base64_encode("WebUI:Gateway"), []);
      $r = $this->core->RenderView($r);
     }
     $r = $this->view(base64_encode("WebUI:Containers"), [
@@ -1468,7 +1447,7 @@
        $yourData["Purge"] = 1;
        $this->core->Data("Save", ["mbr", md5($you), $yourData]);
       }
-      $r = $this->view(base64_encode("WebUI:OptIn"), []);
+      $r = $this->view(base64_encode("WebUI:Gateway"), []);
       $r = $this->core->Element([
        "div", $this->core->Element([
         "h3", "Success!", ["class" => "CenterText UpperCase"]
@@ -1706,15 +1685,23 @@
    ]);
   }
   function SignIn(array $a) {
-   $addTopMargin = "0";
+   $_AddTopMargin = "0";
+   $_Commands = [];
+   $_ResponseType = "GoToView";
+   $_View = "";
    $data = $a["Data"] ?? [];
-   $responseType = "GoToView";
-   $securityKey = "";
    $parentView = $viewData["ParentView"] ?? base64_encode("SignIn");
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $addTopMargin = "1";
+    $_AddTopMargin = "1";
+    $_View = [
+     "ChangeData" => [
+      "[Error.Text]" => "We could not find the username you entered.",
+      "[Error.ParentView]" => base64_decode($parentView)
+     ],
+     "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67ac610803c33"
+    ];
     $data = $this->core->DecodeBridgeData($data);
     $username = $data["Username"] ?? "";
     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
@@ -1723,10 +1710,6 @@
      "Blacklisted" => 0,
      "ID" => base64_encode("Member;".md5($username))
     ]);
-    $r = $this->core->Change([[
-     "[Error.Message]" => "We could not find the username you entered.",
-     "[Error.ParentView]" => base64_decode($parentView)
-    ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     if($member["Empty"] == 0) {
      $data = [];
      $member = $member["DataModel"];
@@ -1738,11 +1721,18 @@
      $data["ParentView"] = $parentView;
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignIn"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
-     $r = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
-     $r = $this->core->RenderView($r);
+     $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
+     $_View = $this->core->RenderView($_View);
     }
    } elseif($step == 3) {
-    $addTopMargin = "1";
+    $_AddTopMargin = "1";
+    $_View = [
+     "ChangeData" => [
+      "[Error.Text]" => "We could not find the username you entered.",
+      "[Error.ParentView]" => base64_decode($parentView)
+     ],
+     "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67ac610803c33"
+    ];
     $data = $this->core->DecodeBridgeData($data);
     $password = $data["Password"] ?? "";
     $username = $data["Username"] ?? "";
@@ -1750,49 +1740,57 @@
      "Blacklisted" => 0,
      "ID" => base64_encode("Member;".md5($username))
     ]);
-    $r = $this->core->Change([[
-     "[Error.Message]" => "We could not find the username you entered.",
-     "[Error.ParentView]" => base64_decode($parentView)
-    ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     if($member["Empty"] == 0) {
      $member = $member["DataModel"];
      $passwordRequired = $member["Login"]["RequirePassword"] ?? "Yes";
      if(empty($password) && $passwordRequired == "Yes") {
-      $r = $this->core->Change([[
-       "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(3)),
-       "[SignIn.Username]" => $username
-      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67a88c2a5cfaf")]);
+      $_View = [
+       "ChangeData" => [
+        "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(3)),
+        "[SignIn.Username]" => $username
+       ],
+       "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67a88c2a5cfaf"
+      ];
      } else {
-      $key = $this->core->Authenticate("Save", [
-       "Password" => $member["Login"]["Password"],
-       "Username" => $member["Login"]["Username"]
-      ]);
-      $r = $this->core->Element([
-       "h1", "Signing in..."
-      ]).$this->core->Element([
-       "script", "SignIn(\"$key\");"
-      ]);
+      $_Commands = [
+       [
+        "Name" => "SignIn",
+        "Parameters" => [
+         $this->core->Authenticate("Save", [
+          "Password" => $member["Login"]["Password"],
+          "Username" => $member["Login"]["Username"]
+         ])
+        ]
+       ],
+       [
+        "Name" => "UpdateContent",
+        "Parameters" => [
+         ".Content",
+         base64_encode("v=".base64_encode("WebUI:Landing"))
+        ]
+       ]
+      ];
+      $_ResponseType = "View";
+      #$_View = ["ChangeData"=>[],"Extension"=>""];
+      $_View = "";
      }
     }
    } else {
-    $responseType = "View";
-    $r = $this->core->Change([[
-     "[SignIn.ParentView]" => "MainView",
-     "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(2)),
-     "[SignIn.ViewData]" => base64_encode(json_encode([
-      "Step" => base64_encode(3)
-     ], true))
-    ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67a2fadba8755")]);
+    $_ResponseType = "View";
+    $_View = [
+     "ChangeData" => [
+      "[SignIn.ParentView]" => "MainView",
+      "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(2))
+     ],
+     "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67a2fadba8755"
+    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
-    "AddTopMargin" => $addTopMargin,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType,
-    "SecurityKey" => $securityKey
+    "AddTopMargin" => $_AddTopMargin,
+    "Commands" => $_Commands,
+    "ResponseType" => $_ResponseType,
+    "View" => $_View
    ]);
   }
   function SignUp(array $a) {

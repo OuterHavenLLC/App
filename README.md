@@ -30,6 +30,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * A new client-side Database class enables caching for local data-at-rest.
 * The last password change is now logged in Member activity for an eventual password change policy to be implemented.
 * AES encryption is now standard for all top-level data-in-transit.
+* A new Public() view now pre-loads the main UI containers and asynchronously renders in a given view.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.
@@ -53,8 +54,8 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 
 ### Response Data
 * The client now stores and retrieves Extension data via the local browser database and an associated class.
-* Server responses are now capable of sending multiple view types via a single response. (coming soon...)
-* Revised client-side functionality allows the client to parse through data sets and execute counterparts to server-side ChangeData() and Extension() objects. This means that the client effectively assumes most rendering responsibilities, except for server-side callback functions.
+* Server responses are now capable of sending multiple view types via a single response.
+* The client now assumes most rendering responsibilities, except for server-side callback functions. (coming soon...)
 
 ### Heath Kit
 * Coming soon...

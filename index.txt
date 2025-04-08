@@ -22,15 +22,10 @@
  </head>
  <body>
   <div class="Boot NOSELECT"></div>
-  <div class="AppContainer">
-   <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
-  </div>
-  <div class="Frosted RegSel h scr">
-   <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
-  </div>
+  <div class="AppContainer"></div>
+  <div class="Frosted RegSel h scr"></div>
   <script>
-   UpdateContent(".AppContainer", "[App.Content]");
-   UpdateContent(".RegSel", "[App.SwitchLanguages]");
+   UpdateContent(".AppContainer", "[App.Content]", "AES");
   </script>
  </body>
 </html>

@@ -4,28 +4,27 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Home(array $a) {
-   $accessCode = "Denied";
-   $addTopMargin = 1;
-   $data = $a["Data"] ?? [];
-   $r = [
-    "Body" => "You do not have permission to access this resource.",
+  function Home(array $data) {
+   $_Dialog = [
+    "Body" => "You do not have permission to access this experience.",
     "Header" => "Unauthorized"
    ];
-   $responseType = "Dialog";
+   $_View = "";
+   $_AddTopMargin = 1;
+   $data = $data["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
+    $_Dialog = "";
     $_LiveView = base64_encode("v=".base64_encode("LiveView:CoreMedia")."&DLC=");
     $_Search = base64_encode("Search:Containers");
-    $accessCode = "Accepted";
     $config = $this->core->config ?? [];
     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
-    $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+    $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
      "Header" => base64_encode($this->core->Element([
       "h1", "Control Panel", ["class" => "CenterText"]
      ])),
@@ -36,19 +35,22 @@
       "v" => base64_encode("ControlPanel:Home")
      ], true))
     ]]);
-    $r = $this->core->RenderView($r);
+    $_View = $this->core->RenderView($_View);
     if($verifyPassPhrase == 1) {
-     $accessCode = "Denied";
+     $_Dialog = [
+      "Body" => "The Key is missing."
+     ];
+     $_View = "";
      $key = $data["Key"] ?? base64_encode("");
      $key = base64_decode($key);
-     $r = $this->core->Element(["p", "The Key is missing."]);
      $secureKey = $data["SecureKey"] ?? base64_encode("");
      $secureKey = base64_decode($secureKey);
      if(md5($key) != $secureKey) {
-      $r = $this->core->Element(["p", "The Keys do not match."]);
+      $_Dialog = "";
+      $_View = "";
      } else {
-      $accessCode = "Accepted";
-      $addTopMargin = "0";
+      $_AddTopMargin = "0";
+      $_Dialog = "";
       $allowedAudio = $config["XFS"]["FT"]["A"] ?? [];
       $allowedAudioList = "";
       $allowedDocuments = $config["XFS"]["FT"]["D"] ?? [];
@@ -57,6 +59,7 @@
       $allowedPhotosList = "";
       $allowedVideos = $config["XFS"]["FT"]["V"] ?? [];
       $allowedVideosList = "";
+      $base = $this->core->base;
       $defaultUI = $config["App"]["UIVariant"] ?? 0;
       $events = "";
       $eventsList = $config["PublicEvents"] ?? [];
@@ -64,7 +67,6 @@
       $mainUIvariants = "";
       $media = "";
       $mediaList = $config["Media"] ?? [];
-      $responseType = "View";
       $saveFirst = base64_encode("v=".base64_encode("ControlPanel:SaveFirst"));
       $search = "";
       $searchLists = $config["App"]["Search"] ?? [];
@@ -160,118 +162,117 @@
         "[Statistic.Name]" => $name
        ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")]);
       }
-      $r = $this->core->Change([[
-       "[Admin.Databases]" => "W('https://outerhaven.nyc/phpmyadmin', '_blank');",
-       "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
-       "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
-       "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
-       "[Admin.Mail]" => "https://mail.outerhaven.nyc/iredadmin/",
-       "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
-       "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
-       "[Admin.Server]" => "https://www.digitalocean.com/",
-       "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
-       "[Configuration.App.Domains.Base]" => base64_encode($domains_base),
-       "[Configuration.App.Domains.FileSystem]" => base64_encode($domains_fileSystem),
-       "[Configuration.App.Keywords]" => base64_encode($config["App"]["Keywords"]),
-       "[Configuration.App.Maintenance]" => $config["Maintenance"],
-       "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
-       "[Configuration.App.ShopID]" => base64_encode($shopID),
-       "[Configuration.App.UploadLimits]" => json_encode($config["XFS"], true),
-       "[Configuration.App.UploadLimits.Audio]" => $config["XFS"]["limits"]["Audio"],
-       "[Configuration.App.UploadLimits.Documents]" => $config["XFS"]["limits"]["Documents"],
-       "[Configuration.App.UploadLimits.Photos]" => $config["XFS"]["limits"]["Images"],
-       "[Configuration.App.UploadLimits.Total]" => $config["XFS"]["limits"]["Total"],
-       "[Configuration.App.UploadLimits.Videos]" => $config["XFS"]["limits"]["Videos"],
-       "[Configuration.App.UIVariant]" => $defaultUI,
-       "[Configuration.App.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
-       "[Configuration.App.SearchUI]" => $searchUIvariants,
-       "[Configuration.App.SearchUI.Clone]" => base64_encode($this->core->Change([[
-        "[UI.Body]" => "",
-        "[UI.Description]" => "",
-        "[UI.ID]" => "",
-        "[UI.Name]" => "SearchUI"
-       ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")])),
-       "[Configuration.App.UI]" => $mainUIvariants,
-       "[Configuration.App.UI.Clone]" => base64_encode($this->core->Change([[
-        "[UI.Body]" => "",
-        "[UI.Description]" => "",
-        "[UI.ID]" => "",
-        "[UI.Name]" => "MainUI"
-       ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")])),
-       "[Configuration.Events]" => $events,
-       "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
-        "[Event.BannerText]" => "",
-        "[Event.Description]" => "",
-        "[Event.ID]" => "",
-        "[Event.Link]" => "",
-        "[Event.Title]" => "",
-        "[Media.Add]" => $saveFirst,
-        "[Media.File]" => "",
-        "[Media.Input]" => "EventCoverPhoto[]",
-        "[Media.Input.LiveView]" => $_LiveView
-       ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
-       "[Configuration.FileSystem.AllowedAudio]" => $allowedAudioList,
-       "[Configuration.FileSystem.AllowedAudio.Clone]" => base64_encode($this->core->Change([[
-        "[Input.Name]" => "AllowedAudio",
-        "[Input.Placeholder]" => "New Extension",
-        "[Input.Value]" => ""
-       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
-       "[Configuration.FileSystem.AllowedDocuments]" => $allowedDocumentsList,
-       "[Configuration.FileSystem.AllowedDocuments.Clone]" => base64_encode($this->core->Change([[
-        "[Input.Name]" => "AllowedDocuments",
-        "[Input.Placeholder]" => "New Extension",
-        "[Input.Value]" => ""
-       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
-       "[Configuration.FileSystem.AllowedPhotos]" => $allowedPhotosList,
-       "[Configuration.FileSystem.AllowedPhotos.Clone]" => base64_encode($this->core->Change([[
-        "[Input.Name]" => "AllowedPhotos",
-        "[Input.Placeholder]" => "New Extension",
-        "[Input.Value]" => ""
-       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
-       "[Configuration.FileSystem.AllowedVideos]" => $allowedVideosList,
-       "[Configuration.FileSystem.AllowedVideos.Clone]" => base64_encode($this->core->Change([[
-        "[Input.Name]" => "AllowedVideos",
-        "[Input.Placeholder]" => "New Extension",
-        "[Input.Value]" => ""
-       ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
-       "[Configuration.Media]" => $media,
-       "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
-        "[Media.Add]" => $saveFirst,
-        "[Media.File]" => "",
-        "[Media.Input]" => "MediaFile[]",
-        "[Media.Input.LiveView]" => $_LiveView,
-        "[Media.ID]" => "",
-        "[Media.Name]" => ""
-       ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
-       "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveApp")),
-       "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
-       "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveMedia")),
-       "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearch")),
-       "[Configuration.Save.Statistics]" => base64_encode("v=".base64_encode("ControlPanel:SaveStatistics")),
-       "[Configuration.Save.UI]" => base64_encode("v=".base64_encode("ControlPanel:SaveUI")),
-       "[Configuration.Search]" => $search,
-       "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
-        "[List.Description]" => "",
-        "[List.ID]" => "",
-        "[List.Title]" => ""
-       ], $this->core->Extension("3777f71aa914041840ead48e3a259866")])),
-       "[Configuration.Statistics]" => $statistics,
-       "[Configuration.Statistics.Clone]" => base64_encode($this->core->Change([[
-        "[Statistic.ID]" => "",
-        "[Statistic.Name]" => ""
-       ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")])),
-      ], $this->core->Extension("5c1ce5c08e2add4d1487bcd2193315a7")]);
+      $_View = [
+       "ChangeData" => [
+        "[Admin.Databases]" => "W('https://$base/phpmyadmin', '_blank');",
+        "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
+        "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
+        "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
+        "[Admin.Mail]" => "https://mail.$base/iredadmin/",
+        "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
+        "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
+        "[Admin.Server]" => "https://aws.amazon.com/",
+        "[Configuration.App.Description]" => base64_encode($config["App"]["Description"]),
+        "[Configuration.App.Domains.Base]" => base64_encode($domains_base),
+        "[Configuration.App.Domains.FileSystem]" => base64_encode($domains_fileSystem),
+        "[Configuration.App.Keywords]" => base64_encode($config["App"]["Keywords"]),
+        "[Configuration.App.Maintenance]" => $config["Maintenance"],
+        "[Configuration.App.Name]" => base64_encode($config["App"]["Name"]),
+        "[Configuration.App.ShopID]" => base64_encode($shopID),
+        "[Configuration.App.UploadLimits]" => json_encode($config["XFS"], true),
+        "[Configuration.App.UploadLimits.Audio]" => $config["XFS"]["limits"]["Audio"],
+        "[Configuration.App.UploadLimits.Documents]" => $config["XFS"]["limits"]["Documents"],
+        "[Configuration.App.UploadLimits.Photos]" => $config["XFS"]["limits"]["Images"],
+        "[Configuration.App.UploadLimits.Total]" => $config["XFS"]["limits"]["Total"],
+        "[Configuration.App.UploadLimits.Videos]" => $config["XFS"]["limits"]["Videos"],
+        "[Configuration.App.UIVariant]" => $defaultUI,
+        "[Configuration.App.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
+        "[Configuration.App.SearchUI]" => $searchUIvariants,
+        "[Configuration.App.SearchUI.Clone]" => base64_encode($this->core->Change([[
+         "[UI.Body]" => "",
+         "[UI.Description]" => "",
+         "[UI.ID]" => "",
+         "[UI.Name]" => "SearchUI"
+        ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")])),
+        "[Configuration.App.UI]" => $mainUIvariants,
+        "[Configuration.App.UI.Clone]" => base64_encode($this->core->Change([[
+         "[UI.Body]" => "",
+         "[UI.Description]" => "",
+         "[UI.ID]" => "",
+         "[UI.Name]" => "MainUI"
+        ], $this->core->Extension("b20f28260e3e37e0092a019849960f13")])),
+        "[Configuration.Events]" => $events,
+        "[Configuration.Events.Clone]" => base64_encode($this->core->Change([[
+         "[Event.BannerText]" => "",
+         "[Event.Description]" => "",
+         "[Event.ID]" => "",
+         "[Event.Link]" => "",
+         "[Event.Title]" => "",
+         "[Media.Add]" => $saveFirst,
+         "[Media.File]" => "",
+         "[Media.Input]" => "EventCoverPhoto[]",
+         "[Media.Input.LiveView]" => $_LiveView
+        ], $this->core->Extension("889a3f39fa958bcc2a57b2f1882198ff")])),
+        "[Configuration.FileSystem.AllowedAudio]" => $allowedAudioList,
+        "[Configuration.FileSystem.AllowedAudio.Clone]" => base64_encode($this->core->Change([[
+         "[Input.Name]" => "AllowedAudio",
+         "[Input.Placeholder]" => "New Extension",
+         "[Input.Value]" => ""
+        ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
+        "[Configuration.FileSystem.AllowedDocuments]" => $allowedDocumentsList,
+        "[Configuration.FileSystem.AllowedDocuments.Clone]" => base64_encode($this->core->Change([[
+         "[Input.Name]" => "AllowedDocuments",
+         "[Input.Placeholder]" => "New Extension",
+         "[Input.Value]" => ""
+        ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
+        "[Configuration.FileSystem.AllowedPhotos]" => $allowedPhotosList,
+        "[Configuration.FileSystem.AllowedPhotos.Clone]" => base64_encode($this->core->Change([[
+         "[Input.Name]" => "AllowedPhotos",
+         "[Input.Placeholder]" => "New Extension",
+         "[Input.Value]" => ""
+        ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
+        "[Configuration.FileSystem.AllowedVideos]" => $allowedVideosList,
+        "[Configuration.FileSystem.AllowedVideos.Clone]" => base64_encode($this->core->Change([[
+         "[Input.Name]" => "AllowedVideos",
+         "[Input.Placeholder]" => "New Extension",
+         "[Input.Value]" => ""
+        ], $this->core->Extension("da548e440d656beaafeba4b155bf058a")])),
+        "[Configuration.Media]" => $media,
+        "[Configuration.Media.Clone]" => base64_encode($this->core->Change([[
+         "[Media.Add]" => $saveFirst,
+         "[Media.File]" => "",
+         "[Media.Input]" => "MediaFile[]",
+         "[Media.Input.LiveView]" => $_LiveView,
+         "[Media.ID]" => "",
+         "[Media.Name]" => ""
+        ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
+        "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveApp")),
+        "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
+        "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveMedia")),
+        "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearch")),
+        "[Configuration.Save.Statistics]" => base64_encode("v=".base64_encode("ControlPanel:SaveStatistics")),
+        "[Configuration.Save.UI]" => base64_encode("v=".base64_encode("ControlPanel:SaveUI")),
+        "[Configuration.Search]" => $search,
+        "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
+         "[List.Description]" => "",
+         "[List.ID]" => "",
+         "[List.Title]" => ""
+        ], $this->core->Extension("3777f71aa914041840ead48e3a259866")])),
+        "[Configuration.Statistics]" => $statistics,
+        "[Configuration.Statistics.Clone]" => base64_encode($this->core->Change([[
+         "[Statistic.ID]" => "",
+         "[Statistic.Name]" => ""
+        ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")])),
+       ],
+       "ExtensionID" => "5c1ce5c08e2add4d1487bcd2193315a7"
+      ];
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => $addTopMargin,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "AddTopMargin" => $_AddTopMargin,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function SaveApp(array $a) {
