@@ -33,13 +33,17 @@
     ];
    }
    return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
-  function BlogChangeMemberRole(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function BlogChangeMemberRole(array $data) {
+   $_Dialog = [
+    "Body" => "The Blog Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $member = $data["Member"] ?? "";
    $r = [
@@ -53,60 +57,56 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
-    $r = $this->core->Change([[
-     "[Roles.ID]" => $blog["ID"],
-     "[Roles.Member]" => base64_decode($member),
-     "[Roles.Processor]" => base64_encode("v=".base64_encode("Blog:ChangeMemberRole")),
-     "[Roles.Title]" => $blog["Title"]
-    ], $this->core->Extension("270d16c83b59b067231b0c6124a4038d")]);
+    $_Dialog = "";
+    $blog = $this->core->Data("Get", ["blg", base64_decode($id)]);
+    $_View = [
+     "ChangeData" => [
+      "[Roles.ID]" => $blog["ID"],
+      "[Roles.Member]" => base64_decode($member),
+      "[Roles.Processor]" => base64_encode("v=".base64_encode("Blog:ChangeMemberRole")),
+      "[Roles.Title]" => $blog["Title"]
+     ],
+     "ExtensionID" => "270d16c83b59b067231b0c6124a4038d"
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function PFChangeMemberRole(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $member = $data["Member"] ?? "";
-   $r = [
+  function PFChangeMemberRole(array $data) {
+   $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
-    $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-    $r = $this->core->Change([[
-     "[Roles.ID]" => $forum["ID"],
-     "[Roles.Member]" => base64_decode($member),
-     "[Roles.Processor]" => base64_encode("v=".base64_encode("Forum:ChangeMemberRole")),
-     "[Roles.Title]" => $forum["Title"]
-    ], $this->core->Extension("270d16c83b59b067231b0c6124a4038d")]);
+    $_Dialog = "";
+    $forum = $this->core->Data("Get", ["pf", base64_decode($id)]);
+    $_View = [
+     "ChangeData" => [
+      "[Roles.ID]" => $forum["ID"],
+      "[Roles.Member]" => base64_decode($member),
+      "[Roles.Processor]" => base64_encode("v=".base64_encode("Forum:ChangeMemberRole")),
+      "[Roles.Title]" => $forum["Title"]
+     ],
+     "ExtensionID" => "270d16c83b59b067231b0c6124a4038d"
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function ProtectedContent(array $data) {
@@ -164,6 +164,7 @@
     }
    }
    return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
