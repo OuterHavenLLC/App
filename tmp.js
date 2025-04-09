@@ -33,13 +33,11 @@ function AddContent() {
         $(".AddContent").fadeIn(500);
        }, 500);
       }
-     } else {
-      if($(".AddContent").is(":visible")) {
-       $(".AddContent").fadeOut(500);
-       setTimeout(() => {
-        $(".AddContent").remove(); 
-       }, 600);
-      }
+     } else if($(".AddContent").is(":visible")) {
+      $(".AddContent").fadeOut(500);
+      setTimeout(() => {
+       $(".AddContent").remove(); 
+      }, 600);
      }
     }
    },
@@ -612,7 +610,7 @@ function OpenCard(View, Encryption = "") {
     Crash(data);
     return;
    } else {
-    RenderView(data),
+    RenderView(data);
    }
   },
   url: base + View
@@ -2055,7 +2053,7 @@ $(document).on("click", ".OpenFirSTEPTool", (event) => {
 $(document).on("click", ".PS", (event) => {
  const $Button = $(event.currentTarget),
             Data = $Button.attr("data-type").split(";");
- $($(Data[0]).find(Data[1])).each(() => {
+ $.each($(Data[0]).find(Data[1]), function() {
   $(this).hide("slide", {direction: "left"}, 500);
  });
  setTimeout(() => {
@@ -2065,7 +2063,7 @@ $(document).on("click", ".PS", (event) => {
 $(document).on("click", ".PSAccordion", (event) => {
  const $Button = $(event.currentTarget),
            Data = $Button.attr("data-type").split(";");
- $.each($(Data[0]).find(Data[1]), () => {
+ $.each($(Data[0]).find(Data[1]), function() {
   $(this).slideUp(500);
  });
  setTimeout(() => {
@@ -2075,7 +2073,7 @@ $(document).on("click", ".PSAccordion", (event) => {
 $(document).on("click", ".PSBack", (event) => {
  const $Button = $(event.currentTarget),
            Data = $Button.attr("data-type").split(";");
- $($(Data[0]).find(Data[1])).each(() => {
+ $.each($(Data[0]).find(Data[1]), function() {
   $(this).fadeOut(500);
  });
  setTimeout(() => {
@@ -2087,8 +2085,8 @@ $(document).on("click", ".PSPill", (event) => {
             Data = $Button.attr("data-type").split(";");
  $($Button.parent(".Pill")).children("button").removeClass("Active");
  $Button.addClass("Active");
- $($(Data[0]).find(Data[1])).each(() => {
-  $(this).fadeOut(500);
+ $.each($(Data[0]).find(Data[1]), (event) => {
+  $($(event.currentTarget)).fadeOut(500);
  });
  setTimeout(() => {
   $(Data[2]).show("slide", {direction: "right"}, 500);
@@ -2241,26 +2239,30 @@ $(document).on("click", ".SendData", (event) => {
         $(Parent).append("<div class='ViewPage" + ViewPairID + " h scr'></div>");
         $(Parent).find(".ParentPage" + ViewPairID).fadeOut(500);
         setTimeout(() => {
+         if(Data.View !== "" && typeof Data.View !== "undefined") {
+          Data.View.then(response => {
+           $(Parent).find(".ViewPage" + ViewPairID).html(response).show("slide", {
+            direction: "right"
+           }, 500);
+          }).catch(error => {
+           Dialog({
+            "Body": "SendData: Error rendering view data. Please see below for more information:",
+            "Scrollable": JSON.stringify(error)
+           });
+          });
+         }
+        }, 600);
+       } else if(Type === "ReplaceContent") {
+        if(Data.View !== "" && typeof Data.View !== "undefined") {
          Data.View.then(response => {
-          $(Parent).find(".ViewPage" + ViewData[0]).html(response).show("slide", {
-           direction: "right"
-          }, 500);
+          $(Target).html(response);
          }).catch(error => {
           Dialog({
            "Body": "SendData: Error rendering view data. Please see below for more information:",
            "Scrollable": JSON.stringify(error)
           });
          });
-        }, 600);
-       } else if(Type === "ReplaceContent") {
-        Data.View.then(response => {
-         $(Target).html(response);
-        }).catch(error => {
-         Dialog({
-          "Body": "SendData: Error rendering view data. Please see below for more information:",
-          "Scrollable": JSON.stringify(error)
-         });
-        });
+        }
        } else if(Type === "UpdateButton") {
         UpdateButton(Button, Data.View);
        } else if(Type === "UpdateText") {

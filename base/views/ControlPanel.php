@@ -164,11 +164,11 @@
       }
       $_View = [
        "ChangeData" => [
-        "[Admin.Databases]" => "W('https://$base/phpmyadmin', '_blank');",
+        "[Admin.Databases]" => "W('$base/phpmyadmin', '_blank');",
         "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
         "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
         "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
-        "[Admin.Mail]" => "https://mail.$base/iredadmin/",
+        "[Admin.Mail]" => "https://mail.outerhaven.nyc/iredadmin/",
         "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
         "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
         "[Admin.Server]" => "https://aws.amazon.com/",
@@ -333,7 +333,7 @@
     $config["XFS"]["limits"]["Images"] = $data["UploadLimits_Images"];
     $config["XFS"]["limits"]["Total"] = $data["UploadLimits_Total"];
     $config["XFS"]["limits"]["Videos"] = $data["UploadLimits_Videos"];
-    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $this->core->Data("Save", ["app", md5("config"), $config]);
     $_Dialog = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done"
@@ -343,18 +343,17 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveEvents(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+  function SaveEvents(array $data) {
+   $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
@@ -394,15 +393,15 @@
     }
     $config["PublicEvents"] = $newEvents;
     if($activeEvents > 1) {
-     $r = [
+     $_Dialog = [
       "Body" => "There are currently $activeEvents active events. Please make sure only one is active, and try again."
      ];
     } elseif($missingBannerInfo == 1) {
-     $r = [
+     $_Dialog = [
       "Body" => "Active events require both Banner Text and Link to be populated."
      ];
     } elseif($activeEvents == 1) {
-     $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]) ?? [];
+     $chat = $this->core->Data("Get", ["chat", "7216072bbd437563e692cc7ff69cdb69"]);
      $now = $this->core->timestamp;
      $chat["Description"] = $activeEvent["Description"];
      $chat["Messages"] = [];
@@ -412,47 +411,34 @@
      $this->core->Data("Save", ["chat", "7216072bbd437563e692cc7ff69cdb69", $chat]);
     }
     $this->core->Data("Save", ["app", md5("config"), $config]);
-    $r = [
+    $_Dialog = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
-  function SaveFirst(array $a) {
+  function SaveFirst() {
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => [
-      "Body" => "Please save the configuration and reload the Control Panel first.",
-      "Header" => "Action Required"
-     ]
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => [
+     "Body" => "Please save the configuration and reload the Control Panel first.",
+     "Header" => "Action Required"
+    ]
    ]);
   }
-  function SaveMedia(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+  function SaveMedia(array $data) {
+   $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
@@ -469,33 +455,26 @@
     }
     $config["Media"] = $newMedia;
     $this->core->Data("Save", ["app", md5("config"), $config]);
-    $r = [
+    $_Dialog = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
-  function SaveSearch(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+  function SaveSearch(array $data) {
+   $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
@@ -512,33 +491,26 @@
     $app["Search"] = $newSearch;
     $config["App"] = $app;
     $this->core->Data("Save", ["app", md5("config"), $config]);
-    $r = [
+    $_Dialog = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
-  function SaveStatistics(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+  function SaveStatistics(array $data) {
+   $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
@@ -550,33 +522,26 @@
     }
     $config["Statistics"] = $newStatistics;
     $this->core->Data("Save", ["app", md5("config"), $config]);
-    $r = [
+    $_Dialog = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
-  function SaveUI(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+  function SaveUI(array $data) {
+   $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
@@ -597,19 +562,13 @@
     }
     $this->core->Data("Save", ["app", md5("MainUI"), $newUI]);
     $this->core->Data("Save", ["app", md5("SearchUI"), $newSearchUI]);
-    $r = [
+    $_Dialog = [
      "Body" => "The UI Variants were updated!",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
   function __destruct() {
