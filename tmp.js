@@ -502,13 +502,17 @@ function LiveView(input) {
        Crash(data);
        return;
       } else {
-       var Data = RenderView(data),
-             AccessCode = Data.AccessCode,
-             Response = Data.Response;
-       if(AccessCode === "Denied") {
-        Dialog(Response);
-       } else {
-        $(Preview).html(Response);
+       const Data = RenderView(data);
+       if(Data.AccessCode === "Accepted") {
+        Data.View.then(response => {
+         $(Preview).html(response);
+         ExecuteCommands(Data.Commands);
+        }).catch(error => {
+         Dialog({
+          "Body": "LiveView: Error rendering view data. Please see below for more information:",
+          "Scrollable": JSON.stringify(error)
+         });
+        });
        }
       }
      },
@@ -608,14 +612,7 @@ function OpenCard(View, Encryption = "") {
     Crash(data);
     return;
    } else {
-    var Data = RenderView(data),
-          AccessCode = Data.AccessCode,
-          Response = Data.Response;
-    if(AccessCode === "Denied") {
-     Dialog(Response);
-    } else {
-     Card(Response);
-    }
+    RenderView(data),
    }
   },
   url: base + View
@@ -644,10 +641,7 @@ function OpenDialog(View, Encryption = "") {
     Crash(data);
     return;
    } else {
-    var Data = RenderView(data),
-          AccessCode = Data.AccessCode,
-          Response = Data.Response;
-    Dialog(Response);
+    RenderView(data);
    }
   },
   url: base + View
@@ -672,13 +666,17 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
      Crash(data);
      return;
     } else {
-     var Data = RenderView(data),
-           AccessCode = Data.AccessCode,
-           Response = Data.Response;
-     if(AccessCode === "Denied") {
-      Dialog(Response);
-     } else {
-      $(DefaultContainer).html(Response);
+     const Data = RenderView(data);
+     if(Data.AccessCode === "Accepted") {
+      Data.View.then(response => {
+       $(DefaultContainer).html(response);
+       ExecuteCommands(Data.Commands);
+      }).catch(error => {
+       Dialog({
+        "Body": "OpenFirSTEPTool: Error rendering view data. Please see below for more information:",
+        "Scrollable": JSON.stringify(error)
+       });
+      });
      }
     }
    },
@@ -702,13 +700,17 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
      Crash(data);
      return;
     } else {
-     var Data = RenderView(data),
-           AccessCode = Data.AccessCode,
-           Response = Data.Response;
-     if(AccessCode === "Denied") {
-      Dialog(Response);
-     } else {
-      FST(Response);
+     const Data = RenderView(data);
+     if(Data.AccessCode === "Accepted") {
+      Data.View.then(response => {
+       FST(response);
+       ExecuteCommands(Data.Commands);
+      }).catch(error => {
+       Dialog({
+        "Body": "OpenFirSTEPTool: Error rendering view data. Please see below for more information:",
+        "Scrollable": JSON.stringify(error)
+       });
+      });
      }
     }
    },
@@ -743,20 +745,24 @@ function OpenNetMap(View, Encryption = "") {
     Crash(data);
     return;
    } else {
-    var Data = RenderView(data),
-          AccessCode = Data.AccessCode,
-          Response = Data.Response;
-    if(AccessCode === "Denied") {
-     Dialog(Response);
-    } else {
-     $(".NetMap").html(Response);
-     setTimeout(() => {
-      $(".CloseNetMap, .OpenNetMap").each(() => {
-       this.disabled = false;
+    const Data = RenderView(data);
+    if(Data.AccessCode === "Accepted") {
+     Data.View.then(response => {
+      $(".NetMap").html(response);
+      setTimeout(() => {
+       $(".CloseNetMap, .OpenNetMap").each(() => {
+        this.disabled = false;
+       });
+       $(".NetMap").fadeIn(500);
+       $(".NetMap .ToggleAnimation").slideUp(1000);
+       ExecuteCommands(Data.Commands);
+      }, 500);
+     }).catch(error => {
+      Dialog({
+       "Body": "OpenNetMap: Error rendering view data. Please see below for more information:",
+       "Scrollable": JSON.stringify(error)
       });
-      $(".NetMap").fadeIn(500);
-      $(".NetMap .ToggleAnimation").slideUp(1000);
-     }, 500);
+     });
     }
    }
   },
@@ -815,15 +821,19 @@ function RenderDesignView(container) {
      Crash(data);
      return;
     } else {
-     var Data = RenderView(data),
-           AccessCode = Data.AccessCode,
-           Response = Data.Response;
-     if(AccessCode === "Denied") {
-      Dialog(Response);
-     } else {
-      $(Container).html(Response);
-      $(Container).find("button, input, select, textarea").each(() => {
-       this.disabled = true;
+     const Data = RenderView(data);
+     if(Data.AccessCode === "Accepted") {
+      Data.View.then(response => {
+       $(Container).html(response);
+       $(Container).find("button, input, select, textarea").each(() => {
+        this.disabled = true;
+       });
+       ExecuteCommands(Data.Commands);
+      }).catch(error => {
+       Dialog({
+        "Body": "RenderDesignView: Error rendering view data. Please see below for more information:",
+        "Scrollable": JSON.stringify(error)
+       });
       });
      }
     }
@@ -903,9 +913,9 @@ function RenderInputs(Container, Data) {
           Crash(data);
           return;
          } else {
-          var WData = RenderView(data),
+          var WData = RenderView(data),// UPDATE WYSIWYG VIEW FIRST
                 AccessCode = WData.AccessCode,
-                Response = WData.Response;
+                Response = WData.Response || "";
           if(AccessCode === "Denied") {
            Dialog(WYSIWYG);
           } else {
@@ -943,8 +953,6 @@ function RenderView(data) {
        Commands = Data.Commands || "",
        CommandsExecuted = "No",
        NewVariant = Data.SetUIVariant || "",
-       Response = Data.Response || "",
-       Response = Response.Web || "",
        ResponseType = Data.ResponseType || "Dialog",
        Success = Data.Success || "",
        Title = Data.Title || "[App.Name]",
@@ -964,15 +972,12 @@ function RenderView(data) {
   CommandsExecuted = "Yes";
  } if(typeof View === "object") {
   View = ChangeData(View);
- } if(AddTopMargin === 1) {//TEMP
-  Response = "<div class='TopBarMargin'></div>\r\n" + Response;//TEMP
  }
  return {
   "AccessCode": AccessCode,
   "AddTopMargin": AddTopMargin,
   "Commands": Commands,
   "CommandsExecuted": CommandsExecuted,
-  "Response": Response,
   "ResponseType": ResponseType,
   "Success": Success,
   "View": View
@@ -1122,7 +1127,7 @@ function ReSearch(input) {
      Crash(data);
      return;
     } else {
-     var Data = JSON.parse(AESdecrypt(data)),
+     var Data = JSON.parse(AESdecrypt(data)),//UPDATE SEARCH FIRST
            AccessCode = Data.AccessCode,
            End,
            Extension,
@@ -1192,7 +1197,7 @@ function ReSearch(input) {
              Crash(data);
              return;
             } else {
-             var Data = JSON.parse(AESdecrypt(data)),
+             var Data = JSON.parse(AESdecrypt(data)),//UPDATE SEARCH FIRST
                    AccessCode = Data.AccessCode,
                    Response = Data.Response;
              End = Response.End || 0;
@@ -1325,7 +1330,7 @@ function SignIn(SecurityKey = "") {
     return;
    } else {
     const Data = JSON.parse(AESdecrypt(data));
-    ExecuteCommands(Data.Commands, Data.CommandsExecuted);
+    ExecuteCommands(Data.Commands);
     LocalData("Save", "SecurityKey", SecurityKey);
     GoToParent("MainView");
    }
@@ -1354,12 +1359,17 @@ function SignOut() {
      return;
     } else {
      var Data = RenderView(data);
-     ExecuteCommands(Data.Commands, Data.CommandsExecuted);
+     ExecuteCommands(Data.Commands);
      Data.View.then(response => {
       $(DefaultContainer).html(response);
       UpdateContent(".Menu", "[App.Menu]", "AES");
       $(".SideBar").hide("slide", {direction: "left"}, 500);
       $(".TopBar .MenuContainer").slideUp(500);
+     }).catch(error => {
+      Dialog({
+       "Body": "SignOut: Error rendering view data. Please see below:",
+       "Scrollable": JSON.stringify(error)
+      });
      });
     }
    },
@@ -1410,31 +1420,20 @@ function UpdateContent(Container, View, Encryption = "") {
      Crash(data);
      return;
     } else {
-     const Data = RenderView(data),
-               View = Data.View || "";
-     if(Data.View !== "" && typeof Data.View !== "undefined") {//TEMP
-      Data.View.then(response => {
-       $(Container).empty();
-       if(Data.AddTopMargin === 1) {
-        $(Container).append("<div class='TopBarMargin'></div>\r\n");
-       }
-       $(Container).append(response);
-      });
-     } else {
-      if(AccessCode === "Denied") {
-       Dialog(Data.Response.Web);
-      } else {
-       $(Container).html(Data.Response.Web);
-      }
-     }//TEMP
-     /*--Data.View.then(response => {
+     const Data = RenderView(data);
+     Data.View.then(response => {
       $(Container).empty();
       if(Data.AddTopMargin === 1) {
        $(Container).append("<div class='TopBarMargin'></div>\r\n");
       }
       $(Container).append(response);
-     });--*/
-     ExecuteCommands(Data.Commands, Data.CommandsExecuted);
+      ExecuteCommands(Data.Commands);
+     }).catch(error => {
+      Dialog({
+       "Body": "UpdateContent: Error rendering view data. Please see below:",
+       "Scrollable": JSON.stringify(error)
+      });
+     });
     }
    },
    url: base + View
@@ -1787,11 +1786,8 @@ $(document).on("click", ".CreditExchange", (event) => {
      Crash(data);
      return;
     } else {
-     const Data = RenderView(data),
-               AccessCode = Data.AccessCode,
-               Response = Data.Response;
-     Dialog(Response);
-     if(AccessCode === "Denied") {
+     const Data = RenderView(data);
+     if(Data.AccessCode === "Denied") {
       $Button.prop("disabled", false);
      }
     }
@@ -1826,16 +1822,13 @@ $(document).on("click", ".Delete", (event) => {
      Crash(data);
      return;
     } else {
-     const Data = RenderView(data),
-               AccessCode = Data.AccessCode,
-               Response = Data.Response;
-     if(AccessCode === "Denied") {
+     const Data = RenderView(data);
+     if(Data.AccessCode === "Denied") {
       $Button.text("Try Later");
      } else {
       $Button.text("Done!");
       DeleteContainer($Button);
      }
-     Dialog(Response);
     }
    },
    url: base + Base64decrypt(Processor)
@@ -1952,24 +1945,16 @@ $(document).on("click", ".GoToView", (event) => {
      Crash(data);
      return;
     } else {
-     const Data = RenderView(data),
-               AccessCode = Data.AccessCode,
-               Response = Data.Response;
-     if(Data.View !== "" && typeof Data.View !== "undefined") {//TEMP
-      Data.View.then(response => {
-       GoToView("ParentPage" + ID, "ViewPage" + ID, response);
-      });
-     } else {
-      if(AccessCode === "Denied") {
-       Dialog(Response);
-      } else {
-       GoToView("ParentPage" + ID, "ViewPage" + ID, Response);
-      }
-     }//TEMP
-     /*--Data.View.then(response => {
+     const Data = RenderView(data);
+     Data.View.then(response => {
       GoToView("ParentPage" + ID, "ViewPage" + ID, response);
-     });--*/
-     ExecuteCommands(Data.Commands, Data.CommandsExecuted);
+      ExecuteCommands(Data.Commands);
+     }).catch(error => {
+      Dialog({
+       "Body": "GoToView: Error rendering view data. Please see below:",
+       "Scrollable": JSON.stringify(error)
+      });
+     });
     }
    },
    url: base + View
@@ -2026,14 +2011,18 @@ $(document).on("click", ".OpenBottomBar", (event) => {
      Crash(data);
      return;
     } else {
-     const Data = RenderView(data),
-               AccessCode = Data.AccessCode,
-               Response = Data.Response;
-     if(AccessCode === "Denied") {
-      Dialog(Response);
-     } else {
-      $("body").append(Response);
-      $(".BottomBar").show("slide", {direction: "down"}, 500);
+     const Data = RenderView(data);
+     if(Data.AccessCode === "Accepted") {
+      Data.View.then(response => {
+       $("body").append(response);
+       $(".BottomBar").show("slide", {direction: "down"}, 500);
+       ExecuteCommands(Data.Commands);
+      }).catch(error => {
+       Dialog({
+        "Body": "OpenBottomBar: Error rendering view data. Please see below:",
+        "Scrollable": JSON.stringify(error)
+       });
+      });
      }
     }
    },
@@ -2152,14 +2141,9 @@ $(document).on("click", ".ReportContent", (event) => {
      Crash(data);
      return;
     } else {
-     const Data = RenderView(data),
-               AccessCode = Data.AccessCode,
-               Response = Data.Response;
-     if(AccessCode === "Denied") {
-      Dialog(Response);
-     } else {
+     const Data = RenderView(data);
+     if(Data.AccessCode === "Accepted") {
       CloseCard();
-      Dialog(Response);
      }
     }
    },
@@ -2177,7 +2161,7 @@ $(document).on("click", ".SendData", (event) => {
        Target = $Button.attr("data-target") || Form,
        Text = $Button.text();
  $Button.prop("disabled", true);
- $Button.text(Loading);
+ $Button.text("&bull; &bull; &bull;");
  $.each($(Form).find("input[type='email']"), function() {
   $(this).removeClass("Red");
   if(!getEmailValidation($(this).val())) {
@@ -2225,87 +2209,65 @@ $(document).on("click", ".SendData", (event) => {
            Data = RenderView(data),
            AccessCode = Data.AccessCode,
            Processor = Base64decrypt(Processor),
-           Response = Data.Response,//TEMP
            Success = Data.Success,
-           Type = Data.ResponseType,
-           View = Data.View || "";
-     if(!Response && typeof View === "undefined") {//TEMP
-     //if(!Data.Card && !Data.Dialog && typeof View === "undefined") {
+           Type = Data.ResponseType;
+     if(!Data.Card && !Data.Dialog && typeof Data.View === "undefined") {
       Dialog({
        "Body": "<em>[App.Name]</em> returned an empty response. Check the following view: " + Processor + "."
       });
-     } else {
-      if(AccessCode === "Denied" && !Data.Dialog && !View) {//TEMP
-      //if(AccessCode === "Denied") {
-       Dialog(Response);
-      } else {
-       $.each($(Form).find(".EmptyOnSuccess"), function() {
-        $(this).val("");
-       });
-       $.each($(Form).find(".RestoreDefaultValue"), function() {
-        $(this).val($(this).attr("data-default"));
-       });
-       if(Success === "CloseCard") {
-        CloseCard();
-       } else if(Success === "CloseDialog") {
-        CloseDialog();
-       } if(Text === "Post") {
-        $Button.text("Update");
-       }
-       setTimeout(() => {
-        if(Type === "Destruct") {
-         $(Target).toggle(500);
-         setTimeout(() => {
-          $(Target).remove();
-         }, 600);
-        } else if(Type === "Dialog") {//TEMP
-         Dialog(Response);
-        } else if(Type === "Card") {//TEMP
-         Card(Response);
-        } else if(Type === "GoToView") {
-         var ViewPairID = Form.replace(".ParentPage", ""),
-               Parent = $(".ParentPage" + ViewPairID).parent();
-         $(Parent).append("<div class='ViewPage" + ViewPairID + " h scr'></div>");
-         $(Parent).find(".ParentPage" + ViewPairID).fadeOut(500);
-         setTimeout(() => {
-          console.log(View);//TEMP
-          if(View !== "" && typeof View !== "undefined") {//TEMP
-           View.then(response => {
-            $(Parent).find(".ViewPage" + ViewPairID).html(response).show("slide", {
-             direction: "right"
-            }, 500);
-           }).catch(error => {
-            Dialog({
-             "Body": "Error rendering child view. Please see below for more information:",
-             "Scrollable": JSON.stringify(error)
-            });
-           });
-          } else {
-           $(Parent).find(".ViewPage" + ViewPairID).html(Response).show("slide", {
-            direction: "right"
-           }, 500);
-          }//TEMP
-          /*--View.then(response => {
-           $(Parent).find(".ViewPage" + ViewData[0]).html(response).show("slide", {
-            direction: "right"
-           }, 500);
-          }).catch(error => {
-           Dialog({
-            "Body": "Error rendering child view. Please see below for more information:",
-            "Scrollable": JSON.stringify(error)
-           });
-          });--*/
-         }, 600);
-        } else if(Type === "ReplaceContent") {
-         $(Target).html(Response);
-        } else if(Type === "UpdateButton") {
-         UpdateButton(Button, Response);
-        } else if(Type === "UpdateText") {
-         $(Button).text(View);
-        }
-       }, 750);
-       ExecuteCommands(Data.Commands, Data.CommandsExecuted);
+     } else if(AccessCode === "Accepted") {
+      $.each($(Form).find(".EmptyOnSuccess"), function() {
+       $(this).val("");
+      });
+      $.each($(Form).find(".RestoreDefaultValue"), function() {
+       $(this).val($(this).attr("data-default"));
+      });
+      if(Success === "CloseCard") {
+       CloseCard();
+      } else if(Success === "CloseDialog") {
+       CloseDialog();
+      } if(Text === "Post") {
+       $Button.text("Update");
       }
+      setTimeout(() => {
+       if(Type === "Destruct") {
+        $(Target).toggle(500);
+        setTimeout(() => {
+         $(Target).remove();
+        }, 600);
+       } else if(Type === "GoToView") {
+        const ViewPairID = Form.replace(".ParentPage", ""),
+                  Parent = $(".ParentPage" + ViewPairID).parent();
+        $(Parent).append("<div class='ViewPage" + ViewPairID + " h scr'></div>");
+        $(Parent).find(".ParentPage" + ViewPairID).fadeOut(500);
+        setTimeout(() => {
+         Data.View.then(response => {
+          $(Parent).find(".ViewPage" + ViewData[0]).html(response).show("slide", {
+           direction: "right"
+          }, 500);
+         }).catch(error => {
+          Dialog({
+           "Body": "SendData: Error rendering view data. Please see below for more information:",
+           "Scrollable": JSON.stringify(error)
+          });
+         });
+        }, 600);
+       } else if(Type === "ReplaceContent") {
+        Data.View.then(response => {
+         $(Target).html(response);
+        }).catch(error => {
+         Dialog({
+          "Body": "SendData: Error rendering view data. Please see below for more information:",
+          "Scrollable": JSON.stringify(error)
+         });
+        });
+       } else if(Type === "UpdateButton") {
+        UpdateButton(Button, Data.View);
+       } else if(Type === "UpdateText") {
+        $Button.text(View);
+       }
+      }, 750);
+      ExecuteCommands(Data.Commands);
      }
     } if(Type !== "UpdateButton") {
      $Button.text(Text);
@@ -2413,14 +2375,18 @@ $(document).on("click", ".UpdateButton", (event) => {
     Crash(data);
     return;
    } else {
-    var Data = RenderView(data),
-           AccessCode = Data.AccessCode,
-           Response = Data.Response;
-    if(AccessCode === "Denied") {
-     Dialog(Response);
-    } else {
-     UpdateButton($Button, Response);
-     $Button.prop("disabled", false);
+    const Data = RenderView(data);
+    if(Data.AccessCode === "Accepted") {
+     Data.View.then(response => {
+      UpdateButton($Button, response);
+      $Button.prop("disabled", false);
+      ExecuteCommands(Data.Commands);
+     }).catch(error => {
+      Dialog({
+       "Body": "UpdateButton: Error rendering view data. Please see below:",
+       "Scrollable": JSON.stringify(error)
+      });
+     });
     }
    }
   },
@@ -2519,13 +2485,17 @@ $(document).on("keyup", ".LinkData", (event) => {
     Crash(data);
     return;
    } else {
-    const Data = RenderView(data),
-              AccessCode = Data.AccessCode,
-              Response = Data.Response;
-    if(AccessCode === "Denied") {
-     Dialog(Response);
-    } else {
-     $(".AddLink > .LinkPreview").html(Response);
+    const Data = RenderView(data);
+    if(Data.AccessCode === "Accepted") {
+     Data.View.then(response => {
+      $(".AddLink > .LinkPreview").html(response);
+      ExecuteCommands(Data.Commands);
+     }).catch(error => {
+      Dialog({
+       "Body": "LinkData: Error rendering view data. Please see below:",
+       "Scrollable": JSON.stringify(error)
+      });
+     });
     }
    }
   },
@@ -2565,49 +2535,26 @@ $(document).on("keyup", ".UnlockProtectedContent", (event) => {
     Crash(data);
     return;
    } else {
-     const Data = RenderView(data),
-               View = Data.View || "";
-     if(Data.View !== "" && typeof Data.View !== "undefined") {//TEMP
-      Data.View.then(response => {
-       $Input.prop("disabled", true);
-       setTimeout(() => {
-        if(SignOut === "Yes") {
-         InstantSignOut();
-        }
-        $(Parent).empty();
-        if(Data.AddTopMargin === 1) {
-         $(Parent).append("<div class='TopBarMargin'></div>\r\n");
-        }
-        $(Parent).append(response);
-       }, 600);
-      });
-     } else {
-      if(AccessCode === "Denied") {
-       Dialog(Data.Response.Web);
-      } else {
-       $Input.prop("disabled", true);
-       setTimeout(() => {
-        if(SignOut === "Yes") {
-         InstantSignOut();
-        }
-        $(Parent).html(Response);
-       }, 600);
+    const Data = RenderView(data);
+    Data.View.then(response => {
+     $Input.prop("disabled", true);
+     setTimeout(() => {
+      if(SignOut === "Yes") {
+       InstantSignOut();
       }
-     }//TEMP
-     /*--Data.View.then(response => {
-      $Input.prop("disabled", true);
-      setTimeout(() => {
-       if(SignOut === "Yes") {
-        InstantSignOut();
-       }
-       $(Parent).empty();
-       if(Data.AddTopMargin === 1) {
-        $(Parent).append("<div class='TopBarMargin'></div>\r\n");
-       }
-       $(Parent).append(response);
-      }, 600);
-     });--*/
-     ExecuteCommands(Data.Commands, Data.CommandsExecuted);
+      $(Parent).empty();
+      if(Data.AddTopMargin === 1) {
+       $(Parent).append("<div class='TopBarMargin'></div>\r\n");
+      }
+      $(Parent).append(response);
+      ExecuteCommands(Data.Commands);
+     }, 600);
+    }).catch(error => {
+     Dialog({
+      "Body": "UnlockProtectedContent: Error rendering view data. Please see below for more information:",
+      "Scrollable": JSON.stringify(error)
+     });
+    });
    }
   },
   url: base + Base64decrypt($Input.attr("data-view")) + "&Key=" + Key

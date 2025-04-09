@@ -81,7 +81,7 @@
     "Content",
     "List"
    ];
-   $responseType = "Dialog";
+   $_ResponseType = "Dialog";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    foreach($requiredData as $required) {
@@ -100,7 +100,7 @@
     $list = base64_decode($data["List"]);
     $blacklist = $y["Blocked"][$list] ?? [];
     $newBlacklist = [];
-    $responseType = "UpdateText";
+    $_ResponseType = "UpdateText";
     $text = "Error";
     foreach($blacklist as $key => $value) {
      if($content != $value) {
@@ -126,7 +126,7 @@
     "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
-    "ResponseType" => $responseType,
+    "ResponseType" => $_ResponseType,
     "View" => $_View
    ]);
   }
@@ -469,7 +469,7 @@
    ];
    $pin = $data["PIN"] ?? "";
    $rank = $data["Rank"] ?? md5("Member");
-   $responseType = "Dialog";
+   $_ResponseType = "Dialog";
    $username = $data["Username"] ?? "";
    $y = $this->you;
    if(md5($pin) != $y["Login"]["PIN"]) {
@@ -479,7 +479,7 @@
    } elseif(!empty($rank) && !empty($username)) {
     $accessCode = "Accepted";
     $member = $this->core->Member($username);
-    $responseType = "ReplaceContent";
+    $_ResponseType = "ReplaceContent";
     $member["Rank"] = md5($rank);
     #$this->core->Data("Save", ["mbr", md5($username), $member]);
     $r = $this->core->Element([
@@ -496,7 +496,7 @@
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => $responseType,
+    "ResponseType" => $_ResponseType,
     "Success" => "CloseDialog"
    ]);
   }
@@ -959,7 +959,7 @@
    $r = [
     "Body" => "The Member Identifier is missing."
    ];
-   $responseType = "Dialog";
+   $_ResponseType = "Dialog";
    $y = $this->you;
    if(!empty($data["ID"])) {
     $t = base64_decode($data["ID"]);
@@ -998,7 +998,7 @@
      "JSON" => $manifest,
      "Web" => $r
     ],
-    "ResponseType" => $responseType
+    "ResponseType" => $_ResponseType
    ]);
   }
   function MarkBulletinAsRead(array $a) {
@@ -1793,18 +1793,20 @@
     "View" => $_View
    ]);
   }
-  function SignUp(array $a) {
+  function SignUp(array $data) {
+   $_AddTopMargin = "0";
+   $_Card = "";
+   $_Dialog = "";
    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
-   $addTopMargin = "0";
-   $data = $a["Data"] ?? [];
-   $responseType = "GoToView";
+   $data = $data["Data"] ?? [];
+   $_ResponseType = "GoToView";
    $securityKey = "";
    $parentView = $viewData["ParentView"] ?? base64_encode("SignUp");
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $accessCode = "Denied";
-    $addTopMargin = "1";
+    $_AccessCode = "Denied";
+    $_AddTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
     $birthMonth = $data["BirthMonth"] ?? 10;
     $birthYear = $data["BirthYear"] ?? 1995;
@@ -1873,15 +1875,15 @@
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $r = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $r = $this->core->RenderView($r);
-    } if($accessCode != "Accepted") {
+    } if($accessCode == "Denied") {
      $r = $this->core->Change([[
       "[Error.Message]" => $r,
       "[Error.ParentView]" => "SignUp"
      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     }
    } elseif($step == 3) {
-    $accessCode = "Denied";
-    $addTopMargin = "1";
+    $_AccessCode = "Denied";
+    $_AddTopMargin = "1";
     $birthMonth = $data["BirthMonth"] ?? base64_encode(10);
     $birthMonth = base64_decode($birthMonth);
     $birthYear = $data["BirthYear"] ?? base64_encode(1995);
@@ -1990,16 +1992,16 @@
       "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
       "[Success.Username]" => $username
      ], $this->core->Extension("872fd40c7c349bf7220293f3eb64ab45")]);
-    } if($accessCode != "Accepted") {
+    } if($accessCode == "Denied") {
      $r = $this->core->Change([[
       "[Error.Message]" => $r,
       "[Error.ParentView]" => "SignUp"
      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-67ac610803c33")]);
     }
    } else {
+    $_ResponseType = "View";
     $birthMonths = [];
     $birthYears = [];
-    $responseType = "View";
     for($i = 1; $i <= 12; $i++) {
      $birthMonths[$i] = $i;
     } for($i = 1776; $i <= (date("Y") - $_MinimumAge); $i++) {
@@ -2017,14 +2019,18 @@
      ], true))
     ], $this->core->Extension("c48eb7cf715c4e41e2fb62bdfa60f198")]);
    }
+   $_Dialog = [
+    "Body" => "This experience is temporarily down while we perform a whole-of-platform update regarding server response data.",
+    "Header" => "Sign In"
+   ];
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",
-    "AddTopMargin" => $addTopMargin,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "AddTopMargin" => $_AddTopMargin,
+    "ResponseType" => $_ResponseType,
+    "View" => ""
+    #"View" => $_View
    ]);
   }
   function __destruct() {

@@ -192,53 +192,6 @@
     "ResponseType" => "View"
    ]);
   }
-  function Containers(array $a) {
-   $data = $a["Data"] ?? [];
-   $_Commands = [
-    [
-     "Name" => "UpdateContent",
-     "Parameters" => [
-      ".Content",
-      base64_encode("v=".base64_encode("WebUI:Gateway"))
-     ]
-    ]
-   ];
-   $_Content = $data["Content"] ?? "";
-   $_View = [
-    "ChangeData" => [
-     "[App.Content]" => $_Content
-    ],
-    "Extension" => $this->core->AESencrypt($this->core->RenderUI("Public"))
-   ];
-   $type = $data["Type"] ?? "";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($type == "Chat") {
-    $_Commands = [];
-    $_View = [
-     "ChangeData" => [
-      "[App.Menu]" => base64_encode("v=".base64_encode("Chat:Menu"))//TEMP
-     ],
-     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Chat"))
-    ];
-   } elseif($type == "ReSearch") {
-    $_Commands = [];
-    $_View = [
-     "ChangeData" => [
-      "[App.Content]" => $_Content,
-      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
-     ],
-     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Search"))
-    ];
-   }
-   $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
-   return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
-    "Commands" => $_Commands,
-    "SetUIVariant" => $setUIvariant,
-    "View" => $_View
-   ]);
-  }
   function DesignView(array $a) {
    $accessCode = "Accepted";
    $data = $a["Data"] ?? [];
