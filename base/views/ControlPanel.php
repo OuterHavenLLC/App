@@ -275,18 +275,17 @@
     "View" => $_View
    ]);
   }
-  function SaveApp(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+  function SaveApp(array $data) {
+   $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue."
     ];
    } elseif($y["Rank"] == md5("High Command")) {
@@ -334,20 +333,14 @@
     $config["XFS"]["limits"]["Images"] = $data["UploadLimits_Images"];
     $config["XFS"]["limits"]["Total"] = $data["UploadLimits_Total"];
     $config["XFS"]["limits"]["Videos"] = $data["UploadLimits_Videos"];
-    $this->core->Data("Save", ["app", md5("config"), $config]);
-    $r = [
+    #$this->core->Data("Save", ["app", md5("config"), $config]);
+    $_Dialog = [
      "Body" => "The <em>".$config["App"]["Name"]."</em> configuration was updated!",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
   function SaveEvents(array $a) {

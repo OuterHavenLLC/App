@@ -503,7 +503,7 @@ function LiveView(input) {
        return;
       } else {
        const Data = RenderView(data);
-       if(Data.AccessCode === "Accepted") {
+       if(Data.View !== "" && typeof Data.View === "undefined") {
         Data.View.then(response => {
          $(Preview).html(response);
          ExecuteCommands(Data.Commands);
@@ -667,7 +667,7 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
      return;
     } else {
      const Data = RenderView(data);
-     if(Data.AccessCode === "Accepted") {
+     if(Data.View !== "" && typeof Data.View === "undefined") {
       Data.View.then(response => {
        $(DefaultContainer).html(response);
        ExecuteCommands(Data.Commands);
@@ -701,7 +701,7 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
      return;
     } else {
      const Data = RenderView(data);
-     if(Data.AccessCode === "Accepted") {
+     if(Data.View !== "" && typeof Data.View === "undefined") {
       Data.View.then(response => {
        FST(response);
        ExecuteCommands(Data.Commands);
@@ -746,7 +746,7 @@ function OpenNetMap(View, Encryption = "") {
     return;
    } else {
     const Data = RenderView(data);
-    if(Data.AccessCode === "Accepted") {
+    if(Data.View !== "" && typeof Data.View === "undefined") {
      Data.View.then(response => {
       $(".NetMap").html(response);
       setTimeout(() => {
@@ -822,7 +822,7 @@ function RenderDesignView(container) {
      return;
     } else {
      const Data = RenderView(data);
-     if(Data.AccessCode === "Accepted") {
+     if(Data.View !== "" && typeof Data.View === "undefined") {
       Data.View.then(response => {
        $(Container).html(response);
        $(Container).find("button, input, select, textarea").each(() => {
@@ -2012,7 +2012,7 @@ $(document).on("click", ".OpenBottomBar", (event) => {
      return;
     } else {
      const Data = RenderView(data);
-     if(Data.AccessCode === "Accepted") {
+     if(Data.View !== "" && typeof Data.View === "undefined") {
       Data.View.then(response => {
        $("body").append(response);
        $(".BottomBar").show("slide", {direction: "down"}, 500);
@@ -2376,7 +2376,7 @@ $(document).on("click", ".UpdateButton", (event) => {
     return;
    } else {
     const Data = RenderView(data);
-    if(Data.AccessCode === "Accepted") {
+    if(Data.View !== "" && typeof Data.View === "undefined") {
      Data.View.then(response => {
       UpdateButton($Button, response);
       $Button.prop("disabled", false);
@@ -2486,7 +2486,7 @@ $(document).on("keyup", ".LinkData", (event) => {
     return;
    } else {
     const Data = RenderView(data);
-    if(Data.AccessCode === "Accepted") {
+    if(Data.View !== "" && typeof Data.View === "undefined") {
      Data.View.then(response => {
       $(".AddLink > .LinkPreview").html(response);
       ExecuteCommands(Data.Commands);
