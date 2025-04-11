@@ -2021,7 +2021,7 @@
    }
    $_Dialog = [
     "Body" => "This experience is temporarily down while we perform a whole-of-platform update regarding server response data.",
-    "Header" => "Sign In"
+    "Header" => "Sign Up"
    ];
    return $this->core->JSONResponse([
     "AccessCode" => "Accepted",

@@ -5,16 +5,16 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Attachments(array $data) {
+   $_View = $this->core->Element(["p", "The content identifier is missing."]);
    $header = $data["Header"] ?? "";
    $id = $data["ID"] ?? "";
    $media = $data["Media"] ?? [];
    $parentContentID = $data["ParentContentID"] ?? "";
    $uiid = $this->core->UUID($id);
-   $r = $this->core->Element(["p", "The content identifier is missing."]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(empty($media)) {
-    $r = $this->core->Element(["p", "The media identifiers are missing."]);
+    $_View = $this->core->Element(["p", "The media identifiers are missing."]);
    } else {
     $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=[Link.AddTo]&CARD=1&st=";
     $_Translate = "";
@@ -34,7 +34,7 @@
      ]
     ]);
     $mediaUI = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
-    $r = (!empty($header)) ? $this->core->Element(["h3", $header]) : "";
+    $_View = (!empty($header)) ? $this->core->Element(["h3", $header]) : "";
     $section = $this->core->Element([
      "div", NULL, ["class" => "NONAME"]
     ]).$this->core->Element(["button", "<h4>[Section.Name]</h4>", [
@@ -162,7 +162,7 @@
        ]
       ]) : "";
       if(!in_array($key, ["Translate", "ViewDesign"])) {
-       $r .= $this->core->Change([[
+       $_View .= $this->core->Change([[
         "[Section.Content]" => $mediaList,
         "[Section.ID]" => $uiid.$mediaType,
         "[Section.Name]" => $sectionName
@@ -170,35 +170,36 @@
       }
      }
     }
-    $r .= (!empty($_Translate)) ? $this->core->Change([[
+    $_View .= (!empty($_Translate)) ? $this->core->Change([[
      "[Section.Content]" => $_Translate,
      "[Section.ID]" => $uiid."Translate",
      "[Section.Name]" => "Translate"
     ], $section]) : "";
-    $r .= (!empty($_ViewDesign)) ? $this->core->Change([[
+    $_View .= (!empty($_ViewDesign)) ? $this->core->Change([[
      "[Section.Content]" => $_ViewDesign,
      "[Section.ID]" => $uiid."ViewDesign",
      "[Section.Name]" => "View Design"
     ], $section]) : "";
-    $r = $this->core->Element(["div", $r, ["class" => "ContentAttachments$uiid NONAME"]]);
+    $_View = $this->core->Element([
+     "div", $_View, [
+      "class" => "ContentAttachments$uiid NONAME"
+     ]
+    ]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
-  function DesignView(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $dv = $data["DV"] ?? "";
-   $r = (!empty($dv)) ? $this->core->PlainText([
+  function DesignView(array $data) {
+   $data = $data["Data"] ?? [];
+   $designView = $data["DV"] ?? "";
+   $_View = (!empty($designView)) ? $this->core->PlainText([
     "BBCodes" => 1,
-    "Data" => $dv,
+    "Data" => $designView,
     "Decode" => 1,
     "Display" => 1,
     "HTMLDecode" => 1
@@ -206,31 +207,26 @@
     "p", "Add content to reveal its design...", ["class" => "CenterText"]
    ]);
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "ChangeData" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
-  function Error(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $r = $this->core->Element([
-    "h1", "Something went wrong...", ["class" => "UpperCase"]
-   ]).$this->core->Element([
-    "p", $data["Error"]
-   ]);
+  function Error(array $data) {
+   $data = $data["Data"] ?? [];
+   $error = $data["Error"] ?? "";
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "h1", "Something went wrong...", ["class" => "UpperCase"]
+     ]).$this->core->Element([
+      "p", $error
+     ]))
+    ]
    ]);
   }
   function Extensions(array $data) {
@@ -303,7 +299,7 @@
     "JSON" => $clientExtensions
    ]);
   }
-  function Gateway(array $a) {
+  function Gateway() {
    $eventMedia = $this->core->RenderEventMedia();
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
@@ -321,7 +317,7 @@
     ]
    ]);
   }
-  function Landing(array $data) {
+  function Landing() {
    $content = "v=".base64_encode("WebUI:Gateway");
    $headers = apache_request_headers();
    $language = $headers["Language"] ?? $this->core->language;
@@ -563,21 +559,22 @@
     "View" => $_View
    ]);
   }
-  function SubscribeSection(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $r = [
+  function SubscribeSection(array $data) {
+   $_Dialog = [
     "Body" => "The Content Identifier or Type are missing."
    ];
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
    $type = $data["Type"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($type)) {
-    $accessCode = "Accepted";
+    $_Dialog = [
+     "Body" => "An invalid Content Type was supplied."
+    ];
+    $_View = "";
     $check = 0;
     $processor = "";
-    $r = "";
     $subscribers = [];
     if($type == "Article") {
      $article = $this->core->Data("Get", ["pg", $id]);
@@ -604,24 +601,24 @@
      $subscribers = $shop["Subscribers"] ?? [];
      $title = $shop["Title"];
     } if($check == 1 && $this->core->ID != $you) {
+     $_Dialog = "";
      $text = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
-     $r = $this->core->Change([[
-      "[Subscribe.ContentID]" => $id,
-      "[Subscribe.ID]" => $id,
-      "[Subscribe.Processor]" => $processor,
-      "[Subscribe.Text]" => $text,
-      "[Subscribe.Title]" => $title
-     ], $this->core->Extension("489a64595f3ec2ec39d1c568cd8a8597")]);
+     $_View = [
+      "ChangeData" => [
+       "[Subscribe.ContentID]" => $id,
+       "[Subscribe.ID]" => $id,
+       "[Subscribe.Processor]" => $processor,
+       "[Subscribe.Text]" => $text,
+       "[Subscribe.Title]" => $title
+      ],
+      "ExtensionID" => "489a64595f3ec2ec39d1c568cd8a8597"
+     ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function SwitchLanguages() {
@@ -729,17 +726,13 @@
     "View" => $_View
    ]);
   }
-  function WYSIWYG(array $a) {
-   $data = $a["Data"] ?? [];
-   $r = $this->core->Extension("8980452420b45c1e6e526a7134d6d411");
+  function WYSIWYG() {
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "ExtensionID" => "8980452420b45c1e6e526a7134d6d411"
+    ]
    ]);
   }
   function __destruct() {

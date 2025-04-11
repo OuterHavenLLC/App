@@ -911,16 +911,18 @@ function RenderInputs(Container, Data) {
           Crash(data);
           return;
          } else {
-          var WData = RenderView(data),// UPDATE WYSIWYG VIEW FIRST
-                AccessCode = WData.AccessCode,
-                Response = WData.Response || "";
-          if(AccessCode === "Denied") {
-           Dialog(WYSIWYG);
-          } else {
+          const WData = RenderView(data);
+          ExecuteCommands(WData.Commands);
+          WData.View.then(response => {
            WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.ID]", Attributes["id"]);
            WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.TextBox]", RenderInput);
            RenderInput = WYSIWYG;
-          }
+          }).catch(error => {
+           Dialog({
+            "Body": "WYSIWYG: Error rendering view data. Please see below:",
+            "Scrollable": JSON.stringify(error)
+           });
+          });
          }
         },
         url: base + AESdecrypt("[App.WYSIWYG]")
@@ -1356,7 +1358,7 @@ function SignOut() {
      Crash(data);
      return;
     } else {
-     var Data = RenderView(data);
+     const Data = RenderView(data);
      ExecuteCommands(Data.Commands);
      Data.View.then(response => {
       $(DefaultContainer).html(response);
