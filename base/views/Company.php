@@ -61,7 +61,7 @@
    $_View = [
     "ChangeData" => [
      "[FAR.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=7216072bbd437563e692cc7ff69cdb69"),
-     "[FAR.Listen]" => base64_encode("v=".base64_encode("Subscription:FABPlayer")),
+     "[FAR.Listen]" => base64_encode("v=".base64_encode("Subscription:FARPlayer")),
      "[FAR.Title]" => $_ViewTitle
     ],
     "ExtensionID" => $_ExtensionID
