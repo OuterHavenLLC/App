@@ -101,7 +101,7 @@
       $newVotes[$member] = $vote;
      }
     }
-    #$this->core->Data("Save", ["votes", $id, $newVotes]);
+    $this->core->Data("Save", ["votes", $id, $newVotes]);
     $_View = $this->view(base64_encode("Vote:Containers"), ["Data" => [
      "ID" => $id,
      "Refresh" => 1,
@@ -131,7 +131,7 @@
     if($purge != 0) {
      $votes["Purge"] = $purge;
     }
-    #$this->core->Data("Save", ["votes", $id, $votes]);
+    $this->core->Data("Save", ["votes", $id, $votes]);
     $_View = $this->view(base64_encode("Vote:Containers"), ["Data" => [
      "ID" => $id,
      "Refresh" => 1,

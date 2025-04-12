@@ -537,10 +537,11 @@
     ];
    } elseif($type == "Public") {
     $_Commands = [
-     "Name" => "UpdateContent",
+     "Name" => "UpdateContentAES",
      "Parameters" => [
       ".Content",
-      $this->core->AESdecrypt($view)
+      $view,
+      "AES"
      ]
     ];
     $_View = [
