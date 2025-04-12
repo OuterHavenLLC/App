@@ -451,6 +451,8 @@ function ExecuteCommands(Commands = "", Executed = "No") {
     UpdateContent(Parameters[0], Parameters[1]);
    } else if(Name === "UpdateContentAES" && ParameterCount === 3) {
     UpdateContent(Parameters[0], Parameters[1], Parameters[2]);
+   } else if(Name === "UpdateCoverPhoto" && ParameterCount === 2) {
+    UpdateCoverPhoto(Parameters[0], Parameters[1]);
    } else if(Name === "UpdateContentRecursive" && ParameterCount === 3) {
     UpdateContentRecursive(Parameters[0], Parameters[1], Parameters[2]);
    } else if(Name === "UpdateContentRecursiveAES" && ParameterCount === 4) {
@@ -914,6 +916,7 @@ function RenderInputs(Container, Data) {
           const WData = RenderView(data);
           ExecuteCommands(WData.Commands);
           WData.View.then(response => {
+           WYSIWYG = response;
            WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.ID]", Attributes["id"]);
            WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.TextBox]", RenderInput);
            RenderInput = WYSIWYG;
@@ -947,29 +950,27 @@ function RenderInputs(Container, Data) {
  }
 }
 function RenderView(data) {
- var Data = JSON.parse(AESdecrypt(data)),
-       AccessCode = Data.AccessCode || "Denied",
-       AddTopMargin = Data.AddTopMargin || 1,
-       Commands = Data.Commands || "",
-       CommandsExecuted = "No",
-       NewVariant = Data.SetUIVariant || "",
-       ResponseType = Data.ResponseType || "Dialog",
-       Success = Data.Success || "",
-       Title = Data.Title || "[App.Name]",
-       View = Data.View || "";
+ let Data = JSON.parse(AESdecrypt(data)),
+      AccessCode = Data.AccessCode || "Denied",
+      AddTopMargin = Data.AddTopMargin || 1,
+      Commands = Data.Commands || "",
+      NewVariant = Data.SetUIVariant || "",
+      ResponseType = Data.ResponseType || "Dialog",
+      Success = Data.Success || "",
+      Title = Data.Title || "[App.Name]",
+      View = Data.View || "";
  $(document).prop("title", Title);
  SetUIVariant(NewVariant);
  if(Data.Card !== "" && typeof Data.Card !== "undefined") {
+  Card(Data.Card);
   setTimeout(() => {
-   Card(Data.Card);
+   ExecuteCommands(Commands);
   }, 500);
  } if(Data.Dialog !== "" && typeof Data.Dialog !== "undefined") {
+  Dialog(Data.Dialog);
   setTimeout(() => {
-   Dialog(Data.Dialog);
+   ExecuteCommands(Commands);
   }, 500);
- } if(View === "" && typeof Commands === "object") {
-  ExecuteCommands(Commands, CommandsExecuted);
-  CommandsExecuted = "Yes";
  } if(typeof View === "object") {
   View = ChangeData(View);
  }
@@ -977,7 +978,6 @@ function RenderView(data) {
   "AccessCode": AccessCode,
   "AddTopMargin": AddTopMargin,
   "Commands": Commands,
-  "CommandsExecuted": CommandsExecuted,
   "ResponseType": ResponseType,
   "Success": Success,
   "View": View
@@ -1451,7 +1451,8 @@ function UpdateCoverPhoto(Container, Photo) {
        Photo = Photo || "";
  if(Photo !== "" && typeof Photo !== "undefined") {
   $(Container).css({
-   "bacheckground-image": "https://efs.outerhaven.nyc/" + Photo
+   "background": "url('" + Photo + "') no-repeat center center fixed",
+   "backgroundSize": "cover"
   });
  }
 }

@@ -26,8 +26,7 @@
   if($view == "Chart") {
    $r = $oh->core->Extension("b3463a420fd60fccd6f06727860ba860");
   } elseif($view == "Client") {
-   #$r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
-   $r = file_get_contents("./tmp.js");//TEMP
+   $r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
   } elseif($view == "Cypher") {
    $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67abee895c024");
   }
@@ -115,7 +114,7 @@
    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:Donate")."&pub=1");
   } elseif($command[0] == "event") {
    # FREE AMERICA RADIO EVENTS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio")."&pub=1");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio"));
   } elseif($command[0] == "feedback") {
    # FEEDBACK
    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:VVA")."&ID=".$command[1]."&pub=1");

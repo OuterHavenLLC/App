@@ -476,12 +476,11 @@
      "[Menu.Member.BulletinCenter]" => $this->core->AESencrypt("v=".base64_encode("Profile:BulletinCenter")),
      "[Menu.Member.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Menu")."&Integrated=1"),
      "[Menu.Member.Contacts]" => $this->core->AESencrypt("v=$search&st=Contacts"),
-     "[Menu.Member.CoverPhoto]" => $this->core->CoverPhoto($y["Personal"]["CoverPhoto"]),
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"].$verified,
      "[Menu.Member.Files]" => $this->core->AESencrypt("v=$search&UN=".base64_encode($you)."&st=XFS"),
      "[Menu.Member.Forums]" => $this->core->AESencrypt("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
      "[Menu.Member.Polls]" => $this->core->AESencrypt("v=$search&st=MBR-Polls"),
-     "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:2em 30% 0em 30%;width:40%"),
+     "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:10%;width:80%"),
      "[Menu.Member.Library]" => $this->core->AESencrypt("v=$search&UN=".base64_encode($you)."&lPG=MediaLib&st=MBR-ALB"),
      "[Menu.Member.Preferences]" => $this->core->AESencrypt("v=".base64_encode("Profile:Preferences")),
      "[Menu.Member.Profile]" => $this->core->AESencrypt("v=".base64_encode("Profile:Home")."&UN=".base64_encode($you)),
@@ -494,8 +493,18 @@
     ];
     $extensionID = "d14e3045df35f4d9784d45ac2c0fe73b";
    }
+   $coverPhoto = $y["Personal"]["CoverPhoto"] ?? "";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => [
+     [
+      "Name" => "UpdateCoverPhoto",
+      "Parameters" => [
+       ".AppContainer",
+       $this->core->CoverPhoto($coverPhoto)
+      ]
+     ]
+    ],
     "View" => [
      "ChangeData" => $changeData,
      "ExtensionID" => $extensionID
@@ -529,7 +538,7 @@
      "Name" => "UpdateContent",
      "Parameters" => [
       ".Content",
-      base64_encode($view)
+      $this->core->AESdecrypt($view)
      ]
     ];
     $_View = [

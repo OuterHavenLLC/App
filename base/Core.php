@@ -250,17 +250,23 @@ function AESencrypt(string $data) {
    return "$r://";
   }
   function CoverPhoto(string $attachment) {
-   $r = $this->PlainText([
-    "Data" => "[Media:CP]",
-    "Display" => 1
-   ]);
+   $coverPhoto = "";
    if(!empty($attachment)) {
     $attachment = explode("-", base64_decode($attachment));
     if(!empty($attachment[0]) && !empty($attachment[1])) {
-     $r = $this->efs.$attachment[0]."/".$attachment[1];
+     $_File = $this->GetContentData([
+      "AddTo" => "",
+      "Blacklisted" => 0,
+      "ID" => base64_encode("File;".$attachment[0].";".$attachment[1])
+     ]);
+     if($_File["Empty"] == 0) {
+      $media = $_File["DataModel"];
+      $coverPhoto = $media["Name"] ?? $media;
+      $coverPhoto = $this->efs.$attachment[0]."/$coverPhoto";
+     }
     }
    }
-   return $r;
+   return $coverPhoto;
   }
   function Data(string $action, array $data) {
    if(!empty($data)) {

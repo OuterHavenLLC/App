@@ -60,8 +60,9 @@
    $_ExtensionID = ($activeEvent == 1) ? "1870885288027c3d4bc0a29bdf5f7579" : "c0f79632dc2313352f92b41819fe4739";
    $_View = [
     "ChangeData" => [
-     "[FAB.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=7216072bbd437563e692cc7ff69cdb69"),
-     "[FAB.Listen]" => base64_encode("v=".base64_encode("Subscription:FABPlayer"))
+     "[FAR.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=7216072bbd437563e692cc7ff69cdb69"),
+     "[FAR.Listen]" => base64_encode("v=".base64_encode("Subscription:FABPlayer")),
+     "[FAR.Title]" => $_ViewTitle
     ],
     "ExtensionID" => $_ExtensionID
    ];
