@@ -29,6 +29,10 @@
    $r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
   } elseif($view == "Cypher") {
    $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67abee895c024");
+  } elseif($view == "jQuery") {
+   $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67fa6b4a2b998");
+  } elseif($view == "jQueryUI") {
+   $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67fa6b71bda8b");
   }
   $r = $oh->core->Change([[
    "[App.AddContent]" => $oh->core->AESencrypt("v=".base64_encode("Profile:AddContentCheck")),
