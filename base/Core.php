@@ -894,7 +894,7 @@ function AESencrypt(string $data) {
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["Attachments"] ?? [];
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->Excerpt($this->PlainText([
        "Data" => base64_decode($body),
@@ -1055,7 +1055,7 @@ function AESencrypt(string $data) {
    return $r;
   }
   function GetSymbolicLinks($data = [], string $type, $extras = []) {
-   $r = [];
+   $links = [];
    $type = $type ?? "";
    if($type == "LiveView") {
     $_LiveView = base64_encode("LiveView:InlineMossaic");
@@ -1088,24 +1088,24 @@ function AESencrypt(string $data) {
     $shops = base64_encode(implode(";", $shops));
     $updates = $data["Updates"] ?? [];
     $updates = base64_encode(implode(";", $updates));
-    $r = [
-     "Albums" => base64_encode("v=$_LiveView&ID=$albums&Type=".base64_encode("Album")),
-     "Articles" => base64_encode("v=$_LiveView&ID=$articles&Type=".base64_encode("Article")),
-     "Attachments" => base64_encode("v=$_LiveView&ID=$attachments&Type=".base64_encode("DLC")),
-     "Blogs" => base64_encode("v=$_LiveView&ID=$blogs&Type=".base64_encode("Blog")),
-     "BlogPosts" => base64_encode("v=$_LiveView&ID=$blogPosts&Type=".base64_encode("BlogPost")),
-     "Chats" => base64_encode("v=$_LiveView&ID=$chats&Type=".base64_encode("Chat")),
-     "DemoFiles" => base64_encode("v=$_LiveView&ID=$demoFiles&Type=".base64_encode("DemoFile")),
-     "Forums" => base64_encode("v=$_LiveView&ID=$forums&Type=".base64_encode("Forum")),
-     "ForumPosts" => base64_encode("v=$_LiveView&ID=$forumPosts&Type=".base64_encode("ForumPost")),
-     "Members" => base64_encode("v=$_LiveView&ID=$members&Type=".base64_encode("NonArtist")),
-     "Polls" => base64_encode("v=$_LiveView&ID=$polls&Type=".base64_encode("Poll")),
-     "Products" => base64_encode("v=$_LiveView&ID=$products&Type=".base64_encode($productType)),
-     "Shops" => base64_encode("v=$_LiveView&ID=$shops&Type=".base64_encode("Shop")),
-     "Updates" => base64_encode("v=$_LiveView&ID=$updates&Type=".base64_encode("StatusUpdate")),
+    $links = [
+     "Albums" => $this->AESencrypt("v=$_LiveView&ID=$albums&Type=".base64_encode("Album")),
+     "Articles" => $this->AESencrypt("v=$_LiveView&ID=$articles&Type=".base64_encode("Article")),
+     "Attachments" => $this->AESencrypt("v=$_LiveView&ID=$attachments&Type=".base64_encode("DLC")),
+     "Blogs" => $this->AESencrypt("v=$_LiveView&ID=$blogs&Type=".base64_encode("Blog")),
+     "BlogPosts" => $this->AESencrypt("v=$_LiveView&ID=$blogPosts&Type=".base64_encode("BlogPost")),
+     "Chats" => $this->AESencrypt("v=$_LiveView&ID=$chats&Type=".base64_encode("Chat")),
+     "DemoFiles" => $this->AESencrypt("v=$_LiveView&ID=$demoFiles&Type=".base64_encode("DemoFile")),
+     "Forums" => $this->AESencrypt("v=$_LiveView&ID=$forums&Type=".base64_encode("Forum")),
+     "ForumPosts" => $this->AESencrypt("v=$_LiveView&ID=$forumPosts&Type=".base64_encode("ForumPost")),
+     "Members" => $this->AESencrypt("v=$_LiveView&ID=$members&Type=".base64_encode("NonArtist")),
+     "Polls" => $this->AESencrypt("v=$_LiveView&ID=$polls&Type=".base64_encode("Poll")),
+     "Products" => $this->AESencrypt("v=$_LiveView&ID=$products&Type=".base64_encode($productType)),
+     "Shops" => $this->AESencrypt("v=$_LiveView&ID=$shops&Type=".base64_encode("Shop")),
+     "Updates" => $this->AESencrypt("v=$_LiveView&ID=$updates&Type=".base64_encode("StatusUpdate")),
     ];
    }
-   return $r;
+   return $links;
   }
   function JSONResponse(array $a) {
    return json_encode($a, true);

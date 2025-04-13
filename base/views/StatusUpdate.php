@@ -126,6 +126,7 @@
     if($_StatusUpdate["Empty"] == 0) {
      $options = $_StatusUpdate["ListItem"]["Options"];
      $update = $_StatusUpdate["DataModel"];
+     $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($update, "LiveView");
      $passPhrase = $update["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
@@ -171,6 +172,69 @@
        [
         "Name" => "UpdateContentAES",
         "Parameters" => [
+         ".Albums".$update["ID"],
+         $liveViewSymbolicLinks["Albums"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Articles".$update["ID"],
+         $liveViewSymbolicLinks["Articles"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Attachments".$update["ID"],
+         $liveViewSymbolicLinks["Attachments"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Blogs".$update["ID"],
+         $liveViewSymbolicLinks["Blogs"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".BlogPosts".$update["ID"],
+         $liveViewSymbolicLinks["BlogPosts"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Chats".$update["ID"],
+         $liveViewSymbolicLinks["Chats"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Forums".$update["ID"],
+         $liveViewSymbolicLinks["Forums"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".ForumPosts".$update["ID"],
+         $liveViewSymbolicLinks["ForumPosts"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Members".$update["ID"],
+         $liveViewSymbolicLinks["Members"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
          ".Notes".$update["ID"],
          $options["Notes"]
         ]
@@ -178,7 +242,35 @@
        [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Votes".$update["ID"],
+         ".Polls".$update["ID"],
+         $liveViewSymbolicLinks["Polls"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Products".$update["ID"],
+         $liveViewSymbolicLinks["Products"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Shops".$update["ID"],
+         $liveViewSymbolicLinks["Shops"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Updates".$update["ID"],
+         $liveViewSymbolicLinks["Updates"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote".$update["ID"],
          $options["Vote"]
         ]
        ]
@@ -193,7 +285,6 @@
       $displayName = $update["From"];
       $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
       $embeddedView = $data["EmbeddedView"] ?? 0;
-      $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($update, "LiveView");
       $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
       $actions = ($this->core->ID != $you) ? $actions : "";
       $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
@@ -207,26 +298,11 @@
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $_View = [
        "ChangeData" => [
-        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-        "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
-        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
         "[Conversation.CRID]" => $update["ID"],
         "[Conversation.CRIDE]" => base64_encode($update["ID"]),
         "[Conversation.Level]" => base64_encode(1),
         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
-        "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
+        "[StatusUpdate.Actions]" => $actions,
         "[StatusUpdate.Body]" => $this->core->PlainText([
          "BBCodes" => 1,
          "Data" => base64_decode($update["Body"]),
@@ -238,7 +314,6 @@
         "[StatusUpdate.ID]" => $update["ID"],
         "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
         "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-        "[StatusUpdate.Options]" => $opt,
         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
         "[StatusUpdate.Share]" => $share
        ],
@@ -322,7 +397,7 @@
      }
     }
     $y["Activity"]["LastActive"] = $this->core->timestamp;
-    /*--$conversation = $this->core->Data("Get", ["conversation", $id]);
+    $conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
      $this->core->Data("Save", ["conversation", $id, $conversation]);
@@ -349,13 +424,16 @@
      $this->core->Data("Save", ["votes", $id, $votes]);
     }
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["stream", md5($you), $stream]);--*/
-    $_View = $this->core->Element([
-     "p", "The Update and dependencies were marked for purging.",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
+    $this->core->Data("Save", ["stream", md5($you), $stream]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "p", "The Update and dependencies were marked for purging.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]))
+    ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
@@ -368,7 +446,7 @@
    $_Dialog = [
     "Body" => "The Update Identifier is missing."
    ];
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
@@ -544,7 +622,7 @@
      "To" => $to,
      "Updates" => $updates
     ];
-    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO StatusUpdates(
      StatusUpdate_Body,
      StatusUpdate_Created,
@@ -577,18 +655,17 @@
     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $this->core->Data("Save", ["su", $update["ID"], $update]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Statistic($statistic);--*/
-    $r = [
+    $this->core->Statistic($statistic);
+    $_Dialog = [
      "Body" => "The Status Update was $actionTaken.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($update, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
     "ResponseType" => "Dialog",
-    #"Success" => "CloseCard"
+    "Success" => "CloseCard"
    ]);
   }
   function __destruct() {
