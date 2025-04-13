@@ -4,29 +4,29 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Chat(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Chat(array $data) {
+   $_Dialog = [
+    "Body" => "The Share Card Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $body = $data["Body"] ?? "";
    $id = $data["ID"] ?? "";
    $query = $data["Query"] ?? "";
-   $r = [
-    "Body" => "The Share Card Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Content Body is missing."
     ];
     if(!empty($body)) {
-     $accessCode = "Accepted";
-     $contants = $this->core->Data("Get", ["cms", md5($you)]) ?? [];
+     $_Dialog = "";
+     $_View = "";
+     $contants = $this->core->Data("Get", ["cms", md5($you)]);
      $contacts = $contacts["Contacts"] ?? [];
      $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
      $i = 0;
      $id = base64_decode($id);
-     $r = "";
      foreach($contacts as $member => $info) {
       if(empty($query) || strpos($member, $query) !== false) {
        $bl = $this->core->CheckBlocked([$y, "Members", md5($member)]);;
@@ -42,7 +42,7 @@
          NULL,
          ["class" => "online"]
         ]) : "";
-        $r .= $this->core->Change([[
+        $_View .= $this->core->Change([[
          "[Chat.DisplayName]" => $t["Personal"]["DisplayName"],
          "[Chat.Online]" => $online,
          "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%"),
@@ -53,43 +53,43 @@
      }
      $na = "No Results";
      $na .= (!empty($query)) ? " for $query" : "";
-     $r = ($i == 0) ? $this->core->Element([
+     $_View = ($i == 0) ? $this->core->Element([
       "h4", $na, ["class" => "CenterText UpperCase"]
-     ]) : $r;
+     ]) : $_View;
+     $_View = [
+      "ChangeData" => [],
+      "Extension" => $this->core->AESencrypt($_View)
+     ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "AddTopMargin" => "0",
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function GroupChat(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function GroupChat(array $data) {
+   $_Dialog = [
+    "Body" => "The Share Card Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $body = $data["Body"] ?? "";
    $id = $data["ID"] ?? "";
    $query = $data["Query"] ?? "";
-   $r = [
-    "Body" => "The Share Card Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Content Body is missing."
     ];
     if(!empty($body)) {
-     $accessCode = "Accepted";
+     $_Dialog = "";
+     $_View = "";
      $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
      $groups = $this->core->DatabaseSet("Chat");
      $i = 0;
      $id = base64_decode($id);
-     $r = "";
      foreach($groups as $key => $group) {
       $group = str_replace("nyc.outerhaven.chat.", "", $group);
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
@@ -121,7 +121,7 @@
          if(empty($query) || $check == 1 || $check2 == 1) {
           $i++;
           $t = $this->core->Member($this->core->ID);
-          $r .= $this->core->Change([[
+          $_View .= $this->core->Change([[
            "[Chat.DisplayName]" => $displayName,
            "[Chat.Online]" => "",
            "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%"),
@@ -134,42 +134,41 @@
      }
      $na = "No Results";
      $na .= (!empty($query)) ? " for $query" : "";
-     $r = ($i == 0) ? $this->core->Element([
+     $_View = ($i == 0) ? $this->core->Element([
       "h4", $na, ["class" => "CenterText UpperCase"]
-     ]) : $r;
+     ]) : $_View;
+     $_View = [
+      "ChangeData" => [],
+      "Extension" => $this->core->AESencrypt($_View)
+     ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "AddTopMargin" => "0",
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Home(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $r = [
+  function Home(array $data) {
+   $_Dialog = [
     "Body" => "The Share Card Identifier is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
    $type = $data["Type"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $accessCode = "Accepted";
+    $_Dialog = [
+     "Body" => "The Content Type is missing."
+    ];
     $checkItOut = "";
     $embedCode = "";
     $id = base64_decode($id);
-    $r = [
-     "Body" => "The Content Type is missing."
-    ];
     $shareTitle = "Content";
     $type = base64_decode($type);
     if(!empty($type)) {
+     $_Dialog = "";
      $contentID = "Missing";
      $username = $data["Username"] ?? base64_encode($this->core->ID);
      $username = base64_decode($username);
@@ -213,51 +212,49 @@
       ]),
       "HTMLEncode" => 1
      ]));
-     $r = [
-      "Front" => $this->core->Change([[
-       "[Share.Chat]" => base64_encode("v=".base64_encode("Share:Chat")."&Body=$body&ID=".base64_encode($id)),
-       "[Share.Chat.Group]" => base64_encode("v=".base64_encode("Share:GroupChat")."&Body=$body&ID=".base64_encode($id)),
-       "[Share.Chat.Recent]" => base64_encode("v=".base64_encode("Share:RecentChats")."&Body=$body&ID=".base64_encode($id)),
-       "[Share.Code]" => $embed,
-       "[Share.ID]" => $id,
-       "[Share.Link]" => "",
-       "[Share.Preview]" => $preview,
-       "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&Body=$body&new=1&UN=".base64_encode($you)),
-       "[Share.Title]" => $title
-      ], $this->core->Extension("de66bd3907c83f8c350a74d9bbfb96f6")])
+     $_Card = [
+      "Front" => [
+       "ChangeData" => [
+        "[Share.Chat]" => base64_encode("v=".base64_encode("Share:Chat")."&Body=$body&ID=".base64_encode($id)),
+        "[Share.Chat.Group]" => base64_encode("v=".base64_encode("Share:GroupChat")."&Body=$body&ID=".base64_encode($id)),
+        "[Share.Chat.Recent]" => base64_encode("v=".base64_encode("Share:RecentChats")."&Body=$body&ID=".base64_encode($id)),
+        "[Share.Code]" => $embed,
+        "[Share.ID]" => $id,
+        "[Share.Link]" => "",
+        "[Share.Preview]" => $preview,
+        "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&Body=$body&new=1&UN=".base64_encode($you)),
+        "[Share.Title]" => $title
+       ],
+       "ExtensionID" => "de66bd3907c83f8c350a74d9bbfb96f6"
+      ]
      ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function RecentChats(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function RecentChats(array $data) {
+   $_Dialog = [
+    "Body" => "The Share Card Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $body = $data["Body"] ?? "";
    $id = $data["ID"] ?? "";
    $query = $data["Query"] ?? "";
-   $r = [
-    "Body" => "The Share Card Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Content Body is missing."
     ];
     if(!empty($body)) {
-     $accessCode = "Accepted";
-     $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+     $_Dialog = "";
+     $_View = "";
+     $chat = $this->core->Data("Get", ["chat", md5($you)]);
      $id = base64_decode($id);
-     $r = "";
      $recentChats = [];
      foreach($chat as $key => $message) {
       $to = $message["To"] ?? "";
@@ -272,7 +269,7 @@
         "ID" => base64_encode("Member;".md5($member))
        ]);
        if($_Member["Empty"] == 0) {
-        $r .= $this->core->Element([
+        $_View .= $this->core->Element([
          "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
           "class" => "OpenCard Small",
           "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Body=$body&Card=1&Username=".base64_encode($t["Login"]["Username"]))
@@ -284,13 +281,9 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => 0,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "AddTopMargin" => "0",
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function __destruct() {
