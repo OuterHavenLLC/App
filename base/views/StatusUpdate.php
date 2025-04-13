@@ -4,32 +4,26 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $a) {
-   $accessCode = "Denied";
-   $button = "";
-   $data = $a["Data"] ?? [];
+  function Edit(array $data) {
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The Post Identifier is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $id = $data["SU"] ?? "";
    $new = $data["new"] ?? 0;
    $now = $this->core->timestamp;
-   $r = [
-    "Body" => "The Post Identifier is missing."
-   ];
    $to = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $id = ($new == 1) ? md5($you."_SU_$now") : $id;
     $action = ($new == 1) ? "Post" : "Update";
-    $action = $this->core->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".EditStatusUpdate$id",
-     "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
-    ]]);
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->core->Data("Get", ["su", $id]);
     $albums = $update["Albums"] ?? [];
@@ -79,44 +73,46 @@
       "ViewDesign" => []
      ]
     ]);
-    $r = $this->core->Change([[
-     "[Update.Attachments]" => $this->core->RenderView($attachments),
-     "[Update.Header]" => $header,
-     "[Update.ID]" => $id,
-     "[Update.Body]" => $body,
-     "[Update.DesignView]" => "Edit$id",
-     "[Update.From]" => $you,
-     "[Update.ID]" => $id,
-     "[Update.New]" => $new,
-     "[Update.PassPhrase]" => base64_encode($passPhrase),
-     "[Update.To]" => $to,
-     "[Update.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-     "[Update.Visibility.NSFW]" => $nsfw,
-     "[Update.Visibility.Privacy]" => $privacy
-    ], $this->core->Extension("7cc50dca7d9bbd7b7d0e3dd7e2450112")]);
-    $r = [
-     "Action" => $action,
-     "Front" => $r
+    $_Card = [
+     "Action" => $this->core->Element(["button", $action, [
+      "class" => "CardButton SendData",
+      "data-form" => ".EditStatusUpdate$id",
+      "data-processor" => base64_encode("v=".base64_encode("StatusUpdate:Save"))
+     ]]),
+     "Front" => [
+      "ChangeData" => [
+       "[Update.Attachments]" => $this->core->RenderView($attachments),
+       "[Update.Header]" => $header,
+       "[Update.ID]" => $id,
+       "[Update.Body]" => $body,
+       "[Update.DesignView]" => "Edit$id",
+       "[Update.From]" => $you,
+       "[Update.ID]" => $id,
+       "[Update.New]" => $new,
+       "[Update.PassPhrase]" => base64_encode($passPhrase),
+       "[Update.To]" => $to,
+       "[Update.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
+       "[Update.Visibility.NSFW]" => $nsfw,
+       "[Update.Visibility.Privacy]" => $privacy
+      ],
+      "ExtensionID" => "7cc50dca7d9bbd7b7d0e3dd7e2450112"
+     ]
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["SU"] ?? "";
-   $r = [
+  function Home(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Post Identifier is missing.",
     "Header" => "Not Found"
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $id = $data["SU"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
@@ -127,13 +123,12 @@
      "ID" => base64_encode("StatusUpdate;$id")
     ]);
     if($_StatusUpdate["Empty"] == 0) {
-     $accessCode = "Accepted";
      $update = $_StatusUpdate["DataModel"];
      $passPhrase = $update["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      $_Card = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
@@ -145,29 +140,32 @@
         "v" => base64_encode("StatusUpdate:Home")
        ], true))
       ]]);
-      $r = [
-       "Front" => $this->core->RenderView($r)
+      $_Card = [
+       "Front" => $this->core->RenderView($_Card)
       ];
      } elseif($verifyPassPhrase == 1) {
-      $accessCode = "Denied";
+      $_Dialog = [
+       "Body" => "The Key is missing."
+      ];
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
-      $r = $this->core->Element(["p", "The Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
-       $r = $this->core->Element(["p", "The Keys do not match."]);
+       $_Dialog = [
+        "Body" => "The Keys do not match."
+       ];
       } else {
-       $accessCode = "Accepted";
-       $r = $this->view(base64_encode("StatusUpdate:Home"), ["Data" => [
+       $_View = $this->view(base64_encode("StatusUpdate:Home"), ["Data" => [
         "SU" => $id,
         "EmbeddedView" => 1,
         "ViewProtectedContent" => 1
        ]]);
-       $r = $this->core->RenderView($r);
+       $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $accessCode = "Accepted";
+      $_Card = "";
+      $_Dialog = "";
       $displayName = $update["From"];
       $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
       $embeddedView = $data["EmbeddedView"] ?? 0;
@@ -190,74 +188,74 @@
       ]) : "";
       $verified = $op["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-      $r = $this->core->Change([[
-       "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-       "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-       "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-       "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-       "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-       "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-       "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-       "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-       "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-       "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
-       "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-       "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-       "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-       "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-       "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-       "[Conversation.CRID]" => $update["ID"],
-       "[Conversation.CRIDE]" => base64_encode($update["ID"]),
-       "[Conversation.Level]" => base64_encode(1),
-       "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
-       "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
-       "[StatusUpdate.Body]" => $this->core->PlainText([
-        "BBCodes" => 1,
-        "Data" => base64_decode($update["Body"]),
-        "Display" => 1
-       ]),
-       "[StatusUpdate.CoverPhoto]" => $_StatusUpdate["ListItem"]["CoverPhoto"],
-       "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
-       "[StatusUpdate.DisplayName]" => $displayName.$verified,
-       "[StatusUpdate.ID]" => $update["ID"],
-       "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
-       "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-       "[StatusUpdate.Notes]" => $options["Notes"],
-       "[StatusUpdate.Options]" => $opt,
-       "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-       "[StatusUpdate.Share]" => $share,
-       "[StatusUpdate.Votes]" => $options["Vote"]
-      ], $this->core->Extension("2e76fb1523c34ed0c8092cde66895eb1")]);
-      $r = ($embeddedView == 1) ? $r : [
-       "Front" => $r
+      $_View = [
+       "ChangeData" => [
+        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+        "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
+        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+        "[Conversation.CRID]" => $update["ID"],
+        "[Conversation.CRIDE]" => base64_encode($update["ID"]),
+        "[Conversation.Level]" => base64_encode(1),
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
+        "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
+        "[StatusUpdate.Body]" => $this->core->PlainText([
+         "BBCodes" => 1,
+         "Data" => base64_decode($update["Body"]),
+         "Display" => 1
+        ]),
+        "[StatusUpdate.CoverPhoto]" => $_StatusUpdate["ListItem"]["CoverPhoto"],
+        "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
+        "[StatusUpdate.DisplayName]" => $displayName.$verified,
+        "[StatusUpdate.ID]" => $update["ID"],
+        "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
+        "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
+        "[StatusUpdate.Notes]" => $options["Notes"],
+        "[StatusUpdate.Options]" => $opt,
+        "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
+        "[StatusUpdate.Share]" => $share,
+        "[StatusUpdate.Votes]" => $options["Vote"]
+       ],
+       "ExtensionID" => "2e76fb1523c34ed0c8092cde66895eb1"
+      ];
+      $_Card = ($embeddedView == 1) ? $_View : [
+       "Front" => $_View
       ];
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
+  function Save(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Update Identifier is missing."
+   ];
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
-   $r = [
-    "Body" => "The Update Identifier is missing."
-   ];
    $to = $data["To"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
     $update = $this->core->Data("Get", ["su", $id]);
     $albums = [];
@@ -425,7 +423,7 @@
      "To" => $to,
      "Updates" => $updates
     ];
-    $sql = New SQL($this->core->cypher->SQLCredentials());
+    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO StatusUpdates(
      StatusUpdate_Body,
      StatusUpdate_Created,
@@ -458,57 +456,52 @@
     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
     $this->core->Data("Save", ["su", $update["ID"], $update]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Statistic($statistic);
+    $this->core->Statistic($statistic);--*/
     $r = [
      "Body" => "The Status Update was $actionTaken.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($update, true)
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
    ]);
   }
-  function Purge(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Purge(array $data) {
+   $_Dialog = [
+    "Body" => "The Status Update Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Status Update Identifier is missing."
-   ];
    $secureKey = $data["SecureKey"] ?? base64_encode("");
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKey) {
-    $r = [
-     "Body" => "The PINs do not match."
-    ];
+    $_Dialog = "";
    } elseif($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $id = base64_decode($id);
     $newStream = [];
-    $stream = $this->core->Data("Get", ["stream", md5($you)]) ?? [];
+    $stream = $this->core->Data("Get", ["stream", md5($you)]);
     foreach($stream as $key => $value) {
      if($id != $value["UpdateID"]) {
       $newStream[$key] = $value;
      }
     }
     $y["Activity"]["LastActive"] = $this->core->timestamp;
-    $conversation = $this->core->Data("Get", ["conversation", $id]);
+    /*--$conversation = $this->core->Data("Get", ["conversation", $id]);
     if(!empty($conversation)) {
      $conversation["Purge"] = 1;
      $this->core->Data("Save", ["conversation", $id, $conversation]);
@@ -535,8 +528,8 @@
      $this->core->Data("Save", ["votes", $id, $votes]);
     }
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["stream", md5($you), $stream]);
-    $r = $this->core->Element([
+    $this->core->Data("Save", ["stream", md5($you), $stream]);--*/
+    $_View = $this->core->Element([
      "p", "The Update and dependencies were marked for purging.",
      ["class" => "CenterText"]
     ]).$this->core->Element([
@@ -544,13 +537,9 @@
     ]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function __destruct() {
