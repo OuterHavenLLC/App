@@ -4,38 +4,27 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Donate(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+  function Donate() {
    $donate = "v=".base64_encode("Shop:Pay")."&Shop=".md5($this->core->ShopID)."&Type=Donation&ViewPairID=".base64_encode("CompanyDonations")."&Amount=";
-   $pub = $data["pub"] ?? 0;
-   $r = $this->core->Change([[
-    "[Donate.5]" => base64_encode($donate.base64_encode(5)),
-    "[Donate.10]" => base64_encode($donate.base64_encode(10)),
-    "[Donate.15]" => base64_encode($donate.base64_encode(15)),
-    "[Donate.20]" => base64_encode($donate.base64_encode(20)),
-    "[Donate.25]" => base64_encode($donate.base64_encode(25)),
-    "[Donate.30]" => base64_encode($donate.base64_encode(30)),
-    "[Donate.35]" => base64_encode($donate.base64_encode(35)),
-    "[Donate.40]" => base64_encode($donate.base64_encode(40)),
-    "[Donate.45]" => base64_encode($donate.base64_encode(45)),
-    "[Donate.1000]" => base64_encode($donate.base64_encode(1000)),
-    "[Donate.2000]" => base64_encode($donate.base64_encode(2000))
-   ], $this->core->Extension("39e1ff34ec859482b7e38e012f81a03f")]);
-   if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
+   $_View = [
+    "ChangeData" => [
+     "[Donate.5]" => base64_encode($donate.base64_encode(5)),
+     "[Donate.10]" => base64_encode($donate.base64_encode(10)),
+     "[Donate.15]" => base64_encode($donate.base64_encode(15)),
+     "[Donate.20]" => base64_encode($donate.base64_encode(20)),
+     "[Donate.25]" => base64_encode($donate.base64_encode(25)),
+     "[Donate.30]" => base64_encode($donate.base64_encode(30)),
+     "[Donate.35]" => base64_encode($donate.base64_encode(35)),
+     "[Donate.40]" => base64_encode($donate.base64_encode(40)),
+     "[Donate.45]" => base64_encode($donate.base64_encode(45)),
+     "[Donate.1000]" => base64_encode($donate.base64_encode(1000)),
+     "[Donate.2000]" => base64_encode($donate.base64_encode(2000))
     ],
-    "ResponseType" => "View",
-    "Title" => "Donate to ".$this->core->config["App"]["Name"]
+    "ExtensionID" => "39e1ff34ec859482b7e38e012f81a03f"
+   ];
+   return $this->core->JSONResponse([
+    "Title" => "Donate to ".$this->core->config["App"]["Name"],
+    "View" => $_View
    ]);
   }
   function FreeAmericaRadio() {
@@ -71,49 +60,31 @@
     "View" => $_View
    ]);
   }
-  function Home(array $a) {
-   $_ViewTitle = "About ".$this->core->config["App"]["Name"];
-   $accessCode = "Accepted";
+  function Home() {
    $b2 = urlencode($this->core->config["App"]["Name"]);
    $eventMedia = $this->core->RenderEventMedia() ?? [];
-   $data = $a["Data"] ?? [];
-   $card = $data["Card"] ?? 0;
-   $pub = $data["pub"] ?? 0;
    $shopID = base64_encode($this->core->ShopID);
-   $r = $this->core->Change([[
-    "[App.Banner]" => $eventMedia["Banner"],
-    "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
-    "[App.Earnings]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=$shopID"),
-    "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-    "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
-    "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
-    "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
-    "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
-    "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
-    "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
-   ], $this->core->Extension("0a24912129c7df643f36cb26038300d6")]);
-   $r = ($card == 1) ? [
-    "Front" => $r
-   ] : $r;
-   if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
-   }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "Title" => $_ViewTitle
+    "Title" => "About ".$this->core->config["App"]["Name"],
+    "View" => [
+     "ChangeData" => [
+      "[App.Banner]" => $eventMedia["Banner"],
+      "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
+      "[App.Earnings]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=$shopID"),
+      "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
+      "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
+      "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
+      "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
+      "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
+      "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
+      "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
+     ],
+     "ExtensionID" => "0a24912129c7df643f36cb26038300d6"
+    ]
    ]);
   }
-  function Partners(array $a) {
-   $accessCode = "Accepted";
+  function Partners() {
    $partners = $this->core->Member($this->core->ShopID);
    $shop = $this->core->Data("Get", [
     "shop",
@@ -130,37 +101,35 @@
      "[IncomeDisclosure.Partner.Title]" => $value["Title"]
     ], $template]);
    }
-   $r = $this->core->Change([[
-    "[Partners.Table]" => $partnersList
-   ], $this->core->Extension("2c726e65e5342489621df8fea850dc47")]);
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [
+      "[Partners.Table]" => $partnersList
+     ],
+     "ExtensionID" => "2c726e65e5342489621df8fea850dc47"]
    ]);
   }
-  function Statistics(array $a) {
-   $data = $a["Data"] ?? [];
+  function Statistics(array $data) {
+   $data = $data["Data"] ?? [];
    $month = $data["Month"] ?? base64_encode("");
    $month = base64_decode($month);
-   $pub = $data["pub"] ?? 0;
-   $r = $this->core->Change([[
-    "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Years"))
-   ], $this->core->Extension("0ba6b9256b4c686505aa66d23bec6b5c")]);
+   $_View = [
+    "ChangeData" => [
+     "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Years"))
+    ],
+    "ExtensionID" => "0ba6b9256b4c686505aa66d23bec6b5c"
+   ];
    $references = $this->core->config["Statistics"] ?? [];
-   $statistics = $this->core->Data("Get", ["app", md5("stats")]) ?? [];
+   $statistics = $this->core->Data("Get", ["app", md5("stats")]);
    $view = $data["View"] ?? base64_encode("");
    $view = base64_decode($view);
    $year = $data["Year"] ?? base64_encode("");
    $year = base64_decode($year);
    if(!empty($view)) {
+    $_View = "";
     $i = 0;
     $lineItem = $this->core->Extension("d019a2b62accac6e883e04b358953f3f");
-    $r = "";
     $tile = $this->core->Extension("633ddf914ed8a2e2aa7e023471ec83b2");
     if($view == "Month") {
      $days = "";
@@ -196,7 +165,7 @@
       ], $lineItem]);
      }
      $monthName = $this->core->GetMonthConversion($month);
-     $r = ($i > 0) ? $this->core->Change([
+     $_View = ($i > 0) ? $this->core->Change([
       [
        "[Month.Days]" => $days,
        "[Month.Name]" => "$monthName, $year",
@@ -246,7 +215,7 @@
        "[Statistic.Value]" => number_format($value)
       ], $lineItem]);
      }
-     $r = ($i > 0) ? $this->core->Change([
+     $_View = ($i > 0) ? $this->core->Change([
       [
        "[Year.Months]" => $months,
        "[Year.Totals]" => $yearLineItems
@@ -256,71 +225,57 @@
      ]]);
     } elseif($view == "Years") {
      foreach($statistics as $year => $data) {
-      $r .= $this->core->Change([[
+      $_View .= $this->core->Change([[
        "[Year]" => $year,
        "[Year.View]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
       ], $this->core->Extension("823daad2deeb06a561481fae9b88b1f3")]);
      }
     }
-   } if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "Title" => "Statistics @ ".$this->core->config["App"]["Name"]
+    "Title" => "Statistics @ ".$this->core->config["App"]["Name"],
+    "View" => $_View
    ]);
   }
-  function VVA(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "CARD",
-    "b2",
-    "back",
-    "lPG",
-    "pub"
-   ]);
-   $back = ($data["back"] == 1) ? $this->core->Element([
-    "button", "Back to <em>".$data["b2"]."</em>", [
-     "class" => "GoToParent LI head",
-     "data-type" => $data["lPG"]
+  function VVA(array $data) {
+   $_Card = "";
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $back = $data["back"] ?? 0;
+   $backTo = $data["b2"] ?? $this->core->config["App"]["Name"];
+   $parentPage = $data["lPG"] ?? "";
+   $back = ($back == 1) ? $this->core->Element([
+    "button", "Back to <em>$backTo</em>", [
+     "class" => "GoToParent LI header",
+     "data-type" => $parentPage
     ]
    ]) : "";
+   $card = $data["CARD"] ?? 0;
    $portfolio = $this->view(base64_encode("Search:Containers"), ["Data" => [
     "st" => "VVA"
    ]]);
-   $r = $this->core->Change([[
-    "[VVA.Back]" => $back,
-    "[VVA.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
-    "[VVA.Portfolio]" => $this->core->RenderView($portfolio)
-   ], $this->core->Extension("a7977ac51e7f8420f437c70d801fc72b")]);
-   $r = ($data["CARD"] == 1) ? [
-    "Front" => $r
-   ] : $r;
-   if($data["pub"] == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
+   $_View = [
+    "ChangeData" => [
+     "[VVA.Back]" => $back,
+     "[VVA.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
+     "[VVA.Portfolio]" => $this->core->RenderView($portfolio)
     ],
-    "ResponseType" => "View",
-    "Title" => "Visual Vanguard Architecture"
+    "ExtensionID" => "a7977ac51e7f8420f437c70d801fc72b"
+   ];
+   $_Card = ($card == 1) ? [
+    "Front" => $_View
+   ] : "";
+   $_View = ($card == 0) ? $_View : "";
+   return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
+    "Card" => $_Card,
+    "Title" => "Visual Vanguard Architecture",
+    "View" => $_View
    ]);
   }
   function __destruct() {
