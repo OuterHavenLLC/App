@@ -77,8 +77,8 @@
       "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
       "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
       "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
-      "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")),
-      "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&b2=$b2&back=1&lPG=OHC")
+      "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")."&TopMargin=".base64_encode("0")),
+      "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&TopMargin=".base64_encode("0")."&b2=$b2&back=1&lPG=OHC")
      ],
      "ExtensionID" => "0a24912129c7df643f36cb26038300d6"
     ]
@@ -93,16 +93,16 @@
    $partners = $shop["Contributors"] ?? [];
    $partnersList = "";
    $template = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
-   foreach($partners as $key => $value) {
+   foreach($partners as $key => $info) {
     $partnersList .= $this->core->Change([[
-     "[IncomeDisclosure.Partner.Company]" => $value["Company"],
-     "[IncomeDisclosure.Partner.Description]" => $value["Description"],
-     "[IncomeDisclosure.Partner.DisplayName]" => $key,
-     "[IncomeDisclosure.Partner.Title]" => $value["Title"]
+     "[Partner.Company]" => $info["Company"],
+     "[Partner.Description]" => $info["Description"],
+     "[Partner.DisplayName]" => $key,
+     "[Partner.Pay]" => "",
+     "[Partner.Title]" => $info["Title"]
     ], $template]);
    }
    return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
     "View" => [
      "ChangeData" => [
       "[Partners.Table]" => $partnersList
@@ -111,15 +111,18 @@
    ]);
   }
   function Statistics(array $data) {
-   $data = $data["Data"] ?? [];
-   $month = $data["Month"] ?? base64_encode("");
-   $month = base64_decode($month);
+   $_AddTopMargin = 1;
    $_View = [
     "ChangeData" => [
      "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Years"))
     ],
     "ExtensionID" => "0ba6b9256b4c686505aa66d23bec6b5c"
    ];
+   $data = $data["Data"] ?? [];
+   $_AddTopMargin = $data["TopMargin"] ?? base64_encode($_AddTopMargin);
+   $_AddTopMargin = base64_decode($_AddTopMargin);
+   $month = $data["Month"] ?? base64_encode("");
+   $month = base64_decode($month);
    $references = $this->core->config["Statistics"] ?? [];
    $statistics = $this->core->Data("Get", ["app", md5("stats")]);
    $view = $data["View"] ?? base64_encode("");
@@ -237,14 +240,18 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $_AddTopMargin,
     "Title" => "Statistics @ ".$this->core->config["App"]["Name"],
     "View" => $_View
    ]);
   }
   function VVA(array $data) {
+   $_AddTopMargin = 1;
    $_Card = "";
    $_View = "";
+   $data = $data["Data"] ?? [];
+   $_AddTopMargin = $data["TopMargin"] ?? base64_encode($_AddTopMargin);
+   $_AddTopMargin = base64_decode($_AddTopMargin);
    $data = $data["Data"] ?? [];
    $back = $data["back"] ?? 0;
    $backTo = $data["b2"] ?? $this->core->config["App"]["Name"];
@@ -272,7 +279,7 @@
    ] : "";
    $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
     "Title" => "Visual Vanguard Architecture",
     "View" => $_View

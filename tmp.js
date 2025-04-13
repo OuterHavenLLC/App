@@ -1400,7 +1400,7 @@ function UpdateContent(Container, View, Encryption = "") {
  } else {
   View = Base64decrypt(View);
  } if($(Container).html() === "") {
-  $(Container).html("<h4 class='CenterText InnerMargin'>" + Loading + "</h4>\r\n");
+  $(Container).html("<h2 class='CenterText InnerMargin'>" + Loading + "</h2>\r\n");
  }
  setTimeout(() => {
   $.ajax({
