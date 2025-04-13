@@ -21,7 +21,7 @@
     ];
    } elseif($disabled == 1) {
     $_Dialog = [
-     "Body" => "Translate is disabled for this experience."
+     "Body" => "Translate is disabled for this experience.",
      "Header" => "Translate"
     ];
    } elseif(!empty($id)) {

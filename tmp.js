@@ -445,18 +445,20 @@ function ExecuteCommands(Commands = "", Executed = "No") {
     AddContent();
    } else if(Name === "Bulletins") {
     Bulletins();
+   } else if(Name === "RefreshCoverPhoto" && ParameterCount === 2) {
+    RefreshCoverPhoto(Parameters[0], Parameters[1]);
    } else if(Name === "SignIn" && ParameterCount === 1) {
     SignIn(Command.Parameters[0]);
    } else if(Name === "UpdateContent" && ParameterCount === 2) {
     UpdateContent(Parameters[0], Parameters[1]);
-   } else if(Name === "UpdateContentAES" && ParameterCount === 3) {
-    UpdateContent(Parameters[0], Parameters[1], Parameters[2]);
+   } else if(Name === "UpdateContentAES" && ParameterCount === 2) {
+    UpdateContent(Parameters[0], Parameters[1], "AES");
    } else if(Name === "UpdateCoverPhoto" && ParameterCount === 2) {
     UpdateCoverPhoto(Parameters[0], Parameters[1]);
    } else if(Name === "UpdateContentRecursive" && ParameterCount === 3) {
     UpdateContentRecursive(Parameters[0], Parameters[1], Parameters[2]);
-   } else if(Name === "UpdateContentRecursiveAES" && ParameterCount === 4) {
-    UpdateContentRecursive(Parameters[0], Parameters[1], Parameters[2], Parameters[3]);
+   } else if(Name === "UpdateContentRecursiveAES" && ParameterCount === 3) {
+    UpdateContentRecursive(Parameters[0], Parameters[1], Parameters[2], "AES");
    }
   });
  }
@@ -1446,13 +1448,14 @@ function UpdateContentRecursive(Container, View, Interval = 6000, Encryption = "
   UpdateContent(Container, View, Encryption);
  }, Interval);
 }
-function UpdateCoverPhoto(Container, Photo) {
+function UpdateCoverPhoto(Container, Image) {
  var Container = Container || DefaultContainer,
-       Photo = Photo || "";
- if(Photo !== "" && typeof Photo !== "undefined") {
+       Image = Image || "";
+ if(Image !== "" && typeof Image !== "undefined") {
   $(Container).css({
-   "background": "url('" + Photo + "') no-repeat center center fixed",
-   "backgroundSize": "cover"
+   "background": "url('" + Image + "') no-repeat center center fixed",
+   "background-size": "cover",
+   "transition": "background 1s ease-in-out"
   });
  }
 }

@@ -66,18 +66,51 @@
    $shopID = base64_encode($this->core->ShopID);
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => [
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".AppEarnings",
+       $this->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=$shopID")
+      ]
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".AppNews",
+       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR")
+      ]
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".AppPartners",
+       $this->core->AESencrypt("v=".base64_encode("Company:Partners"))
+      ]
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".AppStatistics",
+       $this->core->AESencrypt("v=".base64_encode("Company:Statistics")."&TopMargin=".base64_encode("0"))
+      ]
+     ],
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".AppHire",
+       $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
+       30000
+      ]
+     ]
+    ],
     "Title" => "About ".$this->core->config["App"]["Name"],
     "View" => [
      "ChangeData" => [
       "[App.Banner]" => $eventMedia["Banner"],
       "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
-      "[App.Earnings]" => base64_encode("v=".base64_encode("Revenue:Home")."&Shop=$shopID"),
       "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-      "[App.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
-      "[App.News]" => base64_encode("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR"),
-      "[App.Partners]" => base64_encode("v=".base64_encode("Company:Partners")),
       "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
-      "[App.Statistics]" => base64_encode("v=".base64_encode("Company:Statistics")."&TopMargin=".base64_encode("0")),
       "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&TopMargin=".base64_encode("0")."&b2=$b2&back=1&lPG=OHC")
      ],
      "ExtensionID" => "0a24912129c7df643f36cb26038300d6"
@@ -93,11 +126,11 @@
    $partners = $shop["Contributors"] ?? [];
    $partnersList = "";
    $template = $this->core->Extension("a10a03f2d169f34450792c146c40d96d");
-   foreach($partners as $key => $info) {
+   foreach($partners as $partner => $info) {
     $partnersList .= $this->core->Change([[
      "[Partner.Company]" => $info["Company"],
      "[Partner.Description]" => $info["Description"],
-     "[Partner.DisplayName]" => $key,
+     "[Partner.DisplayName]" => $partner,
      "[Partner.Pay]" => "",
      "[Partner.Title]" => $info["Title"]
     ], $template]);
@@ -263,14 +296,9 @@
     ]
    ]) : "";
    $card = $data["CARD"] ?? 0;
-   $portfolio = $this->view(base64_encode("Search:Containers"), ["Data" => [
-    "st" => "VVA"
-   ]]);
    $_View = [
     "ChangeData" => [
-     "[VVA.Back]" => $back,
-     "[VVA.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
-     "[VVA.Portfolio]" => $this->core->RenderView($portfolio)
+     "[VVA.Back]" => $back
     ],
     "ExtensionID" => "a7977ac51e7f8420f437c70d801fc72b"
    ];
@@ -281,6 +309,37 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
+    "Commands" => [
+     [
+      "Name" => "RefreshCoverPhoto",
+      "Parameters" => [
+       ".VVACP",
+       [
+        "0" => $this->core->PlainText([
+         "Data" => "[Media:CP]"
+        ]),
+        "1" => $this->core->PlainText([
+         "Data" => "[Media:VVA-CP]"
+        ])
+       ]
+      ]
+     ],
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".VVAHire",
+       $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
+       30000
+      ]
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".VVAPortfolio",
+       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&st=VVA")
+      ]
+     ]
+    ],
     "Title" => "Visual Vanguard Architecture",
     "View" => $_View
    ]);

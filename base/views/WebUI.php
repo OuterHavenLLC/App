@@ -375,8 +375,7 @@
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".Content",
-       $this->core->AESencrypt($content),
-       "AES"
+       $this->core->AESencrypt($content)
       ]
      ],
      [
@@ -384,8 +383,7 @@
       "Parameters" => [
        ".Menu",
        $this->core->AESencrypt("v=".base64_encode("WebUI:Menu")),
-       6000,
-       "AES"
+       6000
       ]
      ]
     ],
@@ -540,8 +538,7 @@
      "Name" => "UpdateContentAES",
      "Parameters" => [
       ".Content",
-      $view,
-      "AES"
+      $view
      ]
     ];
     $_View = [

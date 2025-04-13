@@ -1488,7 +1488,7 @@ function AESencrypt(string $data) {
   function RenderView(string $data) {
    $data = json_decode($data, true);
    $view = $data["View"] ?? $this->Element([
-    "p", "No View Data<br/>Source Data: $data"
+    "p", "No View Data<br/>Source Data: ".json_encode($data, true)
    ]);
    return $view;
   }
