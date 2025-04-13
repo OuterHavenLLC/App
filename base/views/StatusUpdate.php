@@ -124,6 +124,7 @@
      "ID" => base64_encode("StatusUpdate;$id")
     ]);
     if($_StatusUpdate["Empty"] == 0) {
+     $options = $_StatusUpdate["ListItem"]["Options"];
      $update = $_StatusUpdate["DataModel"];
      $passPhrase = $update["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
@@ -194,7 +195,6 @@
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($update, "LiveView");
       $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
-      $options = $_StatusUpdate["ListItem"]["Options"];
       $actions = ($this->core->ID != $you) ? $actions : "";
       $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([

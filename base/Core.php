@@ -916,11 +916,11 @@ function AESencrypt(string $data) {
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Status Updates")),
        "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
-       "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
+       "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
        "ShareLink" => $this->base."/@$from/status/$contentID",
        "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
-       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
+       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }
     }
