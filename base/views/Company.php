@@ -170,6 +170,7 @@
    $year = $data["Year"] ?? base64_encode("");
    $year = base64_decode($year);
    if(!empty($view)) {
+    $_Commands = [];
     $_View = "";
     $i = 0;
     $lineItem = $this->core->Extension("d019a2b62accac6e883e04b358953f3f");
@@ -218,7 +219,6 @@
       "class" => "CenterText UpperCase"
      ]]);
     } elseif($view == "Year") {
-     $_Commands = [];
      $months = "";
      $yearData = $statistics[$year] ?? [];
      $yearLineItems = "";
