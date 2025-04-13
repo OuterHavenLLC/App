@@ -269,6 +269,13 @@
      ]]);
     } elseif($view == "Years") {
      foreach($statistics as $year => $data) {
+      array_push($_Commands, [
+       "Name" => "UpdateContentAES",
+       "Parameters" => [
+        ".StatisticsYear$year",
+        $this->core->AESencrypt("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
+       ]
+      ]);
       $_View .= $this->core->Change([[
        "[Year]" => $year
       ], $this->core->Extension("823daad2deeb06a561481fae9b88b1f3")]);
