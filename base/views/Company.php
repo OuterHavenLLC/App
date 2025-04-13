@@ -61,7 +61,6 @@
    ]);
   }
   function Home() {
-   $b2 = urlencode($this->core->config["App"]["Name"]);
    $eventMedia = $this->core->RenderEventMedia() ?? [];
    $shopID = base64_encode($this->core->ShopID);
    return $this->core->JSONResponse([
@@ -78,7 +77,7 @@
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".AppNews",
-       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&b2=$b2&lPG=OHC&st=PR")
+       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&&st=PR")
       ]
      ],
      [
@@ -110,8 +109,8 @@
       "[App.Banner]" => $eventMedia["Banner"],
       "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
       "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-      "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=$b2&back=1&lPG=OHC&UN=$shopID"),
-      "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&TopMargin=".base64_encode("0")."&b2=$b2&back=1&lPG=OHC")
+      "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=".urlencode("Company Home")."&back=1&lPG=OHC&UN=$shopID"),
+      "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&TopMargin=".base64_encode("0")."&back=1")
      ],
      "ExtensionID" => "0a24912129c7df643f36cb26038300d6"
     ]
@@ -302,12 +301,10 @@
    $_AddTopMargin = base64_decode($_AddTopMargin);
    $data = $data["Data"] ?? [];
    $back = $data["back"] ?? 0;
-   $backTo = $data["b2"] ?? $this->core->config["App"]["Name"];
-   $parentPage = $data["lPG"] ?? "";
    $back = ($back == 1) ? $this->core->Element([
-    "button", "Back to <em>$backTo</em>", [
-     "class" => "GoToParent LI header",
-     "data-type" => $parentPage
+    "button", "Back to <em>Company Home</em>", [
+     "class" => "GoToParent LI",
+     "data-type" => "OHC"
     ]
    ]) : "";
    $card = $data["CARD"] ?? 0;

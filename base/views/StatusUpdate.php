@@ -106,6 +106,7 @@
   }
   function Home(array $data) {
    $_Card = "";
+   $_Commands = [];
    $_Dialog = [
     "Body" => "The Post Identifier is missing.",
     "Header" => "Not Found"
@@ -165,20 +166,36 @@
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_Card = "";
+      $_Commands = [
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Notes".$update["ID"],
+         $options["Notes"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Votes".$update["ID"],
+         $options["Vote"]
+        ]
+       ]
+      ];
       $_Dialog = "";
+      $actions = ($update["From"] != $you) ? $this->core->Element([
+       "button", $blockCommand, [
+        "class" => "Small UpdateButton v2",
+        "data-processor" => $options["Block"]
+       ]
+      ]) : "";
       $displayName = $update["From"];
       $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($update, "LiveView");
       $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
       $options = $_StatusUpdate["ListItem"]["Options"];
-      $opt = ($update["From"] != $you) ? $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => $options["Block"]
-       ]
-      ]) : "";
-      $opt = ($this->core->ID != $you) ? $opt : "";
+      $actions = ($this->core->ID != $you) ? $actions : "";
       $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([
        "div", $this->core->Element(["button", "Share", [
@@ -221,11 +238,9 @@
         "[StatusUpdate.ID]" => $update["ID"],
         "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
         "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-        "[StatusUpdate.Notes]" => $options["Notes"],
         "[StatusUpdate.Options]" => $opt,
         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-        "[StatusUpdate.Share]" => $share,
-        "[StatusUpdate.Votes]" => $options["Vote"]
+        "[StatusUpdate.Share]" => $share
        ],
        "ExtensionID" => "2e76fb1523c34ed0c8092cde66895eb1"
       ];
@@ -238,6 +253,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
