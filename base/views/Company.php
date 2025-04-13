@@ -145,10 +145,17 @@
   }
   function Statistics(array $data) {
    $_AddTopMargin = 1;
+   $_Commands = [
+    [
+     "Name" => "UpdateContentAES",
+     "Parameters" => [
+      ".StatisticsYears",
+      $this->core->AESencrypt("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Years"))
+     ]
+    ]
+   ];
    $_View = [
-    "ChangeData" => [
-     "[Statistics.Years]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Years"))
-    ],
+    "ChangeData" => [],
     "ExtensionID" => "0ba6b9256b4c686505aa66d23bec6b5c"
    ];
    $data = $data["Data"] ?? [];
@@ -211,6 +218,7 @@
       "class" => "CenterText UpperCase"
      ]]);
     } elseif($view == "Year") {
+     $_Commands = [];
      $months = "";
      $yearData = $statistics[$year] ?? [];
      $yearLineItems = "";
@@ -262,8 +270,7 @@
     } elseif($view == "Years") {
      foreach($statistics as $year => $data) {
       $_View .= $this->core->Change([[
-       "[Year]" => $year,
-       "[Year.View]" => base64_encode("v=".base64_encode("Company:Statistics")."&View=".base64_encode("Year")."&Year=".base64_encode($year))
+       "[Year]" => $year
       ], $this->core->Extension("823daad2deeb06a561481fae9b88b1f3")]);
      }
     }
@@ -274,6 +281,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => $_AddTopMargin,
+    "Commands" => $_Commands,
     "Title" => "Statistics @ ".$this->core->config["App"]["Name"],
     "View" => $_View
    ]);
