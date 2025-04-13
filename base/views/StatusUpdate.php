@@ -242,6 +242,111 @@
     "View" => $_View
    ]);
   }
+  function Public(array $data) {
+   $_Query = "SELECT * FROM StatusUpdates
+                       JOIN Members
+                       ON Member_Username=StatusUpdate_Username
+                       WHERE StatusUpdate_ID=:ID AND
+                                     StatusUpdate_Username=:Username
+   ";
+   $_View = $this->view(base64_encode("WebUI:Error"), ["Data" => [
+    "Error" => 404
+   ]]);
+   $_View = $this->core->RenderView($_View);
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? base64_encode("");
+   $id = base64_decode($id);
+   $username = $data["UN"] ?? base64_encode("");
+   $username = base64_decode($username);
+   $sql = New SQL($this->core->cypher->SQLCredentials());
+   $sql->query($_Query, [
+    ":ID" => $id,
+    ":Username" => $username
+   ]);
+   $sql = $sql->set();
+   if(count($sql) === 1) {
+    $_View = $this->view(base64_encode("StatusUpdate:Home"), ["Data" => [
+     "SU" => $id
+    ]]);
+    $_View = $this->core->RenderView($_View);
+   }
+   return $this->core->JSONResponse([
+    "AddTopMargin" => 1,
+    "View" => $_View
+   ]);
+  }
+  function Purge(array $data) {
+   $_Dialog = [
+    "Body" => "The Status Update Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $key = $data["Key"] ?? base64_encode("");
+   $key = base64_decode($key);
+   $id = $data["ID"] ?? "";
+   $secureKey = $data["SecureKey"] ?? base64_encode("");
+   $secureKey = base64_decode($secureKey);
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if(md5($key) != $secureKey) {
+    $_Dialog = "";
+   } elseif($this->core->ID == $you) {
+    $_Dialog = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($id)) {
+    $_Dialog = "";
+    $id = base64_decode($id);
+    $newStream = [];
+    $stream = $this->core->Data("Get", ["stream", md5($you)]);
+    foreach($stream as $key => $value) {
+     if($id != $value["UpdateID"]) {
+      $newStream[$key] = $value;
+     }
+    }
+    $y["Activity"]["LastActive"] = $this->core->timestamp;
+    /*--$conversation = $this->core->Data("Get", ["conversation", $id]);
+    if(!empty($conversation)) {
+     $conversation["Purge"] = 1;
+     $this->core->Data("Save", ["conversation", $id, $conversation]);
+    }
+    $statusUpdate = $this->core->Data("Get", ["su", $id]);
+    $sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql->query("DELETE FROM StatusUpdates WHERE StatusUpdate_ID=:ID", [
+     ":ID" => $id
+    ]);
+    $sql->execute();
+    if(!empty($statusUpdate)) {
+     $statusUpdate["Purge"] = 1;
+     $this->core->Data("Save", ["su", $id, $statusUpdate]);
+    }
+    $stream = $newStream;
+    $translations = $this->core->Data("Get", ["translate", $id]);
+    if(!empty($translations)) {
+     $translations["Purge"] = 1;
+     $this->core->Data("Save", ["translate", $id, $translations]);
+    }
+    $votes = $this->core->Data("Get", ["votes", $id]);
+    if(!empty($votes)) {
+     $votes["Purge"] = 1;
+     $this->core->Data("Save", ["votes", $id, $votes]);
+    }
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["stream", md5($you), $stream]);--*/
+    $_View = $this->core->Element([
+     "p", "The Update and dependencies were marked for purging.",
+     ["class" => "CenterText"]
+    ]).$this->core->Element([
+     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+    ]);
+   }
+   return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
+    "Dialog" => $_Dialog,
+    "View" => $_View
+   ]);
+  }
   function Save(array $data) {
    $_AccessCode = "Denied";
    $_Dialog = [
@@ -467,79 +572,7 @@
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
     "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
-   ]);
-  }
-  function Purge(array $data) {
-   $_Dialog = [
-    "Body" => "The Status Update Identifier is missing."
-   ];
-   $_View = "";
-   $data = $data["Data"] ?? [];
-   $key = $data["Key"] ?? base64_encode("");
-   $key = base64_decode($key);
-   $id = $data["ID"] ?? "";
-   $secureKey = $data["SecureKey"] ?? base64_encode("");
-   $secureKey = base64_decode($secureKey);
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if(md5($key) != $secureKey) {
-    $_Dialog = "";
-   } elseif($this->core->ID == $you) {
-    $_Dialog = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($id)) {
-    $_Dialog = "";
-    $id = base64_decode($id);
-    $newStream = [];
-    $stream = $this->core->Data("Get", ["stream", md5($you)]);
-    foreach($stream as $key => $value) {
-     if($id != $value["UpdateID"]) {
-      $newStream[$key] = $value;
-     }
-    }
-    $y["Activity"]["LastActive"] = $this->core->timestamp;
-    /*--$conversation = $this->core->Data("Get", ["conversation", $id]);
-    if(!empty($conversation)) {
-     $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
-    }
-    $statusUpdate = $this->core->Data("Get", ["su", $id]);
-    $sql = New SQL($this->core->cypher->SQLCredentials());
-    $sql->query("DELETE FROM StatusUpdates WHERE StatusUpdate_ID=:ID", [
-     ":ID" => $id
-    ]);
-    $sql->execute();
-    if(!empty($statusUpdate)) {
-     $statusUpdate["Purge"] = 1;
-     $this->core->Data("Save", ["su", $id, $statusUpdate]);
-    }
-    $stream = $newStream;
-    $translations = $this->core->Data("Get", ["translate", $id]);
-    if(!empty($translations)) {
-     $translations["Purge"] = 1;
-     $this->core->Data("Save", ["translate", $id, $translations]);
-    }
-    $votes = $this->core->Data("Get", ["votes", $id]);
-    if(!empty($votes)) {
-     $votes["Purge"] = 1;
-     $this->core->Data("Save", ["votes", $id, $votes]);
-    }
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["stream", md5($you), $stream]);--*/
-    $_View = $this->core->Element([
-     "p", "The Update and dependencies were marked for purging.",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
-   }
-   return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
-    "Dialog" => $_Dialog,
-    "View" => $_View
+    #"Success" => "CloseCard"
    ]);
   }
   function __destruct() {

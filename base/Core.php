@@ -1487,15 +1487,9 @@ function AESencrypt(string $data) {
   }
   function RenderView(string $data) {
    $data = json_decode($data, true);
-   // BEGIN TEMP
-   $view = $data["Response"]["Web"] ?? $this->Element([
-    "p", "No View Data<br/>Source Data: ".json_encode($data, true)
-   ]);
-   $view = $data["View"] ?? $view;
-   // END TEMP
-   /*--$view = $data["View"] ?? $this->Element([
+   $view = $data["View"] ?? $this->Element([
     "p", "No View Data<br/>Source Data: $data"
-   ]);--*/
+   ]);
    return $view;
   }
   function SendBulletin(array $a) {

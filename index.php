@@ -84,7 +84,7 @@
    # MEMBERS
    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Profile:Home")."&back=0&UN=".base64_encode($command[1]));
    if(!empty($command[3]) && $command[2] == "status") {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("StstuaUpdate:Home")."&SU=".base64_encode($command[3]));
+    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("StstuaUpdate:Public")."&ID=".base64_encode($command[3])."&UN=".base64_encode($command[2]));
    }
   } elseif($command[0] == "VVA") {
    # VISUAL VANGUARD ARCHITECTURE
