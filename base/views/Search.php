@@ -15,6 +15,7 @@
     "Body" => "The List Type is missing.",
     "Header" => "Not Found"
    ];
+   $_List = "v=".$this->lists;
    $_View = "";
    $data = $a["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
@@ -35,10 +36,9 @@
    $searchLists = $this->core->config["App"]["Search"] ?? [];
    $check = 0;
    $query = $data["query"] ?? "";
-   $list = "v=".$this->lists;
-   $list .= (!empty($addTo)) ? "&AddTo=$addTo" : "";
-   $list .= (!empty($query)) ? "&query=$query" : "";
-   $list .= (!empty($searchType)) ? "&st=$searchType" : "";
+   $_List .= (!empty($addTo)) ? "&AddTo=$addTo" : "";
+   $_List .= (!empty($query)) ? "&query=$query" : "";
+   $_List .= (!empty($searchType)) ? "&st=$searchType" : "";
    $options = "";
    $variant = "Default";
    $y = $this->you;
@@ -50,7 +50,7 @@
      break;
     }
    } if($check == 1) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     if($searchType == "ADM-LLP") {
      $header = "App Extensions";
      $searchBarText = "Extensions";
@@ -62,16 +62,16 @@
      ]) : "";
     } elseif($searchType == "BGP") {
      $header = "Blog Posts";
-     $list .= (!empty($data["ID"])) ? "&ID=".$data["ID"] : "";
+     $_List .= (!empty($data["ID"])) ? "&ID=".$data["ID"] : "";
      $searchBarText = "Posts";
     } elseif($searchType == "BL") {
      $bl = base64_decode($data["BL"]);
      $header = "$bl Blacklist";
-     $list .= (!empty($data["BL"])) ? "&BL=".$data["BL"] : "";
+     $_List .= (!empty($data["BL"])) ? "&BL=".$data["BL"] : "";
      $searchBarText = "$bl Blacklist";
     } elseif($searchType == "BLG") {
      $header = "Blogs";
-     $list .= "&b2=Blogs&lPG=$searchType";
+     $_List .= "&b2=Blogs&lPG=$searchType";
      $searchBarText = "Blogs";
      $variant = "3Column";
     } elseif($searchType == "Bulletins") {
@@ -79,37 +79,37 @@
      $searchBarText = "Bulletins";
     } elseif($searchType == "CA") {
      $header = "Community Archive";
-     $list .= "&b2=".urlencode("the Archive")."&lPG=$parentView";
+     $_List .= "&b2=".urlencode("the Archive")."&lPG=$parentView";
      $searchBarText = "Articles";
      $variant = "3Column";
     } elseif($searchType == "CART") {
      $username = $data["Username"] ?? $you;
      $shopID = md5($username);
      $shop = $this->core->Data("Get", ["shop", $shopID]);
-     $list .= "&ID=$shopID&Username=".base64_encode($username);
+     $_List .= "&ID=$shopID&Username=".base64_encode($username);
      $searchBarText = "".$shop["Title"];
      $variant = "Minimal";
     } elseif($searchType == "Chat") {
      $header = "Group Chats";
      $integrated = $data["Integrated"] ?? 0;
-     $list .= "&Integrated=$integrated";
+     $_List .= "&Integrated=$integrated";
      $searchBarText = "$header";
      $variant = "3Column";
     } elseif($searchType == "Congress") {
      $chamber = $data["Chamber"] ?? "";
      $header = "Content Moderation";
-     $list .= "&Chamber=$chamber";
+     $_List .= "&Chamber=$chamber";
      $searchBarText = "Content";
      $variant = "2Column";
     } elseif($searchType == "CongressionalBallot") {
      $chamber = $data["Chamber"] ?? "";
      $header = "Congressional $chamber Ballot";
-     $list .= "&Chamber=$chamber";
+     $_List .= "&Chamber=$chamber";
      $searchBarText = "Candidates";
      $variant = "3Column";
     } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
      $chamber = $data["Chamber"] ?? "";
-     $list .= "&Chamber=$chamber";
+     $_List .= "&Chamber=$chamber";
      $searchBarText = " $chamber Staff";
      $variant = "Minimal";
     } elseif($searchType == "Contacts") {
@@ -121,14 +121,14 @@
      $ck = ($username == $y["Login"]["Username"]) ? 1 : 0;
      $t = ($ck == 1) ? $y : $this->core->Member($username);
      $header = ($ck == 1) ? "Your Contacts" : $t["Personal"]["DisplayName"]."'s Contacts";
-     $list .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
+     $_List .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
      $searchBarText = "Contacts";
     } elseif($searchType == "ContactsRequests") {
      $header = "Contact Requests";
      $searchBarText = "Contact Requests";
     } elseif($searchType == "Contributors") {
      $id = $data["ID"] ?? "";
-     $list .= "&ID=$id&Type=".$data["Type"];
+     $_List .= "&ID=$id&Type=".$data["Type"];
      $searchBarText = "Contributors";
      $type = base64_decode($data["Type"]);
      $variant = "3Column";
@@ -182,16 +182,16 @@
      ]) : "";
     } elseif($searchType == "Feedback") {
      $header = "Feedback";
-     $list .= "&lPG=$parentView";
+     $_List .= "&lPG=$parentView";
      $searchBarText = "Feedback";
     } elseif($searchType == "Forums") {
      $header = "Forums";
-     $list .= "&lPG=$parentView";
+     $_List .= "&lPG=$parentView";
      $searchBarText = "Private and Public Forums";
      $variant = "3Column";
     } elseif($searchType == "Forums-Admin") {
      $header = "Administrators";
-     $list .= "&ID=".$data["ID"];
+     $_List .= "&ID=".$data["ID"];
      $searchBarText = "Administrators";
      $variant = "3Column";
     } elseif($searchType == "Forums-Posts") {
@@ -199,14 +199,14 @@
      $forumID = base64_decode($forumID);
      $forum = $this->core->Data("Get", ["pf", $forumID]);
      $header = "All Posts";
-     $list .= (!empty($forumID)) ? "&ID=$forumID" : "";
+     $_List .= (!empty($forumID)) ? "&ID=$forumID" : "";
      $title = $forum["Title"] ?? "";
      $searchBarText = (!empty($title)) ? "All Posts from $title" : $header;
     } elseif($searchType == "Forums-Topic") {
      $forumID = $data["Forum"] ?? "";
      $topicID = $data["Topic"] ?? "";
      $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
-     $list .= "&Forum=$forumID&Topic=$topicID";
+     $_List .= "&Forum=$forumID&Topic=$topicID";
      $topic = $forum["Topics"][$topicID] ?? [];
      $topic = $topic["Title"] ?? "Untitled";
      $searchBarText = "Posts from $topic";
@@ -214,7 +214,7 @@
     } elseif($searchType == "Forums-Topics") {
      $forumID = $data["Forum"] ?? "";
      $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
-     $list .= "&Forum=$forumID";
+     $_List .= "&Forum=$forumID";
      $searchBarText = "Topics from ".$forum["Title"];
      $variant = "Minimal";
     } elseif($searchType == "Knowledge") {
@@ -246,19 +246,19 @@
      $header = ($ck == 1) ? "Your Albums" : $t["Personal"]["DisplayName"]."'s Albums";
      $b2 = $b2 ?? $h;
      $b2 = urlencode($b2);
-     $list .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$parentView";
+     $_List .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$parentView";
      $searchBarText = "Albums";
     } elseif($searchType == "MBR-BLG") {
      $bd = base64_encode("Authentication:DeleteBlogs");
      $be = base64_encode("Blog:Edit");
      $header = "Your Blogs";
-     $list .= "&b2=Blogs&lPG=$parentView";
+     $_List .= "&b2=Blogs&lPG=$parentView";
      $searchBarText = "your Blogs";
     } elseif($searchType == "MBR-CA") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $header = ($ck == 1) ? "Your Contributions" : $t["Personal"]["DisplayName"]."'s Contributions";
-     $list .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
+     $_List .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
      $searchBarText = "the Archive";
     } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
      $group = $data["Group"] ?? 0;
@@ -266,24 +266,24 @@
      $oneOnOne = $data["1on1"] ?? 0;
      $header = "1:1 Chat";
      $header = ($group == 1) ? "Group Chat" : $header;
-     $list .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
+     $_List .= "&1on1=$oneOnOne&Group=$group&Integrated=$integrated";
      $searchBarText = "$header";
      $variant = "3Column";
     } elseif($searchType == "MBR-Forums") {
      $addTopMargin = 1;
      $header = "Your Forums";
-     $list .= "&lPG=$parentView";
+     $_List .= "&lPG=$parentView";
      $searchBarText = "Your Private and Public Forums";
      $variant = "3Column";
     } elseif($searchType == "MBR-JE") {
      $t = $this->core->Member(base64_decode($data["UN"]));
      $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $header = ($ck == 1) ? "Your Journal" : $t["Personal"]["DisplayName"]."'s Journal";
-     $list .= "&b2=$b2&lPG=$parentView";
+     $_List .= "&b2=$b2&lPG=$parentView";
      $searchBarText = "Entries";
     } elseif($searchType == "MBR-LLP") {
      $header = "Your Articles";
-     $list .= "&b2=$b2&lPG=$parentView";
+     $_List .= "&b2=$b2&lPG=$parentView";
      $searchBarText = "Articles";
     } elseif($searchType == "MBR-Polls") {
      $header = "Your Polls";
@@ -299,7 +299,7 @@
      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $header = ($ck == 1) ? "Your Stream" : $display."'s Stream";
-     $list .= "&UN=".base64_encode($t["Login"]["Username"]);
+     $_List .= "&UN=".base64_encode($t["Login"]["Username"]);
      $searchBarText = "Posts";
      $options = (($bl == 0 || $ck == 1) && $notAnon == 1) ? $this->core->Element([
       "button", "Say Something", [
@@ -332,7 +332,7 @@
      $display = ($ck2 == 1) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $header = $alb["Title"] ?? "Unsorted";
      $header = ($ck2 == 1) ? "System Media Library" : $header;
-     $list .= "&AID=$aid&UN=".$data["UN"];
+     $_List .= "&AID=$aid&UN=".$data["UN"];
      $searchBarText = "$header";
      $usernamelimitedFiles = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
      $usernamelimitedFiles = ($ck2 == 1) ? "No Upload Limit" : $usernamelimitedFiles;
@@ -353,7 +353,7 @@
      $variant = "Album";
     } elseif($searchType == "Media") {
      $header = "Media";
-     $list .= "&lPG=Files";
+     $_List .= "&lPG=Files";
      $searchBarText = "Files";
      $variant = "3Column";
     } elseif($searchType == "Polls") {
@@ -362,32 +362,32 @@
      $variant = "3Column";
     } elseif($searchType == "PR") {
      $header = "Press Releases";
-     $list .= "&b2=".urlencode("Press Releases")."&lPG=$parentView";
+     $_List .= "&b2=".urlencode("Press Releases")."&lPG=$parentView";
      $searchBarText = "Articles";
     } elseif($searchType == "Products") {
      $header = "Products";
-     $list .= "&lPG=$parentView&st=$searchType";
+     $_List .= "&lPG=$parentView&st=$searchType";
      $searchBarText = "Products";
      $variant = "3Column";
     } elseif($searchType == "SHOP") {
      $header = "Artists";
-     $list .= "&lPG=$parentView&st=$searchType";
+     $_List .= "&lPG=$parentView&st=$searchType";
      $searchBarText = "Shops";
      $variant = "3Column";
     } elseif($searchType == "SHOP-InvoicePresets") {
      $header = "Services";
      $shop = $data["Shop"] ?? "";
-     $list .= "&Shop=$shop&st=$searchType";
+     $_List .= "&Shop=$shop&st=$searchType";
      $searchBarText = "Services";
     } elseif($searchType == "SHOP-Invoices") {
      $header = "Invoices";
      $shop = $data["Shop"] ?? "";
-     $list .= "&Shop=$shop&st=$searchType";
+     $_List .= "&Shop=$shop&st=$searchType";
      $searchBarText = "Invoices";
     } elseif($searchType == "SHOP-Products") {
      $header = "Products";
      $username = $data["UN"] ?? base64_encode($you);
-     $list .= "&UN=$username&b2=$b2&lPG=$parentView&pub=$pub&st=$searchType";
+     $_List .= "&UN=$username&b2=$b2&lPG=$parentView&pub=$pub&st=$searchType";
      $searchBarText = "$b2";
      $t = base64_decode($username);
      $t = ($t == $you) ? $y :  $this->core->Member($t);
@@ -417,16 +417,16 @@
      $parentView = $data["lPG"] ?? $searchType;
      $searchBarText = "Files";
      $variant = "3Column";
-     $list .= "&ParentView=$parentView";
-     $list .= (!empty($data["UN"])) ? "&UN=".$data["UN"] : "";
-     $list .= (!empty($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
+     $_List .= "&ParentView=$parentView";
+     $_List .= (!empty($data["UN"])) ? "&UN=".$data["UN"] : "";
+     $_List .= (!empty($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
     }
     $_Card = "";
     $_Dialog = "";
     $_View = [
      "ChangeData" => [
       "[Search.Header]" => $header,
-      "[Search.List]" => base64_encode($list),
+      "[Search.List]" => base64_encode($_List),
       "[Search.Options]" => $options,
       "[Search.ParentPage]" => $parentView,
       "[Search.Text]" => $searchBarText
@@ -447,16 +447,20 @@
     "View" => $_View
    ]);
   }
-  function Links(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Links(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "Unknown."
+   ];
+   $_ResponseType = "N/A";
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $add = $data["Add"] ?? "";
    $preview = $data["Preview"] ?? "";
-   $responseType = "View";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
@@ -465,23 +469,25 @@
     $add = $data["Add"] ?? 0;
     $link = $data["Link"] ?? "";
     if(!empty($link) && $add == 1) {
+     $_Dialog = [
+      "Body" => "An invalid URL was supplied."
+     ];
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
      $check2 = (strpos($link, "http") !== false) ? 1 : 0;
      $check3 = (strpos($link, "https") !== false) ? 1 : 0;
-     $r = [
-      "Body" => "An invalid URL was supplied."
-     ];
      if($check == 1 && ($check2 == 1 || $check3 == 1)) {
+      $_Dialog = [
+       "Body" => "No data was found."
+      ];
       $curl = curl_init($link);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
       $linkData = curl_exec($curl);
       curl_close($curl);
-      $r = [
-       "Body" => "No data was found."
-      ];
       if(!empty($linkData)) {
-       $accessCode = "Accepted";
+       $_AccessCode = "Accepted";
+       $_Dialog = "";
+       $_ResponseType = "ReplaceContent";
        $dom = new DOMDocument();
        libxml_use_internal_errors(true);
        $dom->loadHTML($linkData);
@@ -493,7 +499,6 @@
        $tags = get_meta_tags($link) ?? [];
        $description = $tags["description"] ?? "No Description";
        $keywords = $tags["keywords"] ?? "None";
-       $responseType = "ReplaceContent";
        $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "Untitled";
        $query = "REPLACE INTO Links(
         Link_Description,
@@ -517,19 +522,26 @@
         ":Title" => $title
        ]);
        $sql->execute();
-       $r = $this->core->Element([
-        "h1", "Done", ["class" => "CenterText"]
-       ]).$this->core->Element([
-        "p", "Your Link <em>$link</em> is now listed!", ["class" => "CenterText"]
-       ]);
+       $_View = [
+        "ChangeData" => [],
+        "Extension" => $this->core->AESencrypt($this->core->Element([
+         "h1", "Done", ["class" => "CenterText"]
+        ]).$this->core->Element([
+         "p", "Your Link <em>$link</em> is now listed!", ["class" => "CenterText"]
+        ]))
+       ];
       }
      }
     }
    } elseif($preview == 1) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_Dialog = "";
+    $_View = [
+     "ChangeData" => [],
+     "ExtensionID" => "e057199ee0c4a5f556a30cb990521485"
+    ];
     $link = $data["Link"] ?? base64_encode("");
     $link = base64_decode($link);
-    $r = $this->core->Extension("e057199ee0c4a5f556a30cb990521485");
     if(!empty($link)) {
      $check = (filter_var($link, FILTER_VALIDATE_URL) !== false) ? 1 : 0;
      $check2 = (strpos($link, "http") !== false) ? 1 : 0;
@@ -554,48 +566,56 @@
        $description = $tags["description"] ?? "No Description";
        $keywords = $tags["keywords"] ?? "No Keywords";
        $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "No Title";
-       $r = $this->core->Change([[
-        "[Link.Description]" => $description,
-        "[Link.Keywords]" => $keywords,
-        "[Link.Icon]" => $this->core->Element([
-         "div", "<img src=\"$icon\" style=\"max-width:24em\" width=\"90%\"/>\r\n", [
-          "class" => "InnerMargin"
-         ]
-        ]),
-        "[Link.Title]" => $title
-       ], $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc")]);
-       $r .= $this->core->Element(["button", "Save", [
+       $_View = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
+       $_View .= $this->core->Element(["button", "Save", [
         "class" => "SendData v2 v2w",
         "data-form" => ".AddLink",
         "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
        ]]);
+       $_View = [
+        "ChangeData" => [
+         "[Link.Description]" => $description,
+         "[Link.Keywords]" => $keywords,
+         "[Link.Icon]" => $this->core->Element([
+          "div", "<img src=\"$icon\" style=\"max-width:24em\" width=\"90%\"/>\r\n", [
+           "class" => "InnerMargin"
+          ]
+         ]),
+         "[Link.Title]" => $title
+        ],
+        "Extension" => $this->core->AESencrypt($_View)
+       ];
       }
      }
     }
    } else {
-    $accessCode = "Accepted";
-    $r = $this->core->Change([[
-     "[Link.Preview]" => base64_encode("v=".base64_encode("Search:Links")."&Preview=1")
-    ], $this->core->Extension("f5b2784b0bcc291432a3d2dafa33849a")]);
+    $_AccessCode = "Accepted";
+    $_View = [
+     "ChangeData" => [
+      "[Link.Preview]" => base64_encode("v=".base64_encode("Search:Links")."&Preview=1")
+     ],
+     "ExtensionID" => "f5b2784b0bcc291432a3d2dafa33849a"
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "View" => $_View
    ]);
   }
-  function Lists(array $a) {
+  function Lists(array $data) {
+   $_AccessCode = "Denied";
+   $_Extension = "";
+   $_ExtensionID = "";
+   $_List = [];
    $base = $this->core->base;
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $b2 = $data["b2"] ?? "Search";
    $end = 0;
    $i = 0;
-   $list = [];
    $na = "No Results";
    $searchType = $data["st"] ?? "";
    $limit = $data["Limit"] ?? 30;
@@ -610,8 +630,9 @@
    $you = $y["Login"]["Username"];
    $notAnon = ($this->core->ID != $you) ? 1 : 0;
    if($searchType == "ADM-LLP") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "da5c43f7719b17a9fab1797887c5c0d1";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
      $_Query = "SELECT * FROM Extensions
                          JOIN Members
@@ -640,22 +661,23 @@
       if($_Extension["Empty"] == 0) {
        $info = $_Extension["DataModel"];
        $options = $_Extension["ListItem"]["Options"];
-       array_push($list, [
-        "[Extension.Category]" => base64_encode($info["Category"]),
-        "[Extension.Delete]" => base64_encode($options["Delete"]),
-        "[Extension.Description]" => base64_encode($sql["Extension_Description"]),
-        "[Extension.Edit]" => base64_encode($options["Edit"]),
-        "[Extension.ID]" => base64_encode($sql["Extension_ID"]),
-        "[Extension.Title]" => base64_encode($sql["Extension_Title"])
+       array_push($_List, [
+        "[Extension.Category]" => $info["Category"],
+        "[Extension.Delete]" => $options["Delete"],
+        "[Extension.Description]" => $sql["Extension_Description"],
+        "[Extension.Edit]" => $options["Edit"],
+        "[Extension.ID]" => $sql["Extension_ID"],
+        "[Extension.Title]" => $sql["Extension_Title"]
        ]);
       }
      }
     }
    } elseif($searchType == "BGP") {
+    $_AccessCode = "Accepted";
     $_BlogID = $data["ID"] ?? base64_encode("");
     $_BlogID = base64_decode($_BlogID);
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("dba88e1a123132be03b9a2e13995306d");
+    $_ExtensionID = "dba88e1a123132be03b9a2e13995306d";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $_Query = "SELECT * FROM BlogPosts 
                          JOIN Blogs
@@ -748,26 +770,27 @@
         $memberRole = ($blog["UN"] == $post["UN"]) ? "Owner" : $contributors[$author];
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($list, [
-         "[BlogPost.Actions]" => base64_encode($actions),
-         "[BlogPost.Attachments]" => base64_encode($_BlogPost["ListItem"]["Attachments"]),
-         "[BlogPost.Author]" => base64_encode($display.$verified),
-         "[BlogPost.Description]" => base64_encode($_BlogPost["ListItem"]["Description"]),
-         "[BlogPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
-         "[BlogPost.ID]" => base64_encode($sql["BlogPost_ID"]),
-         "[BlogPost.MemberRole]" => base64_encode($memberRole),
-         "[BlogPost.Modified]" => base64_encode($_BlogPost["ListItem"]["Modified"]),
-         "[BlogPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[BlogPost.Title]" => base64_encode($_BlogPost["ListItem"]["Title"]),
-         "[BlogPost.View]" => base64_encode("Blog".$sql["BlogPost_Blog"].";".$options["View"])
+        array_push($_List, [
+         "[BlogPost.Actions]" => $actions,
+         "[BlogPost.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
+         "[BlogPost.Author]" => $display.$verified,
+         "[BlogPost.Description]" => $_BlogPost["ListItem"]["Description"],
+         "[BlogPost.Created]" => $this->core->TimeAgo($post["Created"]),
+         "[BlogPost.ID]" => $sql["BlogPost_ID"],
+         "[BlogPost.MemberRole]" => $memberRole,
+         "[BlogPost.Modified]" => $_BlogPost["ListItem"]["Modified"],
+         "[BlogPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
+         "[BlogPost.Title]" => $_BlogPost["ListItem"]["Title"],
+         "[BlogPost.View]" => "Blog".$sql["BlogPost_Blog"].";".$options["View"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "BL") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("e05bae15ffea315dc49405d6c93f9b2c");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e05bae15ffea315dc49405d6c93f9b2c";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $bl = base64_decode($data["BL"]);
      $blacklist = $y["Blocked"][$bl] ?? [];
@@ -828,8 +851,7 @@
        ]]);
       } elseif($bl == "Links") {
        $_Query = "SELECT * FROM Links
-                           WHERE Link_ID=$:ID
-       ";
+                           WHERE Link_ID=$:ID";
        $sql->query($_Query, [
         ":ID" => $value
        ]);
@@ -885,17 +907,19 @@
         "data-type" => base64_encode("#")
        ]]);
       }
-      array_push($list, [
-       "[X.LI.Description]" => base64_encode($de),
-       "[X.LI.Header]" => base64_encode($h),
-       "[X.LI.ID]" => base64_encode($v),
-       "[X.LI.Unblock]" => base64_encode($u),
-       "[X.LI.Unblock.Proc]" => base64_encode(base64_encode($usernameblock)),
-       "[X.LI.View]" => base64_encode($vi)
+      array_push($_List, [
+       "[X.LI.Description]" => $de,
+       "[X.LI.Header]" => $h,
+       "[X.LI.ID]" => $v,
+       "[X.LI.Unblock]" => $u,
+       "[X.LI.Unblock.Proc]" => base64_encode($usernameblock),
+       "[X.LI.View]" => $vi
       ]);
      }
     }
    } elseif($searchType == "BLG") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
     $_Query = "SELECT * FROM Blogs
                         JOIN Members
                         ON Member_Username=Blog_Username
@@ -905,8 +929,7 @@
                         LIMIT $limit
                         OFFSET $offset
     ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -934,19 +957,20 @@
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) {
        $options = $_Blog["ListItem"]["Options"];
-       array_push($list, [
-        "[X.LI.I]" => base64_encode($_Blog["ListItem"]["CoverPhoto"]),
-        "[X.LI.T]" => base64_encode($_Blog["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Blog["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode($options["View"])
+       array_push($_List, [
+        "[X.LI.I]" => $_Blog["ListItem"]["CoverPhoto"],
+        "[X.LI.T]" => $_Blog["ListItem"]["Title"],
+        "[X.LI.D]" => $_Blog["ListItem"]["Description"],
+        "[X.LI.DT]" => $options["View"]
        ]);
       }
      }
     }
    } elseif($searchType == "Bulletins") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ae30582e627bc060926cfacf206920ce";
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ae30582e627bc060926cfacf206920ce");
+    $extension = $this->core->Extension($_ExtensionID);
     foreach($bulletins as $key => $value) {
      $bl = $this->core->CheckBlocked([$y, "Members", $value["From"]]);;
      $_Member = $this->core->GetContentData([
@@ -964,19 +988,20 @@
       ]]);
       $verified = $member["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-      array_push($list, [
-       "[Bulletin.Date]" => base64_encode($this->core->TimeAgo($value["Sent"])),
-       "[Bulletin.From]" => base64_encode($_Member["ListItem"]["Title"].$verified),
-       "[Bulletin.ID]" => base64_encode($key),
-       "[Bulletin.Message]" => base64_encode($this->core->RenderView($message)),
-       "[Bulletin.Options]" => base64_encode($this->core->RenderView($options)),
-       "[Bulletin.Picture]" => base64_encode($_Member["ListItem"]["Options"]["ProfilePicture"])
+      array_push($_List, [
+       "[Bulletin.Date]" => $this->core->TimeAgo($value["Sent"]),
+       "[Bulletin.From]" => $_Member["ListItem"]["Title"].$verified,
+       "[Bulletin.ID]" => $key,
+       "[Bulletin.Message]" => $this->core->RenderView($message),
+       "[Bulletin.Options]" => $this->core->RenderView($options),
+       "[Bulletin.Picture]" => $_Member["ListItem"]["Options"]["ProfilePicture"]
       ]);
      }
     }
    } elseif($searchType == "CA" || $searchType == "PR") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("e7829132e382ee4ab843f23685a123cf");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e7829132e382ee4ab843f23685a123cf";
+    $extension = $this->core->Extension($_ExtensionID);
     $_Query = "SELECT * FROM Articles
                         JOIN Members
                         ON Member_Username=Article_Username
@@ -985,8 +1010,7 @@
                                       Article_Title LIKE :Search
                         ORDER BY Article_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
+                        OFFSET $offset";
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -1022,20 +1046,21 @@
       $illegal = $article["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
-       array_push($list, [
-        "[X.LI.I]" => base64_encode($_Article["ListItem"]["CoverPhoto"]),
-        "[X.LI.T]" => base64_encode($_Article["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Article["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode("$parentView;".$_Article["ListItem"]["Options"]["View"])
+       array_push($_List, [
+        "[X.LI.I]" => $_Article["ListItem"]["CoverPhoto"],
+        "[X.LI.T]" => $_Article["ListItem"]["Title"],
+        "[X.LI.D]" => $_Article["ListItem"]["Description"],
+        "[X.LI.DT]" => "$parentView;".$_Article["ListItem"]["Options"]["View"]
        ]);
       }
      }
     }
    } elseif($searchType == "CART") {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "dea3da71b28244bf7cf84e276d5d1cba";
     $newCartList = [];
     $now = $this->core->timestamp;
-    $extension = $this->core->Extension("dea3da71b28244bf7cf84e276d5d1cba");
+    $extension = $this->core->Extension($_ExtensionID);
     $shop = $data["ID"] ?? md5($this->core->ShopID);
     $username = $data["Username"] ?? base64_encode($this->core->ShopID);
     $products = $y["Shopping"]["Cart"][$shop] ?? [];
@@ -1054,12 +1079,12 @@
       $quantity = $product["Quantity"] ?? 0;
       if(!empty($product) && $isActive == 1 && $quantity != 0 && $illegal == 0) {
        $newCartList[$key] = $value;
-       array_push($list, [
-        "[Product.CoverPhoto]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
-        "[Product.Description]" => base64_encode($_Product["ListItem"]["Description"]),
-        "[Product.ID]" => base64_encode($key),
-        "[Product.Title]" => base64_encode($_Product["ListItem"]["Title"]),
-        "[Product.Remove]" => base64_encode(base64_encode("v=".base64_encode("Cart:SaveRemove")."&Product=$key&Shop=$shop"))
+       array_push($_List, [
+        "[Product.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Product.Description]" => $_Product["ListItem"]["Description"],
+        "[Product.ID]" => $key,
+        "[Product.Title]" => $_Product["ListItem"]["Title"],
+        "[Product.Remove]" => base64_encode("v=".base64_encode("Cart:SaveRemove")."&Product=$key&Shop=$shop")
        ]);
       }
      }
@@ -1067,9 +1092,10 @@
     $y["Shopping"]["Cart"][$shop]["Products"] = $newCartList;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
    } elseif($searchType == "Chat") {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
     $integrated = $data["Integrated"] ?? 0;
-    $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $_Query = "SELECT * FROM Chat
                          JOIN Members
@@ -1078,11 +1104,10 @@
                                        Chat_Title LIKE :Search
                          ORDER BY Chat_Created DESC
                          LIMIT $limit
-                         OFFSET $offset
-     ";
-     $extension = "343f78d13872e3b4e2ac0ba587ff2910";
-     $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
-     $extension = $this->core->Extension($extension);
+                         OFFSET $offset";
+     $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
+     $_ExtensionID = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $_ExtensionID;
+     $extension = $this->core->Extension($_ExtensionID);
      $sql->query($_Query, [
       ":Search" => $querysql,
       ":Username" => $you
@@ -1117,11 +1142,11 @@
         if(!empty($contributors) || $isGroupChat == 1) {
          $displayName = $chat["Title"] ?? "Untitled";
          $t = $this->core->Member($this->core->ID);
-         array_push($list, [
-          "[Chat.DisplayName]" => base64_encode($displayName),
-          "[Chat.Online]" => base64_encode(""),
-          "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-          "[Chat.View]" => base64_encode($_Chat["ListItem"]["Options"]["View"])
+         array_push($_List, [
+          "[Chat.DisplayName]" => $displayName,
+          "[Chat.Online]" => "",
+          "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%"),
+          "[Chat.View]" => $_Chat["ListItem"]["Options"]["View"]
          ]);
         }
        }
@@ -1129,7 +1154,8 @@
      }
     }
    } elseif($searchType == "Congress") {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "1f32642e05747ba3cec15d7c9fffbd0f";
     $chamber = $data["Chamber"] ?? "";
     $congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $congressmen = $congress["Members"] ?? [];
@@ -1152,7 +1178,7 @@
      "stream",
      "votes"
     ];
-    $extension = $this->core->Extension("1f32642e05747ba3cec15d7c9fffbd0f");
+    $extension = $this->core->Extension($_ExtensionID);
     $houseRepresentatives = 0;
     $senators = 0;
     $yourRole = $congressmen[$you] ?? "";
@@ -1217,18 +1243,18 @@
            $optionCheck2 = ($_HouseVotes == $houseRepresentatives && $_Illegal > $_Legal && $optionCheck2 == 1) ? 1 : 0;
            $title = $info["Title"] ?? $type;
            if($optionCheck == 1 || $optionCheck2 == 1) {
-            array_push($list, [
-             "[Content.Description]" => base64_encode($description),
-             "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal"))),
-             "[Content.Legal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Legal"))),
-             "[Content.Title]" => base64_encode($title),
-             "[Content.Voted]" => base64_encode($voted)
+            array_push($_List, [
+             "[Content.Description]" => $description,
+             "[Content.Illegal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal")),
+             "[Content.Legal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Legal")),
+             "[Content.Title]" => $title,
+             "[Content.Voted]" => $voted
             ]);
            }
           }
          }
         } else {
-         $info = $this->core->Data("Get", [$id[2], $id[3]]) ?? [];
+         $info = $this->core->Data("Get", [$id[2], $id[3]]);
          $congressDeemedLegal = $info["CongressDeemedLegal"] ?? 0;
          $illegal = $info["Illegal"] ?? 0;
          if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
@@ -1261,12 +1287,12 @@
           $optionCheck2 = ($_HouseVotes == $houseRepresentatives && $_Illegal > $_Legal && $optionCheck2 == 1) ? 1 : 0;
           $title = $info["Title"] ?? $type;
           if($optionCheck == 1 || $optionCheck2 == 1) {
-           array_push($list, [
-            "[Content.Description]" => base64_encode($description),
-            "[Content.Illegal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal"))),
-            "[Content.Legal]" => base64_encode(base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Legal"))),
-            "[Content.Title]" => base64_encode($title),
-            "[Content.Voted]" => base64_encode($voted)
+           array_push($_List, [
+            "[Content.Description]" => $description,
+            "[Content.Illegal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal")),
+            "[Content.Legal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Legal")),
+            "[Content.Title]" => $title,
+            "[Content.Voted]" => $voted
            ]);
           }
          }
@@ -1276,11 +1302,12 @@
      }
     }
    } elseif($searchType == "CongressionalBallot") {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "633ddf914ed8a2e2aa7e023471ec83b2";
     $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]);
     $candidates = $ballot["Candidates"] ?? [];
     $chamber = $data["Chamber"] ?? "House";
-    $extension = $this->core->Extension("633ddf914ed8a2e2aa7e023471ec83b2");
+    $extension = $this->core->Extension($_ExtensionID);
     $na = "No Candidates for the $chamber";
     $registeredVotes = $ballot["RegisteredVotes"] ?? [];
     if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
@@ -1302,29 +1329,30 @@
         ]
        ]) : "";
        $voteCount = $info["Votes"] ?? 0;
-       array_push($list, [
-        "[Tile.Action]" => base64_encode($this->core->Element([
+       array_push($_List, [
+        "[Tile.Action]" => $this->core->Element([
          "div", $action, ["class" => "VoteFor".md5($memberID)]
         ]).$this->core->Element(["button", "View $displayName's Profile", [
          "class" => "OpenCard v2 v2w",
          "data-view" => $options["View"]
-        ]])),
-        "[Tile.Data]" => base64_encode($this->core->Element([
+        ]]),
+        "[Tile.Data]" => $this->core->Element([
          "h4", number_format($voteCount)." members have cast their vote for $displayName to join the $candidateChamber."
-        ])),
-        "[Tile.Header]" => base64_encode($displayName)
+        ]),
+        "[Tile.Header]" => $displayName
        ]);
       }
      }
     }
    } elseif($searchType == "CongressionalStaffHouse" || $searchType == "CongressionalStaffSenate") {
-    $accessCode = "Accepted";
-    $congress = $this->core->Data("Get", ["app", md5("Congress")]) ?? [];
+    $_AccessCode = "Accepted";
+    $_Extension = $this->core->AESencrypt($this->core->Element([
+     "div", "[ListItem.Button]", ["class" => "Desktop25"]
+    ]));
+    $_ExtensionID = "";
+    $congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $congress = $congress["Members"] ?? [];
     $chamber = $data["Chamber"] ?? "";
-    $extension = $this->core->Element([
-     "div", "[ListItem.Button]", ["class" => "Desktop25"]
-    ]);
     $na = "No $chamber Staff";
     if(($chamber == "House" || $chamber == "Senate")) {
      foreach($congress as $member => $role) {
@@ -1333,59 +1361,61 @@
       if($check == 1 || $check2 == 1) {
        $t = ($member == $you) ? $y : $this->core->Member($member);
        if(!empty($t["Login"])) {
-        array_push($list, [
-         "[ListItem.Button]" => base64_encode($this->core->Element([
+        array_push($_List, [
+         "[ListItem.Button]" => $this->core->Element([
           "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
            "class" => "OpenCard Small",
            "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
           ]
          ]).$this->core->Element([
           "h4", $t["Personal"]["DisplayName"], ["class" => "CenterText UpperCase"]
-         ]))
+         ])
         ]);
        }
       }
      }
     }
    } elseif($searchType == "Contacts") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ccba635d8c7eca7b0b6af5b22d60eb55");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ccba635d8c7eca7b0b6af5b22d60eb55";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $cms = $this->core->Data("Get", [
       "cms",
       md5($y["Login"]["Username"])
-     ]) ?? [];
+     ]);
      $cms = $cms["Contacts"] ?? [];
      foreach($cms as $key => $value) {
       $t = $this->core->Member($key);
       $delete = base64_encode("v=".base64_encode("Contact:Delete"));
       $id = md5($key);
       $options = "v=".base64_encode("Contact:Options")."&UN=".base64_encode($key);
-      array_push($list, [
-       "[Contact.Delete]" => base64_encode($delete),
-       "[Contact.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
-       "[Contact.Form]" => base64_encode($id),
-       "[Contact.ID]" => base64_encode($id),
-       "[Contact.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%")),
-       "[Contact.Username]" => base64_encode($key),
-       "[Options]" => base64_encode($options)
+      array_push($_List, [
+       "[Contact.Delete]" => $delete,
+       "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
+       "[Contact.Form]" => $id,
+       "[Contact.ID]" => $id,
+       "[Contact.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:5%;width:90%"),
+       "[Contact.Username]" => $key,
+       "[Options]" => $options
       ]);
      }
     }
    } elseif($searchType == "ContactsProfileList") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
+    $extension = $this->core->Extension($_ExtensionID);
     $x = $this->core->Data("Get", [
      "cms",
      md5(base64_decode($data["UN"]))
-    ]) ?? [];
+    ]);
     $x = $x["Contacts"] ?? [];
     foreach($x as $k => $v) {
      $t = $this->core->Member($k);
      $cms = $this->core->Data("Get", [
       "cms",
       md5($t["Login"]["Username"])
-     ]) ?? [];
+     ]);
      $bl = $this->core->CheckBlocked([
       $t, "Members", $y["Login"]["Username"]
      ]);
@@ -1403,22 +1433,23 @@
        "class" => "OpenCard v2",
        "data-view" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&back=1&b2=$b2&lPG=$parentView&pub=0&UN=".base64_encode($t["Login"]["Username"]))
       ]]);
-      array_push($list, [
-       "[X.LI.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
-       "[X.LI.Description]" => base64_encode($t["Personal"]["Description"]),
-       "[X.LI.Options]" => base64_encode($opt),
-       "[X.LI.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%"))
+      array_push($_List, [
+       "[X.LI.DisplayName]" => $t["Personal"]["DisplayName"],
+       "[X.LI.Description]" => $t["Personal"]["Description"],
+       "[X.LI.Options]" => $opt,
+       "[X.LI.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:5%;width:90%")
       ]);
      }
     }
    } elseif($searchType == "ContactsRequests") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("8b6ac25587a4524c00b311c184f6c69b");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "8b6ac25587a4524c00b311c184f6c69b";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $cms = $this->core->Data("Get", [
       "cms",
       md5($y["Login"]["Username"])
-     ]) ?? [];
+     ]);
      $cms = $cms["Requests"] ?? [];
      foreach($cms as $key => $value) {
       $t = $this->core->Member($value);
@@ -1426,24 +1457,25 @@
       $accept = "v=".base64_encode("Contact:Requests")."&accept=1";
       $decline = "v=".base64_encode("Contact:Requests")."&decline=1";
       $memberID = md5($t["Login"]["Username"]);
-      array_push($list, [
-       "[X.LI.Contact.Accept]" => base64_encode(base64_encode($accept)),
-       "[X.LI.Contact.Decline]" => base64_encode(base64_encode($decline)),
-       "[X.LI.Contact.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
-       "[X.LI.Contact.Form]" => base64_encode($memberID),
-       "[X.LI.Contact.ID]" => base64_encode($memberID),
-       "[X.LI.Contact.IDaccept]" => base64_encode($memberID),
-       "[X.LI.Contact.IDdecline]" => base64_encode($memberID),
-       "[X.LI.Contact.ProfilePicture]" => base64_encode($pp),
-       "[X.LI.Contact.Username]" => base64_encode($t["Login"]["Username"])
+      array_push($_List, [
+       "[X.LI.Contact.Accept]" => base64_encode($accept),
+       "[X.LI.Contact.Decline]" => base64_encode($decline),
+       "[X.LI.Contact.DisplayName]" => $t["Personal"]["DisplayName"],
+       "[X.LI.Contact.Form]" => $memberID,
+       "[X.LI.Contact.ID]" => $memberID,
+       "[X.LI.Contact.IDaccept]" => $memberID,
+       "[X.LI.Contact.IDdecline]" => $memberID,
+       "[X.LI.Contact.ProfilePicture]" => $pp,
+       "[X.LI.Contact.Username]" => $t["Login"]["Username"]
       ]);
      }
     }
    } elseif($searchType == "Contributors") {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
     $admin = 0;
     $contributors = [];
-    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
+    $extension = $this->core->Extension($_ExtensionID);
     $id = $data["ID"] ?? "";
     $type = $data["Type"] ?? "";
     $ck = (!empty($id)) ? 1 : 0;
@@ -1588,18 +1620,18 @@
         }
        }
        $description = ($type == "Shop") ? $description : $_Member["ListItem"]["Description"];
-       array_push($list, [
-        "[X.LI.DisplayName]" => base64_encode($_Member["ListItem"]["Title"]),
-        "[X.LI.Description]" => base64_encode($description),
-        "[X.LI.Options]" => base64_encode($opt),
-        "[X.LI.ProfilePicture]" => base64_encode($options["ProfilePicture"])
+       array_push($_List, [
+        "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"],
+        "[X.LI.Description]" => $description,
+        "[X.LI.Options]" => $opt,
+        "[X.LI.ProfilePicture]" => $options["ProfilePicture"]
        ]);
       }
      }
     }
    } elseif($searchType == "CS1") {
-    $accessCode = "Accepted";
-    $list = [
+    $_AccessCode = "Accepted";
+    $_List = [
      [1, "Monday"],
      [2, "Tuesday"],
      [3, "Wednesday"],
@@ -1609,10 +1641,11 @@
      [7, "Sunday"]
     ];
    } elseif($searchType == "DC") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
-     $x = $this->core->Data("Get", ["dc", md5($you)]) ?? [];
+     $x = $this->core->Data("Get", ["dc", md5($you)]);
      foreach($x as $key => $value) {
       $viewData = json_encode([
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
@@ -1626,14 +1659,16 @@
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("DiscountCode:Edit")."&ID=$key")
       ]]);
-      array_push($list, [
-       "[ListItem.Description]" => base64_encode($value["Percentile"]."% Off: ".$value["Quantity"]),
-       "[ListItem.Options]" => base64_encode($options),
-       "[ListItem.Title]" => $value["Code"]
+      array_push($_List, [
+       "[ListItem.Description]" => $value["Percentile"]."% Off: ".$value["Quantity"],
+       "[ListItem.Options]" => $options,
+       "[ListItem.Title]" => base64_decode($value["Code"])
       ]);
      }
     }
    } elseif($searchType == "Feedback") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e7c4e4ed0a59537ffd00a2b452694750";
     $_Query = "SELECT * FROM Feedback
                         JOIN Members
                         ON Member_Username=Feedback_Username
@@ -1642,11 +1677,9 @@
                                       Feedback_Subject LIKE :Search
                         ORDER BY Feedback_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
+                        OFFSET $offset";
     $now = $this->core->timestamp;
-    $extension = $this->core->Extension("e7c4e4ed0a59537ffd00a2b452694750");
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -1673,16 +1706,17 @@
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }
-     array_push($list, [
-      "[Feedback.ID]" => base64_encode($value),
-      "[Feedback.Home]" => base64_encode(base64_encode("v=".base64_encode("Feedback:Home")."&ID=$value")),
-      "[Feedback.Message]" => base64_encode($message),
-      "[Feedback.Modified]" => base64_encode($modified),
-      "[Feedback.Resolved]" => base64_encode($resolved),
-      "[Feedback.Title]" => base64_encode($title)
+     array_push($_List, [
+      "[Feedback.ID]" => $value,
+      "[Feedback.Home]" => base64_encode("v=".base64_encode("Feedback:Home")."&ID=$value"),
+      "[Feedback.Message]" => $message,
+      "[Feedback.Modified]" => $modified,
+      "[Feedback.Resolved]" => $resolved,
+      "[Feedback.Title]" => $title
      ]);
     }
    } elseif($searchType == "Forums") {
+    $_AccessCode = "Accepted";
     $_Query = "SELECT * FROM Forums
                         JOIN Members
                         ON Member_Username=Forum_Username
@@ -1690,10 +1724,9 @@
                                       Forum_Title LIKE :Search
                         ORDER BY Forum_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+                        OFFSET $offset";
+    $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -1728,20 +1761,21 @@
        }
       } if($bl == 0 && ($active == 1 || $ck == 1 && $ck2 == 1) && $illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
-       array_push($list, [
-        "[X.LI.I]" => base64_encode($_Forum["ListItem"]["CoverPhoto"]),
-        "[X.LI.T]" => base64_encode($_Forum["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Forum["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode($options["View"])
+       array_push($_List, [
+        "[X.LI.I]" => $_Forum["ListItem"]["CoverPhoto"],
+        "[X.LI.T]" => $_Forum["ListItem"]["Title"],
+        "[X.LI.D]" => $_Forum["ListItem"]["Description"],
+        "[X.LI.DT]" => $options["View"]
        ]);
       }
      }
     }
    } elseif($searchType == "Forums-Admin") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
     $admin = $data["Admin"] ?? base64_encode("");
-    $accessCode = "Accepted";
     $id = $data["ID"] ?? "";
-    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
+    $extension = $this->core->Extension($_ExtensionID);
     if(!empty($id)) {
      $admin = base64_decode($admin);
      $id = base64_decode($id);
@@ -1767,11 +1801,11 @@
         $youBlockedThem = $this->core->CheckBlocked([$y, "Members", $them]);
         if($check == 1 && $theyBlockedYou == 0 && $youBlockedThem == 0) {
          $options = $_Member["ListItem"]["Options"];
-         array_push($list, [
-          "[X.LI.DisplayName]" => base64_encode($_Member["ListItem"]["Title"]),
-          "[X.LI.Description]" => base64_encode($_Member["ListItem"]["Description"]),
-          "[X.LI.Options]" => base64_encode(""),
-          "[X.LI.ProfilePicture]" => base64_encode($options["ProfilePicture"])
+         array_push($_List, [
+          "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"],
+          "[X.LI.Description]" => $_Member["ListItem"]["Description"],
+          "[X.LI.Options]" => "",
+          "[X.LI.ProfilePicture]" => $options["ProfilePicture"]
          ]);
         }
        }
@@ -1779,6 +1813,8 @@
      }
     }
    } elseif($searchType == "Forums-Posts") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "150dcee8ecbe0e324a47a8b5f3886edf";
     $_Query = "SELECT * FROM ForumPosts
                         JOIN Forums
                         ON Forum_ID=ForumPost_Forum
@@ -1789,8 +1825,7 @@
                         AND ForumPost_Forum=:Forum
                         ORDER BY ForumPost_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
+                        OFFSET $offset";
     $_Query = (!empty($addTo)) ? "SELECT * FROM ForumPosts
                         JOIN Forums
                         ON Forum_ID=ForumPost_Forum
@@ -1800,12 +1835,10 @@
                                       ForumPost_Title LIKE :Search)
                         ORDER BY ForumPost_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    " : $_Query;
-    $accessCode = "Accepted";
+                        OFFSET $offset" : $_Query;
     $active = 0;
     $admin = 0;
-    $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
+    $extension = $this->core->Extension($_ExtensionID);
     $id = $data["ID"] ?? "";
     $forum = $this->core->Data("Get", ["pf", $id]);
     $forumType = $forum["Type"] ?? "Private";
@@ -1894,26 +1927,28 @@
         $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($list, [
-         "[ForumPost.Actions]" => base64_encode($actions),
-         "[ForumPost.Attachments]" => base64_encode($_ForumPost["ListItem"]["Attachments"]),
-         "[ForumPost.Body]" => base64_encode($body),
-         "[ForumPost.Comment]" => base64_encode($options["View"]),
-         "[ForumPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
-         "[ForumPost.ID]" => base64_encode($sql["ForumPost_ID"]),
-         "[ForumPost.MemberRole]" => base64_encode($memberRole),
-         "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
-         "[ForumPost.Notes]" => base64_encode($options["Notes"]),
-         "[ForumPost.OriginalPoster]" => base64_encode($display.$verified),
-         "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),
-         "[ForumPost.Votes]" => base64_encode($options["Vote"])
+        array_push($_List, [
+         "[ForumPost.Actions]" => $actions,
+         "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
+         "[ForumPost.Body]" => $body,
+         "[ForumPost.Comment]" => $options["View"],
+         "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
+         "[ForumPost.ID]" => $sql["ForumPost_ID"],
+         "[ForumPost.MemberRole]" => $memberRole,
+         "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
+         "[ForumPost.Notes]" => $options["Notes"],
+         "[ForumPost.OriginalPoster]" => $display.$verified,
+         "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
+         "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
+         "[ForumPost.Votes]" => $options["Vote"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "Forums-Topic") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "150dcee8ecbe0e324a47a8b5f3886edf";
     $_Query = "SELECT * FROM ForumPosts
                         JOIN Forum
                         ON Forum_ID=ForumPost_Forum
@@ -1925,12 +1960,10 @@
                         AND ForumPost_Topic=:Topic
                         ORDER BY ForumPost_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
+                        OFFSET $offset";
     $active = 0;
     $admin = 0;
-    $extension = $this->core->Extension("150dcee8ecbe0e324a47a8b5f3886edf");
+    $extension = $this->core->Extension($_ExtensionID);
     $forumID = $data["Forum"] ?? "";
     $manifest = $this->core->Data("Get", ["pfmanifest", $forumID]);
     foreach($manifest as $member => $role) {
@@ -2019,28 +2052,29 @@
         $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($list, [
-         "[ForumPost.Actions]" => base64_encode($actions),
-         "[ForumPost.Attachments]" => base64_encode($_ForumPost["ListItem"]["Attachments"]),
-         "[ForumPost.Body]" => base64_encode($body),
-         "[ForumPost.Comment]" => base64_encode($options["View"]),
-         "[ForumPost.Created]" => base64_encode($this->core->TimeAgo($post["Created"])),
-         "[ForumPost.ID]" => base64_encode($sql["ForumPost_ID"]),
-         "[ForumPost.MemberRole]" => base64_encode($memberRole),
-         "[ForumPost.Modified]" => base64_encode($_ForumPost["ListItem"]["Modified"]),
-         "[ForumPost.Notes]" => base64_encode($options["Notes"]),
-         "[ForumPost.OriginalPoster]" => base64_encode($display.$verified),
-         "[ForumPost.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[ForumPost.Title]" => base64_encode($_ForumPost["ListItem"]["Title"]),
-         "[ForumPost.Votes]" => base64_encode($options["Vote"])
+        array_push($_List, [
+         "[ForumPost.Actions]" => $actions,
+         "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
+         "[ForumPost.Body]" => $body,
+         "[ForumPost.Comment]" => $options["View"],
+         "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
+         "[ForumPost.ID]" => $sql["ForumPost_ID"],
+         "[ForumPost.MemberRole]" => $memberRole,
+         "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
+         "[ForumPost.Notes]" => $options["Notes"],
+         "[ForumPost.OriginalPoster]" => $display.$verified,
+         "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
+         "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
+         "[ForumPost.Votes]" => $options["Vote"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "Forums-Topics") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("099d6de4214f55e68ea49395a63b5e4d");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "099d6de4214f55e68ea49395a63b5e4d";
+    $extension = $this->core->Extension($_ExtensionID);
     $forumID = $data["Forum"] ?? "";
     $_Forum = $this->core->GetContentData([
      "Blacklisted" => 0,
@@ -2076,20 +2110,22 @@
          ]);
         }
        }
-       array_push($list, [
-        "[Forum.ID]" => base64_encode($forumID),
-        "[Topic.Created]" => base64_encode($created),
-        "[Topic.Description]" => base64_encode($info["Description"]),
-        "[Topic.LatestPosts]" => base64_encode($postList),
-        "[Topic.Modified]" => base64_encode($modified),
-        "[Topic.PostCount]" => base64_encode($this->core->ShortNumber(count($posts))),
-        "[Topic.Title]" => base64_encode($info["Title"]),
-        "[Topic.View]" => base64_encode(base64_encode("v=".base64_encode("Forum:Topic")."&Forum=".base64_encode($forumID)."&Topic=".base64_encode($topicID)))
+       array_push($_List, [
+        "[Forum.ID]" => $forumID,
+        "[Topic.Created]" => $created,
+        "[Topic.Description]" => $info["Description"],
+        "[Topic.LatestPosts]" => $postList,
+        "[Topic.Modified]" => $modified,
+        "[Topic.PostCount]" => $this->core->ShortNumber(count($posts)),
+        "[Topic.Title]" => $info["Title"],
+        "[Topic.View]" => base64_encode("v=".base64_encode("Forum:Topic")."&Forum=".base64_encode($forumID)."&Topic=".base64_encode($topicID))
        ]);
       }
      }
     }
    } elseif($searchType == "Links") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "aacfffd7976e2702d91a5c7084471ebc";
     $_Query = "SELECT * FROM Links
                         WHERE Link_Description LIKE :Search OR
                                       Link_Keywords LIKE :Search OR
@@ -2097,10 +2133,8 @@
                                       Link_Title LIKE :Search
                         ORDER BY Link_Title DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $extension = $this->core->Element([
      "div", $extension, ["class" => "FrostedBright Rounded"]
     ]);
@@ -2116,20 +2150,20 @@
      $icon = "$icon/apple-touch-icon.png";
      $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
      $icon = ($iconExists == 0) ? $this->core->base."/apple-touch-icon.png" : $icon;
-     array_push($list, [
-      "[Link.Description]" => base64_encode($sql["Link_Description"]),
-      "[Link.Keywords]" => base64_encode($sql["Link_Keywords"]),
-      "[Link.Icon]" => base64_encode($this->core->Element([
+     array_push($_List, [
+      "[Link.Description]" => $sql["Link_Description"],
+      "[Link.Keywords]" => $sql["Link_Keywords"],
+      "[Link.Icon]" => $this->core->Element([
        "div", "<img src=\"$icon\" style=\"max-width:24em\" width=\"90%\"/>\r\n", [
         "class" => "InnerMargin"
        ]
-      ])),
-      "[Link.Title]" => base64_encode($sql["Link_Title"])
+      ]),
+      "[Link.Title]" => $sql["Link_Title"]
      ]);
     }
    } elseif($searchType == "Mainstream") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
@@ -2138,8 +2172,8 @@
                         AND StatusUpdate_Privacy=:Privacy
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Body" => $querysql,
      ":Privacy" => md5("Public"),
@@ -2201,35 +2235,35 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($list, [
-         "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-         "[StatusUpdate.Body]" => base64_encode($body),
-         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
-         "[StatusUpdate.DT]" => base64_encode($options["View"]),
-         "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($sql["StatusUpdate_ID"]),
-         "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
-         "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
-         "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
-         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
+        array_push($_List, [
+         "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
+         "[StatusUpdate.Body]" => $body,
+         "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
+         "[StatusUpdate.DT]" => $options["View"],
+         "[StatusUpdate.Edit]" => $edit,
+         "[StatusUpdate.ID]" => $sql["StatusUpdate_ID"],
+         "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
+         "[StatusUpdate.Notes]" => $options["Notes"],
+         "[StatusUpdate.OriginalPoster]" => $display.$verified,
+         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
+         "[StatusUpdate.Votes]" => $options["Vote"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "MBR") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
     $_Query = "SELECT * FROM Members
                         WHERE Member_Description LIKE :Search OR
                                       Member_DisplayName LIKE :Search OR
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
+                        OFFSET $offset";
     $home = base64_encode("Profile:Home");
-    $extension = $this->core->Extension("ba17995aafb2074a28053618fb71b912");
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2261,21 +2295,22 @@
        $options = $_Member["ListItem"]["Options"];
        $verified = $member["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-       array_push($list, [
-        "[X.LI.DisplayName]" => base64_encode($_Member["ListItem"]["Title"].$verified),
-        "[X.LI.Description]" => base64_encode($_Member["ListItem"]["Description"]),
-        "[X.LI.Options]" => base64_encode($this->core->Element(["button", "View Profile", [
+       array_push($_List, [
+        "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"].$verified,
+        "[X.LI.Description]" => $_Member["ListItem"]["Description"],
+        "[X.LI.Options]" => $this->core->Element(["button", "View Profile", [
          "class" => "OpenCard v2",
          "data-view" => $options["View"]
-        ]])),
-        "[X.LI.ProfilePicture]" => base64_encode($options["ProfilePicture"])
+        ]]),
+        "[X.LI.ProfilePicture]" => $options["ProfilePicture"]
        ]);
       }
      }
     }
    } elseif($searchType == "MBR-ALB") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("b6728e167b401a5314ba47dd6e4a55fd");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "b6728e167b401a5314ba47dd6e4a55fd";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $username = base64_decode($data["UN"]);
      $t = ($username == $you) ? $y : $this->core->Member($username);
@@ -2307,30 +2342,30 @@
         $t["Login"]["Username"],
         $coverPhoto
        ]);
-       array_push($list, [
-        "[Album.CRID]" => base64_encode($key),
-        "[Album.CoverPhoto]" => base64_encode($coverPhoto),
-        "[Album.Lobby]" => base64_encode(base64_encode("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$key&UN=$username")),
-        "[Album.Title]" => base64_encode($value["Title"])
+       array_push($_List, [
+        "[Album.CRID]" => $key,
+        "[Album.CoverPhoto]" => $coverPhoto,
+        "[Album.Lobby]" => base64_encode("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$key&UN=$username"),
+        "[Album.Title]" => $value["Title"]
        ]);
       }
      }
     }
    } elseif($searchType == "MBR-BLG") {
-    $accessCode = "Accepted";
-    $home = base64_encode("Blog:Home");
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $_Query = "SELECT * FROM Blogs
+                        JOIN Members
+                        ON Member_Username=Blog_Username
+                        WHERE (Blog_Description LIKE :Search OR
+                                      Blog_Title LIKE :Search)
+                        AND Blog_Username=:Username
+                        ORDER BY Blog_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset";
     if($notAnon == 1) {
-     $_Query = "SELECT * FROM Blogs
-                         JOIN Members
-                         ON Member_Username=Blog_Username
-                         WHERE (Blog_Description LIKE :Search OR
-                                       Blog_Title LIKE :Search)
-                         AND Blog_Username=:Username
-                         ORDER BY Blog_Created DESC
-                         LIMIT $limit
-                         OFFSET $offset
-     ";
+     $home = base64_encode("Blog:Home");
+     $extension = $this->core->Extension($_ExtensionID);
      $sql->query($_Query, [
       ":Search" => $querysql,
       ":Username" => $you
@@ -2353,34 +2388,34 @@
        if($illegal == 0) {
        $coverPhoto = $blog["ICO"] ?? $coverPhoto;
        $coverPhoto = base64_encode($coverPhoto);
-        array_push($list, [
-         "[X.LI.I]" => base64_encode($_Blog["ListItem"]["CoverPhoto"]),
-         "[X.LI.T]" => base64_encode($_Blog["ListItem"]["Title"]),
-         "[X.LI.D]" => base64_encode($_Blog["ListItem"]["Description"]),
-         "[X.LI.DT]" => base64_encode($_Blog["ListItem"]["Options"]["View"])
+        array_push($_List, [
+         "[X.LI.I]" => $_Blog["ListItem"]["CoverPhoto"],
+         "[X.LI.T]" => $_Blog["ListItem"]["Title"],
+         "[X.LI.D]" => $_Blog["ListItem"]["Description"],
+         "[X.LI.DT]" => $_Blog["ListItem"]["Options"]["View"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "MBR-CA" || $searchType == "MBR-JE") {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "90bfbfb86908fdc401c79329bedd7df5";
+    $_Query = "SELECT * FROM Articles
+                       JOIN Members
+                       ON Member_Username=Article_Username
+                       WHERE (Article_Body LIKE :Search OR
+                                     Article_Description LIKE :Search OR
+                                     Article_Title LIKE :Search)
+                       AND Article_Username=:Username
+                       ORDER BY Article_Created DESC
+                       LIMIT $limit
+                       OFFSET $offset";
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $bl = $this->core->CheckBlocked([$t, "Members", $you]);
-    $extension = $this->core->Extension("90bfbfb86908fdc401c79329bedd7df5");
-    $_Query = "SELECT * FROM Articles
-                        JOIN Members
-                        ON Member_Username=Article_Username
-                        WHERE (Article_Body LIKE :Search OR
-                                      Article_Description LIKE :Search OR
-                                      Article_Title LIKE :Search)
-                        AND Article_Username=:Username
-                        ORDER BY Article_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset
-    ";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
@@ -2419,37 +2454,37 @@
       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
       $ck2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
       if($ck == 1 && $ck2 == 1) {
-       array_push($list, [
-        "[Article.Subtitle]" => base64_encode("Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"])."."),
-        "[Article.Description]" => base64_encode($_Article["ListItem"]["Description"]),
-        "[Article.ParentPage]" => base64_encode($parentView),
-        "[Article.Title]" => base64_encode($_Article["ListItem"]["Title"]),
-        "[Article.ViewPage]" => base64_encode($options["View"])
+       array_push($_List, [
+        "[Article.Subtitle]" => "Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"]).".",
+        "[Article.Description]" => $_Article["ListItem"]["Description"],
+        "[Article.ParentPage]" => $parentView,
+        "[Article.Title]" => $_Article["ListItem"]["Title"],
+        "[Article.ViewPage]" => $options["View"]
        ]);
       }
      }
     }
    } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
+    $_Query = "SELECT * FROM Chat
+                        JOIN Members
+                        ON Member_Username=Chat_Username
+                        WHERE (Chat_Description LIKE :Search OR
+                                      Chat_Title LIKE :Search)
+                        AND Chat_Username=:Username
+                        ORDER BY Chat_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset";
     $group = $data["Group"] ?? 0;
     $integrated = $data["Integrated"] ?? 0;
     $oneOnOne = $data["1on1"] ?? 0;
-    $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $extension = "343f78d13872e3b4e2ac0ba587ff2910";
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
      $extension = $this->core->Extension($extension);
      if($group == 1) {
-      $_Query = "SELECT * FROM Chat
-                          JOIN Members
-                          ON Member_Username=Chat_Username
-                          WHERE (Chat_Description LIKE :Search OR
-                                        Chat_Title LIKE :Search)
-                          AND Chat_Username=:Username
-                          ORDER BY Chat_Created DESC
-                          LIMIT $limit
-                          OFFSET $offset
-      ";
       $sql->query($_Query, [
        ":Search" => $querysql,
        ":Username" => $you
@@ -2483,11 +2518,11 @@
          $t = $this->core->Member($this->core->ID);
          $verified = $t["Verified"] ?? 0;
          $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-         array_push($list, [
-          "[Chat.DisplayName]" => base64_encode($displayName.$verified),
-          "[Chat.Online]" => base64_encode(""),
-          "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-          "[Chat.View]" => base64_encode($_Chat["ListItem"]["Options"]["View"])
+         array_push($_List, [
+          "[Chat.DisplayName]" => $displayName.$verified,
+          "[Chat.Online]" => "",
+          "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%"),
+          "[Chat.View]" => $_Chat["ListItem"]["Options"]["View"]
          ]);
         }
        }
@@ -2516,17 +2551,19 @@
          NULL,
          ["class" => "online"]
         ]) : "";
-        array_push($list, [
-         "[Chat.DisplayName]" => base64_encode($t["Personal"]["DisplayName"]),
-         "[Chat.Online]" => base64_encode($online),
-         "[Chat.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%")),
-         "[Chat.View]" => base64_encode(base64_encode($view))
+        array_push($_List, [
+         "[Chat.DisplayName]" => $t["Personal"]["DisplayName"],
+         "[Chat.Online]" => $online,
+         "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%"),
+         "[Chat.View]" => base64_encode($view)
         ]);
        }
       }
      }
     }
    } elseif($searchType == "MBR-Forums") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
     $_Query = "SELECT * FROM Forums
                         JOIN Members
                         ON Member_Username=Forum_Username
@@ -2535,11 +2572,9 @@
                         AND Forum_Username=:Username
                         ORDER BY Forum_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
+                        OFFSET $offset";
     $home = base64_encode("Forum:Home");
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Username" => $you
@@ -2561,18 +2596,19 @@
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
-       array_push($list, [
-        "[X.LI.I]" => base64_encode($_Forum["ListItem"]["CoverPhoto"]),
-        "[X.LI.T]" => base64_encode($_Forum["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Forum["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode($options["View"])
+       array_push($_List, [
+        "[X.LI.I]" => $_Forum["ListItem"]["CoverPhoto"],
+        "[X.LI.T]" => $_Forum["ListItem"]["Title"],
+        "[X.LI.D]" => $_Forum["ListItem"]["Description"],
+        "[X.LI.DT]" => $options["View"]
        ]);
       }
      }
     }
    } elseif($searchType == "MBR-LLP") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("da5c43f7719b17a9fab1797887c5c0d1");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "da5c43f7719b17a9fab1797887c5c0d1";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $articles = $y["Pages"] ?? [];
      foreach($articles as $key => $value) {
@@ -2585,18 +2621,20 @@
       if($_Article["Empty"] == 0) {
        $article = $_Article["DataModel"];
        $options = $_Article["ListItem"]["Options"];
-       array_push($list, [
-        "[Extension.Category]" => base64_encode($article["Category"]),
-        "[Extension.Delete]" => base64_encode($options["Delete"]),
-        "[Extension.Description]" => base64_encode($_Article["ListItem"]["Description"]),
-        "[Extension.Edit]" => base64_encode($options["Edit"]),
-        "[Extension.ID]" => base64_encode($value),
-        "[Extension.Title]" => base64_encode($_Article["ListItem"]["Title"])
+       array_push($_List, [
+        "[Extension.Category]" => $article["Category"],
+        "[Extension.Delete]" => $options["Delete"],
+        "[Extension.Description]" => $_Article["ListItem"]["Description"],
+        "[Extension.Edit]" => $options["Edit"],
+        "[Extension.ID]" => $value,
+        "[Extension.Title]" => $_Article["ListItem"]["Title"]
        ]);
       }
      }
     }
    } elseif($searchType == "MBR-Polls") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "184ada666b3eb85de07e414139a9a0dc";
     $_Query = "SELECT * FROM Polls
                         JOIN Members
                         ON Member_Username=Poll_Username
@@ -2605,10 +2643,8 @@
                         AND Poll_Username=:Username
                         ORDER BY Poll_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Username" => $you
@@ -2672,20 +2708,20 @@
         }
         $vote .= $option;
        }
-       array_push($list, [
-        "[Poll.BlockOrDelete]" => base64_encode($blockOrDelete),
-        "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
-        "[Poll.ID]" => base64_encode($sql["Poll_ID"]),
-        "[Poll.Share]" => base64_encode($options["Share"]),
-        "[Poll.Title]" => base64_encode($_Poll["ListItem"]["Title"]),
-        "[Poll.Vote]" => base64_encode($vote)
+       array_push($_List, [
+        "[Poll.BlockOrDelete]" => $blockOrDelete,
+        "[Poll.Description]" => $_Poll["ListItem"]["Description"],
+        "[Poll.ID]" => $sql["Poll_ID"],
+        "[Poll.Share]" => $options["Share"],
+        "[Poll.Title]" => $_Poll["ListItem"]["Title"],
+        "[Poll.Vote]" => $vote
        ]);
       }
      }
     }
    } elseif($searchType == "MBR-SU") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
@@ -2694,8 +2730,8 @@
                                  StatusUpdate_Username=:Username)
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Body" => $querysql,
      ":Username" => base64_decode($data["UN"])
@@ -2746,28 +2782,26 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($list, [
-         "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-         "[StatusUpdate.Body]" => base64_encode($body),
-         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($update["Created"])),
-         "[StatusUpdate.DT]" => base64_encode($options["View"]),
-         "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($sql["StatusUpdate_ID"]),
-         "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
-         "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
-         "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
-         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
+        array_push($_List, [
+         "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
+         "[StatusUpdate.Body]" => $body,
+         "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
+         "[StatusUpdate.DT]" => $options["View"],
+         "[StatusUpdate.Edit]" => $edit,
+         "[StatusUpdate.ID]" => $sql["StatusUpdate_ID"],
+         "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
+         "[StatusUpdate.Notes]" => $options["Notes"],
+         "[StatusUpdate.OriginalPoster]" => $display.$verified,
+         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
+         "[StatusUpdate.Votes]" => $options["Vote"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "MBR-XFS") {
-    $t = $data["UN"] ?? base64_encode($you);
-    $t = base64_decode($t);
-    $t = ($t == $you) ? $y : $this->core->Member($t);
-    $database = ($t["Login"]["Username"] == $this->core->ID) ? "CoreMedia" : "Media";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
     $_Query = "SELECT * FROM $database
                         JOIN Members
                         ON Member_Username=Media_Username
@@ -2776,12 +2810,14 @@
                         AND Media_Username=:Username
                         ORDER BY Media_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
+                        OFFSET $offset";
+    $t = $data["UN"] ?? base64_encode($you);
+    $t = base64_decode($t);
+    $t = ($t == $you) ? $y : $this->core->Member($t);
+    $database = ($t["Login"]["Username"] == $this->core->ID) ? "CoreMedia" : "Media";
     $albumID = $data["AID"] ?? md5("unsorted");
-    $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
-    $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
+    $extension = $this->core->Extension($_ExtensionID);
+    $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
     $sql->query($_Query, [
      ":Database" => $database,
      ":Search" => $querysql,
@@ -2802,14 +2838,16 @@
      if($_File["Empty"] == 0 && $bl == 0 && $albumID == $file["AID"]) {
       $options = $_File["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $file]);
-      array_push($list, [
-       "[File.CoverPhoto]" => base64_encode($source),
-       "[File.Title]" => base64_encode($file["Title"]),
-       "[File.View]" => base64_encode($options["View"])
+      array_push($_List, [
+       "[File.CoverPhoto]" => $source,
+       "[File.Title]" => $file["Title"],
+       "[File.View]" => $options["View"]
       ]);
      }
     }
    } elseif($searchType == "Media") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
     $_Query = "SELECT * FROM Media
                         JOIN Members
                         ON Member_Username=Media_Username
@@ -2818,10 +2856,8 @@
                                       Media_Username LIKE :Search
                         ORDER BY Media_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2843,14 +2879,16 @@
        $sql["Media_Username"],
        $file
       ]);
-      array_push($list, [
-       "[File.CoverPhoto]" => base64_encode($source),
-       "[File.Title]" => base64_encode($file["Title"]),
-       "[File.View]" => base64_encode($options["View"])
+      array_push($_List, [
+       "[File.CoverPhoto]" => $source,
+       "[File.Title]" => $file["Title"],
+       "[File.View]" => $options["View"]
       ]);
      }
     }
    } elseif($searchType == "Polls") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "184ada666b3eb85de07e414139a9a0dc";
     $_Query = "SELECT * FROM Polls
                         JOIN Members
                         ON Member_Username=Poll_Username
@@ -2858,10 +2896,8 @@
                                       Poll_Title LIKE :Search
                         ORDER BY Poll_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2932,18 +2968,20 @@
         }
         $vote .= $option;
        }
-       array_push($list, [
-        "[Poll.BlockOrDelete]" => base64_encode($blockOrDelete),
-        "[Poll.Description]" => base64_encode($_Poll["ListItem"]["Description"]),
-        "[Poll.ID]" => base64_encode($sql["Poll_ID"]),
-        "[Poll.Share]" => base64_encode($options["Share"]),
-        "[Poll.Title]" => base64_encode($_Poll["ListItem"]["Title"]),
-        "[Poll.Vote]" => base64_encode($vote)
+       array_push($_List, [
+        "[Poll.BlockOrDelete]" => $blockOrDelete,
+        "[Poll.Description]" => $_Poll["ListItem"]["Description"],
+        "[Poll.ID]" => $sql["Poll_ID"],
+        "[Poll.Share]" => $options["Share"],
+        "[Poll.Title]" => $_Poll["ListItem"]["Title"],
+        "[Poll.Vote]" => $vote
        ]);
       }
      }
     }
    } elseif($searchType == "Products") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
     $_Query = "SELECT * FROM Products
                         JOIN Members
                         ON Member_Username=Product_Username
@@ -2951,10 +2989,8 @@
                                       Product_Title LIKE :Search
                         ORDER BY Product_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2987,29 +3023,29 @@
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
-       array_push($list, [
-        "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
-        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode($options["View"]),
-        "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"])
+       array_push($_List, [
+        "[X.LI.I]" => $_Product["ListItem"]["CoverPhoto"],
+        "[X.LI.D]" => $_Product["ListItem"]["Description"],
+        "[X.LI.DT]" => $options["View"],
+        "[X.LI.T]" => $_Product["ListItem"]["Title"]
        ]);
       }
      }
     }
    } elseif($searchType == "SHOP") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("6d8aedce27f06e675566fd1d553c5d92");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "6d8aedce27f06e675566fd1d553c5d92";
+    $_Query = "SELECT * FROM Shops
+                        JOIN Members
+                        ON Member_Username=Shop_Username
+                        WHERE Shop_Description LIKE :Search OR
+                                      Shop_Title LIKE :Search OR
+                                      Shop_Welcome LIKE :Search
+                        ORDER BY Shop_Created DESC
+                        LIMIT $limit
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
-     $_Query = "SELECT * FROM Shops
-                         JOIN Members
-                         ON Member_Username=Shop_Username
-                         WHERE Shop_Description LIKE :Search OR
-                                       Shop_Title LIKE :Search OR
-                                       Shop_Welcome LIKE :Search
-                         ORDER BY Shop_Created DESC
-                         LIMIT $limit
-                         OFFSET $offset
-     ";
      $b2 = $b2 ?? "Artists";
      $sql->query($_Query, [
       ":Search" => $querysql
@@ -3037,24 +3073,25 @@
        $shop = $_Shop["DataModel"];
        $check2 = $shop["Open"] ?? 0;
        if(($bl == 0 && $check == 1 && $check2 == 1) || $sql["Shop_Username"] == $you) {
-        array_push($list, [
-         "[Shop.CoverPhoto]" => base64_encode($_Shop["ListItem"]["CoverPhoto"]),
-         "[Shop.Description]" => base64_encode($_Shop["ListItem"]["Description"]),
-         "[Shop.ProfilePicture]" => base64_encode($this->core->ProfilePicture($t, "margin:5%;width:90%")),
-         "[Shop.Title]" => base64_encode($_Shop["ListItem"]["Title"]),
-         "[Shop.View]" => base64_encode($_Shop["ListItem"]["Options"]["View"]),
+        array_push($_List, [
+         "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
+         "[Shop.Description]" => $_Shop["ListItem"]["Description"],
+         "[Shop.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:5%;width:90%"),
+         "[Shop.Title]" => $_Shop["ListItem"]["Title"],
+         "[Shop.View]" => $_Shop["ListItem"]["Options"]["View"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "SHOP-InvoicePresets") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
-    $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
+    $extension = $this->core->Extension($_ExtensionID);
+    $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     foreach($invoicePresets as $key => $value) {
-     $preset = $this->core->Data("Get", ["invoice-preset", $value]) ?? [];
+     $preset = $this->core->Data("Get", ["invoice-preset", $value]);
      $viewData = json_encode([
       "SecureKey" => base64_encode($y["Login"]["PIN"]),
       "ID" => base64_encode($value),
@@ -3066,18 +3103,19 @@
       "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
      ]]);
      if(!empty($preset)) {
-      array_push($list, [
-       "[ListItem.Description]" => base64_encode("A service currently on offer by ".$shop["Title"]),
-       "[ListItem.Options]" => base64_encode($options),
-       "[ListItem.Title]" => base64_encode($preset["Title"])
+      array_push($_List, [
+       "[ListItem.Description]" => "A service currently on offer by ".$shop["Title"],
+       "[ListItem.Options]" => $options,
+       "[ListItem.Title]" => $preset["Title"]
       ]);
      }
     }
    } elseif($searchType == "SHOP-Invoices") {
-    $accessCode = "Accepted";
-    $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
+    $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
     $invoices = $shop["Invoices"] ?? [];
-    $extension = $this->core->Extension("e9f34ca1985c166bf7aa73116a745e92");
+    $extension = $this->core->Extension($_ExtensionID);
     foreach($invoices as $key => $value) {
      $invoice = $this->core->Data("Get", ["invoice", $value]) ?? [];
      if(!empty($invoice)) {
@@ -3088,17 +3126,18 @@
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=$value")
       ]]);
-      array_push($list, [
-       "[ListItem.Description]" => base64_encode("An Invoice created by ".$invoice["UN"]." &bull; Status: ".$invoice["Status"]."."),
-       "[ListItem.Options]" => base64_encode($options),
-       "[ListItem.Title]" => base64_encode("Invoice $value")
+      array_push($_List, [
+       "[ListItem.Description]" => "An Invoice created by ".$invoice["UN"]." &bull; Status: ".$invoice["Status"].".",
+       "[ListItem.Options]" => $options,
+       "[ListItem.Title]" => "Invoice $value"
       ]);
      }
     }
    } elseif($searchType == "SHOP-Orders") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("504e2a25db677d0b782d977f7b36ff30");
-    $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]) ?? [];
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "504e2a25db677d0b782d977f7b36ff30";
+    $extension = $this->core->Extension($_ExtensionID);
+    $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]);
     foreach($purchaseOrders as $key => $value) {
      $member = $this->core->Member($value["UN"]);
      if(!empty($member["Login"])) {
@@ -3106,17 +3145,19 @@
        "class" => "BBB CompleteOrder v2 v2w",
        "data-u" => base64_encode("v=".base64_encode("Shop:CompleteOrder")."&ID=".base64_encode($key))
       ]]) : "";
-      array_push($list, [
-       "[X.LI.Order.Complete]" => base64_encode($complete),
-       "[X.LI.Order.Instructions]" => $value["Instructions"],
-       "[X.LI.Order.ProductID]" => base64_encode($value["ProductID"]),
-       "[X.LI.Order.ProfilePicture]" => base64_encode($this->core->ProfilePicture($member, "margin:5%;width:90%")),
-       "[X.LI.Order.Quantity]" => base64_encode($value["QTY"]),
-       "[X.LI.Order.UN]" => base64_encode($value["UN"])
+      array_push($_List, [
+       "[X.LI.Order.Complete]" => $complete,
+       "[X.LI.Order.Instructions]" => base64_decode($value["Instructions"]),
+       "[X.LI.Order.ProductID]" => $value["ProductID"],
+       "[X.LI.Order.ProfilePicture]" => $this->core->ProfilePicture($member, "margin:5%;width:90%"),
+       "[X.LI.Order.Quantity]" => $value["QTY"],
+       "[X.LI.Order.UN]" => $value["UN"]
       ]);
      }
     }
    } elseif($searchType == "SHOP-Products") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
     $_Query = "SELECT * FROM Products
                         JOIN Members
                         ON Member_Username=Product_Username
@@ -3125,10 +3166,8 @@
                         AND Product_Shop=:Shop
                         ORDER BY Product_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
     $sql->query($_Query, [
@@ -3157,18 +3196,18 @@
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
-       array_push($list, [
-        "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
-        "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode($options["View"])
+       array_push($_List, [
+        "[X.LI.I]" => $_Product["ListItem"]["CoverPhoto"],
+        "[X.LI.T]" => $_Product["ListItem"]["Title"],
+        "[X.LI.D]" => $_Product["ListItem"]["Description"],
+        "[X.LI.DT]" => $options["View"]
        ]);
       }
      }
     }
    } elseif($searchType == "StatusUpdates") {
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("18bc18d5df4b3516c473b82823782657");
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
@@ -3176,8 +3215,8 @@
                                       StatusUpdate_Username LIKE :Username
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Body" => $querysql,
      ":Username" => $querysql
@@ -3249,24 +3288,26 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($list, [
-         "[StatusUpdate.Attachments]" => base64_encode($_StatusUpdate["ListItem"]["Attachments"]),
-         "[StatusUpdate.Body]" => base64_encode($body),
-         "[StatusUpdate.Created]" => base64_encode($this->core->TimeAgo($created)),
-         "[StatusUpdate.DT]" => base64_encode($options["View"]),
-         "[StatusUpdate.Edit]" => base64_encode($edit),
-         "[StatusUpdate.ID]" => base64_encode($sql["StatusUpdate_ID"]),
-         "[StatusUpdate.Modified]" => base64_encode($_StatusUpdate["ListItem"]["Modified"]),
-         "[StatusUpdate.Notes]" => base64_encode($options["Notes"]),
-         "[StatusUpdate.OriginalPoster]" => base64_encode($display.$verified),
-         "[StatusUpdate.ProfilePicture]" => base64_encode($this->core->ProfilePicture($op, "margin:5%;width:90%")),
-         "[StatusUpdate.Votes]" => base64_encode($options["Vote"])
+        array_push($_List, [
+         "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
+         "[StatusUpdate.Body]" => $body,
+         "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
+         "[StatusUpdate.DT]" => $options["View"],
+         "[StatusUpdate.Edit]" => $edit,
+         "[StatusUpdate.ID]" => $sql["StatusUpdate_ID"],
+         "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
+         "[StatusUpdate.Notes]" => $options["Notes"],
+         "[StatusUpdate.OriginalPoster]" => $display.$verified,
+         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
+         "[StatusUpdate.Votes]" => $options["Vote"]
         ]);
        }
       }
      }
     }
    } elseif($searchType == "VVA") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
     $_Query = "SELECT * FROM Products
                         JOIN Members
                         ON Member_Username=Product_Username
@@ -3276,10 +3317,8 @@
                         AND Product_Shop=:Shop
                         ORDER BY Product_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("ed27ee7ba73f34ead6be92293b99f844");
+                        OFFSET $offset";
+    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Shop" => md5($this->core->ShopID)
@@ -3306,19 +3345,18 @@
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
-       array_push($list, [
-        "[X.LI.I]" => base64_encode($_Product["ListItem"]["CoverPhoto"]),
-        "[X.LI.T]" => base64_encode($_Product["ListItem"]["Title"]),
-        "[X.LI.D]" => base64_encode($_Product["ListItem"]["Description"]),
-        "[X.LI.DT]" => base64_encode($options["View"])
+       array_push($_List, [
+        "[X.LI.I]" => $_Product["ListItem"]["CoverPhoto"],
+        "[X.LI.T]" => $_Product["ListItem"]["Title"],
+        "[X.LI.D]" => $_Product["ListItem"]["Description"],
+        "[X.LI.DT]" => $options["View"]
        ]);
       }
      }
     }
    } elseif($searchType == "XFS") {
-    $_Username = $data["UN"] ?? base64_encode("");
-    $_Username = base64_decode($_Username);
-    $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
     $_Query = "SELECT * FROM $_Database
                         JOIN Members
                         ON Member_Username=Media_Username
@@ -3327,10 +3365,11 @@
                         AND Media_Username=:Username
                         ORDER BY Media_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
-    $accessCode = "Accepted";
-    $extension = $this->core->Extension("e15a0735c2cb8fa2d508ee1e8a6d658d");
+                        OFFSET $offset";
+    $_Username = $data["UN"] ?? base64_encode("");
+    $_Username = base64_decode($_Username);
+    $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
+    $extension = $this->core->Extension($_ExtensionID);
     $mediaType = $data["ftype"] ?? "";
     $sql->query($_Query, [
      ":Database" => $_Database,
@@ -3353,17 +3392,17 @@
       $options = $_File["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([$sql["Media_Username"], $file]);
       $media = [
-       "[File.CoverPhoto]" => base64_encode($source),
-       "[File.Title]" => base64_encode($file["Title"]),
-       "[File.View]" => base64_encode($options["View"])
+       "[File.CoverPhoto]" => $source,
+       "[File.Title]" => $file["Title"],
+       "[File.View]" => $options["View"]
       ];
       if(empty($mediaType)) {
-       array_push($list, $media);
+       array_push($_List, $media);
       } else {
        $mediaTypes = json_decode(base64_decode($mediaType));
        foreach($mediaTypes as $mediaTypes) {
         if($this->core->CheckFileType([$file["EXT"], $mediaTypes]) == 1) {
-         array_push($list, $media);
+         array_push($_List, $media);
         }
        }
       }
@@ -3371,12 +3410,14 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
+    "Extension" => $_Extension,
+    "ExtensionID" => $_ExtensionID,
     "Response" => [
      "End" => "$end",
      "Extension" => base64_encode($extension),
      "Limit" => $limit,
-     "List" => $list,
+     "List" => $_List,
      "NoResults" => base64_encode($this->core->Element([
       "h3", $na, ["class" => "CenterText InnerMargin UpperCase"]
      ])),
@@ -3385,9 +3426,10 @@
     "ResponseType" => "View"
    ]);
   }
-  function ReSearch(array $a) {
+  function ReSearch(array $data) {
+   $_View = "";
    $_ViewTitle = "Re:Search";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $component = $data["Component"] ?? base64_encode("");
    $component = base64_decode($component);
    $query = $data["query"] ?? base64_encode("");
@@ -3396,13 +3438,12 @@
    $you = $y["Login"]["Username"];
    if($component == "SuggestedMembers") {
     $_Query = "SELECT * FROM Members
-                        WHERE Member_Description LIKE :Search OR
+                        WHERE Member_Descriptction LIKE :Search OR
                                       Member_DisplayName LIKE :Search OR
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
                         LIMIT 100
     ";
-    $_View = "&nbsp;";
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $sql->query($_Query, [
      ":Search" => $query

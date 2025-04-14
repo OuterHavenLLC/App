@@ -17,7 +17,7 @@
    $documentRoot = $this->core->DocumentRoot."/base/views/";
    $group = $view[0] ?? "NA";
    $view = $view[1] ?? "NoView";
-   $response = $this->core->JSONResponse([
+   $_View = $this->core->JSONResponse([
     "Dialog" => [
      "Body" => "The group <em>$group</em> could not be loaded.",
      "Header" => "Not Found",
@@ -33,11 +33,9 @@
     $_View = (!empty($_View)) ? $this->core->PlainText([
      "Data" => $_View,
      "Display" => 1
-    ]) : $this->core->Change([[
-     "[Error.Back]" => "",
-     "[Error.Header]" => "Not Found",
-     "[Error.Message]" => "The view <em>$view</em> from group <em>$group</em> was empty, and could not be loaded."
-    ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+    ]) : $this->view(base64_encode("WebUI:Error"), ["Data" => [
+     "Error" => 404
+    ]]);
    }
    return $_View;
   }

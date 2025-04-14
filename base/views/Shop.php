@@ -1314,7 +1314,7 @@
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "Title" => $_ViewTitle,
-    "View" -=> $_View
+    "View" => $_View
    ]);
   }
   function ProcessCartOrder(array $data) {

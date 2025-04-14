@@ -1137,6 +1137,7 @@ function ReSearch(input) {
            AccessCode = Data.AccessCode,
            End,
            Extension,
+           ExtensionID = Data.ExtensionID || "",
            Grid = GridColumns,
            Response = Data.Response,
            SearchID = "SearchList" + UUID();
@@ -1170,7 +1171,7 @@ function ReSearch(input) {
                value = List[i][1] || {};
          if(value !== {} && $.type(value) !== "undefined") {
           for(var i in value) {
-           Result = Result.replaceAll(value[i][0], Base64decrypt(value[i][1]));
+           Result = Result.replaceAll(value[i][0], value[i][1]);
           } if(Result.search(Query) > -1) {
            Search = Search + 1;
           } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {

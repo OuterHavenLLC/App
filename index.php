@@ -28,7 +28,6 @@
   } elseif($view == "Client") {
    #$_View = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
    $_View = file_get_contents("./tmp.js");//TEMP
-   // TRY TO LOCATE EXTENSION f7d85d236cc3718d50c9ccdd067ae713 IF EXISTS
   } elseif($view == "Cypher") {
    $_View = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67abee895c024");
   } elseif($view == "jQuery") {
