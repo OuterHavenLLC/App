@@ -467,7 +467,8 @@ function FST(data) {
  var Data = data || {},
        ID = Data.ID || UUID();
  $("body").append("<div class='Frosted FST FST" + ID + " RoundedLarge Shadowed h scr'></div>");
- $(".FST" + ID).html(Data);
+ $(".FST" + ID).html("<div class='TopBarMargin'></div>\r\n");
+ $(".FST" + ID).append(Data);
  setTimeout(() => {
   $(".FST" + ID).show("slide", {
    direction: "right"
@@ -671,6 +672,9 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
      const Data = RenderView(data);
      if(Data.View !== "" && typeof Data.View === "undefined") {
       Data.View.then(response => {
+       if(Data.AddTopMargin === 1) {
+        $(DefaultContainer).append("<div class='TopBarMargin'></div>\r\n");
+       }
        $(DefaultContainer).html(response);
        ExecuteCommands(Data.Commands);
       }).catch(error => {

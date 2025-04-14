@@ -5,28 +5,26 @@
    $this->root = $_SERVER["DOCUMENT_ROOT"]."/base/pay/Braintree.php";
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Banish(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $r = [
+  function Banish(array $data) {
+   $_Dialog = [
     "Body" => "The Username is missing."
    ];
+   $data = $data["Data"] ?? [];
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($username)) {
-    $r = [
+    $_Dialog = [
      "Body" => "You cannot fire yourself."
     ];
     $username = base64_decode($username);
     if($username != $you) {
-     $accessCode = "Accepted";
-     $r = [
+     $_Dialog = [
       "Actions" => [
        $this->core->Element(["button", "Fire $username", [
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
@@ -39,58 +37,44 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog
    ]);
   }
-  function CompleteOrder(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID"]);
-   $r = [
+  function CompleteOrder(array $data) {
+   $_Dialog = [
     "Body" => "The Order Identifier is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? base64_encode("");
+   $id = base64_decode($id);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($data["ID"])) {
-    $accessCode = "Accepted";
-    $id = base64_decode($data["ID"]);
-    $po = $this->core->Data("Get", ["po", md5($you)]) ?? [];
+   if(!empty($id)) {
+    $po = $this->core->Data("Get", ["po", md5($you)]);
     $po[$id]["Complete"] = 1;
     $this->core->Data("Save", ["po", md5($you), $po]);
-    $r = [
+    $_Dialog = [
      "Body" => "The order has been marked as complete!",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog
    ]);
   }
-  function Edit(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["Shop"] ?? "";
-   $r = [
+  function Edit(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $data = $a["Data"] ?? [];
+   $id = $data["Shop"] ?? base64_encode("");
+   $id = base64_decode($id);
    $username = $data["Username"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $accessCode = "Accepted";
-    $id = base64_decode($id);
+    $_Dialog = "";
     $shop = $this->core->Data("Get", ["shop", $id]);
     $owner = $shop["Contributors"] ?? [];
     $owner = array_key_first($owner);
@@ -102,11 +86,6 @@
      "Welcome"
     ]);
     $albums = $shop["Albums"] ?? [];
-    $action = $this->core->Element(["button", "Update", [
-     "class" => "CardButton SendData",
-     "data-form" => ".EditShop$id",
-     "data-processor" => base64_encode("v=".base64_encode("Shop:Save")."&Username=$username")
-    ]]);
     $articles = $shop["Articles"] ?? [];
     $attachments = $shop["Attachments"] ?? [];
     $blogs = $shop["Blogs"] ?? [];
@@ -172,77 +151,78 @@
       "Update" => $updates
      ]
     ]);
-    $r = $this->core->Change([[
-     "[Shop.Attachments]" => $this->core->RenderView($attachments),
-     "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
-     "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
-     "[Shop.Braintree.Live.PublicKey]" => $processing["BraintreePublicKeyLive"],
-     "[Shop.Braintree.Live.Token]" => $processing["BraintreeTokenLive"],
-     "[Shop.Braintree.Sandbox.MerchantID]" => $processing["BraintreeMerchantID"],
-     "[Shop.Braintree.Sandbox.PrivateKey]" => $processing["BraintreePrivateKey"],
-     "[Shop.Braintree.Sandbox.PublicKey]" => $processing["BraintreePublicKey"],
-     "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
-     "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
-     "[Shop.Description]" => base64_encode($shop["Description"]),
-     "[Shop.EnableHireSection]" => $enableHireSection,
-     "[Shop.HireTerms]" => base64_encode($this->core->PlainText([
-      "Data" => $hireTerms
-     ])),
-     "[Shop.HireLimit]" => $hireLimit,
-     "[Shop.HireLimits]" => json_encode($hireLimits, true),
-     "[Shop.ID]" => $id,
-     "[Shop.Header]" => $header,
-     "[Shop.PassPhrase]" => base64_encode($passPhrase),
-     "[Shop.PaymentProcessor]" => $paymentProcessor,
-     "[Shop.PayPal.Live.ClientID]" => $processing["PayPalClientIDLive"],
-     "[Shop.PayPal.Live.Email]" => $processing["PayPalEmailLive"],
-     "[Shop.PayPal.Sandbox.ClientID]" => $processing["PayPalClientID"],
-     "[Shop.PayPal.Sandbox.Email]" => $processing["PayPalEmail"],
-     "[Shop.Tax]" => $tax,
-     "[Shop.Tax.Percentages]" => json_encode($percentages, true),
-     "[Shop.Title]" => base64_encode($shop["Title"]),
-     "[Shop.Translate]" => $this->core->RenderView($translate),
-     "[Shop.Visibility.Live]" => $shop["Live"],
-     "[Shop.Visibility.NSFW]" => $nsfw,
-     "[Shop.Visibility.Open]" => $shop["Open"],
-     "[Shop.Visibility.Privacy]" => $privacy,
-     "[Shop.Welcome]" => base64_encode($this->core->PlainText([
-      "Data" => $shop["Welcome"]
-     ]))
-    ], $this->core->Extension("201c1fca2d1214dddcbabdc438747c9f")]);
-    $r = [
-     "Action" => $action,
-     "Front" => $r,
+    $_Card = [
+     "Action" => $this->core->Element(["button", "Update", [
+      "class" => "CardButton SendData",
+      "data-form" => ".EditShop$id",
+      "data-processor" => base64_encode("v=".base64_encode("Shop:Save")."&Username=$username")
+     ]]),
+     "Front" => [
+      "ChangeData" => [
+       "[Shop.Attachments]" => $this->core->RenderView($attachments),
+       "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
+       "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
+       "[Shop.Braintree.Live.PublicKey]" => $processing["BraintreePublicKeyLive"],
+       "[Shop.Braintree.Live.Token]" => $processing["BraintreeTokenLive"],
+       "[Shop.Braintree.Sandbox.MerchantID]" => $processing["BraintreeMerchantID"],
+       "[Shop.Braintree.Sandbox.PrivateKey]" => $processing["BraintreePrivateKey"],
+       "[Shop.Braintree.Sandbox.PublicKey]" => $processing["BraintreePublicKey"],
+       "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
+       "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
+       "[Shop.Description]" => base64_encode($shop["Description"]),
+       "[Shop.EnableHireSection]" => $enableHireSection,
+       "[Shop.HireTerms]" => base64_encode($this->core->PlainText([
+        "Data" => $hireTerms
+       ])),
+       "[Shop.HireLimit]" => $hireLimit,
+       "[Shop.HireLimits]" => json_encode($hireLimits, true),
+       "[Shop.ID]" => $id,
+       "[Shop.Header]" => $header,
+       "[Shop.PassPhrase]" => base64_encode($passPhrase),
+       "[Shop.PaymentProcessor]" => $paymentProcessor,
+       "[Shop.PayPal.Live.ClientID]" => $processing["PayPalClientIDLive"],
+       "[Shop.PayPal.Live.Email]" => $processing["PayPalEmailLive"],
+       "[Shop.PayPal.Sandbox.ClientID]" => $processing["PayPalClientID"],
+       "[Shop.PayPal.Sandbox.Email]" => $processing["PayPalEmail"],
+       "[Shop.Tax]" => $tax,
+       "[Shop.Tax.Percentages]" => json_encode($percentages, true),
+       "[Shop.Title]" => base64_encode($shop["Title"]),
+       "[Shop.Translate]" => $this->core->RenderView($translate),
+       "[Shop.Visibility.Live]" => $shop["Live"],
+       "[Shop.Visibility.NSFW]" => $nsfw,
+       "[Shop.Visibility.Open]" => $shop["Open"],
+       "[Shop.Visibility.Privacy]" => $privacy,
+       "[Shop.Welcome]" => base64_encode($this->core->PlainText([
+        "Data" => $shop["Welcome"]
+       ]))
+      ],
+     "ExtensionID" => "201c1fca2d1214dddcbabdc438747c9f"
+     ],
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function EditPartner(array $a) {
-   $accessCode = "Denied";
-   $action = "";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN", "new"]);
-   $r = [
+  function EditPartner(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Partner Identifier is missing."
    ];
+   $data = $a["Data"] ?? [];
+   $data = $this->core->FixMissing($data, ["UN", "new"]);
    $new = $data["new"] ?? 0;
    $username = (!empty($data["UN"])) ? base64_decode($data["UN"]) : "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($username) || $new == 1) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
+    $action = "";
     if($new == 1) {
      $action = "Hire";
      $company = "Company";
@@ -260,48 +240,44 @@
      $inputType = "hidden";
      $title = $partner["Title"];
     }
-    $r = $this->core->Change([[
-     "[Partner.Company]" => $company,
-     "[Partner.Description]" => $description,
-     "[Partner.Header]" => $header,
-     "[Partner.ID]" => md5($username),
-     "[Partner.New]" => $new,
-     "[Partner.Title]" => $title,
-     "[Partner.Username]" => $username,
-     "[Partner.Username.InputType]" => $inputType
-    ], $this->core->Extension("a361fab3e32893af6c81a15a81372bb7")]);
-    $action = $this->core->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".Partner".md5($username),
-     "data-processor" => base64_encode("v=".base64_encode("Shop:SavePartner"))
-    ]]);
-    $r = [
-     "Action" => $action,
-     "Front" => $r
+    $_Card = [
+     "Action" => $this->core->Element(["button", $action, [
+      "class" => "CardButton SendData",
+      "data-form" => ".Partner".md5($username),
+      "data-processor" => base64_encode("v=".base64_encode("Shop:SavePartner"))
+     ]]),
+     "Front" => [
+      "ChangeData" => [
+       "[Partner.Company]" => $company,
+       "[Partner.Description]" => $description,
+       "[Partner.Header]" => $header,
+       "[Partner.ID]" => md5($username),
+       "[Partner.New]" => $new,
+       "[Partner.Title]" => $title,
+       "[Partner.Username]" => $username,
+       "[Partner.Username.InputType]" => $inputType
+      ],
+      "ExtensionID" => "a361fab3e32893af6c81a15a81372bb7"
+     ]
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function HireSection(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["Shop"] ?? "";
-   $r = [
+  function HireSection(array $data) {
+   $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $id = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $accessCode = "Accepted";
-    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $_Dialog = "";
+    $shop = $this->core->Data("Get", ["shop", $id]);
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $services = $shop["InvoicePresets"] ?? [];
     $hire = (md5($you) != $id) ? 1 : 0;
@@ -316,44 +292,41 @@
      if($invoice["Status"] == "Open") {
       $openInvoices++;
      }
-    } if($openInvoices < $limit) {
-     $r = ($hire == 1 && $shop["Open"] == 1) ? $this->core->Change([[
-      "[Hire.Text]" => $hireText,
-      "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
-     ], $this->core->Extension("357a87447429bc7b6007242dbe4af715")]) : "";
+    } if($enableHireSection == 1 && $openInvoices < $limit) {
+     $_View = ($hire == 1 && $shop["Open"] == 1) ? [
+      "ChangeData" => [
+       "[Hire.Text]" => $hireText,
+       "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
+      ],
+      "ExtensionID" => "357a87447429bc7b6007242dbe4af715"
+     ] : "";
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function History(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $i = 0;
-   $id = $data["ID"] ?? md5($this->core->ShopID);
-   $r = [
+  function History(array $data) {
+   $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $i = 0;
+   $id = $data["ID"] ?? md5($this->core->ShopID);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to view your shopping history."
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
+    $_View = "";
     $history = $y["Shopping"]["History"] ?? [];
     $history = $history[$id] ?? [];
     $illegalContent = $this->core->config["App"]["Illegal"] ?? 777;
     $newHistory = [];
-    $r = "";
     foreach(array_reverse($history) as $key => $value) {
      $product = $value["ID"] ?? "";
      $quantity = $value["Quantity"] ?? 1;
@@ -363,7 +336,7 @@
       "ID" => base64_encode("Product;$product")
      ]);
      if($_Product["Empty"] == 0) {
-      $opt = "";
+      $options = "";
       $product = $_Product["DataModel"];
       $ck = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
@@ -377,11 +350,11 @@
        $media = $product["DLC"] ?? [];
        $pts = $this->core->config["PTS"]["Products"];
        if($category == "Architecture") {
-        $opt = $this->core->Element(["p", "Your project media is ready for download."]);
+        $options = $this->core->Element(["p", "Your project media is ready for download."]);
        } elseif($category == "Donation") {
-        $opt = $this->core->Element(["p", "Thank you for donating!"]);
+        $options = $this->core->Element(["p", "Thank you for donating!"]);
        } elseif($category == "Product") {
-        $opt = $this->core->Element(["button", "Contact the Seller", [
+        $options = $this->core->Element(["button", "Contact the Seller", [
          "class" => "BBB v2 v2w"
         ]]);
        } elseif($category == "Subscription") {
@@ -391,20 +364,20 @@
         $sub = ($id == $subscriptions["Developer"]["ID"]) ? "Blogger" : $subscription;
         $sub = ($id == $subscriptions["VIP"]["ID"]) ? "VIP" : $subscription;
         $sub = ($id == $subscriptions["XFS"]["ID"]) ? "XFS" : $subscription;
-        $opt = $this->core->Element(["button", "Go to ".$subscriptions[$sub]["Title"], [
+        $options = $this->core->Element(["button", "Go to ".$subscriptions[$sub]["Title"], [
          "class" => "BBB OpenCard v2 v2w",
          "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($sub))
         ]]);
        }
-       $opt .= (!empty($media)) ? $this->core->Element(["button", "Download Media", [
+       $options .= (!empty($media)) ? $this->core->Element(["button", "Download Media", [
         "class" => "BBB Download v2 v2w",
         "data-media" => base64_encode(base64_encode(implode(";", $media))),
         "data-view" => base64_encode("v=".base64_encode("File:Download"))
        ]]) : "";
-       $r .= $this->core->Change([[
+       $_View .= $this->core->Change([[
         "[Product.ICO]" => $_Product["ListItem"]["CoverPhoto"],
         "[Product.Description]" => $_Product["ListItem"]["Description"],
-        "[Product.Options]" => $opt,
+        "[Product.Options]" => $options,
         "[Product.OrderID]" => $orderID,
         "[Product.Quantity]" => $quantity,
         "[Product.Title]" => $_Product["ListItem"]["Title"]
@@ -412,30 +385,28 @@
       }
      }
     } if($i == 0) {
-     $r = $this->core->Element(["h3", "No Results", [
+     $_View = $this->core->Element(["h3", "No Results", [
       "class" => "CenterText UpperCase",
       "style" => "margin:1em"
      ]]);
     }
     $y["Shopping"]["History"][$data["ID"]] = $newHistory;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->core->Change([[
-     "[ShoppingHistory.List]" => $r
-    ], $this->core->Extension("20664fb1019341a3ea2e539360108ac3")]);
+    $_View = [
+     "ChangeData" => [
+      "[ShoppingHistory.List]" => $_View
+     ],
+     "ExtensionID" => "20664fb1019341a3ea2e539360108ac3"
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Home(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+  function Home(array $data) {
+   $_Card = "";
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "CARD",
     "b2",
@@ -449,16 +420,17 @@
      "data-type" => $data["lPG"]
     ]
    ]) : "";
+   $card = $data["CARD"] ?? 0;
+   $isPublic = $data["Public"] ?? 0;
    $i = 0;
-   $pub = $data["pub"] ?? 0;
-   $r = $this->MadeInNewYork(["back" => $back]);
-   $r = $this->core->RenderView($r);
    $username = $data["UN"] ?? base64_encode("");
    $username = base64_decode($username);
    $id = md5($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($pub == 1) {
+   $_View = $this->MadeInNewYork(["back" => $back]);
+   $_View = $this->core->RenderView($_View);
+   if($isPublic == 1) {
     $callSign = $data["CallSign"] ?? "";
     $callSign = $this->core->CallSign($callSign);
     $shops = $this->core->DatabaseSet("Shop");
@@ -485,7 +457,7 @@
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
@@ -498,28 +470,26 @@
         "v" => base64_encode("Shop:Home")
        ], true))
       ]]);
-      $r = $this->core->RenderView($r);
+      $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $accessCode = "Denied";
+      $_View = $this->core->Element(["p", "The Key is missing."]);
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
-      $r = $this->core->Element(["p", "The Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
-       $r = $this->core->Element(["p", "The Keys do not match."]);
+       $_View = "";
       } else {
-       $accessCode = "Accepted";
-       $r = $this->view(base64_encode("Shop:Home"), ["Data" => [
+       $_View = $this->view(base64_encode("Shop:Home"), ["Data" => [
         "AddTo" => $addTo,
         "UN" => $data["UN"],
         "ViewProtectedContent" => 1
        ]]);
-       $r = $this->core->RenderView($r);
+       $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $accessCode = "Accepted";
-      $chat = $this->core->Data("Get", ["chat", md5("Shop$id")]) ?? [];
+      $_View = "";
+      $chat = $this->core->Data("Get", ["chat", md5("Shop$id")]);
       $enableHireSection = $shop["EnableHireSection"] ?? 0;
       $partners = $shop["Contributors"] ?? [];
       $t = ($username == $you) ? $y : $this->core->Member($username);
@@ -603,82 +573,74 @@
          ]
         ]) : "";
         $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
-        $r = $this->core->Change([[
-         "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-         "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-         "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-         "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-         "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-         "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-         "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-         "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-         "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-         "[Attached.ID]" => $this->core->UUID("ShopAttachments"),
-         "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-         "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
-         "[Shop.Back]" => $back,
-         "[Shop.Block]" => $block,
-         "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
-         "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
-         "[Shop.Dashboard]" => $dashboard,
-         "[Shop.DashboardView]" => $dashboardView,
-         "[Shop.Disclaimer]" => $disclaimer,
-         "[Shop.Edit]" => $edit,
-         "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
-         "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id"),
-         "[Shop.ID]" => $id,
-         "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
-         "[Shop.PartnerChat]" => $chat,
-         "[Shop.Revenue]" => $options["Revenue"],
-         "[Shop.Share]" => $share,
-         "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
-         "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
-         "[Shop.Title]" => $_Shop["ListItem"]["Title"],
-         "[Shop.Welcome]" => $this->core->PlainText([
-          "Data" => $shop["Welcome"],
-          "HTMLDecode" => 1
-         ]),
-         "[Shop.Votes]" => $options["Vote"]
-        ], $this->core->Extension("f009776d658c21277f8cfa611b843c24")]);
+        $_View = [
+         "ChangeData" => [
+          "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+          "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+          "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+          "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+          "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+          "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+          "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+          "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+          "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+          "[Attached.ID]" => $this->core->UUID("ShopAttachments"),
+          "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+          "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+          "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+          "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+          "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+          "[Conversation.CRID]" => $id,
+          "[Conversation.CRIDE]" => base64_encode($id),
+          "[Conversation.Level]" => base64_encode(1),
+          "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
+          "[Shop.Back]" => $back,
+          "[Shop.Block]" => $block,
+          "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
+          "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
+          "[Shop.Dashboard]" => $dashboard,
+          "[Shop.DashboardView]" => $dashboardView,
+          "[Shop.Disclaimer]" => $disclaimer,
+          "[Shop.Edit]" => $edit,
+          "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
+          "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id"),
+          "[Shop.ID]" => $id,
+          "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
+          "[Shop.PartnerChat]" => $chat,
+          "[Shop.Revenue]" => $options["Revenue"],
+          "[Shop.Share]" => $share,
+          "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
+          "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
+          "[Shop.Title]" => $_Shop["ListItem"]["Title"],
+          "[Shop.Welcome]" => $this->core->PlainText([
+           "Data" => $shop["Welcome"],
+           "HTMLDecode" => 1
+          ]),
+          "[Shop.Votes]" => $options["Vote"]
+         ],
+         "ExtensionID" => "f009776d658c21277f8cfa611b843c24"
+        ];
        }
       }
      }
     }
    }
-   $r = ($data["CARD"] == 1) ? [
-    "Front" => $r
-   ] : $r;
-   if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
-   }
+   $_Card = ($card == 1) ? [
+    "Front" => $_View
+   ] : "";
+   $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "View" => $_View
    ]);
   }
-  function MadeInNewYork(array $a) {
-   $accessCode = "Accepted";
+  function MadeInNewYork(array $data) {
    $_Search = base64_encode("Search:Containers");
    $data = $a["Data"] ?? [];
    $back = $data["back"] ?? "";
    $id = md5($this->core->ShopID);
    $pub = $data["pub"] ?? 0;
-   $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+   $shop = $this->core->Data("Get", ["shop", $id]);
    $partners = $shop["Contributors"] ?? [];
    $username = base64_encode($this->core->ShopID);
    $y = $this->you;
@@ -689,38 +651,29 @@
      "data-view" => base64_encode("v=".base64_encode("Shop:Payroll"))
     ]
    ]) : "";
-   $r = $this->core->Change([[
-    "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
-    "[MadeInNY.Back]" => $back,
-    "[MadeInNY.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
-    "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
-    "[MadeInNY.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
-    "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
-   ], $this->core->Extension("62ee437edb4ce6d30afa8b3ea4ec2b6e")]);
-   if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
-   }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [
+      "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
+      "[MadeInNY.Back]" => $back,
+      "[MadeInNY.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
+      "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
+      "[MadeInNY.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
+      "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
+     ],
+     "ExtensionID" => "62ee437edb4ce6d30afa8b3ea4ec2b6e"
+    ]
    ]);
   }
-  function Pay(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $now = $this->core->timestamp;
-   $r = [
+  function Pay(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $responseType = "Dialog";
+   $_ResponseType = "N/A";
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $now = $this->core->timestamp;
    $shopID = $data["Shop"] ?? "";
    $title = "Payments @ ".$this->core->config["App"]["Name"];
    $type = $data["Type"] ?? "";
@@ -729,16 +682,15 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you && $type != "Donation") {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($shopID)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Payment Type is missing."
     ];
     if(!empty($type)) {
      $_Braintree = $this->core->DocumentRoot."/base/pay/Braintree.php";
-     $accessCode = "Accepted";
      $changeData = [];
      $shop = $this->core->Data("Get", ["shop", $shopID]);
      $shopOwner = $this->core->Data("Get", ["mbr", $shopID]);
@@ -788,16 +740,19 @@
        "ClientID" => $payments["PayPalClientID"]
       ];
       $token = "";
-     } if(in_array($paymentProcessor, $paymentProcessors)) {
+     } if(!in_array($paymentProcessor, $paymentProcessors)) {
+      $_Dialog = [
+       "Body" => "The Payment Processor is missing or unsupported."
+      ];
+     } else {
+      $_AccessCode = "Accepted";
+      $_Dialog = "";
       $check = 0;
       $message = "";
       $orderID = $data["OrderID"] ?? $this->core->UUID("Order$shopID");
       $paymentNonce = $data["payment_method_nonce"] ?? "";
       $data["ViewPairID"] = ($type == "Checkout") ?  base64_encode("Shop$shopID") : $data["ViewPairID"];
       $processor = "v=".base64_encode("Shop:Pay")."&Shop=$shopID&Step=2&Type=$type&ViewPairID=".$data["ViewPairID"];
-      $r = [
-       "Body" => "The Payment Processor is missing or unsupportes is missing."
-      ];
       $subtotal = 0;
       $tax = 0;
       $title = $shop["Title"] ?? $title;
@@ -806,7 +761,7 @@
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
        $cartCount = count($cart);
        $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
@@ -866,7 +821,7 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extension = "229e494ec0f0f43824913a622a46dfca";
+          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -935,7 +890,7 @@
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $subtotal = $data["Amount"] ?? base64_encode(0);
        $subtotal = base64_decode($subtotal);
        $tax = $shop["Tax"] ?? 10.00;
@@ -963,7 +918,7 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extension = "229e494ec0f0f43824913a622a46dfca";
+          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1016,7 +971,7 @@
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $partner = base64_decode($data["Partner"]);
        $subtotal = $data["Amount"] ?? base64_encode(0);
        $subtotal = base64_decode($subtotal);
@@ -1043,7 +998,7 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extension = "229e494ec0f0f43824913a622a46dfca";
+          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1093,7 +1048,7 @@
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $subtotal = $data["Amount"] ?? base64_encode(0);
        $subtotal = base64_decode($subtotal);
        $tax = $shop["Tax"] ?? 10.00;
@@ -1120,7 +1075,7 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extension = "229e494ec0f0f43824913a622a46dfca";
+          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1155,7 +1110,7 @@
         "[Checkout.Data]" => json_encode($data, true)
        ];
        $charge = $data["Charge"] ?? "";
-       $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $invoiceID = $data["Invoice"] ?? "";
        $invoice = $this->core->Data("Get", ["invoice", $invoiceID]);
        $charges = $invoice["Charges"] ?? [];
@@ -1180,7 +1135,7 @@
         $changeData = [
          "[Checkout.Data]" => json_encode($data, true)
         ];
-        $extension = "f9ee8c43d9a4710ca1cfc435037e9abd";
+        $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
           $name = $invoice["ChargeTo"] ?? $invoice["Email"];
@@ -1201,7 +1156,7 @@
            "[Checkout.Order.Products]" => 1,
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extension = "229e494ec0f0f43824913a622a46dfca";
+          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1275,7 +1230,7 @@
            "[Checkout.Order.Products]" => 1,
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extension = "229e494ec0f0f43824913a622a46dfca";
+          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1300,6 +1255,7 @@
          }
         }
        } else {
+        $_ResponseType = "GoToView";
         $data = $this->core->DecodeBridgeData($data);
         $subtotal = $data["Amount"] ?? 5.00;
         $tax = $shop["Tax"] ?? 10.00;
@@ -1310,7 +1266,6 @@
          "p", "You are about to pay $$total (includes taxes) for your Paid Message"
         ]);
         $processor .= "&Amount=".base64_encode($data["Amount"])."&Form=".base64_encode($data["Form"]);
-        $responseType = "GoToView";
         $viewPairID = $data["ViewPairID"] ?? "";
        }
       } if($step == 2) {
@@ -1323,11 +1278,11 @@
         "[Payment.Total]" => number_format($tax + $subtotal, 2),
         "[Payment.ViewPairID]" => $viewPairID
        ];
-       $extension = "83d6fedaa3fa042d53722ec0a757e910";
-       $extension = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $extension;
+       $extensionID = "83d6fedaa3fa042d53722ec0a757e910";
+       $extensionID = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $extension;
        $this->core->Statistic("Transaction");
       } else {
-       $title = $title ?? $shop["Title"];
+       $_ViewTitle = $title ?? $shop["Title"];
        $changeData = [
         "[Payment.Message]" => $message,
         "[Payment.PayPal.ClientID]" => base64_decode($paypal["ClientID"]),
@@ -1341,43 +1296,41 @@
         "[Payment.ViewPairID]" => $viewPairID
        ];
        if($paymentProcessor == "Braintree") {
-        $extension = "a1a7a61b89ce8e2715efc0157aa92383";
+        $extensionID = "a1a7a61b89ce8e2715efc0157aa92383";
        } elseif($paymentProcessor == "PayPal") {
-        $extension = "7c0f626e2bbb9bd8c04291565f84414a";
+        $extensionID = "7c0f626e2bbb9bd8c04291565f84414a";
        }
       }
-      $r = $this->core->Change([
-       $changeData,
-       $this->core->Extension($extension)
-      ]);
+      $_View = [
+       "ChangeData" => $changeData,
+       "ExtensionID" => $extensionID
+      ];
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType,
-    "Title" => $title
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "Title" => $_ViewTitle,
+    "View" -=> $_View
    ]);
   }
-  function ProcessCartOrder(array $a) {
-   $accessCode = "Accepted";
-   $isBundled = $a["IsBundled"] ?? 0;
-   $orderID = $a["OrderID"] ?? $this->core->UUID("CartOrder");
-   $physicalOrders = $a["PhysicalOrders"] ?? [];
-   $purchaseQuantity = $a["Product"]["Quantity"] ?? 1;
-   $r = "";
-   $shopOwner = $a["UN"] ?? "";
+  function ProcessCartOrder(array $data) {
+   $_AccessCode = "Accepted";
+   $_View = "";
+   $isBundled = $data["IsBundled"] ?? 0;
+   $orderID = $data["OrderID"] ?? $this->core->UUID("CartOrder");
+   $physicalOrders = $data["PhysicalOrders"] ?? [];
+   $purchaseQuantity = $data["Product"]["Quantity"] ?? 1;
+   $shopOwner = $data["UN"] ?? "";
    $shopID = md5($shopOwner);
-   $y = $a["You"] ?? $this->you;
+   $y = $data["You"] ?? $this->you;
    $you = $y["Login"]["Username"];
-   if(!empty($shopOwner) && is_array($a["Product"])) {
+   if(!empty($shopOwner) && is_array($data["Product"])) {
     $history = $y["Shopping"]["History"][$shopID] ?? [];
-    $id = $a["Product"]["ID"] ?? "";
+    $id = $data["Product"]["ID"] ?? "";
     $product = $this->core->Data("Get", ["product", $id]);
     $quantity = $product["Quantity"] ?? 0;
     $shop = $this->core->Data("Get", ["shop", $shopID]);
@@ -1386,7 +1339,7 @@
      $bundledProducts = $product["Bundled"] ?? [];
      $contributors = $shop["Contributors"] ?? [];
      $now = $this->core->timestamp;
-     $opt = "";
+     $options = "";
      $productExpires = $product["Expires"] ?? $now;
      if(strtotime($now) < $productExpires) {
       $category = $product["Category"];
@@ -1403,10 +1356,10 @@
        # Donations
       } elseif($category == "Download") {
        # Downloadable Content
-       $opt = $this->core->Element(["p", "Thank You for donating!"]);
+       $options = $this->core->Element(["p", "Thank You for donating!"]);
       } elseif($category == "Product") {
        # Physical Products
-       $opt = $this->core->Element(["button", "Contact the Seller", [
+       $options = $this->core->Element(["button", "Contact the Seller", [
         "class" => "BB v2 v2w"
        ]]);
        $physicalOrders[md5($you.$this->core->timestamp.rand(0, 9999))] = [
@@ -1445,14 +1398,14 @@
        "Timestamp" => $now
       ];
       $product["Quantity"] = ($quantity > 0) ? $quantity - $purchaseQuantity : $quantity;
-      $r .= $this->core->Change([[
+      $_View .= $this->core->Change([[
        "[Product.Added]" => $this->core->TimeAgo($now),
        "[Product.ICO]" => $coverPhoto,
        "[Product.Description]" => $this->core->PlainText([
         "Data" => $product["Description"],
         "Display" => 1
        ]),
-       "[Product.Options]" => $opt,
+       "[Product.Options]" => $options,
        "[Product.OrderID]" => $orderID,
        "[Product.Quantity]" => $purchaseQuantity,
        "[Product.Title]" => $product["Title"]
@@ -1495,40 +1448,40 @@
         "UN" => $bundledProductShopOwner,
         "You" => $y
        ]);
+       $_View .= $cartOrder["Response"];
        $physicalOrders = ($cartOrder["ERR"] == 0) ? $cartOrder["PhysicalOrders"] : $physicalOrders;
-       $r .= $cartOrder["Response"];
        $y = $cartOrder["Member"];
       }
      }
     }
-    $r = [
+    $response = [
      "ERR" => 0,
      "Member" => $y,
      "PhysicalOrders" => $physicalOrders,
-     "Response" => $r
+     "Response" => $_View
     ];
    } else {
-    $r = [
+    $response = [
      "ERR" => 1,
      "Parameters" => [],
-     "Response" => $r
+     "Response" => $_View
     ];
    }
-   return $r;
+   return $response;
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Save(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $username = $data["Username"] ?? "";
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Shop Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
@@ -1539,17 +1492,16 @@
     foreach($shops as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $shop = $this->core->Data("Get", ["shop", $value]);
-     $ttl = $shop["Title"] ?? "";
-     if($id != $value && $title == $ttl) {
+     $shopTitle = $shop["Title"] ?? "";
+     if($id != $value && $title == $shopTitle) {
       $i++;
      }
     } if($i > 0) {
-     $r = [
-      "Body" => "The Shop <em>$title</em> is taken.",
-      "Header" => "Error"
+     $_Dialog = [
+      "Body" => "The Shop <em>$title</em> is taken."
      ];
     } else {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $owner = $this->core->Data("Get", ["mbr", $id]);
      $shop = $this->core->Data("Get", ["shop", $id]);
      $albums = [];
@@ -1763,49 +1715,40 @@
      $sql->execute();
      $this->core->Data("Save", ["shop", $id, $shop]);
      $this->core->Statistic("Edit Shop");
-     $r = [
+     $_Dialog = [
       "Body" => "<em>$title</em> has been updated.",
       "Header" => "Done"
      ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
    ]);
   }
-  function SaveBanish(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN"]);
-   $r = [
-    "Body" => "The Username is missing.",
-    "Header" => "Error"
+  function SaveBanish(array $data) {
+   $_Dialog = [
+    "Body" => "The Username is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->FixMissing($data, ["UN"]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($data["UN"])) {
     $username = base64_decode($data["UN"]);
     if($username == $you) {
-     $r = [
-      "Body" => "You cannot fire yourself.",
-      "Header" => "Error"
+     $_Dialog = [
+      "Body" => "You cannot fire yourself."
      ];
     } else {
-     $accessCode = "Accepted";
      $newContributors = [];
-     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", md5($you)]);
      $contributors = $shop["Contributors"] ?? [];
      foreach($contributors as $key => $value) {
       if($key != $username) {
@@ -1814,56 +1757,47 @@
      }
      $shop["Contributors"] = $newContributors;
      $this->core->Data("Save", ["shop", md5($you), $shop]);
-     $r = [
+     $_Dialog = [
       "Body" => "You fired $username.",
       "Header" => "Done"
      ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog
    ]);
   }
-  function SaveCreditExChange(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function SaveCreditExChange(array $data) {
+   $_Dialog = [
+    "Body" => "Unknown error."
+   ];
+   $_AccessCode = "Denied";
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "ID",
     "P",
     "UN"
    ]);
    $points = base64_decode($data["P"]);
-   $r = [
-    "Body" => "Unknown error.",
-    "Header" => "Error"
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(is_numeric($points)) {
+    $_Dialog = [
+     "Body" => "You requested more credits than you can afford."
+    ];
     $points = ($points < $y["Points"]) ? $points : $y["Points"];
     $credits = $points * 0.00001;
     $creditsDecimal = number_format($credits, 2);
-    $r = [
-     "Body" => "You requested more credits than you can afford.",
-     "Header" => "Error"
-    ];
     if($points < $y["Points"]) {
-     $accessCode = "Accepted";
      $yourCredits = $y["Shopping"]["Cart"][$data["ID"]]["Credits"] ?? 0;
      $y["Shopping"]["Cart"][$data["ID"]]["Credits"] = $creditsDecimal + $yourCredits;
      $y["Points"] = $y["Points"] - $points;
-     $r = [
+     $_Dialog = [
       "Body" => "<em>$points</em> points were converted to $<em>$creditsDecimal</em> credits, and have <em>".$y["Points"]."</em> remaining.",
       "Header" => "Done"
      ];
@@ -1871,34 +1805,26 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog
    ]);
   }
-  function SaveDiscountCodes(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function SaveDiscountCodes(array $data) {
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["DC", "ID"]);
    $i = 0;
-   $r = "The Code Identifier is missing.";
+   $_View = "The Code Identifier is missing.";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = "You must be signed in to continue.";
+    $_View = "You must be signed in to continue.";
    } elseif(!empty($data["DC"]) && !empty($data["ID"])) {
     $id = base64_decode($data["ID"]);
-    $discount = $this->core->Data("Get", ["dc", $id]) ?? [];
+    $discount = $this->core->Data("Get", ["dc", $id]);
     $code = base64_decode($data["DC"]);
     $encryptedCode = $data["DC"] ?? base64_encode("OuterHaven.DC.Invalid");
-    $r = "<em>$code</em> is an Invalid code.";
+    $_View = "<em>$code</em> is an Invalid code.";
     foreach($discount as $key => $value) {
      if($i == 0 && $encryptedCode == $value["Code"]) {
-      $accessCode = "Accepted";
       $dollarAmount = $value["DollarAmount"] ?? 0;
       $percentile = $value["Percentile"] ?? 0;
       $quantity = $value["Quantity"] - 1;
@@ -1909,7 +1835,7 @@
        "DollarAmount" => $dollarAmount,
        "Percentile" => $percentile
       ];
-      $r = "<em>$code</em> was applied to your order!";
+      $_View = "<em>$code</em> was applied to your order!";
       $i++;
      }
     }
@@ -1917,14 +1843,21 @@
     $this->core->Data("Save", ["mbr", md5($you), $y]);
    }
    return $this->core->JSONResponse([
-    $accessCode,
     "AddTopMargin" => "0",
-    $this->core->Element(["p", $r, ["class" => "CenterText"]])
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "p", $_View, ["class" => "CenterText"]
+     ]))
+    ]
    ]);
   }
-  function SavePartner(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function SavePartner(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Username is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "Company",
@@ -1934,14 +1867,11 @@
     "new"
    ]);
    $new = $data["new"] ?? 0;
-   $r = [
-    "Body" => "The Username is missing."
-   ];
    $y = $this->you;
    $username = $data["UN"];
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
@@ -1954,12 +1884,12 @@
       $i++;
      }
     } if($i == 0) {
-     $r = [
+     $_Dialog = [
       "Body" => "The Member <em>$username</em> does not exist.",
       "Header" => "Done"
      ];
     } else {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $actionTaken = ($new == 1) ? "hired" : "updated";
      $now = $this->core->timestamp;
      $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
@@ -1985,48 +1915,44 @@
       ]);
      }
      $this->core->Data("Save", ["shop", md5($you), $shop]);
-     $r = [
+     $_Dialog = [
       "Body" => "Your Partner $username was $actionTaken.",
       "Header" => "Done"
      ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
    ]);
   }
-  function Subscribe(array $a) {
-   $accessCode = "Denied";
-   $responseType = "Dialog";
+  function Subscribe(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $_ResponseType = "Dialog";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Shop Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to subscribe.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
-    $responseType = "UpdateText";
-    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $_AccessCode = "Accepted";
+    $_Dialog = "";
+    $_ResponseType = "UpdateText";
+    $shop = $this->core->Data("Get", ["shop", $id]);
     $subscribers = $shop["Subscribers"] ?? [];
     $subscribed = (in_array($you, $subscribers)) ? 1 : 0;
     if($subscribed == 1) {
      $newSubscribers = [];
-     $r = "Subscribe";
+     $_View = "Subscribe";
      foreach($subscribers as $key => $value) {
       if($value != $you) {
        $newSubscribers[$key] = $value;
@@ -2035,19 +1961,17 @@
      $subscribers = $newSubscribers;
     } else {
      array_push($subscribers, $you);
-     $r = "Unsubscribe";
+     $_View = "Unsubscribe";
     }
     $shop["Subscribers"] = $subscribers;
     $this->core->Data("Save", ["shop", $id, $shop]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "View" => $_View
    ]);
   }
   function __destruct() {
