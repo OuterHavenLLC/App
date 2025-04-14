@@ -9,7 +9,7 @@
    $this->lists = base64_encode("Search:Lists");
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Containers(array $a) {
+  function Containers(array $data) {
    $_Card = "";
    $_Dialog = [
     "Body" => "The List Type is missing.",
@@ -17,7 +17,7 @@
    ];
    $_List = "v=".$this->lists;
    $_View = "";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $addTopMargin = "0";
    $b2 = $data["b2"] ?? "";
@@ -3415,15 +3415,13 @@
     "ExtensionID" => $_ExtensionID,
     "Response" => [
      "End" => "$end",
-     "Extension" => base64_encode($extension),
      "Limit" => $limit,
      "List" => $_List,
      "NoResults" => base64_encode($this->core->Element([
       "h3", $na, ["class" => "CenterText InnerMargin UpperCase"]
      ])),
      "Offset" => $offset
-    ],
-    "ResponseType" => "View"
+    ]
    ]);
   }
   function ReSearch(array $data) {

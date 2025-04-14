@@ -23,7 +23,6 @@ function AddContent() {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = JSON.parse(AESdecrypt(data));
      if(typeof Data.View !== "undefined") {
@@ -131,7 +130,6 @@ function Bulletins() {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      var Data = RenderView(data);
      if(Data.View > 0) {
@@ -248,7 +246,7 @@ function ChangeData(data) {
   }).catch(error => {
    Dialog({
     "Body": "Error retrieving extension.",
-    "Scrollable": JSON.stringify(error)
+    "Scrollable": error.message
    });
    return "";
   });
@@ -503,7 +501,6 @@ function LiveView(input) {
      success: (data) => {
       if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
        Crash(data);
-       return;
       } else {
        const Data = RenderView(data);
        if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -513,7 +510,7 @@ function LiveView(input) {
         }).catch(error => {
          Dialog({
           "Body": "LiveView: Error rendering view data. Please see below for more information:",
-          "Scrollable": JSON.stringify(error)
+          "Scrollable": error.message
          });
         });
        }
@@ -613,7 +610,6 @@ function OpenCard(View, Encryption = "") {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     RenderView(data);
    }
@@ -642,7 +638,6 @@ function OpenDialog(View, Encryption = "") {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     RenderView(data);
    }
@@ -667,7 +662,6 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -680,7 +674,7 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
       }).catch(error => {
        Dialog({
         "Body": "OpenFirSTEPTool: Error rendering view data. Please see below for more information:",
-        "Scrollable": JSON.stringify(error)
+        "Scrollable": error.message
        });
       });
      }
@@ -704,7 +698,6 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -714,7 +707,7 @@ function OpenFirSTEPTool(Ground, FirSTEPTool) {
       }).catch(error => {
        Dialog({
         "Body": "OpenFirSTEPTool: Error rendering view data. Please see below for more information:",
-        "Scrollable": JSON.stringify(error)
+        "Scrollable": error.message
        });
       });
      }
@@ -749,7 +742,6 @@ function OpenNetMap(View, Encryption = "") {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     const Data = RenderView(data);
     if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -766,7 +758,7 @@ function OpenNetMap(View, Encryption = "") {
      }).catch(error => {
       Dialog({
        "Body": "OpenNetMap: Error rendering view data. Please see below for more information:",
-       "Scrollable": JSON.stringify(error)
+       "Scrollable": error.message
       });
      });
     }
@@ -825,7 +817,6 @@ function RenderDesignView(container) {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -838,7 +829,7 @@ function RenderDesignView(container) {
       }).catch(error => {
        Dialog({
         "Body": "RenderDesignView: Error rendering view data. Please see below for more information:",
-        "Scrollable": JSON.stringify(error)
+        "Scrollable": error.message
        });
       });
      }
@@ -917,7 +908,6 @@ function RenderInputs(Container, Data) {
         success: (data) => {
          if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
           Crash(data);
-          return;
          } else {
           const WData = RenderView(data);
           ExecuteCommands(WData.Commands);
@@ -929,7 +919,7 @@ function RenderInputs(Container, Data) {
           }).catch(error => {
            Dialog({
             "Body": "WYSIWYG: Error rendering view data. Please see below:",
-            "Scrollable": JSON.stringify(error)
+            "Scrollable": error.message
            });
           });
          }
@@ -1100,159 +1090,175 @@ function ReSearch(input) {
        List = $(Bar).attr("data-list") || "",
        Offset = 0,
        Processor,
-       Query = $(Bar).val() || "";
+       Query = $(Bar).val() || "",
+       End;
  if(Bar === {} || typeof Bar === "undefined") {
   Dialog({
-   "Body": "The Re:Search input is missing."
+   "Body": "ReSearch: The source input is missing."
   });
  } else if(Container === {} || typeof Container === "undefined") {
   Dialog({
-   "Body": "The Re:Search list container is missing."
+   "Body": "ReSearch: The list container is missing."
   });
  } else if(List === "" || typeof List === "undefined") {
   Dialog({
-   "Body": "The Re:Search list source is missing."
+   "Body": "ReSearch: The list source is missing."
   });
- } else {
-  Processor = base + Base64decrypt(List) + "&query=" + Base64encrypt($(Bar).val());
-  $(Container).empty();
-  $.ajax({
-   error: (error) => {
+ }
+ Processor = base + Base64decrypt(List) + "&query=" + Base64encrypt($(Bar).val());
+ $(Container).empty();
+ $.ajax({
+  error: (error) => {
+   Dialog({
+    "Body": "ReSearch: Data retrieval error, please see below.",
+    "Scrollable": JSON.stringify(error)
+   });
+  },
+  headers: {
+   Language: AESencrypt(LocalData("Get", "Language")),
+   Token: AESencrypt(LocalData("Get", "SecurityKey"))
+  },
+  method: "POST",
+  success: (data) => {
+   if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
+    Crash(data);
+   } else {
+    var Data = JSON.parse(AESdecrypt(data)),
+          AccessCode = Data.AccessCode,
+          Extension = Data.Extension,
+          ExtensionID = Data.ExtensionID,
+          Response = Data.Response,
+          SearchID = "SearchList" + UUID(),
+          Grid = GridColumns;
+   $(Container).html(Base64decrypt(Response.NoResults));
+   if(AccessCode !== "Accepted") {
+    return;
+   }
+   if(Data.ExtensionID) {
+    Extension = LoadFromDatabase("Extensions", Data.ExtensionID);
+   } else if(Data.Extension) {
+    Extension = Promise.resolve(AESdecrypt(Data.Extension));
+   } else {
     Dialog({
-     "Body": "Data retrieval error, please see below.",
-     "Scrollable": JSON.stringify(error)
+     "Body": "ReSearch: Neither ExtensionID nor Extension is provided."
     });
-   },
-   headers: {
-    Language: AESencrypt(LocalData("Get", "Language")),
-    Token: AESencrypt(LocalData("Get", "SecurityKey"))
-   },
-   method: "POST",
-   success: (data) => {
-    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
-     Crash(data);
-     return;
+    return;
+   }
+   Extension.then(response => {
+    if(Data.ExtensionID) {
+     response = AESdecrypt(response.Data);
+    }
+    End = Response.End || 0;
+    if(Grid === "2") {
+     Grid = "Grid2";
+    } else if(Grid === "3") {
+     Grid = "Grid3";
+    } else if(Grid === "4") {
+     Grid = "Grid4";
     } else {
-     var Data = JSON.parse(AESdecrypt(data)),//UPDATE SEARCH FIRST
-           AccessCode = Data.AccessCode,
-           End,
-           Extension,
-           ExtensionID = Data.ExtensionID || "",
-           Grid = GridColumns,
-           Response = Data.Response,
-           SearchID = "SearchList" + UUID();
-     $(Container).html(Base64decrypt(Response.NoResults));
-     if(AccessCode === "Accepted") {
-      Extension = Base64decrypt(Response.Extension);
-      End = Response.End || 0;
-      if(Grid === "2") {
-       Grid = "Grid2";
-      } else if(Grid === "3") {
-       Grid = "Grid3";
-      } else if(Grid === "4") {
-       Grid = "Grid4";
-      } else {
-       Grid = "NONAME";
-      }
-      $(Container).html("<div class='" + Grid + " " + SearchID + "'></div>");
-      var List = getSortedList(Response.List),
-            ListItems = 0,
-            check = ($.type(List) !== "undefined" && List !== {}) ? 1 : 0,
-            check = ($.type(List) === "object" || check === 1) ? 1 : 0;
-      Container = $(Container).find("." + SearchID);
-      if(check === 1) {
-       check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
-       for(var i in List) {
-        var KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
-              ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
-        if(KeyCheck === 1 && ValueCheck === 1) {
-         var Search = (check === 0) ? 1 : 0,
-               Result = Extension,
-               value = List[i][1] || {};
-         if(value !== {} && $.type(value) !== "undefined") {
-          for(var i in value) {
-           Result = Result.replaceAll(value[i][0], value[i][1]);
-          } if(Result.search(Query) > -1) {
-           Search = Search + 1;
-          } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
-           Search = Search + 1;
-          } if(Search > 0) {
-           ListItems = ListItems + 1;
-           $(Container).append(Result);
-          }
+     Grid = "NONAME";
+    }
+    $(Container).html("<div class='" + Grid + " " + SearchID + "'></div>");
+    Container = $(Container).find("." + SearchID);
+    var List = getSortedList(Response.List),
+           ListItems = 0,
+           check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
+    check = (typeof List === "object" || check === 1) ? 1 : 0;
+    if(check === 1) {
+     check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
+     for(var i in List) {
+      var KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
+            ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
+      if(KeyCheck === 1 && ValueCheck === 1) {
+       var Search = (check === 0) ? 1 : 0,
+             Result = response || "",
+             value = List[i][1] || {};
+       if(value !== {} && typeof value !== "undefined") {
+        for(var j in value) {
+         if(typeof Result === 'string') {
+          Result = Result.replaceAll(value[j][0], value[j][1]);
          }
+        } if(Result.search(Query) > -1) {
+         Search += 1;
+        } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
+         Search += 1;
+        } if(Search > 0) {
+         ListItems += 1;
+         $(Container).append(Result);
         }
-       } if(ListItems === 0) {
-        $(Container).html(Base64decrypt(Response.NoResults));
-       } else {
-        setInterval(() => {
-         if($(Container).is(":visible") && $(Container).length && End === 0) {
-          $.ajax({
-           error: (error) => {
-            Dialog({
-             "Body": "Data retrieval error, please see below.",
-             "Scrollable": JSON.stringify(error)
-            });
-           },
-           headers: {
-            Language: AESencrypt(LocalData("Get", "Language")),
-            Token: AESencrypt(LocalData("Get", "SecurityKey"))
-           },
-           method: "POST",
-           success: (data) => {
-            if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
-             Crash(data);
-             return;
-            } else {
-             var Data = JSON.parse(AESdecrypt(data)),//UPDATE SEARCH FIRST
-                   AccessCode = Data.AccessCode,
-                   Response = Data.Response;
-             End = Response.End || 0;
-             if(End === 0) {
-              Offset += Response.Limit;
-             }
-             var List = getSortedList(Response.List),
-                   ListItems = 0,
-                   check = ($.type(List) !== "undefined" && List !== {}) ? 1 : 0,
-                   check = ($.type(List) === "object" || check === 1) ? 1 : 0;
-             if(check === 1) {
-              check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
-              for(var i in List) {
-               var KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
-                     ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
-               if(KeyCheck === 1 && ValueCheck === 1) {
-                var Search = (check === 0) ? 1 : 0,
-                      Result = Extension,
-                      value = List[i][1] || {};
-                if(value !== {} && $.type(value) !== "undefined") {
-                 for(var i in value) {
-                  Result = Result.replaceAll(value[i][0], Base64decrypt(value[i][1]));
-                 } if(Result.search(Query) > -1) {
-                  Search = Search + 1;
-                 } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
-                  Search = Search + 1;
-                 } if(Search > 0) {
-                  ListItems = ListItems + 1;
-                  $(Container).append(Result);
-                 }
-                }
+       }
+      }
+     } if(ListItems === 0) {
+      $(Container).html(Base64decrypt(Response.NoResults));
+     } else {
+      setInterval(() => {
+       if($(Container).is(":visible") && $(Container).length && End === 0) {
+        $.ajax({
+         error: (error) => {
+          Dialog({
+           "Body": "ReSearch: Data retrieval error during infinite scroll, please see below.",
+           "Scrollable": JSON.stringify(error)
+          });
+         },
+         headers: {
+          Language: AESencrypt(LocalData("Get", "Language")),
+          Token: AESencrypt(LocalData("Get", "SecurityKey"))
+         },
+         method: "POST",
+         success: (data) => {
+          if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
+           Crash(data);
+          } else {
+           var Data = JSON.parse(AESdecrypt(data)),
+                 Response = Data.Response;
+                 End = Response.End || 0;
+           if(End === 0) {
+            Offset += Response.Limit;
+           }
+           var List = getSortedList(Response.List),
+                 check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
+                 check = (typeof List === "object" || check === 1) ? 1 : 0;
+           if(check === 1) {
+            check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
+            for(var i in List) {
+             var KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
+                   ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
+             if(KeyCheck === 1 && ValueCheck === 1) {
+              var Search = (check === 0) ? 1 : 0,
+                    Result = Extension,
+                    value = List[i][1] || {};
+              if(value !== {} && $.type(value) !== "undefined") {
+               for(var j in value) {
+                Result = Result.replaceAll(value[j][0], Base64decrypt(value[j][1]));
+               } if(Result.search(Query) > -1) {
+                Search += 1;
+               } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
+                Search += 1;
+               } if(Search > 0) {
+                $(Container).append(Result);
                }
               }
              }
             }
-           },
-           url: Processor + "&Offset=" + Offset
-          });
-         }
-        }, 4000);
+           }
+          }
+         },
+         url: Processor + "&Offset=" + Offset
+        });
        }
-      }
+      }, 4000);
      }
     }
-   },
-   url: Processor
-  });
- }
+   }).catch(error =>  {
+    Dialog({
+     "Body": "ReSearch: Error loading extension. Please see below:",
+     "Scrollable": error.message
+    });
+   });
+   }
+  },
+  url: Processor
+ });
 }
 function SaveToDatabase(Store, Data) {
  if(typeof Store !== "string" || Store.trim() === "") {
@@ -1334,7 +1340,6 @@ function SignIn(SecurityKey = "") {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     const Data = JSON.parse(AESdecrypt(data));
     ExecuteCommands(Data.Commands);
@@ -1363,7 +1368,6 @@ function SignOut() {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      ExecuteCommands(Data.Commands);
@@ -1375,7 +1379,7 @@ function SignOut() {
      }).catch(error => {
       Dialog({
        "Body": "SignOut: Error rendering view data. Please see below:",
-       "Scrollable": JSON.stringify(error)
+       "Scrollable": error.message
       });
      });
     }
@@ -1425,7 +1429,6 @@ function UpdateContent(Container, View, Encryption = "") {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      Data.View.then(response => {
@@ -1438,7 +1441,7 @@ function UpdateContent(Container, View, Encryption = "") {
      }).catch(error => {
       Dialog({
        "Body": "UpdateContent: Error rendering view data. Please see below:",
-       "Scrollable": JSON.stringify(error)
+       "Scrollable": error.message
       });
      });
     }
@@ -1513,7 +1516,6 @@ function Upload(Button) {
    var data = event.target.responseText;
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     var AccessCode = "Denied",
           Class,
@@ -1633,7 +1635,7 @@ function uniqid(prefix = "", more_entropy) {
  var retId,
        formatSeed = function(seed, reqWidth) {
         seed = parseInt(seed, 10).toString(16);
-        if (reqWidth < seed.length) {
+        if(reqWidth < seed.length) {
          return seed.slice(seed.length - reqWidth);
         } if(reqWidth > seed.length) {
          return Array(1 + (reqWidth - seed.length)).join('0') + seed;
@@ -1793,7 +1795,6 @@ $(document).on("click", ".CreditExchange", (event) => {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      if(Data.AccessCode === "Denied") {
@@ -1829,7 +1830,6 @@ $(document).on("click", ".Delete", (event) => {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      if(Data.AccessCode === "Denied") {
@@ -1952,7 +1952,6 @@ $(document).on("click", ".GoToView", (event) => {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      Data.View.then(response => {
@@ -1961,7 +1960,7 @@ $(document).on("click", ".GoToView", (event) => {
      }).catch(error => {
       Dialog({
        "Body": "GoToView: Error rendering view data. Please see below:",
-       "Scrollable": JSON.stringify(error)
+       "Scrollable": error.message
       });
      });
     }
@@ -1989,7 +1988,8 @@ $(document).on("click", ".MarkAsRead", (event) => {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
+   } else {
+    RenderView(data);
    }
   },
   url: base + Base64decrypt($(event.currentTarget).attr("data-MAR"))
@@ -2018,7 +2018,6 @@ $(document).on("click", ".OpenBottomBar", (event) => {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -2029,7 +2028,7 @@ $(document).on("click", ".OpenBottomBar", (event) => {
       }).catch(error => {
        Dialog({
         "Body": "OpenBottomBar: Error rendering view data. Please see below:",
-        "Scrollable": JSON.stringify(error)
+        "Scrollable": error.message
        });
       });
      }
@@ -2148,7 +2147,6 @@ $(document).on("click", ".ReportContent", (event) => {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      const Data = RenderView(data);
      if(Data.AccessCode === "Accepted") {
@@ -2212,7 +2210,6 @@ $(document).on("click", ".SendData", (event) => {
    success: (data) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      Crash(data);
-     return;
     } else {
      var Class,
            Data = RenderView(data),
@@ -2258,7 +2255,7 @@ $(document).on("click", ".SendData", (event) => {
           }).catch(error => {
            Dialog({
             "Body": "SendData: Error rendering view data. Please see below for more information:",
-            "Scrollable": JSON.stringify(error)
+            "Scrollable": error.message
            });
           });
          }
@@ -2270,7 +2267,7 @@ $(document).on("click", ".SendData", (event) => {
          }).catch(error => {
           Dialog({
            "Body": "SendData: Error rendering view data. Please see below for more information:",
-           "Scrollable": JSON.stringify(error)
+           "Scrollable": error.message
           });
          });
         }
@@ -2386,7 +2383,6 @@ $(document).on("click", ".UpdateButton", (event) => {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     const Data = RenderView(data);
     if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -2397,7 +2393,7 @@ $(document).on("click", ".UpdateButton", (event) => {
      }).catch(error => {
       Dialog({
        "Body": "UpdateButton: Error rendering view data. Please see below:",
-       "Scrollable": JSON.stringify(error)
+       "Scrollable": error.message
       });
      });
     }
@@ -2464,7 +2460,6 @@ $(document).on("keyup", ".DiscountCodes", (event) => {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     var data = Base64decrypt(data);
     if(data[0] === "Accepted") {
@@ -2496,7 +2491,6 @@ $(document).on("keyup", ".LinkData", (event) => {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     const Data = RenderView(data);
     if(Data.View !== "" && typeof Data.View === "undefined") {
@@ -2506,7 +2500,7 @@ $(document).on("keyup", ".LinkData", (event) => {
      }).catch(error => {
       Dialog({
        "Body": "LinkData: Error rendering view data. Please see below:",
-       "Scrollable": JSON.stringify(error)
+       "Scrollable": error.message
       });
      });
     }
@@ -2546,7 +2540,6 @@ $(document).on("keyup", ".UnlockProtectedContent", (event) => {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     const Data = RenderView(data);
     Data.View.then(response => {
@@ -2565,7 +2558,7 @@ $(document).on("keyup", ".UnlockProtectedContent", (event) => {
     }).catch(error => {
      Dialog({
       "Body": "UnlockProtectedContent: Error rendering view data. Please see below for more information:",
-      "Scrollable": JSON.stringify(error)
+      "Scrollable": error.message
      });
     });
    }
@@ -2584,7 +2577,6 @@ $(() => {
   success: (data) => {
    if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
     Crash(data);
-    return;
    } else {
     var data = JSON.parse(AESdecrypt(data));
     SaveToDatabase("Extensions", data.JSON).then(() => {
@@ -2600,7 +2592,7 @@ $(() => {
     }).catch(error => {
      Dialog({
       "Body": "Unable to complete the boot process. See below for more information:",
-      "Scrollable": JSON.stringify(error)
+      "Scrollable": error.message
      });
     });
    }
