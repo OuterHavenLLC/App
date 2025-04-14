@@ -29,20 +29,20 @@
    if(file_exists($documentRoot."$group.php")) {
     require_once($documentRoot."$group.php");
     $this->render = New $group;
-    $response = $this->render->$view($data) ?? "";
-    if(empty($response)) {
-     $response = $this->core->Change([[
+    $_View = $this->render->$view($data) ?? "";
+    if(empty($_View)) {
+     $_View = $this->core->Change([[
       "[Error.Back]" => "",
       "[Error.Header]" => "Not Found",
       "[Error.Message]" => "The view <em>$view</em> from group <em>$group</em> was empty, and could not be loaded."
      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
     }
-    $response = $this->core->PlainText([
-     "Data" => $response,
+    $_View = $this->core->PlainText([
+     "Data" => $_View,
      "Display" => 1
     ]);
    }
-   return $response;
+   return $_View;
   }
   function __destruct() {
    // DESTROYS THIS CLASS

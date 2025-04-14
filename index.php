@@ -1,40 +1,42 @@
 <?php
  require_once("base/Bootloader.php");
+ $_View = "";
+ $api = $data["_API"] ?? "";
  $data = array_merge($_GET, $_POST);
  $doNotEncode = [
   "Design",
   "JS",
   "Maintenance"
  ];
- $api = $data["_API"] ?? "";
  $oh = New OH;
- $view = $data["v"] ?? "";
- $r = "";
  $oh->core->Setup("App");
+ $view = $data["v"] ?? "";
  if($api == "Design") {
   header("content-type: text/CSS");
-  $r = $oh->core->Extension("d4efcd44be4b2ef2a395f0934a9e446a");
+  $_View = $oh->core->Extension("d4efcd44be4b2ef2a395f0934a9e446a");
  } elseif($api == "Extensions") {
-  $r = $oh->view(base64_encode("WebUI:Extensions"), []);
+  $_View = $oh->view(base64_encode("WebUI:Extensions"), []);
   if(!empty($view)) {
-   $r = $oh->view(base64_encode("WebUI:Extensions"), ["Data" => [
+   $_View = $oh->view(base64_encode("WebUI:Extensions"), ["Data" => [
      "ID" => $view
    ]]);
   }
  } elseif($api == "JS") {
   header("content-type: application/x-javascript");
   if($view == "Chart") {
-   $r = $oh->core->Extension("b3463a420fd60fccd6f06727860ba860");
+   $_View = $oh->core->Extension("b3463a420fd60fccd6f06727860ba860");
   } elseif($view == "Client") {
-   $r = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
+   #$_View = $oh->core->Extension("5b22de694d66b763c791395da1de58e1");
+   $_View = file_get_contents("./tmp.js");//TEMP
+   // TRY TO LOCATE EXTENSION f7d85d236cc3718d50c9ccdd067ae713 IF EXISTS
   } elseif($view == "Cypher") {
-   $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67abee895c024");
+   $_View = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67abee895c024");
   } elseif($view == "jQuery") {
-   $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67fa6b4a2b998");
+   $_View = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67fa6b4a2b998");
   } elseif($view == "jQueryUI") {
-   $r = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67fa6b71bda8b");
+   $_View = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67fa6b71bda8b");
   }
-  $r = $oh->core->Change([[
+  $_View = $oh->core->Change([[
    "[App.AddContent]" => $oh->core->AESencrypt("v=".base64_encode("Profile:AddContentCheck")),
    "[App.Bulletin]" => $oh->core->AESencrypt($oh->core->Extension("ae30582e627bc060926cfacf206920ce")),
    "[App.Bulletins]" => $oh->core->AESencrypt("v=".base64_encode("Profile:Bulletins")),
@@ -46,23 +48,23 @@
    "[App.SwitchLanguages]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages")),
    "[App.WYSIWYG]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:WYSIWYG"))
   ], $oh->core->PlainText([
-   "Data" => $r,
+   "Data" => $_View ,
    "Display" => 1,
    "HTMLDecode" => 1
   ])]);
  } elseif($api == "Maintenance") {
-  $r = $oh->core->config["Maintenance"] ?? 0;
+  $_View = $oh->core->config["Maintenance"] ?? 0;
  } elseif($api == "Web") {
   if($view == base64_encode("File:SaveUpload")) {
    $uploads = $_FILES["Uploads"] ?? [];
-   $r = $oh->view($view, [
+   $_View = $oh->view($view, [
     "Data" => $data,
     "Files" => $uploads
    ]);
   } elseif($view == "MD5") {
-   $r = md5(base64_decode($data["MD5"]));
+   $_View = md5(base64_decode($data["MD5"]));
   } else {
-   $r = $oh->view($view, ["Data" => $data]);
+   $_View = $oh->view($view, ["Data" => $data]);
   }
  } else {
   $command = $data["_cmd"] ?? [];
@@ -162,7 +164,7 @@
    $oh->core->Statistic("Visits");
    $content = "v=".base64_encode("WebUI:Landing");
   }
-  $r = $oh->core->Change([[
+  $_View = $oh->core->Change([[
    "[App.Content]" => $oh->core->AESencrypt($content),
    "[App.Description]" => $oh->core->config["App"]["Description"],
    "[App.Keywords]" => $oh->core->config["App"]["Keywords"],
@@ -174,7 +176,7 @@
    "Display" => 1
   ])]);
  } if(!empty($api) && !in_array($api, $doNotEncode)) {
-  $r = $oh->core->AESencrypt($r);
+  $_View = $oh->core->AESencrypt($_View);
  }
- echo $r;
+ echo $_View;
 ?>
