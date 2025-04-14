@@ -1130,9 +1130,8 @@ function ReSearch(input) {
           Response = Data.Response,
           SearchID = "SearchList" + UUID(),
           Grid = GridColumns;
-   $(Container).html(Base64decrypt(Response.NoResults));
    if(AccessCode !== "Accepted") {
-    return;
+    $(Container).html(Base64decrypt(Response.NoResults));
    }
    if(Data.ExtensionID) {
     Extension = LoadFromDatabase("Extensions", Data.ExtensionID);
@@ -1158,14 +1157,15 @@ function ReSearch(input) {
     } else {
      Grid = "NONAME";
     }
-    $(Container).html("<div class='" + Grid + " " + SearchID + "'></div>");
+    $(Container).html("<div class='" + Grid + " " + SearchID + "'>" + Loading + "</div>");
     Container = $(Container).find("." + SearchID);
     var List = getSortedList(Response.List),
-           ListItems = 0,
-           check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
+          ListItems = 0,
+          check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
     check = (typeof List === "object" || check === 1) ? 1 : 0;
     if(check === 1) {
      check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
+     $("." + SearchID).empty();
      for(var i in List) {
       var KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
             ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
