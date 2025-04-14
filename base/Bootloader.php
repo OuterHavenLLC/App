@@ -30,17 +30,14 @@
     require_once($documentRoot."$group.php");
     $this->render = New $group;
     $_View = $this->render->$view($data) ?? "";
-    if(empty($_View)) {
-     $_View = $this->core->Change([[
-      "[Error.Back]" => "",
-      "[Error.Header]" => "Not Found",
-      "[Error.Message]" => "The view <em>$view</em> from group <em>$group</em> was empty, and could not be loaded."
-     ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
-    }
-    $_View = $this->core->PlainText([
+    $_View = (!empty($_View)) ? $this->core->PlainText([
      "Data" => $_View,
      "Display" => 1
-    ]);
+    ]) : $this->core->Change([[
+     "[Error.Back]" => "",
+     "[Error.Header]" => "Not Found",
+     "[Error.Message]" => "The view <em>$view</em> from group <em>$group</em> was empty, and could not be loaded."
+    ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
    }
    return $_View;
   }

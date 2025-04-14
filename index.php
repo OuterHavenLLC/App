@@ -1,8 +1,8 @@
 <?php
  require_once("base/Bootloader.php");
+ $_Data = array_merge($_GET, $_POST);
  $_View = "";
- $api = $data["_API"] ?? "";
- $data = array_merge($_GET, $_POST);
+ $api = $_Data["_API"] ?? "";
  $doNotEncode = [
   "Design",
   "JS",
@@ -10,7 +10,7 @@
  ];
  $oh = New OH;
  $oh->core->Setup("App");
- $view = $data["v"] ?? "";
+ $view = $_Data["v"] ?? "";
  if($api == "Design") {
   header("content-type: text/CSS");
   $_View = $oh->core->Extension("d4efcd44be4b2ef2a395f0934a9e446a");
@@ -48,7 +48,7 @@
    "[App.SwitchLanguages]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages")),
    "[App.WYSIWYG]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:WYSIWYG"))
   ], $oh->core->PlainText([
-   "Data" => $_View ,
+   "Data" => $_View,
    "Display" => 1,
    "HTMLDecode" => 1
   ])]);
@@ -58,16 +58,16 @@
   if($view == base64_encode("File:SaveUpload")) {
    $uploads = $_FILES["Uploads"] ?? [];
    $_View = $oh->view($view, [
-    "Data" => $data,
+    "Data" => $_Data,
     "Files" => $uploads
    ]);
   } elseif($view == "MD5") {
-   $_View = md5(base64_decode($data["MD5"]));
+   $_View = md5(base64_decode($_Data["MD5"]));
   } else {
-   $_View = $oh->view($view, ["Data" => $data]);
+   $_View = $oh->view($view, ["Data" => $_Data]);
   }
  } else {
-  $command = $data["_cmd"] ?? [];
+  $command = $_Data["_cmd"] ?? [];
   $command = (!empty($command)) ? explode("/", urldecode($command)) : $command;
   $command = $oh->core->FixMissing($command, [0, 1, 2, 3]);
   if($command[0] == "Error") {
