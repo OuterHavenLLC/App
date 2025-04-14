@@ -7,12 +7,11 @@
    ]]);
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function CoreMedia(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+  function CoreMedia(array $data) {
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $dlc = $data["DLC"] ?? "";
    $i = 0;
-   $r = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($dlc)) {
@@ -23,27 +22,25 @@
     $dlc = $fileSystem[$dlc[0]] ?? [];
     if(!empty($dlc)) {
      $i++;
-     $r = $this->core->GetAttachmentPreview([
+     $_View = $this->core->GetAttachmentPreview([
       "DLL" => $dlc,
       "T" => $username,
       "Y" => $you
      ]);
     }
    }
-   $r = ($i == 0) ? $this->NoMedia : $r;
+   $_View = ($i == 0) ? $this->NoMedia : $_View;
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
-  function Editor(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+  function Editor(array $data) {
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? base64_encode("");
    $addTo = base64_decode($addTo);
    $media = $data["Media"] ?? base64_encode("");
@@ -51,7 +48,7 @@
    $mediaType = $data["MediaType"] ?? base64_encode("");
    $mediaType = base64_decode($mediaType);
    $i = 0;
-   $r = "";
+   $_View = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($media) && !empty($mediaType)) {
@@ -66,13 +63,13 @@
      $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
      if(!empty($attachment[1])) {
       $i++;
-      $r = $this->core->GetAttachmentPreview([
+      $_View = $this->core->GetAttachmentPreview([
        "DLL" => $efs[$attachment[1]],
        "T" => $attachment[0],
        "Y" => $you
       ]);
       if($mediaType == "Attachment") {
-       $r .= $this->core->Element([
+       $_View .= $this->core->Element([
         "h4", "Embed Code", ["class" => "CenterText"]
        ]).$this->core->Element([
         "p", "[Embed&colon;".base64_encode(implode(";", $attachment))."]", ["class" => "CenterText"]
@@ -87,8 +84,8 @@
      ]);
      if($_Media["Empty"] == 0) {
       $i++;
-      $r = $_Media["Preview"]["Content"] ?? "";
-      $r .= $this->core->Element([
+      $_View = $_Media["Preview"]["Content"] ?? "";
+      $_View .= $this->core->Element([
        "h4", "Embed Code", ["class" => "CenterText"]
       ]).$this->core->Element([
        "p", "[Embed&colon;$contentID]", ["class" => "CenterText"]
@@ -96,24 +93,22 @@
      }
     }
    }
-   $r = ($i == 0) ? $this->NoMedia : $r;
+   $_View = ($i == 0) ? $this->NoMedia : $_View;
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
-  function InlineMossaic(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+  function InlineMossaic(array $data) {
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $i = 0;
    $media = $data["ID"] ?? base64_encode("");
    $media = base64_decode($media);
-   $r = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
+   $_View = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
    $mediaType = $data["Type"] ?? base64_encode("");
    $mediaType = base64_decode($mediaType);
    $y = $this->you;
@@ -136,7 +131,7 @@
      "Shop",
      "StatusUpdate"
     ];
-    $r = "";
+    $_View = "";
     if(in_array($mediaType, $previewReady)) {
      foreach($attachments as $key => $attachment) {
       if(!empty($attachment)) {
@@ -148,14 +143,14 @@
         $i++;
         $options = $_Media["ListItem"]["Options"] ?? [];
         $preview = $_Media["Preview"]["Content"] ?? "";
-        $r .= (!empty($options["View"])) ? $this->core->Element(["button", $this->core->Element([
+        $_View .= (!empty($options["View"])) ? $this->core->Element(["button", $this->core->Element([
          "div", $preview, ["class" => "NONAME"]
         ]).$this->core->Element([
          "p", "View in Full", ["class" => "CenterText"]
         ]), [
          "class" => "FrostedBright OpenCard Rounded",
          "data-view" => $options["View"]
-        ]]) : $r;
+        ]]) : $_View;
        }
       }
      } if($i > 0) {
@@ -164,10 +159,10 @@
       $mediaType = ($mediaType == "Product") ? "Bundled Products" : $mediaType;
       $mediaType = ($mediaType == "ProductNotBundled") ? "Products" : $mediaType;
       $mediaType = ($mediaType == "StatusUpdate") ? "Status Updates" : $mediaType;
-      $r = $this->core->Element([
+      $_View = $this->core->Element([
        "h4", $mediaType, ["class" => "UpperCase"]
       ]).$this->core->Element([
-       "div", $r, ["class" => "SideScroll"]
+       "div", $_View, ["class" => "SideScroll"]
       ]);
      }
     } elseif($mediaType == "Artist" || $mediaType == "Member") {
@@ -182,7 +177,7 @@
         $_Member = $member["DataModel"];
         $view = "v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($_Member["Login"]["Username"]);
         $view = ($mediaType == "Member") ? "v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($_Member["Login"]["Username"]) : $view;
-        $r .= $this->core->Element([
+        $_View .= $this->core->Element([
          "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
           "class" => "Small OpenCard",
           "data-view" => base64_encode($view)
@@ -191,10 +186,10 @@
        }
       }
      } if($i > 0) {
-      $r = $this->core->Element([
+      $_View = $this->core->Element([
        "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
       ]).$this->core->Element([
-       "div", $r, ["class" => "SideScroll"]
+       "div", $_View, ["class" => "SideScroll"]
       ]);
      }
     } elseif($mediaType == "CoverPhoto") {
@@ -202,7 +197,7 @@
      if(!empty($attachment[0]) && !empty($attachment[1])) {
       $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
       $i++;
-      $r = $this->core->GetAttachmentPreview([
+      $_View = $this->core->GetAttachmentPreview([
        "DLL" => $efs[$attachment[1]],
        "T" => $attachment[0],
        "Y" => $you
@@ -215,7 +210,7 @@
        if(!empty($attachment[0]) && !empty($attachment[1])) {
         $efs = $this->core->Data("Get", ["fs", md5($attachment[0])])["Files"] ?? [];
         $i++;
-        $r .= $this->core->Element([
+        $_View .= $this->core->Element([
          "button", $this->core->GetAttachmentPreview([
           "DLL" => $efs[$attachment[1]],
           "T" => $attachment[0],
@@ -229,10 +224,10 @@
       }
      } if($i > 0) {
       $mediaType = ($mediaType == "DemoFile") ? "Demo Media" : "Attachments";
-      $r = $this->core->Element([
+      $_View = $this->core->Element([
        "h4", $mediaType, ["class" => "UpperCase"]
       ]).$this->core->Element([
-       "div", $r, ["class" => "SideScroll"]
+       "div", $_View, ["class" => "SideScroll"]
       ]);
      }
     } elseif($mediaType == "NonArtist") {
@@ -244,47 +239,45 @@
        ]);
        if($_Media["Empty"] == 0) {
         $i++;
-        $r = $_Media["Preview"]["Content"] ?? "";
+        $_View = $_Media["Preview"]["Content"] ?? "";
        }
       }
      } if($i > 0) {
-      $r = $this->core->Element([
+      $_View = $this->core->Element([
        "h4", "Featured Members", ["class" => "UpperCase"]
       ]).$this->core->Element([
-       "div", $r, ["class" => "SideScroll"]
+       "div", $_View, ["class" => "SideScroll"]
       ]);
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
-  function MemberGrid(array $a) {
-   $accessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+  function MemberGrid(array $data) {
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $list = $data["List"] ?? "";
    $rows = $data["Rows"] ?? 9;
    $type = $data["Type"] ?? "Web";
-   $r = $this->core->Element(["p", "None, yet..."]);
+   $_View = $this->core->Element(["p", "None, yet..."]);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($list)) {
     $i = 0;
     $list = json_decode(base64_decode($list), true);
     $list = $this->core->ShuffleList($list);
-    $r = "";
+    $_View = "";
     foreach($list as $key => $value) {
      $t = ($key == $you) ? $y : $this->core->Member($key);
      if(!empty($t["Login"])) {
       $i++;
-      $r .= $this->core->Element([
+      $_View .= $this->core->Element([
        "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
         "class" => "OpenCard Small",
         "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
@@ -292,23 +285,21 @@
       ]);
      }
     }
-    $r = ($i == 0) ? $this->core->Element([
+    $_View = ($i == 0) ? $this->core->Element([
      "p", "None, yet..."
-    ]) : $r;
-    $r = $this->core->Element([
+    ]) : $_View;
+    $_View = $this->core->Element([
      "h4", "Contributors", ["class" => "UpperCase"]
     ]).$this->core->Element([
-     "div", $r, ["class" => "SideScroll"]
+     "div", $_View, ["class" => "SideScroll"]
     ]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
   function __destruct() {
