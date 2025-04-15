@@ -2273,7 +2273,7 @@ $(document).on("click", ".SendData", (event) => {
        } else if(Type === "UpdateButton") {
         UpdateButton(Button, Data.View);
        } else if(Type === "UpdateText") {
-        $Button.text(View);
+        $Button.text(Data.View);
        }
       }, 750);
       ExecuteCommands(Data.Commands);
