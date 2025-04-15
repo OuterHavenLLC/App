@@ -4,50 +4,49 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function AddTransaction(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $r = [
+  function AddTransaction(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $responseType = "Dialog";
+   $data = $data["Data"] ?? [];
    $shop = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
-    $accessCode = "Accepted";
     $shop = base64_decode($shop);
     $shopID = md5($shop);
-    $r = [
+    $_Card = [
      "Action" => $this->core->Element(["button", "Save", [
       "class" => "CardButton SendData",
       "data-form" => ".ManualTransaction$shopID",
       "data-processor" => base64_encode("v=".base64_encode("Revenue:SaveManualTransaction"))
      ]]),
-     "Front" => $this->core->Change([[
-      "[Shop.ID]" => $shopID,
-      "[Shop.Owner]" => $shop
-     ], $this->core->Extension("1de8727b9004824edc701907efc32f8c")])
+     "Front" => [
+      "ChangeData" => [
+       "[Shop.ID]" => $shopID,
+       "[Shop.Owner]" => $shop
+      ],
+      "ExtensionID" => "1de8727b9004824edc701907efc32f8c"
+     ]
     ];
-    $responseType = "Card";
+    $_Dialog = "";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $a) {
+  function Home(array $data) {
+   $_Card = "";
+   $_View = [
+    "ChangeData" => [],
+    "ExtensionID" => "d98a89321f5067f73c63a4702dad32d4"
+   ];
    $_ViewTitle = "Revenue @ ".$this->core->config["App"]["Name"];
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
-   $pub = $data["pub"] ?? 0;
    $shop = $data["Shop"] ?? "";
-   $r = $this->core->Extension("d98a89321f5067f73c63a4702dad32d4");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
@@ -64,53 +63,49 @@
       "ID" => base64_encode("Member;".md5($shop))
      ]);
      $_Owner = ($_Owner["Empty"] == 0) ? $_Owner : $this->core->RenderGhostMember();
-     $_ViewTitle = "Revenue for ".$_Shop["ListItem"]["Title"];
      $addTransaction = ($shop == $you) ? $this->core->Element(["button", "Add Transaction", [
       "class" => "OpenCard v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("Revenue:AddTransaction")."&Shop=".$data["Shop"])
      ]]) : "";
-     $r = $this->core->Change([[
-      "[Revenue.AddTransaction]" => $addTransaction,
-      "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
-      "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
-      "[Revenue.Shop]" => md5($shop),
-      "[Revenue.Years]" => base64_encode("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
-     ], $this->core->Extension("4ab1c6f35d284a6eae66ebd46bb88d5d")]);
+     $_View = [
+      "ChangeData" => [
+       "[Revenue.AddTransaction]" => $addTransaction,
+       "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
+       "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
+       "[Revenue.Shop]" => md5($shop),
+       "[Revenue.Years]" => base64_encode("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
+      ],
+      "ExtensionID" => "4ab1c6f35d284a6eae66ebd46bb88d5d"
+     ];
+     $_ViewTitle = "Revenue for ".$_Shop["ListItem"]["Title"];
     }
    }
-   $r = ($card == 1) ? [
-    "Front" => $r
-   ] : $r;
-   if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
-   }
+   $_Card = ($card == 1) ? [
+    "Front" => $_View
+   ] : "";
+   $_View = ($card === 0) ? $_View : "";
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "Title" => $_ViewTitle
+    "Card" => $_Card,
+    "Title" => $_ViewTitle,
+    "View" => $_View
    ]);
   }
-  function PayPeriod(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $payPeriodID = $data["PayPeriod"] ?? "";
-   $shop = $data["Shop"] ?? "";
-   $r = [
+  function PayPeriod(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Pay Period, Revenue Year, or Shop Identifiers are missing."
    ];
+   $data = $data["Data"] ?? [];
+   $payPeriodID = $data["PayPeriod"] ?? "";
+   $shop = $data["Shop"] ?? "";
    $y = $this->you;
    $year = $data["Year"] ?? "";
    $you = $y["Login"]["Username"];
    if(!empty($payPeriodID) && !empty($shop)) {
-    $accessCode = "Accepted";
+    $_Dialog = [
+     "Body" => "Failed to load the Revenue data for @$shop."
+    ];
     $payPeriodID = base64_decode($payPeriodID);
     $payPeriodTotals_Gross = 0;
     $payPeriodTotals_Expenses = 0;
@@ -123,16 +118,16 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    $r = $this->core->Element(["p", "Error loading the Revenue data for @$shop."]);
     $year = base64_decode($year);
     if($_Shop["Empty"] == 0) {
      $revenue =$this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
      $payroll = $revenue["Payroll"] ?? [];
      $payPeriodData = $payroll[$payPeriodID] ?? [];
-     $r = $this->core->Element([
-      "p", "Error loading the Revenue data for Pay Period $year-$payPeriodID."
-     ]);
+     $_Dialog = [
+      "Body" => "Failed to load the Revenue data for Pay Period $year-$payPeriodID."
+     ];
      if(!empty($payPeriodData)) {
+      $_Dialog = "";
       $tax = $_Shop["DataModel"]["Tax"] ?? 10.00;
       $partners = $payPeriodData["Partners"] ?? [];
       $partnersList = "";
@@ -182,66 +177,62 @@
         "[Partner.Title]" => $info["Title"]
        ], $this->core->Extension("a10a03f2d169f34450792c146c40d96d")]);
       }
-      $r = $this->core->Change([[
-       "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
-       "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
-       "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
-       "[PayPeriod.Number]" => $payPeriodID,
-       "[PayPeriod.Partners]" => $partnersList,
-       "[PayPeriod.Range.End]" => $payPeriodData["Ends"],
-       "[PayPeriod.Range.Start]" => $payPeriodData["Begins"],
-       "[PayPeriod.Shop]" => md5($shop),
-       "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
-       "[PayPeriod.Transactions]" => $transactionsList,
-       "[PayPeriod.Year]" => $year
-      ], $this->core->Extension("ca72b0ed3686a52f7db1ae3b2f2a7c84")]);
+      $_Card = [
+       "Front" => [
+        "ChangeData" => [
+         "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
+         "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
+         "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
+         "[PayPeriod.Number]" => $payPeriodID,
+         "[PayPeriod.Partners]" => $partnersList,
+         "[PayPeriod.Range.End]" => $payPeriodData["Ends"],
+         "[PayPeriod.Range.Start]" => $payPeriodData["Begins"],
+         "[PayPeriod.Shop]" => md5($shop),
+         "[PayPeriod.Taxes]" => number_format($payPeriodTotals_Taxes, 2),
+         "[PayPeriod.Transactions]" => $transactionsList,
+         "[PayPeriod.Year]" => $year
+        ],
+        "ExtensionID" => "ca72b0ed3686a52f7db1ae3b2f2a7c84"
+       ]
+      ];
      }
     }
-    $r = [
-     "Front" => $r
-    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function SaveManualTransaction(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function SaveManualTransaction(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $cost = $data["Cost"] ?? 0;
    $cost = ($cost == "") ? 0 : $cost;
    $orderID = $data["OrderID"] ?? "";
    $profit = $data["Profit"] ?? 0;
    $profit = ($profit == "") ? 0 : $profit;
-   $r = [
-    "Body" => "The Shop Identifier is missing."
-   ];
    $shop = $data["Shop"] ?? "";
    $title = $data["Title"] ?? "";
    $type = $data["Type"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(empty($orderID)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Order Identifier is missing."
     ];
    } elseif(empty($title)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Title is missing."
     ];
    } elseif(empty($type)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Type is missing."
     ];
    } elseif(!empty($shop)) {
-    $accessCode = "Accepted";
     $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
      "Cost" => $cost,
      "OrderID" => $orderID,
@@ -251,31 +242,27 @@
      "Title" => $title,
      "Type" => $type
     ]]);
-    $r = [
+    $_AccessCode = "Accepted";
+    $_Dialog = [
      "Body" => "The transaction was recorded in the current pay period.",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
    ]);
   }
-  function SaveTransaction(array $a) {
-   $data = $a["Data"] ?? [];
+  function SaveTransaction(array $data) {
+   $_View = $this->core->Element(["p", "The Shop Identifier is missing."]);
+   $data = $data["Data"] ?? [];
    $cost = $data["Cost"] ?? 0;
    $cost = str_replace(",", "", $cost);
    $orderID = $data["OrderID"] ?? "N/A";
    $profit = $data["Profit"] ?? 0;
    $profit = str_replace(",", "", $profit);
    $quantity = $data["Quantity"] ?? 1;
-   $r = $this->core->Element(["p", "The Shop Identifier is missing."]);
    $responseType = "Dialog";
    $shop = $data["Shop"] ?? "";
    $title = $data["Title"] ?? "Unknown";
@@ -288,7 +275,7 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    $r = $this->core->Element(["p", "Error loading the Revenue data for @$shop."]);
+    $_View = $this->core->Element(["p", "Error loading the Revenue data for @$shop."]);
     if($_Shop["Empty"] == 0) {
      $now = $this->core->timestamp;
      $responseType = "View";
@@ -353,31 +340,28 @@
       "Transactions" => $transactions
      ];
      $this->core->Data("Save", ["revenue", date("Y")."-".md5($shop), $yearData]);
-     $r = "OK";
+     $_View = $this->core->Element(["p", "OK"]);
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
-  function Year(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $shop = $data["Shop"] ?? "";
-   $r = [
+  function Year(array $data) {
+   $_Dialog = [
     "Body" => "The Shop Identifier or Year are missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $shop = $data["Shop"] ?? "";
    $y = $this->you;
    $year = $data["Year"] ?? "";
    $you = $y["Login"]["Username"];
    if(!empty($shop) && !empty($year)) {
-    $accessCode = "Accepted";
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
@@ -394,6 +378,7 @@
     $yearTotals_Taxes = 0;
     $transactions = $yearData["Transactions"] ?? [];
     if(!empty($transactions)) {
+     $_Dialog = "";
      $payPeriodData = $yearData["Payroll"] ?? [];
      $payPeriods = "";
      foreach($payPeriodData as $id => $payPeriod) {
@@ -444,36 +429,34 @@
      $yearTotals_Gross = $yearTotals_Gross + $yearTotals_Expenses;
      $yearTotals_Taxes = $yearTotals_Gross * ($tax / 100);
      $yearTotals_Net = $yearTotals_Gross - $yearTotals_Expenses - $yearTotals_Taxes;
-     $r = $this->core->Change([[
-      "[Year.Gross]" => number_format($yearTotals_Gross, 2),
-      "[Year.Expenses]" => number_format($yearTotals_Expenses, 2),
-      "[Year.Net]" => number_format($yearTotals_Net, 2),
-      "[Year.PayPeriods]" => $payPeriods,
-      "[Year.Taxes]" => number_format($yearTotals_Taxes, 2)
-     ], $this->core->Extension("676193c49001e041751a458c0392191f")]);
+     $_View = [
+      "ChangeData" => [
+       "[Year.Gross]" => number_format($yearTotals_Gross, 2),
+       "[Year.Expenses]" => number_format($yearTotals_Expenses, 2),
+       "[Year.Net]" => number_format($yearTotals_Net, 2),
+       "[Year.PayPeriods]" => $payPeriods,
+       "[Year.Taxes]" => number_format($yearTotals_Taxes, 2)
+      ],
+      "ExtensionID" => "676193c49001e041751a458c0392191f"
+     ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Years(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $shop = $data["Shop"] ?? "";
-   $r = [
+  function Years(array $data) {
+   $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $shop = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
-    $accessCode = "Accepted";
     $i = 0;
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
@@ -482,33 +465,33 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    $r = "";
+    $_View = "";
     for($year = date("Y"); $year >= 2017; $year--) {
      $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
      $transactions = $yearData["Transactions"] ?? [];
      if(!empty($transactions)) {
       $i++;
-      $r .= $this->core->Change([[
+      $_View .= $this->core->Change([[
        "[Shop.ID]" => $shop,
        "[Year]" => $year,
        "[Year.View]" => base64_encode("v=".base64_encode("Revenue:Year")."&Shop=".$data["Shop"]."&Year=".base64_encode($year))
       ], $this->core->Extension("4c7848ac49eafc9fbd14c20213398e14")]);
      }
     }
-    $r = ($i > 0) ? $r : $this->core->Element([
+    $_View = ($i > 0) ? $_View : $this->core->Element([
      "h4", "No Revenue Recorded for ".$_Shop["ListItem"]["Title"], [
       "class" => "CenterText InnerMargin UpperCase"
      ]
     ]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function __destruct() {
