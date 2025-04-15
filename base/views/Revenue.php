@@ -87,6 +87,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Dialog" => $_Dialog,
     "Title" => $_ViewTitle,
     "View" => $_View
    ]);
