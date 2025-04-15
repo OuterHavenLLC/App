@@ -69,6 +69,7 @@
   }
   function Home(array $data) {
    $_Card = "";
+   $_Commands = [];
    $_Dialog = [
     "Body" => "The Album Identifier is missing.",
     "Header" => "Not Found"
@@ -152,7 +153,6 @@
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $options = $_Album["ListItem"]["Options"];
       $t = ($username == $you) ? $y : $this->core->Member($username);
-      $secureUsername = base64_encode($t["Login"]["Username"]);
       $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
       $ck2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
       $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
@@ -205,6 +205,22 @@
        $coverPhoto = "$username/";
        $coverPhoto .= $media["Files"][$coverPhotoList[0]]["Name"];
       }
+      $_Commands = [
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$id",
+         $options["Vote"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Stream$id",
+         $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&AID=$id&UN=".base64_encode($t["Login"]["Username"])."&st=MBR-XFS")
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
         "[Album.Actions]" => $actions,
@@ -215,9 +231,7 @@
         "[Album.Modified]" => $this->core->TimeAgo($album["Modified"]),
         "[Album.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Album;$username;$id")),
         "[Album.Owner]" => $t["Personal"]["DisplayName"],
-        "[Album.Stream]" => base64_encode("v=".base64_encode("Album:List")."&AID=$id&UN=$secureUsername"),
-        "[Album.Title]" => $_Album["ListItem"]["Title"],
-        "[Album.Votes]" => $options["Vote"]
+        "[Album.Title]" => $_Album["ListItem"]["Title"]
        ],
        "ExtensionID" => "91c56e0ee2a632b493451aa044c32515"
       ];
@@ -231,50 +245,6 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
-    "Dialog" => $_Dialog,
-    "View" => $_View
-   ]);
-  }
-  function List(array $data) {
-   $_Commands = "";
-   $_Dialog = [
-    "Body" => "The requested Album could not be found.",
-    "Header" => "Not Found"
-   ];
-   $_View = "";
-   $data = $data["Data"] ?? [];
-   $back = $data["back"] ?? 0;
-   $id = $data["AID"] ?? "";
-   $b2 = $data["b2"] ?? "Albums";
-   $parentPage = $data["lPG"] ?? "";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   $username = $data["UN"] ?? $you;
-   if(!empty($id)) {
-    $_Commands = [
-     [
-      "Name" => "UpdateContentAES",
-      "Parameters" => [
-       ".AlbumListView$id",
-       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&AID=$id&UN=$username&st=MBR-XFS")
-      ]
-     ]
-    ];
-    $_Dialog = "";
-    $_View = ($back == 1) ? $this->core->Element(["button", "Back to $b2", [
-     "class" => "GoToParent LI head",
-     "data-type" => $parentPage
-    ]]) : "";
-    $_View .= $this->core->Element(["div", NULL, [
-     "class" => "AlbumListView$id"
-    ]]);
-    $_View = [
-     "ChangeData" => [],
-     "Extension" => $this->core->AESencrypt($_View)
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
     "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View

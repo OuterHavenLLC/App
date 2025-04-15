@@ -408,7 +408,6 @@
    $_Card = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
-    "CARD",
     "b2",
     "back",
     "lPG",
@@ -609,7 +608,7 @@
           "[Shop.PartnerChat]" => $chat,
           "[Shop.Revenue]" => $options["Revenue"],
           "[Shop.Share]" => $share,
-          "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&pubP=$pub&st=SHOP-Products"),
+          "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&st=SHOP-Products"),
           "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
           "[Shop.Title]" => $_Shop["ListItem"]["Title"],
           "[Shop.Welcome]" => $this->core->PlainText([
@@ -620,15 +619,15 @@
          ],
          "ExtensionID" => "f009776d658c21277f8cfa611b843c24"
         ];
+        $_Card = ($card == 1) ? [
+         "Front" => $_View
+        ] : "";
+        $_View = ($card == 0) ? $_View : "";
        }
       }
      }
     }
    }
-   $_Card = ($card == 1) ? [
-    "Front" => $_View
-   ] : "";
-   $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
     "Card" => $_Card,
     "View" => $_View

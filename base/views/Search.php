@@ -323,7 +323,7 @@
      $username = $data["UN"] ?? base64_encode($you);
      $username = base64_decode($username);
      $t = ($username == $you) ? $y : $this->core->Member($username);
-     $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
+     $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
      $alb = $fs["Albums"][$aid] ?? [];
      $ck = $y["Subscriptions"]["XFS"]["A"] ?? 0;
      $ck = ($ck == 1 && $notAnon == 1) ? 1 : 0;
@@ -2802,6 +2802,10 @@
    } elseif($searchType == "MBR-XFS") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
+    $t = $data["UN"] ?? base64_encode($you);
+    $t = base64_decode($t);
+    $t = ($t == $you) ? $y : $this->core->Member($t);
+    $database = ($t["Login"]["Username"] == $this->core->ID) ? "CoreMedia" : "Media";
     $_Query = "SELECT * FROM $database
                         JOIN Members
                         ON Member_Username=Media_Username
@@ -2811,10 +2815,6 @@
                         ORDER BY Media_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $t = $data["UN"] ?? base64_encode($you);
-    $t = base64_decode($t);
-    $t = ($t == $you) ? $y : $this->core->Member($t);
-    $database = ($t["Login"]["Username"] == $this->core->ID) ? "CoreMedia" : "Media";
     $albumID = $data["AID"] ?? md5("unsorted");
     $extension = $this->core->Extension($_ExtensionID);
     $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);

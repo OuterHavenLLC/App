@@ -87,7 +87,6 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
-    "Dialog" => $_Dialog,
     "Title" => $_ViewTitle,
     "View" => $_View
    ]);
@@ -458,6 +457,8 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
+    $_Dialog = "";
+    $_View = "";
     $i = 0;
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
@@ -466,7 +467,6 @@
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    $_View = "";
     for($year = date("Y"); $year >= 2017; $year--) {
      $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
      $transactions = $yearData["Transactions"] ?? [];
