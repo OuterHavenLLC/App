@@ -142,6 +142,15 @@
      "ExtensionID" => "2c726e65e5342489621df8fea850dc47"]
    ]);
   }
+  function Portfolio() {
+   return $this->core->JSONResponse([
+    "Title" => $this->core->config["App"]["Name"]." Portfolio",
+    "View" => [
+     "ChangeData" => [],
+     "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67fe54e4cbfc4"
+    ]
+   ]);
+  }
   function Statistics(array $data) {
    $_AddTopMargin = 1;
    $_Commands = [

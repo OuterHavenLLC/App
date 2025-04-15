@@ -407,6 +407,7 @@
      "[Menu.Company.FreeAmericaRadio]" => $this->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio")),
      "[Menu.Company.Home]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")),
      "[Menu.Company.IncomeDisclosure]" => $this->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.Portfolio]" => $this->core->AESencrypt("v=".base64_encode("Company:Portfolio")),
      "[Menu.Company.PressReleases]" => $this->core->AESencrypt("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => $this->core->AESencrypt("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")),
@@ -465,6 +466,7 @@
      "[Menu.Company.FreeAmericaRadio]" => $this->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio")),
      "[Menu.Company.Home]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")),
      "[Menu.Company.IncomeDisclosure]" => $this->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($this->core->ShopID)),
+     "[Menu.Company.Portfolio]" => $this->core->AESencrypt("v=".base64_encode("Company:Portfolio")),
      "[Menu.Company.PressReleases]" => $this->core->AESencrypt("v=$search&lPG=PG&st=PR"),
      "[Menu.Company.Statistics]" => $this->core->AESencrypt("v=".base64_encode("Company:Statistics")),
      "[Menu.Company.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")),
@@ -493,7 +495,10 @@
     ];
     $extensionID = "d14e3045df35f4d9784d45ac2c0fe73b";
    }
-   $coverPhoto = $y["Personal"]["CoverPhoto"] ?? "";
+   $coverPhoto = $y["Personal"]["CoverPhoto"] ?? $this->core->PlainText([
+    "Data" => "[Media:CP]",
+    "Display" => 1
+   ]);
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Commands" => [

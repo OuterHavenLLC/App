@@ -32,11 +32,6 @@ function AddContent() {
         $(".AddContent").fadeIn(500);
        }, 500);
       }
-     } else if($(".AddContent").is(":visible")) {
-      $(".AddContent").fadeOut(500);
-      setTimeout(() => {
-       $(".AddContent").remove(); 
-      }, 600);
      }
     }
    },
@@ -1374,8 +1369,12 @@ function SignOut() {
      Data.View.then(response => {
       $(DefaultContainer).html(response);
       UpdateContent(".Menu", "[App.Menu]", "AES");
+      $(".AddContent").fadeOut(500);
       $(".SideBar").hide("slide", {direction: "left"}, 500);
       $(".TopBar .MenuContainer").slideUp(500);
+      setTimeout(() => {
+       $(".AddContent").remove();
+      }, 600);
      }).catch(error => {
       Dialog({
        "Body": "SignOut: Error rendering view data. Please see below:",
