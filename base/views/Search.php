@@ -3430,8 +3430,8 @@
    $data = $data["Data"] ?? [];
    $component = $data["Component"] ?? base64_encode("");
    $component = base64_decode($component);
-   $query = $data["query"] ?? base64_encode("");
-   $query = base64_decode(htmlentities($query));
+   $query = $data["query"] ?? $this->core->AESencrypt("");
+   $query = $this->core->AESdecrypt(htmlentities($query));
    $y = $this->core->you;
    $you = $y["Login"]["Username"];
    if($component == "SuggestedMembers") {

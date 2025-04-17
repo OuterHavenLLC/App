@@ -279,7 +279,7 @@
         "data-view" => $options["Chat"]
        ]
       ]) : "";
-      $actions .= ($blog["UN"] == $you && $pub == 0) ? $this->core->Element([
+      $actions .= ($blog["UN"] == $you && $public == 0) ? $this->core->Element([
        "button", "Delete", [
         "class" => "CloseCard OpenDialog Small v2",
         "data-view" => $options["Delete"]

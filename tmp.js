@@ -475,7 +475,7 @@ class OH {
  static FST(data) {
   const Data = data || "",
             ID = Data.ID || this.UUID();
-  $("body").append("<div class='Frosted FST FST" + ID + " RoundedLarge Shadowed h scr'></div>");
+  $(this.DefaultContainer).append("<div class='Frosted FST FST" + ID + " h scr'></div>");
   $(".FST" + ID).html("<div class='TopBarMargin'></div>\r\n");
   $(".FST" + ID).append(Data);
   $(".FST" + ID).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
@@ -2615,7 +2615,7 @@ $(document).on("keyup", ".SearchBar", (event) => {
  const $Input = $(event.currentTarget);
  if(OH.getFSTvisibility() === "Accepted") {
   OH.CloseNetMap();
-  OH.UpdateContent(OH.DefaultContainer, OH.AESdecrypt($Input.attr("data-u")) + OH.AESdecrypt($Input.val()));
+  OH.UpdateContent(OH.DefaultContainer, OH.AESencrypt(OH.AESdecrypt($Input.attr("data-u"))) + OH.AESencrypt($Input.val()), "AES");
  }
 });
 $(document).on("keyup", ".UnlockProtectedContent", (event) => {
