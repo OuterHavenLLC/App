@@ -963,7 +963,7 @@ class OH {
     }
     $(Container).append(RenderInput);
    }, 500);
-   $(Container).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
+   $(Container).parent().find("input[type=text], textarea").filter(":enabled:visible:first").focus();
   }
  }
  static RenderView(data) {
@@ -2620,9 +2620,9 @@ $(document).on("keyup", ".SearchBar", (event) => {
 });
 $(document).on("keyup", ".UnlockProtectedContent", (event) => {
  const $Input = $(event.currentTarget),
-  Key = OH.Base64encrypt($Input.val()),
-  SignOut = $Input.attr("data-signout") || "",
-  Parent = $Input.closest(".ProtectedContent");
+           Key = OH.Base64encrypt($Input.val()),
+           Parent = $Input.closest(".ProtectedContent"),
+           SignOut = $Input.attr("data-signout") || "";
  $.ajax({
   error: (error) => {
    OH.Dialog({
@@ -2640,25 +2640,27 @@ $(document).on("keyup", ".UnlockProtectedContent", (event) => {
     OH.Crash(data);
    } else {
     const Data = OH.RenderView(data);
-    Data.View.then(response => {
-     $Input.prop("disabled", true);
-     setTimeout(() => {
-      if(SignOut === "Yes") {
-       OH.InstantSignOut();
-      }
-      $(Parent).empty();
-      if(Data.AddTopMargin === 1) {
-       $(Parent).append("<div class='TopBarMargin'></div>\r\n");
-      }
-      $(Parent).append(response);
-      OH.ExecuteCommands(Data.Commands);
-     }, 600);
-    }).catch(error => {
-     OH.Dialog({
-      "Body": "UnlockProtectedContent: Error rendering view data. Please see below for more information:",
-      "Scrollable": error.message
+    if(Data.View !== "" && typeof Data.View !== "undefined") {
+     Data.View.then(response => {
+      $Input.prop("disabled", true);
+      setTimeout(() => {
+       if(SignOut === "Yes") {
+        OH.InstantSignOut();
+       }
+       $(Parent).empty();
+       if(Data.AddTopMargin === 1) {
+        $(Parent).append("<div class='TopBarMargin'></div>\r\n");
+       }
+       $(Parent).append(response);
+       OH.ExecuteCommands(Data.Commands);
+      }, 600);
+     }).catch(error => {
+      OH.Dialog({
+       "Body": "UnlockProtectedContent: Error rendering view data. Please see below for more information:",
+       "Scrollable": error.message
+      });
      });
-    });
+    }
    }
   },
   url: OH.base + OH.Base64decrypt($Input.attr("data-view")) + "&Key=" + Key

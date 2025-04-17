@@ -159,15 +159,7 @@
          "Value" => $this->core->AESencrypt($this->core->PlainText([
           "Data" => $body
          ]))
-        ]
-       ]
-      ]
-     ],
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".Category$id",
-       [
+        ],
         [
          "Attributes" => [],
          "OptionGroup" => [
@@ -176,6 +168,8 @@
           "Extension" => "Extension"
          ],
          "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
           "Header" => 1,
           "HeaderText" => "Category"
          ],

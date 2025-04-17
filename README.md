@@ -31,6 +31,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * The last password change is now logged in Member activity for an eventual password change policy to be implemented.
 * AES encryption is now standard for all top-level data-in-transit.
 * A new Public() view now pre-loads the main UI containers and asynchronously renders in a given view.
+* All global functions on the client-side have been re-organized into a single class, with the rest of the logic also being modernized.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.
