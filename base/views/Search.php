@@ -3436,8 +3436,8 @@
    $you = $y["Login"]["Username"];
    if($component == "SuggestedMembers") {
     $_Query = "SELECT * FROM Members
-                        WHERE Member_Descriptction LIKE :Search OR
-                                      Member_DisplayName LIKE :Search OR
+                        #WHERE Member_Descriptction LIKE :Search OR
+                        WHERE Member_DisplayName LIKE :Search OR
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
                         LIMIT 100
