@@ -390,8 +390,7 @@
     "SetUIVariant" => $setUIvariant,
     "View" => [
      "ChangeData" => [
-      "[App.Menu]" => base64_encode("v=".base64_encode("WebUI:Menu")),
-      "[App.Search]" => base64_encode("v=".base64_encode("Search:ReSearch")."&query=")
+      "[App.Search]" => $this->core->AESencrypt("v=".base64_encode("Search:ReSearch")."&query=")
      ],
      "Extension" => $this->core->AESencrypt($this->core->RenderUI("Main"))
     ]

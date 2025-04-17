@@ -473,8 +473,8 @@ class OH {
   }
  }
  static FST(data) {
-  var Data = data || {},
-   ID = Data.ID || this.UUID();
+  const Data = data || "",
+            ID = Data.ID || this.UUID();
   $("body").append("<div class='Frosted FST FST" + ID + " RoundedLarge Shadowed h scr'></div>");
   $(".FST" + ID).html("<div class='TopBarMargin'></div>\r\n");
   $(".FST" + ID).append(Data);
@@ -515,7 +515,7 @@ class OH {
         this.Crash(data);
        } else {
         const Data = this.RenderView(data);
-        if(Data.View !== "" && typeof Data.View === "undefined") {
+        if(Data.View !== "" && typeof Data.View !== "undefined") {
          Data.View.then(response => {
           $(Preview).html(response);
           this.ExecuteCommands(Data.Commands);
@@ -679,7 +679,7 @@ class OH {
       this.Crash(data);
      } else {
       const Data = this.RenderView(data);
-      if(Data.View !== "" && typeof Data.View === "undefined") {
+      if(Data.View !== "" && typeof Data.View !== "undefined") {
        Data.View.then(response => {
         if(Data.AddTopMargin === 1) {
          $(this.DefaultContainer).append("<div class='TopBarMargin'></div>\r\n");
@@ -698,8 +698,7 @@ class OH {
     },
     url: this.base + this.AESdecrypt(Ground)
    });
-  }
-  if(FirSTEPTool !== "" && typeof FirSTEPTool !== "undefined") {
+  } if(FirSTEPTool !== "" && typeof FirSTEPTool !== "undefined") {
    $.ajax({
     error: (error) => {
      this.Dialog({
@@ -717,7 +716,7 @@ class OH {
       this.Crash(data);
      } else {
       const Data = this.RenderView(data);
-      if(Data.View !== "" && typeof Data.View === "undefined") {
+      if(Data.View !== "" && typeof Data.View !== "undefined") {
        Data.View.then(response => {
         this.FST(response);
         this.ExecuteCommands(Data.Commands);
@@ -761,7 +760,7 @@ class OH {
      this.Crash(data);
     } else {
      const Data = this.RenderView(data);
-     if(Data.View !== "" && typeof Data.View === "undefined") {
+     if(Data.View !== "" && typeof Data.View !== "undefined") {
       Data.View.then(response => {
        $(".NetMap").html(response);
        $(".NetMap").find("input[type=text], textarea").filter(":enabled:visible:first").focus();
@@ -837,7 +836,7 @@ class OH {
       this.Crash(data);
      } else {
       const Data = this.RenderView(data);
-      if(Data.View !== "" && typeof Data.View === "undefined") {
+      if(Data.View !== "" && typeof Data.View !== "undefined") {
        Data.View.then(response => {
         $(Container).html(response);
         $.each($(Container).find("button, input, select, textarea"), () => {
@@ -1481,8 +1480,7 @@ class OH {
    View = this.AESdecrypt(View);
   } else {
    View = this.Base64decrypt(View);
-  }
-  if($(Container).html() === "") {
+  } if($(Container).html() === "") {
    $(Container).html("<h2 class='CenterText InnerMargin'>" + this.Loading + "</h2>\r\n");
   }
   setTimeout(() => {
@@ -1503,20 +1501,22 @@ class OH {
       this.Crash(data);
      } else {
       const Data = this.RenderView(data);
-      Data.View.then(response => {
-       $(Container).empty();
-       if(Data.AddTopMargin === 1) {
-        $(Container).append("<div class='TopBarMargin'></div>\r\n");
-       }
-       $(Container).append(response);
-       $(Container).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
-       this.ExecuteCommands(Data.Commands);
-      }).catch(error => {
-       this.Dialog({
-        "Body": "UpdateContent: Error rendering view data. Please see below:",
-        "Scrollable": error.message
+      if(Data.View !== "" && typeof Data.View !== "undefined") {
+       Data.View.then(response => {
+        $(Container).empty();
+        if(Data.AddTopMargin === 1) {
+         $(Container).append("<div class='TopBarMargin'></div>\r\n");
+        }
+        $(Container).append(response);
+        $(Container).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
+        this.ExecuteCommands(Data.Commands);
+       }).catch(error => {
+        this.Dialog({
+         "Body": "UpdateContent: Error rendering view data. Please see below:",
+         "Scrollable": error.message
+        });
        });
-      });
+      }
      }
     },
     url: this.base + View
@@ -2100,7 +2100,7 @@ $(document).on("click", ".OpenBottomBar", (event) => {
      OH.Crash(data);
     } else {
      const Data = OH.RenderView(data);
-     if(Data.View !== "" && typeof Data.View === "undefined") {
+     if(Data.View !== "" && typeof Data.View !== "undefined") {
       Data.View.then(response => {
        $("body").append(response);
        $("body").find("input[type=text], textarea").filter(":enabled:visible:first").focus();
@@ -2123,29 +2123,29 @@ $(document).on("click", ".OpenBottomBar", (event) => {
 });
 $(document).on("click", ".OpenCard", (event) => {
  const $Button = $(event.currentTarget),
-  View = $Button.attr("data-view");
+            View = $Button.attr("data-view");
  OH.OpenCard(View);
 });
 $(document).on("click", ".OpenCardFromJSON", (event) => {
  const $Button = $(event.currentTarget),
-  Data = $Button.attr("data-json") || OH.Base64encrypt({});
+           Data = $Button.attr("data-json") || OH.Base64encrypt({});
  OH.Card(OH.Base64decrypt(Data));
 });
 $(document).on("click", ".OpenDialog", (event) => {
  const $Button = $(event.currentTarget),
-  Encryption = $Button.attr("data-encryption") || "",
-  View = $Button.attr("data-view") || "";
+           Encryption = $Button.attr("data-encryption") || "",
+           View = $Button.attr("data-view") || "";
  OH.OpenDialog(View, Encryption);
 });
 $(document).on("click", ".OpenFirSTEPTool", (event) => {
  const $Button = $(event.currentTarget),
-  FST = $Button.attr("data-fst"),
-  Ground = $Button.attr("data-ground");
- OH.OpenFirSTEPTool(Ground, FST);
+           FirSTEPTool = $Button.attr("data-fst") || "",
+           Ground = $Button.attr("data-ground") || "";
+ OH.OpenFirSTEPTool(Ground, FirSTEPTool);
 });
 $(document).on("click", ".PS", (event) => {
  const $Button = $(event.currentTarget),
-  Data = $Button.attr("data-type").split(";");
+           Data = $Button.attr("data-type").split(";");
  $.each($(Data[0]).find(Data[1]), function() {
   $(this).hide("slide", {
    direction: "left"
@@ -2157,7 +2157,7 @@ $(document).on("click", ".PS", (event) => {
 });
 $(document).on("click", ".PSAccordion", (event) => {
  const $Button = $(event.currentTarget),
-  Data = $Button.attr("data-type").split(";");
+           Data = $Button.attr("data-type").split(";");
  $.each($(Data[0]).find(Data[1]), function() {
   $(this).slideUp(500);
  });
@@ -2483,7 +2483,7 @@ $(document).on("click", ".UpdateButton", (event) => {
     OH.Crash(data);
    } else {
     const Data = OH.RenderView(data);
-    if(Data.View !== "" && typeof Data.View === "undefined") {
+    if(Data.View !== "" && typeof Data.View !== "undefined") {
      Data.View.then(response => {
       OH.UpdateButton($Button, response);
       $Button.prop("disabled", false);
@@ -2591,7 +2591,7 @@ $(document).on("keyup", ".LinkData", (event) => {
     OH.Crash(data);
    } else {
     const Data = OH.RenderView(data);
-    if(Data.View !== "" && typeof Data.View === "undefined") {
+    if(Data.View !== "" && typeof Data.View !== "undefined") {
      Data.View.then(response => {
       $(".AddLink > .LinkPreview").html(response);
       OH.ExecuteCommands(Data.Commands);
@@ -2615,7 +2615,7 @@ $(document).on("keyup", ".SearchBar", (event) => {
  const $Input = $(event.currentTarget);
  if(OH.getFSTvisibility() === "Accepted") {
   OH.CloseNetMap();
-  OH.UpdateContent(OH.DefaultContainer, OH.Base64decrypt($Input.attr("data-u")) + OH.Base64encrypt($Input.val()));
+  OH.UpdateContent(OH.DefaultContainer, OH.AESdecrypt($Input.attr("data-u")) + OH.AESdecrypt($Input.val()));
  }
 });
 $(document).on("keyup", ".UnlockProtectedContent", (event) => {

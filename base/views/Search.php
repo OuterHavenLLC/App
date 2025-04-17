@@ -10,6 +10,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Containers(array $data) {
+   $_AddTopMargin = "0";
    $_Card = "";
    $_Dialog = [
     "Body" => "The List Type is missing.",
@@ -19,7 +20,6 @@
    $_View = "";
    $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
-   $addTopMargin = "0";
    $b2 = $data["b2"] ?? "";
    $card = $data["CARD"] ?? 0;
    $cardSearchTypes = [
@@ -226,7 +226,7 @@
      $searchBarText = $searchType;
      $variant = "3Column";
     } elseif($searchType == "Mainstream") {
-     $addTopMargin = ($card ==1) ? 0 : 1;
+     $_AddTopMargin = ($card ==1) ? 0 : 1;
      $header = "The ".$searchType;
      $searchBarText = "the ".$searchType;
      $options = ($card == 0) ? $this->core->Element(["button", "Say Something", [
@@ -270,7 +270,7 @@
      $searchBarText = "$header";
      $variant = "3Column";
     } elseif($searchType == "MBR-Forums") {
-     $addTopMargin = 1;
+     $_AddTopMargin = 1;
      $header = "Your Forums";
      $_List .= "&lPG=$parentView";
      $searchBarText = "Your Private and Public Forums";
@@ -441,7 +441,7 @@
     $_View = "";
    }
    return $this->core->JSONResponse([
-    "AddTopMargin" => $addTopMargin,
+    "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
     "Dialog" => $_Dialog,
     "View" => $_View
@@ -3482,7 +3482,7 @@
    } else {
     $_ViewTitle .= (!empty($data["query"])) ? " $query" : "";
     $search = $this->lists;
-    $secureQuery = base64_encode($query);
+    $secureQuery = $this->core->AESdecrypt($query);
     $suggestedMembers = $this->view(base64_encode("Search:ReSearch"), ["Data" => [
      "Component" => base64_encode("SuggestedMembers"),
      "query" => $data["query"]
