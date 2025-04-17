@@ -869,101 +869,101 @@ class OH {
           OptionGroup = Input["OptionGroup"] || {},
           OptionGroupLabel,
           Options = Input["Options"] || {},
+          RenderInput = "",
           Type = Input["Type"] || "Text";
     Attributes = Input["Attributes"] || {};
-    setTimeout(() => {
-     if(Attributes !== {} && Type !== "") {
-      var RenderInput = "",
-            RenderInputAttributes = "",
-            RenderOptionGroup = "";
-      if(Type !== "Select") {
-       $.each(Attributes, (attribute, value) => {
-        RenderInputAttributes += " " + attribute + "='" + value + "'";
+    if(Attributes !== {} && Type !== "") {
+     var OptionGroupLabel = "",
+           OptionGroupList = "",
+           RenderInput = "",
+           RenderInputAttributes = "",
+           Selected = "";
+     if(Type !== "Select") {
+      $.each(Attributes, (attribute, value) => {
+       RenderInputAttributes += " " + attribute + "='" + value + "'";
+      });
+     } if(Type === "Check") {
+      Selected = (Options["Selected"] === 1) ? " checked" : "";
+      RenderInput = "<div class='NONAME'></div>\r\n";
+      RenderInput += "<div class='InnerMargin'>\r\n";
+      RenderInput += "<div class='Desktop33'>\r\n";
+      RenderInput += "<input" + RenderInputAttributes + " type='checkbox' value='" + Input["Value"] + "'" + Selected + "/>\r\n";
+      RenderInput += "</div>\r\n";
+      RenderInput += "<div class='Desktop66'>\r\n";
+      RenderInput += "<p>" + Input["Text"] + "</p>\r\n";
+      RenderInput += "</div>\r\n";
+      RenderInput += "</div>\r\n";
+     } else if(Type === "Select") {
+      if(Object.keys(OptionGroup).length === 0) {
+       this.Dialog({
+        "Body": "RenderInputs: The <em>select</em> input option group is empty."
        });
-      }
-      if(Type === "Check") {
-       Selected = (Options["Selected"] === 1) ? " checked" : "";
-       RenderInput = "<div class='NONAME'></div>\r\n";
-       RenderInput += "<div class='InnerMargin'>\r\n";
-       RenderInput += "<div class='Desktop33'>\r\n";
-       RenderInput += "<input" + RenderInputAttributes + " type='checkbox' value='" + Input["Value"] + "'" + Selected + "/>\r\n";
-       RenderInput += "</div>\r\n";
-       RenderInput += "<div class='Desktop66'>\r\n";
-       RenderInput += "<p>" + Input["Text"] + "</p>\r\n";
-       RenderInput += "</div>\r\n";
-       RenderInput += "</div>\r\n";
-      } else if(Type === "Select") {
-       if(OptionGroup !== {}) {
-        $(OptionGroup).each((option, text) => {
-         Selected = (Input["Value"] === option) ? " selected" : "";
-         RenderOptionGroup += "<option value='" + option + "'" + Selected + ">" + text + "</option>\r\n";
-        });
-       }
+      } else {
+       $.each(OptionGroup, (option, text) => {
+        Selected = (Input["Value"] === option) ? " selected" : "";
+        OptionGroupList += "<option value='" + option + "'" + Selected + ">" + text + "</option>\r\n";
+       });
        OptionGroupLabel = Options["HeaderText"] || Input["Title"];
        RenderInput = "<select class='LI v2 v2w' name='" + Input["Name"] + "'>\r\n";
        RenderInput += "<optgroup label='" + OptionGroupLabel + "'>\r\n";
-       RenderInput += RenderOptionGroup + "\r\n";
+       RenderInput += OptionGroupList + "\r\n";
        RenderInput += "</optgroup>\r\n";
        RenderInput += "</select>\r\n";
-       alert(JSON.stringify(RenderInput);//TEMP
-      } else if(Type === "Text") {
-       var TextType = Attributes["type"] || "",
-             TextValue = (TextType === "hidden") ? Input["Value"] : this.AESdecrypt(Input["Value"]);
-       RenderInput = "<input" + RenderInputAttributes + " value='" + TextValue + "'/>\r\n";
-      } else if(Type === "TextBox") {
-       RenderInput = "<textarea " + RenderInputAttributes + ">" + this.AESdecrypt(Input["Value"]) + "</textarea>\r\n";
-       if(Options["WYSIWYG"] === 1) {
-        RenderInput = "<textarea " + RenderInputAttributes + " rows='40'>" + this.AESdecrypt(Input["Value"]) + "</textarea>\r\n";
-        /*--$.ajax({
-         error: (error) => {
-          this.Dialog({
-           "Body": "Data retrieval error, please see below.",
-           "Scrollable": error.message
-          });
-         },
-         headers: {
-          Language: this.AESencrypt(this.LocalData("Get", "Language")),
-          Token: this.AESencrypt(this.LocalData("Get", "SecurityKey"))
-         },
-         method: "POST",
-         success: (data) => {
-          if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
-           this.Crash(data);
-          } else {
-           let WData = this.RenderView(data);
-           this.ExecuteCommands(WData.Commands);
-           WData.View.then(response => {
-            WYSIWYG = response;
-            WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.ID]", Attributes["data-WYSIWYG"]);
-            WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.TextBox]", RenderInput);
-            RenderInput = WYSIWYG;
-           }).catch(error => {
-            this.Dialog({
-             "Body": "WYSIWYG: Error rendering view data. Please see below:",
-             "Scrollable": error.message
-            });
-           });
-          }
-         },
-         url: this.base + this.AESdecrypt("[App.WYSIWYG]")
-        });--*/
-        RenderInput += "<div class='NONAME'></div>\r\n";
-       }
-      } if(Options["Header"] === 1) {
-       RenderInput = "<h4 class='UpperCase'>" + Options["HeaderText"] + "</h4>\r\n" + RenderInput + "\r\n";
-      } if(Options["Container"] === 1) {
-       RenderInput = "<div class='" + Options["ContainerClass"] + "'>" + RenderInput + "</label>\r\n";
-      } if(Options["Label"] === 1) {
-       RenderInput = "<label>" + RenderInput + "</label>\r\n";
       }
+     } else if(Type === "Text") {
+      var TextType = Attributes["type"] || "",
+            TextValue = (TextType === "hidden") ? Input["Value"] : this.AESdecrypt(Input["Value"]);
+      RenderInput = "<input" + RenderInputAttributes + " value='" + TextValue + "'/>\r\n";
+     } else if(Type === "TextBox") {
+      RenderInput = "<textarea " + RenderInputAttributes + ">" + this.AESdecrypt(Input["Value"]) + "</textarea>\r\n";
+      if(Options["WYSIWYG"] === 1) {
+       RenderInput = "<textarea " + RenderInputAttributes + " rows='40'>" + this.AESdecrypt(Input["Value"]) + "</textarea>\r\n";
+       $.ajax({
+        error: (error) => {
+         this.Dialog({
+          "Body": "Data retrieval error, please see below.",
+          "Scrollable": error.message
+         });
+        },
+        headers: {
+         Language: this.AESencrypt(this.LocalData("Get", "Language")),
+         Token: this.AESencrypt(this.LocalData("Get", "SecurityKey"))
+        },
+        method: "POST",
+        success: (data) => {
+         if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
+          this.Crash(data);
+         } else {
+          let WData = this.RenderView(data);
+          this.ExecuteCommands(WData.Commands);
+          WData.View.then(response => {
+           WYSIWYG = response;
+           WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.ID]", Attributes["data-editor-identifier"]);
+           WYSIWYG = WYSIWYG.replaceAll("[WYSIWYG.TextBox]", RenderInput);
+           RenderInput = WYSIWYG;
+          }).catch(error => {
+           this.Dialog({
+            "Body": "WYSIWYG: Error rendering view data. Please see below:",
+            "Scrollable": error.message
+           });
+          });
+         }
+        },
+        url: this.base + this.AESdecrypt("[App.WYSIWYG]")
+       });
+       RenderInput += "<div class='NONAME'></div>\r\n";
+      }
+     } if(Options["Header"] === 1) {
+      RenderInput = "<h4 class='UpperCase'>" + Options["HeaderText"] + "</h4>\r\n" + RenderInput + "\r\n";
+     } if(Options["Container"] === 1) {
+      RenderInput = "<div class='" + Options["ContainerClass"] + "'>" + RenderInput + "</label>\r\n";
+     } if(Options["Label"] === 1) {
+      RenderInput = "<label>" + RenderInput + "</label>\r\n";
      }
-     $(Container).append(RenderInput);
-    }, 500);
-   }).promise().done(() => {
-    setTimeout(() => {
-     $(Container).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
-    }, 500);
-   });
+    }
+    $(Container).append(RenderInput);
+   }, 500);
+   $(Container).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
   }
  }
  static RenderView(data) {

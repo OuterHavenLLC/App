@@ -144,7 +144,7 @@
         [
          "Attributes" => [
           "class" => "req",
-          "data-WYSIWYG" => $id,
+          "data-editor-identifier" => $id,
           "name" => "Body",
           "placeholder" => "Body"
          ],
