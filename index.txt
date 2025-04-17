@@ -25,7 +25,7 @@
   <div class="AppContainer"></div>
   <div class="FrostedGlass RegSel h scr"></div>
   <script>
-   UpdateContent(".AppContainer", "[App.Content]", "AES");
+   OH.UpdateContent(".AppContainer", "[App.Content]", "AES");
   </script>
  </body>
 </html>

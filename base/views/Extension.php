@@ -9,6 +9,7 @@
     "Body" => "The Extension Identifier is missing."
    ];
    $_Card = "";
+   $_Commands = "";
    $_Dialog = "";
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
@@ -31,11 +32,6 @@
     $blogs = $extension["Blogs"] ?? [];
     $blogPosts = $extension["BlogPosts"] ?? [];
     $body = $extension["Body"] ?? "";
-    $categories = [
-     "ArticleTemplate" => "Article Template",
-     "BlogTemplate" => "Blog Template",
-     "Extension" => "Extension"
-    ];
     $category = $extension["Category"] ?? "Extension";
     $chats = $extension["Chat"] ?? [];
     $description = $extension["Description"] ?? "";
@@ -83,25 +79,120 @@
      "Front" => [
       "ChangeData" => [
        "[Extension.Attachments]" => $this->core->RenderView($attachments),
-       "[Extension.Body]" => base64_encode($this->core->PlainText([
-        "Data" => $body
-       ])),
-       "[Extension.Categories]" => json_encode($categories, true),
-       "[Extension.Category]" => $category,
-       "[Extension.Description]" => base64_encode($description),
        "[Extension.Header]" => $header,
        "[Extension.ID]" => $id,
-       "[Extension.New]" => $new,
-       "[Extension.Title]" => base64_encode($title),
        "[Extension.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
       ],
       "ExtensionID" => "5f7686825eb763cda93b62656a96a05f"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".General$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "data-WYSIWYG" => $id,
+          "name" => "Body",
+          "placeholder" => "Body"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Body",
+          "WYSIWYG" => 1
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($this->core->PlainText([
+          "Data" => $body
+         ]))
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Category$id",
+       [
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "ArticleTemplate" => "Article Template",
+          "BlogTemplate" => "Blog Template",
+          "Extension" => "Extension"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Category"
+         ],
+         "Name" => "Category",
+         "Title" => "Category",
+         "Type" => "Select",
+         "Value" => $category
+        ]
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }

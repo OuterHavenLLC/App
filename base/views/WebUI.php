@@ -495,10 +495,7 @@
     ];
     $extensionID = "d14e3045df35f4d9784d45ac2c0fe73b";
    }
-   $coverPhoto = $y["Personal"]["CoverPhoto"] ?? $this->core->PlainText([
-    "Data" => "[Media:CP]",
-    "Display" => 1
-   ]);
+   $coverPhoto = $y["Personal"]["CoverPhoto"] ?? "";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Commands" => [
