@@ -130,6 +130,7 @@
    ]);
   }
   function Edit(array $data) {
+   $_Card = "";
    $_Dialog = [
     "Body" => "The Chat Identifier or Username are missing."
    ];
@@ -165,19 +166,19 @@
       "data-processor" => base64_encode("v=".base64_encode("Chat:Save"))
      ]]),
      "Front" => [
-     "ChangeData" => [
-      "[Chat.Author]" => $username,
-      "[Chat.Description]" => base64_encode($description),
-      "[Chat.EditorID]" => $editorID,
-      "[Chat.Header]" => $header,
-      "[Chat.ID]" => $id,
-      "[Chat.New]" => $new,
-      "[Chat.PassPhrase]" => base64_encode($passPhrase),
-      "[Chat.Title]" => base64_encode($title),
-      "[Chat.Visibility.NSFW]" => $nsfw,
-      "[Chat.Visibility.Privacy]" => $privacy
-     ],
-     "ExtensionID" => "eb169be369e5497344f98d826aea4e7d"
+      "ChangeData" => [
+       "[Chat.Author]" => $username,
+       "[Chat.Description]" => base64_encode($description),
+       "[Chat.EditorID]" => $editorID,
+       "[Chat.Header]" => $header,
+       "[Chat.ID]" => $id,
+       "[Chat.New]" => $new,
+       "[Chat.PassPhrase]" => base64_encode($passPhrase),
+       "[Chat.Title]" => base64_encode($title),
+       "[Chat.Visibility.NSFW]" => $nsfw,
+       "[Chat.Visibility.Privacy]" => $privacy
+      ],
+      "ExtensionID" => "eb169be369e5497344f98d826aea4e7d"
      ]
     ];
    }
@@ -626,7 +627,7 @@
     $chats = $this->core->DatabaseSet("Chat");
     foreach($chats as $key => $value) {
      $value = str_replace("nyc.outerhaven.chat.", "", $value);
-     $chat = $this->core->Data("Get", ["chat", $value];
+     $chat = $this->core->Data("Get", ["chat", $value]);
      $chatCallSign = $this->core->CallSign($chat["Title"]);
      if($callSign == $chatCallSign || $id == $value) {
       $_View = $this->view(base64_encode("Chat:Home"), ["Data" => [
@@ -853,7 +854,7 @@
     } elseif($oneOnOne == 1) {
      $chat = $this->core->Data("Get", ["chat", md5($you)]);
      $messages = $chat["Messages"] ?? [];
-     $t = $this->core->Data("Get", ["mbr", $id];
+     $t = $this->core->Data("Get", ["mbr", $id]);
      $to = $t["Login"]["Username"];
      $autoResponse = $t["Personal"]["AutoResponse"] ?? "";
     }

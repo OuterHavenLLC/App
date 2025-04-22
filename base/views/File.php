@@ -107,7 +107,6 @@
     ]
    ]) : "";
    $id = $data["ID"] ?? "";
-   $pub = $data["pub"] ?? 0;
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -122,7 +121,6 @@
      "ParentPage" => $parentView
     ]);
     if($_File["Empty"] == 0) {
-     $_AccessCode = "Accepted";
      $file = $_File["DataModel"];
      $passPhrase = $file["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
@@ -234,31 +232,32 @@
         "class" => "OpenCard Small v2",
         "data-view" => $options["Share"]
       ]]) : "";
-      $r = $this->core->Change([[
-       "[File.Actions]" => $actions,
-       "[File.AddTo]" => $addTo,
-       "[File.Back]" => $back,
-       "[File.Conversation]" => $this->core->Change([[
+      $_View = [
+       "ChangeData" => [
         "[Conversation.CRID]" => $id,
         "[Conversation.CRIDE]" => base64_encode($id),
         "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]")
-       ], $this->core->Extension("d6414ead3bbd9c36b1c028cf1bb1eb4a")]),
-       "[File.Description]" => $file["Description"],
-       "[File.Extension]" => $file["EXT"],
-       "[File.ID]" => $id,
-       "[File.Illegal]" => $options["Report"],
-       "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
-       "[File.Name]" => $file["Name"],
-       "[File.NSFW]" => $nsfw,
-       "[File.Preview]" => $_File["ListItem"]["Attachments"],
-       "[File.SetAsProfileImage]" => $setAsProfileImage,
-       "[File.Share]" => $share,
-       "[File.Title]" => $_File["ListItem"]["Title"],
-       "[File.Type]" => $file["Type"],
-       "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
-       "[File.Votes]" => $options["Vote"]
-      ], $this->core->Extension("c31701a05a48069702cd7590d31ebd63")]);
+        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
+        "[File.Actions]" => $actions,
+        "[File.AddTo]" => $addTo,
+        "[File.Back]" => $back,
+        "[File.Description]" => $file["Description"],
+        "[File.Extension]" => $file["EXT"],
+        "[File.ID]" => $id,
+        "[File.Illegal]" => $options["Report"],
+        "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
+        "[File.Name]" => $file["Name"],
+        "[File.NSFW]" => $nsfw,
+        "[File.Preview]" => $_File["ListItem"]["Attachments"],
+        "[File.SetAsProfileImage]" => $setAsProfileImage,
+        "[File.Share]" => $share,
+        "[File.Title]" => $_File["ListItem"]["Title"],
+        "[File.Type]" => $file["Type"],
+        "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
+        "[File.Votes]" => $options["Vote"]
+       ],
+       "ExtensionID" => "c31701a05a48069702cd7590d31ebd63"
+      ];
      }
     }
    }
@@ -273,7 +272,7 @@
    ]);
   }
   function Purge(array $data) {
-   $_View => "":
+   $_View = "";
    $_Dialog = [
     "Body" => "The Media File Identifier is missing."
    ];

@@ -14,7 +14,7 @@ class OH {
     error: (error) => {
      this.Dialog({
       "Body": "Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -116,7 +116,7 @@ class OH {
     error: (error) => {
      this.Dialog({
       "Body": "Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -201,9 +201,9 @@ class OH {
   });
  }
  static ChangeData(data) {
-  var Data = data || {},
-   Change = Data.ChangeData || {},
-   View = "";
+  let Data = data || {},
+       Change = Data.ChangeData || {},
+       View = "";
   if(typeof Data.Extension !== "undefined") {
    View = this.AESdecrypt(Data.Extension);
    const promises = Object.entries(Change).map(([key, value]) => {
@@ -246,7 +246,7 @@ class OH {
     }
    }).catch(error => {
     this.Dialog({
-     "Body": "Error retrieving extension.",
+     "Body": "ChangeData: Error retrieving extension.",
      "Scrollable": error.message
     });
     return "";
@@ -502,7 +502,7 @@ class OH {
       error: (error) => {
        this.Dialog({
         "Body": "Data retrieval error, please see below.",
-        "Scrollable": error.message
+        "Scrollable": JSON.stringify(error)
        });
       },
       headers: {
@@ -614,7 +614,7 @@ class OH {
    error: (error) => {
     this.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -642,7 +642,7 @@ class OH {
    error: (error) => {
     this.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -666,7 +666,7 @@ class OH {
     error: (error) => {
      this.Dialog({
       "Body": "OpenFirSTEPTool: Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -703,7 +703,7 @@ class OH {
     error: (error) => {
      this.Dialog({
       "Body": "OpenFirSTEPTool: Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -747,7 +747,7 @@ class OH {
    error: (error) => {
     this.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -823,7 +823,7 @@ class OH {
     error: (error) => {
      this.Dialog({
       "Body": "Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -921,7 +921,7 @@ class OH {
         error: (error) => {
          this.Dialog({
           "Body": "Data retrieval error, please see below.",
-          "Scrollable": error.message
+          "Scrollable": JSON.stringify(error)
          });
         },
         headers: {
@@ -1133,7 +1133,7 @@ class OH {
    error: (error) => {
     this.Dialog({
      "Body": "ReSearch: Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -1223,7 +1223,7 @@ class OH {
            error: (error) => {
             this.Dialog({
              "Body": "ReSearch: Data retrieval error during infinite scroll, please see below.",
-             "Scrollable": error.message
+             "Scrollable": JSON.stringify(error)
             });
            },
            headers: {
@@ -1392,7 +1392,7 @@ class OH {
    error: (error) => {
     this.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -1420,7 +1420,7 @@ class OH {
     error: (error) => {
      this.Dialog({
       "Body": "Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -1488,7 +1488,7 @@ class OH {
     error: (error) => {
      this.Dialog({
       "Body": "Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -1862,7 +1862,7 @@ $(document).on("click", ".CreditExchange", (event) => {
    error: (error) => {
     OH.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -1897,7 +1897,7 @@ $(document).on("click", ".Delete", (event) => {
    error: (error) => {
     OH.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -1947,7 +1947,7 @@ $(document).on("click", ".Download", (event) => {
     error: (error) => {
      OH.Dialog({
       "Body": "Data retrieval error, please see below.",
-      "Scrollable": error.message
+      "Scrollable": JSON.stringify(error)
      });
     },
     headers: {
@@ -1998,17 +1998,17 @@ $(document).on("click", ".Download", (event) => {
  }
 });
 $(document).on("click", ".GoToParent", (event) => {
- const $Button = $(event.currentTarget),
-  Data = $Button.attr("data-type");
+ let $Button = $(event.currentTarget),
+      Data = $Button.attr("data-type");
  OH.GoToParent(Data);
 });
 $(document).on("click", ".GoToView", (event) => {
- var $Button = $(event.currentTarget),
-  Data = $Button.attr("data-type").split(";"),
-  Encryption = $Button.attr("data-encryption") || "",
-  ID = Data[0],
-  Parent = $(".ParentPage" + ID).parent(),
-  View = Data[1];
+ let $Button = $(event.currentTarget),
+      Data = $Button.attr("data-type").split(";"),
+      Encryption = $Button.attr("data-encryption") || "",
+      ID = Data[0] || "",
+      Parent = $(".ParentPage" + ID).parent(),
+      View = Data[1] || "";
  if(Encryption === "AES") {
   View = OH.AESdecrypt(View);
  } else {
@@ -2019,7 +2019,7 @@ $(document).on("click", ".GoToView", (event) => {
    error: (error) => {
     OH.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -2055,7 +2055,7 @@ $(document).on("click", ".MarkAsRead", (event) => {
   error: (error) => {
    OH.Dialog({
     "Body": "Data retrieval error, please see below.",
-    "Scrollable": error.message
+    "Scrollable": JSON.stringify(error)
    });
   },
   headers: {
@@ -2087,7 +2087,7 @@ $(document).on("click", ".OpenBottomBar", (event) => {
    error: (error) => {
     OH.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -2225,7 +2225,7 @@ $(document).on("click", ".ReportContent", (event) => {
    error: (error) => {
     OH.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -2289,7 +2289,7 @@ $(document).on("click", ".SendData", (event) => {
    error: (error) => {
     OH.Dialog({
      "Body": "Data retrieval error, please see below.",
-     "Scrollable": error.message
+     "Scrollable": JSON.stringify(error)
     });
    },
    headers: {
@@ -2431,14 +2431,14 @@ $(document).on("click", ".ToggleMenu", (event) => {
  }
 });
 $(document).on("click", ".ToggleNetMap", (event) => {
- const $Button = $(event.currentTarget);
+ let $Button = $(event.currentTarget);
  if($(".FST").is(":visible")) {
   OH.CloseFirSTEPTool();
  } else {
   if($(".NetMap").is(":visible")) {
    OH.CloseNetMap();
   } else {
-   OH.OpenNetMap($Button.attr("data-map"));
+   OH.OpenNetMap($Button.attr("data-map"), "AES");
   }
  }
 });
@@ -2470,7 +2470,7 @@ $(document).on("click", ".UpdateButton", (event) => {
   error: (error) => {
    OH.Dialog({
     "Body": "Data retrieval error, please see below.",
-    "Scrollable": error.message
+    "Scrollable": JSON.stringify(error)
    });
   },
   headers: {
@@ -2547,7 +2547,7 @@ $(document).on("keyup", ".DiscountCodes", (event) => {
   error: (error) => {
    OH.Dialog({
     "Body": "Data retrieval error, please see below.",
-    "Scrollable": error.message
+    "Scrollable": JSON.stringify(error)
    });
   },
   headers: {
@@ -2578,7 +2578,7 @@ $(document).on("keyup", ".LinkData", (event) => {
   error: (error) => {
    OH.Dialog({
     "Body": "Data retrieval error, please see below.",
-    "Scrollable": error.message
+    "Scrollable": JSON.stringify(error)
    });
   },
   headers: {
@@ -2627,7 +2627,7 @@ $(document).on("keyup", ".UnlockProtectedContent", (event) => {
   error: (error) => {
    OH.Dialog({
     "Body": "Data retrieval error, please see below.",
-    "Scrollable": error.message
+    "Scrollable": JSON.stringify(error)
    });
   },
   headers: {
@@ -2671,7 +2671,7 @@ $(() => {
   error: (error) => {
    OH.Dialog({
     "Body": "Data retrieval error, please see below.",
-    "Scrollable": error.message
+    "Scrollable": JSON.stringify(error)
    });
   },
   success: (data) => {

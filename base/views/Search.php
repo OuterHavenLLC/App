@@ -3356,6 +3356,7 @@
     }
    } elseif($searchType == "XFS") {
     $_AccessCode = "Accepted";
+    $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
     $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
     $_Query = "SELECT * FROM $_Database
                         JOIN Members
@@ -3366,9 +3367,8 @@
                         ORDER BY Media_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $_Username = $data["UN"] ?? base64_encode("");
+    $_Username = $data["UN"] ?? base64_encode($you);
     $_Username = base64_decode($_Username);
-    $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
     $extension = $this->core->Extension($_ExtensionID);
     $mediaType = $data["ftype"] ?? "";
     $sql->query($_Query, [

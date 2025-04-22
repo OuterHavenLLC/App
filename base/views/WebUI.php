@@ -478,7 +478,7 @@
      "[Menu.Member.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Menu")."&Integrated=1"),
      "[Menu.Member.Contacts]" => $this->core->AESencrypt("v=$search&st=Contacts"),
      "[Menu.Member.DisplayName]" => $y["Personal"]["DisplayName"].$verified,
-     "[Menu.Member.Files]" => $this->core->AESencrypt("v=$search&UN=".base64_encode($you)."&st=XFS"),
+     "[Menu.Member.Files]" => $this->core->AESencrypt("v=$search&st=XFS"),
      "[Menu.Member.Forums]" => $this->core->AESencrypt("v=$search&lPG=MBR-Forums&st=MBR-Forums"),
      "[Menu.Member.Polls]" => $this->core->AESencrypt("v=$search&st=MBR-Polls"),
      "[Menu.Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:10%;width:80%"),
