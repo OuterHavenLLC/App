@@ -108,7 +108,7 @@
    # CHAT
    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Chat")."&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Containers"));
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Chat")."&View=".$oh->core->AESencrypt("v=".base64_encode("Chat:PublicHome")."&ID=".base64_encode($command[1]));
+    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Chat")."&View=".$oh->core->AESencrypt("v=".base64_encode("Chat:Public")."&ID=".base64_encode($command[1]));
    }
   } elseif($command[0] == "congress") {
    # CONGRESS

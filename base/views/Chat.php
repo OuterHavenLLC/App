@@ -4,19 +4,19 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Attachments(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? base64_encode("");
-   $r = [
+  function Attachments(array $data) {
+   $_Dialog = [
     "Body" => "The Chat Identifier or Username are missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? base64_encode("");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $id = base64_decode($id);
-    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $chat = $this->core->Data("Get", ["chat", $id]);
     $grid = "";
     $messages = $chat["Messages"] ?? [];
     foreach($messages as $key => $message) {
@@ -40,9 +40,9 @@
       }
      }
     } if(!empty($grid)) {
-     $r = $this->core->Element(["div", $grid, ["class" => "Grid3"]]);
+     $_View = $this->core->Element(["div", $grid, ["class" => "Grid3"]]);
     } else {
-     $r = $this->core->Element([
+     $_View = $this->core->Element([
       "h3", "Attachments",
       ["class" => "CenterText UpperCase"]
      ]).$this->core->Element([
@@ -50,41 +50,41 @@
       ["class" => "CenterText"]
      ]);
     }
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Bookmark(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $command = $data["Command"] ?? "";
-   $id = $data["ID"] ?? "";
-   $r = [
+  function Bookmark(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
     "Body" => "The Chat Identifier or Join Command missing."
    ];
-   $responseType = "Dialog";
+   $_ResponseType = "N/A";
+   $data = $data["Data"] ?? [];
+   $command = $data["Command"] ?? "";
+   $id = $data["ID"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($command) && !empty($id)) {
-    $command = base64_decode($command);
-    $id = base64_decode($id);
-    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-    $r = [
+    $_Dialog = [
      "Body" => "You cannot remove the Bookmark for your own Group Chat."
     ];
+    $command = base64_decode($command);
+    $id = base64_decode($id);
+    $chat = $this->core->Data("Get", ["chat", $id]);
     if($chat["UN"] != $you) {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
+     $_ResponseType = "View";
      $contributors = $chat["Contributors"] ?? [];
      $groupChats = $y["GroupChats"] ?? [];
      $processor = "v=".base64_encode("Chat:Bookmark")."&ID=".base64_encode($id);
-     $responseType = "View";
      if($command == "Add Bookmark") {
       if(!in_array($id, $groupChats)) {
        array_push($groupChats, $id);
@@ -93,7 +93,7 @@
       }
       $contributors[$you] = "Member";
       $chat["Contributors"] = $contributors;
-      $r = [
+      $_View = [
        "Attributes" => [
         "class" => "UpdateButton v2",
         "data-processor" => base64_encode("$processor&Command=".base64_encode("Remove Bookmark"))
@@ -101,7 +101,7 @@
        "Text" => "Remove Bookmark"
       ];
      } elseif($command == "Remove Bookmark") {
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
       $newContributors = [];
       $newGroupChats = [];
       foreach($contributors as $member => $role) {
@@ -115,7 +115,7 @@
       }
       $chat["Contributors"] = $newContributors;
       $y["GroupChats"] = $newGroupChats;
-      $r = [
+      $_View = [
        "Attributes" => [
         "class" => "UpdateButton v2",
         "data-processor" => base64_encode("$processor&Command=".base64_encode("Add Bookmark"))
@@ -128,28 +128,25 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "View" => $_View
    ]);
   }
-  function Edit(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Edit(array $data) {
+   $_Dialog = [
+    "Body" => "The Chat Identifier or Username are missing."
+   ];
+   $data = $data["Data"] ?? [];
    $generateID = $data["GenerateID"] ?? 0;
    $id = $data["ID"] ?? base64_encode("");
    $username = $data["Username"] ?? base64_encode("");
-   $r = [
-    "Body" => "The Chat Identifier or Username are missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if((!empty($id) || $generateID == 1) && !empty($username)) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $description = $data["Description"] ?? base64_encode("");
     $description = base64_decode($description);
     $editorID = md5("ChatEditor-$id".$this->core->timestamp);
@@ -167,40 +164,41 @@
     $title = $chat["Title"] ?? $title;
     $action = ($new == 1) ? "Create" : "Update";
     $header = ($new == 1) ? "New Group Chat" : "Edit $title";
-    $r = $this->core->Change([[
-     "[Chat.Author]" => $username,
-     "[Chat.Description]" => base64_encode($description),
-     "[Chat.EditorID]" => $editorID,
-     "[Chat.Header]" => $header,
-     "[Chat.ID]" => $id,
-     "[Chat.New]" => $new,
-     "[Chat.PassPhrase]" => base64_encode($passPhrase),
-     "[Chat.Title]" => base64_encode($title),
-     "[Chat.Visibility.NSFW]" => $nsfw,
-     "[Chat.Visibility.Privacy]" => $privacy
-    ], $this->core->Extension("eb169be369e5497344f98d826aea4e7d")]);
-    $r = [
+    $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
       "data-form" => ".Chat$editorID",
       "data-processor" => base64_encode("v=".base64_encode("Chat:Save"))
      ]]),
-     "Front" => $r
+     "Front" => [
+     "ChangeData" => [
+      "[Chat.Author]" => $username,
+      "[Chat.Description]" => base64_encode($description),
+      "[Chat.EditorID]" => $editorID,
+      "[Chat.Header]" => $header,
+      "[Chat.ID]" => $id,
+      "[Chat.New]" => $new,
+      "[Chat.PassPhrase]" => base64_encode($passPhrase),
+      "[Chat.Title]" => base64_encode($title),
+      "[Chat.Visibility.NSFW]" => $nsfw,
+      "[Chat.Visibility.Privacy]" => $privacy
+     ],
+     "ExtensionID" => "eb169be369e5497344f98d826aea4e7d"
+     ]
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Home(array $data) {
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The Chat Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $body = $data["Body"] ?? base64_encode("");
    $card = $data["Card"] ?? 0;
@@ -212,29 +210,27 @@
    $oneOnOne = $data["1on1"] ?? 0;
    $paidMessage = $data["PaidMessage"] ?? 0;
    $paidMessages = $data["PaidMessages"] ?? 0;
-   $r = [
-    "Body" => "The Chat Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($chatID)) {
-    $id = base64_decode($chatID);
-    $r = [
+    $_Dialog = [
      "Body" => "The Chat Type is missing."
     ];
+    $id = base64_decode($chatID);
     if($information == 1) {
-     $accessCode = "Accepted";
-     $r = $this->core->Element([
-      "h1", "Something went wrong..."
-     ]).$this->core->Element([
-      "p", "Chat Information is only viewable for Group Chats."
-     ]);
+     $_Dialog = [
+      "Body" => "Chat Information is only viewable for Group Chats."
+     ];
      if($group == 1) {
+      $_Dialog = [
+       "Body" => "We could lnot locate the requested Chat.",
+       "Header" => "Not Found"
+      ];
       $bl = $this->core->CheckBlocked([$y, "Group Chats", $id]);
       $_Chat = $this->core->GetContentData([
        "Blacklisted" => $bl,
@@ -242,13 +238,13 @@
        "Integrated" => $integrated
       ]);
       if($_Chat["Empty"] == 0) {
-       $accessCode = "Accepted";
+       $_Dialog = "";
        $chat = $_Chat["DataModel"];
        $passPhrase = $post["PassPhrase"] ?? "";
        $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
        $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
        if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-        $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+        $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
          "Header" => base64_encode($this->core->Element([
           "h1", "Protected Content", ["class" => "CenterText"]
          ])),
@@ -261,27 +257,29 @@
           "v" => base64_encode("Chat:Home")
          ], true))
         ]]);
-        $r = $this->core->RenderView($r);
+        $_View = $this->core->RenderView($_View);
        } elseif($verifyPassPhrase == 1) {
-        $accessCode = "Denied";
+        $_Dialog = [
+         "Body" => "The Key is missing."
+        ];
         $key = $data["Key"] ?? base64_encode("");
         $key = base64_decode($key);
-        $r = $this->core->Element(["p", "The Key is missing."]);
         $secureKey = $data["SecureKey"] ?? base64_encode("");
         $secureKey = base64_decode($secureKey);
         if($key != $secureKey) {
-         $r = $this->core->Element(["p", "The Keys do not match."]);
+         $_Dialog = "";
+         $_View = "";
         } else {
-         $accessCode = "Accepted";
-         $r = $this->view(base64_encode("Chat:Home"), ["Data" => [
+         $_Dialog = "";
+         $_View = $this->view(base64_encode("Chat:Home"), ["Data" => [
           "AddTo" => $addTo,
           "ID" => $chatID,
           "ViewProtectedContent" => 1
          ]]);
-         $r = $this->core->RenderView($r);
+         $_View = $this->core->RenderView($_View);
         }
        } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-        $accessCode = "Accepted";
+        $_Dialog = "";
         $active = 0;
         $options = $_Chat["ListItem"]["Options"];
         $contributors = $options["Contributors"] ?? [];
@@ -333,7 +331,8 @@
           "data-view" => $options["Share"]
          ]
         ]) : "";
-        $r = $this->core->Change([[
+        $_View = [
+         "ChangeData" => [
          "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
          "[Chat.Body]" => $body,
          "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
@@ -343,27 +342,27 @@
          "[Chat.Options]" => $actions,
          "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
          "[Chat.Title]" => $_Chat["ListItem"]["Title"],
-        ], $this->core->Extension("5252215b917d920d5d2204dd5e3c8168")]);
+         ],
+         "ExtensionID" => "5252215b917d920d5d2204dd5e3c8168"
+        ];
        }
       }
      } elseif($oneOnOne == 1) {
-      $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
+      $_View = $this->view(base64_encode("Profile:Home"), ["Data" => [
        "Chat" => 1,
        "UN" => $chatID
       ]]);
-      $r = $this->core->RenderView($r);
+      $_View = $this->core->RenderView($_View);
      }
-    } elseif($paidMessage == 1) {
-     $accessCode = "Accepted";
+    } elseif($paidMessage == 1) {;
+     $_Dialog = [
+      "Body" => "The Paid Message Identifier is missing."
+     ];
      $messageID = $data["MessageID"] ?? "";
-     $r = $this->core->Element([
-      "h1", "Something went wrong..."
-     ]).$this->core->Element([
-      "p", "The Paid Message Identifier is missing."
-     ]);
      if(!empty($messageID)) {
+      $_Dialog = "";
       $attachments = "";
-      $chat = $this->core->Data("Get", ["chat", $chatID]) ?? [];
+      $chat = $this->core->Data("Get", ["chat", $chatID]);
       $messageID = base64_decode($messageID);
       $messages = $chat["Messages"] ?? [];
       $message = $messages[$messageID] ?? [];
@@ -387,29 +386,31 @@
       ]]).$this->core->Element(["div", $text, [
        "class" => "Desktop90"
       ]]);
-      $r = $this->core->Change([[
-       "[Message.Attachments]" => $attachments,
-       "[Message.Class]" => "MSGPaid",
-       "[Message.MSG]" => $this->core->PlainText([
-        "Data" => $text,
-        "Display" => 1
-       ]),
-       "[Message.Sent]" => $this->core->TimeAgo($message["Timestamp"])
-      ], $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9")]);
+      $_Card = [
+       "Front" => [
+        "ChangeData" => [
+         "[Message.Attachments]" => $attachments,
+         "[Message.Class]" => "MSGPaid",
+         "[Message.MSG]" => $this->core->PlainText([
+          "Data" => $text,
+          "Display" => 1
+         ]),
+         "[Message.Sent]" => $this->core->TimeAgo($message["Timestamp"])
+        ],
+        "ExtensionID" => "1f4b13bf6e6471a7f5f9743afffeecf9"
+       ]
+      ];
      }
-     $r = [
-      "Front" => $r
-     ];
     } elseif($paidMessages == 1) {
-     $accessCode = "Accepted";
-     $chat = $this->core->Data("Get", ["chat", $chatID]) ?? [];
+     $_Dialog = "";
+     $_View = "";
+     $chat = $this->core->Data("Get", ["chat", $chatID]);
      $extension = $this->core->Extension("PaidMessage");
      $messages = $chat["Messages"] ?? [];
-     $r = "";
      foreach($messages as $key => $value) {
       $amount = $value["PaidAmount"] ?? "";
       if($value["Paid"] == 1) {
-       $r .= $this->core->Element([
+       $_View .= $this->core->Element([
         "div", $this->core->Element([
          "p", "<strong>@".$value["From"]."</strong> paid $amount"
         ]), [
@@ -419,14 +420,17 @@
        ]);
       }
      }
+     $_View = [
+      "ChangeData" => [],
+      "Extension" => $this->core->AESencrypt($_View)
+     ];
     } else {
-     $check = 1;
-     $r = [
+     $_Dialog = [
       "Body" => "The Group Chat has not been created."
      ];
+     $check = 1;
      if($group == 1) {
-      $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
-      $accessCode = (!empty($chat)) ? "Accepted" : "Denied";
+      $chat = $this->core->Data("Get", ["chat", $id]);
       $active = "Active";
       $check = (!empty($chat)) ? 1 : 0;
       $displayName = $chat["Title"] ?? "Untitled";
@@ -441,14 +445,15 @@
       $displayName = $t["Personal"]["DisplayName"];
       $to = $t["Personal"]["DisplayName"];
      } if(($check == 1 && $group == 1) || $oneOnOne == 1) {
-      $accessCode = "Accepted";
+      $_Dialog = "";
       $atinput = ".ChatAttachments$id-Attachments";
       $at = base64_encode("Share with $displayName in Chat:$atinput");
       $atinput = "$atinput .rATT";
       $at2 = base64_encode("Added to Chat Message!");
-      $extension = "a4c140822e556243e3edab7cae46466d";
-      $extension = ($group == 1) ? "5db540d33418852f764419a929277e13" : $extension;
-      $r = $this->core->Change([[
+      $extensionID = "a4c140822e556243e3edab7cae46466d";
+      $extensionID = ($group == 1) ? "5db540d33418852f764419a929277e13" : $extensionID;
+      $_View = [
+       "ChangeData" => [
        "[Chat.1on1]" => $oneOnOne,
        "[Chat.ActivityStatus]" => $active,
        "[Chat.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$atinput&ID="),
@@ -467,50 +472,51 @@
        "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
        "[Chat.To]" => $to,
        "[Chat.Type]" => $group
-      ], $this->core->Extension($extension)]);
-      $r = ($card == 1) ? [
-       "Front" => $r
-      ] : $r;
+       ],
+       "ExtensionID" => $extensionID
+      ];
+      $_Card = ($card == 1) ? [
+       "Front" => $_View
+      ] : "";
+      $_View = ($card == 0) ? $_View : "";
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function List(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function List(array $data) {
+   $_View = [
+    "ChangeData" => [],
+    "ExtensionID" => "2ce9b2d2a7f5394df6a71df2f0400873"
+   ];
+   $data = $data["Data"] ?? [];
    $group = $data["Group"] ?? 0;
    $id = $data["ID"] ?? "";
    $oneOnOne = $data["1on1"] ?? 0;
-   $r = $this->core->Extension("2ce9b2d2a7f5394df6a71df2f0400873");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $chat = [];
-    $extension = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
+    $extensionID = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
     $id = base64_decode($id);
     if($group == 1) {
-     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $chat = $this->core->Data("Get", ["chat", $id]);
      $chat = $chat["Messages"] ?? [];
      $to = "";
     } elseif($oneOnOne == 1) {
      $t = $this->core->Member($id);
-     $theirChat = $this->core->Data("Get", ["chat", md5($id)]) ?? [];
+     $theirChat = $this->core->Data("Get", ["chat", md5($id)]);
      $theirChat = $theirChat["Messages"] ?? [];
-     $yourChat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+     $yourChat = $this->core->Data("Get", ["chat", md5($you)]);
      $yourChat = $yourChat["Messages"] ?? [];
      $chat = array_merge($theirChat, $yourChat);
      $to = $t["Login"]["Username"];
     } if($group == 1 || $oneOnOne == 1) {
-     $accessCode = "Accepted";
      foreach($chat as $key => $value) {
       $check = 1;
       $check2 = 1;
@@ -563,120 +569,114 @@
      }
     }
    } if(!empty($chat)) {
-    $r = "";
+    $_View = "";
     ksort($chat);
     foreach($chat as $key => $value) {
-     $message = $extension;
-     $r .= $this->core->Change([$value, $message]);
+     $_View .= $this->core->Change([
+      $value, $extension
+     ]);
     }
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "View" => $_View
    ]);
   }
-  function Menu(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $integrated = $data["Integrated"] ?? 0;
-   $r = [
+  function Menu(array $data) {
+   $_Dialog = [
     "Body" => "Unknown Error."
    ];
+   $data = $data["Data"] ?? [];
+   $integrated = $data["Integrated"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } else {
-    $accessCode = "Accepted";
     $search = base64_encode("Search:Containers");
-    $r = $this->core->Change([[
-     "[Chat.1on1]" => base64_encode("v=$search&1on1=1&Integrated=$integrated&st=MBR-Chat"),
-     "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=MBR-GroupChat"),
-     "[Chat.New]" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you)),
-     "[Chat.ID]" => md5($you)
-    ], $this->core->Extension("2e1855b9baa7286162fb571c5f80da0f")]);
+    $_Dialog = "";
+    $_View = [
+     "ChangeData" => [
+      "[Chat.1on1]" => base64_encode("v=$search&1on1=1&Integrated=$integrated&st=MBR-Chat"),
+      "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=MBR-GroupChat"),
+      "[Chat.New]" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you)),
+      "[Chat.ID]" => md5($you)
+     ],
+     "ExtensionID" => "2e1855b9baa7286162fb571c5f80da0f"
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function PublicHome(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Public(array $data) {
+   $data = $data["Data"] ?? [];
+   $_Dialog = [
+    "Body" => "We could not find the Group Chat you were looking for."
+   ];
    $callSign = $data["CallSign"] ?? "";
    $callSign = $this->core->CallSign($callSign);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "We could not find the Group Chat you were looking for."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($callSign) || !empty($id)) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $chats = $this->core->DatabaseSet("Chat");
     foreach($chats as $key => $value) {
      $value = str_replace("nyc.outerhaven.chat.", "", $value);
      $chat = $this->core->Data("Get", ["chat", $value]) ?? [];
      $chatCallSign = $this->core->CallSign($chat["Title"]);
      if($callSign == $chatCallSign || $id == $value) {
-      $r = $this->view(base64_encode("Chat:Home"), ["Data" => [
+      $_View = $this->view(base64_encode("Chat:Home"), ["Data" => [
        "Group" => 1,
        "ID" => base64_encode($value)
       ]]);
-      $r = $this->core->RenderView($r);
+      $_View = $this->core->RenderView($_View);
      }
     }
-   } if($data["pub"] == 1 && $this->core->ID == $you) {
-    $r = $this->view(base64_encode("WebUI:OptIn"), []);
-    $r = $this->core->RenderView($r);
+   } if($this->core->ID == $you) {
+    $_View = $this->view(base64_encode("WebUI:OptIn"), []);
+    $_View = $this->core->RenderView($_View);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Purge(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Purge(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Blog Identifier is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Blog Identifier is missing."
-   ];
    $secureKey = $data["SecureKey"] ?? base64_encode("");
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKeu) {
-    $r = [
+    $_Dialog = [
      "Body" => "The PINs do not match."
     ];
    } elseif($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
+    $_Dialog = "";
     $id = base64_decode($id);
     $chat = $this->core->Data("Get", ["chat", $id]);
     $sql = New SQL($this->core->cypher->SQLCredentials());
@@ -703,27 +703,31 @@
      $this->core->Data("Save", ["translate", $id, $translations]);
     }
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->core->Element([
+    $_View = $this->core->Element([
      "p", "The Blog <em>".$chat["Title"]."</em> and dependencies were marked for purging.",
      ["class" => "CenterText"]
     ]).$this->core->Element([
      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
     ]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
+    "Dialog" => $_Dialog,
+    "Success" => "CloseDialog",
+    "View" => $_View
    ]);
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Save(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "A message or attachment are required."
+   ];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $attachmentData = $data["Attachments"] ?? "";
    $group = $data["Group"] ?? 0;
@@ -734,14 +738,11 @@
    $check2 = (empty($attachmentData) && !empty($message)) ? 1 : 0;
    $check3 = (!empty($attachmentData) && !empty($message)) ? 1 : 0;
    $oneOnOne = $data["1on1"] ?? 0;
-   $r = [
-    "Body" => "A message or attachment are required."
-   ];
    $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
@@ -750,20 +751,20 @@
     $title = $data["Title"] ?? "";
     $username = $data["Username"] ?? "";
     if(empty($description)) {
-     $r = [
+     $_Dialog = [
       "Body" => "The Description is missing."
      ];
     } elseif(empty($title)) {
-     $r = [
+     $_Dialog = [
       "Body" => "The Title is missing."
      ];
     } elseif(empty($username)) {
-     $r = [
+     $_Dialog = [
       "Body" => "The Author is missing."
      ];
     } else {
-     $accessCode = "Accepted";
-     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $_AccessCode = "Accepted";
+     $chat = $this->core->Data("Get", ["chat", $id]);
      $now = $this->core->timestamp;
      $contributors = $chat["Contributors"] ?? [];
      $created = $chat["Created"] ?? $now;
@@ -827,13 +828,13 @@
       $this->core->Data("Save", ["mbr", md5($you), $y]);
      }
      $this->core->Data("Save", ["chat", $id, $chat]);
-     $r = [
+     $_Dialog = [
       "Body" => "The Group Chat for <em>$title</em> has been saved.",
       "Header" => "Done"
      ];
     }
    } elseif(!empty($id) && ($check == 1 || $check2 == 1 || $check3 == 1)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $attachments = [];
     $chat = [];
     $now = $this->core->timestamp;
@@ -849,14 +850,14 @@
      }
      $attachments = array_unique($attachments);
     } if($group == 1) {
-     $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+     $chat = $this->core->Data("Get", ["chat", $id]);
      $chat["UN"] = $chat["UN"] ?? $you;
      $chat["Description"] = $chat["Description"] ?? "";
      $chat["Title"] = $chat["Title"] ?? "Group Chat";
      $messages = $chat["Messages"] ?? [];
      $to = "";
     } elseif($oneOnOne == 1) {
-     $chat = $this->core->Data("Get", ["chat", md5($you)]) ?? [];
+     $chat = $this->core->Data("Get", ["chat", md5($you)]);
      $messages = $chat["Messages"] ?? [];
      $t = $this->core->Data("Get", ["mbr", $id]) ?? [];
      $to = $t["Login"]["Username"];
@@ -888,7 +889,7 @@
       "Type" => "NewMessage"
      ]);
      if(!empty($autoResponse)) {
-      $theirChat = $this->core->Data("Get", ["chat", md5($to)]) ?? [];
+      $theirChat = $this->core->Data("Get", ["chat", md5($to)]);
       $messages[$now] = [
        "Attachments" => [],
        "From" => $to,
@@ -902,19 +903,14 @@
       $this->core->Data("Save", ["chat", md5($to), $theirChat]);
      }
     }
-    $r = [
+    $_Dialog = [
      "Body" => "Your message has been sent.",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "Success" => $success
    ]);
   }
