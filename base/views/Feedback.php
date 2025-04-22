@@ -5,7 +5,6 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Home(array $data) {
-   $_AccessCode = "Denied";
    $_Card = "";
    $_Dialog = [
     "Body" => "The Feedback Identifier is missing."
@@ -17,8 +16,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($public == 0) {
-    if(!empty($id)) {
-     $_AccessCode = "Accepted";
+    if(!empty($id)) {ß
      $_Dialog = "";
      $feedback = $this->core->Data("Get", ["feedback", $id]);
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
@@ -47,26 +45,24 @@
      ];
     }
    } elseif($public == 1) {
-    $_AccessCode = "Accepted";
     $_Card = "";
     $_Dialog = "";
-    $_View = $this->core->Element([
-     "h1" => "Let's Talk!"
-    ]).$this->core->Element([
-      "p" => "We want to hear from you, send us your feedback."
-    ]).$this->core->Element([
-     "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
-    ]).$this->core->Element([
-     "div", $this->core->Element(["button", "Send Feedback", [
-      "class" => "BBB OpenDialog v2 v2w",
-      "data-view" => base64_encode("v=".base64_encode("Feedback:NewThread"))
-     ]]), ["class" => "Desktop33 MobilfFull"]
-    ]).$this->core->Element([
-     "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
-    ]);
     $_View = [
      "ChangeData" => [],
-     "Extension" => $this->core->AESencrypt($_View)
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "h1" => "Let's Talk!"
+     ]).$this->core->Element([
+       "p" => "We want to hear from you, send us your feedback."
+     ]).$this->core->Element([
+      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
+     ]).$this->core->Element([
+      "div", $this->core->Element(["button", "Send Feedback", [
+       "class" => "BBB OpenDialog v2 v2w",
+       "data-view" => base64_encode("v=".base64_encode("Feedback:NewThread"))
+      ]]), ["class" => "Desktop33 MobilfFull"]
+     ]).$this->core->Element([
+      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
+     ]))
     ];
     if(!empty($id)) {
      $feedback = $this->core->Data("Get", ["feedback", $id]);
