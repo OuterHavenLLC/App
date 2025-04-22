@@ -16,7 +16,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($public == 0) {
-    if(!empty($id)) {ß
+    if(!empty($id)) {
      $_Dialog = "";
      $feedback = $this->core->Data("Get", ["feedback", $id]);
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
@@ -45,7 +45,6 @@
      ];
     }
    } elseif($public == 1) {
-    $_Card = "";
     $_Dialog = "";
     $_View = [
      "ChangeData" => [],
@@ -65,6 +64,7 @@
      ]))
     ];
     if(!empty($id)) {
+     $_Dialog = "";
      $feedback = $this->core->Data("Get", ["feedback", $id]);
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
      $title = $feedback["Subject"] ?? "New Feedback";
@@ -91,9 +91,9 @@
    ]);
   }
   function NewThread() {
-   $id = md5("Feedback");
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   $id = $this->core->UUID("FeedbackThreadFor$you");
    return $this->core->JSONResponse([
     "Card" => [
      "Action" => $this->core->Element(["button", "Send", [
@@ -146,7 +146,7 @@
      "Username" => $you,
      "UseParaphrasedQuestion" => 0
     ];
-    $id = md5("$you-$now-".uniqid("Feedback"));
+    $id = $this->core->UUID("NewFeedback$you");
     array_push($feedback["Thread"], [
      "Body" => $this->core->PlainText([
       "Data" => $data["Message"],

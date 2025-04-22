@@ -359,14 +359,14 @@
         ]]);
        } elseif($category == "Subscription") {
         $subscriptions = $this->core->config["Subscriptions"] ?? [];
-        $sub = ($id == $subscriptions["Artist"]["ID"]) ? "Artist" : "";
-        $sub = ($id == $subscriptions["Blogger"]["ID"]) ? "Developer" : $subscription;
-        $sub = ($id == $subscriptions["Developer"]["ID"]) ? "Blogger" : $subscription;
-        $sub = ($id == $subscriptions["VIP"]["ID"]) ? "VIP" : $subscription;
-        $sub = ($id == $subscriptions["XFS"]["ID"]) ? "XFS" : $subscription;
+        $subscription = ($id == $subscriptions["Artist"]["ID"]) ? "Artist" : "";
+        $subscription = ($id == $subscriptions["Blogger"]["ID"]) ? "Developer" : $subscription;
+        $subscription = ($id == $subscriptions["Developer"]["ID"]) ? "Blogger" : $subscription;
+        $subscription = ($id == $subscriptions["VIP"]["ID"]) ? "VIP" : $subscription;
+        $subscription = ($id == $subscriptions["XFS"]["ID"]) ? "XFS" : $subscription;
         $options = $this->core->Element(["button", "Go to ".$subscriptions[$sub]["Title"], [
          "class" => "BBB OpenCard v2 v2w",
-         "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($sub))
+         "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($subscription))
         ]]);
        }
        $options .= (!empty($media)) ? $this->core->Element(["button", "Download Media", [
