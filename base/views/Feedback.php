@@ -4,50 +4,57 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Home(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Home(array $data) {
+   $_AccessCode = "Denied";
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The Feedback Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
-   $pub = $data["pub"] ?? 0;
-   if($pub == 0) {
-    $r = [
-     "Body" => "The Feedback Identifier is missing."
-    ];
+   $public = $data["Public"] ?? 0;
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($public == 0) {
     if(!empty($id)) {
-     $accessCode = "Accepted";
-     $action = $this->core->Element(["button", "Respond", [
-      "class" => "CardButton SendData",
-      "data-form" => ".FeedbackEditor$id",
-      "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
-     ]]);
-     $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
+     $_AccessCode = "Accepted";
+     $_Dialog = "";
+     $feedback = $this->core->Data("Get", ["feedback", $id]);
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
      $title = $feedback["Subject"] ?? "New Feedback";
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }
-     $r = $this->core->Change([[
-      "[Feedback.ID]" => $id,
-      "[Feedback.ParaphrasedQuestion]" => base64_encode($paraphrasedQuestion),
-      "[Feedback.Priority]" => $feedback["Priority"],
-      "[Feedback.Resolved]" => $feedback["Resolved"],
-      "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
-      "[Feedback.Title]" => $title,
-      "[Feedback.UseParaphrasedQuestion]" => $feedback["UseParaphrasedQuestion"]
-     ], $this->core->Extension("56718d75fb9ac2092c667697083ec73f")]);
+     $_Card = [
+      "Action" => $this->core->Element(["button", "Respond", [
+       "class" => "CardButton SendData",
+       "data-form" => ".FeedbackEditor$id",
+       "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
+      ]]),
+      "Front" => [
+       "ChangeData" => [
+       "[Feedback.ID]" => $id,
+       "[Feedback.ParaphrasedQuestion]" => base64_encode($paraphrasedQuestion),
+       "[Feedback.Priority]" => $feedback["Priority"],
+       "[Feedback.Resolved]" => $feedback["Resolved"],
+       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
+       "[Feedback.Title]" => $title,
+       "[Feedback.UseParaphrasedQuestion]" => $feedback["UseParaphrasedQuestion"]
+       ],
+       "ExtensionID" => "56718d75fb9ac2092c667697083ec73f"
+      ]
+     ];
     }
-    $r = [
-     "Action" => $action,
-     "Front" => $r
-    ];
-   } elseif($pub == 1) {
-    $accessode = "Accepted";
-    $r = $this->core->Change([[
-     "[Error.Back]" => "",
-     "[Error.Header]" => "Let's Talk!",
-     "[Error.Message]" => "We want to hear from you, send us your feedback."
-    ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
-    $r .= $this->core->Element([
+   } elseif($public == 1) {
+    $_AccessCode = "Accepted";
+    $_Card = "";
+    $_Dialog = "";
+    $_View = $this->core->Element([
+     "h1" => "Let's Talk!"
+    ]).$this->core->Element([
+      "p" => "We want to hear from you, send us your feedback."
+    ]).$this->core->Element([
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
     ]).$this->core->Element([
      "div", $this->core->Element(["button", "Send Feedback", [
@@ -57,66 +64,64 @@
     ]).$this->core->Element([
      "div", "&nbsp;", ["class" => "Desktop33 MobilfHide"]
     ]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
     if(!empty($id)) {
-     $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
+     $feedback = $this->core->Data("Get", ["feedback", $id]);
      $paraphrasedQuestion = $feedback["ParaphrasedQuestion"] ?? "";
      $title = $feedback["Subject"] ?? "New Feedback";
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }
-     $r = $this->core->Change([[
+     $_View = [
+      "ChangeData" => [
       "[Feedback.ID]" => $id,
       "[Feedback.Priority]" => $feedback["Priority"],
       "[Feedback.Resolved]" => $feedback["Resolved"],
       "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
       "[Feedback.Title]" => $title
-     ], $this->core->Extension("599e260591d6dca59a8e0a52f5bd64be")]);
+      ],
+      "ExtensionID" => "599e260591d6dca59a8e0a52f5bd64be"
+     ];
     }
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function NewThread(array $a) {
-   $accessCode = "Accepted";
+  function NewThread() {
    $id = md5("Feedback");
    $y = $this->you;
-   $r = [
-    "Action" => $this->core->Element(["button", "Send", [
-     "class" => "CardButton SendData",
-     "data-form" => ".ContactForm$id",
-     "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
-    ]]),
-    "Front" => $this->core->Change([[
-     "[Feedback.Email]" => base64_encode($y["Personal"]["Email"]),
-     "[Feedback.ID]" => $id,
-     "[Feedback.Name]" => base64_encode($y["Personal"]["FirstName"])
-    ], $this->core->Extension("2b5ca0270981e891ce01dba62ef32fe4")])
-   ];
+   $you = $y["Login"]["Username"];
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => [
+     "Action" => $this->core->Element(["button", "Send", [
+      "class" => "CardButton SendData",
+      "data-form" => ".ContactForm$id",
+      "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
+     ]]),
+     "Front" => [
+      "ChangeData" => [
+       "[Feedback.Email]" => base64_encode($y["Personal"]["Email"]),
+       "[Feedback.ID]" => $id,
+       "[Feedback.Name]" => base64_encode($y["Personal"]["FirstName"])
+      ],
+      "ExtensionID" => "2b5ca0270981e891ce01dba62ef32fe4"
+     ]
+    ]
    ]);
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Save(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "An internal error has ocurred."
+   ];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "Email",
@@ -127,13 +132,10 @@
     "Subject",
     "Priority"
    ]);
-   $r = [
-    "Body" => "An internal error has ocurred."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["Message"])) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $now = $this->core->timestamp;
     $feedback = [
      "AllowIndexing" => $data["Index"],
@@ -189,43 +191,35 @@
     $sql->execute();
     $this->core->Data("Save", ["feedback", $id, $feedback]);
     $this->core->Statistic("New Feedback");
-    $r = [
+    $_Dialog = [
      "Body" => "We will be in touch as soon as possible!",
      "Header" => "Thank you"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
    ]);
   }
-  function SaveResponse(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function SaveResponse(array $data) {
+   $_Dialog = [
+    "Body" => "The Feedback Identifier is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
-    "ID",
     "Message",
     "ParaphrasedQuestion",
     "Priority",
     "Resolved",
     "UseParaphrasedQuestion"
    ]);
-   $id = $data["ID"];
-   $r = [
-    "Body" => "The Feedback Identifier is missing."
-   ];
+   $id = $data["ID"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($data["Message"]) && !empty($id)) {
-    $accessCode = "Accepted";
-    $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
+    $feedback = $this->core->Data("Get", ["feedback", $id]);
     if(!empty($data["ParaphrasedQuestion"])) {
      $feedback["ParaphrasedQuestion"] = $data["ParaphrasedQuestion"];
     } if(!empty($data["Priority"])) {
@@ -259,39 +253,31 @@
      ]);
     }
     $this->core->Data("Save", ["feedback", $id, $feedback]);
-    $r = [
+    $_Dialog = [
      "Body" => "Your response has been sent.",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
-  function Stream(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $r = [
-    "Scrollable" => $this->core->Extension("2ce9b2d2a7f5394df6a71df2f0400873")
+  function Stream(array $data) {
+   $_Dialog = [
+    "Body" => "The Feedback Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $accessCode = "Accepted";
-    $feedback = $this->core->Data("Get", ["feedback", $id]) ?? [];
-    $r = "";
+    $feedback = $this->core->Data("Get", ["feedback", $id]);
     $thread = $feedback["Thread"] ?? [];
-    $tpl = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
+    $extension = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
     foreach($thread as $key => $message) {
      $class = ($message["From"] != $you) ? "MSGt" : "MSGy";
-     $r .= $this->core->Change([[
+     $_View .= $this->core->Change([[
       "[Message.Attachments]" => "",
       "[Message.Class]" => $class,
       "[Message.MSG]" => $this->core->PlainText([
@@ -300,17 +286,16 @@
        "HTMLDecode" => 1
       ]),
       "[Message.Sent]" => $this->core->TimeAgo($message["Sent"])
-     ], $tpl]);
+     ], $extension]);
     }
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function __destruct() {

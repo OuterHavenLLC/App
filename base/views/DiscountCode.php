@@ -96,17 +96,17 @@
   function Save(array $data) {
    $_AccessCode = "Denied";
    $_Dialog = [
-    "Body" => "The Code Identifier is missing."
+    "Body" => "The Discount Code Identifier is missing."
    ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "DC",
     "DollarAmount",
-    "ID",
     "Percentile",
     "Quantity"
    ]);
+   $id = $data["ID"] ?? "";
    $new = $data["New"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -115,7 +115,7 @@
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($data["ID"])) {
+   } elseif(!empty($id)) {
     $_Dialog = [
      "Body" => "The Code is missing."
     ];
@@ -123,17 +123,17 @@
      $_AccessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $discount = $this->core->Data("Get", ["dc", md5($you)]);
-     $discount[$data["ID"]] = [
+     $discount[$id] = [
       "Code" => base64_encode($data["DC"]),
       "DollarAmount" => $data["DollarAmount"],
       "Percentile" => $data["Percentile"],
       "Quantity" => $data["DiscountCodeQTY"]
      ];
+     $this->core->Data("Save", ["dc", md5($you), $discount]);
      $_Dialog = [
       "Body" => "The Code <em>".$data["DC"]."</em> was $actionTaken!",
       "Header" => "Done"
      ];
-     $this->core->Data("Save", ["dc", md5($you), $discount]);
     }
    }
    return $this->core->JSONResponse([

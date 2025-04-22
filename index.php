@@ -121,7 +121,7 @@
    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio"));
   } elseif($command[0] == "feedback") {
    # FEEDBACK
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:VVA")."&ID=".$command[1]."&pub=1");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:VVA")."&ID=".$command[1]."&Public=1");
   } elseif($command[0] == "forums") {
    # FORUMS
    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Forum:PublicHome")."&CallSign=".$command[1]."&ID=".$command[1]);
