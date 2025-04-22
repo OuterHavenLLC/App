@@ -336,12 +336,12 @@
     $_Dialog = "";
     $_View = "";
     $_AddNote = base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
-    $_Congress = $this->core->Data("Get", ["app", md5("Congress")];
+    $_Congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $congressmen = $_Congress["Members"] ?? [];
     $databaseID = base64_decode($databaseID);
     $extension = $this->core->Extension("bdd25e7c79eeafb218f1c2c76a49067b");
     $id = base64_decode($id);
-    $notesSourceContent = $this->core->Data("Get", [$databaseID, $id];
+    $notesSourceContent = $this->core->Data("Get", [$databaseID, $id]);
     $notes = $notesSourceContent["Notes"] ?? [];
     if(empty($congressmen[$you]) && !empty($notes)) {
      if(count($notes) > 1) {
@@ -463,7 +463,7 @@
       $data = $this->core->DecodeBridgeData($data);
       $contentID = $data["SecureID"] ?? "";
       $databaseID = $data["SecureDatabaseID"] ?? "";
-      $content = $this->core->Data("Get", [$databaseID, $contentID];
+      $content = $this->core->Data("Get", [$databaseID, $contentID]);
       $_ResponseType = "Dialog";
       if(empty($databaseID)) {
        $_Dialog = [
@@ -963,7 +963,7 @@
     ];
    } elseif(!empty($id) && !empty($vote)) {
     $_AccessCode = "Accepted";
-    $_Congress = $this->core->Data("Get", ["app", md5("Congress")];
+    $_Congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $_Dialog = "";
     $_View = "";
     $congressmen = $_Congress["Members"] ?? [];
@@ -971,7 +971,7 @@
     $id = explode(";", base64_decode($id));
     $contentID = explode("-", $id[1]);
     $data = explode("-", $id[1]);
-    $data = $this->core->Data("Get", [$contentID[0], $contentID[1]];
+    $data = $this->core->Data("Get", [$contentID[0], $contentID[1]]);
     $illegal = 0;
     $legal = 0;
     $houseRepresentatives = 0;

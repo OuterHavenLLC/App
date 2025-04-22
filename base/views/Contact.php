@@ -4,32 +4,32 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Delete(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+  function Delete(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
     "Body" => "The Username is missing."
    ];
-   $responseType = "Dialog";
+   $_ResponseType = "N/A";
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $username = $data["Username"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($username) && $username != $you) {
-    $accessCode = "Accepted";
-    $responseType = "Destruct";
-    $_theirContacts = $this->core->Data("Get", ["cms", md5($username)]) ?? [];
-    $_yourContacts = $this->core->Data("Get", ["cms", md5($you)]) ?? [];
+    $_AccessCode = "Accepted";
+    $_Dialog = "";
+    $_ResponseType = "Destruct";
+    $_theirContacts = $this->core->Data("Get", ["cms", md5($username)]);
+    $_yourContacts = $this->core->Data("Get", ["cms", md5($you)]);
     $theirContacts = $_theirContacts["Contacts"] ?? [];
     $theirNewContacts = [];
     $yourContacts = $_yourContacts["Contacts"] ?? [];
     $yourNewContacts = [];
-    $r = "&nbsp;";
     foreach($theirContacts as $key => $value) {
      if($key != $you) {
       $theirNewContacts[$key] = $value;
@@ -45,32 +45,27 @@
     $this->core->Data("Save", ["cms", md5($you), $_yourContacts]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "ResponseType" => $responseType
    ]);
   }
-  function Options(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN"]);
-   $r = [
+  function Options(array $data) {
+   $_Dialog = [
     "Body" => "The Username is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $data = $this->core->FixMissing($data, ["UN"]);
    $username = $data["UN"];
    $y = $this->you;
    if(!empty($username)) {
-    $accessCode = "Accepted";
     $username = base64_decode($username);
     $card = base64_encode("Profile:Home");
     $contacts = $this->core->Data("Get", [
      "cms",
      md5($y["Login"]["Username"])
-    ]) ?? [];
+    ]);
     $contacts = $contacts["Contacts"] ?? [];
     $contact = $contacts[$username];
     $t = $this->core->Member($username);
@@ -80,30 +75,33 @@
      "Data" => $profilePicture,
      "Display" => 1
     ]);
-    $r = $this->core->Change([[
-     "[Contact.Card]" => base64_encode("CARD=1&v=$card&UN=".$data["UN"]),
-     "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
-     "[Contact.ID]" => md5($username),
-     "[Contact.List]" => $contact["List"],
-     "[Contact.Notes]" => base64_encode($contact["Notes"]),
-     "[Contact.ProfilePicture]" => $profilePicture,
-     "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save")),
-     "[Contact.Username]" => $username
-    ], $this->core->Extension("297c6906ec2f4cb2013789358c5ea77b")]);
+    $_View = [
+     "ChangeData" => [
+      "[Contact.Card]" => base64_encode("CARD=1&v=$card&UN=".$data["UN"]),
+      "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
+      "[Contact.ID]" => md5($username),
+      "[Contact.List]" => $contact["List"],
+      "[Contact.Notes]" => base64_encode($contact["Notes"]),
+      "[Contact.ProfilePicture]" => $profilePicture,
+      "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save")),
+      "[Contact.Username]" => $username
+     ],
+     "ExtensionID" => "297c6906ec2f4cb2013789358c5ea77b"
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Requests(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Requests(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Username is missing."
+   ];
+   $_ResponseType = "N/A";
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "Username",
@@ -111,16 +109,17 @@
     "bulletin",
     "decline"
    ]);
-   $r = [
-    "Body" => "The Username is missing."
-   ];
-   $responseType = "Dialog";
    $username = $data["Username"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($username)) {
+    $_AccessCode = "Accepted";
+    $_Dialog = "";
+    $_ResponseType = "ReplaceContent";
+    $_View = $this->core->Element([
+     "h3", "Success", ["class" => "CenterText UpperCase"]
+    ]);
     $accept = $data["accept"] ?? 0;
-    $accessCode = "Accepted";
     $bulletin = $data["bulletin"] ?? 0;
     $contactStatus = $this->view(base64_encode("Contact:Status"), [
      "Them" => $username,
@@ -128,19 +127,15 @@
     ]);
     $contactStatus = $this->core->RenderView($contactStatus);
     $decline = $data["decline"] ?? 0;
-    $r = $this->core->Element([
-     "h3", "Success", ["class" => "CenterText UpperCase"]
-    ]);
-    $responseType = "ReplaceContent";
     $theirContacts = $this->core->Data("Get", [
      "cms",
      md5($username)
-    ]) ?? [];
-    $yourContacts = $this->core->Data("Get", ["cms", md5($you)]) ?? [];
+    ]);
+    $yourContacts = $this->core->Data("Get", ["cms", md5($you)]);
     $cancel = (in_array($you, $theirContacts["Requests"])) ? 1 : 0;
     $cancel = ($cancel == 1 || $contactStatus["YouRequested"] > 0) ? 1 : 0;
     if($accept == 1 || $decline == 1) {
-     $r = $this->core->Element([
+     $_View = $this->core->Element([
       "p", "$username retracted their request.",
       ["class" => "CenterText"]
      ]);
@@ -176,12 +171,12 @@
         "To" => $username,
         "Type" => "ContactRequest"
        ]);
-       $r = $this->core->Element([
+       $_View = $this->core->Element([
         "p", "You added $username to your contacts!",
         ["class" => "CenterText"]
        ]);
       } else {
-       $r = $this->core->Element([
+       $_View = $this->core->Element([
         "p", "You have declined $username's contact request.",
         ["class" => "CenterText"]
        ]);
@@ -195,7 +190,7 @@
       }
      }
      $theirContacts["Requests"] = $theirRequests;
-     $r .= $this->core->Element([
+     $_View .= $this->core->Element([
       "p", "You canceled your contact request.",
       ["class" => "CenterText"]
      ]);
@@ -211,44 +206,44 @@
       "To" => $username,
       "Type" => "ContactRequest"
      ]);
-     $r .= $this->core->Element([
+     $_View .= $this->core->Element([
       "p", "Your contact request to $username was sent!",
       ["class" => "CenterText"]
      ]);
     }
     $this->core->Data("Save", ["cms", md5($username), $theirContacts]);
     $this->core->Data("Save", ["cms", md5($you), $yourContacts]);
+    $_View = [
+     "ChangeData" => [],
+     "ExtensionID" => $this->core->AESencrypt($_VIew)
+    ];
    }
-   $r = ($bulletin == 1) ? "&nbsp;" : $r;
+   $_View = ($bulletin == 1) ? "" : $_View;
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "View" => $_View
    ]);
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["Username", "notes"]);
-   $r = [
+  function Save(array $data) {
+   $_Dialog = [
     "Body" => "The Username is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $data = $this->core->FixMissing($data, ["Username", "notes"]);
    $username = $data["Username"];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($username) && $username != $you) {
-    $accessCode = "Accepted";
-    $cms = $this->core->Data("Get", ["cms", md5($you)]) ?? [];
+    $cms = $this->core->Data("Get", ["cms", md5($you)]);
     $list = $data["ContactList"];
     $contacts = $cms["Contacts"] ?? [];
     $contacts[$username] = [
@@ -258,36 +253,30 @@
     ];
     $cms["Contacts"] = $contacts;
     $this->core->Data("Save", ["cms", md5($you), $cms]);
-    $r = [
+    $_Dialog = [
      "Body" => "$username's information has been updated.",
      "Header" => "Contact Updated"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
-  function Status(array $a) {
-   $accessCode = "Denied";
-   $r = [
+  function Status(array $data) {
+   $_Dialog = [
     "Body" => "One or both Usernames are missing."
    ];
-   $them = $a["Them"] ?? "";
+   $_View = "";
+   $them = $data["Them"] ?? "";
    $you = $a["You"] ?? "";
    if(!empty($them) && !empty($you)) {
-    $accessCode = "Accepted";
-    $theirContacts = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
+    $_Dialog = "";
+    $theirContacts = $this->core->Data("Get", ["cms", md5($them)]);
     $theirRequests = $theirContacts["Requests"] ?? [];
     $theirContacts = $theirContacts["Contacts"] ?? [];
     $theyHaveYou = 0;
     $theyRequested = 0;
-    $yourContacts = $this->core->Data("Get", ["cms", md5($you)]) ?? [];
+    $yourContacts = $this->core->Data("Get", ["cms", md5($you)]);
     $yourRequests = $yourContacts["Requests"] ?? [];
     $yourContacts = $yourContacts["Contacts"] ?? [];
     $youHaveThem = 0;
@@ -307,7 +296,7 @@
       $youRequested++;
      }
     }
-    $r = [
+    $_View = [
      "TheyHaveYou" => $theyHaveYou,
      "TheyRequested" => $theyRequested,
      "YouHaveThem" => $youHaveThem,
@@ -315,13 +304,8 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function __destruct() {

@@ -149,7 +149,7 @@
     $title = $data["Title"] ?? base64_encode("");
     $title = base64_decode($title);
     $username = base64_decode($username);
-    $chat = $this->core->Data("Get", ["chat", $id];
+    $chat = $this->core->Data("Get", ["chat", $id]);
     $description = $chat["Description"] ?? $description;
     $new = (empty($chat)) ? 1 : 0;
     $nsfw = $chat["NSFW"] ?? $y["Privacy"]["NSFW"];
