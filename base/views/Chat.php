@@ -62,11 +62,9 @@
    ]);
   }
   function Bookmark(array $data) {
-   $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Chat Identifier or Join Command missing."
    ];
-   $_ResponseType = "N/A";
    $data = $data["Data"] ?? [];
    $command = $data["Command"] ?? "";
    $id = $data["ID"] ?? "";
@@ -80,8 +78,7 @@
     $id = base64_decode($id);
     $chat = $this->core->Data("Get", ["chat", $id]);
     if($chat["UN"] != $you) {
-     $_AccessCode = "Accepted";
-     $_ResponseType = "View";
+     $_Dialog = "";
      $contributors = $chat["Contributors"] ?? [];
      $groupChats = $y["GroupChats"] ?? [];
      $processor = "v=".base64_encode("Chat:Bookmark")."&ID=".base64_encode($id);
@@ -101,7 +98,6 @@
        "Text" => "Remove Bookmark"
       ];
      } elseif($command == "Remove Bookmark") {
-      $_AccessCode = "Accepted";
       $newContributors = [];
       $newGroupChats = [];
       foreach($contributors as $member => $role) {
@@ -128,10 +124,8 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
-    "ResponseType" => $_ResponseType,
     "View" => $_View
    ]);
   }
@@ -155,7 +149,7 @@
     $title = $data["Title"] ?? base64_encode("");
     $title = base64_decode($title);
     $username = base64_decode($username);
-    $chat = $this->core->Data("Get", ["chat", $id]) ?? [];
+    $chat = $this->core->Data("Get", ["chat", $id];
     $description = $chat["Description"] ?? $description;
     $new = (empty($chat)) ? 1 : 0;
     $nsfw = $chat["NSFW"] ?? $y["Privacy"]["NSFW"];
@@ -632,7 +626,7 @@
     $chats = $this->core->DatabaseSet("Chat");
     foreach($chats as $key => $value) {
      $value = str_replace("nyc.outerhaven.chat.", "", $value);
-     $chat = $this->core->Data("Get", ["chat", $value]) ?? [];
+     $chat = $this->core->Data("Get", ["chat", $value];
      $chatCallSign = $this->core->CallSign($chat["Title"]);
      if($callSign == $chatCallSign || $id == $value) {
       $_View = $this->view(base64_encode("Chat:Home"), ["Data" => [
@@ -859,7 +853,7 @@
     } elseif($oneOnOne == 1) {
      $chat = $this->core->Data("Get", ["chat", md5($you)]);
      $messages = $chat["Messages"] ?? [];
-     $t = $this->core->Data("Get", ["mbr", $id]) ?? [];
+     $t = $this->core->Data("Get", ["mbr", $id];
      $to = $t["Login"]["Username"];
      $autoResponse = $t["Personal"]["AutoResponse"] ?? "";
     }
