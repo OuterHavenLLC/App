@@ -4,21 +4,21 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Edit(array $data) {
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The Conversation Identifier is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $commentID = $data["CommentID"] ?? "";
    $conversationID = $data["ConversationID"] ?? "";
    $level = $data["Level"] ?? base64_encode(1);
    $new = $data["new"] ?? 0;
-   $r = [
-    "Body" => "The Conversation Identifier is missing."
-   ];
    $replyingTo = $data["ReplyingTo"] ?? base64_encode("");
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($conversationID)) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $attachments = "";
     $commentID = base64_decode($commentID);
     $commentID = ($new == 1) ? $this->core->UUID("CommentOrReplyBy$you") : $commentID;
@@ -72,60 +72,57 @@
       "Translate" => []
      ]
     ]);
-    $r = $this->core->Change([[
-     "[Conversation.Attachments]" => $this->core->RenderView($attachments),
-     "[Conversation.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $body,
-      "Decode" => 1,
-      "HTMLDecode" => 1
-     ])),
-     "[Conversation.CommentID]" => $commentID,
-     "[Conversation.Header]" => $header,
-     "[Conversation.ID]" => $conversationID,
-     "[Conversation.Level]" => $level,
-     "[Conversation.New]" => $new,
-     "[Conversation.ReplyingTo]" => $replyingTo,
-     "[Conversation.Translate]" => $this->core->RenderView($translate),
-     "[Conversation.Visibility.NSFW]" => $nsfw,
-     "[Conversation.Visibility.Privacy]" => $privacy
-    ], $this->core->Extension("0426a7fc6b31e5034b6c2cec489ea638")]);
-    $r = [
+    $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
       "data-form" => ".ConversationEditor$conversationID",
       "data-processor" => base64_encode("v=".base64_encode("Conversation:Save"))
      ]]),
-     "Front" => $r
+     "Front" => [
+      "ChangeData" => [
+       "[Conversation.Attachments]" => $this->core->RenderView($attachments),
+       "[Conversation.Body]" => base64_encode($this->core->PlainText([
+        "Data" => $body,
+        "Decode" => 1,
+        "HTMLDecode" => 1
+       ])),
+       "[Conversation.CommentID]" => $commentID,
+       "[Conversation.Header]" => $header,
+       "[Conversation.ID]" => $conversationID,
+       "[Conversation.Level]" => $level,
+       "[Conversation.New]" => $new,
+       "[Conversation.ReplyingTo]" => $replyingTo,
+       "[Conversation.Translate]" => $this->core->RenderView($translate),
+       "[Conversation.Visibility.NSFW]" => $nsfw,
+       "[Conversation.Visibility.Privacy]" => $privacy
+      ],
+      "ExtensionID" => "0426a7fc6b31e5034b6c2cec489ea638"
+     ]
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Home(array $data) {
+   $_Dialog = [
+    "Body" => "The Conversation Identifier is missing.",
+    "Header" => "Not Found"
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $commentID = $data["CommentID"] ?? "";
    $conversationID = $data["CRID"] ?? "";
    $edit = base64_encode("Conversation:Edit");
    $hide = base64_encode("Conversation:MarkAsHidden");
    $i = 0;
    $level = $data["Level"] ?? base64_encode(1);
-   $r = [
-    "Body" => "The Conversation Identifier is missing.",
-    "Header" => "Not Found"
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
    if(!empty($conversationID)) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $anon = "Anonymous";
     $commentID = base64_decode($commentID);
     $commentType = "";
@@ -139,13 +136,16 @@
     if($level == 1) {
      # COMMENTS
      $extension = $this->core->Extension("8938c49b85c52a5429cc8a9f46c14616");
-     $r = $this->core->Change([[
-      "[Comment.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&new=1")
-     ], $this->core->Extension("97e7d7d9a85b30e10ab51b23623ccee5")]);
+     $_View = [
+      "ChangeData" => [
+       "[Comment.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&new=1")
+      ],
+      "ExtensionID" => "97e7d7d9a85b30e10ab51b23623ccee5"
+     ];
      foreach($conversation as $key => $value) {
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
-      $cms = $this->core->Data("Get", ["cms", md5($value["From"])]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($value["From"])]);
       $ck = ($value["NSFW"] == 0 || ($y["age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $ck2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
@@ -198,20 +198,21 @@
      $commentType .= $this->core->Change([[
       "[Reply.Editor]" => base64_encode("v=$edit&CommentID=".base64_encode($commentID)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&new=1")
      ], $this->core->Extension("5efa423862a163dd55a2785bc7327727")]);
-     $r = ($i > 0) ? $commentType : $r;
-     $r = ($minimalDesign == 1) ? $this->core->Element([
-      "div", "&nbsp;", ["class" => "NONAME"]
-     ]) : $r;
+     $_View = ($i > 0) ? [
+      "ChangeData" => [],
+      "Extension"=>$this->core->AESencrypt($commentType)
+     ] : $_View;
+     $_View = ($minimalDesign == 1) ? "" : $_View;
     } elseif($level == 2) {
      # REPLIES
      $extension = $this->core->Extension("ccf260c40f8fa63be5686f5ceb2b95b1");
      $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
-     $r = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
+     $_View = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
      foreach($conversation as $key => $value) {
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
-      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
       $ck = ($commentID == $value["CommentID"]) ? 1 : 0;
       $ck2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
       $ck3 = $this->core->CheckPrivacy([
@@ -261,21 +262,25 @@
       $i++;
      }
     }
-    $r = ($i > 0) ? $commentType : $r;
-    $r .= $this->core->Change([[
+    $_View = ($i > 0) ? $commentType : $_View;
+    $_View .= $this->core->Change([[
      "[Reply.DisplayName]" => $display,
      "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
     ], $this->core->Extension("f6876eb53ff51bf537b1b1848500bdab")]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension"=>$this->core->AESencrypt($_View)
+    ];
    } elseif($level == 3) {
      # REPLIES TO REPLIES
      $extension = $this->core->Extension("3847a50cd198853fe31434b6f4e922fd");
      $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
-     $r = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
+     $_View = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
      foreach($conversation as $key => $value) {
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
-      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
       $ck = ($commentID == $value["CommentID"]) ? 1 : 0;
       $ck2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
       $ck3 = $this->core->CheckPrivacy([
@@ -324,40 +329,73 @@
        $i++;
       }
      }
-     $r = ($i > 0) ? $commentType : $r;
-     $r .= $this->core->Change([[
+     $_View = ($i > 0) ? $commentType : $_View;
+     $_View .= $this->core->Change([[
       "[Reply.DisplayName]" => $display,
-     "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
+      "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
      ], $this->core->Extension("f6876eb53ff51bf537b1b1848500bdab")]);
+     $_View = [
+      "ChangeData" => [],
+      "Extension"=>$this->core->AESencrypt($_View)
+     ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function MarkAsHidden(array $data) {
+   $_Dialog = [
+    "Body" => "The Conversation or comment Identifier are missing."
+   ];
+   $data = $data["Data"] ?? [];
+   $commentID = $data["CommentID"] ?? "";
+   $conversationID = $data["ConversationID"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $_Dialog = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif(!empty($commentID) && !empty($conversationID)) {
+    $commentID = base64_decode($commentID);
+    $conversationID = base64_decode($conversationID);
+    $conversation = $this->core->Data("Get", [
+     "conversation",
+     $conversationID
+    ]);
+    $comment = $conversation[$commentID] ?? [];
+    $comment["Privacy"] = md5("Private");
+    $conversation[$commentID] = $comment;
+    $this->core->Data("Save", ["conversation", $conversationID, $conversation]);
+    $_Dialog = [
+     "Body" => "The comment is hidden, and only you can see it.",
+     "Header" => "Done"
+    ];
+   }
+   return $this->core->JSONResponse([
+    "Dialog" => $_Dialog
+   ]);
+  }
+  function Save(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Conversation or $commentType Identifier are missing."
+   ];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $commentID = $data["CommentID"] ?? "";
    $id = $data["ID"] ?? "";
    $level = $data["Level"] ?? 1;
    $commentType = ($level == 1) ? "comment" : "reply";
    $new = $data["New"] ?? 0;
-   $r = [
-    "Body" => "The Conversation or $commentType Identifier are missing."
-   ];
    $replyingTo = $data["ReplyingTo"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($commentID) && !empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
     $albums = [];
     $albumsData = $data["Album"] ?? [];
@@ -516,62 +554,15 @@
      $conversation["Purge"] = $purge;
     }
     $this->core->Data("Save", ["conversation", $id, $conversation]);
-    $r = [
+    $_Dialog = [
      "Body" => "Your $commentType was $actionTaken.",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
-   ]);
-  }
-  function MarkAsHidden(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $commentID = $data["CommentID"] ?? "";
-   $conversationID = $data["ConversationID"] ?? "";
-   $r = [
-    "Body" => "The Conversation or comment Identifier are missing."
-   ];
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $r = [
-     "Body" => "You must be signed in to continue.",
-     "Header" => "Forbidden"
-    ];
-   } elseif(!empty($commentID) && !empty($conversationID)) {
-    $accessCode = "Accepted";
-    $commentID = base64_decode($commentID);
-    $conversationID = base64_decode($conversationID);
-    $conversation = $this->core->Data("Get", [
-     "conversation",
-     $conversationID
-    ]) ?? [];
-    $comment = $conversation[$commentID] ?? [];
-    $comment["Privacy"] = md5("Private");
-    $conversation[$commentID] = $comment;
-    $this->core->Data("Save", ["conversation", $conversationID, $conversation]);
-    $r = [
-     "Body" => "The comment is hidden, and only you can see it.",
-     "Header" => "Done"
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
    ]);
   }
   function __destruct() {
