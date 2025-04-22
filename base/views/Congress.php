@@ -56,6 +56,7 @@
   }
   function Home(array $data) {
    $_AddTopMargin = "0";
+   $_View = "";
    $data = $data["Data"] ?? [];
    $chamber = $data["Chamber"] ?? "";
    $chambers = $data["Chambers"] ?? 0;
@@ -323,10 +324,12 @@
    ]);
   }
   function Notes(array $data) {
+   $_AccessCode = "Dernied";
    $_Card = "";
    $_Dialog = [
     "Body" => "The Content or Database Identifier are missing."
    ];
+   $_ResponseType = "N/A";
    $data = $data["Data"] ?? [];
    $databaseID = $data["dbID"] ?? "";
    $id = $data["ID"] ?? "";
@@ -335,7 +338,7 @@
    if(!empty($databaseID) && !empty($id)) {
     $_Dialog = "";
     $_View = "";
-    $_AddNote = base64_encode("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
+    $_AddNote = $this->core->AESencrypt("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
     $_Congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $congressmen = $_Congress["Members"] ?? [];
     $databaseID = base64_decode($databaseID);
@@ -739,7 +742,8 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Dialog" => $_DIalog,
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "Success" => "CloseCard",
     "View" => $_View
@@ -761,7 +765,7 @@
     $content = $this->core->GetContentData([
      "BackTo" => "",
      "ID" => $id
-    ];
+    ]);
     $wasDeemedLegal = $content["DataModel"]["CongressDeemedLegal"] ?? 0;
     if($wasDeemedLegal == 1) {
      $_Dialog = [
@@ -820,7 +824,7 @@
      $contentType = $contentID[0] ?? "";
      $content = $this->core->GetContentData([
       "ID" => $id
-     ];
+     ]);
      $id = $contentID[1] ?? "";
      $limit = $this->core->config["App"]["Illegal"] ?? 777;
      $wasDeemedLegal = 0;

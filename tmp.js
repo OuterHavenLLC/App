@@ -456,6 +456,8 @@ class OH {
      this.RefreshCoverPhoto(Parameters[0], Parameters[1]);
     } else if(Name === "RenderInputs" && ParameterCount === 2) {
      this.RenderInputs(Parameters[0], Parameters[1]);
+    } else if(Name === "RenderVisibilityFilters" && ParameterCount === 2) {
+     this.RenderVisibilityFilters(Parameters[0], Parameters[1]);
     } else if(Name === "SignIn" && ParameterCount === 1) {
      this.SignIn(Command.Parameters[0]);
     } else if(Name === "UpdateContent" && ParameterCount === 2) {
@@ -739,10 +741,6 @@ class OH {
   } else {
    View = this.Base64decrypt(View);
   }
-  $("body").append("<div class='Frosted NetMap h scr'></div>");
-  $(".CloseNetMap, .OpenNetMap").each(() => {
-   this.disabled = true;
-  });
   $.ajax({
    error: (error) => {
     this.Dialog({
@@ -762,6 +760,10 @@ class OH {
      const Data = this.RenderView(data);
      if(Data.View !== "" && typeof Data.View !== "undefined") {
       Data.View.then(response => {
+       $("body").append("<div class='Frosted NetMap h scr'></div>");
+       $(".CloseNetMap, .OpenNetMap").each(() => {
+        this.disabled = true;
+       });
        $(".NetMap").html(response);
        $(".NetMap").find("input[type=text], textarea").filter(":enabled:visible:first").focus();
        setTimeout(() => {
@@ -1003,21 +1005,21 @@ class OH {
  }
  static PlainText(data) {
   let View = data.Data || "";
-  if(data.BBCodes && data.BBCodes === 1) {
-   View = View.replaceAll(/\[b\](.*?)\[\/b\]/gis, "<strong>$1</strong>");
-   View = View.replaceAll(/\[d:.(.*?)\](.*?)\[\/d\]/gis, "<div class=\"$1\">$2</div>\r\n");
-   View = View.replaceAll(/\[d:#(.*?)\](.*?)\[\/d\]/gis, "<div id=\"$1\">$2</div>\r\n");
-   View = View.replaceAll(/\[i\](.*?)\[\/i\]/gis, "<em>$1</em>");
-   View = View.replaceAll(/\[u\](.*?)\[\/u\]/gis, "<u>$1</u>");
-   View = View.replaceAll(/\[(.*?)\[(.*?)\]:(.*?)\]/gis, "<$1 $2>$3</$1>");
-   View = View.replaceAll(/\[IMG:s=(.*?)&w=(.*?)\]/gis, "<img src=\"$1\" style=\"width:$2\"/>");
-   View = View.replaceAll(/\[P:(.*?)\]/gis, "<p>$1</p>");
-  }
-  if(data.Decode && data.Decode === 1) {
-   View = this.AESdecode(View);
-  }
-  if(data.Encode && data.Encode === 1) {
-   View = this.AESencode(View);
+  if(View !== "" && typeof View === "string") {
+   if(data.BBCodes && data.BBCodes === 1) {
+    View = View.replaceAll(/\[b\](.*?)\[\/b\]/gis, "<strong>$1</strong>");
+    View = View.replaceAll(/\[d:.(.*?)\](.*?)\[\/d\]/gis, "<div class=\"$1\">$2</div>\r\n");
+    View = View.replaceAll(/\[d:#(.*?)\](.*?)\[\/d\]/gis, "<div id=\"$1\">$2</div>\r\n");
+    View = View.replaceAll(/\[i\](.*?)\[\/i\]/gis, "<em>$1</em>");
+    View = View.replaceAll(/\[u\](.*?)\[\/u\]/gis, "<u>$1</u>");
+    View = View.replaceAll(/\[(.*?)\[(.*?)\]:(.*?)\]/gis, "<$1 $2>$3</$1>");
+    View = View.replaceAll(/\[IMG:s=(.*?)&w=(.*?)\]/gis, "<img src=\"$1\" style=\"width:$2\"/>");
+    View = View.replaceAll(/\[P:(.*?)\]/gis, "<p>$1</p>");
+   } if(data.Decode && data.Decode === 1) {
+    View = this.AESdecode(View);
+   } if(data.Encode && data.Encode === 1) {
+    View = this.AESencode(View);
+   }
   }
   return View;
  }
@@ -2123,8 +2125,9 @@ $(document).on("click", ".OpenBottomBar", (event) => {
 });
 $(document).on("click", ".OpenCard", (event) => {
  const $Button = $(event.currentTarget),
-            View = $Button.attr("data-view");
- OH.OpenCard(View);
+            Encryption = $Button.attr("data-encryption") || "",
+            View = $Button.attr("data-view") || "";
+ OH.OpenCard(View, Encryption);
 });
 $(document).on("click", ".OpenCardFromJSON", (event) => {
  const $Button = $(event.currentTarget),

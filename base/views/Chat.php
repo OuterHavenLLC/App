@@ -583,17 +583,14 @@
   }
   function Menu(array $data) {
    $_Dialog = [
-    "Body" => "Unknown Error."
+    "Body" => "You must sign in to continue."
    ];
+   $_View = "";
    $data = $data["Data"] ?? [];
    $integrated = $data["Integrated"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($this->core->ID == $you) {
-    $_Dialog = [
-     "Body" => "You must sign in to continue."
-    ];
-   } else {
+   if($this->core->ID != $you) {
     $search = base64_encode("Search:Containers");
     $_Dialog = "";
     $_View = [
