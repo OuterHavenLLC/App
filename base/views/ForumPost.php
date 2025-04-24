@@ -112,7 +112,7 @@
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
-    "Dialog" => $_DIalog
+    "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data) {

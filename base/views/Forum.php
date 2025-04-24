@@ -213,7 +213,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
@@ -395,13 +395,15 @@
       }
      }
     }
+   } if(empty($_Dialog)) {
+    $_Card = ($card == 1) ? [
+     "Front" => $_View
+    ] : "";
+    $_View = ($card == 0) ? $_View : "";
    }
-   $_Card = ($card == 1) ? [
-    "Front" => $_View
-   ] : "";
-   $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Card" => $_Card,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);

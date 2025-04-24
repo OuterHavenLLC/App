@@ -1373,9 +1373,6 @@ class OH {
       direction: "down"
      }, 500);
     } else if(NewVariant === "2") {
-     $(".TopHome, .TopSearchBar").show("slide", {
-      direction: "up"
-     }, 500);
      $(".TopBar .MenuContainer").hide("slide", {
       direction: "up"
      }, 500);
@@ -1384,6 +1381,12 @@ class OH {
      }, 500);
      $(".TopBarClassic").hide("slide", {
       direction: "up"
+     }, 500);
+     $(".TopHome").show("slide", {
+      direction: "up"
+     }, 500);
+     $(".TopSearchBar").show("slide", {
+      direction: "down"
      }, 500);
     }
    }, 600);
@@ -2125,8 +2128,8 @@ $(document).on("click", ".OpenBottomBar", (event) => {
 });
 $(document).on("click", ".OpenCard", (event) => {
  const $Button = $(event.currentTarget),
-            Encryption = $Button.attr("data-encryption") || "",
-            View = $Button.attr("data-view") || "";
+           Encryption = $Button.attr("data-encryption") || "",
+           View = $Button.attr("data-view") || "";
  OH.OpenCard(View, Encryption);
 });
 $(document).on("click", ".OpenCardFromJSON", (event) => {
