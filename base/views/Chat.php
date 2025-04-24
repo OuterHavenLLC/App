@@ -634,8 +634,8 @@
       $_View = $this->core->RenderView($_View);
      }
     }
-   } if($this->core->ID == $you) {
-    $_View = $this->view(base64_encode("WebUI:OptIn"), []);
+   } if($this->core->ID  == $you) {
+    $_View = $this->view(base64_encode("WebUI:Gateway"), []);
     $_View = $this->core->RenderView($_View);
    }
    return $this->core->JSONResponse([
