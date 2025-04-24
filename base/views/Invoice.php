@@ -564,6 +564,7 @@
     $invoice = $this->core->Data("Get", ["invoice", $id]);
     $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]);
     if(!empty($invoice)) {
+     $_Dialog = "";
      $_Shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]);
      $_ViewTitle = "Invoice from ".$_Shop["Title"];
      $dependency = $data["Dependency"] ?? "";

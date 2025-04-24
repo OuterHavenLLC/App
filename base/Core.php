@@ -557,7 +557,7 @@ function AESencrypt(string $data) {
        "Post" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Blog"),
-       "View" => base64_encode("v=".base64_encode("Blog:Home")."&AddTo=$addTo&CARD=1&ID=$contentID"),
+       "View" => $this->AESencrypt("v=".base64_encode("Blog:Home")."&AddTo=$addTo&CARD=1&ID=$contentID"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
      }
@@ -708,7 +708,7 @@ function AESencrypt(string $data) {
        "Invite" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
        "Post" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => base64_encode("v=".base64_encode("Forum:Home")."&AddTo=$addTo&CARD=1&ID=".base64_encode($contentID)),
+       "View" => $this->AESencrypt("v=".base64_encode("Forum:Home")."&AddTo=$addTo&CARD=1&ID=".base64_encode($contentID)),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
@@ -806,7 +806,7 @@ function AESencrypt(string $data) {
        "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;".$contentID)),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Article"),
-       "View" => base64_encode("v=".base64_encode("Page:Home")."&AddTo=$addTo&BackTo=$backTo&ID=$contentID&ParentPage=$parentView"),
+       "View" => $this->AESencrypt("v=".base64_encode("Page:Home")."&AddTo=$addTo&BackTo=$backTo&ID=$contentID&ParentPage=$parentView"),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=2")
       ];
      }
@@ -860,7 +860,7 @@ function AESencrypt(string $data) {
        "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => base64_encode("v=".base64_encode("Product:Edit")."&ParentView=Product$contentID&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".$data["UN"]),
-       "View" => base64_encode("v=".base64_encode("Product:Home")."&AddTo=$addTo&CARD=1&ID=$contentID&UN=".base64_encode($data["UN"])),
+       "View" => $this->AESencrypt("v=".base64_encode("Product:Home")."&AddTo=$addTo&CARD=1&ID=$contentID&UN=".base64_encode($data["UN"])),
        "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
       ];
      }

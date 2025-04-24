@@ -67,7 +67,7 @@
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $id = $data["Shop"] ?? base64_encode("");
    $id = base64_decode($id);
    $username = $data["Username"] ?? "";
@@ -210,10 +210,10 @@
    $_Dialog = [
     "Body" => "The Partner Identifier is missing."
    ];
-   $data = $a["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN", "new"]);
+   $data = $data["Data"] ?? [];
    $new = $data["new"] ?? 0;
-   $username = (!empty($data["UN"])) ? base64_decode($data["UN"]) : "";
+   $username = $data["UN"] ?? "";
+   $username = (!empty($username)) ? base64_decode($username) : "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -539,7 +539,8 @@
         $hire = ($username == $you) ? $this->core->Element([
          "button", "Hire", [
           "class" => "OpenCard Medium v2",
-          "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&new=1")
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("Shop:EditPartner")."&new=1")
          ]
         ]) : "";
         $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
@@ -635,7 +636,7 @@
   }
   function MadeInNewYork(array $data) {
    $_Search = base64_encode("Search:Containers");
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $back = $data["back"] ?? "";
    $id = md5($this->core->ShopID);
    $pub = $data["pub"] ?? 0;
@@ -1363,7 +1364,7 @@
        ]]);
        $physicalOrders[md5($you.$this->core->timestamp.rand(0, 9999))] = [
         "Complete" => 0,
-        "Instructions" => base64_encode($a["Product"]["Instructions"]),
+        "Instructions" => base64_encode($data["Product"]["Instructions"]),
         "ProductID" => $id,
         "Quantity" => $purchaseQuantity,
         "UN" => $you
@@ -1392,7 +1393,7 @@
       }
       $history[$this->core->UUID($id)] = [
        "ID" => $id,
-       "Instructions" => $a["Product"]["Instructions"],
+       "Instructions" => $data["Product"]["Instructions"],
        "Quantity" => $purchaseQuantity,
        "Timestamp" => $now
       ];
@@ -1932,7 +1933,7 @@
     "Body" => "The Shop Identifier is missing."
    ];
    $_ResponseType = "Dialog";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $y = $this->you;

@@ -135,7 +135,7 @@
      if($type == "Article") {
       $header = "Article Contributors";
       $id = base64_decode($id);
-      $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
+      $Page = $this->core->Data("Get", ["pg", $id]);
       $options = ($Page["UN"] == $you && $notAnon == 1) ? $this->core->Element([
        "button", "+", [
         "class" => "OpenCard v2",
@@ -144,11 +144,11 @@
       ]) : "";
      } elseif($type == "Blog") {
       $id = base64_decode($id);
-      $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+      $blog = $this->core->Data("Get", ["blg", $id]);
       $header = "Blog Contributors";
      } elseif($type == "Forum") {
       $id = base64_decode($id);
-      $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
+      $forum = $this->core->Data("Get", ["pf", $id]);
       $header = "Forum Members";
       $options = ($forum["UN"] == $you && $notAnon == 1) ? $this->core->Element([
        "button", "Invite Members", [
@@ -159,7 +159,7 @@
      } elseif($type == "Shop") {
       $header = "Partners";
       $id = base64_decode($id);
-      $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+      $shop = $this->core->Data("Get", ["shop", $id]);
       $options = ($id == md5($you) && $notAnon == 1) ? $this->core->Element([
        "button", "Hire Members", [
         "class" => "OpenCard v2",
@@ -205,7 +205,7 @@
     } elseif($searchType == "Forums-Topic") {
      $forumID = $data["Forum"] ?? "";
      $topicID = $data["Topic"] ?? "";
-     $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+     $forum = $this->core->Data("Get", ["pf", $forumID]);
      $_List .= "&Forum=$forumID&Topic=$topicID";
      $topic = $forum["Topics"][$topicID] ?? [];
      $topic = $topic["Title"] ?? "Untitled";
@@ -213,7 +213,7 @@
      $variant = "Minimal";
     } elseif($searchType == "Forums-Topics") {
      $forumID = $data["Forum"] ?? "";
-     $forum = $this->core->Data("Get", ["pf", $forumID]) ?? [];
+     $forum = $this->core->Data("Get", ["pf", $forumID]);
      $_List .= "&Forum=$forumID";
      $searchBarText = "Topics from ".$forum["Title"];
      $variant = "Minimal";
@@ -295,7 +295,7 @@
      $cms = $this->core->Data("Get", [
       "cms",
       md5($t["Login"]["Username"])
-     ]) ?? [];
+     ]);
      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $header = ($ck == 1) ? "Your Stream" : $display."'s Stream";
@@ -310,7 +310,7 @@
      $variant = "2Column";
     } elseif($searchType == "MBR-XFS") {
      $aid = $data["AID"] ?? md5("unsorted");
-     $fs = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
+     $fs = $this->core->Data("Get", ["fs", md5($you)]);
      $xfsLimit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
      $xfsLimit = $xfsLimit."MB";
      $xfsUsage = 0;
@@ -496,7 +496,7 @@
        $icon = trim($icon, "/");
        $icon = "$icon/apple-touch-icon.png";
        $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
-       $tags = get_meta_tags($link) ?? [];
+       $tags = get_meta_tags($link);
        $description = $tags["description"] ?? "No Description";
        $keywords = $tags["keywords"] ?? "None";
        $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "Untitled";
@@ -562,7 +562,7 @@
        $icon = "$icon/apple-touch-icon.png";
        $iconExists = ($this->core->RenderHTTPResponse($icon) == 200) ? 1 : 0;
        $icon = ($iconExists == 0) ? $this->core->base."/apple-touch-icon.png" : $icon;
-       $tags = get_meta_tags($link) ?? [];
+       $tags = get_meta_tags($link);
        $description = $tags["description"] ?? "No Description";
        $keywords = $tags["keywords"] ?? "No Keywords";
        $title = $dom->getElementsByTagName("title")->item(0)->nodeValue ?? "No Title";
@@ -742,7 +742,7 @@
        ]) : "";
        $actions = ($this->core->ID != $you) ? $addTo.$actions : $addTo;
        $admin = ($blog["UN"] == $you || $post["UN"] == $you) ? 1 : 0;
-       $cms = $this->core->Data("Get", ["cms", md5($post["UN"])]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($post["UN"])]);
        $ck = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $post["Privacy"],
@@ -802,7 +802,7 @@
        $fs = $this->core->Data("Get", [
         "fs",
         md5($t["Login"]["Username"])
-       ]) ?? [];
+       ]);
        $alb = $fs["Albums"][$alb[1]];
        $de = $alb["Description"];
        $header = "<em>".$alb["Title"]."</em>";
@@ -811,7 +811,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blogs") {
-       $bg = $this->core->Data("Get", ["blg", $value]) ?? [];
+       $bg = $this->core->Data("Get", ["blg", $value]);
        $de = $bg["Description"];
        $header = "<em>".$bg["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
@@ -819,7 +819,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blog Posts") {
-       $bp = $this->core->Data("Get", ["bp", $value]) ?? [];
+       $bp = $this->core->Data("Get", ["bp", $value]);
        $de = $bp["Description"];
        $header = "<em>".$bp["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
@@ -842,7 +842,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forum Posts") {
-       $post = $this->core->Data("Get", ["post", $value]) ?? [];
+       $post = $this->core->Data("Get", ["post", $value]);
        $de = $post["Description"];
        $header = "<em>".$post["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
@@ -867,7 +867,7 @@
         ]]);
        }
       } elseif($bl == "Members") {
-       $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
+       $member = $this->core->Data("Get", ["mbr", $value]);
        $de = $member["Description"];
        $header = "<em>".$member["Personal"]["DisplayName"]."</em>";
        $vi = $this->core->Element(["button", "View $h's Profile", [
@@ -875,7 +875,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Pages") {
-       $page = $this->core->Data("Get", ["pg", $value]) ?? [];
+       $page = $this->core->Data("Get", ["pg", $value]);
        $de = $page["Description"];
        $header = "<em>".$page["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
@@ -891,7 +891,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Shops") {
-       $shop = $this->core->Data("Get", ["shop", $value]) ?? [];
+       $shop = $this->core->Data("Get", ["shop", $value]);
        $de = $shop["Description"];
        $header = "<em>".$shop["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
@@ -899,7 +899,7 @@
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Status Updates") {
-       $update = $this->core->Data("Get", ["su", $value]) ?? [];
+       $update = $this->core->Data("Get", ["su", $value]);
        $de = $this->core->Excerpt(base64_decode($update["Body"]), 180);
        $header = $update["From"];
        $vi = $this->core->Element(["button", "View $u", [
@@ -958,10 +958,10 @@
       if($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) {
        $options = $_Blog["ListItem"]["Options"];
        array_push($_List, [
-        "[X.LI.I]" => $_Blog["ListItem"]["CoverPhoto"],
-        "[X.LI.T]" => $_Blog["ListItem"]["Title"],
-        "[X.LI.D]" => $_Blog["ListItem"]["Description"],
-        "[X.LI.DT]" => $options["View"]
+        "[Info.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Blog["ListItem"]["Description"],
+        "[Info.Title]" => $_Blog["ListItem"]["Title"],
+        "[Info.View]" => $options["View"]
        ]);
       }
      }
@@ -1032,7 +1032,7 @@
       $nsfw = $article["NSFW"] ?? 0;
       $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
       $cat = $article["Category"] ?? "";
-      $cms = $this->core->Data("Get", ["cms", md5($article["UN"])]) ?? [];
+      $cms = $this->core->Data("Get", ["cms", md5($article["UN"])]);
       $ck = ($article["Category"] == $searchType) ? 1 : 0;
       $ck2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $ck3 = (($searchType == "CA" && $article["Category"] == "CA") || ($searchType == "PR" && $article["Category"] == "PR")) ? 1 : 0;
@@ -1047,10 +1047,10 @@
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        array_push($_List, [
-        "[X.LI.I]" => $_Article["ListItem"]["CoverPhoto"],
-        "[X.LI.T]" => $_Article["ListItem"]["Title"],
-        "[X.LI.D]" => $_Article["ListItem"]["Description"],
-        "[X.LI.DT]" => "$parentView;".$_Article["ListItem"]["Options"]["View"]
+        "[Info.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Article["ListItem"]["Description"],
+        "[Info.Title]" => $_Article["ListItem"]["Title"],
+        "[Info.View]" => "$parentView;".$_Article["ListItem"]["Options"]["View"]
        ]);
       }
      }
@@ -1206,7 +1206,7 @@
         $type = ($id[2] == "su") ? "Status Update" : $type;
         $contentID = base64_encode("$type;".$id[2]."-".$id[3]);
         if($id[2] == "fs") {
-         $files = $this->core->Data("Get", ["fs", $id[3]]) ?? [];
+         $files = $this->core->Data("Get", ["fs", $id[3]]);
          $files = $files["Files"] ?? [];
          $type = "File";
          foreach($files as $file => $info) {
@@ -1484,7 +1484,7 @@
      $id = base64_decode($id);
      $type = base64_decode($type);
      if($type == "Article") {
-      $Page = $this->core->Data("Get", ["pg", $id]) ?? [];
+      $Page = $this->core->Data("Get", ["pg", $id]);
       $contributors = $Page["Contributors"] ?? [];
       foreach($contributors as $member => $role) {
        if($admin == 0 && $member == $you && $role == "Admin") {
@@ -1492,7 +1492,7 @@
        }
       }
      } elseif($type == "Blog") {
-      $blog = $this->core->Data("Get", ["blg", $id]) ?? [];
+      $blog = $this->core->Data("Get", ["blg", $id]);
       $contributors = $blog["Contributors"] ?? [];
       foreach($contributors as $member => $role) {
        if($admin == 0 && $member == $you && $role == "Admin") {
@@ -1500,7 +1500,7 @@
        }
       }
      } elseif($type == "BlogPost") {
-      $post = $this->core->Data("Get", ["bp", $id]) ?? [];
+      $post = $this->core->Data("Get", ["bp", $id]);
       $contributors = $post["Contributors"] ?? [];
       foreach($contributors as $member => $role) {
        if($admin == 0 && $member == $you && $role == "Admin") {
@@ -1508,8 +1508,8 @@
        }
       }
      } elseif($type == "Forum") {
-      $forum = $this->core->Data("Get", ["pf", $id]) ?? [];
-      $contributors = $this->core->Data("Get", ["pfmanifest", $id]) ?? [];
+      $forum = $this->core->Data("Get", ["pf", $id]);
+      $contributors = $this->core->Data("Get", ["pfmanifest", $id]);
       foreach($contributors as $member => $role) {
        if($admin == 0 && $member == $you && $role == "Admin") {
         $admin++;
@@ -1529,7 +1529,7 @@
        $member = $_Member["DataModel"];
        $options = $_Member["ListItem"]["Options"];
        $them = $member["Login"]["Username"];
-       $cms = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($them)]);
        $ck = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $member["Privacy"]["Profile"],
@@ -1687,7 +1687,7 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $feedback = $this->core->Data("Get", ["feedback", $sql["Feedback_ID"]]) ?? [];
+     $feedback = $this->core->Data("Get", ["feedback", $sql["Feedback_ID"]]);
      $mesasge = $feedback["Thread"] ?? [];
      $mesasge = $feedback["Thread"][0] ?? [];
      $message = $feedback["Thread"][0]["Body"] ?? "";
@@ -1743,7 +1743,7 @@
      if(!in_array($sql["Forum_ID"], $this->core->RestrictedIDs) && $_Forum["Empty"] == 0) {
       $active = 0;
       $forum = $_Forum["DataModel"];
-      $manifest = $this->core->Data("Get", ["pfmanifest", $sql["Forum_ID"]]) ?? [];
+      $manifest = $this->core->Data("Get", ["pfmanifest", $sql["Forum_ID"]]);
       $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
       $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
       $ck = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
@@ -1762,10 +1762,10 @@
       } if($bl == 0 && ($active == 1 || $ck == 1 && $ck2 == 1) && $illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
        array_push($_List, [
-        "[X.LI.I]" => $_Forum["ListItem"]["CoverPhoto"],
-        "[X.LI.T]" => $_Forum["ListItem"]["Title"],
-        "[X.LI.D]" => $_Forum["ListItem"]["Description"],
-        "[X.LI.DT]" => $options["View"]
+        "[Info.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Forum["ListItem"]["Description"],
+        "[Info.Title]" => $_Forum["ListItem"]["Title"],
+        "[Info.View]" => $options["View"]
        ]);
       }
      }
@@ -1790,7 +1790,7 @@
        if($_Member["Empty"] == 0) {
         $member = $_Member["DataModel"];
         $them = $member["Login"]["Username"];
-        $contacts = $this->core->Data("Get", ["cms", md5($them)]) ?? [];
+        $contacts = $this->core->Data("Get", ["cms", md5($them)]);
         $check = $this->core->CheckPrivacy([
          "Contacts" => $contacts["Contacts"],
          "Privacy" => $member["Privacy"]["Profile"],
@@ -1869,7 +1869,7 @@
        $actions = "";
        $active = 0;
        $post = $_ForumPost["DataModel"];
-       $cms = $this->core->Data("Get", ["cms", md5($sql["ForumPost_Username"])]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($sql["ForumPost_Username"])]);
        $illegal = $post["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        $op = ($sql["ForumPost_Username"] == $you) ? $y : $this->core->Member($sql["ForumPost_Username"]);
@@ -2003,7 +2003,7 @@
        $actions = "";
        $active = 0;
        $post = $_ForumPost["DataModel"];
-       $cms = $this->core->Data("Get", ["cms", md5($post["From"])]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($post["From"])]);
        $illegal = $post["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        $op = ($sql["ForumPost_Username"] == $you) ? $y : $this->core->Member($sql["ForumPost_ID"]);
@@ -2314,7 +2314,7 @@
     if($notAnon == 1) {
      $username = base64_decode($data["UN"]);
      $t = ($username == $you) ? $y : $this->core->Member($username);
-     $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]) ?? [];
+     $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
      $albums = $fs["Albums"] ?? [];
      foreach($albums as $key => $value) {
       $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
@@ -2389,10 +2389,10 @@
        $coverPhoto = $blog["ICO"] ?? $coverPhoto;
        $coverPhoto = base64_encode($coverPhoto);
         array_push($_List, [
-         "[X.LI.I]" => $_Blog["ListItem"]["CoverPhoto"],
-         "[X.LI.T]" => $_Blog["ListItem"]["Title"],
-         "[X.LI.D]" => $_Blog["ListItem"]["Description"],
-         "[X.LI.DT]" => $_Blog["ListItem"]["Options"]["View"]
+         "[Info.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
+         "[Info.Description]" => $_Blog["ListItem"]["Description"],
+         "[Info.Title]" => $_Blog["ListItem"]["Title"],
+         "[Info.View]" => $_Blog["ListItem"]["Options"]["View"]
         ]);
        }
       }
@@ -2424,7 +2424,7 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]) ?? [];
+     $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
      $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
      $_Article = $this->core->GetContentData([
       "AddTo" => $addTo,
@@ -2597,10 +2597,10 @@
       if($illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
        array_push($_List, [
-        "[X.LI.I]" => $_Forum["ListItem"]["CoverPhoto"],
-        "[X.LI.T]" => $_Forum["ListItem"]["Title"],
-        "[X.LI.D]" => $_Forum["ListItem"]["Description"],
-        "[X.LI.DT]" => $options["View"]
+        "[Info.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Forum["ListItem"]["Description"],
+        "[Info.Title]" => $_Forum["ListItem"]["Title"],
+        "[Info.View]" => $options["View"]
        ]);
       }
      }
@@ -2755,7 +2755,7 @@
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($check == 1 || ($bl == 0 && $illegal == 0)) {
        $op = ($check == 1) ? $y : $this->core->Member($from);
-       $cms = $this->core->Data("Get", ["cms", md5($from)]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($from)]);
        $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
        $ck2 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
@@ -3024,10 +3024,10 @@
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_List, [
-        "[X.LI.I]" => $_Product["ListItem"]["CoverPhoto"],
-        "[X.LI.D]" => $_Product["ListItem"]["Description"],
-        "[X.LI.DT]" => $options["View"],
-        "[X.LI.T]" => $_Product["ListItem"]["Title"]
+        "[Info.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Product["ListItem"]["Description"],
+        "[Info.Title]" => $_Product["ListItem"]["Title"],
+        "[Info.View]" => $options["View"]
        ]);
       }
      }
@@ -3061,7 +3061,7 @@
        "ID" => base64_encode("Shop;".$sql["Shop_ID"])
       ]);
       if($_Shop["Empty"] == 0) {
-       $cms = $this->core->Data("Get", ["cms", $sql["Shop_ID"]]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", $sql["Shop_ID"]]);
        $cms = $cms["Contacts"] ?? [];
        $t = $this->core->Member($sql["Shop_Username"]);
        $check = $this->core->CheckPrivacy([
@@ -3117,7 +3117,7 @@
     $invoices = $shop["Invoices"] ?? [];
     $extension = $this->core->Extension($_ExtensionID);
     foreach($invoices as $key => $value) {
-     $invoice = $this->core->Data("Get", ["invoice", $value]) ?? [];
+     $invoice = $this->core->Data("Get", ["invoice", $value]);
      if(!empty($invoice)) {
       $options = $this->core->Element(["button", "Forward", [
        "class" => "OpenCard v2",
@@ -3197,10 +3197,10 @@
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_List, [
-        "[X.LI.I]" => $_Product["ListItem"]["CoverPhoto"],
-        "[X.LI.T]" => $_Product["ListItem"]["Title"],
-        "[X.LI.D]" => $_Product["ListItem"]["Description"],
-        "[X.LI.DT]" => $options["View"]
+        "[Info.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Product["ListItem"]["Description"],
+        "[Info.Title]" => $_Product["ListItem"]["Title"],
+        "[Info.View]" => $options["View"]
        ]);
       }
      }
@@ -3249,7 +3249,7 @@
         $attachments = $this->core->RenderView($attachments);
        }
        $op = ($from == $you) ? $y : $this->core->Member($from);
-       $cms = $this->core->Data("Get", ["cms", md5($from)]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", md5($from)]);
        $privacy = $op["Privacy"]["Posts"] ?? md5("Public");
        $check = $update["NSFW"] ?? 0;
        $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $check == 0) ? 1 : 0;
@@ -3346,10 +3346,10 @@
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_List, [
-        "[X.LI.I]" => $_Product["ListItem"]["CoverPhoto"],
-        "[X.LI.T]" => $_Product["ListItem"]["Title"],
-        "[X.LI.D]" => $_Product["ListItem"]["Description"],
-        "[X.LI.DT]" => $options["View"]
+        "[Info.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Product["ListItem"]["Description"],
+        "[Info.Title]" => $_Product["ListItem"]["Title"],
+        "[Info.View]" => $options["View"]
        ]);
       }
      }
