@@ -319,9 +319,10 @@
        ],
        "ExtensionID" => "2e76fb1523c34ed0c8092cde66895eb1"
       ];
-      $_Card = ($embeddedView == 1) ? $_View : [
+      $_Card = ($embeddedView == 0) ? [
        "Front" => $_View
-      ];
+      ] : "";
+      $_View = ($embeddedView == 1) ? $_View : "";
      }
     }
    }

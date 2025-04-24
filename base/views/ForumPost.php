@@ -4,30 +4,25 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $forumID = $data["FID"] ?? "";
-   $r = [
+  function Edit(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $forumID = $data["FID"] ?? "";
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
    $topic = $data["Topic"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif((!empty($forumID) && !empty($id)) || $new == 1) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $action = ($new == 1) ? "Post" : "Update";
-    $action = $this->core->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".ForumPost$id",
-     "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
-    ]]);
     $id = ($new == 1) ? $this->core->UUID("ForumPostBy$you") : $id;
     $post = $this->core->Data("Get", ["post", $id]);
     $post = $this->core->FixMissing($post, ["Body", "Title"]);
@@ -85,46 +80,48 @@
       "ViewDesign" => []
      ]
     ]);
-    $r = $this->core->Change([[
-     "[ForumPost.Attachments]" => $this->core->RenderView($attachments),
-     "[ForumPost.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $post["Body"]
-     ])),
-     "[ForumPost.Header]" => $header,
-     "[ForumPost.ForumID]" => $forumID,
-     "[ForumPost.ID]" => $id,
-     "[ForumPost.New]" => $new,
-     "[ForumPost.NSFW]" => $nsfw,
-     "[ForumPost.PassPhrase]" => base64_encode($passPhrase),
-     "[ForumPost.Privacy]" => $privacy,
-     "[ForumPost.Title]" => base64_encode($title),
-     "[ForumPost.Topic]" => $topic,
-     "[ForumPost.Topics]" => json_encode($topics, true),
-     "[ForumPost.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-     "[ForumPost.Visibility.NSFW]" => $nsfw,
-     "[ForumPost.Visibility.Privacy]" => $privacy
-    ], $this->core->Extension("cabbfc915c2edd4d4cba2835fe68b1cc")]);
-    $r = [
-     "Action" => $action,
-     "Front" => $r
+    $_Card = [
+     "Action" => $this->core->Element(["button", $action, [
+      "class" => "CardButton SendData",
+      "data-form" => ".ForumPost$id",
+      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
+     ]]),
+     "Front" => [
+      "ChangeData" => [
+       "[ForumPost.Attachments]" => $this->core->RenderView($attachments),
+       "[ForumPost.Body]" => base64_encode($this->core->PlainText([
+        "Data" => $post["Body"]
+       ])),
+       "[ForumPost.Header]" => $header,
+       "[ForumPost.ForumID]" => $forumID,
+       "[ForumPost.ID]" => $id,
+       "[ForumPost.New]" => $new,
+       "[ForumPost.NSFW]" => $nsfw,
+       "[ForumPost.PassPhrase]" => base64_encode($passPhrase),
+       "[ForumPost.Privacy]" => $privacy,
+       "[ForumPost.Title]" => base64_encode($title),
+       "[ForumPost.Topic]" => $topic,
+       "[ForumPost.Topics]" => json_encode($topics, true),
+       "[ForumPost.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
+       "[ForumPost.Visibility.NSFW]" => $nsfw,
+       "[ForumPost.Visibility.Privacy]" => $privacy
+      ],
+      "ExtensionID" => "cabbfc915c2edd4d4cba2835fe68b1cc"
+     ]
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_DIalog
    ]);
   }
-  function Home(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $r = [
+  function Home(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Forum or Post Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $fid = $data["FID"] ?? "";
    $id = $data["ID"] ?? "";
    $now = $this->core->timestamp;
@@ -137,14 +134,14 @@
      "ID" => base64_encode("ForumPost;$fid;$id")
     ]);
     if($_ForumPost["Empty"] == 0) {
-     $accessCode = "Accepted";
      $forum = $this->core->Data("Get", ["pf", $fid]);
      $post = $_ForumPost["DataModel"];
      $passPhrase = $post["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      $_Dialog = "";
+      $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
@@ -157,39 +154,39 @@
         "v" => base64_encode("ForumPost:Home")
        ], true))
       ]]);
-      $r = [
-       "Front" => $this->core->RenderView($r)
+      $_Card = [
+       "Front" => $this->core->RenderView($_View)
       ];
      } elseif($verifyPassPhrase == 1) {
-      $accessCode = "Denied";
+      $_Dialog = [
+       "Body" => "The Key is missing."
+      ];
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
-      $r = $this->core->Element(["p", "The Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
-       $r = $this->core->Element(["p", "The Keys do not match."]);
+       $_Dialog = "";
       } else {
-       $accessCode = "Accepted";
-       $r = $this->view(base64_encode("ForumPost:Home"), ["Data" => [
+       $_Dialog = "";
+       $_View = $this->view(base64_encode("ForumPost:Home"), ["Data" => [
         "EmbeddedView" => 1,
         "FID" => $fid,
         "ID" => $id,
         "ViewProtectedContent" => 1
        ]]);
-       $r = $this->core->RenderView($r);
+       $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $accessCode = "Denied";
-      $active = 0;
-      $admin = 0;
-      $r = [
+      $_Dialog = [
        "Body" => "The requested Forum Post could not be found."
       ];
-      $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
-      $ck2 = ($active == 1 || $forum["Type"] == "Public") ? 1 : 0;
+      $active = 0;
+      $admin = 0;
+      $check = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
+      $check2 = ($active == 1 || $forum["Type"] == "Public") ? 1 : 0;
       $cms = $this->core->Data("Get", ["cms", md5($post["From"])]);
-      $ck3 = $this->core->CheckPrivacy([
+      $check3 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $post["Privacy"],
        "UN" => $post["From"],
@@ -204,11 +201,11 @@
         }
        }
       }
-      $op = ($ck == 1) ? $y : $this->core->Member($post["From"]);
+      $op = ($check == 1) ? $y : $this->core->Member($post["From"]);
       $options = $_ForumPost["ListItem"]["Options"];
       $privacy = $post["Privacy"] ?? $op["Privacy"]["Posts"];
-      if($ck == 1 || $ck2 == 1) {
-       $accessCode = "Accepted";
+      if($check == 1 || $check2 == 1) {
+       $_Dialog = "";
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $actions = ($post["From"] != $you) ? $this->core->Element(["button", $blockCommand, [
         "class" => "InnerMargin UpdateButton v2",
@@ -217,12 +214,12 @@
        $embeddedView = $data["EmbeddedView"] ?? 0;
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($post, "LiveView");
        $share = "";
-       if($ck == 1) {
+       if($check == 1) {
         $actions .= $this->core->Element(["button", "Delete", [
          "class" => "InnerMargin OpenDialog v2",
          "data-view" => $options["Delete"]
         ]]);
-        $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element(["button", "Edit", [
+        $actions .= ($admin == 1 || $check == 1) ? $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenDialog v2",
          "data-view" => $options["Edit"]
         ]]) : "";
@@ -237,88 +234,89 @@
        $memberRole = $manifest[$op["Login"]["Username"]];
        $verified = $op["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-       $r = $this->core->Change([[
-        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-        "[Attached.ID]" => $this->core->UUID("ForumPostAttachments"),
-        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-        "[Conversation.CRID]" => $id,
-        "[Conversation.CRIDE]" => base64_encode($id),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
-        "[ForumPost.Actions]" => $actions,
-        "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
-        "[ForumPost.Body]" => $this->core->PlainText([
-         "BBCodes" => 1,
-         "Data" => $post["Body"],
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ]),
-        "[ForumPost.CoverPhoto]" => $_ForumPost["ListItem"]["CoverPhoto"],
-        "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
-        "[ForumPost.ID]" => $id,
-        "[ForumPost.Illegal]" => $options["Report"],
-        "[ForumPost.MemberRole]" => $memberRole,
-        "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
-        "[ForumPost.OriginalPoster]" => $displayName.$verified,
-        "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-        "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
-        "[ForumPost.Share]" => $share,
-        "[ForumPost.Vote]" => $options["Vote"]
-       ], $this->core->Extension("d2be822502dd9de5e8b373ca25998c37")]);
-       $r = ($embeddedView == 1) ? $r : [
-        "Front" => $r
+       $_View = [
+        "ChangeData" => [
+         "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+         "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+         "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+         "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+         "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+         "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+         "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+         "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+         "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+         "[Attached.ID]" => $this->core->UUID("ForumPostAttachments"),
+         "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+         "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+         "[Conversation.CRID]" => $id,
+         "[Conversation.CRIDE]" => base64_encode($id),
+         "[Conversation.Level]" => base64_encode(1),
+         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
+         "[ForumPost.Actions]" => $actions,
+         "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
+         "[ForumPost.Body]" => $this->core->PlainText([
+          "BBCodes" => 1,
+          "Data" => $post["Body"],
+          "Display" => 1,
+          "HTMLDecode" => 1
+         ]),
+         "[ForumPost.CoverPhoto]" => $_ForumPost["ListItem"]["CoverPhoto"],
+         "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
+         "[ForumPost.ID]" => $id,
+         "[ForumPost.Illegal]" => $options["Report"],
+         "[ForumPost.MemberRole]" => $memberRole,
+         "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
+         "[ForumPost.OriginalPoster]" => $displayName.$verified,
+         "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
+         "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
+         "[ForumPost.Share]" => $share,
+         "[ForumPost.Vote]" => $options["Vote"]
+        ],
+        "ExtensionID" => "d2be822502dd9de5e8b373ca25998c37"
        ];
+       $_Card = ($embeddedView == 0) ? [
+        "Front" => $_View
+       ] : "";
+       $_View = ($embeddedView == 1) ? $_View : "";
       }
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Purge(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Purge(array $data) {
+   $_Dialog = [
+    "Body" => "The Post Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $forumID = $data["ForumID"] ?? "";
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $postID = $data["PostID"] ?? "";
-   $r = [
-    "Body" => "The Post Identifier is missing."
-   ];
    $secureKey = $data["SecureKey"] ?? base64_encode("");
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKey) {
-    $r = [
+    $_Dialog = [
      "Body" => "The PINs do not match."
     ];
    } elseif($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($forumID) && !empty($postID)) {
-    $accessCode = "Accepted";
+    $_Dialog = "";
     $forumID = base64_decode($forumID);
     $forum = $this->core->Data("Get", ["pf", $forumID]);
     $newPosts = [];
@@ -356,42 +354,41 @@
      $this->core->Data("Save", ["votes", $postID, $votes]);
     }
     $this->core->Data("Save", ["pf", $forumID, $forum]);
-    $r = $this->core->Element([
-     "p", "The Forum Post and dependencies were marked for purging.",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "p", "The Forum Post and dependencies were marked for purging.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]))
+    ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Save(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Forum Post Identifier is missing."
+   ];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $fid = $data["FID"] ?? "";
    $id = $data["ID"] ?? "";
    $new = $data["new"] ?? 0;
-   $r = [
-    "Body" => "The Forum Post Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($fid) && !empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $actionTaken = ($new == 1) ? "posted" : "updated";
     $attachments = [];
     $forum = $this->core->Data("Get", ["pf", $fid]);
@@ -622,19 +619,14 @@
     $this->core->Data("Save", ["pf", $fid, $forum]);
     $this->core->Data("Save", ["post", $id, $post]);
     $this->core->Statistic($statistic);
-    $r = [
+    $_Dialog = [
      "Body" => "Your post has been $actionTaken.",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
    ]);
   }
