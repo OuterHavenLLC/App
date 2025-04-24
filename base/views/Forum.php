@@ -470,7 +470,6 @@
      $forum = $this->core->Data("Get", ["pf", $id]);
      $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
      $processor = "v=".base64_encode("Forum:Join")."&ID=$id";
-     $_ResponseType = "View";
      if($command == "Join") {
       $manifest[$you] = "Member";
       $_View = [
