@@ -556,7 +556,7 @@
      $privacy = $data["Privacy"] ?? $this->core->AESencrypt($y["Privacy"]["DLL"]);
      $privacy = $this->core->AESdecrypt($privacy);
      $root = $this->core->DocumentRoot."/efs/$username/";
-     $uploads = $a["Files"] ?? [];
+     $uploads = $data["Files"] ?? [];
      $uploadsAllowed = $y["Subscriptions"]["Artist"]["A"] ?? 0;
      $uploadsAllowed = (($uploadsAllowed + $y["Subscriptions"]["VIP"]["A"]) > 0) ? 1 : 0;
      $limits = $this->core->config["XFS"]["limits"] ?? [];

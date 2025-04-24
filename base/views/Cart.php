@@ -201,7 +201,7 @@
    $_DIalog = [
     "Body" => "The Member or Product Identifier is missing."
    ];
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["Product"] ?? "";
    $username = $data["Username"] ?? "";
@@ -256,7 +256,7 @@
    $_Dialog = [
     "Body" => "The Shop or Product Identifier are missing."
    ];
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $product = $data["Product"] ?? "";
    $shop = $data["Shop"] ?? "";
    $y = $this->you;

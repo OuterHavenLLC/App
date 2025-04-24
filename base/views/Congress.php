@@ -753,7 +753,7 @@
    $_Dialog = [
     "Body" => "The Content Identifier is missing."
    ];
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
    $y = $this->you;
    $you = $y["Login"]["Username"];

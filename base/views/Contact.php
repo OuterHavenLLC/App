@@ -268,7 +268,7 @@
    ];
    $_View = "";
    $them = $data["Them"] ?? "";
-   $you = $a["You"] ?? "";
+   $you = $data["You"] ?? "";
    if(!empty($them) && !empty($you)) {
     $_Dialog = "";
     $theirContacts = $this->core->Data("Get", ["cms", md5($them)]);
