@@ -57,6 +57,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * The client now stores and retrieves Extension data via the local browser database and an associated class.
 * Server responses are now capable of sending multiple view types via a single response.
 * The client now assumes most rendering responsibilities, except for server-side callback functions. (coming soon...)
+* Command lists take the place of most in-line client function calls, except for custom logic, to ensure uniformity and security when executing client logic. (coming soon...)
 
 ### Heath Kit
 * Coming soon...
