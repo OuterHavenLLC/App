@@ -4,119 +4,136 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Add(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $card = $data["Card"] ?? 0;
-   $id = $data["Invoice"] ?? "";
-   $r = [
+  function Add(array $data) {
+   $_AccessCode = "Denied";
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
    ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
+   $id = $data["Invoice"] ?? "";
    $shopID = $data["Shop"] ?? "";
    $type = $data["Type"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) && !empty($type)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Shop Identifier is missing."
     ];
     if(!empty($shopID)) {
-     $check = 0;
-     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
-     $r = [
+     $_Dialog = [
       "Body" => "You are not authorized to add a $type.",
       "Header" => "Forbidden"
      ];
+     $check = 0;
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
      $shop = $this->core->Data("Get", ["shop", $shopID]);
      foreach($shop["Contributors"] as $member => $role) {
       if($check == 0 && $member == $you) {
        $check++;
       }
      } if($check == 1 && $isAdmin == 1) {
-      $r = [
+      $_Dialog = [
        "Body" => "The content type is missing."
       ];
       if($type == "Charge") {
-       $accessCode = "Accepted";
+       $_Dialog = "";
        $viewCharges = $data["ViewCharges"] ?? 0;
        if($viewCharges == 1) {
         $invoice = $this->core->Data("Get", ["invoice", $id]);
         $chargeList = "";
         $charges = $invoice["Charges"] ?? [];
-        $r = $this->core->Element(["h4", "No Charges", [
-         "class" => "CenterText UpperCase"
-        ]]);
-        foreach($charges as $key => $charge) {
-         $description = $charge["Description"] ?? "Unknown";
-         $paid = $charge["Paid"] ?? 0;
-         $title = $charge["Title"] ?? "Unknown";
-         $value = $charge["Value"] ?? 0.00;
-         $chargeList .= $this->core->Change([[
-          "[Invoice.Charge.Description]" => $description,
-          "[Invoice.Charge.Title]" => $title,
-          "[Invoice.Charge.Value]" => $this->core->Element([
-           "p", "$$value",
-           ["class" => "DesktopRightText"]
-          ])
-         ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
-        } if(!empty($chargeList)) {
-         $r = $chargeList;
+        if(empty($chargeList)) {
+         $_Extension = $this->core->Element(["h4", "No Charges", [
+          "class" => "CenterText UpperCase"
+         ]]);
+        } else {
+         foreach($charges as $key => $charge) {
+          $description = $charge["Description"] ?? "Unknown";
+          $paid = $charge["Paid"] ?? 0;
+          $title = $charge["Title"] ?? "Unknown";
+          $value = $charge["Value"] ?? 0.00;
+          $chargeList .= $this->core->Change([[
+           "[Invoice.Charge.Description]" => $description,
+           "[Invoice.Charge.Title]" => $title,
+           "[Invoice.Charge.Value]" => $this->core->Element([
+            "p", "$$value",
+            ["class" => "DesktopRightText"]
+           ])
+          ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
+         }
+         $_Extension = $chargeList;
         }
+        $_View = [
+         "ChangeData" => [],
+         "Extension" => $this->core->AESencrypt($_Extension)
+        ];
        } else {
-        $r = $this->core->Change([[
-         "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
-         "[Invoice.Charges]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Charge&ViewCharges=1"),
-         "[Invoice.ID]" => $id,
-         "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
-         "[Invoice.Shop]" => $shopID
-        ], $this->core->Extension("60fe8170fa7a51cdd75097855c74a95c")]);
+        $_View = [
+         "ChangeData" => [
+          "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
+          "[Invoice.Charges]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Charge&ViewCharges=1"),
+          "[Invoice.ID]" => $id,
+          "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+          "[Invoice.Shop]" => $shopID
+         ],
+         "ExtensionID" => "60fe8170fa7a51cdd75097855c74a95c"
+        ];
        }
       } elseif($type == "Note") {
-       $accessCode = "Accepted";
+       $_Dialog = "";
        $viewNotes = $data["ViewNotes"] ?? 0;
        if($viewNotes == 1) {
         $invoice = $this->core->Data("Get", ["invoice", $id]);
         $noteList = "";
         $notes = $invoice["Notes"] ?? [];
         $notes = array_reverse($notes);
-        $r = $this->core->Element(["h4", "No Notes", [
-         "class" => "CenterText UpperCase"
-        ]]);
-        foreach($notes as $key => $note) {
-         $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($note, "LiveView");
-         $noteList .= $this->core->Change([[
-          "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-          "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-          "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-          "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-          "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-          "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-          "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-          "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-          "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-          "[Attached.ID]" => $this->core->UUID("NoteAttachments"),
-          "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-          "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-          "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-          "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-          "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"]
-         ], $this->core->PlainText([
-          "Data" => $this->core->Element([
-           "h4", $note["Created"]
-          ]).$this->core->Element([
-           "p", $note["Note"]
-          ]).$this->core->Element([
-           "div", "[Extension:af6c0c610ebcc5e110fccec405b9dbf4]", ["class" => "NONAME"]
-          ]),
-          "Display" => 1
-         ])]);
-        } if(!empty($noteList)) {
-         $r = $noteList;
+        if(empty($noteList)) {
+         $_Extension = $this->core->Element(["h4", "No Notes", [
+          "class" => "CenterText UpperCase"
+         ]]);
+        } else {
+         foreach($notes as $key => $note) {
+          $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($note, "LiveView");
+          $noteList .= $this->core->Change([[
+           "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+           "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+           "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+           "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+           "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+           "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+           "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+           "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+           "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+           "[Attached.ID]" => $this->core->UUID("NoteAttachments"),
+           "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+           "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+           "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+           "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+           "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"]
+          ], $this->core->PlainText([
+           "Data" => $this->core->Element([
+            "h4", $note["Created"]
+           ]).$this->core->Element([
+            "p", $note["Note"]
+           ]).$this->core->Element([
+            "div", "[Extension:af6c0c610ebcc5e110fccec405b9dbf4]", ["class" => "NONAME"]
+           ]),
+           "Display" => 1
+          ])]);
+         }
+         $_extension = $noteList;
         }
+        $_View = [
+         "ChangeData" => [],
+         "Extension" => $this->core->AESencrypt($_Extension)
+        ];
        } else {
         $attachments = $this->view(base64_encode("WebUI:Attachments"), [
          "ID" => $id,
@@ -135,67 +152,69 @@
           "Update" => []
          ]
         ]);
-        $r = $this->core->Change([[
-         "[Invoice.Attachments]" => $this->core->RenderView($attachments),
-         "[Invoice.ID]" => $id,
-         "[Invoice.Notes]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Note&ViewNotes=1"),
-         "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
-         "[Invoice.Shop]" => $shopID
-        ], $this->core->Extension("82e29a8d9c5737b07a4db0a1de45c7db")]);
+        $_View = [
+         "ChangeData" => [
+          "[Invoice.Attachments]" => $this->core->RenderView($attachments),
+          "[Invoice.ID]" => $id,
+          "[Invoice.Notes]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Note&ViewNotes=1"),
+          "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+          "[Invoice.Shop]" => $shopID
+         ],
+         "ExtensionID" => "82e29a8d9c5737b07a4db0a1de45c7db"
+        ];
        }
       }
-      $r = ($card == 1) ? [
-       "Front" => $r
-      ] : $r;
+      $_Card = ($card == 1) ? [
+       "Front" => $_View
+      ] : "";
+      $_View = ($card == 0) ? $_View : "";
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "Success" => "CloseCard",
+    "View" => $_View
    ]);
   }
-  function Edit(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Edit(array $data) {
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The Shop Identifier is missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
    $isPreset = $data["Preset"] ?? 0;
-   $r = [
-    "Body" => "The Shop Identifier is missing."
-   ];
    $shop = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($shop)) {
-    $accessCode = "Accepted";
     $charges = [];
     if(!empty($id) && $isPreset == 1) {
-     $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
-     $changeData = [
+     $preset = $this->core->Data("Get", ["invoice-preset", $id]);
+     $_ChangeData = [
       "[Invoice.Charges]" => json_encode($charges, true),
       "[Invoice.Shop]" => $shop
      ];
-     $template = "UpdatePreset";
+     $_Extension = "UpdatePreset";
     } elseif($isPreset == 0) {
      $id = md5("Invoice$you".uniqid());
-     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+     $invoice = $this->core->Data("Get", ["invoice", $id]);
      $invoice = $this->core->FixMissing($invoice, [
       "ChargeTo",
       "Email",
       "Phone"
      ]);
-     $changeData = [
+     $_ChangeData = [
       "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
       "[Invoice.Charges]" => json_encode([
        [
@@ -264,95 +283,87 @@
       "[Invoice.Shop]" => $shop,
       "[Invoice.Username]" => $you
      ];
-     $template = "e372b28484951c22fe9920317c852436";
+     $_Extension = "e372b28484951c22fe9920317c852436";
     }
-    $r = $this->core->Change([
-     $changeData,
-     $this->core->Extension($template)
-    ]);
-    $r = ($card == 1) ? [
-     "Front" => $r
-    ] : $r;
+    $_View = [
+     "ChangeData" => $_ChangeData,
+     "Extension" => $this->core->AESencrypt($_Extension)
+    ];
+    $_Card = ($card == 1) ? [
+     "Front" => $_View
+    ] : "";
+    $_View = ($card == 0) ? $_View :"";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Forward(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $id = $data["Invoice"] ?? "";
-   $r = [
+  function Forward(array $data) {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $id = $data["Invoice"] ?? "";
    $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Shop Identifier is missing."
     ];
     if(!empty($shopID)) {
-     $accessCode = "Accepted";
-     $action = $this->core->Element(["button", "Forward", [
-      "class" => "CardButton SendData",
-      "data-form" => ".ForwardInvoice$id",
-      "data-processor" => base64_encode("v=".base64_encode("Invoice:Save"))
-     ]]);
-     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
-     $r = $this->core->Change([[
-      "[Invoice.ID]" => $id,
-      "[Invoice.Shop]" => $invoice["Shop"]
-     ], $this->core->Extension("bef71930eb3342a550ba9e8a971cebe2")]);
-     $r = [
-      "Action" => $action,
-      "Front" => $r
+     $_Dialog = "";
+     $invoice = $this->core->Data("Get", ["invoice", $id]);
+     $_Card = [
+      "Action" => $this->core->Element(["button", "Forward", [
+       "class" => "CardButton SendData",
+       "data-form" => ".ForwardInvoice$id",
+       "data-processor" => base64_encode("v=".base64_encode("Invoice:Save"))
+      ]]),
+      "Front" => [
+       "ChangeData" => [
+        "[Invoice.ID]" => $id,
+        "[Invoice.Shop]" => $invoice["Shop"]
+       ],
+       "ExtensionID" => "bef71930eb3342a550ba9e8a971cebe2"
+      ]
      ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseCard"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function Hire(array $a) {
-   $_ViewTitle = $this->core->config["App"]["Name"];
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $card = $data["Card"] ?? 0;
-   $id = $data["ID"] ?? md5($this->core->ShopID);
-   $pub = $data["pub"] ?? 0;
-   $r = [
+  function Hire(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $responseType = "Dialog";
+   $_ResponseType = "N/A";
+   $_ViewTitle = $this->core->config["App"]["Name"];
+   $data = $data["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
+   $id = $data["ID"] ?? md5($this->core->ShopID);
    $shopID = $id;
-   $success = "";
+   $_Success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $_ViewTitle = "Hire";
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $action = "";
     $createJob = $data["CreateJob"] ?? 0;
     $saveJob = $data["SaveJob"] ?? 0;
-    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $id]);
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $partners = $shop["Contributors"] ?? [];
     $services = $shop["InvoicePresets"] ?? 0;
@@ -361,14 +372,12 @@
     $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
     $limit = $shop["HireLimit"] ?? 5;
     $openInvoices = 0;
-    $r = ($hire == 1 && $shop["Open"] == 1) ? $r : $this->core->Element([
-     "h1", "Sorry!", ["class" => "CenterText UpperCase"]
-    ]).$this->core->Element([
-     "p", $shop["Title"]." is not currently accepting job offers.",
-     ["class" => "CenterText"]
-    ]);
+    $_Dialog = [
+     "Body" => $shop["Title"]." is not currently accepting job offers.",
+     "Header" => "Sorry!"
+    ];
     foreach($shop["Invoices"] as $key => $invoice) {
-     $invoice = $this->core->Data("Get", ["invoice", $invoice]) ?? [];
+     $invoice = $this->core->Data("Get", ["invoice", $invoice]);
      if($invoice["Status"] == "Open") {
       $openInvoices++;
      }
@@ -397,7 +406,7 @@
        array_push($invoices, $id);
        $invoices = array_unique($invoices);
        $name = $chargeTo ?? $data["Email"];
-       $success = "CloseCard";
+       $_Success = "CloseCard";
        if(md5($you) == $id && $id = $this->core->ShopID && $y["Subscriptions"]["VIP"]["A"] == 1) {
         $invoice["Charges"][0]["Paid"] = 1;
         $preset["Charges"]["Value"] = 0;
@@ -461,7 +470,7 @@
        $shop["Invoices"] = $invoices;
        $this->core->Data("Save", ["invoice", $id, $invoice]);
        $this->core->Data("Save", ["shop", $shopID, $shop]);
-       $r = [
+       $_Dialog = [
         "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at ".$this->core->base."/invoice/$id",
         "Header" => "Done"
        ];
@@ -481,18 +490,22 @@
        $service = $this->core->Data("Get", [
         "invoice-preset",
         $value
-       ]) ?? [];
+       ]);
        $presets[$value] = $service["Title"];
       }
-      $r = $this->core->Change([[
-       "[Hire.ChargeTo]" => $chargeTo,
-       "[Hire.Email]" => base64_encode($y["Personal"]["Email"]),
-       "[Hire.Shop]" => $id,
-       "[Hire.Text]" => $hireText,
-       "[Hire.Services]" => json_encode($presets, true)
-      ], $this->core->Extension("dab6e25feafcbb2741022bf6083c2975")]);
+      $_View = [
+       "ChangeData" => [
+        "[Hire.ChargeTo]" => $chargeTo,
+        "[Hire.Email]" => base64_encode($y["Personal"]["Email"]),
+        "[Hire.Shop]" => $id,
+        "[Hire.Text]" => $hireText,
+        "[Hire.Services]" => json_encode($presets, true)
+       ],
+       "ExtensionID" => "dab6e25feafcbb2741022bf6083c2975"
+      ];
      } else {
       $_ViewTitle = "Hire ".$shop["Title"];
+      $action = "";
       $hireText = (count($partners) == 1) ? "Me" : "Us";
       $terms = $shop["HireTerms"] ?? "";
       if(!empty($terms)) {
@@ -504,64 +517,59 @@
       } else {
        $terms = $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
       }
-      $r = $this->core->Change([[
-       "[Shop.Name]" => $shop["Title"],
-       "[Shop.Hire]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id&CreateJob=1"),
-       "[Shop.Hire.Terms]" => $terms,
-       "[Shop.Hire.Text]" => $hireText,
-      ], $this->core->Extension("045f6c5cf3728bd31b0d9663498a940c")]);
+      $_View = [
+       "ChangeData" => [
+        "[Shop.Name]" => $shop["Title"],
+        "[Shop.Hire]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id&CreateJob=1"),
+        "[Shop.Hire.Terms]" => $terms,
+        "[Shop.Hire.Text]" => $hireText,
+       ],
+       "ExtensionID" => "045f6c5cf3728bd31b0d9663498a940c"
+      ];
      }
-     $responseType = "View";
     }
-    $r = ($card == 1) ? [
+    $_Card = ($card == 1) ? [
      "Action" => $action,
-     "Front" => $r
-    ] : $r;
-    if($pub == 1) {
-     $r = $this->view(base64_encode("WebUI:Containers"), [
-      "Data" => ["Content" => $r]
-     ]);
-     $r = $this->core->RenderView($r);
-    }
+     "Front" => $_View
+    ] : "";
+    $_View = ($card == 0) ? $_View : "";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType,
-    "Success" => $success,
-    "Title" => $_ViewTitle
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "Success" => $_Success,
+    "Title" => $_ViewTitle,
+    "View" => $_View
    ]);
   }
-  function Home(array $a) {
-   $_ViewTitle = $this->core->config["App"]["Name"];
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $card = $data["Card"] ?? 0;
-   $id = $data["ID"] ?? "";
-   $pub = $data["pub"] ?? 0;
-   $r = [
+  function Home(array $data) {
+   $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
    ];
+   $_View = "";
+   $_ViewTitle = $this->core->config["App"]["Name"];
+   $data = $data["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
+   $id = $data["ID"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $_ViewTitle = "Invoice $id";
-    $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
-    $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
-    $r = [
+    $_Dialog = [
      "Body" => "We could not find any data for Invoice $id."
     ];
+    $_ViewTitle = "Invoice $id";
+    $invoice = $this->core->Data("Get", ["invoice", $id]);
+    $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]);
     if(!empty($invoice)) {
-     $_Shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]) ?? [];
+     $_Shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]);
      $_ViewTitle = "Invoice from ".$_Shop["Title"];
-     $accessCode = "Accepted";
      $dependency = $data["Dependency"] ?? "";
-     $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+     $invoice = $this->core->Data("Get", ["invoice", $id]);
      if($dependency == "Charges") {
+      $_Extension = "";
       $check = 0;
       $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
       foreach($shop["Contributors"] as $member => $role) {
@@ -571,7 +579,6 @@
       }
       $check = ($check == 1 || $isAdmin == 1) ? 1 : 0;
       $charges = $invoice["Charges"] ?? [];
-      $r = "";
       foreach($charges as $key => $charge) {
        $description = $charge["Description"] ?? "Unknown";
        $paid = $charge["Paid"] ?? 0;
@@ -602,12 +609,16 @@
          "data-view" => base64_encode("v=".base64_encode("Invoice:Refund")."&Charge=$key&Invoice=$id&Shop=".$invoice["Shop"])
         ]
        ]) : "";
-       $r .= $this->core->Change([[
+       $_Extension .= $this->core->Change([[
         "[Invoice.Charge.Description]" => $description,
         "[Invoice.Charge.Title]" => $title,
         "[Invoice.Charge.Value]" => $value
        ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
       }
+      $_View = [
+       "ChangeData" => [],
+       "Extension" => $this->core->AESencrypt($_Extension)
+      ];
      } elseif($dependency == "Options") {
       $check = 0;
       $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
@@ -616,22 +627,26 @@
         $check++;
        }
       }
-      $r = ($check == 1 && $isAdmin == 1 && $invoice["Status"] == "Open") ? $this->core->Element([
+      $_Extension = ($check == 1 && $isAdmin == 1 && $invoice["Status"] == "Open") ? $this->core->Element([
        "button", "Charges", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Charge")
        ]
       ]) : "";
-      $r .= ($check == 1 && $isAdmin == 1) ? $this->core->Element([
+      $_Extension .= ($check == 1 && $isAdmin == 1) ? $this->core->Element([
        "button", "Notes", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Add")."&Card=1&Invoice=$id&Shop=".$invoice["Shop"]."&Type=Note")
        ]
       ]) : "";
-      $r .= $this->core->Element(["button", "Forward", [
+      $_Extension .= $this->core->Element(["button", "Forward", [
         "class" => "OpenCard v2",
         "data-view" => base64_encode("v=".base64_encode("Invoice:Forward")."&Invoice=$id&Shop=".$invoice["Shop"])
       ]]);
+      $_View = [
+       "ChangeData" => [],
+       "Extension" => $this->core->AESencrypt($_Extension)
+      ];
      } elseif($dependency == "Status") {
       $status = $invoice["Status"] ?? "Closed";
       $action = "No action needed.";
@@ -640,13 +655,16 @@
       $action = ($status == "ReadyForPayment") ? "Make any necessary payments or contact the merchant for further assistance." : $action;
       $status = ($status == "Open") ? "Open" : $status;
       $status = ($status == "ReadyForPayment") ? "Ready for Payment" : $status;
-      $r = $this->core->Element([
-       "h4", "Invoice ID: $id", ["class" => "CenterText"]
-      ]).$this->core->Element([
-       "p", "<em>$status</em>", ["class" => "CenterText"]
-      ]).$this->core->Element([
-       "p", $action, ["class" => "CenterText"]
-      ]);
+      $_View = [
+       "ChangeData" => [],
+       "Extension" => $this->core->AESencrypt($this->core->Element([
+        "h4", "Invoice ID: $id", ["class" => "CenterText"]
+       ]).$this->core->Element([
+        "p", "<em>$status</em>", ["class" => "CenterText"]
+       ]).$this->core->Element([
+        "p", $action, ["class" => "CenterText"]
+       ]))
+      ];
      } elseif($dependency == "Total") {
       $balance = 0;
       $charges = $invoice["Charges"] ?? [];
@@ -672,86 +690,78 @@
        ]
       ]) : "<strong>$$balance</strong>";
       $balance = ($isEmailed == 1) ? "<strong>$$balance</strong>" : $balance;
-      $r = $this->core->Change([[
-       "[Invoice.Balance]" => $balance,
-       "[Invoice.Subtotal]" => number_format($subtotal, 2),
-       "[Invoice.Taxes]" => number_format($tax, 2)
-      ], $this->core->Extension("6faa1179113386dad098302e12049b8b")]);
+      $_View = [
+       "ChangeData" => [
+        "[Invoice.Balance]" => $balance,
+        "[Invoice.Subtotal]" => number_format($subtotal, 2),
+        "[Invoice.Taxes]" => number_format($tax, 2)
+       ],
+       "ExtensionID" => "6faa1179113386dad098302e12049b8b"
+      ];
      } else {
       $home = "v=".base64_encode("Invoice:Home")."&ID=$id&Shop=".$invoice["Shop"];
-      $r = $this->core->Change([[
-       "[Invoice.Charges]" => base64_encode("$home&Dependency=Charges"),
-       "[Invoice.ID]" => $id,
-       "[Invoice.Options]" => base64_encode("$home&Dependency=Options"),
-       "[Invoice.Status]" => base64_encode("$home&Dependency=Status"),
-       "[Invoice.Total]" => base64_encode("$home&Dependency=Total")
-      ], $this->core->Extension("4a78b78f1ebff90e04a33b52fb5c5e97")]);
+      $_View = [
+       "ChangeData" => [
+        "[Invoice.Charges]" => base64_encode("$home&Dependency=Charges"),
+        "[Invoice.ID]" => $id,
+        "[Invoice.Options]" => base64_encode("$home&Dependency=Options"),
+        "[Invoice.Status]" => base64_encode("$home&Dependency=Status"),
+        "[Invoice.Total]" => base64_encode("$home&Dependency=Total")
+       ],
+       "ExtensionID" => "4a78b78f1ebff90e04a33b52fb5c5e97"
+      ];
      }
     }
-   } if($card == 1) {
-    $r = [
-     "Front" => $r
-    ];
-   } elseif($pub == 1) {
-    if($this->core->ID == $you) {
-     $r = $this->view(base64_encode("WebUI:OptIn"), []);
-     $r = $this->core->RenderView($r);
-    }
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
    }
+   $_Card = ($card == 1) ? [
+    "Front" => $_View
+   ] : "";
+   $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "Title" => $_ViewTitle
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "Title" => $_ViewTitle,
+    "View" => $_View
    ]);
   }
-  function Refund(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
-   $charge = $data["Charge"] ?? "";
-   $id = $data["Invoice"] ?? "";
-   $r = [
+  function Refund(array $data) {
+   $_Dialog = [
     "Body" => "The Charge or Invoice Identifier are missing."
    ];
+   $data = $data["Data"] ?? [];
+   $charge = $data["Charge"] ?? "";
+   $id = $data["Invoice"] ?? "";
    $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif((!empty($charge) || $charge == 0) && !empty($id)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Shop Identifier is missing."
     ];
     if(!empty($shopID)) {
-     $check = 0;
-     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
-     $r = [
+     $_Dialog = [
       "Body" => "You are not authorized to refund charges.",
       "Header" => "Forbidden"
      ];
-     $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+     $check = 0;
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+     $shop = $this->core->Data("Get", ["shop", $shopID]);
      foreach($shop["Contributors"] as $member => $role) {
       if($check == 0 && $member == $you) {
        $check++;
       }
      } if($check == 1 && $isAdmin == 1) {
-      $invoice = $this->core->Data("Get", ["invoice", $id]) ?? [];
+      $invoice = $this->core->Data("Get", ["invoice", $id]);
       $check = $invoice["Charges"][$charge]["Paid"];
-      $r = [
+      $_Dialog = [
        "Body" => "A refund was already issued for <em>".$invoice["Charges"][$charge]["Title"]."</em>."
       ];
       if($check == 0) {
-       $accessCode = "Accepted";
        $chargeList = "";
        $charges = $invoice["Charges"] ?? [];
        $member = $invoice["ChargeTo"] ?? "";
@@ -817,7 +827,7 @@
         $invoice["Status"] = "Closed";
        }
        $this->core->Data("Save", ["invoice", $id, $invoice]);
-       $r = [
+       $_Dialog = [
         "Body" => "Refund for <em>".$newCharge["Title"]."</em> issued. We will send a confirmation to <em>".$invoice["Email"]."</em>.",
         "Header" => "Done"
        ];
@@ -826,47 +836,41 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog
    ]);
   }
-  function PurgePreset(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function PurgePreset(array $data) {
+   $_Dialog = [
+    "Body" => "The Shop or Service Identifiers are missing."
+   ];
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Shop or Service Identifiers are missing."
-   ];
    $secureKey = $data["SecureKey"] ?? base64_encode("");
    $secureKey = base64_decode($secureKey);
    $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKey) {
-    $r = [
+    $_Dialog = [
      "Body" => "The PINs do not match."
     ];
    } elseif($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id) && !empty($shopID)) {
+    $_Dialog = [
+     "Body" => "You are not authorized to delete Pre-sets.",
+     "Header" => "Forbidden"
+    ];
     $check = 0;
     $id = base64_decode($id);
     $shopID = base64_decode($shopID);
     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
-    $r = [
-     "Body" => "You are not authorized to delete Pre-sets.",
-     "Header" => "Forbidden"
-    ];
     $shop = $this->core->Data("Get", ["shop", $shopID]);
     $shopPartners = $shop["Contributors"] ?? [];
     foreach($shopPartners as $member => $role) {
@@ -875,7 +879,6 @@
       break;
      }
     } if($check == 1 && $isAdmin == 1) {
-     $accessCode = "Accepted";
      $newPresets = [];
      $presets = $shop["InvoicePresets"] ?? [];
      foreach($presets as $key => $value) {
@@ -883,60 +886,60 @@
        $newPresets[$key] = $value;
       }
      }
-     $preset = $this->core->Data("Get", ["invoice-preset", $id]) ?? [];
+     $preset = $this->core->Data("Get", ["invoice-preset", $id]);
      $shop["InvoicePresets"] = $newPresets;
      $this->core->Data("Purge", ["invoice-preset", $id]);
      $this->core->Data("Save", ["shop", $shopID, $shop]);
-     $r = $this->core->Element([
-      "p", "The service <em>".$preset["Title"]."</em> was deleted.",
-      ["class" => "CenterText"]
-     ]).$this->core->Element([
-      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-     ]);
+     $_View = [
+      "ChangeData" => [
+      ],
+      "Extension" => $this->core->AESencrypt($this->core->Element([
+       "p", "The service <em>".$preset["Title"]."</em> was deleted.",
+       ["class" => "CenterText"]
+      ]).$this->core->Element([
+       "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+      ]))
+     ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Save(array $a) {
-   $accessCode = "Denied";
-   $data = $a["Data"] ?? [];
+  function Save(array $data) {
+   $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Invoice or Pre-set Identifier are missing."
+   ];
+   $_ResponseType = "N/A";
+   $_View = "";
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "Phone",
     "Username"
    ]);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Invoice or Pre-set Identifier are missing."
-   ];
-   $responseType = "Dialog";
    $shopID = $data["Shop"] ?? "";
-   $success = "";
+   $_Success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id)) {
-    $r = [
+    $_Dialog = [
      "Body" => "The Shop Identifier is missing."
     ];
     if(!empty($shopID)) {
-     $check = 0;
-     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
-     $r = [
+     $_Dialog = [
       "Body" => "You are not authorized to manage Invoices.",
       "Header" => "Forbidden"
      ];
+     $check = 0;
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
      $shop = $this->core->Data("Get", ["shop", $shopID]);
      $shopContributors = $shop["Contributors"] ?? [];
      foreach($shopContributors as $member => $role) {
@@ -945,18 +948,18 @@
        break;
       }
      } if($check == 1 && $isAdmin == 1) {
+      $_Dialog = [
+       "Body" => "The Service Title is missing."
+      ];
       $chargeList = "";
       $charges = [];
       $isCharge = $data["Charge"] ?? 0;
       $isNote = $data["Note"] ?? 0;
       $isForwarding = $data["Forward"] ?? 0;
       $isPreset = $data["Preset"] ?? 0;
-      $r = [
-       "Body" => "The Service Title is missing."
-      ];
       $title = $data["Title"] ?? "";
       if($isCharge == 1) {
-       $accessCode = "Accepted";
+       $_AccessCode = "Accepted";
        $bulletin = "";
        $invoice = $this->core->Data("Get", ["invoice", $id]);
        $member = $invoice["ChargeTo"] ?? "";
@@ -1030,22 +1033,25 @@
        }
        $invoice["Charges"] = $charges;
        $this->core->Data("Save", ["invoice", $id, $invoice]);
-       $r = $this->core->Element([
-        "h4", "Success!", ["class" => "CenterText UpperCase"]
-       ]).$this->core->Element([
-        "p", "Your Invoice has been updated.$bulletin",
-        ["class" => "CenterText"]
-       ]);
-       $responseType = "ReplaceContent";
+       $_ResponseType = "ReplaceContent";
+       $_View = [
+        "ChangeData" => [],
+        "Extension" => $this->core->AESencrypt($this->core->Element([
+         "h4", "Success!", ["class" => "CenterText UpperCase"]
+        ]).$this->core->Element([
+         "p", "Your Invoice has been updated.$bulletin",
+         ["class" => "CenterText"]
+        ]))
+       ];
       } elseif($isForwarding == 1) {
+       $_Dialog = [
+        "Body" => "An e-mail address or username are required."
+       ];
        $email = $data["Email"] ?? "";
        $invoice = $this->core->Data("Get", ["invoice", $id]);
        $member = $data["Username"] ?? "";
-       $r = [
-        "Body" => "An e-mail address or username are required."
-       ];
        if(!empty($email) || !empty($member)) {
-        $accessCode = "Accepted";
+        $_AccessCode = "Accepted";
         $bulletin = "";
         $charges = $invoice["Charges"] ?? [];
         foreach($charges as $key => $charge) {
@@ -1107,14 +1113,14 @@
          }
          $bulletin = "<em>$member</em> will receive a Bulletin shortly.";
         }
-        $r = [
+        $_Dialog = [
          "Body" => "The Invoice has been forwarded to $email.$bulletin",
          "Header" => "Forwarded"
         ];
        }
-       $success = "CloseCard";
+       $_Success = "CloseCard";
       } elseif($isNote == 1) {
-       #$accessCode = "Accepted";
+       $_AccessCode = "Accepted";
        $invoice = $this->core->Data("Get", ["invoice", $id]);
        $albums = [];
        $albumsData = $data["Album"] ?? [];
@@ -1244,12 +1250,12 @@
        ]);
        $invoice["Notes"] = $notes;
        $this->core->Data("Save", ["invoice", $id, $invoice]);
-       $r = [
+       $_Dialog = [
         "Body" => "Your note has been added to the Invoice.",
         "Header" => "Done"
        ];
       } elseif(!empty($title) && $isPreset == 1) {
-       $accessCode = "Accepted";
+       $_AccessCode = "Accepted";
        $description = $data["ChargeDescription"][0] ?? "Unknown";
        $service = $this->core->Data("Get", ["invoice-preset", $id]);
        $serviceTitle = $title ?? "New Service";
@@ -1275,15 +1281,15 @@
        $shop["InvoicePresets"] = $services;
        $this->core->Data("Save", ["invoice-preset", $id, $service]);
        $this->core->Data("Save", ["shop", $shopID, $shop]);
-       $r = "Update Pre-set";
-       $responseType = "UpdateText";
+       $_View = "Update Pre-set";
+       $_ResponseType = "UpdateText";
       } elseif($isPreset == 0) {
+       $_Dialog = [
+        "Body" => "We could not find the Member <strong>$member</strong>."
+       ];
        $check = 0;
        $member = $data["ChargeTo"] ?? "";
        $members = $this->core->DatabaseSet("Member");
-       $r = [
-        "Body" => "We could not find the Member <strong>$member</strong>."
-       ];
        foreach($members as $key => $value) {
         $value = str_replace("nyc.outerhaven.mbr.", "", $value);
         if($check == 0) {
@@ -1294,11 +1300,11 @@
          }
         }
        } if((!empty($member) && $check == 1) || $check == 0) {
-        $r = [
+        $_Dialog = [
          "Body" => "An e-mail address is required in order for us ensure your Invoice is sent to the proper recipient."
         ];
         if(!empty($data["Email"])) {
-         $accessCode = "Accepted";
+         $_AccessCode = "Accepted";
          $chargeData = $data["ChargeTitle"] ?? 0;
          $charges = [];
          for($i = 0; $i < count($chargeData); $i++) {
@@ -1364,11 +1370,11 @@
          $this->core->Statistic("New Invoice");
          $this->core->Data("Save", ["invoice", $id, $invoice]);
          $this->core->Data("Save", ["shop", $shopID, $shop]);
-         $r = [
+         $_Dialog = [
           "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
           "Header" => "Done"
          ];
-         $success = "CloseCard";
+         $_Success = "CloseCard";
         }
        }
       }
@@ -1376,14 +1382,12 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $responseType,
-    "Success" => $success
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "Success" => $_Success,
+    "View" => $_View
    ]);
   }
   function __destruct() {
