@@ -20,7 +20,6 @@
   }
   function RecoverPassword(array $data): string {
    $_AccessCode = "Denied";
-   $_AddTopMargin = "0";
    $_Dialog = "";
    $_ResponseType = "GoToView";
    $_View = "";
@@ -30,12 +29,9 @@
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $_AddTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
     $email = $data["Email"] ?? "";
     $members = $this->core->DatabaseSet("Member");
-    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
-    $viewData = json_decode(base64_decode($viewData), true);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
@@ -49,11 +45,14 @@
      $message = "The email address is not in use.";
     } else {
      $_AccessCode = "Accepted";
+     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
+     $viewData = json_decode(base64_decode($viewData), true);
+     $viewData["Step"] = base64_encode(3);
+     $viewData["Email"] = base64_encode($email);
      $data = [];
      $data["Email"] = base64_encode($email);
-     $data["ReturnView"] = base64_encode(base64_encode("LostAndFound:RecoverPassword"));
-     $viewData["ParentView"] = base64_decode($parentView);
-     $viewData["Email"] = base64_encode($email);
+     $data["ParentView"] = $parentView;
+     $data["ReturnView"] = base64_encode(base64_encode("LostAndFound:RecoverUsername"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $_View = $this->core->RenderView($_View);
@@ -64,7 +63,6 @@
      $_View = "";
     }
    } elseif($step == 3) {
-    $_AddTopMargin = "1";
     $email = $data["Email"] ?? base64_encode("");
     $email = base64_decode($email);
     $members = $this->core->DatabaseSet("Member");
@@ -117,7 +115,8 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AddTopMargin" => $_AddTopMargin,
+    "AccessCode" => $_AccessCode,
+    "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "View" => $_View
@@ -125,7 +124,6 @@
   }
   function RecoverPIN(array $data): string {
    $_AccessCode = "Denied";
-   $_AddTopMargin = "0";
    $_Dialog = "";
    $_ResponseType = "GoToView";
    $_View = "";
@@ -135,12 +133,9 @@
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $_AddTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
     $email = $data["Email"] ?? "";
     $members = $this->core->DatabaseSet("Member");
-    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
-    $viewData = json_decode(base64_decode($viewData), true);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
@@ -154,11 +149,14 @@
      $message = "The email address is not in use.";
     } else {
      $_AccessCode = "Accepted";
+     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
+     $viewData = json_decode(base64_decode($viewData), true);
+     $viewData["Step"] = base64_encode(3);
+     $viewData["Email"] = base64_encode($email);
      $data = [];
      $data["Email"] = base64_encode($email);
-     $data["ReturnView"] = base64_encode(base64_encode("LostAndFound:RecoverPIN"));
-     $viewData["ParentView"] = base64_decode($parentView);
-     $viewData["Email"] = base64_encode($email);
+     $data["ParentView"] = $parentView;
+     $data["ReturnView"] = base64_encode(base64_encode("LostAndFound:RecoverUsername"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $_View = $this->core->RenderView($_View);
@@ -169,7 +167,6 @@
      $_View = "";
     }
    } elseif($step == 3) {
-    $_AddTopMargin = "1";
     $email = $data["Email"] ?? base64_encode("");
     $email = base64_decode($email);
     $members = $this->core->DatabaseSet("Member");
@@ -222,7 +219,8 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AddTopMargin" => $_AddTopMargin,
+    "AccessCode" => $_AccessCode,
+    "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "View" => $_View
@@ -230,22 +228,18 @@
   }
   function RecoverUsername(array $data): string {
    $_AccessCode = "Denied";
-   $_AddTopMargin = "0";
    $_Dialog = "";
    $_ResponseType = "GoToView";
    $_View = "";
    $data = $data["Data"] ?? [];
    $i = 0;
-   $parentView = $viewData["ParentView"] ?? base64_encode("LostAndFound");
+   $parentView = $viewData["ParentView"] ?? base64_encode("RecoverUsername");
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $_AddTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
     $email = $data["Email"] ?? "";
     $members = $this->core->DatabaseSet("Member");
-    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
-    $viewData = json_decode(base64_decode($viewData), true);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
@@ -259,11 +253,14 @@
      $message = "The email address is not in use.";
     } else {
      $_AccessCode = "Accepted";
+     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
+     $viewData = json_decode(base64_decode($viewData), true);
+     $viewData["Step"] = base64_encode(3);
+     $viewData["Email"] = base64_encode($email);
      $data = [];
      $data["Email"] = base64_encode($email);
+     $data["ParentView"] = $parentView;
      $data["ReturnView"] = base64_encode(base64_encode("LostAndFound:RecoverUsername"));
-     $viewData["ParentView"] = base64_decode($parentView);
-     $viewData["Email"] = base64_encode($email);
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $_View = $this->core->RenderView($_View);
@@ -274,7 +271,6 @@
      $_View = "";
     }
    } elseif($step == 3) {
-    $_AddTopMargin = "1";
     $email = $data["Email"] ?? base64_encode("");
     $email = base64_decode($email);
     $members = $this->core->DatabaseSet("Member");
@@ -308,11 +304,10 @@
     }
    } else {
     $_ResponseType = "View";
-    $parentView = "RecoverUsername";
     $_View = [
      "ChangeData" => [
-      "[LostAndFound.Recovery.ParentView]" => $parentView,
-      "[LostAndFound.Recovery.ParentView.Encoded]" => base64_encode($parentView),
+      "[LostAndFound.Recovery.ParentView]" => base64_decode($parentView),
+      "[LostAndFound.Recovery.ParentView.Encoded]" => $parentView,
       "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername")."&Step=".base64_encode(2)),
       "[LostAndFound.Recovery.ViewData]" => base64_encode(json_encode([
        "Step" => base64_encode(3)
@@ -322,8 +317,9 @@
      "ExtensionID" => "84e04efba2e596a97d2ba5f2762dd60b"
     ];
    }
-   return $this->core->JSONResponse([//PURGE: 45787465-6e73-496f-ae42-794d696b65-67ac610803c33
-    "AddTopMargin" => $_AddTopMargin,
+   return $this->core->JSONResponse([
+    "AccessCode" => $_AccessCode,
+    "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "View" => $_View

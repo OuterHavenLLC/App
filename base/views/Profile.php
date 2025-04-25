@@ -1711,12 +1711,12 @@
      "ID" => base64_encode("Member;".md5($username))
     ]);
     if($member["Empty"] == 0) {
-     $data = [];
      $member = $member["DataModel"];
      $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
      $viewData = json_decode(base64_decode($viewData), true);
      $viewData["Step"] = base64_encode(3);
      $viewData["Username"] = $this->core->AESencrypt($member["Login"]["Username"]);
+     $data = [];
      $data["Email"] = base64_encode($member["Personal"]["Email"]);
      $data["ParentView"] = $parentView;
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignIn"));
@@ -1771,7 +1771,6 @@
        ]
       ];
       $_ResponseType = "View";
-      #$_View = ["ChangeData"=>[],"Extension"=>""];
       $_View = "";
      }
     }
