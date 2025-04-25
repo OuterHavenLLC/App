@@ -79,7 +79,7 @@
    ]).$this->Element([
     "p" => "The Article <em>$id</em> could not be found."
    ]);
-   return $_View;
+   return $article;
   }
   function Authenticate(string $action, $data = []): string {
    $action = $action ?? "";

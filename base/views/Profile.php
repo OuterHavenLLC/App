@@ -62,7 +62,7 @@
    $you = $y["Login"]["Username"];
    $_View = ($this->core->ID != $you) ? $this->core->Element(["button", NULL, [
     "class" => "AddContent OpenFirSTEPTool h",
-    "data-fst" => base64_encode("v=".base64_encode("Profile:AddContent"))
+    "data-fst" => $this->core->AESencrypt("v=".base64_encode("Profile:AddContent"))
    ]]) : "";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
@@ -1744,6 +1744,7 @@
     $check = ($age > $_MinimumAge) ? 1 : 0;
     $email = $data["Email"] ?? "";
     $gender = $data["Gender"] ?? "Male";
+    $message = "Internal Error";
     $name = $data["Name"] ?? "John";
     $i = 0;
     $members = $this->core->DatabaseSet("Member");
@@ -1751,7 +1752,6 @@
     $password2 = $data["Password2"] ?? "";
     $pin = $data["PIN"] ?? "";
     $pin2 = $data["PIN2"] ?? "";
-    $r = "Internal Error";
     $username = $data["Username"] ?? "";
     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
     $viewData = json_decode(base64_decode($viewData), true);
@@ -1850,6 +1850,7 @@
      $message = "The Username <em>$username</em> is already in use.";
     } else {
      $_AccessCode = "Accepted";
+     $_ResponseType = "View";
      /*--$this->core->Data("Save", ["cms", $usernameID, [
       "Contacts" => [],
       "Requests" => []
@@ -1926,7 +1927,24 @@
        "ExtensionID" => "872fd40c7c349bf7220293f3eb64ab45"
       ]
      ];
-     $_Commands = [];//SIGN IN ON SUCCESS
+     $_Commands = [
+      [
+       "Name" => "SignIn",
+       "Parameters" => [
+        $this->core->Authenticate("Save", [
+         "Password" => $password,
+         "Username" => $username
+        ])
+       ]
+      ],
+      [
+       "Name" => "UpdateContent",
+       "Parameters" => [
+        ".Content",
+        base64_encode("v=".base64_encode("WebUI:Landing"))
+       ]
+      ]
+     ];
      $_View = "";
     } if($_AccessCode != "Accepted") {
      $_Dialog = [
@@ -1959,7 +1977,7 @@
     ];
    }
    $_Dialog = [
-    "Body" => "This experience is temporarily down while we perform a whole-of-platform update regarding server response data.",
+    "Body" => "This experience is temporarily down while we finish updates. Your profile will not be created if you proceed.",
     "Header" => "Sign Up"
    ];
    return $this->core->JSONResponse([
