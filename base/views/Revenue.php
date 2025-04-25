@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function AddTransaction(array $data) {
+  function AddTransaction(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
@@ -37,7 +37,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $_View = [
     "ChangeData" => [],
@@ -91,7 +91,7 @@
     "View" => $_View
    ]);
   }
-  function PayPeriod(array $data) {
+  function PayPeriod(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Pay Period, Revenue Year, or Shop Identifiers are missing."
@@ -203,7 +203,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveManualTransaction(array $data) {
+  function SaveManualTransaction(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
@@ -254,7 +254,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveTransaction(array $data) {
+  function SaveTransaction(array $data): string {
    $_View = $this->core->Element(["p", "The Shop Identifier is missing."]);
    $data = $data["Data"] ?? [];
    $cost = $data["Cost"] ?? 0;
@@ -351,7 +351,7 @@
     ]
    ]);
   }
-  function Year(array $data) {
+  function Year(array $data): string {
    $_Dialog = [
     "Body" => "The Shop Identifier or Year are missing."
    ];
@@ -447,7 +447,7 @@
     "View" => $_View
    ]);
   }
-  function Years(array $data) {
+  function Years(array $data): string {
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];

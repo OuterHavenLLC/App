@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Download(array $data) {
+  function Download(array $data): string {
    $data = $data["Data"] ?? [];
    $media = $data["FilePath"] ?? "";
    $mediaLink = $this->core->efs.base64_decode($media);
@@ -23,7 +23,7 @@
     exit;
    }
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The File Identifier is missing."
@@ -90,7 +90,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The File Identifier or Username are missing."
@@ -271,7 +271,7 @@
     "View" => $_View
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_View = "";
    $_Dialog = [
     "Body" => "The Media File Identifier is missing."
@@ -388,7 +388,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The File Identifier is missing."
@@ -470,7 +470,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveProfileImage(array $data) {
+  function SaveProfileImage(array $data): string {
    $_Dialog = [
     "Body" => "The Photo type is missing."
    ];
@@ -508,7 +508,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveUpload(array $data) {
+  function SaveUpload(array $data): string {
    $_AccessCode = "Denied";
    $_Failed = [];
    $_Passed = [];
@@ -741,7 +741,7 @@
     "JSON" => $_JSON
    ]);
   }
-  function Upload(array $data) {
+  function Upload(array $data): string {
    $_AccessCode = "Denied";
    $_Card = "";
    $_Dialog = [

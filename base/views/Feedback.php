@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Feedback Identifier is missing."
@@ -90,7 +90,7 @@
     "View" => $_View
    ]);
   }
-  function NewThread() {
+  function NewThread(): string {
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $id = $this->core->UUID("FeedbackThreadFor$you");
@@ -112,7 +112,7 @@
     ]
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "An internal error has ocurred."
@@ -198,7 +198,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveResponse(array $data) {
+  function SaveResponse(array $data): string {
    $_Dialog = [
     "Body" => "The Feedback Identifier is missing."
    ];
@@ -258,7 +258,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Stream(array $data) {
+  function Stream(array $data): string {
    $_Dialog = [
     "Body" => "The Feedback Identifier is missing."
    ];

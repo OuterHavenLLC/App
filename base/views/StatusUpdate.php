@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Post Identifier is missing."
@@ -104,7 +104,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $_Commands = [];
    $_Dialog = [
@@ -334,13 +334,12 @@
     "View" => $_View
    ]);
   }
-  function Public(array $data) {
+  function Public(array $data): string {
    $_Query = "SELECT * FROM StatusUpdates
                        JOIN Members
                        ON Member_Username=StatusUpdate_Username
                        WHERE StatusUpdate_ID=:ID AND
-                                     StatusUpdate_Username=:Username
-   ";
+                                     StatusUpdate_Username=:Username";
    $_View = $this->view(base64_encode("WebUI:Error"), ["Data" => [
     "Error" => 404
    ]]);
@@ -367,7 +366,7 @@
     "View" => $_View
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_Dialog = [
     "Body" => "The Status Update Identifier is missing."
    ];
@@ -442,7 +441,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Update Identifier is missing."

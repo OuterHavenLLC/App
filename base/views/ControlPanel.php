@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this experience.",
     "Header" => "Unauthorized"
@@ -275,7 +275,7 @@
     "View" => $_View
    ]);
   }
-  function SaveApp(array $data) {
+  function SaveApp(array $data): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
@@ -343,7 +343,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveEvents(array $data) {
+  function SaveEvents(array $data): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
@@ -420,7 +420,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveFirst() {
+  function SaveFirst(): string {
    return $this->core->JSONResponse([
     "Dialog" => [
      "Body" => "Please save the configuration and reload the Control Panel first.",
@@ -428,7 +428,7 @@
     ]
    ]);
   }
-  function SaveMedia(array $data) {
+  function SaveMedia(array $data): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
@@ -464,7 +464,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveSearch(array $data) {
+  function SaveSearch(array $data): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
@@ -500,7 +500,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveStatistics(array $data) {
+  function SaveStatistics(array $data): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"
@@ -531,7 +531,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveUI(array $data) {
+  function SaveUI(array $data): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this resource.",
     "Header" => "Unauthorized"

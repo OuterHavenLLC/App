@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Delete(array $data) {
+  function Delete(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Username is missing."
@@ -50,7 +50,7 @@
     "ResponseType" => $responseType
    ]);
   }
-  function Options(array $data) {
+  function Options(array $data): string {
    $_Dialog = [
     "Body" => "The Username is missing."
    ];
@@ -95,7 +95,7 @@
     "View" => $_View
    ]);
   }
-  function Requests(array $data) {
+  function Requests(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Username is missing."
@@ -227,7 +227,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_Dialog = [
     "Body" => "The Username is missing."
    ];
@@ -262,7 +262,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Status(array $data) {
+  function Status(array $data): string {
    $_Dialog = [
     "Body" => "One or both Usernames are missing."
    ];

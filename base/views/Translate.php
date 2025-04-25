@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Dialog = [
     "Body" => "The Translation Package Identifier is missing."
    ];
@@ -58,7 +58,7 @@
     "View" => $_View
    ]);
   }
-  function RenderClone() {
+  function RenderClone(): string {
    $translations = "";
    foreach($this->core->Languages() as $region => $language) {
     $translations .= $this->core->Element(["div", $this->core->Element([
@@ -71,7 +71,7 @@
     "[Translate.Clone.Translations]" => $translations
    ], $this->core->Extension("63dde5af1a1ec0968ccb006248b55f48")]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_Dialog = [
     "Body" => "The Translation Package Identirifer is missing."
    ];

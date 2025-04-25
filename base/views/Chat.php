@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Attachments(array $data) {
+  function Attachments(array $data): string {
    $_Dialog = [
     "Body" => "The Chat Identifier or Username are missing."
    ];
@@ -61,7 +61,7 @@
     "View" => $_View
    ]);
   }
-  function Bookmark(array $data) {
+  function Bookmark(array $data): string {
    $_Dialog = [
     "Body" => "The Chat Identifier or Join Command missing."
    ];
@@ -129,7 +129,7 @@
     "View" => $_View
    ]);
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Chat Identifier or Username are missing."
@@ -187,7 +187,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Chat Identifier is missing."
@@ -484,7 +484,7 @@
     "View" => $_View
    ]);
   }
-  function List(array $data) {
+  function List(array $data): string {
    $_View = [
     "ChangeData" => [],
     "ExtensionID" => "2ce9b2d2a7f5394df6a71df2f0400873"
@@ -581,7 +581,7 @@
     "View" => $_View
    ]);
   }
-  function Menu(array $data) {
+  function Menu(array $data): string {
    $_Dialog = [
     "Body" => "You must sign in to continue."
    ];
@@ -609,7 +609,7 @@
     "View" => $_View
    ]);
   }
-  function Public(array $data) {
+  function Public(array $data): string {
    $data = $data["Data"] ?? [];
    $_Dialog = [
     "Body" => "We could not find the Group Chat you were looking for."
@@ -644,7 +644,7 @@
     "View" => $_View
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
@@ -714,7 +714,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "A message or attachment are required."

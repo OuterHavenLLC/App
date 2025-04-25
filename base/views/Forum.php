@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Banish(array $data) {
+  function Banish(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -40,7 +40,7 @@
     "Dialog" => $_DIalog
    ]);
   }
-  function ChangeMemberRole(array $data) {
+  function ChangeMemberRole(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
@@ -74,7 +74,7 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
@@ -139,7 +139,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function EditTopics(array $data) {
+  function EditTopics(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
@@ -217,7 +217,7 @@
     "View" => $_View
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "The requested Forum could not be found.",
     "Header" => "Not Found"
@@ -408,7 +408,7 @@
     "View" => $_View
    ]);
   }
-  function Invite(array $data) {
+  function Invite(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
@@ -453,7 +453,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Join(array $data) {
+  function Join(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier or Join Command are missing."
    ];
@@ -506,7 +506,7 @@
     "View" => $_View
    ]);
   }
-  function Public(array $data) {
+  function Public(array $data): string {
    $_Dialog = [
     "Body" => "We could not find the Forum you were looking for."
    ];
@@ -540,7 +540,7 @@
     "View" => $_View
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
@@ -656,7 +656,7 @@
     "View" => $_View
    ]);
   }
-  function PurgeTopic(array $data) {
+  function PurgeTopic(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -756,7 +756,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
@@ -888,7 +888,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveBanish(array $data) {
+  function SaveBanish(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -928,7 +928,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveTopics(array $data) {
+  function SaveTopics(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -1011,7 +1011,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SendInvite(array $data) {
+  function SendInvite(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -1097,7 +1097,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Topic(array $data) {
+  function Topic(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -1176,7 +1176,7 @@
     "View" => $_View
    ]);
   }
-  function Topics(array $data) {
+  function Topics(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];

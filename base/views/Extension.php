@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Dialog = [
     "Body" => "The Extension Identifier is missing."
    ];
@@ -190,7 +190,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_Dialog = [
     "Body" => "The Extension Identifier is missing."
    ];
@@ -243,7 +243,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Article Identifier is missing."

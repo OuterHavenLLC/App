@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Add(array $data) {
+  function Add(array $data): string {
    $_Dialog = $this->core->Element([
     "p", "You must be signed in to make purchases.", ["class" => "CenterText"]
    ]);
@@ -133,7 +133,7 @@
     "View" => $_View
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -196,7 +196,7 @@
     "View" => $_View
    ]);
   }
-  function SaveAdd(array $data) {
+  function SaveAdd(array $data): string {
    $_AccessCode = "Denied";
    $_DIalog = [
     "Body" => "The Member or Product Identifier is missing."
@@ -252,7 +252,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveRemove(array $data) {
+  function SaveRemove(array $data): string {
    $_Dialog = [
     "Body" => "The Shop or Product Identifier are missing."
    ];
@@ -287,7 +287,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Summary(array $data) {
+  function Summary(array $data): string {
    $data = $data["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];

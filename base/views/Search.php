@@ -9,7 +9,7 @@
    $this->lists = base64_encode("Search:Lists");
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Containers(array $data) {
+  function Containers(array $data): string {
    $_AddTopMargin = "0";
    $_Card = "";
    $_Dialog = [
@@ -447,7 +447,7 @@
     "View" => $_View
    ]);
   }
-  function Links(array $data) {
+  function Links(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "Unknown."
@@ -605,7 +605,7 @@
     "View" => $_View
    ]);
   }
-  function Lists(array $data) {
+  function Lists(array $data): string {
    $_AccessCode = "Denied";
    $_Extension = "";
    $_ExtensionID = "";
@@ -3424,7 +3424,7 @@
     ]
    ]);
   }
-  function ReSearch(array $data) {
+  function ReSearch(array $data): string {
    $_View = "";
    $_ViewTitle = "Re:Search";
    $data = $data["Data"] ?? [];
@@ -3440,8 +3440,7 @@
                         WHERE Member_DisplayName LIKE :Search OR
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
-                        LIMIT 100
-    ";
+                        LIMIT 100";
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $sql->query($_Query, [
      ":Search" => $query

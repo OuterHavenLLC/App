@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Chat(array $data) {
+  function Chat(array $data): string {
    $_Dialog = [
     "Body" => "The Share Card Identifier is missing."
    ];
@@ -68,7 +68,7 @@
     "View" => $_View
    ]);
   }
-  function GroupChat(array $data) {
+  function GroupChat(array $data): string {
    $_Dialog = [
     "Body" => "The Share Card Identifier is missing."
    ];
@@ -149,7 +149,7 @@
     "View" => $_View
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "The Share Card Identifier is missing."
    ];
@@ -235,7 +235,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function RecentChats(array $data) {
+  function RecentChats(array $data): string {
    $_Dialog = [
     "Body" => "The Share Card Identifier is missing."
    ];

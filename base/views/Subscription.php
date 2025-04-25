@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function FARPlayer() {
+  function FARPlayer(): string {
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "View" => [
@@ -15,7 +15,7 @@
     ]
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Subscription Identifier is missing."
@@ -126,7 +126,7 @@
     "Card" => $_Card
    ]);
   }
-  function RenewAll() {
+  function RenewAll(): string {
    $_Dialog = [
     "Body" => "You do not have permission to access this view."
    ];

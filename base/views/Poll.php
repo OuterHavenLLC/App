@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Create() {
+  function Create(): string {
    $option = $this->core->Extension("3013dd986b7729f1fc38b82586ee9d8d");
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -29,7 +29,7 @@
     ]
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "The Poll Identifier is missing."
    ];
@@ -122,7 +122,7 @@
     "View" => $_View
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_Dialog = [
     "Body" => "The Poll Identifier is missing."
    ];
@@ -182,7 +182,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Poll Identifier is missing."
@@ -287,7 +287,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function Vote(array $data) {
+  function Vote(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Poll Identifier or Choice are missing."

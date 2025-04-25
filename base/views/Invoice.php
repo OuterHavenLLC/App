@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Add(array $data) {
+  function Add(array $data): string {
    $_AccessCode = "Denied";
    $_Card = "";
    $_Dialog = [
@@ -180,7 +180,7 @@
     "View" => $_View
    ]);
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
@@ -301,7 +301,7 @@
     "View" => $_View
    ]);
   }
-  function Forward(array $data) {
+  function Forward(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
@@ -343,7 +343,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Hire(array $data) {
+  function Hire(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
@@ -545,7 +545,7 @@
     "View" => $_View
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
    ];
@@ -726,7 +726,7 @@
     "View" => $_View
    ]);
   }
-  function Refund(array $data) {
+  function Refund(array $data): string {
    $_Dialog = [
     "Body" => "The Charge or Invoice Identifier are missing."
    ];
@@ -840,7 +840,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function PurgePreset(array $data) {
+  function PurgePreset(array $data): string {
    $_Dialog = [
     "Body" => "The Shop or Service Identifiers are missing."
    ];
@@ -908,7 +908,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Invoice or Pre-set Identifier are missing."

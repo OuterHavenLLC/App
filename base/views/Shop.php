@@ -5,7 +5,7 @@
    $this->root = $_SERVER["DOCUMENT_ROOT"]."/base/pay/Braintree.php";
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Banish(array $data) {
+  function Banish(array $data): string {
    $_Dialog = [
     "Body" => "The Username is missing."
    ];
@@ -40,7 +40,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function CompleteOrder(array $data) {
+  function CompleteOrder(array $data): string {
    $_Dialog = [
     "Body" => "The Order Identifier is missing."
    ];
@@ -62,7 +62,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
@@ -205,7 +205,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function EditPartner(array $data) {
+  function EditPartner(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Partner Identifier is missing."
@@ -266,7 +266,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function HireSection(array $data) {
+  function HireSection(array $data): string {
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -307,7 +307,7 @@
     "View" => $_View
    ]);
   }
-  function History(array $data) {
+  function History(array $data): string {
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -404,7 +404,7 @@
     "View" => $_View
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
@@ -634,7 +634,7 @@
     "View" => $_View
    ]);
   }
-  function MadeInNewYork(array $data) {
+  function MadeInNewYork(array $data): string {
    $_Search = base64_encode("Search:Containers");
    $data = $data["Data"] ?? [];
    $back = $data["back"] ?? "";
@@ -665,7 +665,7 @@
     ]
    ]);
   }
-  function Pay(array $data) {
+  function Pay(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
@@ -1317,7 +1317,7 @@
     "View" => $_View
    ]);
   }
-  function ProcessCartOrder(array $data) {
+  function ProcessCartOrder(array $data): string {
    $_AccessCode = "Accepted";
    $_View = "";
    $isBundled = $data["IsBundled"] ?? 0;
@@ -1469,7 +1469,7 @@
    }
    return $response;
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
@@ -1727,7 +1727,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveBanish(array $data) {
+  function SaveBanish(array $data): string {
    $_Dialog = [
     "Body" => "The Username is missing."
    ];
@@ -1767,7 +1767,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveCreditExChange(array $data) {
+  function SaveCreditExChange(array $data): string {
    $_Dialog = [
     "Body" => "Unknown error."
    ];
@@ -1808,7 +1808,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SaveDiscountCodes(array $data) {
+  function SaveDiscountCodes(array $data): string {
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["DC", "ID"]);
    $i = 0;
@@ -1852,7 +1852,7 @@
     ]
    ]);
   }
-  function SavePartner(array $data) {
+  function SavePartner(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Username is missing."
@@ -1927,7 +1927,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function Subscribe(array $data) {
+  function Subscribe(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."

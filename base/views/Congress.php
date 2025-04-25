@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Elect() {
+  function Elect(): string {
    $_Dialog = [
     "Body" => "There are currently no eligible candidates to elect."
    ];
@@ -54,7 +54,7 @@
     "Dialog" => $_DIalog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_AddTopMargin = "0";
    $_View = "";
    $data = $data["Data"] ?? [];
@@ -148,7 +148,7 @@
     "View" => $_View
    ]);
   }
-  function Join(array $data) {
+  function Join(array $data): string {
    $_Dialog = [
     "Body" => "The Command or Role are missing."
    ];
@@ -222,7 +222,7 @@
     "View" => $_View
    ]);
   }
-  function Nominate(array $data) {
+  function Nominate(array $data): string {
    $_AccessCode = "Accepted";
    $_Dialog = "";
    $_View = "";
@@ -323,7 +323,7 @@
     "View" => $_View
    ]);
   }
-  function Notes(array $data) {
+  function Notes(array $data): string {
    $_AccessCode = "Dernied";
    $_Card = "";
    $_Dialog = [
@@ -749,7 +749,7 @@
     "View" => $_View
    ]);
   }
-  function Report(array $data) {
+  function Report(array $data): string {
    $_Dialog = [
     "Body" => "The Content Identifier is missing."
    ];
@@ -794,7 +794,7 @@
     "Dialog" => $_DIalog
    ]);
   }
-  function SaveReport(array $data) {
+  function SaveReport(array $data): string {
    $_Dialog = [
     "Body" => "The Content Identifier or Type are missing."
    ];
@@ -950,7 +950,7 @@
     "Dialog" => $_DIalog
    ]);
   }
-  function Vote(array $data) {
+  function Vote(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Content Identifier or Vote Persuasion are missing."
@@ -1070,7 +1070,7 @@
     "Dialog" => $_DIalog
    ]);
   }
-  function VoteForCandidate(array $data) {
+  function VoteForCandidate(array $data): string {
    $_Dialog = [
     "Body" => "The Candidate or Chamber Identifiers are missing."
    ];

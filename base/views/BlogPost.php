@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
@@ -122,7 +122,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "The requested Blog Post could not be found.",
     "Header" => "Not Found"
@@ -278,7 +278,7 @@
     "View" => $_View
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog or Post Identifier are missing."
@@ -358,7 +358,7 @@
     "View' => $_View"
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
@@ -650,7 +650,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function Subscribe(array $data) {
+  function Subscribe(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."

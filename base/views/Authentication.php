@@ -5,7 +5,7 @@
    $this->authID = md5($this->core->timestamp.uniqid());
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function ArticleChangeMemberRole(array $data) {
+  function ArticleChangeMemberRole(array $data): string {
    $_Dialog = [
     "Body" => "The Article Identifier is missing."
    ];
@@ -38,7 +38,7 @@
     "View" => $_View
    ]);
   }
-  function BlogChangeMemberRole(array $data) {
+  function BlogChangeMemberRole(array $data): string {
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
    ];
@@ -75,7 +75,7 @@
     "View" => $_View
    ]);
   }
-  function PFChangeMemberRole(array $data) {
+  function PFChangeMemberRole(array $data): string {
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -109,7 +109,7 @@
     "View" => $_View
    ]);
   }
-  function ProtectedContent(array $data) {
+  function ProtectedContent(array $data): string {
    $_Dialog = [
     "Body" => "The View Data is missing."
    ];

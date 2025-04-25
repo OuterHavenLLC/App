@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Donate() {
+  function Donate(): string {
    $donate = "v=".base64_encode("Shop:Pay")."&Shop=".md5($this->core->ShopID)."&Type=Donation&ViewPairID=".base64_encode("CompanyDonations")."&Amount=";
    $_View = [
     "ChangeData" => [
@@ -27,7 +27,7 @@
     "View" => $_View
    ]);
   }
-  function FreeAmericaRadio() {
+  function FreeAmericaRadio(): string {
    $_View = "";
    $_ViewTitle = "Free America Radio";
    $activeEvent = 0;
@@ -60,7 +60,7 @@
     "View" => $_View
    ]);
   }
-  function Home() {
+  function Home(): string {
    $eventMedia = $this->core->RenderEventMedia() ?? [];
    $shopID = base64_encode($this->core->ShopID);
    return $this->core->JSONResponse([
@@ -116,7 +116,7 @@
     ]
    ]);
   }
-  function Partners() {
+  function Partners(): string {
    $partners = $this->core->Member($this->core->ShopID);
    $shop = $this->core->Data("Get", [
     "shop",
@@ -142,7 +142,7 @@
      "ExtensionID" => "2c726e65e5342489621df8fea850dc47"]
    ]);
   }
-  function Portfolio() {
+  function Portfolio(): string {
    return $this->core->JSONResponse([
     "Title" => $this->core->config["App"]["Name"]." Portfolio",
     "View" => [
@@ -151,7 +151,7 @@
     ]
    ]);
   }
-  function Statistics(array $data) {
+  function Statistics(array $data): string {
    $_AddTopMargin = 1;
    $_Commands = [
     [
@@ -301,7 +301,7 @@
     "View" => $_View
    ]);
   }
-  function VVA(array $data) {
+  function VVA(array $data): string {
    $_AddTopMargin = 1;
    $_Card = "";
    $_View = "";

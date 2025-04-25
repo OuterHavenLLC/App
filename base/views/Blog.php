@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Banish(array $data) {
+  function Banish(array $data): string {
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
    ];
@@ -40,7 +40,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function ChangeMemberRole(array $data) {
+  function ChangeMemberRole(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
@@ -75,7 +75,7 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing.",
@@ -149,7 +149,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The requested Blog could not be found.",
@@ -344,7 +344,7 @@
     "View" => $_View
    ]);
   }
-  function Invite(array $data) {
+  function Invite(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing.",
@@ -391,7 +391,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
    ];
@@ -481,7 +481,7 @@
     "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
@@ -632,7 +632,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveBanish(array $data) {
+  function SaveBanish(array $data): string {
    $_Dialog = [
     "Body" => "The Article Identifier is missing."
    ];
@@ -675,7 +675,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function SendInvite(array $data) {
+  function SendInvite(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
@@ -763,7 +763,7 @@
     "Success" => "CloseCard"
    ]);
   }
-  function Subscribe(array $data) {
+  function Subscribe(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."

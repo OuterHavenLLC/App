@@ -7,7 +7,7 @@
    ]]);
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function CoreMedia(array $data) {
+  function CoreMedia(array $data): string {
    $_View = "";
    $data = $data["Data"] ?? [];
    $dlc = $data["DLC"] ?? "";
@@ -38,7 +38,7 @@
     ]
    ]);
   }
-  function Editor(array $data) {
+  function Editor(array $data): string {
    $_View = "";
    $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? base64_encode("");
@@ -102,7 +102,7 @@
     ]
    ]);
   }
-  function InlineMossaic(array $data) {
+  function InlineMossaic(array $data): string {
    $_View = "";
    $data = $data["Data"] ?? [];
    $i = 0;
@@ -259,7 +259,7 @@
     ]
    ]);
   }
-  function MemberGrid(array $data) {
+  function MemberGrid(array $data): string {
    $_View = "";
    $data = $data["Data"] ?? [];
    $list = $data["List"] ?? "";

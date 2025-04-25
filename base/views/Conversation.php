@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_Card = "";
    $_Dialog = [
     "Body" => "The Conversation Identifier is missing."
@@ -105,7 +105,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_Dialog = [
     "Body" => "The Conversation Identifier is missing.",
     "Header" => "Not Found"
@@ -345,7 +345,7 @@
     "View" => $_View
    ]);
   }
-  function MarkAsHidden(array $data) {
+  function MarkAsHidden(array $data): string {
    $_Dialog = [
     "Body" => "The Conversation or comment Identifier are missing."
    ];
@@ -379,7 +379,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Conversation or $commentType Identifier are missing."
