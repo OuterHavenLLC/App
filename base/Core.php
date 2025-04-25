@@ -28,73 +28,67 @@
     ]);
    }
   }
-function AESdecrypt(string $data) {
-    try {
-        $key = hash("sha256", base64_decode($this->DITkey), true); // "testkey" in base64
-        if(empty($data)) {
-            return $data;
-        }
-        $data = base64_decode($data);
-        if ($data === false) {
-            throw new Exception("Base64 decoding failed");
-        }
-        if (strlen($data) % 16 !== 0) {
-            throw new Exception("Decoded data length (" . strlen($data) . ") is not a multiple of AES block size (16)");
-        }
-        $decrypted = openssl_decrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA);
-        if ($decrypted === false) {
-            throw new Exception("Decryption failed: " . openssl_error_string());
-        }
-        return $decrypted;
-    } catch (Exception $error) {
-        return "AES Decryption error: " . $error->getMessage();
+  function AESdecrypt(string $data): string {
+   try {
+    $key = hash("sha256", base64_decode($this->DITkey), true); // "testkey" in base64
+    if(empty($data)) {
+     return $data;
     }
-}
-function AESencrypt(string $data) {
- try {
-  $key = hash("sha256", base64_decode($this->DITkey), true);
-  if(empty($data)) {
-   return base64_encode("");
-  }
-  $blockSize = 16;
-  $padLength = $blockSize - (strlen($data) % $blockSize);
-  $data .= str_repeat(chr($padLength), $padLength);
-  $encrypted = openssl_encrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
-  if($encrypted === false) {
-   throw new Exception("Encryption failed: ".openssl_error_string());
-  }
-  return base64_encode($encrypted);
- } catch(Exception $error) {
-  return "AES Encryption error: ".$error->getMessage();
- }
-}
-  function Article(string $id) {
-   $article = $this->Data("Get", ["pg", $id]);
-   $r = $this->Change([[
-    "[Error.Back]" => "",
-    "[Error.Header]" => "Not Found",
-    "[Error.Message]" => "The Article <em>$id</em> could not be found."
-   ], $this->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
-   if(!empty($article)) {
-    $r = $this->PlainText([
-     "Data" => $article["Body"],
-     "Decode" => 1,
-     "Display" => 1,
-     "HTMLDecode" => 1
-    ]);
+    $data = base64_decode($data);
+    if($data === false) {
+     throw new Exception("Base64 decoding failed");
+    } if(strlen($data) % 16 !== 0) {
+     throw new Exception("Decoded data length (" . strlen($data) . ") is not a multiple of AES block size (16)");
+    }
+    $decrypted = openssl_decrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA);
+    if($decrypted === false) {
+     throw new Exception("Decryption failed: " . openssl_error_string());
+    }
+    return $decrypted;
+   } catch(Exception $error) {
+    return "AES Decryption: " . $error->getMessage();
    }
-   return $r;
   }
-  function Authenticate(string $action, $data = []) {
+  function AESencrypt(string $data): string {
+   try {
+    $key = hash("sha256", base64_decode($this->DITkey), true);
+    if(empty($data)) {
+     return base64_encode("");
+    }
+    $blockSize = 16;
+    $padLength = $blockSize - (strlen($data) % $blockSize);
+    $data .= str_repeat(chr($padLength), $padLength);
+    $encrypted = openssl_encrypt($data, "AES-256-ECB", $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
+    if($encrypted === false) {
+     throw new Exception("Encryption failed: ".openssl_error_string());
+    }
+    return base64_encode($encrypted);
+   } catch(Exception $error) {
+    return "AES Encryption: ".$error->getMessage();
+   }
+  }
+  function Article(string $id): string {
+   $article = $this->Data("Get", ["pg", $id]);
+   $article = (!empty($article)) ? $this->PlainText([
+    "Data" => $article["Body"],
+    "Decode" => 1,
+    "Display" => 1,
+    "HTMLDecode" => 1
+   ]) : $this->Element([
+    "h1" => "Not Found"
+   ]).$this->Element([
+    "p" => "The Article <em>$id</em> could not be found."
+   ]);
+   return $_View;
+  }
+  function Authenticate(string $action, $data = []): string {
    $action = $action ?? "";
    $data = $data ?? [];
-   $r = "";
+   $response = "";
    if(!empty($action) && (empty($data) || is_array($data))) {
     if($action == "Get") {
      $headers = (function_exists("apache_request_headers")) ? apache_request_headers() : [];
-     $r = $this->ID;
-     #$token = $headers["Token"] ?? base64_encode("");//TEMP
-     #$token = base64_decode($token);//TEMP
+     $response = $this->ID;
      $token = $headers["Token"] ?? $this->AESencrypt("");
      $token = $this->AESdecrypt($token);
      if(!empty($token)) {
@@ -113,7 +107,7 @@ function AESencrypt(string $data) {
        $you = $this->Data("Get", ["mbr", md5($username)]);
        $you = $you["Login"] ?? [];
        if(!empty($you["Username"]) && $password == $you["Password"]) {
-        $r = $username;
+        $response = $username;
        }
       }
      }
@@ -121,7 +115,7 @@ function AESencrypt(string $data) {
      $password = $data["Password"] ?? "";
      $username = $data["Username"] ?? "";
      if(!empty($password) && !empty($username)) {
-      $r = json_encode([
+      $response = json_encode([
        "Time" => base64_encode(strtotime($this->timestamp))
       ], true)."|".json_encode([
        "Password" => base64_encode($password),
@@ -129,11 +123,11 @@ function AESencrypt(string $data) {
       ], true)."|".json_encode([
        "Secret" => base64_encode(md5($this->cypher->key))
       ], true);
-      $r = $this->Encrypt($r);
+      $response = $this->Encrypt($response);
      }
     }
    }
-   return $r;
+   return $response;
   }
   function ByteNotation(int $a, $b = "MB") {
    $units = [
