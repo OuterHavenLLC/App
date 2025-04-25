@@ -4,155 +4,136 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Banish(array $data) {
-   $_AccessCode = "Denied";
-   $data = $data["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Member"]);
-   $id = $data["ID"];
-   $mbr = $data["Member"];
-   $r = [
-    "Body" => "The Forum Identifier is missing.",
-    "Header" => "Error"
+  function Banish(array $data): string {
+   $_Dialog = [
+    "Body" => "The Forum Identifier is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? "";
    $y = $this->you;
-   if(!empty($id) && !empty($mbr)) {
+   $you = $y["Login"]["Username"];
+   if(!empty($id) && !empty($member)) {
     $id = base64_decode($id);
-    $article = $this->core->Data("Get", ["pg", $id]) ?? [];
-    $mbr = base64_decode($mbr);
-    $r = [
+    $article = $this->core->Data("Get", ["pg", $id]);
+    $member = base64_decode($member);
+    $_Dialog = [
      "Body" => "You cannot banish yourself.",
-     "Header" => "Error"
     ];
-    if($mbr != $article["UN"] && $mbr != $y["Login"]["Username"]) {
+    if($member != $article["UN"] && $member != $y["Login"]["Username"]) {
     $_AccessCode = "Accepted";
-     $r = [
+     $_Dialog = [
       "Actions" => [
        $this->core->Element(["button", "Cancel", [
         "class" => "CloseDialog v2 v2w"
        ]]),
-       $this->core->Element(["button", "Banish $mbr", [
+       $this->core->Element(["button", "Banish $member", [
         "class" => "BBB CloseDialog OpenDialog v2 v2w",
         "data-view" => base64_encode("v=".base64_encode("Page:SaveBanish")."&ID=".$data["ID"]."&Member=".$data["Member"])
        ]])
       ],
-      "Body" => "Are you sure you want to banish $mbr from <em>".$article["Title"]."</em>?",
-      "Header" => "Banish $mbr?"
+      "Body" => "Are you sure you want to banish $member from <em>".$article["Title"]."</em>?",
+      "Header" => "Banish $member?"
      ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog
    ]);
   }
-  function Card(array $data) {
-   $_AccessCode = "Denied";
-   $data = $data["Data"] ?? [];
-   $r = [
+  function Card(array $data): string {
+   $_Card = "";
+   $_Dialog = [
     "Body" => "The Article Identifier is missing.",
     "Header" => "Not Found"
    ];
-   if(!empty($data["ID"])) {
-    $_AccessCode = "Accepted";
-    $article = $this->core->Data("Get", [
-     "pg",
-     base64_decode($data["ID"])
-    ]) ?? [];
-    $r = $this->core->Element([
-     "h1", $article["Title"], ["class" => "UpperCase"]
-    ]).$this->core->Element([
-     "div", $this->core->PlainText([
-      "BBCodes" => 1,
-      "Data" => $article["Body"],
-      "Decode" => 1,
-      "Display" => 1,
-      "HTMLDecode" => 1
-     ]), ["class" => "NONAME"]
-    ]);
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   if(!empty($id)) {
+    $article = $this->core->Data("Get", ["pg", base64_decode($id)]);
+    $title = $article["Title"] ?? "Untitled";
+    $_Card = [
+     "Front" => [
+      "ChangeData" => [
+       "Article.Body]" => $this->core->PlainText([
+        "BBCodes" => 1,
+        "Data" => $article["Body"],
+        "Decode" => 1,
+        "Display" => 1,
+        "HTMLDecode" => 1
+       ]),
+       "[Article.Title]" => $title
+      ],
+      "Extension" => $this->core->AESencrypt($this->core->Element([
+       "h1", "[Article.Title]", ["class" => "UpperCase"]
+      ]).$this->core->Element([
+       "div", "[Article.Body]", ["class" => "NONAME"]
+      ]))
+     ]
+    ];
+    $_Dialog = "";
    }
-   $r = [
-    "Front" => $r
-   ];
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function ChangeMemberRole(array $data) {
+  function ChangeMemberRole(array $data): string {
    $_AccessCode = "Denied";
-   $data = $data["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN", "Member"]);
-   $id = $data["ID"];
-   $member = $data["Member"];
-   $r = [
+   $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? "";
+   $pin = $data["PIN"] ?? "";
    $y = $this->you;
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
-    $r = [
+   $you = $y["Login"]["Username"];
+   if(md5($pin) != $y["Login"]["PIN"]) {
+    $_Dialog = [
      "Body" => "The PINs do not match."
     ];
    } elseif(!empty($id) && !empty($member)) {
     $_AccessCode = "Accepted";
-    $article = $this->core->Data("Get", ["pg", $id]) ?? [];
+    $article = $this->core->Data("Get", ["pg", $id]);
     $contributors = $article["Contributors"] ?? [];
     $role = ($data["Role"] == 1) ? "Member" : "Admin";
     $contributors[$member] = $role;
     $article["Contributors"] = $contributors;
     $this->core->Data("Save", ["pg", $id, $article]);
-    $r = [
+    $_Dialog = [
      "Body" => "$member's Role within <em>".$article["Title"]."</em> was Changed to $role.",
      "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "Dialog" => $_Dialog,
     "Success" => "CloseDialog"
    ]);
   }
-  function Edit(array $data) {
+  function Edit(array $data): string {
    $_AccessCode = "Denied";
-   $buttion = "";
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
    $new = $data["new"] ?? 0;
-   $r = [
-    "Body" => "The Article Identifier is missing."
-   ];
    $time = $this->core->timestamp;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
     $_AccessCode = "Accepted";
     $id = base64_decode($id);
-    $id = ($new == 1) ? $this->core->UUID("ArticleBy$you") : $id;
+    $id = ($new == 1) ? $this->core->UUID("NewArticleBy$you") : $id;
     $action = ($new == 1) ? "Post" : "Update";
-    $action = $this->core->Element(["button", $action, [
-     "class" => "CardButton SendData",
-     "data-form" => ".EditPage$id",
-     "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
-    ]]);
     $article = $this->core->Data("Get", ["pg", $id]);
     $article = $this->core->FixMissing($article, [
      "Body",
@@ -216,44 +197,51 @@
       "ViewDesign" => []
      ]
     ]);
-    $r = $this->core->Change([[
-     "[Article.Attachments]" => $this->core->RenderView($attachments),
-     "[Article.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $article["Body"],
-      "Decode" => 1
-     ])),
-     "[Article.Categories]" => json_encode($categories, true),
-     "[Article.Category]" => $category,
-     "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
-     "[Article.Description]" => base64_encode($article["Description"]),
-     "[Article.DesignView]" => $designViewEditor,// TO BE DISOLVED
-     "[Article.Header]" => $header,
-     "[Article.ID]" => $id,
-     "[Article.New]" => $new,
-     "[Article.PassPhrase]" => base64_encode($passPhrase),
-     "[Article.Title]" => base64_encode($article["Title"]),
-     "[Article.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-     "[Article.Visibility.NSFW]" => $nsfw,
-     "[Article.Visibility.Privacy]" => $privacy
-    ], $this->core->Extension("68526a90bfdbf5ea5830d216139585d7")]);
-    $r = [
-     "Action" => $action,
-     "Front" => $r
+    $_Card = [
+     "Action" => $this->core->Element(["button", $action, [
+      "class" => "CardButton SendData",
+      "data-form" => ".EditPage$id",
+      "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
+     ]]),
+     "Front" => [
+      "ChangeData" => [
+       "[Article.Attachments]" => $this->core->RenderView($attachments),
+       "[Article.Body]" => base64_encode($this->core->PlainText([
+        "Data" => $article["Body"],
+        "Decode" => 1
+       ])),
+       "[Article.Categories]" => json_encode($categories, true),
+       "[Article.Category]" => $category,
+       "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
+       "[Article.Description]" => base64_encode($article["Description"]),
+       "[Article.DesignView]" => $designViewEditor,// TO BE DISOLVED
+       "[Article.Header]" => $header,
+       "[Article.ID]" => $id,
+       "[Article.New]" => $new,
+       "[Article.PassPhrase]" => base64_encode($passPhrase),
+       "[Article.Title]" => base64_encode($article["Title"]),
+       "[Article.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
+       "[Article.Visibility.NSFW]" => $nsfw,
+       "[Article.Visibility.Privacy]" => $privacy
+      ],
+      "ExtensionID" => "68526a90bfdbf5ea5830d216139585d7"
+     ]
     ];
+    $_Dialog = "";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The requested Article could not be found.",
+    "Header" => "Not Found"
+   ];
+   $_View = "";
    $_ViewTitle = $this->core->config["App"]["Name"];
-   $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $backTo = $data["BackTo"] ?? "the Archive";
@@ -261,15 +249,9 @@
    $card = $data["CARD"] ?? 0;
    $id = $data["ID"];
    $parentPage = $data["ParentPage"] ?? "";
-   $pub = $data["pub"] ?? 0;
-   $r = [
-    "Body" => "The requested Article could not be found.",
-    "Header" => "Not Found"
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $_AccessCode = "Accepted";
     $active = 0;
     $admin = 0;
     $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
@@ -284,7 +266,8 @@
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      $_Dialog = "";
+      $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
@@ -300,26 +283,27 @@
         "v" => base64_encode("Page:Home")
        ], true))
       ]]);
-      $r = $this->core->RenderView($r);
+      $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $_AccessCode = "Denied";
+      $_Dialog = [
+       "Body" => "The Key is missing."
+      ];
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
-      $r = $this->core->Element(["p", "The Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
-       $r = $this->core->Element(["p", "The Keys do not match."]);
+       $_Dialog = "";
       } else {
-       $_AccessCode = "Accepted";
-       $r = $this->view(base64_encode("Page:Home"), ["Data" => [
+       $_Dialog = "";
+       $_View = $this->view(base64_encode("Page:Home"), ["Data" => [
         "AddTo" => $addTo,
         "BackTo" => $backTo,
         "ID" => $id,
         "ParentPage" => $parentPage,
         "ViewProtectedContent" => 1
        ]]);
-       $r = $this->core->RenderView($r);
+       $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_ViewTitle = $_Article["ListItem"]["Title"] ?? $_ViewTitle;
@@ -393,87 +377,86 @@
        ]]) : "";
        $verified = $author["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-       $r = $this->core->Change([[
-        "[Article.Actions]" => $actions,
-        "[Article.Attachments]" => $_Article["ListItem"]["Attachments"],
-        "[Article.Back]" => $back,
-        "[Article.Body]" => $this->core->PlainText([
-         "Data" => $article["Body"],
-         "Decode" => 1,
-         "HTMLDecode" => 1
-        ]),
-        "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
-        "[Article.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
-        "[Article.Created]" => $this->core->TimeAgo($article["Created"]),
-        "[Article.Description]" => $_Article["ListItem"]["Description"],
-        "[Article.ID]" => $id,
-        "[Article.Modified]" => $_Article["ListItem"]["Modified"],
-        "[Article.Notes]" => $options["Notes"],
-        "[Article.Report]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;$id")),
-        "[Article.Share]" => $share,
-        "[Article.Subscribe]" => $options["Subscribe"],
-        "[Article.Title]" => $_Article["ListItem"]["Title"],
-        "[Article.Votes]" => $options["Vote"],
-        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-        "[Attached.ID]" => $this->core->UUID("ArticleAttachments"),
-        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-        "[Conversation.CRID]" => $id,
-        "[Conversation.CRIDE]" => base64_encode($id),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
-        "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
-        "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
-        "[Member.Description]" => $description
-       ], $this->core->Extension("b793826c26014b81fdc1f3f94a52c9a6")]);
+       $_View = [
+        "ChangeData" => [
+         "[Article.Actions]" => $actions,
+         "[Article.Attachments]" => $_Article["ListItem"]["Attachments"],
+         "[Article.Back]" => $back,
+         "[Article.Body]" => $this->core->PlainText([
+          "Data" => $article["Body"],
+          "Decode" => 1,
+          "HTMLDecode" => 1
+         ]),
+         "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
+         "[Article.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
+         "[Article.Created]" => $this->core->TimeAgo($article["Created"]),
+         "[Article.Description]" => $_Article["ListItem"]["Description"],
+         "[Article.ID]" => $id,
+         "[Article.Modified]" => $_Article["ListItem"]["Modified"],
+         "[Article.Notes]" => $options["Notes"],
+         "[Article.Report]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;$id")),
+         "[Article.Share]" => $share,
+         "[Article.Subscribe]" => $options["Subscribe"],
+         "[Article.Title]" => $_Article["ListItem"]["Title"],
+         "[Article.Votes]" => $options["Vote"],
+         "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+         "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+         "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+         "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+         "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+         "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+         "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+         "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+         "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+         "[Attached.ID]" => $this->core->UUID("ArticleAttachments"),
+         "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+         "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+         "[Conversation.CRID]" => $id,
+         "[Conversation.CRIDE]" => base64_encode($id),
+         "[Conversation.Level]" => base64_encode(1),
+         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
+         "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
+         "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
+         "[Member.Description]" => $description
+        ],
+        "ExtensionID" => "b793826c26014b81fdc1f3f94a52c9a6"
+       ];
       }
      } else {
-      $r = $article["Body"];
+      $_View = $article["Body"] ?? "";
+      $_View = [
+       "ChangeData" => [],
+       "Extension" => $this->core->AESencrypt($_View)
+      ];
      }
     }
    }
-   $r = ($card == 1) ? [
-    "Front" => $r
-   ] : $r;
-   if($pub == 1) {
-    $r = $this->view(base64_encode("WebUI:Containers"), [
-     "Data" => ["Content" => $r]
-    ]);
-    $r = $this->core->RenderView($r);
-   }
+   $_Card = ($card == 1) ? [
+    "Front" => $_View
+   ] : "";
+   $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "Title" => $_ViewTitle
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "Title" => $_ViewTitle,
+    "View" => $_View
    ]);
   }
-  function Invite(array $data) {
-   $_AccessCode = "Denied";
+  function Invite(array $data): string {
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $member = $data["Member"] ?? base64_encode("");
-   $r = [
-    "Body" => "The Article Identifier is missing."
-   ];
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $_AccessCode = "Accepted";
     $id = base64_decode($id);
     $action = $this->core->Element(["button", "Send Invite", [
      "class" => "CardButton SendData dB2C",
@@ -483,49 +466,47 @@
     $content = [];
     $contentOptions = $y["Pages"] ?? [];
     foreach($contentOptions as $key => $value) {
-     $article = $this->core->Data("Get", ["pg", $value]) ?? [];
+     $article = $this->core->Data("Get", ["pg", $value]);
      $content[$value] = $article["Title"];
     }
-    $r = $this->core->Change([[
-     "[Invite.Content]" => json_encode($content, true),
-     "[Invite.ID]" => $id,
-     "[Invite.Member]" => $member
-    ], $this->core->Extension("80e444c34034f9345eee7399b4467646")]);
-    $r = [
-     "Action" => $action,
-     "Front" => $r
+    $_Card = [
+     "Action" => ,
+     "Front" => [
+      "ChangeData" => [
+       "[Invite.Content]" => json_encode($content, true),
+       "[Invite.ID]" => $id,
+       "[Invite.Member]" => $member
+      ],
+      "ExtensionID" => "80e444c34034f9345eee7399b4467646"
+     ]
     ];
+    $_Dialog = "";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Article Identifier is missing."
+   ];
+   $_View = "";
    $data = $data["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Article Identifier is missing.",
-    "Header" => "Error"
-   ];
    $secureKey = $data["SecureKey"] ?? base64_encode("");
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKey) {
-    $r = [
+    $_Dialog = [
      "Body" => "The PINs do not match."
     ];
    } elseif($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
@@ -566,38 +547,40 @@
      $this->core->Data("Save", ["votes", $id, $votes]);
     }
     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $r = $this->core->Element([
-     "p", "The Article <em>".$article["Title"]."</em> and dependencies were marked for purging.",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
+    $title = $article["Title"] ?? "Untitled";
+    $_View = [
+     "ChangeData" => [
+      "[Article.Title]" => $title
+     ],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "p", "The Article <em>[Article.Title]</em> and dependencies were marked for purging.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]))
+    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
-    "Success" => "CloseDialog"
+    "Dialog" => $_Dialog
+    "Success" => "CloseDialog",
+    "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $new = $data["New"] ?? 0;
-   $r = [
-    "Body" => "The Article Identifier is missing.",
-    "Header" => "Error"
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
@@ -610,15 +593,14 @@
     $title = $data["Title"] ?? "";
     foreach($articles as $key => $value) {
      $article = str_replace("nyc.outerhaven.pg.", "", $value);
-     $article = $this->core->Data("Get", ["pg", $article]) ?? [];
+     $article = $this->core->Data("Get", ["pg", $article]);
      if($id != $article["ID"] && $article["Title"] == $title) {
       $i++;
       break;
      }
     } if($i > 0) {
-     $r = [
-      "Body" => "The Article <em>$title</em> is taken.",
-      "Header" => "Error"
+     $_Dialog = [
+      "Body" => "The Article <em>$title</em> is taken."
      ];
     } else {
      $_AccessCode = "Accepted";
@@ -870,7 +852,7 @@
        }
       }
      }
-     $r = [
+     $_Dialog = [
       "Body" => "The $newCategory has been $actionTaken!",
       "Header" => "Done"
      ];
@@ -878,69 +860,59 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
+    "Dialog" => $_Dialog,
     "ResponseType" => "Dialog",
     "Success" => "CloseCard"
    ]);
   }
-  function SaveBanish(array $data) {
+  function SaveBanish(array $data): string {
    $_AccessCode = "Denied";
-   $data = $data["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["ID", "Member"]);
-   $id = $data["ID"];
-   $mbr = $data["Member"];
-   $r = [
-    "Body" => "The Article Identifier is missing.",
-    "Header" => "Error"
+   $_Dialog = [
+    "Body" => "The Article Identifier is missing."
    ];
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
-   } elseif(!empty($id) && !empty($mbr)) {
-    $id = base64_decode($id);
-    $article = $this->core->Data("Get", ["pg", $id]) ?? [];
-    $mbr = base64_decode($mbr);
-    $r = [
-     "Body" => "You cannot banish yourself.",
-     "Header" => "Error"
+   } elseif(!empty($id) && !empty($member)) {
+    $_Dialog = [
+     "Body" => "You cannot banish yourself."
     ];
-    if($mbr != $article["UN"] && $mbr != $you) {
+    $id = base64_decode($id);
+    $article = $this->core->Data("Get", ["pg", $id]);
+    $member = base64_decode($member);
+    if($member != $article["UN"] && $member != $you) {
      $_AccessCode = "Accepted";
      $contributors = $article["Contributors"] ?? [];
      $newContributors = [];
-     foreach($contributors as $member => $role) {
-      if($mbr != $member) {
-       $newContributors[$member] = $role;
+     foreach($contributors as $contributor => $role) {
+      if($contributor != $member) {
+       $newContributors[$contributor] = $role;
       }
      }
      $article["Contributors"] = $newContributors;
      $this->core->Data("Save", ["pg", $id, $article]);
-     $r = [
-      "Body" => "$mbr was banished from <em>".$article["Title"]."</em>.",
+     $_Dialog = [
+      "Body" => "$member was banished from <em>".$article["Title"]."</em>.",
       "Header" => "Done"
      ];
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Dialog" => $_Dialog
    ]);
   }
-  function SendInvite(array $data) {
+  function SendInvite(array $data): string {
    $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
@@ -949,73 +921,65 @@
     "Role"
    ]);
    $i = 0;
-   $id = $data["ID"];
-   $mbr = $data["Member"];
-   $r = [
-    "Body" => "The Article Identifier is missing.",
-    "Header" => "Error"
-   ];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? "";
    $y = $this->you;
-   if(!empty($id) && !empty($mbr)) {
-    $article = $this->core->Data("Get", ["pg", $id]) ?? [];
+   $you = $y["Login"]["Username"];
+   if(!empty($id) && !empty($member)) {
+    $article = $this->core->Data("Get", ["pg", $id]);
     $members = $this->core->DatabaseSet("Member");
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if($i == 0) {
-      $t = $this->core->Data("Get", ["mbr", $value]) ?? [];
-      if($mbr == $t["Login"]["Username"]) {
+      $t = $this->core->Data("Get", ["mbr", $value]);
+      if($member == $t["Login"]["Username"]) {
        $i++;
       }
      }
     } if($i == 0) {
-     $r = [
-      "Body" => "The Member $mbr does not exist.",
-      "Header" => "Error"
+     $_Dialog = [
+      "Body" => "The Member $member does not exist."
      ];
     } elseif(empty($article["ID"])) {
-     $r = [
-      "Body" => "The Article does not exist.",
-      "Header" => "Error"
+     $_Dialog = [
+      "Body" => "The Article does not exist."
      ];
-    } elseif($mbr == $article["UN"]) {
-     $r = [
-      "Body" => "$mbr owns <em>".$article["Title"]."</em>.",
-      "Header" => "Error"
+    } elseif($member == $article["UN"]) {
+     $_Dialog = [
+      "Body" => "$member owns <em>".$article["Title"]."</em>."
      ];
-    } elseif($mbr == $y["Login"]["Username"]) {
-     $r = [
-      "Body" => "You are already a contributor.",
-      "Header" => "Error"
+    } elseif($member == $you) {
+     $_Dialog = [
+      "Body" => "You are already a contributor."
      ];
     } else {
      $active = 0;
      $contributors = $article["Contributors"] ?? [];
      foreach($contributors as $member => $role) {
-      if($mbr == $member) {
+      if($member == $member) {
        $active++;
       }
      } if($active == 1) {
-      $r = [
-       "Body" => "$mbr is already a contributor.",
-       "Header" => "Error"
+      $_Dialog = [
+       "Body" => "$member is already a contributor."
       ];
      } else {
       $_AccessCode = "Accepted";
       $role = ($data["Role"] == 1) ? "Member" : "Admin";
-      $contributors[$mbr] = $role;
+      $contributors[$member] = $role;
       $article["Contributors"] = $contributors;
       $this->core->SendBulletin([
        "Data" => [
         "ArticleID" => $id,
-        "Member" => $mbr,
+        "Member" => $member,
         "Role" => $role
        ],
-       "To" => $mbr,
+       "To" => $member,
        "Type" => "InviteToArticle"
       ]);
-      $this->core->Data("Save", ["pg", $id, $article]) ?? [];
-      $r = [
-       "Body" => "$mbr was notified of your invitation.",
+      $this->core->Data("Save", ["pg", $id, $article]);
+      $_Dialog = [
+       "Body" => "$member was notified of your invitation.",
        "Header" => "Invitation Sent"
       ];
      }
@@ -1023,41 +987,36 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
    ]);
   }
-  function Subscribe(array $data) {
+  function Subscribe(array $data): string {
    $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Article Identifier is missing."
+   ];
    $_ResponseType = "Dialog";
+   $_View = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Article Identifier is missing.",
-    "Header" => "Error"
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to subscribe.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
     $_AccessCode = "Accepted";
-    $article = $this->core->Data("Get", ["pg", $id]) ?? [];
     $_ResponseType = "UpdateText";
+    $article = $this->core->Data("Get", ["pg", $id]);
     $subscribers = $article["Subscribers"] ?? [];
     $subscribed = (in_array($you, $subscribers)) ? 1 : 0;
     if($subscribed == 1) {
      $newSubscribers = [];
-     $r = "Subscribe";
+     $_View = "Subscribe";
      foreach($subscribers as $key => $value) {
       if($value != $you) {
        $newSubscribers[$key] = $value;
@@ -1066,7 +1025,7 @@
      $subscribers = $newSubscribers;
     } else {
      array_push($subscribers, $you);
-     $r = "Unsubscribe";
+     $_View = "Unsubscribe";
     }
     $article["Subscribers"] = $subscribers;
     $this->core->Data("Save", ["pg", $id, $article]);
@@ -1074,11 +1033,9 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => $_ResponseType
+    "Dialog" => $_Dialog,
+    "ResponseType" => $_ResponseType,
+    "View" => $_View
    ]);
   }
   function __destruct() {

@@ -203,10 +203,10 @@
    $you = $y["Login"]["Username"];
    if($pub == 1) {
     $_AccessCode = "Accepted";
-    $products = $this->core->DatabaseSet("PROD") ?? [];
+    $products = $this->core->DatabaseSet("PROD");
     foreach($products as $key => $value) {
      $product = str_replace("nyc.outerhaven.product.", "", $value);
-     $product = $this->core->Data("Get", ["shop", $product]) ?? [];
+     $product = $this->core->Data("Get", ["shop", $product]);
      $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
@@ -411,7 +411,7 @@
    } elseif(!empty($id)) {
     $_AccessCode = "Accepted";
     $id = base64_decode($id);
-    $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", md5($you)]);
     $newProducts = [];
     $products = $shop["Products"] ?? [];
     foreach($products as $key => $value) {
@@ -480,7 +480,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($data["ID"]) && !empty($shopID)) {
-    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $shopID]);
     $check = 0;
     $contributors = $shop["Contributors"] ?? [];
     $isAdmin  = ($shopID == md5($you)) ? 1 : 0;
@@ -499,11 +499,11 @@
     } if($isAdmin > 0 || $isContributor > 0) {
      $i = 0;
      $new = $data["new"] ?? 0;
-     $products = $this->core->DatabaseSet("PROD") ?? [];
+     $products = $this->core->DatabaseSet("PROD");
      $title = $data["Title"] ?? "Untitled";
      foreach($products as $key => $value) {
       $product = str_replace("nyc.outerhaven.product.", "", $value);
-      $product = $this->core->Data("Get", ["product", $product]) ?? [];
+      $product = $this->core->Data("Get", ["product", $product]);
       $callSignsMatch = ($data["CallSign"] == $this->core->CallSign($product["Title"])) ? 1 : 0;
       $ck = ($callSignsMatch == 0 && $id != $product["ID"]) ? 1 : 0;
       $ck3 = ($product["UN"] == $you) ? 1 : 0;

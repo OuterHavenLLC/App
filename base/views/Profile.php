@@ -314,7 +314,7 @@
      $article = $this->core->Data("Get", [
       "pg",
       $data["ArticleID"]
-     ]) ?? [];
+     ]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$article["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
@@ -322,7 +322,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToBlog") {
-     $blog = $this->core->Data("Get", ["blg", $data["BlogID"]]) ?? [];
+     $blog = $this->core->Data("Get", ["blg", $data["BlogID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$blog["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
@@ -330,7 +330,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToForum") {
-     $forum = $this->core->Data("Get", ["pf", $data["ForumID"]]) ?? [];
+     $forum = $this->core->Data("Get", ["pf", $data["ForumID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$forum["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
@@ -338,7 +338,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToShop") {
-     $shop = $this->core->Data("Get", ["shop", $data["ShopID"]]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $data["ShopID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$shop["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
@@ -346,7 +346,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "Invoice" || $bulletin["Type"] == "NewJob") {
-     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
      $r = $this->core->Element([
       "button", "View Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
@@ -354,7 +354,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "InvoiceForward") {
-     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
      $r = $this->core->Element([
       "button", "View Forwarded Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
@@ -362,7 +362,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "InvoiceUpdate") {
-     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
      $r = $this->core->Element([
       "button", "View Updated Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
@@ -380,7 +380,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "NewBlogPost") {
-     $post = $this->core->Data("Get", ["bp", $data["PostID"]]) ?? [];
+     $post = $this->core->Data("Get", ["bp", $data["PostID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$post["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
@@ -397,7 +397,7 @@
       ]
      ]);
     } elseif($bulletin["Type"] == "NewPoll") {
-     $poll = $this->core->Data("Get", ["poll", $data["PollID"]]) ?? [];
+     $poll = $this->core->Data("Get", ["poll", $data["PollID"]]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$poll["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
@@ -410,7 +410,7 @@
      $product = $this->core->Data("Get", [
       "miny",
       $data["ProductID"]
-     ]) ?? [];
+     ]);
      $r = $this->core->Element([
       "button", "Take me to <em>".$product["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
@@ -1000,7 +1000,7 @@
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
    $y = $this->you;
-   $bulletins = $this->core->Data("Get", ["bulletins", md5($y["Login"]["Username"])]) ?? [];
+   $bulletins = $this->core->Data("Get", ["bulletins", md5($y["Login"]["Username"])]);
    if(!empty($data["ID"])) {
     foreach($bulletins as $key => $value) {
      if($data["ID"] == $key) {
@@ -1477,7 +1477,7 @@
    $_UIVariant = $y["Personal"]["UIVariant"] ?? 0;
    foreach($members as $key => $value) {
     $value = str_replace("nyc.outerhaven.mbr.", "", $value);
-    $member = $this->core->Data("Get", ["mbr", $value]) ?? [];
+    $member = $this->core->Data("Get", ["mbr", $value]);
     $ck = ($member["Login"]["Username"] != $you) ? 1 : 0;
     $ck2 = ($email == $member["Personal"]["Email"]) ? 1 : 0;
     if($ck == 1 && $ck2 == 1) {
