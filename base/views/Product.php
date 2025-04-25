@@ -5,8 +5,8 @@
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data) {
-   $_AccessCode = "Accepted";
+  function Edit(array $data): string {
+   $_Dialog = "";
    $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $edit = base64_encode("Product:Edit");
@@ -21,7 +21,7 @@
    $shopOwner = $shopOwner["Login"]["Username"] ?? "";
    $template = "00f3b49a6e3b39944e3efbcc98b4948d";
    $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
-   $r = [
+   $_Card = [
     "Front" => $this->core->Change([[
      "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&Shop=$shopID&new=1"),
      "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&Shop=$shopID&new=1"),
@@ -32,8 +32,7 @@
     ], $this->core->Extension($template)])
    ];
    if($this->core->ID == $you) {
-    $_AccessCode = "Denied";
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($editor)) {
@@ -69,11 +68,11 @@
     $created = $product["Created"] ?? $this->core->timestamp;
     $demoFiles = $product["DemoFiles"] ?? [];
     $expirationQuantities = [];
-    $extension = "3e5dc31db9719800f28abbaa15ce1a37";
-    $extension = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $extension;
-    $extension = ($editor == "Donation") ? "6f4772a067646699073521d87b943433" : $extension;
-    $extension = ($editor == "Download") ? "5921c3ce04d9a878055ebc691b9f445a" : $extension;
-    $extension = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $extension;
+    $extensionID = "3e5dc31db9719800f28abbaa15ce1a37";
+    $extensionID = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $extensionID;
+    $extensionID = ($editor == "Donation") ? "6f4772a067646699073521d87b943433" : $extensionID;
+    $extensionID = ($editor == "Download") ? "5921c3ce04d9a878055ebc691b9f445a" : $extensionID;
+    $extensionID = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $extensionID;
     $forums = $product["Forums"] ?? [];
     $forumPosts = $product["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
@@ -125,58 +124,59 @@
       "ViewDesign" => []
      ]
     ]);
-    $changeData = [
-     "[Product.Action]" => $action,
-     "[Product.Attachments]" => $this->core->RenderView($attachments),
-     "[Product.Back]" => $back,
-     "[Product.Body]" => base64_encode($this->core->PlainText([
-      "Data" => $product["Body"],
-      "Decode" => 1
-     ])),
-     "[Product.Category]" => $category,
-     "[Product.Cost]" => base64_encode($cost),
-     "[Product.Created]" => $created,
-     "[Product.Description]" => base64_encode($product["Description"]),
-     "[Product.DesignView]" => "Edit$id",
-     "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
-     "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
-     "[Product.Header]" => $header,
-     "[Product.ID]" => $id,
-     "[Product.Instructions]" => $product["Instructions"],
-     "[Product.New]" => $new,
-     "[Product.PassPhrase]" => base64_encode($passPhrase),
-     "[Product.Profit]" => base64_encode($profit),
-     "[Product.Quantity]" => $quantity,
-     "[Product.Quantities]" => json_encode($quantities, true),
-     "[Product.Role]" => $product["Role"],
-     "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
-     "[Product.Shop]" => $shopID,
-     "[Product.SubscriptionTerm]" => $subscriptionTerm,
-     "[Product.Title]" => base64_encode($product["Title"]),
-     "[Product.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-     "[Product.Visibility.NSFW]" => $nsfw,
-     "[Product.Visibility.Privacy]" => $privacy
+    $_View = [
+     "ChangeData" => [
+      "[Product.Action]" => $action,
+      "[Product.Attachments]" => $this->core->RenderView($attachments),
+      "[Product.Back]" => $back,
+      "[Product.Body]" => base64_encode($this->core->PlainText([
+       "Data" => $product["Body"],
+       "Decode" => 1
+      ])),
+      "[Product.Category]" => $category,
+      "[Product.Cost]" => base64_encode($cost),
+      "[Product.Created]" => $created,
+      "[Product.Description]" => base64_encode($product["Description"]),
+      "[Product.DesignView]" => "Edit$id",
+      "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
+      "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
+      "[Product.Header]" => $header,
+      "[Product.ID]" => $id,
+      "[Product.Instructions]" => $product["Instructions"],
+      "[Product.New]" => $new,
+      "[Product.PassPhrase]" => base64_encode($passPhrase),
+      "[Product.Profit]" => base64_encode($profit),
+      "[Product.Quantity]" => $quantity,
+      "[Product.Quantities]" => json_encode($quantities, true),
+      "[Product.Role]" => $product["Role"],
+      "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
+      "[Product.Shop]" => $shopID,
+      "[Product.SubscriptionTerm]" => $subscriptionTerm,
+      "[Product.Title]" => base64_encode($product["Title"]),
+      "[Product.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
+      "[Product.Visibility.NSFW]" => $nsfw,
+      "[Product.Visibility.Privacy]" => $privacy
+     ],
+     "ExtensionID" => $extensionID
     ];
-    $r = $this->core->Change([
-     $changeData,
-     $this->core->Extension($extension)
-    ]);
-    $r = ($card == 1) ? [
-     "Front" => $r
-    ] : $r;
+    $_Card = ($card == 1) ? [
+     "Front" => $_View
+    ] : "";
+    $_Dialog = "";
+    $_View = ($card == 0) ? $_View : "";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Home(array $data) {
-   $_AccessCode = "Denied";
+  function Home(array $data): string {
+   $_Card = "";
+   $_Dialog = [
+    "Body" => "The requested Product could not be found."
+   ];
+   $_View = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "AddTo",
@@ -194,15 +194,11 @@
     "class" => "GoToParent LI head",
     "data-type" => $lpg
    ]]) : "";
-   $pub = $data["pub"] ?? 0;
-   $r = [
-    "Body" => "The requested Product could not be found."
-   ];
+   $public = $data["pub"] ?? 0;
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if($pub == 1) {
-    $_AccessCode = "Accepted";
+   if($public == 1) {
     $products = $this->core->DatabaseSet("PROD");
     foreach($products as $key => $value) {
      $product = str_replace("nyc.outerhaven.product.", "", $value);
@@ -211,6 +207,7 @@
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
       $id = $value;
+      break;
      }
     }
    } if((!empty($id) || $i > 0) && !empty($username)) {
@@ -229,7 +226,8 @@
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      $_Dialog = "";
+      $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
@@ -242,27 +240,26 @@
         "v" => base64_encode("Product:Home")
        ], true))
       ]]);
-      $r = $this->core->RenderView($r);
+      $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $_AccessCode = "Denied";
+      $_Dialog = [
+       "Body" => "The Key is missing."
+      ];
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
-      $r = $this->core->Element(["p", "The Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
-       $r = $this->core->Element(["p", "The Keys do not match."]);
+       $_Dialog = "";
       } else {
-       $_AccessCode = "Accepted";
-       $r = $this->view(base64_encode("Product:Home"), ["Data" => [
+       $_View = $this->view(base64_encode("Product:Home"), ["Data" => [
         "ID" => $data["ID"],
         "UN" => $data["UN"],
         "ViewProtectedContent" => 1
        ]]);
-       $r = $this->core->RenderView($r);
+       $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $_AccessCode = "Accepted";
       $options = $_Product["ListItem"]["Options"];
       $shop = $this->core->Data("Get", ["shop", md5($username)]);
       $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
@@ -307,7 +304,7 @@
          "data-type" => "Product$id;".$options["Edit"]
         ]
        ]) : "";
-       $back = ($card != 1 && $pub == 1) ? $this->core->Element([
+       $back = ($card != 1 && $public == 1) ? $this->core->Element([
         "button", "See more at <em>".$shop["Title"]."</em>", [
          "class" => "CloseCard LI header",
          "onclick" => "W('$base/MadeInNewYork/".$t["Login"]["Username"]."/', '_top');"
@@ -324,87 +321,89 @@
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($product, "LiveView", [
         "ProductType" => "Product"
        ]);
-       $r = $this->core->Change([[
-        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-        "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
-        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-        "[Conversation.CRID]" => $id,
-        "[Conversation.CRIDE]" => base64_encode($id),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
-        "[Product.Actions]" => $actions,
-        "[Product.Back]" => $back,
-        "[Product.Body]" => $this->core->PlainText([
-         "Data" => $product["Body"],
-         "Decode" => 1,
-         "Display" => 1,
-         "HTMLDecode" => 1
-        ]),
-        "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=$id&T=$username"),
-        "[Product.Brief.Category]" => $this->core->Element([
-         "p", $product["Category"],
-         ["class" => "CenterText"]
-        ]),
-        "[Product.Brief.Description]" => $_Product["ListItem"]["Description"],
-        "[Product.Brief.Icon]" => "{product_category}",
-        "[Product.Created]" => $this->core->TimeAgo($product["Created"]),
-        "[Product.CoverPhoto]"  => $_Product["ListItem"]["CoverPhoto"],
-        "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
-        "[Product.ID]" => $id,
-        "[Product.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
-        "[Product.Modified]" => $_Product["ListItem"]["Modified"],
-        "[Product.Title]" => $_Product["ListItem"]["Title"],
-        "[Product.Share]" => $share,
-        "[Product.Votes]" => $options["Vote"]
-       ], $this->core->Extension("96a6768e7f03ab4c68c7532be93dee40")]);
+       $_View = [
+        "ChangeData" => [
+         "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
+         "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
+         "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
+         "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
+         "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
+         "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
+         "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
+         "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
+         "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
+         "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
+         "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
+         "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
+         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
+         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
+         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+         "[Conversation.CRID]" => $id,
+         "[Conversation.CRIDE]" => base64_encode($id),
+         "[Conversation.Level]" => base64_encode(1),
+         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
+         "[Product.Actions]" => $actions,
+         "[Product.Back]" => $back,
+         "[Product.Body]" => $this->core->PlainText([
+          "Data" => $product["Body"],
+          "Decode" => 1,
+          "Display" => 1,
+          "HTMLDecode" => 1
+         ]),
+         "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=$id&T=$username"),
+         "[Product.Brief.Category]" => $this->core->Element([
+          "p", $product["Category"],
+          ["class" => "CenterText"]
+         ]),
+         "[Product.Brief.Description]" => $_Product["ListItem"]["Description"],
+         "[Product.Brief.Icon]" => "{product_category}",
+         "[Product.Created]" => $this->core->TimeAgo($product["Created"]),
+         "[Product.CoverPhoto]"  => $_Product["ListItem"]["CoverPhoto"],
+         "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
+         "[Product.ID]" => $id,
+         "[Product.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
+         "[Product.Modified]" => $_Product["ListItem"]["Modified"],
+         "[Product.Title]" => $_Product["ListItem"]["Title"],
+         "[Product.Share]" => $share,
+         "[Product.Votes]" => $options["Vote"]
+        ],
+        "ExtensionID" => "96a6768e7f03ab4c68c7532be93dee40"
+       ];
       }
      }
-     $r = ($card == 1) ? [
-      "Front" => $r
-     ] : $r;
+     $_Card = ($card == 1) ? [
+      "Front" => $_View
+     ] : "";
+     $_View = ($card == 0) ? $_View : "";
     }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View"
+    "Card" => $_Card,
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The Product Identifier is missing."
+   ];
    $data = $data["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
-   $r = [
-    "Body" => "The Product Identifier is missing."
-   ];
    $secureKey = $data["SecureKey"] ?? base64_encode("");
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(md5($key) != $secureKey) {
-    $r = [
+    $_Dialog = [
      "Body" => "The PINs do not match."
     ];
    } elseif($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
@@ -446,49 +445,50 @@
      $this->core->Data("Save", ["votes", $id, $votes]);
     }
     $this->core->Data("Save", ["shop", md5($you), $shop]);
-    $r = $this->core->Element([
-     "p", "The Product <em>".$product["Title"]."</em> and dependencies were marked for purging.",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "p", "The Product <em>".$product["Title"]."</em> and dependencies were marked for purging.",
+      ["class" => "CenterText"]
+     ]).$this->core->Element([
+      "button", "Okay", ["class" => "CloseDialog v2 v2w"]
+     ]))
+    ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog"
+    "Dialog" => $_Dialog,
+    "Success" => "CloseDialog",
+    "View" => $_View
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
-   $data = $data["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $r = [
+   $_Dialog = [
     "Body" => "The Product or Shop Identifiers are missing."
    ];
+   $data = $data["Data"] ?? [];
+   $data = $this->core->DecodeBridgeData($data);
    $shopID = $data["ShopID"] ?? "";
    $success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($data["ID"]) && !empty($shopID)) {
+    $_Dialog = [
+     "Body" => "You are not authorized to manage Products.",
+     "Header" => "Forbidden"
+    ];
     $shop = $this->core->Data("Get", ["shop", $shopID]);
     $check = 0;
     $contributors = $shop["Contributors"] ?? [];
     $isAdmin  = ($shopID == md5($you)) ? 1 : 0;
     $isContributor = 0;
-    $r = [
-     "Body" => "You are not authorized to manage Products.",
-     "Header" => "Forbidden"
-    ];
     foreach($contributors as $member => $role) {
      if($check == 0 && $member == $you) {
       $isContributor++;
@@ -511,7 +511,7 @@
        $i++;
       }
      } if($i > 0) {
-      $r = [
+      $_Dialog = [
        "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
       ];
      } else {
@@ -794,7 +794,7 @@
       } else {
        $this->core->Statistic("Edit Product");
       }
-      $r = [
+      $_Dialog = [
        "Body" => "The Product <em>$title</em> has been $actionTaken!",
        "Header" => "Done"
       ];
@@ -803,12 +803,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "Dialog",
+    "Dialog" => $_Dialog,
     "Success" => $success
    ]);
   }

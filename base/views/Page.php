@@ -563,7 +563,7 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Dialog" => $_Dialog
+    "Dialog" => $_Dialog,
     "Success" => "CloseDialog",
     "View" => $_View
    ]);
