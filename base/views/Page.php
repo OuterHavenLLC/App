@@ -4,9 +4,9 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Banish(array $a) {
+  function Banish(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
@@ -50,9 +50,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Card(array $a) {
+  function Card(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $r = [
     "Body" => "The Article Identifier is missing.",
     "Header" => "Not Found"
@@ -88,9 +88,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function ChangeMemberRole(array $a) {
+  function ChangeMemberRole(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, ["ID", "PIN", "Member"]);
    $id = $data["ID"];
@@ -127,10 +127,10 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function Edit(array $a) {
+  function Edit(array $data) {
    $_AccessCode = "Denied";
    $buttion = "";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
    $new = $data["new"] ?? 0;
    $r = [
@@ -251,10 +251,10 @@
     "ResponseType" => "View"
    ]);
   }
-  function Home(array $a) {
+  function Home(array $data) {
    $_ViewTitle = $this->core->config["App"]["Name"];
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $backTo = $data["BackTo"] ?? "the Archive";
    $base = $this->core->efs;
@@ -463,9 +463,9 @@
     "Title" => $_ViewTitle
    ]);
   }
-  function Invite(array $a) {
+  function Invite(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $member = $data["Member"] ?? base64_encode("");
    $r = [
@@ -506,9 +506,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Purge(array $a) {
+  function Purge(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
@@ -584,9 +584,9 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function Save(array $a) {
+  function Save(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $new = $data["New"] ?? 0;
@@ -887,9 +887,9 @@
     "Success" => "CloseCard"
    ]);
   }
-  function SaveBanish(array $a) {
+  function SaveBanish(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
    $mbr = $data["Member"];
@@ -939,9 +939,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function SendInvite(array $a) {
+  function SendInvite(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "ID",
@@ -1032,10 +1032,10 @@
     "Success" => "CloseCard"
    ]);
   }
-  function Subscribe(array $a) {
+  function Subscribe(array $data) {
    $_AccessCode = "Denied";
    $_ResponseType = "Dialog";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $r = [

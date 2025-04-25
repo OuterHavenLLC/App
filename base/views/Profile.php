@@ -69,12 +69,12 @@
     "View" => $_View
    ]);
   }
-  function Blacklist(array $a) {
+  function Blacklist(array $data) {
    $_Dialog = [
     "Body" => "Some required data is missing."
    ];
    $_View = "";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $missing = 0;
    $requiredData = [
     "Command",
@@ -130,7 +130,7 @@
     "View" => $_View
    ]);
   }
-  function BlacklistCategories(array $a) {
+  function BlacklistCategories(array $data) {
    $_AccessCode = "Accepted";
    $y = $this->you;
    $r = "";
@@ -151,9 +151,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Blacklists(array $a) {
+  function Blacklists(array $data) {
    $_AccessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $y = $this->you;
    $r = $this->core->Change([[
     "[Blacklist.Categories]" => base64_encode("v=".base64_encode("Profile:BlacklistCategories"))
@@ -168,7 +168,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function BulletinCenter(array $a) {
+  function BulletinCenter(array $data) {
    $_AccessCode = "Accepted";
    $search = base64_encode("Search:Containers");
    $r = $this->core->Change([[
@@ -185,9 +185,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function BulletinMessage(array $a) {
+  function BulletinMessage(array $data) {
    $_AccessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $type = $data["Type"] ?? "";
    $message = "Message required for Bulletin type <em>$type</em>.";
    $request = $data["Data"]["Request"] ?? "";
@@ -235,9 +235,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function BulletinOptions(array $a) {
+  function BulletinOptions(array $data) {
    $_AccessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $bulletin = $data["Bulletin"] ?? "";
    $bulletin = (!empty($bulletin)) ? base64_decode($bulletin) : [];
    $bulletin = json_decode($bulletin, true);
@@ -431,7 +431,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Bulletins(array $a) {
+  function Bulletins(array $data) {
    $count = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -460,9 +460,9 @@
     "View" => $count
    ]);
   }
-  function ChangeRank(array $a) {
+  function ChangeRank(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $r = [
     "Body" => "The Member Identifier or Rank are missing."
@@ -530,9 +530,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Donate(array $a) {
+  function Donate(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $opt = "";
    $t = $this->core->Member(base64_decode($data["UN"]));
    $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
@@ -578,10 +578,10 @@
     "ResponseType" => "View"
    ]);
   }
-  function Home(array $a) {
+  function Home(array $data) {
    $_ViewTitle = $this->core->config["App"]["Name"];
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $addTopMargin = "0";
    $member = $data["UN"] ?? "";
@@ -715,10 +715,9 @@
       $actions = ($id != $you) ? $addTo.$actions : $addTo;
       $addContact = "";
       $albums = $this->core->Change([[
-       "[Error.Back]" => "",
        "[Error.Header]" => "Forbidden",
        "[Error.Message]" => "$displayName keeps their media albums to themselves."
-      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($ck == 1 || $privacy["Albums"] == $public || $visible == 1) {
        $albums = $this->view($search, ["Data" => [
         "UN" => base64_encode($id),
@@ -727,10 +726,9 @@
        $albums = $this->core->RenderView($albums);
       }
       $articles = $this->core->Change([[
-       "[Error.Back]" => "",
        "[Error.Header]" => "Forbidden",
        "[Error.Message]" => "$displayName keeps their archive contributions to themselves."
-      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($ck == 1 || $privacy["Archive"] == $public || $visible == 1) {
        $articles = $this->view($search, ["Data" => [
         "UN" => base64_encode($id),
@@ -741,10 +739,9 @@
        $articles = $this->core->RenderView($articles);
       }
       $blogs = $this->core->Change([[
-       "[Error.Back]" => "",
        "[Error.Header]" => "Forbidden",
        "[Error.Message]" => "$displayName keeps their blogs to themselves."
-      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($ck == 1 || $privacy["Posts"] == $public || $visible == 1) {
        $blogs = $this->view($search, ["Data" => [
         "UN" => base64_encode($id),
@@ -756,10 +753,9 @@
       }
       $changeRank = "";
       $contacts = $this->core->Change([[
-       "[Error.Back]" => "",
        "[Error.Header]" => "Forbidden",
        "[Error.Message]" => "$displayName keeps their contacts to themselves."
-      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($ck == 1 || $privacy["Contacts"] == $public || $visible == 1) {
        $contacts = $this->view($search, ["Data" => [
         "UN" => base64_encode($id),
@@ -869,10 +865,9 @@
       $gender = $member["Personal"]["Gender"] ?? "Male";
       $gender = $this->core->Gender($gender);
       $journal = $this->core->Change([[
-       "[Error.Back]" => "",
        "[Error.Header]" => "Forbidden",
        "[Error.Message]" => "$displayName keeps their Journal to themselves."
-      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
+      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($ck == 1 || $privacy["Journal"] == $public || $visible == 1) {
        $journal = $this->view($search, ["Data" => [
         "UN" => base64_encode($id),
@@ -951,9 +946,9 @@
     "Title" => $_ViewTitle
    ]);
   }
-  function MakeVIP(array $a) {
+  function MakeVIP(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
    $manifest = [];
    $r = [
@@ -1001,8 +996,8 @@
     "ResponseType" => $_ResponseType
    ]);
   }
-  function MarkBulletinAsRead(array $a) {
-   $data = $a["Data"] ?? [];
+  function MarkBulletinAsRead(array $data) {
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
    $y = $this->you;
    $bulletins = $this->core->Data("Get", ["bulletins", md5($y["Login"]["Username"])]) ?? [];
@@ -1022,7 +1017,7 @@
    ]);
    return json_encode($bulletins);
   }
-  function NewPassword(array $a) {
+  function NewPassword(array $data) {
    $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1052,7 +1047,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function NewPIN(array $a) {
+  function NewPIN(array $data) {
    $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1080,10 +1075,10 @@
     "ResponseType" => "View"
    ]);
   }
-  function Preferences(array $a) {
+  function Preferences(array $data) {
    $_AccessCode = "Denied";
    $addTopMargin = 1;
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $minAge = $this->core->config["minRegAge"] ?? 13;
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1263,9 +1258,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Purge(array $a) {
+  function Purge(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -1469,9 +1464,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Save(array $a) {
+  function Save(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $email = $data["Personal_Email"] ?? "";
    $emailIsTaken = 0;
@@ -1574,9 +1569,9 @@
     "SetUIVariant" => $_UIVariant
    ]);
   }
-  function SavePassword(array $a) {
+  function SavePassword(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "CurrentPassword",
@@ -1628,9 +1623,9 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function SavePIN(array $a) {
+  function SavePIN(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
     "CurrentPIN",
@@ -1684,23 +1679,20 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function SignIn(array $a) {
+  function SignIn(array $data) {
    $_AddTopMargin = "0";
    $_Commands = [];
+   $_Dialog = "";
    $_ResponseType = "GoToView";
    $_View = "";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $parentView = $viewData["ParentView"] ?? base64_encode("SignIn");
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
     $_AddTopMargin = "1";
-    $_View = [
-     "ChangeData" => [
-      "[Error.Text]" => "We could not find the username you entered.",
-      "[Error.ParentView]" => base64_decode($parentView)
-     ],
-     "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67ac610803c33"
+    $_Dialog = [
+     "Body" => "We could not find the username you entered."
     ];
     $data = $this->core->DecodeBridgeData($data);
     $username = $data["Username"] ?? "";
@@ -1726,12 +1718,8 @@
     }
    } elseif($step == 3) {
     $_AddTopMargin = "1";
-    $_View = [
-     "ChangeData" => [
-      "[Error.Text]" => "We could not find the username you entered.",
-      "[Error.ParentView]" => base64_decode($parentView)
-     ],
-     "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67ac610803c33"
+    $_Dialog = [
+     "Body" => "We could not find the username you entered."
     ];
     $data = $this->core->DecodeBridgeData($data);
     $password = $data["Password"] ?? "";

@@ -5,9 +5,9 @@
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $a) {
+  function Edit(array $data) {
    $_AccessCode = "Accepted";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $edit = base64_encode("Product:Edit");
    $editor = $data["Editor"] ?? "";
@@ -175,9 +175,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Home(array $a) {
+  function Home(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "AddTo",
     "Added",
@@ -386,9 +386,9 @@
     "ResponseType" => "View"
    ]);
   }
-  function Purge(array $a) {
+  function Purge(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
    $id = $data["ID"] ?? "";
@@ -463,9 +463,9 @@
     "ResponseType" => "Dialog"
    ]);
   }
-  function Save(array $a) {
+  function Save(array $data) {
    $_AccessCode = "Denied";
-   $data = $a["Data"] ?? [];
+   $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $r = [
     "Body" => "The Product or Shop Identifiers are missing."
