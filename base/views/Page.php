@@ -5,7 +5,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Banish(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
@@ -24,7 +24,7 @@
      "Header" => "Error"
     ];
     if($mbr != $article["UN"] && $mbr != $y["Login"]["Username"]) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
      $r = [
       "Actions" => [
        $this->core->Element(["button", "Cancel", [
@@ -41,7 +41,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -51,14 +51,14 @@
    ]);
   }
   function Card(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $r = [
     "Body" => "The Article Identifier is missing.",
     "Header" => "Not Found"
    ];
    if(!empty($data["ID"])) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $article = $this->core->Data("Get", [
      "pg",
      base64_decode($data["ID"])
@@ -79,7 +79,7 @@
     "Front" => $r
    ];
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -89,7 +89,7 @@
    ]);
   }
   function ChangeMemberRole(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, ["ID", "PIN", "Member"]);
@@ -104,7 +104,7 @@
      "Body" => "The PINs do not match."
     ];
    } elseif(!empty($id) && !empty($member)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
     $contributors = $article["Contributors"] ?? [];
     $role = ($data["Role"] == 1) ? "Member" : "Admin";
@@ -117,7 +117,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -128,7 +128,7 @@
    ]);
   }
   function Edit(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $buttion = "";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
@@ -144,7 +144,7 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($id) || $new == 1) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $id = base64_decode($id);
     $id = ($new == 1) ? $this->core->UUID("ArticleBy$you") : $id;
     $action = ($new == 1) ? "Post" : "Update";
@@ -242,7 +242,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -253,7 +253,7 @@
   }
   function Home(array $a) {
    $_ViewTitle = $this->core->config["App"]["Name"];
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $backTo = $data["BackTo"] ?? "the Archive";
@@ -269,7 +269,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $active = 0;
     $admin = 0;
     $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
@@ -302,7 +302,7 @@
       ]]);
       $r = $this->core->RenderView($r);
      } elseif($verifyPassPhrase == 1) {
-      $accessCode = "Denied";
+      $_AccessCode = "Denied";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $r = $this->core->Element(["p", "The Key is missing."]);
@@ -311,7 +311,7 @@
       if($key != $secureKey) {
        $r = $this->core->Element(["p", "The Keys do not match."]);
       } else {
-       $accessCode = "Accepted";
+       $_AccessCode = "Accepted";
        $r = $this->view(base64_encode("Page:Home"), ["Data" => [
         "AddTo" => $addTo,
         "BackTo" => $backTo,
@@ -453,7 +453,7 @@
     $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -464,7 +464,7 @@
    ]);
   }
   function Invite(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $member = $data["Member"] ?? base64_encode("");
@@ -473,7 +473,7 @@
    ];
    $y = $this->you;
    if(!empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $id = base64_decode($id);
     $action = $this->core->Element(["button", "Send Invite", [
      "class" => "CardButton SendData dB2C",
@@ -497,7 +497,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -507,7 +507,7 @@
    ]);
   }
   function Purge(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
@@ -530,7 +530,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $id = base64_decode($id);
     $newArticles = [];
     $articles = $y["Pages"] ?? [];
@@ -574,7 +574,7 @@
     ]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -585,7 +585,7 @@
    ]);
   }
   function Save(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
@@ -621,7 +621,7 @@
       "Header" => "Error"
      ];
     } else {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $article = $this->core->Data("Get", ["pg", $id]);
      $albums = [];
@@ -877,7 +877,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -888,7 +888,7 @@
    ]);
   }
   function SaveBanish(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID", "Member"]);
    $id = $data["ID"];
@@ -913,7 +913,7 @@
      "Header" => "Error"
     ];
     if($mbr != $article["UN"] && $mbr != $you) {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $contributors = $article["Contributors"] ?? [];
      $newContributors = [];
      foreach($contributors as $member => $role) {
@@ -930,7 +930,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -940,7 +940,7 @@
    ]);
   }
   function SendInvite(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
@@ -1000,7 +1000,7 @@
        "Header" => "Error"
       ];
      } else {
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
       $role = ($data["Role"] == 1) ? "Member" : "Admin";
       $contributors[$mbr] = $role;
       $article["Contributors"] = $contributors;
@@ -1022,7 +1022,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -1033,8 +1033,8 @@
    ]);
   }
   function Subscribe(array $a) {
-   $accessCode = "Denied";
-   $responseType = "Dialog";
+   $_AccessCode = "Denied";
+   $_ResponseType = "Dialog";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
@@ -1050,9 +1050,9 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $article = $this->core->Data("Get", ["pg", $id]) ?? [];
-    $responseType = "UpdateText";
+    $_ResponseType = "UpdateText";
     $subscribers = $article["Subscribers"] ?? [];
     $subscribed = (in_array($you, $subscribers)) ? 1 : 0;
     if($subscribed == 1) {
@@ -1072,13 +1072,13 @@
     $this->core->Data("Save", ["pg", $id, $article]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
      "Web" => $r
     ],
-    "ResponseType" => $responseType
+    "ResponseType" => $_ResponseType
    ]);
   }
   function __destruct() {

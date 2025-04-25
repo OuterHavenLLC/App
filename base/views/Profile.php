@@ -81,7 +81,7 @@
     "Content",
     "List"
    ];
-   $_ResponseType = "Dialog";
+   $_ResponseType = "N/A";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    foreach($requiredData as $required) {
@@ -123,7 +123,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
@@ -131,7 +131,7 @@
    ]);
   }
   function BlacklistCategories(array $a) {
-   $accessCode = "Accepted";
+   $_AccessCode = "Accepted";
    $y = $this->you;
    $r = "";
    $blacklidt = $y["Blocked"] ?? [];
@@ -142,7 +142,7 @@
     ]]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -152,14 +152,14 @@
    ]);
   }
   function Blacklists(array $a) {
-   $accessCode = "Accepted";
+   $_AccessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $y = $this->you;
    $r = $this->core->Change([[
     "[Blacklist.Categories]" => base64_encode("v=".base64_encode("Profile:BlacklistCategories"))
    ], $this->core->Extension("03d53918c3da9fbc174f94710182a8f2")]);
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -169,14 +169,14 @@
    ]);
   }
   function BulletinCenter(array $a) {
-   $accessCode = "Accepted";
+   $_AccessCode = "Accepted";
    $search = base64_encode("Search:Containers");
    $r = $this->core->Change([[
     "[BulletinCenter.Bulletins]" => base64_encode("v=$search&st=Bulletins"),
     "[BulletinCenter.ContactRequests]" => base64_encode("v=$search&Chat=0&st=ContactsRequests")
    ], $this->core->Extension("6cbe240071d79ac32edbe98679fcad39")]);
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -186,7 +186,7 @@
    ]);
   }
   function BulletinMessage(array $a) {
-   $accessCode = "Accepted";
+   $_AccessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $type = $data["Type"] ?? "";
    $message = "Message required for Bulletin type <em>$type</em>.";
@@ -226,7 +226,7 @@
     $message = "Added a product to their shop.";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -236,7 +236,7 @@
    ]);
   }
   function BulletinOptions(array $a) {
-   $accessCode = "Accepted";
+   $_AccessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $bulletin = $data["Bulletin"] ?? "";
    $bulletin = (!empty($bulletin)) ? base64_decode($bulletin) : [];
@@ -422,7 +422,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -461,7 +461,7 @@
    ]);
   }
   function ChangeRank(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $r = [
@@ -477,7 +477,7 @@
      "Body" => $this->core->Element(["p", "The PINs do not match."]),
     ];
    } elseif(!empty($rank) && !empty($username)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $member = $this->core->Member($username);
     $_ResponseType = "ReplaceContent";
     $member["Rank"] = md5($rank);
@@ -490,7 +490,7 @@
     ]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -501,7 +501,7 @@
    ]);
   }
   function Deactivate() {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -510,7 +510,7 @@
      "Header" => "Forbidden"
     ];
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $y["Inactive"] = 1;
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = $this->view(base64_encode("WebUI:Gateway"), []);
@@ -521,7 +521,7 @@
     ]).$this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -531,7 +531,7 @@
    ]);
   }
   function Donate(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $opt = "";
    $t = $this->core->Member(base64_decode($data["UN"]));
@@ -569,7 +569,7 @@
     "Body" => $this->core->Element(["div", $opt, ["class" => "scr"]]),
    ];
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -580,7 +580,7 @@
   }
   function Home(array $a) {
    $_ViewTitle = $this->core->config["App"]["Name"];
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $addTopMargin = "0";
@@ -643,7 +643,7 @@
      $_IsVIP = $subscriptions["VIP"]["A"] ?? 0;
      $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
      $_ViewTitle = "$displayName @ ".$_ViewTitle;
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $addTopMargin = "1";
      $passPhrase = $member["Privacy"]["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
@@ -664,7 +664,7 @@
       ]]);
       $r = $this->core->RenderView($r);
      } elseif($verifyPassPhrase == 1) {
-      $accessCode = "Denied";
+      $_AccessCode = "Denied";
       $addTopMargin = "0";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
@@ -674,7 +674,7 @@
       if($key != $secureKey) {
        $r = $this->core->Element(["p", "The Keys do not match."]);
       } else {
-       $accessCode = "Accepted";
+       $_AccessCode = "Accepted";
        $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
         "AddTo" => $addTo,
         "UN" => base64_encode($id),
@@ -683,7 +683,7 @@
        $r = $this->core->RenderView($r);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
       $blockCommand = ($_YouBlockedThem == 0) ? "Block" : "Unblock";
       $actions = $this->core->Element([
        "button", $blockCommand, [
@@ -941,7 +941,7 @@
     $r = $this->core->RenderView($r);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
@@ -952,7 +952,7 @@
    ]);
   }
   function MakeVIP(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
    $manifest = [];
@@ -970,7 +970,7 @@
     ];
     if($t["Subscriptions"]["VIP"]["A"] == 0) {
      $_VIPForum = "cb3e432f76b38eaa66c7269d658bd7ea";
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $t["Points"] = $t["Points"] + 1000000;
      $manifest = $this->core->Data("Get", ["pfmanifest", $_VIPForum]);
      array_push($manifest, [$t["Login"]["Username"] => "Member"]);
@@ -992,7 +992,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => $manifest,
@@ -1023,7 +1023,7 @@
    return json_encode($bulletins);
   }
   function NewPassword(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -1032,7 +1032,7 @@
      "Header" => "Error"
     ];
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $r = [
      "Front" => $this->core->Change([[
       "[Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:5%;width:90%"),
@@ -1043,7 +1043,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -1053,7 +1053,7 @@
    ]);
   }
   function NewPIN(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -1061,7 +1061,7 @@
      "Body" => "You must be signed in to continue."
     ];
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $r = [
      "Front" => $this->core->Change([[
       "[Member.ProfilePicture]" => $this->core->ProfilePicture($y, "margin:5%;width:90%"),
@@ -1071,7 +1071,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -1081,7 +1081,7 @@
    ]);
   }
   function Preferences(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $addTopMargin = 1;
    $data = $a["Data"] ?? [];
    $minAge = $this->core->config["minRegAge"] ?? 13;
@@ -1098,7 +1098,7 @@
      "Header" => "Not of Age"
     ];
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
      "Header" => base64_encode($this->core->Element([
       "h1", "Preferences", ["class" => "CenterText"]
@@ -1113,7 +1113,7 @@
     $r = $this->core->RenderView($r);
     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     if($verifyPassPhrase == 1) {
-     $accessCode = "Denied";
+     $_AccessCode = "Denied";
      $key = $data["Key"] ?? base64_encode("");
      $key = base64_decode($key);
      $r = $this->core->Element(["p", "The Key is missing."]);
@@ -1124,7 +1124,7 @@
      } else {
       $_LiveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode("CoverPhoto")."&Media=");
       $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=".base64_encode("Attach:.AddTo[Clone.ID]")."&CARD=1&lPG=Files&st=XFS&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]));
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
       $addTopMargin = "0";
       $id = md5($you);
       $autoResponse = $y["Personal"]["AutoResponse"] ?? "";
@@ -1254,7 +1254,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => $addTopMargin,
     "Response" => [
      "JSON" => "",
@@ -1264,7 +1264,7 @@
    ]);
   }
   function Purge(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1274,7 +1274,7 @@
      "Header" => "Forbidden"
     ];
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
      "Header" => base64_encode($this->core->Element([
@@ -1290,7 +1290,7 @@
     ]]);
     $r = $this->core->RenderView($r);
     if($verifyPassPhrase == 1) {
-     $accessCode = "Denied";
+     $_AccessCode = "Denied";
      $key = $data["Key"] ?? base64_encode("");
      $key = base64_decode($key);
      $r = $this->core->Element(["p", "The Key is missing."]);
@@ -1299,7 +1299,7 @@
      if(md5($key) != $secureKey) {
       $r = $this->core->Element(["p", "The Keys do not match."]);
      } else {
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
       $articles = $y["Pages"] ?? [];
       $blogs = $y["Blogs"] ?? [];
       $chats = $y["GroupChats"] ?? [];
@@ -1460,7 +1460,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -1470,7 +1470,7 @@
    ]);
   }
   function Save(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $email = $data["Personal_Email"] ?? "";
@@ -1497,7 +1497,7 @@
    } elseif($this->core->ID == $you) {
     $r = "You must be signed in to continue.";
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $coverPhotos = [];
     $coverPhotosData = $data["CoverPhotos"] ?? [];
     $header = "Done";
@@ -1561,7 +1561,7 @@
     $r = "Your Preferences were saved!";
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -1575,7 +1575,7 @@
    ]);
   }
   function SavePassword(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
@@ -1608,7 +1608,7 @@
      "Header" => "Error"
     ];
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $y["Activity"]["LastPasswordChange"] = $this->core->timestamp;
     $y["Login"]["Password"] = md5($data["NewPassword"]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
@@ -1618,7 +1618,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -1629,7 +1629,7 @@
    ]);
   }
   function SavePIN(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
@@ -1665,7 +1665,7 @@
      "Body" => "The new PINs do not match."
     ];
    } else {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $y["Login"]["PIN"] = md5($data["NewPIN"]);
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $r = [
@@ -1674,7 +1674,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -1858,7 +1858,7 @@
     } elseif($i > 0) {
      $r = "The Username <em>$username</em> is already in use.";
     } else {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $data = [];
      $data["Email"] = base64_encode($email);
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignUp"));
@@ -1875,7 +1875,7 @@
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $r = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $r = $this->core->RenderView($r);
-    } if($accessCode == "Denied") {
+    } if($_AccessCode == "Denied") {
      $r = $this->core->Change([[
       "[Error.Message]" => $r,
       "[Error.ParentView]" => "SignUp"
@@ -1919,7 +1919,7 @@
     } if($i > 0) {
      $r = "The Username <em>$username</em> is already in use.";
     } else {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $this->core->Data("Save", ["cms", $usernameID, [
       "Contacts" => [],
       "Requests" => []
@@ -1992,7 +1992,7 @@
       "[Success.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
       "[Success.Username]" => $username
      ], $this->core->Extension("872fd40c7c349bf7220293f3eb64ab45")]);
-    } if($accessCode == "Denied") {
+    } if($_AccessCode == "Denied") {
      $r = $this->core->Change([[
       "[Error.Message]" => $r,
       "[Error.ParentView]" => "SignUp"

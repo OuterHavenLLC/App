@@ -6,7 +6,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Edit(array $a) {
-   $accessCode = "Accepted";
+   $_AccessCode = "Accepted";
    $data = $a["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $edit = base64_encode("Product:Edit");
@@ -32,7 +32,7 @@
     ], $this->core->Extension($template)])
    ];
    if($this->core->ID == $you) {
-    $accessCode = "Denied";
+    $_AccessCode = "Denied";
     $r = [
      "Body" => "You must sign in to continue."
     ];
@@ -166,7 +166,7 @@
     ] : $r;
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -176,7 +176,7 @@
    ]);
   }
   function Home(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "AddTo",
@@ -202,7 +202,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($pub == 1) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $products = $this->core->DatabaseSet("PROD") ?? [];
     foreach($products as $key => $value) {
      $product = str_replace("nyc.outerhaven.product.", "", $value);
@@ -223,7 +223,7 @@
      "Owner" => base64_encode($username)
     ]);
     if($_Product["Empty"] == 0) {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $product = $_Product["DataModel"];
      $passPhrase = $product["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
@@ -244,7 +244,7 @@
       ]]);
       $r = $this->core->RenderView($r);
      } elseif($verifyPassPhrase == 1) {
-      $accessCode = "Denied";
+      $_AccessCode = "Denied";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $r = $this->core->Element(["p", "The Key is missing."]);
@@ -253,7 +253,7 @@
       if($key != $secureKey) {
        $r = $this->core->Element(["p", "The Keys do not match."]);
       } else {
-       $accessCode = "Accepted";
+       $_AccessCode = "Accepted";
        $r = $this->view(base64_encode("Product:Home"), ["Data" => [
         "ID" => $data["ID"],
         "UN" => $data["UN"],
@@ -262,7 +262,7 @@
        $r = $this->core->RenderView($r);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
       $options = $_Product["ListItem"]["Options"];
       $shop = $this->core->Data("Get", ["shop", md5($username)]);
       $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
@@ -377,7 +377,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -387,7 +387,7 @@
    ]);
   }
   function Purge(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $key = $data["Key"] ?? base64_encode("");
    $key = base64_decode($key);
@@ -409,7 +409,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $accessCode = "Accepted";
+    $_AccessCode = "Accepted";
     $id = base64_decode($id);
     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
     $newProducts = [];
@@ -454,7 +454,7 @@
     ]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
@@ -464,7 +464,7 @@
    ]);
   }
   function Save(array $a) {
-   $accessCode = "Denied";
+   $_AccessCode = "Denied";
    $data = $a["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $r = [
@@ -515,7 +515,7 @@
        "Body" => "The Product <em>$title</em> has already been taken. Please choose a different one."
       ];
      } else {
-      $accessCode = "Accepted";
+      $_AccessCode = "Accepted";
       $actionTaken = ($new == 1) ? "posted" : "updated";
       $albums = [];
       $albumsData = $data["Album"] ?? [];
@@ -802,7 +802,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $accessCode,
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Response" => [
      "JSON" => "",
