@@ -7,7 +7,7 @@
    ]);
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Containers(array $data) {
+  function Containers(array $data): string {
    $_View = $this->NoID;
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
@@ -87,7 +87,7 @@
     ]
    ]);
   }
-  function Retract(array $data) {
+  function Retract(array $data): string {
    $_View = $this->NoID;
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
@@ -117,7 +117,7 @@
     ]
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_View = $this->NoID;
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
@@ -149,7 +149,7 @@
     "ResponseType" => "UpdateContent"
    ]);
   }
-  function ViewCount(array $data) {
+  function ViewCount(array $data): string {
    $_View = $this->NoID;
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";

@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function AddContent() {
+  function AddContent(): string {
    $_View = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -57,7 +57,7 @@
     "View" => $_View
    ]);
   }
-  function AddContentCheck() {
+  function AddContentCheck(): string {
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $_View = ($this->core->ID != $you) ? $this->core->Element(["button", NULL, [
@@ -69,7 +69,7 @@
     "View" => $_View
    ]);
   }
-  function Blacklist(array $data) {
+  function Blacklist(array $data): string {
    $_Dialog = [
     "Body" => "Some required data is missing."
    ];
@@ -130,7 +130,7 @@
     "View" => $_View
    ]);
   }
-  function BlacklistCategories(array $data) {
+  function BlacklistCategories(array $data): string {
    $_AccessCode = "Accepted";
    $y = $this->you;
    $r = "";
@@ -151,7 +151,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Blacklists(array $data) {
+  function Blacklists(array $data): string {
    $_AccessCode = "Accepted";
    $data = $data["Data"] ?? [];
    $y = $this->you;
@@ -168,7 +168,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function BulletinCenter(array $data) {
+  function BulletinCenter(array $data): string {
    $_AccessCode = "Accepted";
    $search = base64_encode("Search:Containers");
    $r = $this->core->Change([[
@@ -185,7 +185,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function BulletinMessage(array $data) {
+  function BulletinMessage(array $data): string {
    $_AccessCode = "Accepted";
    $data = $data["Data"] ?? [];
    $type = $data["Type"] ?? "";
@@ -235,7 +235,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function BulletinOptions(array $data) {
+  function BulletinOptions(array $data): string {
    $_AccessCode = "Accepted";
    $data = $data["Data"] ?? [];
    $bulletin = $data["Bulletin"] ?? "";
@@ -431,7 +431,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Bulletins(array $data) {
+  function Bulletins(array $data): string {
    $count = 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -460,7 +460,7 @@
     "View" => $count
    ]);
   }
-  function ChangeRank(array $data) {
+  function ChangeRank(array $data): string {
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -500,7 +500,7 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function Deactivate() {
+  function Deactivate(): string {
    $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -530,7 +530,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Donate(array $data) {
+  function Donate(array $data): string {
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $opt = "";
@@ -578,7 +578,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Home(array $data) {
+  function Home(array $data): string {
    $_ViewTitle = $this->core->config["App"]["Name"];
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
@@ -946,7 +946,7 @@
     "Title" => $_ViewTitle
    ]);
   }
-  function MakeVIP(array $data) {
+  function MakeVIP(array $data): string {
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
@@ -996,7 +996,7 @@
     "ResponseType" => $_ResponseType
    ]);
   }
-  function MarkBulletinAsRead(array $data) {
+  function MarkBulletinAsRead(array $data): string {
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["ID"]);
    $y = $this->you;
@@ -1017,7 +1017,7 @@
    ]);
    return json_encode($bulletins);
   }
-  function NewPassword(array $data) {
+  function NewPassword(array $data): string {
    $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1047,7 +1047,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function NewPIN(array $data) {
+  function NewPIN(array $data): string {
    $_AccessCode = "Denied";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -1075,7 +1075,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Preferences(array $data) {
+  function Preferences(array $data): string {
    $_AccessCode = "Denied";
    $addTopMargin = 1;
    $data = $data["Data"] ?? [];
@@ -1258,7 +1258,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Purge(array $data) {
+  function Purge(array $data): string {
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $y = $this->you;
@@ -1464,7 +1464,7 @@
     "ResponseType" => "View"
    ]);
   }
-  function Save(array $data) {
+  function Save(array $data): string {
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -1569,7 +1569,7 @@
     "SetUIVariant" => $_UIVariant
    ]);
   }
-  function SavePassword(array $data) {
+  function SavePassword(array $data): string {
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -1623,7 +1623,7 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function SavePIN(array $data) {
+  function SavePIN(array $data): string {
    $_AccessCode = "Denied";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -1679,7 +1679,7 @@
     "Success" => "CloseDialog"
    ]);
   }
-  function SignIn(array $data) {
+  function SignIn(array $data): string {
    $_AddTopMargin = "0";
    $_Commands = [];
    $_Dialog = "";
@@ -1780,7 +1780,7 @@
     "View" => $_View
    ]);
   }
-  function SignUp(array $data) {
+  function SignUp(array $data): string {
    $_AddTopMargin = "0";
    $_Card = "";
    $_Dialog = "";

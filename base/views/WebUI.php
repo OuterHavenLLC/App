@@ -4,7 +4,7 @@
    parent::__construct();
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Attachments(array $data) {
+  function Attachments(array $data): string {
    $_View = $this->core->Element(["p", "The content identifier is missing."]);
    $header = $data["Header"] ?? "";
    $id = $data["ID"] ?? "";
@@ -194,7 +194,7 @@
     ]
    ]);
   }
-  function DesignView(array $data) {
+  function DesignView(array $data): string {
    $data = $data["Data"] ?? [];
    $designView = $data["DV"] ?? "";
    $_View = (!empty($designView)) ? $this->core->PlainText([
@@ -214,7 +214,7 @@
     ]
    ]);
   }
-  function Error(array $data) {
+  function Error(array $data): string {
    $data = $data["Data"] ?? [];
    $error = $data["Error"] ?? "";
    return $this->core->JSONResponse([
@@ -229,7 +229,7 @@
     ]
    ]);
   }
-  function Extensions(array $data) {
+  function Extensions(array $data): string {
    $clientExtensions = [];
    $data = $data["Data"] ?? [];
    $doNotIndex = [
@@ -301,7 +301,7 @@
     "JSON" => $clientExtensions
    ]);
   }
-  function Gateway() {
+  function Gateway(): string {
    $eventMedia = $this->core->RenderEventMedia();
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
@@ -319,7 +319,7 @@
     ]
    ]);
   }
-  function Landing() {
+  function Landing(): string {
    $content = "v=".base64_encode("WebUI:Gateway");
    $headers = apache_request_headers();
    $language = $headers["Language"] ?? $this->core->language;
@@ -396,7 +396,7 @@
     ]
    ]);
   }
-  function Menu() {
+  function Menu(): string {
    $search = base64_encode("Search:Containers");
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -512,7 +512,7 @@
     ]
    ]);
   }
-  function Public(array $data) {
+  function Public(array $data): string {
    $_Commands = "";
    $_View = "";
    $data = $data["Data"] ?? [];
@@ -569,7 +569,7 @@
     "View" => $_View
    ]);
   }
-  function SubscribeSection(array $data) {
+  function SubscribeSection(array $data): string {
    $_Dialog = [
     "Body" => "The Content Identifier or Type are missing."
    ];
@@ -631,7 +631,7 @@
     "View" => $_View
    ]);
   }
-  function SwitchLanguages() {
+  function SwitchLanguages(): string {
    $options = "";
    foreach($this->core->Languages() as $region => $language) {
     if($region == "en_US") {//TEMP
@@ -651,7 +651,7 @@
     ]
    ]);
   }
-  function TwoFactorAuthentication(array $data) {
+  function TwoFactorAuthentication(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "An email address is required for us to continue the verification process."
@@ -736,7 +736,7 @@
     "View" => $_View
    ]);
   }
-  function WYSIWYG() {
+  function WYSIWYG(): string {
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "View" => [
