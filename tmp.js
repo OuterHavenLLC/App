@@ -456,8 +456,8 @@ class OH {
      this.RefreshCoverPhoto(Parameters[0], Parameters[1]);
     } else if(Name === "RenderInputs" && ParameterCount === 2) {
      this.RenderInputs(Parameters[0], Parameters[1]);
-    } else if(Name === "RenderVisibilityFilters" && ParameterCount === 2) {
-     this.RenderVisibilityFilters(Parameters[0], Parameters[1]);
+    } else if(Name === "RenderVisibilityFilter" && ParameterCount === 2) {
+     this.RenderVisibilityFilter(Parameters[0], Parameters[1]);
     } else if(Name === "SignIn" && ParameterCount === 1) {
      this.SignIn(Command.Parameters[0]);
     } else if(Name === "UpdateContent" && ParameterCount === 2) {

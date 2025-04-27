@@ -6,6 +6,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Album Identifier is missing."
    ];
@@ -48,28 +49,119 @@
      ]]),
      "Front" => [
       "ChangeData" => [
-       "[Album.Description]" => base64_encode($description),
        "[Album.Header]" => $header,
        "[Album.ID]" => $id,
        "[Album.New]" => $new,
-       "[Album.PassPhrase]" => base64_encode($passPhrase),
-       "[Album.Title]" => base64_encode($title),
-       "[Album.Translate]" => $this->core->RenderView($translate),
-       "[Album.Visibility.NSFW]" => $nsfw,
-       "[Album.Visibility.Privacy]" => $privacy
+       "[Album.Translate]" => $this->core->RenderView($translate)
       ],
       "ExtensionID" => "760cd577207eb0d2121509d7212038d4"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".AlbumInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
    $_Card = "";
-   $_Commands = [];
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Album Identifier is missing.",
     "Header" => "Not Found"
