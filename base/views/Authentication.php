@@ -258,8 +258,8 @@
       ]
      ]
     ];
-    $_Forum = $this->core->Data("Get", ["pf", $id]);
     $_Dialog = "";
+    $_Forum = $this->core->Data("Get", ["pf", $id]);
     $_View = [
      "ChangeData" => [
       "[Roles.ID]" => $id,

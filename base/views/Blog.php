@@ -47,12 +47,12 @@
    ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["ID", "PIN", "Member"]);
-   $id = $data["ID"];
-   $member = $data["Member"];
+   $id = $data["ID"] ?? "";
+   $member = $data["Member"] ?? "";
+   $pin = $data["PIN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($data["PIN"]) != $y["Login"]["PIN"]) {
+   if(md5($pin) != $y["Login"]["PIN"]) {
     $_Dialog = [
      "Body" => "The PINs do not match."
     ];
@@ -81,7 +81,6 @@
     "Body" => "The Blog Identifier is missing.",
     "Header" => "Not Found"
    ];
-   $action = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["BLG", "new"]);
    $id = $data["BLG"];
