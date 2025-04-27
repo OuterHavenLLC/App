@@ -6,6 +6,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function ArticleChangeMemberRole(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Article Identifier is missing."
    ];
@@ -21,11 +22,67 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
-    $_Article = $this->core->Data("Get", ["pg", base64_decode($id)]);
+    $id = base64_decode($id);
+    $_Article = $this->core->Data("Get", ["pg", $id]);
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Authentication$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "Member",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => base64_decode($member)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "PIN",
+          "pattern" => "d*",
+          "placeholder" => "PIN",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Enter Your PIN"
+         ],
+         "Type" => "Text"
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "Administrator",
+          "1" => "Contributor"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Chose a Role"
+         ],
+         "Name" => "Role",
+         "Type" => "Select"
+        ]
+       ]
+      ]
+     ]
+    ];
+    $_Dialog = "";
     $_View = [
      "ChangeData" => [
-      "[Roles.ID]" => $_Article["ID"],
-      "[Roles.Member]" => base64_decode($member),
+      "[Roles.ID]" => $id,
       "[Roles.Processor]" => base64_encode("v=".base64_encode("Page:ChangeMemberRole")),
       "[Roles.Title]" => $_Article["Title"]
      ],
@@ -34,6 +91,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -46,31 +104,84 @@
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
    $member = $data["Member"] ?? "";
-   $r = [
-    "Body" => "The Blog Identifier is missing."
-   ];
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
-    $r = [
+    $_Dialog = [
      "Body" => "You must sign in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
+    $id = base64_decode($id);
+    $_Blog = $this->core->Data("Get", ["blg", $id]);
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Authentication$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "Member",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => base64_decode($member)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "PIN",
+          "pattern" => "d*",
+          "placeholder" => "PIN",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Enter Your PIN"
+         ],
+         "Type" => "Text"
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "Administrator",
+          "1" => "Contributor"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Chose a Role"
+         ],
+         "Name" => "Role",
+         "Type" => "Select"
+        ]
+       ]
+      ]
+     ]
+    ];
     $_Dialog = "";
-    $blog = $this->core->Data("Get", ["blg", base64_decode($id)]);
     $_View = [
      "ChangeData" => [
-      "[Roles.ID]" => $blog["ID"],
-      "[Roles.Member]" => base64_decode($member),
+      "[Roles.ID]" => $id,
       "[Roles.Processor]" => base64_encode("v=".base64_encode("Blog:ChangeMemberRole")),
-      "[Roles.Title]" => $blog["Title"]
+      "[Roles.Title]" => $_Blog["Title"]
      ],
      "ExtensionID" => "270d16c83b59b067231b0c6124a4038d"
     ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -91,20 +202,76 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
+    $id = base64_decode($id);
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Authentication$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "Member",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => base64_decode($member)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "PIN",
+          "pattern" => "d*",
+          "placeholder" => "PIN",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Enter Your PIN"
+         ],
+         "Type" => "Text"
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "Administrator",
+          "1" => "Contributor"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Chose a Role"
+         ],
+         "Name" => "Role",
+         "Type" => "Select"
+        ]
+       ]
+      ]
+     ]
+    ];
+    $_Forum = $this->core->Data("Get", ["pf", $id]);
     $_Dialog = "";
-    $forum = $this->core->Data("Get", ["pf", base64_decode($id)]);
     $_View = [
      "ChangeData" => [
-      "[Roles.ID]" => $forum["ID"],
-      "[Roles.Member]" => base64_decode($member),
+      "[Roles.ID]" => $id,
       "[Roles.Processor]" => base64_encode("v=".base64_encode("Forum:ChangeMemberRole")),
-      "[Roles.Title]" => $forum["Title"]
+      "[Roles.Title]" => $_Forum["Title"]
      ],
      "ExtensionID" => "270d16c83b59b067231b0c6124a4038d"
     ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
