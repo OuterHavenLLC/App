@@ -125,7 +125,7 @@
           "HeaderText" => "Pass Phrase"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($title)
+         "Value" => $this->core->AESencrypt($passPhrase)
         ]
        ]
       ]
@@ -179,7 +179,7 @@
    $username = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $fileSystem = $this->core->Data("Get", ["fs", md5($you)]) ?? [];
+   $fileSystem = $this->core->Data("Get", ["fs", md5($you)]);
    foreach($fileSystem["Files"] as $key => $value) {
     $fsUsage = $fsUsage + $value["Size"];
    }
@@ -245,9 +245,9 @@
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $options = $_Album["ListItem"]["Options"];
       $t = ($username == $you) ? $y : $this->core->Member($username);
-      $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
-      $ck2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
-      $ck2 = ($ck2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
+      $check = ($t["Login"]["Username"] == $you) ? 1 : 0;
+      $check2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
+      $check2 = ($check2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
       $actions = (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
         "class" => "Attach Small v2",
@@ -255,13 +255,13 @@
         "data-media" => base64_encode("Album;$username;$id")
        ]
       ]) : "";
-      $actions .= ($ck == 0) ? $this->core->Element([
+      $actions .= ($check == 0) ? $this->core->Element([
        "button", "Block", [
         "class" => "Small UpdateButton v2",
         "data-processor" => $options["Block"]
        ]
       ]) : "";
-      if($ck == 1) {
+      if($check == 1) {
        $actions .= ($id != md5("unsorted")) ? $this->core->Element([
         "button", "Delete", [
          "class" => "CloseCard OpenDialog Small v2 v2w",
@@ -281,22 +281,15 @@
         "data-view" => $options["Share"]
        ]
       ]) : "";
-      $actions .= ($ck == 1 && $ck2 == 1) ? $this->core->Element([
+      $actions .= ($check == 1 && $check2 == 1) ? $this->core->Element([
        "button", "Upload", [
         "class" => "OpenCard Small v2",
         "data-view" => $options["Upload"]
        ]
       ]) : "";
       $media = $this->core->Data("Get", ["fs", md5($username)]);
-      $coverPhoto = $this->core->PlainText([
-       "Data" => "[Media:CP]",
-       "Display" => 1
-      ]);
-      $coverPhotoList = explode(".", $album["ICO"]);
-      if(!empty($album["ICO"]) && $coverPhotoList[0] != "thumbnail") {
-       $coverPhoto = "$username/";
-       $coverPhoto .= $media["Files"][$coverPhotoList[0]]["Name"];
-      }
+      $coverPhoto = $album["ICO"] ?? "";
+      $coverPhoto = base64_encode("$username-".explode(".", $coverPhoto)[1]);
       $_Commands = [
        [
         "Name" => "UpdateContentAES",
@@ -316,7 +309,7 @@
       $_View = [
        "ChangeData" => [
         "[Album.Actions]" => $actions,
-        "[Album.CoverPhoto]" => $this->core->CoverPhoto(base64_encode($coverPhoto)),
+        "[Album.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
         "[Album.Created]" => $this->core->TimeAgo($album["Created"]),
         "[Album.Description]" => $album["Description"],
         "[Album.ID]" => $id,

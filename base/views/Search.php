@@ -2338,13 +2338,10 @@
       $ck = ($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) ? 1 : 0;
       if($ck == 1 || $username == $you) {
        $coverPhoto = $value["ICO"] ?? "";
-       $coverPhoto = $this->core->GetSourceFromExtension([
-        $t["Login"]["Username"],
-        $coverPhoto
-       ]);
+       $coverPhoto = base64_encode($t["Login"]["Username"]."-".explode(".", $coverPhoto)[1]);
        array_push($_List, [
         "[Album.CRID]" => $key,
-        "[Album.CoverPhoto]" => $coverPhoto,
+        "[Album.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
         "[Album.Lobby]" => base64_encode("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$key&UN=$username"),
         "[Album.Title]" => $value["Title"]
        ]);
