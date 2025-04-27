@@ -296,23 +296,25 @@ class OH {
    }, 600);
   }, 600);
  }
- static CloseFirSTEPTool(ID = "") {
-  var FST = ".FST" + ID;
-  if(ID === "" || typeof ID === "undefined") {
-   FST = ".FST:last";
-  }
+ static CloseFirSTEPTool() {
   $(".CloseFirSTEPTool, .OpenFirSTEPTool").each(() => {
    this.disabled = true;
   });
-  $(FST).hide("slide", {
+  $(".FST").hide("slide", {
    direction: "right"
   }, 500);
-  setTimeout(() => {
+  if($(window).width() > 1000) {
+   $(".Content").animate({
+    "width": "100%"
+   });
+  } else {
+   $(".Content").show("slide", {
+    direction: "left"
+   }, 500);
    $(".CloseFirSTEPTool, .OpenFirSTEPTool").each(() => {
     this.disabled = false;
    });
-   $(FST).remove();
-  }, 600);
+  }
  }
  static CloseNetMap() {
   if($(".NetMap").is(":visible")) {
@@ -475,17 +477,24 @@ class OH {
   }
  }
  static FST(data) {
-  const Data = data || "",
-            ID = Data.ID || this.UUID();
-  $(this.DefaultContainer).append("<div class='Frosted FST FST" + ID + " h scr'></div>");
-  $(".FST" + ID).html("<div class='TopBarMargin'></div>\r\n");
-  $(".FST" + ID).append(Data);
-  $(".FST" + ID).find("input[type=text], textarea").filter(":enabled:visible:first").focus();
+  const Data = data || "";
+  $(".FST").html("<div class='TopBarMargin'></div>\r\n");
+  $(".FST").append(Data);
+  $(".FST").find("input[type=text], textarea").filter(":enabled:visible:first").focus();
   setTimeout(() => {
-   $(".FST" + ID).show("slide", {
+   if($(window).width() > 1000) {
+    $(".Content").animate({
+     "width": "66.66%"
+    });
+   } else {
+    $(".Content").hide("slide", {
+     direction: "left"
+    }, 500);
+   }
+   $(".FST").show("slide", {
     direction: "right"
    }, 500);
-  }, 600);
+  }, 500);
  }
  static InstantSignOut() {
   setTimeout(() => {
@@ -1667,14 +1676,6 @@ class OH {
    }
   }, 250);
  }
- static getFSTvisibility() {
-  if($(".FST:visible:last").is(":visible")) {
-   this.CloseFirSTEPTool();
-   return;
-  } else {
-   return "Accepted";
-  }
- }
  static getEmailValidation(data) {
   var email = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
   return email.test(data);
@@ -1851,7 +1852,7 @@ $(document).on("click", ".CloseDialog", (event) => {
  OH.CloseDialog($(event.currentTarget).attr("data-id"));
 });
 $(document).on("click", ".CloseFirSTEPTool", (event) => {
- OH.CloseFirSTEPTool($(event.currentTarget).attr("data-id"));
+ OH.CloseFirSTEPTool();
 });
 $(document).on("click", ".CloseNetMap", () => {
  OH.CloseNetMap();
@@ -2619,10 +2620,8 @@ $(document).on("keyup", ".ReSearch", (event) => {
 });
 $(document).on("keyup", ".SearchBar", (event) => {
  const $Input = $(event.currentTarget);
- if(OH.getFSTvisibility() === "Accepted") {
-  OH.CloseNetMap();
-  OH.UpdateContent(OH.DefaultContainer, OH.AESencrypt(OH.AESdecrypt($Input.attr("data-u"))) + OH.AESencrypt($Input.val()), "AES");
- }
+ OH.CloseNetMap();
+ OH.UpdateContent(OH.DefaultContainer, OH.AESencrypt(OH.AESdecrypt($Input.attr("data-u"))) + OH.AESencrypt($Input.val()), "AES");
 });
 $(document).on("keyup", ".UnlockProtectedContent", (event) => {
  const $Input = $(event.currentTarget),
