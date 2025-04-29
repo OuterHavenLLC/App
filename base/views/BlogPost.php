@@ -349,6 +349,7 @@
       $share = ($share == 1) ? $this->core->Element(["div", $this->core->Element([
        "button", "Share", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Share"]
       ]]), ["class" => "Desktop33"]]) : "";
       $verified = $author["Verified"] ?? 0;

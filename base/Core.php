@@ -585,7 +585,7 @@
        "Edit" => $this->AESencrypt("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&Post=$additionalContentID"),
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($additionalContentID)."&dbID=".base64_encode("bp")),
        "Report" => $this->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID;$additionalContentID")),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => $this->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$additionalContentID&Type=BlogPost"),
        "View" => $this->AESencrypt("v=".base64_encode("BlogPost:Home")."&AddTo=$addTo&Blog=$contentID&Post=$additionalContentID&b2=$backTo&back=1"),
        "Vote" => $this->AESencrypt("v=$vote&ID=$additionalContentID&Type=2")
