@@ -325,7 +325,6 @@
        $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $_Dialog = "";
       $options = $_BlogPost["ListItem"]["Options"];
       $author = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
       $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
@@ -358,6 +357,13 @@
        [
         "Name" => "UpdateContentAES",
         "Parameters" => [
+         ".Conversation$postID",
+         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($postID)."&LVL=".base64_encode(1))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
          ".Notes$postID",
          $options["Notes"]
         ]
@@ -384,6 +390,7 @@
         ]
        ]
       ];
+      $_Dialog = "";
       $_View = [
        "ChangeData" => [
         "[Article.Actions]" => $actions,
@@ -417,10 +424,6 @@
         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-        "[Conversation.CRID]" => $postID,
-        "[Conversation.CRIDE]" => base64_encode($postID),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
         "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
         "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
         "[Member.Description]" => $description
@@ -432,6 +435,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
