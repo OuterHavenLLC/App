@@ -372,7 +372,7 @@
        [
         "Name" => "UpdateContentRecursiveAES",
         "Parameters" => [
-         ".Contributors$id",
+         ".Contributors$postID",
          $options["Contributors"]
         ]
        ],
