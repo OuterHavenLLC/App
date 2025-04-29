@@ -77,6 +77,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing.",
     "Header" => "Not Found"
@@ -126,30 +127,132 @@
      "Front" => [
       "ChangeData" => [
        "[Blog.Attachments]" => "",
-       "[Blog.Description]" => base64_encode($description),
        "[Blog.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
        "[Blog.Header]" => $header,
-       "[Blog.ID]" => $id,
-       "[Blog.New]" => $new,
-       "[Blog.PassPhrase]" => base64_encode($passPhrase),
-       "[Blog.Title]" => base64_encode($title),
-       "[Blog.Template]" => $template,
-       "[Blog.Templates]" => json_encode($templates, true),
-       "[Blog.Visibility.NSFW]" => $nsfw,
-       "[Blog.Visibility.Privacy]" => $privacy
+       "[Blog.ID]" => $id
       ],
       "ExtensionID" => "7759aead7a3727dd2baed97550872677"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".BlogEditor$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $templates,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Template"
+         ],
+         "Name" => "TPL-BLG",
+         "Type" => "Select",
+         "Value" => $template
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The requested Blog could not be found.",
     "Header" => "Not Found"
@@ -168,7 +271,7 @@
      "data-type" => $data["lPG"]
     ]
    ]) : "";
-   $card = $data["CARD"] ?? "";
+   $card = $data["CARD"] ?? 0;
    $i = 0;
    $id = $data["ID"] ?? "";
    $public = $data["pub"] ?? 0;
@@ -214,7 +317,7 @@
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $_Card = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
@@ -228,7 +331,7 @@
        ], true))
       ]]);
       $_Card = [
-       "Front" => $this->core->RenderView($_Card)
+       "Front" => $this->core->RenderView($_View)
       ];
       $_Dialog = "";
       $_View = "";
@@ -242,7 +345,6 @@
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
        $_Dialog = "";
-       $_View = "";
       } else {
        $_Dialog = "";
        $_View = $this->view(base64_encode("Blog:Home"), ["Data" => [
@@ -254,7 +356,6 @@
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_Dialog = "";
-      $actions = "";
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
       $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
@@ -312,20 +413,52 @@
       ]]);
       $extensionID = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
       $search = base64_encode("Search:Containers");
+      $_Commands = [
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Stream$id",
+         $this->core->AESencrypt("v=$search&ID=".base64_encode($id)."&st=BGP")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$id",
+         $options["Vote"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Contributors$id",
+         $this->core->AESencrypt("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".MemberGrid$id",
+         $this->core->AESencrypt("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true)))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Subscribe$id",
+         $options["Subscribe"]
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
         "[Blog.About]" => "About ".$owner["Personal"]["DisplayName"],
         "[Blog.Actions]" => $actions,
         "[Blog.Back]" => $back,
         "[Blog.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
-        "[Blog.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Blog")."&st=Contributors"),
-        "[Blog.Contributors.Grid]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
         "[Blog.Description]" => $_Blog["ListItem"]["Description"],
         "[Blog.ID]" => $id,
-        "[Blog.Posts]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=BGP"),
-        "[Blog.Subscribe]" => $options["Subscribe"],
-        "[Blog.Title]" => $_Blog["ListItem"]["Title"],
-        "[Blog.Votes]" => $options["Vote"]
+        "[Blog.Title]" => $_Blog["ListItem"]["Title"]
        ],
        "ExtensionID" => $extensionID
       ];
@@ -339,6 +472,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -551,8 +685,7 @@
          ]) ?? [];
          $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
          if(!empty($fileName)) {
-          $coverPhoto = $f[0]."/$fileName";
-          $coverPhotoSource = base64_encode($f[0]."-".$f[1]);
+          $coverPhoto = base64_encode($f[0]."-".$f[1]);
           $i++;
          }
         }
@@ -568,8 +701,7 @@
      $blog = [
       "Contributors" => $contributors,
       "Created" => $created,
-      "ICO" => $coverPhoto,
-      "ICO-SRC" => base64_encode($coverPhotoSource),
+      "CoverPhoto" => $coverPhoto,
       "ID" => $id,
       "Illegal" => $illegal,
       "Modified" => $now,

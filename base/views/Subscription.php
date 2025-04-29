@@ -133,11 +133,12 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($y["Rank"] == md5("High Command")) {
-    foreach($y["Subscriptions"] as $key => $value) {
-     $y["Subscriptions"][$key] = [
+    $now = $this->core->timestamp;
+    foreach($y["Subscriptions"] as $subscription => $info) {
+     $y["Subscriptions"][$subscription] = [
       "A" => 1,
-      "B" => $this->core->timestamp,
-      "E" => $this->TimePlus($this->core->timestamp, 1, "year")
+      "B" => $now,
+      "E" => $this->TimePlus($now, 1, "year")
      ];
     }
     $this->core->Data("Save", ["mbr", md5($you), $y]);

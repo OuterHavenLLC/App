@@ -690,8 +690,7 @@
                          AND BlogPost_Blog=:Blog
                          ORDER BY BlogPost_Created DESC
                          LIMIT $limit
-                         OFFSET $offset
-     ";
+                         OFFSET $offset";
      $_Query = (!empty($addTo)) ? "SELECT * FROM BlogPosts 
                          JOIN Blogs
                          ON Blog_ID=BlogPost_Blog
@@ -702,8 +701,7 @@
                                        BlogPost_Title LIKE :Search)
                          ORDER BY BlogPost_Created DESC
                          LIMIT $limit
-                         OFFSET $offset
-     " : $_Query;
+                         OFFSET $offset" : $_Query;
      $sql->query($_Query, [
       ":Blog" => $_BlogID,
       ":Search" => $querysql
@@ -716,7 +714,6 @@
       $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
       $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
       $title = $blog["Title"] ?? "";
-      $title = urlencode($title);
       $bl = $this->core->CheckBlocked([$y, "Blog Posts", $sql["BlogPost_ID"]]);
       $_BlogPost = $this->core->GetContentData([
        "BackTo" => $title,
@@ -753,16 +750,15 @@
        $illegal = $post["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        if($admin == 1 || ($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0)) {
-        if($admin == 1) {
-         $actions .= $this->core->Element(["button", "Delete", [
-          "class" => "InnerMargin OpenDialog",
-          "data-view" => $options["Delete"]
-         ]]);
-         $actions .= ($_IsBlogger == 1) ? $this->core->Element(["button", "Edit", [
-          "class" => "InnerMargin OpenCard",
-          "data-view" => $options["Edit"]
-         ]]) : "";
-        }
+        $actions .= ($admin == 1) ? $this->core->Element(["button", "Delete", [
+         "class" => "InnerMargin OpenDialog",
+         "data-encryption" => "AES",
+         "data-view" => $options["Delete"]
+        ]]).$this->core->Element(["button", "Edit", [
+         "class" => "InnerMargin OpenCard",
+         "data-encryption" => "AES",
+         "data-view" => $options["Edit"]
+        ]]) : "";
         $contributors = $post["Contributors"] ?? $blog["Contributors"];
         $coverPhoto = (!empty($post["CoverPhoto"])) ? base64_encode($post["CoverPhoto"]) : "";
         $op = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
@@ -2383,8 +2379,6 @@
        $illegal = $blog["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        if($illegal == 0) {
-       $coverPhoto = $blog["ICO"] ?? $coverPhoto;
-       $coverPhoto = base64_encode($coverPhoto);
         array_push($_List, [
          "[Info.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
          "[Info.Description]" => $_Blog["ListItem"]["Description"],

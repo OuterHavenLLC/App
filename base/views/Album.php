@@ -227,7 +227,6 @@
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
        $_Dialog = "";
-       $_View = "";
       } else {
        $_Dialog = "";
        $_View = $this->view(base64_encode("Album:Home"), ["Data" => [

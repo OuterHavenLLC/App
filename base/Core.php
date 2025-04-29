@@ -550,9 +550,9 @@
        "Invite" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=".base64_encode($contentID)),
        "Post" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Blog"),
+       "Subscribe" => $this->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Blog"),
        "View" => $this->AESencrypt("v=".base64_encode("Blog:Home")."&AddTo=$addTo&CARD=1&ID=$contentID"),
-       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
+       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }
     } elseif($type == "BlogPost" && !empty($additionalContentID)) {
@@ -580,16 +580,15 @@
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($additionalContentID)."&List=".base64_encode("Blog Posts")),
-       "Contributors" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("BlogPost")."&st=Contributors"),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-       "Edit" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&Post=$additionalContentID"),
-       "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($additionalContentID)."&dbID=".base64_encode("bp")),
-       "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID;$additionalContentID")),
+       "Contributors" => $this->AESencrypt("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("BlogPost")."&st=Contributors"),
+       "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
+       "Edit" => $this->AESencrypt("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&Post=$additionalContentID"),
+       "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($additionalContentID)."&dbID=".base64_encode("bp")),
+       "Report" => $this->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("BlogPost;$contentID;$additionalContentID")),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "Subscribe" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$additionalContentID&Type=BlogPost"),
-       "View" => base64_encode("v=".base64_encode("BlogPost:Home")."&AddTo=$addTo&Blog=$contentID&Post=$additionalContentID&b2=$backTo&back=1"),
-       "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=2")
+       "Subscribe" => $this->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$additionalContentID&Type=BlogPost"),
+       "View" => $this->AESencrypt("v=".base64_encode("BlogPost:Home")."&AddTo=$addTo&Blog=$contentID&Post=$additionalContentID&b2=$backTo&back=1"),
+       "Vote" => $this->AESencrypt("v=$vote&ID=$additionalContentID&Type=2")
       ];
      }
     } elseif($type == "Chat") {

@@ -6,6 +6,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Blog Identifier is missing."
    ];
@@ -86,7 +87,7 @@
       "ViewDesign" => []
      ]
     ]);
-    $r = [
+    $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
       "data-form" => ".EditBlogPost$id",
@@ -94,35 +95,162 @@
      ]]),
      "Front" => [
       "ChangeData" => [
-       "[Blog.ID]" => $blog["ID"],
        "[BlogPost.Attachments]" => $this->core->RenderView($attachments),
-       "[BlogPost.Body]" => base64_encode($this->core->PlainText([
-        "Data" => $body,
-        "Decode" => 1
-       ])),
-       "[BlogPost.Description]" => base64_encode($description),
        "[BlogPost.DesignView]" => $header,
        "[BlogPost.Header]" => $header,
        "[BlogPost.ID]" => $id,
-       "[BlogPost.New]" => $new,
-       "[BlogPost.PassPhrase]" => base64_encode($passPhrase),
-       "[BlogPost.Title]" => base64_encode($title),
-       "[BlogPost.Template]" => $template,
-       "[BlogPost.Templates]" => json_encode($templates, true),
-       "[BlogPost.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-       "[BlogPost.Visibility.NSFW]" => $nsfw,
-       "[BlogPost.Visibility.Privacy]" => $privacy
+       "[BlogPost.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
       ],
       "ExtensionID" => "15961ed0a116fbd6cfdb793f45614e44"
      ]
     ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".BlogPostEditor$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "BLG",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $blog["ID"]
+        ],
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+         ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "class" => "Body req",
+          "id" => "EditPageBody$id",
+          "name" => "Body",
+          "placeholder" => "Body"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Body",
+          "WYSIWYG" => 1
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($this->core->PlainText([
+          "Data" => $body,
+          "Decode" => 1
+         ]))
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $templates,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50",
+          "Header" => 1,
+          "HeaderText" => "Template"
+         ],
+         "Name" => "TPL-BLG",
+         "Type" => "Select",
+         "Value" => $template
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
+     ]
+    ];
+    $_Dialog = "";
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The requested Blog Post could not be found.",
     "Header" => "Not Found"
@@ -187,7 +315,6 @@
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
        $_Dialog = "";
-       $_View = "";
       } else {
        $_Dialog = "";
        $_View = $this->view(base64_encode("BlogPost:Home"), ["Data" => [
@@ -226,6 +353,36 @@
       ]]), ["class" => "Desktop33"]]) : "";
       $verified = $author["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+      $_Commands = [
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Notes$postID",
+         $options["Notes"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$postID",
+         $options["Vote"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Contributors$id",
+         $options["Contributors"]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Subscribe$postID",
+         $options["Subscribe"]
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
         "[Article.Actions]" => $actions,
@@ -626,6 +783,7 @@
         "Type" => "NewBlogPost"
        ]);
       }
+      $this->core->Statistic("New Blog Post");
      } else {
       foreach($subscribers as $key => $value) {
        $this->core->SendBulletin([
@@ -637,6 +795,7 @@
         "Type" => "BlogPostUpdate"
        ]);
       }
+      $this->core->Statistic("Edit Blog Post");
      }
      $_Dialog = [
       "Body" => "The Post <em>$title</em> was $actionTaken!",
