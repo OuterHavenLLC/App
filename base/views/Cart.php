@@ -5,6 +5,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Add(array $data): string {
+   $_Commands = "";
    $_Dialog = $this->core->Element([
     "p", "You must be signed in to make purchases.", ["class" => "CenterText"]
    ]);
@@ -74,18 +75,57 @@
        "Type" => "Text",
        "Value" => 1
       ];
+      $_Commands = [
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         "ATC$id",
+         [
+          [
+           "Attributes" => [
+            "name" => "Product",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $id
+          ],
+          [
+           "Attributes" => [
+            "name" => "Shop",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => md5($t["Login"]["Username"])
+          ],
+          [
+           "Attributes" => [
+            "name" => "Username",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $t["Login"]["Username"]
+          ]
+         ]
+        ]
+       ],
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         "ATCQuantity$id",
+         $quantity
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
         "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
         "[AddToCart.Product.ID]" => $id,
         "[AddToCart.Product.Instructions]" => $instructions,
         "[AddToCart.Product.LowStock]" => $lowStock,
-        "[AddToCart.Product.Price]" => number_format($price, 2),
-        "[AddToCart.Product.Quantity]" => json_encode([
-         $quantity
-        ], true),
-        "[AddToCart.Shop.ID]" => md5($t["Login"]["Username"]),
-        "[AddToCart.Shop.Owner]" => $t["Login"]["Username"]
+        "[AddToCart.Product.Price]" => number_format($price, 2)
        ],
        "ExtensionID" => "624bcc664e9bff0002e01583e7706d83"
       ];
@@ -129,19 +169,21 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
   function Home(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
    $data = $data["Data"] ?? [];
-   $username = base64_decode($data["UN"]);
+   $username = $data["UN"] $data["UN"] ?? base64_encode($you);
+   $username = base64_decode($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $username = (!empty($username)) ? $username : $you;
    if($this->core->ID == $you) {
     $_Dialog = [
      "Body" => "You must sign in to continue.",
@@ -152,40 +194,96 @@
     $t = ($username == $you) ? $y : $this->core->Member($username);
     $id = md5($t["Login"]["Username"]);
     $points = 100000;
-    $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $id]);
     $shop = $this->core->FixMissing($shop, ["Title"]);
     $creditExchange = $this->Element([
      "p", "Credit Exchange requires a minimum of 1,000 points to be converted.",
      ["class" => "CenterText"]
     ]);
     if($points <= $y["Points"]) {
-     $creditExchange = $this->core->Change([[
-      "[CreditExchange.ID]" => md5(uniqid().rand(0, 9999)),
-      "[CreditExchange.Points]" => $points,
-      "[CreditExchange.Processor]" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P="),
-      "[CreditExchange.YourPoints]" => $y["Points"]
-     ], $this->core->Extension("b9c61e4806cf07c0068f1721678bef1e")]);
+     $creditExchange = str_replace("[CreditExchange.ID]", $id, $this->core->Extension("b9c61e4806cf07c0068f1721678bef1e"));
     }
     $discountCode = $y["Shopping"]["Cart"][$id]["DiscountCode"] ?? "";
     $discountCode = (empty($discountCode) && $discountCode != 0) ? $this->core->Change([
      [
       "[DiscountCodes.ID]" => $id,
-      "[DiscountCodes.Points]" => base64_encode($discountCode),
-      "[DiscountCodes.Processor]" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
       "[DiscountCodes.Shop.Title]" => $shop["Title"]
      ], $this->core->Extension("0511fae6fcc6f9c583dfe7669b0217cc")
     ]) : $this->core->Element([
      "p", "<em>".base64_decode($discountCode)."</em> was applied to your order!",
      ["class" => "CenterText"]
     ]);
+    $_Commands = [
+     [
+      "Name" => "GetCreditExchange",
+      "Parameters" => [
+       $id
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".CreditExchangeQuantity$id",
+       [
+        [
+         "Attributes" => [
+          "class" => "RangeInput$id UpdateRangeValue",
+          "data-u" => base64_encode("v=".base64_encode("Shop:SaveCreditExchange")."&ID=$id&P="),
+          "max" => $y["Points"],
+          "min" => $points,
+          "name" => "CE",
+          "type" => "range"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME"
+         ],
+         "Type" => "Text",
+         "Value" => $points
+        ]
+       ]
+      ]
+     ],
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".DiscountCode$id",
+       [
+        [
+         "Attributes" => [
+          "class" => "DiscountCodes",
+          "data-id" => $id,
+          "data-u" => base64_encode("v=".base64_encode("Shop:SaveDiscountCodes")."&DC=[DC]&ID=[ID]"),
+          "type" => "text"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => base64_encode($discountCode)
+        ]
+       ]
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".Cart$id",
+       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Username=".$t["Login"]["Username"]."&st=CART")
+      ]
+     ],
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".CartSummary$id",
+       $this->core->AESencrypt("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
       "[Cart.CreditExchange]" => $creditExchange,
       "[Cart.DiscountCodes]" => $discountCode,
-      "[Cart.List]" => base64_encode("v=".base64_encode("Search:Containers")."&Username=".$t["Login"]["Username"]."&st=CART"),
       "[Cart.Shop.ID]" => $id,
-      "[Cart.Shop.Title]" => $shop["Title"],
-      "[Cart.Summary]" => base64_encode("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])
+      "[Cart.Shop.Title]" => $shop["Title"]
      ],
      "ExtensionID" => "ac678179fb0fb0c66cd45d738991abb9"
     ];
@@ -218,9 +316,9 @@
     $instructions = $data["Instructions"] ?? "";
     $username = $username ?? $you;
     $t = ($username == $you) ? $y : $this->core->Member($t);
-    $shop = $this->core->Data("Get", ["shop", $shopID]) ?? [];
+    $shop = $this->core->Data("Get", ["shop", $shopID]);
     $title = $shop["Title"] ?? "Made in New York";
-    $product = $this->core->Data("Get", ["product", $id]) ?? [];
+    $product = $this->core->Data("Get", ["product", $id]);
     $productTitle = $product["Title"];
     $quantity = $data["Quantity"] ?? 1;
     $view = "v=".base64_encode("Cart:Home")."&UN=".base64_encode($t["Login"]["Username"]);

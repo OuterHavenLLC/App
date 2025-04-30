@@ -398,6 +398,51 @@ class OH {
    }, 500);
   });
  }
+ static GetCreditExchange(data) {
+  setInterval(() => {
+   let CreditExchange = $(document).find(".CE" + data),
+        Credits,
+        Numeric;
+   if($(CreditExchange).find(".RangeInput" + data).is(":visible")) {
+    Credits = $(CreditExchange).find(".RangeInput" + data).val();
+    Numeric = (Credits * 0.00001).toFixed(2);
+    $(CreditExchange).find(".CreditExchange").text("Apply $" + Numeric);
+    $(CreditExchange).find(".GetRangeValue").text(Credits);
+   }
+  }, 250);
+ }
+ static GetEmailValidation(data) {
+  var email = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+  return email.test(data);
+ }
+ static GetRangeValue(data) {
+  var Range = $(document).find(data);
+  setInterval(() => {
+   if($(Range).is(":visible")) {
+    $(Range).next().closest(".GetRangeValue").text($(Range).val());
+   }
+  }, 250);
+ }
+ static GetSortedList(data) {
+  var Response = [];
+  $.each(data, (key, value) => {
+   if($.type(value) === "object") {
+    value = this.GetSortedList(value);
+   }
+   Response.push([key, value]);
+  });
+  return JSON.parse(JSON.stringify(Response.sort(function(a, b) {
+   if(a[0] === b[0]) {
+    Response = 0;
+   } else {
+    Response = (a[0] < b[0]) ? -1 : 1;
+   }
+   return Response;
+  }).reduce(function(key, value) {
+   key[value] = value;
+   return key;
+  }, {})));
+ }
  static GoToParent(Data) {
   try {
    var Parent = $(".ParentPage" + Data).parent();
@@ -454,6 +499,8 @@ class OH {
      this.AddContent();
     } else if(Name === "Bulletins") {
      this.Bulletins();
+    } else if(Name === "GetCreditExchange" && ParameterCount === 1) {
+     this.GetCreditExchange(Parameters[0]);
     } else if(Name === "RefreshCoverPhoto" && ParameterCount === 2) {
      this.RefreshCoverPhoto(Parameters[0], Parameters[1]);
     } else if(Name === "RenderInputs" && ParameterCount === 2) {
@@ -1192,7 +1239,7 @@ class OH {
       }
       $(Container).html("<div class='" + Grid + " " + SearchID + "'>" + this.Loading + "</div>");
       Container = $(Container).find("." + SearchID);
-      var List = this.getSortedList(Response.List),
+      var List = this.GetSortedList(Response.List),
        ListItems = 0,
        check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
       check = (typeof List === "object" || check === 1) ? 1 : 0;
@@ -1252,7 +1299,7 @@ class OH {
              if(End === 0) {
               Offset += Response.Limit;
              }
-             var List = this.getSortedList(Response.List),
+             var List = this.GetSortedList(Response.List),
               check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
              check = (typeof List === "object" || check === 1) ? 1 : 0;
              if(check === 1) {
@@ -1663,51 +1710,6 @@ class OH {
   var W = window.open(link, target);
   W.focus();
  }
- static getCreditExchange(data) {
-  setInterval(() => {
-   var CreditExchange = $(document).find(".CE" + data),
-    Credits,
-    Numeric;
-   if($(CreditExchange).find(".RI" + data).is(":visible")) {
-    Credits = $(CreditExchange).find(".RI" + data).val();
-    Numeric = (Credits * 0.00001).toFixed(2);
-    $(CreditExchange).find(".CreditExchange").text("Apply $" + Numeric);
-    $(CreditExchange).find(".GetRangeValue").text(Credits);
-   }
-  }, 250);
- }
- static getEmailValidation(data) {
-  var email = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-  return email.test(data);
- }
- static getRangeValue(data) {
-  var Range = $(document).find(data);
-  setInterval(() => {
-   if($(Range).is(":visible")) {
-    $(Range).next().closest(".GetRangeValue").text($(Range).val());
-   }
-  }, 250);
- }
- static getSortedList(data) {
-  var Response = [];
-  $.each(data, (key, value) => {
-   if($.type(value) === "object") {
-    value = this.getSortedList(value);
-   }
-   Response.push([key, value]);
-  });
-  return JSON.parse(JSON.stringify(Response.sort(function(a, b) {
-   if(a[0] === b[0]) {
-    Response = 0;
-   } else {
-    Response = (a[0] < b[0]) ? -1 : 1;
-   }
-   return Response;
-  }).reduce(function(key, value) {
-   key[value] = value;
-   return key;
-  }, {})));
- }
  static uniqid(prefix = "", more_entropy) {
   if(typeof prefix === "undefined") {
    prefix = "";
@@ -1737,6 +1739,14 @@ class OH {
  }
 }
 $(document).on("change", "select[name='ProductQuantity']", (event) => {
+ const $Input = $(event.currentTarget),
+  Price = $Input.parent().find(".AddToCart").text(),
+  Quantity = $Input.find("option:selected").val();
+ Price = Price.replace("$", "");
+ Price = parseInt(Price) * parseInt(Quantity);
+ $Input.parent().find(".AddToCart").text("$" + Price);
+});
+$(document).on("change", ".UpdateRangeValue", (event) => {
  const $Input = $(event.currentTarget),
   Price = $Input.parent().find(".AddToCart").text(),
   Quantity = $Input.find("option:selected").val();
@@ -1861,7 +1871,7 @@ $(document).on("click", ".CreditExchange", (event) => {
  const $Button = $(event.currentTarget),
            Form = ".CE" + $Button.attr("data-id"),
            Price = $Button.attr("data-p");
- Price = $(Form).find(".RI" + $Button.attr("data-id")).val();
+ Price = $(Form).find(".RangeInput" + $Button.attr("data-id")).val();
  if($.isNumeric(Price)) {
   $Button.prop("disabled", "true");
   $.ajax({
@@ -2256,18 +2266,18 @@ $(document).on("click", ".ReportContent", (event) => {
 });
 $(document).on("click", ".SendData", (event) => {
  var $Button = $(event.currentTarget),
-  Form = $Button.attr("data-form"),
-  FormData = OH.Encrypt($(Form).find(OH.Inputs).serializeArray()) || {},
-  Pass = 0,
-  Processor = OH.Base64decrypt($Button.attr("data-processor")),
-  RequiredInputs = $(Form).find(".req").length,
-  Target = $Button.attr("data-target") || Form,
-  Text = $Button.text();
+       Form = $Button.attr("data-form"),
+       FormData = OH.Encrypt($(Form).find(OH.Inputs).serializeArray()) || {},
+       Pass = 0,
+       Processor = OH.Base64decrypt($Button.attr("data-processor")),
+       RequiredInputs = $(Form).find(".req").length,
+       Target = $Button.attr("data-target") || Form,
+       Text = $Button.text();
  $Button.prop("disabled", true);
- $Button.text("• • •");
+ $Button.text("&bull; &bull; &bull;");
  $.each($(Form).find("input[type='email']"), function() {
   $(this).removeClass("Red");
-  if(!OH.getEmailValidation($(this).val())) {
+  if(!OH.GetEmailValidation($(this).val())) {
    $(this).addClass("Red");
    OH.Dialog({
     "Body": "The email address format is invalid."
