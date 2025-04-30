@@ -290,6 +290,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);

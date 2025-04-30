@@ -131,6 +131,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Chat Identifier or Username are missing."
    ];
@@ -181,9 +182,12 @@
       "ExtensionID" => "eb169be369e5497344f98d826aea4e7d"
      ]
     ];
+    $_Commands = [
+    ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
