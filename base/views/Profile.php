@@ -549,7 +549,6 @@
    ]);
   }
   function Home(array $data): string {
-   $_AccessCode = "Denied";
    $_Card = "";
    $_Dialog = [
     "Body" => "The requested Member could not be found.",
@@ -559,7 +558,7 @@
    $_ViewTitle = $this->core->config["App"]["Name"];
    $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
-   $addTopMargin = "0";
+   $_AddTopMargin = "0";
    $member = $data["UN"] ?? "";
    $parentPage = $data["lPG"] ?? "";
    $b2 = $data["b2"] ?? "";
@@ -584,7 +583,10 @@
      "Body" => "You cannot talk to ghosts."
     ];
    } elseif($_Member["Empty"] == 0) {
-    $_Dialog = "";
+    $_Dialog = [
+     "Body" => "The Member may have reduced their visibility.",
+     "Header" => "Not Found"
+    ];
     $id = $member["Login"]["Username"];
     $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]);
     $_TheyBlockedYou = $this->core->CheckBlocked([$_Member["DataModel"], "Members", $you]);
@@ -598,10 +600,6 @@
     $check2 = ($privacy["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->config["minAge"])) ? 1 : 0;
     $checkart = 0;
     $public = md5("Public");
-    $r = [
-     "Body" => "The Member may have reduced their visibility.",
-     "Header" => "Not Found"
-    ];
     $search = base64_encode("Search:Containers");
     $theirContacts = $_TheirContacts["Contacts"] ?? [];
     $theirRequests = $_TheirContacts["Requests"] ?? [];
@@ -617,12 +615,12 @@
      $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
      $_ViewTitle = "$displayName @ ".$_ViewTitle;
      $_AccessCode = "Accepted";
-     $addTopMargin = "1";
+     $_AddTopMargin = "1";
      $passPhrase = $member["Privacy"]["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
-      $r = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
+      $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
        "Header" => base64_encode($this->core->Element([
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
@@ -635,25 +633,25 @@
         "v" => base64_encode("Profile:Home")
        ], true))
       ]]);
-      $r = $this->core->RenderView($r);
+      $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $_AccessCode = "Denied";
-      $addTopMargin = "0";
+      $_Dialog = [
+       "Body" => "The Key is missing."
+      ];
+      $_AddTopMargin = "0";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
-      $r = $this->core->Element(["p", "The Key is missing."]);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
       if($key != $secureKey) {
-       $r = $this->core->Element(["p", "The Keys do not match."]);
+       $_Dialog = "";
       } else {
-       $_AccessCode = "Accepted";
-       $r = $this->view(base64_encode("Profile:Home"), ["Data" => [
+       $_View = $this->view(base64_encode("Profile:Home"), ["Data" => [
         "AddTo" => $addTo,
         "UN" => base64_encode($id),
         "ViewProtectedContent" => 1
        ]]);
-       $r = $this->core->RenderView($r);
+       $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_AccessCode = "Accepted";
@@ -904,13 +902,12 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "AddTopMargin" => $addTopMargin,
-    "Response" => [
-     "JSON" => "",
-     "Web" => $r
-    ],
-    "ResponseType" => "View",
-    "Title" => $_ViewTitle
+    "AddTopMargin" => $_AddTopMargin,
+    "Card" => $_Card,
+    "Commands" => $_Commands,
+    "Dialog" => $_Dialog,
+    "Title" => $_ViewTitle,
+    "View" => $_View
    ]);
   }
   function MakeVIP(array $data): string {

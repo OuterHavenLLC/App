@@ -614,7 +614,7 @@
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Chat:Purge")
       ], true);
-      $view = "v=".base64_encode("Chat:Home")."&AddTo=$addTo&Group=1&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
+      $view = "v=".base64_encode("Chat:Home")."&AddTo=$addTo&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
       $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Group Chats")),

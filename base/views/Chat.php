@@ -176,7 +176,7 @@
     ];
     $_Commands = [
      [
-      "Name" => "RenderVisibilityFilter",
+      "Name" => "RenderInputs",
       "Parameters" => [
        ".ChatInformation$id",
        [
@@ -263,6 +263,7 @@
          "Value" => $this->core->AESencrypt($passPhrase)
         ]
        ]
+      ]
      ],
      [
       "Name" => "RenderVisibilityFilter",
@@ -326,7 +327,7 @@
     $id = base64_decode($chatID);
     if($information == 1) {
      $_Dialog = [
-      "Body" => "Chat Information is only viewable for Group Chats."
+      "Body" => "The Chat Type is missing."
      ];
      if($group == 1) {
       $_Dialog = [
@@ -370,7 +371,6 @@
         $secureKey = base64_decode($secureKey);
         if($key != $secureKey) {
          $_Dialog = "";
-         $_View = "";
         } else {
          $_Dialog = "";
          $_View = $this->view(base64_encode("Chat:Home"), ["Data" => [
@@ -450,6 +450,7 @@
        }
       }
      } elseif($oneOnOne == 1) {
+      $_Dialog = "";
       $_View = $this->view(base64_encode("Profile:Home"), ["Data" => [
        "Chat" => 1,
        "UN" => $chatID
@@ -668,7 +669,7 @@
        "ChangeData" => [
        "[Chat.ActivityStatus]" => $active,
        "[Chat.Body]" => $body,
-       "[Chat.DisplayName]" => $displayName,
+       "[Chat.DisplayName]" => $displayName." ($oneOnOne)",
        "[Chat.ID]" => $id,
        "[Chat.PaidMessage]" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($chat["UN"])."&Type=PaidMessage&ViewPairID=".base64_encode("PaidMessage$id")),
        "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
