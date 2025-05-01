@@ -654,14 +654,16 @@
         "Name" => "UpdateContentRecursiveAES",
         "Parameters" => [
          ".ChatBody$id",
-         $this->core->AESencrypt("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID")
+         $this->core->AESencrypt("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
+         3000
         ]
        ],
        [
         "Name" => "UpdateContentRecursiveAES",
         "Parameters" => [
          ".ChatPaidMessages$id",
-         $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=$id&PaidMessages=1")
+         $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=$id&PaidMessages=1"),
+         3000
         ]
        ],
       ];
@@ -714,12 +716,12 @@
      $to = "";
     } elseif($oneOnOne == 1) {
      $t = $this->core->Member($id);
-     $theirChat = $this->core->Data("Get", ["chat", md5($id)]);
+     $to = $t["Login"]["Username"];
+     $theirChat = $this->core->Data("Get", ["chat", md5($to)]);
      $theirChat = $theirChat["Messages"] ?? [];
      $yourChat = $this->core->Data("Get", ["chat", md5($you)]);
      $yourChat = $yourChat["Messages"] ?? [];
      $chat = array_merge($theirChat, $yourChat);
-     $to = $t["Login"]["Username"];
     } if($group == 1 || $oneOnOne == 1) {
      foreach($chat as $key => $value) {
       $check = 1;
@@ -776,9 +778,9 @@
     ksort($chat);
     $_Extension = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
     $_View = "";
-    foreach($chat as $key => $value) {
+    foreach($chat as $key => $info) {
      $_View .= $this->core->Change([
-      $value,
+      $info,
       $_Extension
      ]);
     }
@@ -831,7 +833,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
+    "AddTopMargin" => "1",
     "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View

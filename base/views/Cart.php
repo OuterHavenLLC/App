@@ -274,7 +274,8 @@
       "Name" => "UpdateContentRecursiveAES",
       "Parameters" => [
        ".CartSummary$id",
-       $this->core->AESencrypt("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"])
+       $this->core->AESencrypt("v=".base64_encode("Cart:Summary")."&UN=".$data["UN"]),
+       6000
       ]
      ]
     ];
