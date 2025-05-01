@@ -246,19 +246,13 @@
     if(!in_array($id, $doNotIndex)) {
      $extension = $this->core->Data("Get", ["extension", $id]);
      $data = $extension["Body"] ?? "";
-     if(empty($data)) {
-      $data = $this->core->Change([[
-       "[Error.Back]" => "",
-       "[Error.Header]" => "Extension Not Found",
-       "[Error.Message]" => "The Extension <em>$id</em> does not exist."
-      ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
-     } else {
-      $data = $this->core->PlainText([
-       "Data" => $data,
-       "Display" => 1,
-       "HTMLDecode" => 1
-      ]);
-     }
+     $data = (!empty($data)) ? $this->core->PlainText([
+      "Data" => $data,
+      "Display" => 1,
+      "HTMLDecode" => 1
+     ]) : $this->core->Change([
+      "p", "The Extension <em>$id</em> could not be found."
+     ]);
      $clientExtensions = [
       "Data" => $this->core->AESencrypt($data),
       "ID" => $id
@@ -276,19 +270,13 @@
      if(!in_array($id, $doNotIndex)) {
       $extension = $this->core->Data("Get", ["extension", $id]);
       $data = $extension["Body"] ?? "";
-      if(empty($data)) {
-       $data = $this->core->Change([[
-        "[Error.Back]" => "",
-        "[Error.Header]" => "Extension Not Found",
-        "[Error.Message]" => "The Extension <em>$id</em> does not exist."
-       ], $this->core->Extension("f7d85d236cc3718d50c9ccdd067ae713")]);
-      } else {
-       $data = $this->core->PlainText([
-        "Data" => $data,
-        "Display" => 1,
-        "HTMLDecode" => 1
-       ]);
-      }
+      $data = (!empty($data)) ? $this->core->PlainText([
+       "Data" => $data,
+       "Display" => 1,
+       "HTMLDecode" => 1
+      ]) : $this->core->Change([
+       "p", "The Extension <em>$id</em> could not be found."
+      ]);
       array_push($clientExtensions, [
        "Data" => $this->core->AESencrypt($data),
        "ID" => $id
@@ -307,13 +295,13 @@
     "AddTopMargin" => "0",
     "View" => [
      "ChangeData" => [
-      "[Gateway.Company]" => base64_encode("v=".base64_encode("Company:Home")."&Card=1"),
-      "[Gateway.Architecture]" => base64_encode("v=".base64_encode("Company:VVA")."&CARD=1"),
+      "[Gateway.Company]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")."&Card=1"),
+      "[Gateway.Architecture]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")."&CARD=1"),
       "[Gateway.Banner]" => $eventMedia["Banner"],
       "[Gateway.CoverPhoto]" => $eventMedia["CoverPhoto"],
-      "[Gateway.IT]" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($this->core->ShopID)),
-      "[Gateway.SignIn]" => base64_encode("v=".base64_encode("Profile:SignIn")),
-      "[Gateway.SignUp]" => base64_encode("v=".base64_encode("Profile:SignUp"))
+      "[Gateway.IT]" => $this->core->AESencrypt("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($this->core->ShopID)),
+      "[Gateway.SignIn]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignIn")),
+      "[Gateway.SignUp]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp"))
      ],
      "ExtensionID" => "db69f503c7c6c1470bd9620b79ab00d7"
     ]
@@ -446,7 +434,8 @@
       $i++;
       $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
        "class" => "LI OpenCard",
-       "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
       ]]);
      }
     } if($i > 0) {
@@ -523,11 +512,12 @@
    $you = $y["Login"]["Username"];
    if($type == "Chat") {
     $_Commands = [
-     "Name" => "UpdateContentRecursive",
-     "Parameters" => [
-      ".NetMap",
-      base64_encode("v=".base64_encode("Chat:Menu")),
-      10000
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".NetMap",
+       $this->core->AESencrypt("v=".base64_encode("Chat:Menu"))
+      ]
      ]
     ];
     $_View = [
@@ -536,10 +526,12 @@
     ];
    } elseif($type == "Public") {
     $_Commands = [
-     "Name" => "UpdateContentAES",
-     "Parameters" => [
-      ".Content",
-      $view
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".Content",
+       $view
+      ]
      ]
     ];
     $_View = [
@@ -548,10 +540,12 @@
     ];
    } elseif($type == "ReSearch") {
     $_Commands = [
-     "Name" => "UpdateContent",
-     "Parameters" => [
-      ".Content",
-      base64_encode($view)
+     [
+      "Name" => "UpdateContent",
+      "Parameters" => [
+       ".Content",
+       base64_encode($view)
+      ]
      ]
     ];
     $_View = [
@@ -653,12 +647,13 @@
   }
   function TwoFactorAuthentication(array $data): string {
    $_AccessCode = "Denied";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "An email address is required for us to continue the verification process."
    ];
    $_ResponseType = "View";
    $_View = "";
-   $addTopMargin = "1";
+   $_AddTopMargin = "1";
    $data = $data["Data"] ?? [];
    $_2FA = $data["2FA"] ?? "";
    $_2FAconfirm = $data["2FAconfirm"] ?? "";
@@ -671,7 +666,7 @@
      "Body" => "The code you entered does not match the one we sent you."
     ];
     $_View = "";
-    $addTopMargin = "1";
+    $_AddTopMargin = "1";
     $data = $this->core->DecodeBridgeData($data);
     $_2FA = $data["2FA"] ?? "";
     $_2FA = md5($_2FA);
@@ -730,7 +725,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "AddTopMargin" => $addTopMargin,
+    "AddTopMargin" => $_AddTopMargin,
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "View" => $_View
