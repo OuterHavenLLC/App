@@ -21,19 +21,19 @@
     "Body" => "The Subscription Identifier is missing."
    ];
    $data = $data["Data"] ?? [];
-   $s = $data["sub"] ?? base64_encode("");
-   $s = base64_decode($s);
+   $subscription = $data["sub"] ?? base64_encode("");
+   $subscription = base64_decode($subscription);
    $search = base64_encode("Search:Containers");
-   $sub = $this->core->config["Subscriptions"][$s] ?? [];
+   $sub = $this->core->config["Subscriptions"][$subscription] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $ysub = $y["Subscriptions"][$s] ?? [];
-   if(!empty($s)) {
+   $ysub = $y["Subscriptions"][$subscription] ?? [];
+   if(!empty($subscription)) {
     $changeData = [];
     if($ysub["A"] == 0) {
      $extension = "ffdcc2a6f8e1265543c190fef8e7982f";
     } else {
-     if($s == "Artist") {
+     if($subscription == "Artist") {
       $_LastMonth = $this->core->LastMonth()["LastMonth"];
       $commissions = $y["ArtistCommissionsPaid"] ?? [];
       $commissions = $commissions[$_LastMonth] ?? [];
@@ -74,7 +74,7 @@
        ]]);
        $_Card = $this->core->RenderView($_Card);
       }
-     } elseif($s == "Developer") {
+     } elseif($subscription == "Developer") {
       $heathKits = [
        base64_encode("App/1c48161334e41522f112494baf2c8a60.jpg"),
        base64_encode("App/a1b9837369061a7b3db741e532b40b9d.jpg"),
@@ -92,7 +92,7 @@
        ],
        "ExtensionID" => "9070936bf7decfbd767391176bc0acdb"
       ];
-     } elseif($s == "VIP") {
+     } elseif($subscription == "VIP") {
       $_Card = [
        "ChangeData" => [
         "[VIP.CoverPhoto]" => $this->core->PlainText([
@@ -102,13 +102,12 @@
         "[VIP.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=5ec1e051bf732d19e09ea9673cd7986b"),
         "[VIP.Email]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=f7f6947173514c96a5b32b4931c92df1&UN=".base64_encode($this->core->ShopID)),
         "[VIP.FAB]" => base64_encode("v=".base64_encode("Subscription:FARPlayer")),
-        "[VIP.Forum]" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=cb3e432f76b38eaa66c7269d658bd7ea"),
-        "[VIP.Mail]" => "W('https://mail.outerhaven.nyc/mail/', '_blank');"
+        "[VIP.Forum]" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=cb3e432f76b38eaa66c7269d658bd7ea")
        ],
        "ExtensionID" => "89d36f051962ca4bbfbcb1dc2bd41f60"
       ];
-     } if(strtotime($this->core->timestamp) > $y["Subscriptions"][$s]["E"]) {
-      $y["Subscriptions"][$s]["A"] = 0;
+     } if(strtotime($this->core->timestamp) > $y["Subscriptions"][$subscription]["E"]) {
+      $y["Subscriptions"][$subscription]["A"] = 0;
       $this->core->Data("Save", ["mbr", md5($you), $y]);
       $_Card = [
        "ChangeData" => [],
@@ -122,8 +121,8 @@
     $_Dialog = "";
    }
    return $this->core->JSONResponse([
-    "Dialog" => $_Dialog,
-    "Card" => $_Card
+    "Card" => $_Card,
+    "Dialog" => $_Dialog
    ]);
   }
   function RenewAll(): string {
