@@ -1903,12 +1903,14 @@
          $actions .= $this->core->Element([
           "button", "Delete", [
            "class" => "InnerMargin OpenDialog",
+           "data-encryption" => "AES",
            "data-view" => $options["Delete"]
           ]
          ]);
          $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element([
           "button", "Edit", [
            "class" => "InnerMargin OpenCard",
+           "data-encryption" => "AES",
            "data-view" => $options["Edit"]
           ]
          ]) : "";
@@ -1916,6 +1918,7 @@
         $actions .= ($forumType == "Public") ? $this->core->Element([
          "button", "Share", [
           "class" => "InnerMargin OpenCard",
+          "data-encryption" => "AES",
           "data-view" => $options["Share"]
          ]
         ]) : "";
@@ -2221,11 +2224,13 @@
         $edit = ($from == $you) ? $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
+          "data-encryption" => "AES",
           "data-view" => $options["Delete"]
          ]
         ]).$this->core->Element([
          "button", "Edit", [
           "class" => "InnerMargin OpenCard",
+          "data-encryption" => "AES",
           "data-view" => $options["Edit"]
          ]
         ]) : "";
@@ -2763,11 +2768,13 @@
         $edit = ($op["Login"]["Username"] == $you) ? $this->core->Element([
          "button", "Delete", [
           "class" => "InnerMargin OpenDialog",
+          "data-encryption" => "AES",
           "data-view" => $options["Delete"]
          ]
         ]).$this->core->Element([
          "button", "Edit", [
           "class" => "InnerMargin OpenCard",
+          "data-encryption" => "AES",
           "data-view" => $options["Edit"]
          ]
         ]) : "";

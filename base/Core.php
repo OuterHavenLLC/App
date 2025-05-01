@@ -729,14 +729,14 @@
       ], true);
       $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($additionalContentID)."&List=".base64_encode("Forum Posts")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-       "Edit" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&ID=$additionalContentID"),
-       "Notes" => base64_encode("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("post")),
-       "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$contentID;$additionalContentID")),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode("$contentID-$additionalContentID")."&Type=".base64_encode($type)."&Username=".base64_encode($data["From"])),
-       "View" => base64_encode("v=".base64_encode("ForumPost:Home")."&AddTo=$addTo&FID=$contentID&ID=$additionalContentID"),
-       "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
+       "Block" => $this->AESencrypt("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($additionalContentID)."&List=".base64_encode("Forum Posts")),
+       "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
+       "Edit" => $this->AESencrypt("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&ID=$additionalContentID"),
+       "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("post")),
+       "Report" => $this->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$contentID;$additionalContentID")),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode("$contentID-$additionalContentID")."&Type=".base64_encode($type)."&Username=".base64_encode($data["From"])),
+       "View" => $this->AESencrypt("v=".base64_encode("ForumPost:Home")."&AddTo=$addTo&FID=$contentID&ID=$additionalContentID"),
+       "Vote" => $this->AESencrypt("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
      }
@@ -907,12 +907,12 @@
       $vote = ($from != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Status Updates")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-       "Edit" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
+       "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
+       "Edit" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
        "ShareLink" => $this->base."/@$from/status/$contentID",
-       "View" => base64_encode("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
+       "View" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }

@@ -6,13 +6,13 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Post Identifier is missing."
    ];
    $data = $data["Data"] ?? [];
    $id = $data["SU"] ?? "";
    $new = $data["new"] ?? 0;
-   $now = $this->core->timestamp;
    $to = $data["UN"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -22,7 +22,7 @@
     ];
    } elseif(!empty($id) || $new == 1) {
     $_Dialog = "";
-    $id = ($new == 1) ? md5($you."_SU_$now") : $id;
+    $id = ($new == 1) ? $this->core->UUID("StatusUpdatesBy$you") : $id;
     $action = ($new == 1) ? "Post" : "Update";
     $header = ($new == 1) ? "What's on your mind?" : "Edit Update";
     $update = $this->core->Data("Get", ["su", $id]);
@@ -38,6 +38,7 @@
     $forums = $update["Forums"] ?? [];
     $forumPosts = $update["ForumPosts"] ?? [];
     $members = $update["Members"] ?? [];
+    $now = $this->core->timestamp;
     $nsfw = $update["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $update["PassPhrase"] ?? "";
     $privacy = $update["Privacy"] ?? $y["Privacy"]["Posts"];
@@ -84,29 +85,120 @@
        "[Update.Attachments]" => $this->core->RenderView($attachments),
        "[Update.Header]" => $header,
        "[Update.ID]" => $id,
-       "[Update.Body]" => $body,
-       "[Update.DesignView]" => "Edit$id",
-       "[Update.From]" => $you,
-       "[Update.ID]" => $id,
-       "[Update.New]" => $new,
-       "[Update.PassPhrase]" => base64_encode($passPhrase),
-       "[Update.To]" => $to,
-       "[Update.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-       "[Update.Visibility.NSFW]" => $nsfw,
-       "[Update.Visibility.Privacy]" => $privacy
+       "[Update.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
       ],
       "ExtensionID" => "7cc50dca7d9bbd7b7d0e3dd7e2450112"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".StatusUpdateInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "From",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $you
+        ],
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "To",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $to
+        ],
+        [
+         "Attributes" => [
+          "name" => "new",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "id" => "EditUpdateBody$id",
+          "name" => "Body",
+          "placeholder" => "Body"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Body",
+          "WYSIWYG" => 1
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($body)
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase",
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
    $_Card = "";
-   $_Commands = [];
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Post Identifier is missing.",
     "Header" => "Not Found"
@@ -214,6 +306,13 @@
        [
         "Name" => "UpdateContentAES",
         "Parameters" => [
+         ".Conversation".$update["ID"],
+         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($update["ID"])."&LVL=".base64_encode(1))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
          ".Forums".$update["ID"],
          $liveViewSymbolicLinks["Forums"]
         ]
@@ -291,6 +390,7 @@
       $share = ($share == 1) ? $this->core->Element([
        "div", $this->core->Element(["button", "Share", [
         "class" => "InnerMargin OpenCard",
+        "data-encryption" => "AES",
         "data-view" => $options["Share"]
        ]]), ["class" => "Desktop33"]
       ]) : "";
@@ -298,10 +398,6 @@
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $_View = [
        "ChangeData" => [
-        "[Conversation.CRID]" => $update["ID"],
-        "[Conversation.CRIDE]" => base64_encode($update["ID"]),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
         "[StatusUpdate.Actions]" => $actions,
         "[StatusUpdate.Body]" => $this->core->PlainText([
          "BBCodes" => 1,
