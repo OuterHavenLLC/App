@@ -50,9 +50,9 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $po = $this->core->Data("Get", ["po", md5($you)]);
-    $po[$id]["Complete"] = 1;
-    $this->core->Data("Save", ["po", md5($you), $po]);
+    $physicalOrders = $this->core->Data("Get", ["po", md5($you)]);
+    $physicalOrders[$id]["Complete"] = 1;
+    $this->core->Data("Save", ["po", md5($you), $physicalOrders]);
     $_Dialog = [
      "Body" => "The order has been marked as complete!",
      "Header" => "Done"
@@ -64,6 +64,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -160,48 +161,465 @@
      "Front" => [
       "ChangeData" => [
        "[Shop.Attachments]" => $this->core->RenderView($attachments),
-       "[Shop.Braintree.Live.MerchantID]" => $processing["BraintreeMerchantIDLive"],
-       "[Shop.Braintree.Live.PrivateKey]" => $processing["BraintreePrivateKeyLive"],
-       "[Shop.Braintree.Live.PublicKey]" => $processing["BraintreePublicKeyLive"],
-       "[Shop.Braintree.Live.Token]" => $processing["BraintreeTokenLive"],
-       "[Shop.Braintree.Sandbox.MerchantID]" => $processing["BraintreeMerchantID"],
-       "[Shop.Braintree.Sandbox.PrivateKey]" => $processing["BraintreePrivateKey"],
-       "[Shop.Braintree.Sandbox.PublicKey]" => $processing["BraintreePublicKey"],
-       "[Shop.Braintree.Sandbox.Token]" => $processing["BraintreeToken"],
-       "[Shop.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
-       "[Shop.Description]" => base64_encode($shop["Description"]),
-       "[Shop.EnableHireSection]" => $enableHireSection,
-       "[Shop.HireTerms]" => base64_encode($this->core->PlainText([
-        "Data" => $hireTerms
-       ])),
-       "[Shop.HireLimit]" => $hireLimit,
-       "[Shop.HireLimits]" => json_encode($hireLimits, true),
+       "[Shop.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
        "[Shop.ID]" => $id,
        "[Shop.Header]" => $header,
-       "[Shop.PassPhrase]" => base64_encode($passPhrase),
-       "[Shop.PaymentProcessor]" => $paymentProcessor,
-       "[Shop.PayPal.Live.ClientID]" => $processing["PayPalClientIDLive"],
-       "[Shop.PayPal.Live.Email]" => $processing["PayPalEmailLive"],
-       "[Shop.PayPal.Sandbox.ClientID]" => $processing["PayPalClientID"],
-       "[Shop.PayPal.Sandbox.Email]" => $processing["PayPalEmail"],
-       "[Shop.Tax]" => $tax,
-       "[Shop.Tax.Percentages]" => json_encode($percentages, true),
-       "[Shop.Title]" => base64_encode($shop["Title"]),
-       "[Shop.Translate]" => $this->core->RenderView($translate),
-       "[Shop.Visibility.Live]" => $shop["Live"],
-       "[Shop.Visibility.NSFW]" => $nsfw,
-       "[Shop.Visibility.Open]" => $shop["Open"],
-       "[Shop.Visibility.Privacy]" => $privacy,
-       "[Shop.Welcome]" => base64_encode($this->core->PlainText([
-        "Data" => $shop["Welcome"]
-       ]))
+       "[Shop.Translate]" => $this->core->RenderView($translate)
       ],
      "ExtensionID" => "201c1fca2d1214dddcbabdc438747c9f"
      ],
     ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ShopInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($shop["Title"])
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($shop["Description"])
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "HireTerms",
+          "placeholder" => "Describe your requirements, what potential clients can expect when hiring you, and any other terms and conditions of hire."
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Terms of Hire",
+          "WYSIWYG" => 1
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($this->core->PlainText([
+          "Data" => $hireTerms
+         ]))
+        ],
+        [
+         "Attributes" => [
+          "class" => "[Shop.DesignView] Welcome req",
+          "id" => "EditWelcomeMessage[Shop.ID]",
+          "name" => "Welcome",
+          "placeholder" => "Welcome"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Welcome Message",
+          "WYSIWYG" => 1
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($this->core->PlainText([
+          "Data" => $shop["Welcome"]
+         ]))
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "Braintree" => "Braintree",
+          "PayPal" => "PayPal"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Payment Processor"
+         ],
+         "Name" => "PaymentProcessor",
+         "Title" => "Payment Processor",
+         "Type" => "Select",
+         "Value" => $paymentProcessor
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $percentages,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Tax"
+         ],
+         "Name" => "Tax",
+         "Title" => "Tax",
+         "Type" => "Select",
+         "Value" => $tax
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".BraintreeLive$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreeMerchantIDLive",
+          "placeholder" => "Merchant ID",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+           "HeaderText" => "Merchant ID"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreeMerchantIDLive"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreePrivateKeyLive",
+          "placeholder" => "Private Key",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Private Key"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreePrivateKeyLive"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreePublicKeyLive",
+          "placeholder" => "Public Key",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Public Key"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreePublicKeyLive"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreeTokenLive",
+          "placeholder" => "Token",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Token"
+         ],
+        "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreeTokenLive"])
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".BraintreeSandbox$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreeMerchantID",
+          "placeholder" => "Merchant ID",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+           "HeaderText" => "Merchant ID"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreeMerchantID"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreePrivateKey",
+          "placeholder" => "Private Key",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Private Key"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreePrivateKey"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreePublicKey",
+          "placeholder" => "Public Key",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Public Key"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreePublicKey"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_BraintreeToken",
+          "placeholder" => "Token",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Token"
+         ],
+        "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["BraintreeToken"])
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".EnableHireSection$id",
+       [
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "No",
+          "1" => "Yes"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Enable Hire Section"
+         ],
+         "Name" => "EnableHireSection",
+         "Title" => "Enable Hire BSection",
+         "Type" => "Select",
+         "Value" => $enableHireSection
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $hireLimits,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Limit"
+         ],
+         "Name" => "HireLimit",
+         "Title" => "Limit",
+         "Type" => "Select",
+         "Value" => $hireLimit
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".PayPalLive$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "Processing_PayPalClientIDLive",
+          "placeholder" => "Client ID",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Client ID"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["PayPalClientIDLive"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_PayPalEmailLive",
+          "placeholder" => "Email",
+          "type" => "email"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Email"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["PayPalEmailLive"])
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".PayPalSandbox$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "Processing_PayPalClientID",
+          "placeholder" => "Client ID",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Client ID"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["PayPalClientID"])
+        ],
+        [
+         "Attributes" => [
+          "name" => "Processing_PayPalEmail",
+          "placeholder" => "Email",
+          "type" => "email"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Email"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($processing["PayPalEmail"])
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Visibility$id",
+       [
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "No",
+          "1" => "Yes"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Live"
+         ],
+         "Name" => "Live",
+         "Title" => "Live",
+         "Type" => "Select",
+         "Value" => $shop["Live"]
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "No",
+          "1" => "Yes"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Open"
+         ],
+         "Name" => "Open",
+         "Title" => "Open",
+         "Type" => "Select",
+         "Value" => $shop["Open"]
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
+     ]
+    ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
@@ -338,10 +756,10 @@
      if($_Product["Empty"] == 0) {
       $options = "";
       $product = $_Product["DataModel"];
-      $ck = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $check = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $illegalContent) ? 1 : 0;
-      if($id == $this->core->ShopID || ($bl == 0 && $ck == 1 && $illegal == 0)) {
+      if($id == $this->core->ShopID || ($bl == 0 && $check == 1 && $illegal == 0)) {
        $category = $product["Category"];
        $newHistory[$key] = $value;
        $i++;
@@ -492,22 +910,22 @@
       $enableHireSection = $shop["EnableHireSection"] ?? 0;
       $partners = $shop["Contributors"] ?? [];
       $t = ($username == $you) ? $y : $this->core->Member($username);
-      $ck = ($username == $you) ? 1 : 0;
-      $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-      if($ck == 1 || $ck2 == 1) {
+      $check = ($username == $you) ? 1 : 0;
+      $check2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+      if($check == 1 || $check2 == 1) {
        $_Search = base64_encode("Search:Containers");
        $cms = $this->core->Data("Get", ["cms", $id]) ?? [];
-       $ck2 = $this->core->CheckPrivacy([
+       $check2 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $t["Privacy"]["Shop"],
         "UN" => $username,
         "Y" => $you
        ]);
-       $ck2 = ($this->core->ShopID == $username) ? 1 : $ck2;
+       $check2 = ($this->core->ShopID == $username) ? 1 : $check2;
        $options = $_Shop["ListItem"]["Options"];
        $partners = $shop["Contributors"] ?? [];
        $services = $shop["InvoicePresets"] ?? [];
-       if($ck == 1 || $ck2 == 1 && $shop["Open"] == 1) {
+       if($check == 1 || $check2 == 1 && $shop["Open"] == 1) {
         $active = 0;
         $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
         foreach($partners as $member => $role) {
@@ -516,7 +934,7 @@
          }
         }
         $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-        $ck = ($active == 1 || $username == $you) ? 1 : 0;
+        $check = ($active == 1 || $username == $you) ? 1 : 0;
         $block = (!empty($addToData)) ? $this->core->Element([
          "button", "Attach", [
           "class" => "Attach Small v2",
@@ -524,13 +942,13 @@
           "data-media" => base64_encode("Shop;".md5($username))
          ]
         ]) : "";
-        $block .= ($ck == 0) ? $this->core->Element([
+        $block .= ($check == 0) ? $this->core->Element([
          "button", $blockCommand, [
           "class" => "Small UpdateButton v2",
           "data-processor" => $options["Block"]
          ]
         ]) : "";
-        $chat = (!empty($chat) && $ck == 1) ? $this->core->Element([
+        $chat = (!empty($chat) && $check == 1) ? $this->core->Element([
          "button", "Partner Chat", [
           "class" => "OpenCard Small v2",
           "data-view" => $options["Chat"]
@@ -558,7 +976,7 @@
          ]
         ]) : "";
         $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
-        $edit = ($ck == 1) ? $this->core->Element([
+        $edit = ($check == 1) ? $this->core->Element([
          "button", "Edit", [
           "class" => "OpenCard Small v2",
           "data-view" => $options["Edit"]
@@ -1688,7 +2106,7 @@
       "Updates" => $updates,
       "Username" => base64_decode($username)
      ];
-     $sql = New SQL($this->core->cypher->SQLCredentials());
+     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Shops(
       Shop_Created,
       Shop_Description,
@@ -1714,10 +2132,11 @@
      ]);
      $sql->execute();
      $this->core->Data("Save", ["shop", $id, $shop]);
-     $this->core->Statistic("Edit Shop");
+     $this->core->Statistic("Edit Shop");--*/
      $_Dialog = [
       "Body" => "<em>$title</em> has been updated.",
-      "Header" => "Done"
+      "Header" => "Done",
+      "Scrollable" => json_encode($shop, true)
      ];
     }
    }
