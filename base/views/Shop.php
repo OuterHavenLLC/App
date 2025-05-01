@@ -296,7 +296,7 @@
      $_View = ($hire == 1 && $shop["Open"] == 1) ? [
       "ChangeData" => [
        "[Hire.Text]" => $hireText,
-       "[Hire.View]" => base64_encode("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
+       "[Hire.View]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
       ],
       "ExtensionID" => "357a87447429bc7b6007242dbe4af715"
      ] : "";

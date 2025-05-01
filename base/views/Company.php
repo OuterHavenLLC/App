@@ -346,18 +346,18 @@
       ]
      ],
      [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".VVAPortfolio",
+       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&st=VVA")
+      ]
+     ],
+     [
       "Name" => "UpdateContentRecursiveAES",
       "Parameters" => [
        ".VVAHire",
        $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
        30000
-      ]
-     ],
-     [
-      "Name" => "UpdateContentAES",
-      "Parameters" => [
-       ".VVAPortfolio",
-       $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&st=VVA")
       ]
      ]
     ],
