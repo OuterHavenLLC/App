@@ -319,7 +319,7 @@
            "HeaderText" => "Merchant ID"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreeMerchantIDLive"])
+         "Value" => $this->core->AESencrypt(base64_encode($processing["BraintreeMerchantIDLive"]))
         ],
         [
          "Attributes" => [
@@ -334,7 +334,7 @@
           "HeaderText" => "Private Key"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreePrivateKeyLive"])
+         "Value" => $this->core->AESencrypt(base64_encode($processing["BraintreePrivateKeyLive"]))
         ],
         [
          "Attributes" => [
@@ -349,7 +349,7 @@
           "HeaderText" => "Public Key"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreePublicKeyLive"])
+         "Value" => $this->core->AESencrypt(base64_encode($processing["BraintreePublicKeyLive"]))
         ],
         [
          "Attributes" => [
@@ -364,7 +364,7 @@
           "HeaderText" => "Token"
          ],
         "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreeTokenLive"])
+         "Value" => $this->core->AESencrypt(base64_encode($processing["BraintreeTokenLive"]))
         ]
        ]
       ]
@@ -387,7 +387,7 @@
            "HeaderText" => "Merchant ID"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreeMerchantID"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["BraintreeMerchantID"]))
         ],
         [
          "Attributes" => [
@@ -402,7 +402,7 @@
           "HeaderText" => "Private Key"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreePrivateKey"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["BraintreePrivateKey"]))
         ],
         [
          "Attributes" => [
@@ -417,7 +417,7 @@
           "HeaderText" => "Public Key"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreePublicKey"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["BraintreePublicKey"]))
         ],
         [
          "Attributes" => [
@@ -432,7 +432,7 @@
           "HeaderText" => "Token"
          ],
         "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["BraintreeToken"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["BraintreeToken"]))
         ]
        ]
       ]
@@ -494,7 +494,7 @@
           "HeaderText" => "Client ID"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["PayPalClientIDLive"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["PayPalClientIDLive"]))
         ],
         [
          "Attributes" => [
@@ -509,7 +509,7 @@
           "HeaderText" => "Email"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["PayPalEmailLive"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["PayPalEmailLive"]))
         ]
        ]
       ]
@@ -532,7 +532,7 @@
           "HeaderText" => "Client ID"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["PayPalClientID"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["PayPalClientID"]))
         ],
         [
          "Attributes" => [
@@ -547,7 +547,7 @@
           "HeaderText" => "Email"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($processing["PayPalEmail"])
+         "Value" => $this->core->AESencrypt(base64_decode($processing["PayPalEmail"]))
         ]
        ]
       ]
