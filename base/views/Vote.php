@@ -3,7 +3,7 @@
   function __construct() {
    parent::__construct();
    $this->NoID = $this->core->Element([
-    "div", "Missing Vote ID", ["class" => "CenterText InnerMargin"]
+    "div", "The Vote Identifier is missing.", ["class" => "CenterText InnerMargin"]
    ]);
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
@@ -36,32 +36,36 @@
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? " Medium" : $class;
-    $retract = base64_encode("v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type");
+    $retract = $this->core->AESencrypt("v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type");
     $save = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
     $down = ($_Votes[$you] == "Down") ? $this->core->Element([
      "button", "Down", [
       "class" => "Selected UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
+      "data-encryption" => "AES",
       "data-view" => $retract
      ]
     ]) : $this->core->Element([
      "button", "Down", [
       "class" => "UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
-      "data-view" => base64_encode($save."Down")
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt($save."Down")
      ]
     ]);
     $up = ($_Votes[$you] == "Up") ? $this->core->Element([
      "button", "Up", [
       "class" => "Selected UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
+      "data-encryption" => "AES",
       "data-view" => $retract
      ]
     ]) : $this->core->Element([
      "button", "Up", [
       "class" => "UpdateContent v2 v2w",
       "data-container" => ".VoteFor$id",
-      "data-view" => base64_encode($save."Up")
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt($save."Up")
      ]
     ]);
     $votes = $_VoteUp - $_VoteDown;
@@ -140,13 +144,11 @@
     $_View = $this->core->RenderView($_View);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
     "AddTopMargin" => "0",
     "View" => [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($_View)
-    ],
-    "ResponseType" => "UpdateContent"
+    ]
    ]);
   }
   function ViewCount(array $data): string {
