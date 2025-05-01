@@ -625,6 +625,7 @@
   }
   function EditPartner(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Partner Identifier is missing."
    ];
@@ -678,9 +679,12 @@
       "ExtensionID" => "a361fab3e32893af6c81a15a81372bb7"
      ]
     ];
+    $_Commands = [
+    ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
@@ -2106,7 +2110,7 @@
       "Updates" => $updates,
       "Username" => base64_decode($username)
      ];
-     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+     $sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Shops(
       Shop_Created,
       Shop_Description,
@@ -2132,11 +2136,10 @@
      ]);
      $sql->execute();
      $this->core->Data("Save", ["shop", $id, $shop]);
-     $this->core->Statistic("Edit Shop");--*/
+     $this->core->Statistic("Edit Shop");
      $_Dialog = [
       "Body" => "<em>$title</em> has been updated.",
-      "Header" => "Done",
-      "Scrollable" => json_encode($shop, true)
+      "Header" => "Done"
      ];
     }
    }
