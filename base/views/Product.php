@@ -321,6 +321,7 @@
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($product, "LiveView", [
         "ProductType" => "Product"
        ]);
+       $_Dialog = "";
        $_View = [
         "ChangeData" => [
          "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],

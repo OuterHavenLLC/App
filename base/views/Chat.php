@@ -168,21 +168,123 @@
      ]]),
      "Front" => [
       "ChangeData" => [
-       "[Chat.Author]" => $username,
-       "[Chat.Description]" => base64_encode($description),
-       "[Chat.EditorID]" => $editorID,
        "[Chat.Header]" => $header,
-       "[Chat.ID]" => $id,
-       "[Chat.New]" => $new,
-       "[Chat.PassPhrase]" => base64_encode($passPhrase),
-       "[Chat.Title]" => base64_encode($title),
-       "[Chat.Visibility.NSFW]" => $nsfw,
-       "[Chat.Visibility.Privacy]" => $privacy
+       "[Chat.ID]" => $id
       ],
       "ExtensionID" => "eb169be369e5497344f98d826aea4e7d"
      ]
     ];
     $_Commands = [
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".ChatInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "GroupChatEditor",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => 1
+        ],
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "name" => "Username",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $username
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ]
+       ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
+     ]
     ];
    }
    return $this->core->JSONResponse([
@@ -193,6 +295,7 @@
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Chat Identifier is missing."
    ];
@@ -445,34 +548,135 @@
       $to = $t["Personal"]["DisplayName"];
      } if(($check == 1 && $group == 1) || $oneOnOne == 1) {
       $_Dialog = "";
-      $atinput = ".ChatAttachments$id-Attachments";
-      $at = base64_encode("Share with $displayName in Chat:$atinput");
-      $atinput = "$atinput .rATT";
-      $at2 = base64_encode("Added to Chat Message!");
-      $extensionID = "a4c140822e556243e3edab7cae46466d";
-      $extensionID = ($group == 1) ? "5db540d33418852f764419a929277e13" : $extensionID;
+      $_Commands = [
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".ChatMessage$id",
+         [
+          [
+           "Attributes" => [
+            "name" => "1on1",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $oneOnOne
+          ],
+          [
+           "Attributes" => [
+            "name" => "Group",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $group
+          ],
+          [
+           "Attributes" => [
+            "name" => "ID",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $id
+          ],
+          [
+           "Attributes" => [
+            "class" => "EmptyOnSuccess",
+            "name" => "Message",
+            "placeholder" => "Say something...",
+            "type" => "text"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => ""
+          ]
+         ]
+        ]
+       ],
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".PaidMessage$id",
+         [
+          [
+           "Attributes" => [],
+           "OptionGroup" => [
+            "5.00" => "$5.00",
+            "10.00" => "$10.00",
+            "15.00" => "$15.00",
+            "20.00" => "20.00",
+            "25.00" => "$25.00",
+            "30.00" => "$30.00",
+            "50.00" => "$50.00",
+            "100.00" => "$100.00",
+            "500.00" => "$500.00",
+            "1000.00" => "$1,000.00"
+           ],
+           "Options" => [
+            "Header" => 1,
+            "HeaderText" => "Choose an Amount"
+           ],
+           "Name" => "Amount",
+           "Title" => "Amount",
+           "Type" => "Select",
+           "Value" => "5.00"
+          ],
+          [
+           "Attributes" => [
+            "name" => "Form",
+            "type" => "hidden"
+           ],
+           "Type" => "Text",
+           "Value" => "ChatMessage$id"
+          ],
+          [
+           "Attributes" => [
+            "name" => "ViewPairID",
+            "type" => "hidden"
+           ],
+           "Type" => "Text",
+           "Value" => "PaidMessage$id"
+          ]
+         ]
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Information$id",
+         $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&1on1=$oneOnOne&Group=$group&ID=$chatID&Information=1&Integrated=$integrated")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".ChatBody$id",
+         $this->core->AESencrypt("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".ChatPaidMessages$id",
+         $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=$id&PaidMessages=1")
+        ]
+       ],
+      ];
       $_View = [
        "ChangeData" => [
-       "[Chat.1on1]" => $oneOnOne,
        "[Chat.ActivityStatus]" => $active,
-       "[Chat.Attachments.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&AddTo=$atinput&ID="),
        "[Chat.Body]" => $body,
-       "[Chat.Extras.Files]" => base64_encode("v=".base64_encode("Search:Containers")."&AddTo=$at&Added=$at2&CARD=1&UN=".base64_encode($you)."&st=XFS"),
-       "[Chat.Files.LiveView]" => base64_encode("v=".base64_encode("LiveView:EditorMossaic")."&ID="),
        "[Chat.DisplayName]" => $displayName,
-       "[Chat.Group]" => $group,
        "[Chat.ID]" => $id,
-       "[Chat.Information]" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=$oneOnOne&Group=$group&ID=$chatID&Information=1&Integrated=$integrated"),
-       "[Chat.List]" => base64_encode("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
        "[Chat.PaidMessage]" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($chat["UN"])."&Type=PaidMessage&ViewPairID=".base64_encode("PaidMessage$id")),
-       "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=$id&PaidMessages=1"),
        "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
-       "[Chat.SecureID]" => $id,
        "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
        "[Chat.To]" => $to,
        "[Chat.Type]" => $group
        ],
-       "ExtensionID" => $extensionID
+       "ExtensionID" => "5db540d33418852f764419a929277e13"
       ];
       $_Card = ($card == 1) ? [
        "Front" => $_View
@@ -484,6 +688,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -586,6 +791,7 @@
    ]);
   }
   function Menu(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "You must sign in to continue."
    ];
@@ -595,20 +801,36 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID != $you) {
+    $id = md5($you);
     $search = base64_encode("Search:Containers");
     $_Dialog = "";
+    $_Commands = [
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".GroupChat$id",
+       $this->core->AESencrypt("v=$search&Group=1&Integrated=$integrated&st=MBR-GroupChat")
+      ]
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".OneOnOneChat$id",
+       $this->core->AESencrypt("v=$search&1on1=1&Integrated=$integrated&st=MBR-Chat")
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
-      "[Chat.1on1]" => base64_encode("v=$search&1on1=1&Integrated=$integrated&st=MBR-Chat"),
-      "[Chat.Groups]" => base64_encode("v=$search&Group=1&Integrated=$integrated&st=MBR-GroupChat"),
-      "[Chat.New]" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you)),
-      "[Chat.ID]" => md5($you)
+      "[Chat.New]" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you)),
+      "[Chat.ID]" => $id
      ],
      "ExtensionID" => "2e1855b9baa7286162fb571c5f80da0f"
     ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
