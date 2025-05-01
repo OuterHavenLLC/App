@@ -550,6 +550,7 @@
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The requested Member could not be found.",
     "Header" => "Not Found"

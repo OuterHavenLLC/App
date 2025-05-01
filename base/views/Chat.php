@@ -669,7 +669,7 @@
        "ChangeData" => [
        "[Chat.ActivityStatus]" => $active,
        "[Chat.Body]" => $body,
-       "[Chat.DisplayName]" => $displayName." ($oneOnOne)",
+       "[Chat.DisplayName]" => $displayName,
        "[Chat.ID]" => $id,
        "[Chat.PaidMessage]" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($chat["UN"])."&Type=PaidMessage&ViewPairID=".base64_encode("PaidMessage$id")),
        "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
