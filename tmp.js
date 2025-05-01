@@ -315,6 +315,9 @@ class OH {
     this.disabled = false;
    });
   }
+  setTimeout(() => {
+   $(".FST").empty();
+  }, 500);
  }
  static CloseNetMap() {
   if($(".NetMap").is(":visible")) {
@@ -328,7 +331,7 @@ class OH {
     });
     $(".NetMap").fadeOut(500);
     setTimeout(() => {
-     $(".NetMap").remove();
+     $(".NetMap").empty();
     }, 500);
    }, 500);
   }
@@ -816,7 +819,6 @@ class OH {
      const Data = this.RenderView(data);
      if(Data.View !== "" && typeof Data.View !== "undefined") {
       Data.View.then(response => {
-       $("body").append("<div class='Frosted NetMap h scr'></div>");
        $(".CloseNetMap, .OpenNetMap").each(() => {
         this.disabled = true;
        });

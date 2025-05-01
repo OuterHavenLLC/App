@@ -707,7 +707,6 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $chat = [];
-    $extensionID = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
     $id = base64_decode($id);
     if($group == 1) {
      $chat = $this->core->Data("Get", ["chat", $id]);
@@ -774,11 +773,13 @@
      }
     }
    } if(!empty($chat)) {
-    $_View = "";
     ksort($chat);
+    $_Extension = $this->core->Extension("1f4b13bf6e6471a7f5f9743afffeecf9");
+    $_View = "";
     foreach($chat as $key => $value) {
      $_View .= $this->core->Change([
-      $value, $extension
+      $value,
+      $_Extension
      ]);
     }
     $_View = [
