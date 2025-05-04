@@ -100,9 +100,9 @@
       $vote .= $option;
      }
      $_Extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
-     $_Extension = ($containers == 1) ? $this->core->Element([
-      "div", $_Extension, ["class" => "FrostedBright Poll$id Rounded"]
-     ]) : $_Extension;
+     $_Extension = ($containers == 1) ? $this->core->Element(["div", $_Extension, [
+      "class" => "FrostedBright Poll[Poll.ID] Rounded"
+     ]]) : $_Extension;
      $_View = [
       "ChangeData" => [
        "[Poll.BlockOrDelete]" => $blockOrDelete,

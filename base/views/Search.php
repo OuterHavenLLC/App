@@ -2847,7 +2847,11 @@
     }
    } elseif($searchType == "Polls") {
     $_AccessCode = "Accepted";
-    $_ExtensionID = "184ada666b3eb85de07e414139a9a0dc";
+    $_Extension = $this->core->AESencrypt($this->core->Element([
+     "div", $this->core->Extension("184ada666b3eb85de07e414139a9a0dc"), [
+      "class" => "FrostedBright Poll[Poll.ID] Rounded"
+     ]
+    ]));
     $_Query = "SELECT * FROM Polls
                         JOIN Members
                         ON Member_Username=Poll_Username
@@ -2873,9 +2877,6 @@
       $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       if($bl == 0 && $ck == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-       $extension = $this->core->Element([
-        "div", $extension, ["class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"]
-       ]);
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", $blockCommand, [

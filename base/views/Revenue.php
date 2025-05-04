@@ -6,6 +6,7 @@
   }
   function AddTransaction(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -16,6 +17,109 @@
    if(!empty($shop)) {
     $shop = base64_decode($shop);
     $shopID = md5($shop);
+     $_Commands = [
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".TransactionInformation$shopID",
+        [
+         [
+          "Attributes" => [
+           "name" => "Shop",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $shop
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "OrderID",
+           "placeholder" => "#ORDER1234"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Order ID"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Title",
+           "placeholder" => "Refund for a Transaction listed under order #ORDER1234"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Title"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "class" => "CheckIfNumeric req",
+           "data-symbols" => "Y",
+           "maxlen" => 7,
+           "name" => "Cost",
+           "placeholder" => "5.00",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "How much did you pay?"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "class" => "CheckIfNumeric req",
+           "data-symbols" => "Y",
+           "maxlen" => 7,
+           "name" => "Profit",
+           "placeholder" => "5.00",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "How much was paid to you?"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "Credit" => "Credit",
+           "Disbursement" => "Disbursement",
+           "Refund" => "Refund"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Transaction Type"
+          ],
+          "Name" => "Type",
+          "Title" => "Transaction Type",
+          "Type" => "Select",
+          "Value" => ""
+         ]
+        ]
+       ]
+      ]
+     ];
     $_Card = [
      "Action" => $this->core->Element(["button", "Save", [
       "class" => "CardButton SendData",
@@ -24,8 +128,7 @@
      ]]),
      "Front" => [
       "ChangeData" => [
-       "[Shop.ID]" => $shopID,
-       "[Shop.Owner]" => $shop
+       "[Shop.ID]" => $shopID
       ],
       "ExtensionID" => "1de8727b9004824edc701907efc32f8c"
      ]
@@ -34,11 +137,14 @@
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
+   $_AssTopMargin = "0";
    $_Card = "";
+   $_Commands = "";
    $_View = [
     "ChangeData" => [],
     "ExtensionID" => "d98a89321f5067f73c63a4702dad32d4"
@@ -67,26 +173,37 @@
       "class" => "OpenCard v2 v2w",
       "data-view" => base64_encode("v=".base64_encode("Revenue:AddTransaction")."&Shop=".$data["Shop"])
      ]]) : "";
+     $shopID = md5($shop);
+     $_Commands = [
+      [
+       "Name" => "UpdateContentAES",
+       "Parameters" => [
+        ".RevenueYears$shopID",
+        $this->core->AESencrypt("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
+       ]
+      ]
+     ];
      $_View = [
       "ChangeData" => [
        "[Revenue.AddTransaction]" => $addTransaction,
        "[Revenue.Shop.Owner.DisplayName]" => $_Owner["ListItem"]["Title"],
        "[Revenue.Shop.Title]" => $_Shop["ListItem"]["Title"],
-       "[Revenue.Shop]" => md5($shop),
-       "[Revenue.Years]" => base64_encode("v=".base64_encode("Revenue:Years")."&Shop=".$data["Shop"])
+       "[Revenue.Shop]" => $shopID
       ],
       "ExtensionID" => "4ab1c6f35d284a6eae66ebd46bb88d5d"
      ];
      $_ViewTitle = "Revenue for ".$_Shop["ListItem"]["Title"];
     }
    }
+   $_AddTopMargin = ($card == 0) ? "1" : "0";
    $_Card = ($card == 1) ? [
     "Front" => $_View
    ] : "";
    $_View = ($card === 0) ? $_View : "";
    return $this->core->JSONResponse([
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Title" => $_ViewTitle,
     "View" => $_View
    ]);
@@ -153,14 +270,14 @@
        }
       } foreach($adminExpenses as $expense => $info) {
        $adminExpensePercentage = $info["Percentage"] ?? 0.00;
-       $adminExpensePercentage = number_format($adminExpensePercentage, 2)
-       $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + ($payPeriodTotals_Gross * ($adminExpensePercentage / 100));
+       $adminExpensePercentage = number_format($adminExpensePercentage, 2);
+       $amount = $payPeriodTotals_Gross * ($adminExpensePercentage / 100);
+       $payPeriodTotals_Expenses = $amount + $payPeriodTotals_Expenses;
        $adminExpensesList .= $this->core->Change([[
-        "[AdminExpense.Name]" => $info["Name"],
-        "[AdminExpense.Percentages]" => $adminExpensePercentage,
+        "[AdminExpense.Amount]" => $amount,
+        "[AdminExpense.Name]" => $info["Name"]
        ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-6817073b886aa")]);
       }
-      // Admin Expenses Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
       $payPeriodTotals_Gross = $payPeriodTotals_Gross + $payPeriodTotals_Expenses;
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
@@ -333,6 +450,7 @@
        break;
       }
      } if(empty($payroll[$payPeriodID]["Partners"])) {
+      $payroll[$payPeriodID]["AdministrativeExpenses"] = $_Shop["DataModel"]["AdministrativeExpenses"] ?? [];
       $payroll[$payPeriodID]["Partners"] = $_Shop["DataModel"]["Contributors"] ?? [];
      }
      array_push($transactions, [
@@ -420,12 +538,11 @@
        $partnerPaymentsOwed = $partnerPaymentsOwed + $paid;
       } foreach($yearTotals_AdminExpenses as $expense => $amount) {
        $adminExpensesList .= $this->core->Change([[
-        "[AdminExpense.Name]" => $expense,
-        "[AdminExpense.Percentages]" => number_format($amount, 2),
+        "[AdminExpense.Amount]" => number_format($amount, 2),
+        "[AdminExpense.Name]" => $expense
        ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-6817073b886aa")]);
        $yearTotals_Expenses = $yearTotals_Expenses + $amount;
       }
-      // Admin Expenses Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa--*/
       $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
        "class" => "OpenCard v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=".base64_encode($id)."&Shop=".$data["Shop"]."&Year=".$data["Year"])
@@ -457,7 +574,7 @@
      $yearTotals_Net = $yearTotals_Gross - $yearTotals_Expenses - $yearTotals_Taxes;
      $_View = [
       "ChangeData" => [
-       "[Year.AdminExpenses]" => "",
+       "[Year.AdminExpenses]" => $adminExpensesList,
        "[Year.Gross]" => number_format($yearTotals_Gross, 2),
        "[Year.Expenses]" => number_format($yearTotals_Expenses, 2),
        "[Year.Net]" => number_format($yearTotals_Net, 2),
@@ -475,6 +592,7 @@
    ]);
   }
   function Years(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -484,6 +602,7 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
+    $_Commands = [];
     $_Dialog = "";
     $_View = "";
     $i = 0;
@@ -499,10 +618,16 @@
      $transactions = $yearData["Transactions"] ?? [];
      if(!empty($transactions)) {
       $i++;
+      array_push($_Commands, [
+       "Name" => "UpdateContentAES",
+       "Parameters" => [
+        ".RevenueYear$year$shop",
+        $this->core->AESencrypt("v=".base64_encode("Revenue:Year")."&Shop=".$data["Shop"]."&Year=".base64_encode($year))
+       ]
+      ]);
       $_View .= $this->core->Change([[
        "[Shop.ID]" => $shop,
-       "[Year]" => $year,
-       "[Year.View]" => base64_encode("v=".base64_encode("Revenue:Year")."&Shop=".$data["Shop"]."&Year=".base64_encode($year))
+       "[Year]" => $year
       ], $this->core->Extension("4c7848ac49eafc9fbd14c20213398e14")]);
      }
     }
@@ -518,6 +643,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);

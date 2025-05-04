@@ -2632,6 +2632,7 @@ $(document).on("keyup", ".ReSearch", (event) => {
 });
 $(document).on("keyup", ".SearchBar", (event) => {
  const $Input = $(event.currentTarget);
+ $(".SideBar").hide("slide", {direction: "left"}, 500);
  OH.CloseNetMap();
  OH.UpdateContent(OH.DefaultContainer, OH.AESencrypt(OH.AESdecrypt($Input.attr("data-u"))) + OH.AESencrypt($Input.val()), "AES");
 });
