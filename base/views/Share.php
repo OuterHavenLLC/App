@@ -220,7 +220,7 @@
         "[Share.ID]" => $id,
         "[Share.Link]" => "",
         "[Share.Preview]" => $preview,
-        "[Share.StatusUpdate]" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&Body=$body&new=1&UN=".base64_encode($you)),
+        "[Share.StatusUpdate]" => $this->core->AESencrypt("v=".base64_encode("StatusUpdate:Edit")."&Body=$body&new=1&UN=".base64_encode($you)),
         "[Share.Title]" => $title
        ],
        "ExtensionID" => "de66bd3907c83f8c350a74d9bbfb96f6"
