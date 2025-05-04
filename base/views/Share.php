@@ -85,8 +85,8 @@
     ];
     if(!empty($body)) {
      $_Dialog = "";
+     $_Extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
      $_View = "";
-     $extension = $this->core->Extension("343f78d13872e3b4e2ac0ba587ff2910");
      $groups = $this->core->DatabaseSet("Chat");
      $i = 0;
      $id = base64_decode($id);
@@ -126,7 +126,7 @@
            "[Chat.Online]" => "",
            "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%"),
            "[Chat.View]" => base64_encode("v=".base64_encode("Chat:Home")."&Body=$body&Card=1&Group=1&ID=".base64_encode($group)."&Integrated=1")
-          ], $extension]);
+          ], $_Extension]);
          }
         }
        }
@@ -150,6 +150,7 @@
    ]);
   }
   function Home(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Share Card Identifier is missing."
    ];
@@ -215,9 +216,6 @@
      $_Card = [
       "Front" => [
        "ChangeData" => [
-        "[Share.Chat]" => base64_encode("v=".base64_encode("Share:Chat")."&Body=$body&ID=".base64_encode($id)),
-        "[Share.Chat.Group]" => base64_encode("v=".base64_encode("Share:GroupChat")."&Body=$body&ID=".base64_encode($id)),
-        "[Share.Chat.Recent]" => base64_encode("v=".base64_encode("Share:RecentChats")."&Body=$body&ID=".base64_encode($id)),
         "[Share.Code]" => $embed,
         "[Share.ID]" => $id,
         "[Share.Link]" => "",
@@ -228,10 +226,74 @@
        "ExtensionID" => "de66bd3907c83f8c350a74d9bbfb96f6"
       ]
      ];
+     $_Commands = [
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".ChatSearch$id",
+        [
+         [
+          "Attributes" => [
+           "class" => "LightSearch",
+           "data-container" => ".ShareViaChat[Share.ID]",
+           "data-list" => "[Share.Chat]",
+           "placeholder" => "Search Group Chats...",
+           "type" => "text"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => ""
+         ]
+        ]
+       ]
+      ],
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".GroupChatSearch$id",
+        [
+         [
+          "Attributes" => [
+           "class" => "LightSearch",
+           "data-container" => ".ShareViaGroupChat[Share.ID]",
+           "data-list" => "[Share.Chat.Group]",
+           "placeholder" => "Search Group Chats...",
+           "type" => "text"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => ""
+         ]
+        ]
+       ]
+      ],
+      [
+       "Name" => "UpdateContent",
+       "Parameters" => [
+        ".ShareViaChat$id",
+        $this->core->AESencrypt("v=".base64_encode("Share:Chat")."&Body=$body&ID=".base64_encode($id))
+       ]
+      ],
+      [
+       "Name" => "UpdateContent",
+       "Parameters" => [
+        ".ShareViaGroupChat$id",
+        $this->core->AESencrypt("v=".base64_encode("Share:GroupChat")."&Body=$body&ID=".base64_encode($id))
+       ]
+      ],
+      [
+       "Name" => "UpdateContent",
+       "Parameters" => [
+        ".ShareViaRecentChat$id",
+        $this->core->AESencrypt("v=".base64_encode("Share:RecentChats")."&Body=$body&ID=".base64_encode($id))
+       ]
+      ]
+     ];
     }
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
@@ -272,7 +334,8 @@
         $_View .= $this->core->Element([
          "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
           "class" => "OpenCard Small",
-          "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Body=$body&Card=1&Username=".base64_encode($t["Login"]["Username"]))
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&1on1=1&Body=$body&Card=1&Username=".base64_encode($t["Login"]["Username"]))
          ]
         ]);
        }

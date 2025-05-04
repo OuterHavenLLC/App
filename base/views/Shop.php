@@ -938,7 +938,7 @@
     ]
    ]) : "";
    $card = $data["CARD"] ?? 0;
-   $isPublic = $data["Public"] ?? 0;
+   $public = $data["Public"] ?? 0;
    $i = 0;
    $username = $data["UN"] ?? base64_encode("");
    $username = base64_decode($username);
@@ -947,7 +947,7 @@
    $you = $y["Login"]["Username"];
    $_View = $this->MadeInNewYork(["back" => $back]);
    $_View = $this->core->RenderView($_View);
-   if($isPublic == 1) {
+   if($public == 1) {
     $callSign = $data["CallSign"] ?? "";
     $callSign = $this->core->CallSign($callSign);
     $shops = $this->core->DatabaseSet("Shop");
@@ -1031,6 +1031,7 @@
         foreach($partners as $member => $role) {
          if($active == 0 && $member == $you) {
           $active++;
+          break;
          }
         }
         $blockCommand = ($bl == 0) ? "Block" : "Unblock";

@@ -632,7 +632,6 @@
    if($searchType == "ADM-LLP") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "da5c43f7719b17a9fab1797887c5c0d1";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
      $_Query = "SELECT * FROM Extensions
                          JOIN Members
@@ -677,7 +676,6 @@
     $_BlogID = $data["ID"] ?? base64_encode("");
     $_BlogID = base64_decode($_BlogID);
     $_ExtensionID = "dba88e1a123132be03b9a2e13995306d";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $_Query = "SELECT * FROM BlogPosts 
                          JOIN Blogs
@@ -786,7 +784,6 @@
    } elseif($searchType == "BL") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e05bae15ffea315dc49405d6c93f9b2c";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $bl = base64_decode($data["BL"]);
      $blacklist = $y["Blocked"][$bl] ?? [];
@@ -925,7 +922,6 @@
                         LIMIT $limit
                         OFFSET $offset
     ";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -966,7 +962,6 @@
     $_AccessCode = "Accepted";
     $_ExtensionID = "ae30582e627bc060926cfacf206920ce";
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
-    $extension = $this->core->Extension($_ExtensionID);
     foreach($bulletins as $key => $value) {
      $bl = $this->core->CheckBlocked([$y, "Members", $value["From"]]);;
      $_Member = $this->core->GetContentData([
@@ -997,7 +992,6 @@
    } elseif($searchType == "CA" || $searchType == "PR") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e7829132e382ee4ab843f23685a123cf";
-    $extension = $this->core->Extension($_ExtensionID);
     $_Query = "SELECT * FROM Articles
                         JOIN Members
                         ON Member_Username=Article_Username
@@ -1056,7 +1050,6 @@
     $_ExtensionID = "dea3da71b28244bf7cf84e276d5d1cba";
     $newCartList = [];
     $now = $this->core->timestamp;
-    $extension = $this->core->Extension($_ExtensionID);
     $shop = $data["ID"] ?? md5($this->core->ShopID);
     $username = $data["Username"] ?? base64_encode($this->core->ShopID);
     $products = $y["Shopping"]["Cart"][$shop] ?? [];
@@ -1091,7 +1084,6 @@
     $_AccessCode = "Accepted";
     $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
     $integrated = $data["Integrated"] ?? 0;
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $_Query = "SELECT * FROM Chat
                          JOIN Members
@@ -1101,9 +1093,7 @@
                          ORDER BY Chat_Created DESC
                          LIMIT $limit
                          OFFSET $offset";
-     $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
      $_ExtensionID = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $_ExtensionID;
-     $extension = $this->core->Extension($_ExtensionID);
      $sql->query($_Query, [
       ":Search" => $querysql,
       ":Username" => $you
@@ -1174,7 +1164,6 @@
      "stream",
      "votes"
     ];
-    $extension = $this->core->Extension($_ExtensionID);
     $houseRepresentatives = 0;
     $senators = 0;
     $yourRole = $congressmen[$you] ?? "";
@@ -1303,7 +1292,6 @@
     $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]);
     $candidates = $ballot["Candidates"] ?? [];
     $chamber = $data["Chamber"] ?? "House";
-    $extension = $this->core->Extension($_ExtensionID);
     $na = "No Candidates for the $chamber";
     $registeredVotes = $ballot["RegisteredVotes"] ?? [];
     if(($chamber == "House" || $chamber == "Senate") && $notAnon == 1) {
@@ -1374,7 +1362,6 @@
    } elseif($searchType == "Contacts") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ccba635d8c7eca7b0b6af5b22d60eb55";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $cms = $this->core->Data("Get", [
       "cms",
@@ -1400,7 +1387,6 @@
    } elseif($searchType == "ContactsProfileList") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
-    $extension = $this->core->Extension($_ExtensionID);
     $x = $this->core->Data("Get", [
      "cms",
      md5(base64_decode($data["UN"]))
@@ -1440,7 +1426,6 @@
    } elseif($searchType == "ContactsRequests") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "8b6ac25587a4524c00b311c184f6c69b";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $cms = $this->core->Data("Get", [
       "cms",
@@ -1471,7 +1456,6 @@
     $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
     $admin = 0;
     $contributors = [];
-    $extension = $this->core->Extension($_ExtensionID);
     $id = $data["ID"] ?? "";
     $type = $data["Type"] ?? "";
     $ck = (!empty($id)) ? 1 : 0;
@@ -1639,7 +1623,6 @@
    } elseif($searchType == "DC") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $x = $this->core->Data("Get", ["dc", md5($you)]);
      foreach($x as $key => $value) {
@@ -1675,7 +1658,6 @@
                         LIMIT $limit
                         OFFSET $offset";
     $now = $this->core->timestamp;
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -1722,7 +1704,6 @@
                         LIMIT $limit
                         OFFSET $offset";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -1771,7 +1752,6 @@
     $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
     $admin = $data["Admin"] ?? base64_encode("");
     $id = $data["ID"] ?? "";
-    $extension = $this->core->Extension($_ExtensionID);
     if(!empty($id)) {
      $admin = base64_decode($admin);
      $id = base64_decode($id);
@@ -1834,7 +1814,6 @@
                         OFFSET $offset" : $_Query;
     $active = 0;
     $admin = 0;
-    $extension = $this->core->Extension($_ExtensionID);
     $id = $data["ID"] ?? "";
     $forum = $this->core->Data("Get", ["pf", $id]);
     $forumType = $forum["Type"] ?? "Private";
@@ -1962,7 +1941,6 @@
                         OFFSET $offset";
     $active = 0;
     $admin = 0;
-    $extension = $this->core->Extension($_ExtensionID);
     $forumID = $data["Forum"] ?? "";
     $manifest = $this->core->Data("Get", ["pfmanifest", $forumID]);
     foreach($manifest as $member => $role) {
@@ -2073,7 +2051,6 @@
    } elseif($searchType == "Forums-Topics") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "099d6de4214f55e68ea49395a63b5e4d";
-    $extension = $this->core->Extension($_ExtensionID);
     $forumID = $data["Forum"] ?? "";
     $_Forum = $this->core->GetContentData([
      "Blacklisted" => 0,
@@ -2133,10 +2110,6 @@
                         ORDER BY Link_Title DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
-    $extension = $this->core->Element([
-     "div", $extension, ["class" => "FrostedBright Rounded"]
-    ]);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2172,7 +2145,6 @@
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Body" => $querysql,
      ":Privacy" => md5("Public"),
@@ -2264,7 +2236,6 @@
                         LIMIT $limit
                         OFFSET $offset";
     $home = base64_encode("Profile:Home");
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2311,7 +2282,6 @@
    } elseif($searchType == "MBR-ALB") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "b6728e167b401a5314ba47dd6e4a55fd";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $username = base64_decode($data["UN"]);
      $t = ($username == $you) ? $y : $this->core->Member($username);
@@ -2363,7 +2333,6 @@
                         OFFSET $offset";
     if($notAnon == 1) {
      $home = base64_encode("Blog:Home");
-     $extension = $this->core->Extension($_ExtensionID);
      $sql->query($_Query, [
       ":Search" => $querysql,
       ":Username" => $you
@@ -2411,7 +2380,6 @@
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $bl = $this->core->CheckBlocked([$t, "Members", $you]);
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
@@ -2475,7 +2443,6 @@
     $group = $data["Group"] ?? 0;
     $integrated = $data["Integrated"] ?? 0;
     $oneOnOne = $data["1on1"] ?? 0;
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $extension = "343f78d13872e3b4e2ac0ba587ff2910";
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
@@ -2570,7 +2537,6 @@
                         LIMIT $limit
                         OFFSET $offset";
     $home = base64_encode("Forum:Home");
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Username" => $you
@@ -2604,7 +2570,6 @@
    } elseif($searchType == "MBR-LLP") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "da5c43f7719b17a9fab1797887c5c0d1";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $articles = $y["Pages"] ?? [];
      foreach($articles as $key => $value) {
@@ -2640,7 +2605,6 @@
                         ORDER BY Poll_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Username" => $you
@@ -2727,7 +2691,6 @@
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Body" => $querysql,
      ":Username" => base64_decode($data["UN"])
@@ -2814,7 +2777,6 @@
                         LIMIT $limit
                         OFFSET $offset";
     $albumID = $data["AID"] ?? md5("unsorted");
-    $extension = $this->core->Extension($_ExtensionID);
     $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
     $sql->query($_Query, [
      ":Database" => $database,
@@ -2855,7 +2817,6 @@
                         ORDER BY Media_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2895,7 +2856,6 @@
                         ORDER BY Poll_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -2988,7 +2948,6 @@
                         ORDER BY Product_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -3042,7 +3001,6 @@
                         ORDER BY Shop_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     if($notAnon == 1) {
      $b2 = $b2 ?? "Artists";
      $sql->query($_Query, [
@@ -3085,7 +3043,6 @@
    } elseif($searchType == "SHOP-InvoicePresets") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
-    $extension = $this->core->Extension($_ExtensionID);
     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     foreach($invoicePresets as $key => $value) {
@@ -3113,7 +3070,6 @@
     $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
     $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
     $invoices = $shop["Invoices"] ?? [];
-    $extension = $this->core->Extension($_ExtensionID);
     foreach($invoices as $key => $value) {
      $invoice = $this->core->Data("Get", ["invoice", $value]);
      if(!empty($invoice)) {
@@ -3134,7 +3090,6 @@
    } elseif($searchType == "SHOP-Orders") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "504e2a25db677d0b782d977f7b36ff30";
-    $extension = $this->core->Extension($_ExtensionID);
     $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]);
     foreach($purchaseOrders as $key => $value) {
      $member = $this->core->Member($value["UN"]);
@@ -3165,7 +3120,6 @@
                         ORDER BY Product_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
     $sql->query($_Query, [
@@ -3214,7 +3168,6 @@
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Body" => $querysql,
      ":Username" => $querysql
@@ -3316,7 +3269,6 @@
                         ORDER BY Product_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $extension = $this->core->Extension($_ExtensionID);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Shop" => md5($this->core->ShopID)
@@ -3367,7 +3319,6 @@
                         OFFSET $offset";
     $_Username = $data["UN"] ?? base64_encode($you);
     $_Username = base64_decode($_Username);
-    $extension = $this->core->Extension($_ExtensionID);
     $mediaType = $data["ftype"] ?? "";
     $sql->query($_Query, [
      ":Database" => $_Database,

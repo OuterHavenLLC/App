@@ -169,7 +169,7 @@
        $partner = $this->core->Data("Get", ["mbr", md5($partner)]) ?? $this->core->RenderGhostMember();
        $displayName = $partner["Personal"]["DisplayName"];
        $payPeriodSplit = $payPeriodTotals_Net / 2;
-       $payPeriodSplit = $payPeriodSplit / $partnerCount;
+       $payPeriodSplit = $payPeriodSplit / ($partnerCount - 1);
        $paid = $info["Paid"] ?? 0;
        $isPayable = ($isPayable == 1 && $paid == 0 && $partner["Login"]["Username"] != $you) ? 1 : 0;
        $pay = ($isPayable == 1) ? $this->core->Element([
@@ -423,6 +423,7 @@
         "[AdminExpense.Name]" => $expense,
         "[AdminExpense.Percentages]" => number_format($amount, 2),
        ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-6817073b886aa")]);
+       $yearTotals_Expenses = $yearTotals_Expenses + $amount;
       }
       // Admin Expenses Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa--*/
       $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
@@ -438,7 +439,7 @@
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
       $payPeriods .= $this->core->Change([[
-       "[PayPeriod.AdminExpenses]" => "",
+       "[PayPeriod.AdminExpenses]" => $adminExpensesList,
        "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
        "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
        "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
