@@ -321,7 +321,7 @@
       } else {
        $_Database = ($this->core->ID == $username) ? "CoreMedia" : "Media";
        $_Name = $value["Name"] ?? $_Name;
-       $coverPhoto = $albums[$albumID]["ICO"] ?? "";
+       $coverPhoto = $albums[$albumID]["CoverPhoto"] ?? "";
        $baseName = explode(".", $_Name)[0];
        $sql = New SQL($this->core->cypher->SQLCredentials());
        $sql->query("DELETE FROM $_Database WHERE Media_ID=:ID", [
@@ -330,7 +330,7 @@
        $sql->execute();
        if($this->core->ID != $username) {
         if($_Name == $coverPhoto && $username == $you) {
-         $albums[$albumID]["ICO"] = "";
+         $albums[$albumID]["CoverPhoto"] = "";
         }
        }
        $conversation = $this->core->Data("Get", ["conversation", $key]);
@@ -675,7 +675,7 @@
             "File" => $name,
             "Username" => $you
            ])["AlbumCover"] ?? $name;
-           $_FileSystem["Albums"][$albumID]["ICO"] = $thumbnail;
+           $_FileSystem["Albums"][$albumID]["CoverPhoto"] = $thumbnail;
           }
           $_FileSystem["Albums"][$albumID]["Modified"] = $now;
           $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];

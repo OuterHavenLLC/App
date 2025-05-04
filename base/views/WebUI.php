@@ -328,7 +328,7 @@
       $manifest = $this->core->Data("Get", [
        "pfmanifest",
        $sonsOfLiberty
-      ]) ?? [];
+      ]);
       if($info["A"] == 1) {
        $role = ($highCommand == 1) ? "Admin" : "Member";
        $manifest[$you] = $role;
@@ -593,7 +593,7 @@
      $subscribers = $blog["Subscribers"] ?? [];
      $title = $blog["Title"];
     } elseif($type == "BlogPost") {
-     $post = $this->core->Data("Get", ["bp", $id]) ?? [];
+     $post = $this->core->Data("Get", ["bp", $id]);
      $check = ($post["UN"] != $you) ? 1 : 0;
      $processor = base64_encode("v=".base64_encode("BlogPost:Subscribe"));
      $subscribers = $post["Subscribers"] ?? [];
@@ -601,15 +601,14 @@
     } elseif($type == "Shop") {
      $check = (md5($you) != $id) ? 1 : 0;
      $processor = base64_encode("v=".base64_encode("Shop:Subscribe"));
-     $shop = $this->core->Data("Get", ["shop", $id]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $id]);
      $subscribers = $shop["Subscribers"] ?? [];
      $title = $shop["Title"];
     } if($check == 1 && $this->core->ID != $you) {
-     $_Dialog = "";
      $text = (in_array($you, $subscribers)) ? "Unsubscribe" : "Subscribe";
+     $_Dialog = "";
      $_View = [
       "ChangeData" => [
-       "[Subscribe.ContentID]" => $id,
        "[Subscribe.ID]" => $id,
        "[Subscribe.Processor]" => $processor,
        "[Subscribe.Text]" => $text,
@@ -617,6 +616,9 @@
       ],
       "ExtensionID" => "489a64595f3ec2ec39d1c568cd8a8597"
      ];
+    } elseif($check == 0 && $this->core->ID != $you) {
+     $_Dialog = "";
+     $_View = "";
     }
    }
    return $this->core->JSONResponse([

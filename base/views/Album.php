@@ -287,7 +287,7 @@
        ]
       ]) : "";
       $media = $this->core->Data("Get", ["fs", md5($username)]);
-      $coverPhoto = $album["ICO"] ?? "";
+      $coverPhoto = $album["CoverPhoto"] ?? "";
       $coverPhoto = base64_encode("$username-".explode(".", $coverPhoto)[1]);
       $_Commands = [
        [
@@ -440,7 +440,7 @@
     $actionTaken = ($new == 1) ? "saved" : "updated";
     $albums = $_FileSystem["Albums"] ?? [];
     $created = $albums[$id]["Created"] ?? $now;
-    $coverPhoto = $albums[$id]["ICO"] ?? "";
+    $coverPhoto = $albums[$id]["CoverPhoto"] ?? "";
     $illegal = $albums[$id]["Illegal"] ?? 0;
     $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $data["PassPhrase"] ?? "";
@@ -450,7 +450,7 @@
     $albums[$id] = [
      "Created" => $created,
      "Description" => $data["Description"],
-     "ICO" => $coverPhoto,
+     "CoverPhoto" => $coverPhoto,
      "ID" => $id,
      "Illegal" => $illegal,
      "Modified" => $now,

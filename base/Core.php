@@ -503,7 +503,7 @@
      if($empty == 0) {
       $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode("")."&Type=".base64_encode("DLC"));
       $body = "";
-      $coverPhoto = $data["ICO"] ?? $coverPhoto;
+      $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $coverPhoto = $this->GetSourceFromExtension([
        $contentID,
        $coverPhoto
@@ -870,14 +870,14 @@
       $description = $data["Description"] ?? "";
       $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Shops")),
-       "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
-       "Edit" => base64_encode("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($owner["Login"]["Username"])),
-       "Revenue" => base64_encode("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($owner["Login"]["Username"])),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($owner["Login"]["Username"])),
+       "Block" => $this->AESencrypt("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Shops")),
+       "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
+       "Edit" => $this->AESencrypt("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($owner["Login"]["Username"])),
+       "Revenue" => $this->AESencrypt("v=".base64_encode("Revenue:Home")."&Card=1&Shop=".base64_encode($owner["Login"]["Username"])),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($owner["Login"]["Username"])),
        "ShareLink" => $this->base."/MadeInNewYork/".$owner["Login"]["Username"],
-       "View" => base64_encode("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($owner["Login"]["Username"])),
-       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
+       "View" => $this->AESencrypt("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($owner["Login"]["Username"])),
+       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
      }

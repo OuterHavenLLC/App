@@ -152,6 +152,8 @@
       "Update" => $updates
      ]
     ]);
+    // Admin Expense Input Clone: 45787465-6e73-496f-ae42-794d696b65-68170110407f0
+    // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
     $_Card = [
      "Action" => $this->core->Element(["button", "Update", [
       "class" => "CardButton SendData",
@@ -642,44 +644,116 @@
    } elseif(!empty($username) || $new == 1) {
     $_Dialog = "";
     $action = "";
+    $id = md5($username);
     if($new == 1) {
      $action = "Hire";
-     $company = "Company";
-     $description = "Description";
+     $company = "";
+     $description = "";
      $header = "New Partner";
      $inputType = "text";
-     $title = "Title";
+     $title = "Partner";
     } else {
      $action = "Update";
-     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", md5($you)]);
      $partner = $shop["Contributors"][$username] ?? [];
      $company = $partner["Company"];
      $description = $partner["Description"];
      $header = "Edit $username";
      $inputType = "hidden";
-     $title = $partner["Title"];
+     $title = $partner["Title"] ?? "Partner";
     }
+    $username = ($inputType != "hidden") ? $this->core->AESencrypt($username) : $username;
     $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
-      "data-form" => ".Partner".md5($username),
+      "data-form" => ".Partner$id",
       "data-processor" => base64_encode("v=".base64_encode("Shop:SavePartner"))
      ]]),
      "Front" => [
       "ChangeData" => [
-       "[Partner.Company]" => $company,
-       "[Partner.Description]" => $description,
        "[Partner.Header]" => $header,
-       "[Partner.ID]" => md5($username),
-       "[Partner.New]" => $new,
-       "[Partner.Title]" => $title,
-       "[Partner.Username]" => $username,
-       "[Partner.Username.InputType]" => $inputType
+       "[Partner.ID]" => $id
       ],
       "ExtensionID" => "a361fab3e32893af6c81a15a81372bb7"
      ]
     ];
     $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".PartnerInformation$id",
+       [
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "UN",
+          "placeholder" => "Username",
+          "type" => $inputType
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $username
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Company",
+          "placeholder" => "NewCo LLC",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Company"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($company)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "A corporate-level partner of ".$this->core->config["App"]["Name"].".",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ]
+       ]
+      ]
+     ]
     ];
    }
    return $this->core->JSONResponse([
@@ -710,7 +784,7 @@
     $partners = $shop["Contributors"] ?? [];
     $hireText = (count($partners) == 1) ? "Me" : "Us";
     foreach($shop["Invoices"] as $key => $invoice) {
-     $invoice = $this->core->Data("Get", ["invoice", $invoice]) ?? [];
+     $invoice = $this->core->Data("Get", ["invoice", $invoice]);
      if($invoice["Status"] == "Open") {
       $openInvoices++;
      }
@@ -797,7 +871,7 @@
         "data-view" => base64_encode("v=".base64_encode("File:Download"))
        ]]) : "";
        $_View .= $this->core->Change([[
-        "[Product.ICO]" => $_Product["ListItem"]["CoverPhoto"],
+        "[Product.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
         "[Product.Description]" => $_Product["ListItem"]["Description"],
         "[Product.Options]" => $options,
         "[Product.OrderID]" => $orderID,
@@ -828,6 +902,7 @@
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "b2",
@@ -857,8 +932,8 @@
     $shops = $this->core->DatabaseSet("Shop");
     foreach($shops as $key => $value) {
      $shop = str_replace("nyc.outerhaven.shop.", "", $value);
-     $shop = $this->core->Data("Get", ["shop", $shop]) ?? [];
-     $t = $this->core->Data("Get", ["mbr", $shop]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", $shop]);
+     $t = $this->core->Data("Get", ["mbr", $shop]);
      $callSignsMatch = ($callSign == $this->core->CallSign($shop["Title"])) ? 1 : 0;
      if(($callSignsMatch == 1 || $id == $value) && $i == 0) {
       $i++;
@@ -918,7 +993,7 @@
       $check2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
       if($check == 1 || $check2 == 1) {
        $_Search = base64_encode("Search:Containers");
-       $cms = $this->core->Data("Get", ["cms", $id]) ?? [];
+       $cms = $this->core->Data("Get", ["cms", $id]);
        $check2 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $t["Privacy"]["Shop"],
@@ -949,12 +1024,14 @@
         $block .= ($check == 0) ? $this->core->Element([
          "button", $blockCommand, [
           "class" => "Small UpdateButton v2",
+          "data-encryption" => "AES",
           "data-processor" => $options["Block"]
          ]
         ]) : "";
         $chat = (!empty($chat) && $check == 1) ? $this->core->Element([
          "button", "Partner Chat", [
           "class" => "OpenCard Small v2",
+          "data-encryption" => "AES",
           "data-view" => $options["Chat"]
          ]
         ]) : "";
@@ -983,6 +1060,7 @@
         $edit = ($check == 1) ? $this->core->Element([
          "button", "Edit", [
           "class" => "OpenCard Small v2",
+          "data-encryption" => "AES",
           "data-view" => $options["Edit"]
          ]
         ]) : "";
@@ -991,10 +1069,57 @@
         $share = ($share == 1) ? $this->core->Element([
          "button", "Share", [
           "class" => "OpenCard Small v2",
+          "data-encryption" => "AES",
           "data-view" => $options["Share"]
          ]
         ]) : "";
         $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
+        $_Commands = [
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Conversation$id",
+           $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Partners$id",
+           $this->core->AESencrypt("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors")
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".ProductList$id",
+           $this->core->AESencrypt("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&st=SHOP-Products")
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Vote$id",
+           $options["Vote"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentRecursiveAES",
+          "Parameters" => [
+           ".Hire$id",
+           $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
+           10000
+          ]
+         ],
+         [
+          "Name" => "UpdateContentRecursiveAES",
+          "Parameters" => [
+           ".Subscribe$id",
+           $this->core->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
+           10000
+          ]
+         ]
+        ];
         $_View = [
          "ChangeData" => [
           "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
@@ -1012,10 +1137,6 @@
           "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
           "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
           "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-          "[Conversation.CRID]" => $id,
-          "[Conversation.CRIDE]" => base64_encode($id),
-          "[Conversation.Level]" => base64_encode(1),
-          "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
           "[Shop.Back]" => $back,
           "[Shop.Block]" => $block,
           "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
@@ -1024,21 +1145,16 @@
           "[Shop.DashboardView]" => $dashboardView,
           "[Shop.Disclaimer]" => $disclaimer,
           "[Shop.Edit]" => $edit,
-          "[Shop.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
-          "[Shop.History]" => base64_encode("v=".base64_encode("Shop:History")."&ID=$id"),
+          "[Shop.History]" => $this->core->AESencrypt("v=".base64_encode("Shop:History")."&ID=$id"),
           "[Shop.ID]" => $id,
-          "[Shop.Partners]" => base64_encode("v=$_Search&ID=".base64_encode($id)."&Type=".base64_encode("Shop")."&st=Contributors"),
           "[Shop.PartnerChat]" => $chat,
           "[Shop.Revenue]" => $options["Revenue"],
           "[Shop.Share]" => $share,
-          "[Shop.Stream]" => base64_encode("v=$_Search&UN=".base64_encode($t["Login"]["Username"])."&b2=".$shop["Title"]."&lPG=SHOP-Products$id&st=SHOP-Products"),
-          "[Shop.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
           "[Shop.Title]" => $_Shop["ListItem"]["Title"],
           "[Shop.Welcome]" => $this->core->PlainText([
            "Data" => $shop["Welcome"],
            "HTMLDecode" => 1
-          ]),
-          "[Shop.Votes]" => $options["Vote"]
+          ])
          ],
          "ExtensionID" => "f009776d658c21277f8cfa611b843c24"
         ];
@@ -1053,6 +1169,7 @@
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "View" => $_View
    ]);
   }
@@ -1061,7 +1178,6 @@
    $data = $data["Data"] ?? [];
    $back = $data["back"] ?? "";
    $id = md5($this->core->ShopID);
-   $pub = $data["pub"] ?? 0;
    $shop = $this->core->Data("Get", ["shop", $id]);
    $partners = $shop["Contributors"] ?? [];
    $username = base64_encode($this->core->ShopID);
@@ -1070,18 +1186,47 @@
    $payroll = ($id == md5($you)) ? $this->core->Element([
     "button", "Payroll", [
      "class" => "OpenCard Small v2",
-     "data-view" => base64_encode("v=".base64_encode("Shop:Payroll"))
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Shop:Payroll"))
     ]
    ]) : "";
    return $this->core->JSONResponse([
+    "Commands" => [
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".MiNYArtists",
+       $this->core->AESencrypt("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP")
+      ]
+     ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".MiNYProducts",
+       $this->core->AESencrypt("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products")
+      ]
+     ],
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".MiNYHire",
+       $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
+       10000
+      ]
+     ],
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".MiNYSubscribe",
+       $this->core->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
+       10000
+      ]
+     ]
+    ],
     "View" => [
      "ChangeData" => [
-      "[MadeInNY.Artists]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP"),
       "[MadeInNY.Back]" => $back,
-      "[MadeInNY.Hire]" => base64_encode("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
-      "[MadeInNY.Products]" => base64_encode("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products"),
-      "[MadeInNY.Subscribe]" => base64_encode("v=".base64_encode("WebUI:SubscribeSection")."&ID=$id&Type=Shop"),
-      "[MadeInNY.VIP]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username&pub=$pub")
+      "[MadeInNY.VIP]" => $this->core->AESencrypt("v=".base64_encode("Product:Home")."&CARD=1&ID=355fd2f096bdb49883590b8eeef72b9c&UN=$username")
      ],
      "ExtensionID" => "62ee437edb4ce6d30afa8b3ea4ec2b6e"
     ]
@@ -1180,10 +1325,10 @@
       $title = $shop["Title"] ?? $title;
       $total = 0;
       if($type == "Checkout") {
+       $_ExtensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $cart = $y["Shopping"]["Cart"][$shopID]["Products"] ?? [];
        $cartCount = count($cart);
        $credits = $y["Shopping"]["Cart"][$shopID]["Credits"] ?? 0;
@@ -1226,6 +1371,7 @@
        if($step == 2) {
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
+          $_ExtensionID = "229e494ec0f0f43824913a622a46dfca";
           $order = $braintree->transaction()->sale([
            "amount" => $strippedTotal,
            "customer" => [
@@ -1243,7 +1389,6 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1309,10 +1454,10 @@
         ]);
        }
       } elseif($type == "Commission") {
+       $_ExtensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $subtotal = $data["Amount"] ?? base64_encode(0);
        $subtotal = base64_decode($subtotal);
        $tax = $shop["Tax"] ?? 10.00;
@@ -1340,7 +1485,7 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extensionID = "229e494ec0f0f43824913a622a46dfca";
+          $_ExtensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1355,7 +1500,7 @@
             "E" => $this->TimePlus($now, 1, "month")
           ];
           $y["Verified"] = 1;
-          $yourShop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+          $yourShop = $this->core->Data("Get", ["shop", md5($you)]);
           $yourShop["Open"] = 1;
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["shop", md5($you), $yourShop]);
@@ -1390,10 +1535,10 @@
         $processor .= "&Amount=".$data["Amount"]."&Month=".$data["Month"]."&Year=".$data["Year"];
        }
       } elseif($type == "Disbursement") {
+       $_ExtensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $partner = base64_decode($data["Partner"]);
        $subtotal = $data["Amount"] ?? base64_encode(0);
        $subtotal = base64_decode($subtotal);
@@ -1403,6 +1548,7 @@
        if($step == 2) {
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
+          $_ExtensionID = "229e494ec0f0f43824913a622a46dfca";
           $order = $braintree->transaction()->sale([
            "amount" => $strippedTotal,
            "customer" => [
@@ -1420,7 +1566,6 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1430,8 +1575,8 @@
           $_Year = $data["Year"] ?? base64_encode("");
           $_Year = base64_decode($_Year);
           $forPayPeriod = "for Revenue Pay Period $_Year-$_PayPeriod";
-          $partnerShop = $this->core->Data("Get", ["shop", md5($partner)]) ?? [];
-          $revenue = $this->core->Data("Get", ["revenue", "$_Year-".md5($you)]) ?? [];
+          $partnerShop = $this->core->Data("Get", ["shop", md5($partner)]);
+          $revenue = $this->core->Data("Get", ["revenue", "$_Year-".md5($you)]);
           $y["Points"] = $y["Points"] + ($strippedTotal * 1000);
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [
@@ -1467,10 +1612,10 @@
         $processor .= "&Amount=".$data["Amount"]."&PayPeriod=".$data["PayPeriod"]."&Partner=".$data["Partner"]."&Year=".$data["Year"];
        }
       } elseif($type == "Donation") {
+       $_ExtensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
-       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $subtotal = $data["Amount"] ?? base64_encode(0);
        $subtotal = base64_decode($subtotal);
        $tax = $shop["Tax"] ?? 10.00;
@@ -1480,6 +1625,7 @@
        if($step == 2) {
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
+          $_ExtensionID = "229e494ec0f0f43824913a622a46dfca";
           $order = $braintree->transaction()->sale([
            "amount" => $strippedTotal,
            "customer" => [
@@ -1497,7 +1643,6 @@
            "[Checkout.Order.Products]" => count($y["Shopping"]["Cart"][$shopID]["Products"]),
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1528,11 +1673,11 @@
         $processor .= "&Amount=".$data["Amount"];
        }
       } elseif($type == "Invoice") {
+       $_ExtensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
        $charge = $data["Charge"] ?? "";
-       $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
        $invoiceID = $data["Invoice"] ?? "";
        $invoice = $this->core->Data("Get", ["invoice", $invoiceID]);
        $charges = $invoice["Charges"] ?? [];
@@ -1554,12 +1699,13 @@
        $total = number_format(($subtotal + $tax), 2);
        $strippedTotal = str_replace(",", "", $total);
        if($step == 2) {
+        $_ExtensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
         $changeData = [
          "[Checkout.Data]" => json_encode($data, true)
         ];
-        $extensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
+          $_ExtensionID = "229e494ec0f0f43824913a622a46dfca";
           $name = $invoice["ChargeTo"] ?? $invoice["Email"];
           $order = $braintree->transaction()->sale([
            "amount" => $strippedTotal,
@@ -1578,7 +1724,6 @@
            "[Checkout.Order.Products]" => 1,
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1635,6 +1780,7 @@
         $strippedTotal = str_replace(",", "", $total);
         if(!empty($orderID) || !empty($paymentNonce)) {
          if($paymentProcessor == "Braintree") {
+          $_ExtensionID = "229e494ec0f0f43824913a622a46dfca";
           $order = $braintree->transaction()->sale([
            "amount" => $strippedTotal,
            "customer" => [
@@ -1652,7 +1798,6 @@
            "[Checkout.Order.Products]" => 1,
            "[Checkout.Order.Success]" => $order->success
           ];
-          $extensionID = "229e494ec0f0f43824913a622a46dfca";
          } elseif($paymentProcessor == "PayPal") {
           $check = (!empty($orderID)) ? 1 : 0;
           $orderID = base64_decode($orderID);
@@ -1691,6 +1836,8 @@
         $viewPairID = $data["ViewPairID"] ?? "";
        }
       } if($step == 2) {
+       $_ExtensionID = "83d6fedaa3fa042d53722ec0a757e910";
+       $_ExtensionID = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $$_ExtensionID;
        $form = $data["Form"] ?? base64_encode("");
        $form = base64_decode($form);
        $changeData = [
@@ -1700,10 +1847,10 @@
         "[Payment.Total]" => number_format($tax + $subtotal, 2),
         "[Payment.ViewPairID]" => $viewPairID
        ];
-       $extensionID = "83d6fedaa3fa042d53722ec0a757e910";
-       $extensionID = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $extension;
        $this->core->Statistic("Transaction");
       } else {
+       $_ExtensionID = ($paymentProcessor == "Braintree") ? "a1a7a61b89ce8e2715efc0157aa92383" : "";
+       $_ExtensionID = ($paymentProcessor == "PayPal") ? "7c0f626e2bbb9bd8c04291565f84414a" : $_ExtensionID;
        $_ViewTitle = $title ?? $shop["Title"];
        $changeData = [
         "[Payment.Message]" => $message,
@@ -1717,15 +1864,10 @@
         "[Payment.Total.Stripped]" => str_replace(",", "", $total),
         "[Payment.ViewPairID]" => $viewPairID
        ];
-       if($paymentProcessor == "Braintree") {
-        $extensionID = "a1a7a61b89ce8e2715efc0157aa92383";
-       } elseif($paymentProcessor == "PayPal") {
-        $extensionID = "7c0f626e2bbb9bd8c04291565f84414a";
-       }
       }
       $_View = [
        "ChangeData" => $changeData,
-       "ExtensionID" => $extensionID
+       "ExtensionID" => $_ExtensionID
       ];
      }
     }
@@ -1765,7 +1907,7 @@
      $productExpires = $product["Expires"] ?? $now;
      if(strtotime($now) < $productExpires) {
       $category = $product["Category"];
-      $coverPhoto = $product["ICO"] ?? $this->core->PlainText([
+      $coverPhoto = $product["CoverPhoto"] ?? $this->core->PlainText([
        "Data" => "[Media:MiNY]",
        "Display" => 1
       ]);
@@ -1793,7 +1935,6 @@
        ];
       } elseif($category == "Subscription") {
        if($id == "355fd2f096bdb49883590b8eeef72b9c") {
-        # V.I.P. Subscription
         $y["Subscriptions"]["VIP"] = [
          "A" => 1,
          "B" => $now,
@@ -1822,7 +1963,7 @@
       $product["Quantity"] = ($quantity > 0) ? $quantity - $purchaseQuantity : $quantity;
       $_View .= $this->core->Change([[
        "[Product.Added]" => $this->core->TimeAgo($now),
-       "[Product.ICO]" => $coverPhoto,
+       "[Product.CoverPhoto]" => $coverPhoto,
        "[Product.Description]" => $this->core->PlainText([
         "Data" => $product["Description"],
         "Display" => 1
@@ -1926,6 +2067,8 @@
      $_AccessCode = "Accepted";
      $owner = $this->core->Data("Get", ["mbr", $id]);
      $shop = $this->core->Data("Get", ["shop", $id]);
+     $administrativeExpenses = [];
+     $administrativeExpensesData = $data["AdminExpenseName"] ?? [];
      $albums = [];
      $albumsData = $data["Album"] ?? [];
      $articles = [];
@@ -1979,6 +2122,14 @@
       if(strpos($key, "Processing_") !== false) {
        $key = explode("_", $key);
        $shop["Processing"][$key[1]] = base64_encode($value);
+      }
+     } if(!empty($administrativeExpensesData)) {
+      $expenses = $administrativeExpensesData;
+      for($i = 0; $i < count($media); $i++) {
+       array_push($administrativeExpenses, [
+        "Name" => $administrativeExpensesData[$i],
+        "Percentage" => $data["AdminExpensePercentage"][$i]
+       ]);
       }
      } if(!empty($albumsData)) {
       $media = $albumsData;
@@ -2066,6 +2217,7 @@
       }
      }
      $shop = [
+      "AdministrativeExpenses" => $administrativeExpenses,
       "Albums" => $albums,
       "Articles" => $articles,
       "Attachments" => $attachments,
@@ -2110,7 +2262,7 @@
       "Updates" => $updates,
       "Username" => base64_decode($username)
      ];
-     $sql = New SQL($this->core->cypher->SQLCredentials());
+     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Shops(
       Shop_Created,
       Shop_Description,
@@ -2136,10 +2288,11 @@
      ]);
      $sql->execute();
      $this->core->Data("Save", ["shop", $id, $shop]);
-     $this->core->Statistic("Edit Shop");
+     $this->core->Statistic("Edit Shop");--*/
      $_Dialog = [
       "Body" => "<em>$title</em> has been updated.",
-      "Header" => "Done"
+      "Header" => "Done",
+      "Scrollable" => json_encode($shop, true)
      ];
     }
    }
@@ -2190,17 +2343,14 @@
    ]);
   }
   function SaveCreditExChange(array $data): string {
-   $_Dialog = [
-    "Body" => "Unknown error."
-   ];
    $_AccessCode = "Denied";
+   $_Dialog = [
+    "Body" => "The points value must be numeric."
+   ];
    $data = $data["Data"] ?? [];
-   $data = $this->core->FixMissing($data, [
-    "ID",
-    "P",
-    "UN"
-   ]);
-   $points = base64_decode($data["P"]);
+   $id = $data["ID"] ?? "";
+   $points = $data["P"] ?? "";
+   $points = base64_decode($points);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -2216,8 +2366,8 @@
     $credits = $points * 0.00001;
     $creditsDecimal = number_format($credits, 2);
     if($points < $y["Points"]) {
-     $yourCredits = $y["Shopping"]["Cart"][$data["ID"]]["Credits"] ?? 0;
-     $y["Shopping"]["Cart"][$data["ID"]]["Credits"] = $creditsDecimal + $yourCredits;
+     $yourCredits = $y["Shopping"]["Cart"][$id]["Credits"] ?? 0;
+     $y["Shopping"]["Cart"][$id]["Credits"] = $creditsDecimal + $yourCredits;
      $y["Points"] = $y["Points"] - $points;
      $_Dialog = [
       "Body" => "<em>$points</em> points were converted to $<em>$creditsDecimal</em> credits, and have <em>".$y["Points"]."</em> remaining.",
@@ -2233,17 +2383,19 @@
   function SaveDiscountCodes(array $data): string {
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, ["DC", "ID"]);
+   $discountCode = $data["DC"] ?? "";
    $i = 0;
+   $id = $data["ID"] ?? "";
    $_View = "The Code Identifier is missing.";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $_View = "You must be signed in to continue.";
-   } elseif(!empty($data["DC"]) && !empty($data["ID"])) {
-    $id = base64_decode($data["ID"]);
+   } elseif(!empty($discountCode) && !empty($id)) {
+    $id = base64_decode($id);
     $discount = $this->core->Data("Get", ["dc", $id]);
     $code = base64_decode($data["DC"]);
-    $encryptedCode = $data["DC"] ?? base64_encode("OuterHaven.DC.Invalid");
+    $encryptedCode = $discountCode ?? base64_encode("OuterHaven.DC.Invalid");
     $_View = "<em>$code</em> is an Invalid code.";
     foreach($discount as $key => $value) {
      if($i == 0 && $encryptedCode == $value["Code"]) {
@@ -2281,16 +2433,12 @@
    ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, [
-    "Company",
-    "Description",
-    "Title",
-    "UN",
-    "new"
-   ]);
-   $new = $data["new"] ?? 0;
+   $company = $data["Company"] ?? "";
+   $description = $data["Description"] ?? "";
+   $new = $data["New"] ?? 0;
    $y = $this->you;
-   $username = $data["UN"];
+   $title = $data["Title"] ?? "";
+   $username = $data["UN"] ?? "";
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $_Dialog = [
@@ -2304,6 +2452,7 @@
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      if(md5($username) == $value) {
       $i++;
+      break;
      }
     } if($i == 0) {
      $_Dialog = [
@@ -2314,15 +2463,15 @@
      $_AccessCode = "Accepted";
      $actionTaken = ($new == 1) ? "hired" : "updated";
      $now = $this->core->timestamp;
-     $shop = $this->core->Data("Get", ["shop", md5($you)]) ?? [];
+     $shop = $this->core->Data("Get", ["shop", md5($you)]);
      $hired = $shop["Contributors"][$username]["Hired"] ?? $now;
      $contributors = $shop["Contributors"] ?? [];
      $contributors[$username] = [
-      "Company" => $data["Company"],
-      "Description" => $data["Description"],
+      "Company" => $company,
+      "Description" => $description,
       "Hired" => $hired,
       "Paid" => 0,
-      "Title" => $data["Title"]
+      "Title" => $title
      ];
      $shop["Contributors"] = $contributors;
      if($new == 1) {

@@ -30,7 +30,7 @@
     $articles = $update["Articles"] ?? [];
     $attachments = $update["Attachments"] ?? [];
     $body = $update["Body"] ?? "";
-    $body = (!empty($data["Body"])) ? base64_decode($data["Body"]) : $body;
+    $body = (!empty($data["Body"])) ? base64_decode($data["Body"]) : base64_decode($body);
     $blogs = $update["Blogs"] ?? [];
     $blogPosts = $update["BlogPosts"] ?? [];
     $chats = $update["Chat"] ?? [];
