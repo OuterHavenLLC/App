@@ -12,7 +12,7 @@
   function __construct() {
    $this->core = New Core;
   }
-  function view(string $view, array $data): string {
+  function view(string $view, array $data, $raw = 0): string {
    $view = explode(":", base64_decode($view));
    $documentRoot = $this->core->DocumentRoot."/base/views/";
    $group = $view[0] ?? "NA";

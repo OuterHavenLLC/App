@@ -927,11 +927,11 @@
    $data = $data["Data"] ?? [];
    $data = $this->core->FixMissing($data, [
     "b2",
-    "back",
     "lPG",
    ]);
    $addTo = $data["AddTo"] ?? "";
-   $back = ($data["back"] == 1) ? $this->core->Element([
+   $back = $data["back"] ?? "";
+   $back = ($back == 1) ? $this->core->Element([
     "button", "Back", [
      "class" => "GoToParent LI head",
      "data-type" => $data["lPG"]

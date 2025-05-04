@@ -401,7 +401,7 @@
        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&st=DC")
       ]
      ]) : "";
-     $variant = "Minimal";
+     $variant = "3Column";
     } elseif($searchType == "SHOP-Orders") {
      $searchBarText = "Orders";
      $variant = "Minimal";

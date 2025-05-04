@@ -1480,11 +1480,14 @@
    }
    return $variant;
   }
-  function RenderView(string $data) {
+  function RenderView(string $data, $raw = 0) {
    $data = json_decode($data, true);
-   $view = $data["View"] ?? $this->Element([
-    "p", "No View Data<br/>Source Data: ".json_encode($data, true)
-   ]);
+   $view = $data;
+   if($raw == 0) {
+    $view = $data["View"] ?? $this->Element([
+     "p", "No View Data<br/>Source Data: ".json_encode($data, true)
+    ]);
+   }
    return $view;
   }
   function SendBulletin(array $a) {

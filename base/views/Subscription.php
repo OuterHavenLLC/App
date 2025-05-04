@@ -17,6 +17,7 @@
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Subscription Identifier is missing."
    ];
@@ -72,7 +73,9 @@
        $_Card = $this->view(base64_encode("Shop:Home"), ["Data" => [
         "UN" => base64_encode($you)
        ]]);
-       $_Card = $this->core->RenderView($_Card);
+       $_Card = $this->core->RenderView($_Card, 1);
+       $_Commands = $_Card["Commands"] ?? "";
+       $_Card = $_Card["View"] ?? "";
       }
      } elseif($subscription == "Developer") {
       $heathKits = [
@@ -122,6 +125,7 @@
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
