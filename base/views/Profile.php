@@ -66,7 +66,10 @@
    ]]) : "";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "View" => $_View
+    "View" => [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ]
    ]);
   }
   function Blacklist(array $data): string {
