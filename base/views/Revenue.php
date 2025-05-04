@@ -120,7 +120,7 @@
     ]);
     $year = base64_decode($year);
     if($_Shop["Empty"] == 0) {
-     $revenue =$this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
+     $revenue =$this->core->Data("Get", ["revenue", "$year-".md5($shop)]);
      $payroll = $revenue["Payroll"] ?? [];
      $payPeriodData = $payroll[$payPeriodID] ?? [];
      $_Dialog = [
@@ -129,6 +129,8 @@
      if(!empty($payPeriodData)) {
       $_Dialog = "";
       $tax = $_Shop["DataModel"]["Tax"] ?? 10.00;
+      $adminExpenses = $payPeriodData["AdministrativeExpenses"] ?? [];
+      $adminExpensesList = "";
       $partners = $payPeriodData["Partners"] ?? [];
       $partnersList = "";
       $partnerCount = count($partners) - 1;
@@ -149,7 +151,16 @@
          "[Transaction.Type]" => $info["Type"]
         ], $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe")]);
        }
+      } foreach($adminExpenses as $expense => $info) {
+       $adminExpensePercentage = $info["Percentage"] ?? 0.00;
+       $adminExpensePercentage = number_format($adminExpensePercentage, 2)
+       $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + ($payPeriodTotals_Gross * ($adminExpensePercentage / 100));
+       $adminExpensesList .= $this->core->Change([[
+        "[AdminExpense.Name]" => $info["Name"],
+        "[AdminExpense.Percentages]" => $adminExpensePercentage,
+       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-6817073b886aa")]);
       }
+      // Admin Expenses Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
       $payPeriodTotals_Gross = $payPeriodTotals_Gross + $payPeriodTotals_Expenses;
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
@@ -177,11 +188,10 @@
         "[Partner.Title]" => $info["Title"]
        ], $this->core->Extension("a10a03f2d169f34450792c146c40d96d")]);
       }
-      // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
       $_Card = [
        "Front" => [
         "ChangeData" => [
-         "[PayPeriod.AdminExpenses]" => "",
+         "[PayPeriod.AdminExpenses]" => $adminExpensesList,
          "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
          "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
          "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
@@ -281,7 +291,7 @@
     if($_Shop["Empty"] == 0) {
      $now = $this->core->timestamp;
      $responseType = "View";
-     $yearData = $this->core->Data("Get", ["revenue", date("Y")."-".md5($shop)]) ?? [];
+     $yearData = $this->core->Data("Get", ["revenue", date("Y")."-".md5($shop)]);
      $owner = $yearData["Owner"] ?? $shop;
      $payroll = $yearData["Payroll"] ?? [];
      if(empty($payroll)) {
@@ -364,6 +374,7 @@
    $year = $data["Year"] ?? "";
    $you = $y["Login"]["Username"];
    if(!empty($shop) && !empty($year)) {
+    $adminExpenseList = "";
     $shop = base64_decode($shop);
     $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
@@ -373,7 +384,8 @@
     ]);
     $tax = $_Shop["DataModel"]["Tax"] ?? 10.00;
     $year = base64_decode($year);
-    $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
+    $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]);
+    $yearTotals_AdminExpenses = [];
     $yearTotals_Gross = 0;
     $yearTotals_Expenses = 0;
     $yearTotals_Net = 0;
@@ -384,6 +396,7 @@
      $payPeriodData = $yearData["Payroll"] ?? [];
      $payPeriods = "";
      foreach($payPeriodData as $id => $payPeriod) {
+      $adminExpenses = $payPeriod["AdministrativeExpenses"] ?? [];
       $partnerPaymentsOwed = 0;
       $partners = $payPeriod["Partners"] ?? [];
       $payPeriodTotals_Gross = 0;
@@ -399,10 +412,19 @@
          $payPeriodTotals_Expenses = $payPeriodTotals_Expenses + $info["Cost"];
         }
        }
+      } foreach($adminExpenses as $expense => $info) {
+       $adminExpense = $yearTotals_AdminExpenses[$expense] ?? 0;
+       $yearTotals_AdminExpenses[$expense] = $adminExpense + ($payPeriodTotals_Gross * ($info["Percentage"] / 100));
       } foreach($partners as $partner => $info) {
        $paid = $info["Paid"] ?? 0;
        $partnerPaymentsOwed = $partnerPaymentsOwed + $paid;
+      } foreach($yearTotals_AdminExpenses as $expense => $amount) {
+       $adminExpensesList .= $this->core->Change([[
+        "[AdminExpense.Name]" => $expense,
+        "[AdminExpense.Percentages]" => number_format($amount, 2),
+       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-6817073b886aa")]);
       }
+      // Admin Expenses Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa--*/
       $view = ($payPeriodTotals_Gross > 0) ? $this->core->Element(["button", "View", [
        "class" => "OpenCard v2 v2w",
        "data-view" => base64_encode("v=".base64_encode("Revenue:PayPeriod")."&PayPeriod=".base64_encode($id)."&Shop=".$data["Shop"]."&Year=".$data["Year"])
@@ -415,7 +437,6 @@
       $payPeriodTotals_Gross = $payPeriodTotals_Gross + $payPeriodTotals_Expenses;
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
-      // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
       $payPeriods .= $this->core->Change([[
        "[PayPeriod.AdminExpenses]" => "",
        "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
@@ -433,7 +454,6 @@
      $yearTotals_Gross = $yearTotals_Gross + $yearTotals_Expenses;
      $yearTotals_Taxes = $yearTotals_Gross * ($tax / 100);
      $yearTotals_Net = $yearTotals_Gross - $yearTotals_Expenses - $yearTotals_Taxes;
-     // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
      $_View = [
       "ChangeData" => [
        "[Year.AdminExpenses]" => "",
@@ -474,7 +494,7 @@
      "Owner" => $shop
     ]);
     for($year = date("Y"); $year >= 2017; $year--) {
-     $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]) ?? [];
+     $yearData = $this->core->Data("Get", ["revenue", "$year-".md5($shop)]);
      $transactions = $yearData["Transactions"] ?? [];
      if(!empty($transactions)) {
       $i++;
