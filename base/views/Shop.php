@@ -86,6 +86,8 @@
      "Title",
      "Welcome"
     ]);
+    $adminExpenses = $shop["AdministrativeExpenses"] ?? [];
+    $adminExpensesList = "";
     $albums = $shop["Albums"] ?? [];
     $articles = $shop["Articles"] ?? [];
     $attachments = $shop["Attachments"] ?? [];
@@ -152,8 +154,22 @@
       "Update" => $updates
      ]
     ]);
-    // Admin Expense Input Clone: 45787465-6e73-496f-ae42-794d696b65-68170110407f0
-    // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
+    foreach($adminExpenses as $expense => $info) {
+     $adminExpensePercentagesList = "";
+     for($i = 1; $i < 100; $i++) {
+      $selected = ($i == $info["Percentage"]) ? " selected" : "";
+      $adminExpensePercentagesList .= "<option$selected value='$i'>$i%</option>\r\n";
+     }
+     $adminExpensesList .= $this->core->Change([[
+      "[Clone.ID]" => $expense,
+      "[AdminExpense.Name]" => $info["Name"],
+      "[AdminExpense.Percentages]" => $adminExpensePercentagesList,
+     ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-68170110407f0")]);
+    }
+    $adminExpensePercentagesList = "";
+    for($i = 1; $i < 100; $i++) {
+     $adminExpensePercentagesList .= "<option value='$i'>$i%</option>\r\n";
+    }
     $_Card = [
      "Action" => $this->core->Element(["button", "Update", [
       "class" => "CardButton SendData",
@@ -162,6 +178,11 @@
      ]]),
      "Front" => [
       "ChangeData" => [
+       "[Shop.AdministrativeExpenses]" => $adminExpensesList,
+       "[Shop.AdministrativeExpenses.Clone]" => base64_encode($this->core->Change([[
+        "[AdminExpense.Name]" => "",
+        "[AdminExpense.Percentages]" => $adminExpensePercentagesList
+       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-68170110407f0")])),
        "[Shop.Attachments]" => $this->core->RenderView($attachments),
        "[Shop.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($shop["Description"])."&ID=".base64_encode(md5("Shop$id"))."&Title=".base64_encode($shop["Title"])."&Username=".base64_encode($owner)),
        "[Shop.ID]" => $id,
@@ -1107,7 +1128,7 @@
           "Name" => "UpdateContentRecursiveAES",
           "Parameters" => [
            ".Hire$id",
-           $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
+           $options["Hire"],
            10000
           ]
          ],
@@ -2125,7 +2146,7 @@
       }
      } if(!empty($administrativeExpensesData)) {
       $expenses = $administrativeExpensesData;
-      for($i = 0; $i < count($media); $i++) {
+      for($i = 0; $i < count($expenses); $i++) {
        array_push($administrativeExpenses, [
         "Name" => $administrativeExpensesData[$i],
         "Percentage" => $data["AdminExpensePercentage"][$i]
@@ -2262,7 +2283,7 @@
       "Updates" => $updates,
       "Username" => base64_decode($username)
      ];
-     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+     $sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Shops(
       Shop_Created,
       Shop_Description,
@@ -2288,11 +2309,10 @@
      ]);
      $sql->execute();
      $this->core->Data("Save", ["shop", $id, $shop]);
-     $this->core->Statistic("Edit Shop");--*/
+     $this->core->Statistic("Edit Shop");
      $_Dialog = [
       "Body" => "<em>$title</em> has been updated.",
-      "Header" => "Done",
-      "Scrollable" => json_encode($shop, true)
+      "Header" => "Done"
      ];
     }
    }

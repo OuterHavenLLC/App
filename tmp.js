@@ -1776,10 +1776,10 @@ $(document).on("click", ".Attach", (event) => {
  }
 });
 $(document).on("click", ".Clone", (event) => {
- const $Button = $(event.currentTarget),
-  CloneID = "Clone" + OH.UUID(),
-  Destination = $Button.attr("data-destination"),
-  Source = $($Button.attr("data-source")).text();
+ let $Button = $(event.currentTarget),
+      CloneID = "Clone" + OH.UUID(),
+      Destination = $Button.attr("data-destination"),
+      Source = $($Button.attr("data-source")).text();
  Source = OH.Base64decrypt(Source.trim());
  Source = Source.replaceAll("[Clone.ID]", CloneID);
  $(Destination).append(Source);

@@ -177,9 +177,11 @@
         "[Partner.Title]" => $info["Title"]
        ], $this->core->Extension("a10a03f2d169f34450792c146c40d96d")]);
       }
+      // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
       $_Card = [
        "Front" => [
         "ChangeData" => [
+         "[PayPeriod.AdminExpenses]" => "",
          "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
          "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
          "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
@@ -413,7 +415,9 @@
       $payPeriodTotals_Gross = $payPeriodTotals_Gross + $payPeriodTotals_Expenses;
       $payPeriodTotals_Taxes = $payPeriodTotals_Gross * ($tax / 100);
       $payPeriodTotals_Net = $payPeriodTotals_Gross - $payPeriodTotals_Expenses - $payPeriodTotals_Taxes;
+      // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
       $payPeriods .= $this->core->Change([[
+       "[PayPeriod.AdminExpenses]" => "",
        "[PayPeriod.Gross]" => number_format($payPeriodTotals_Gross, 2),
        "[PayPeriod.Expenses]" => number_format($payPeriodTotals_Expenses, 2),
        "[PayPeriod.Net]" => number_format($payPeriodTotals_Net, 2),
@@ -429,8 +433,10 @@
      $yearTotals_Gross = $yearTotals_Gross + $yearTotals_Expenses;
      $yearTotals_Taxes = $yearTotals_Gross * ($tax / 100);
      $yearTotals_Net = $yearTotals_Gross - $yearTotals_Expenses - $yearTotals_Taxes;
+     // Admin Expense Total Clone: 45787465-6e73-496f-ae42-794d696b65-6817073b886aa
      $_View = [
       "ChangeData" => [
+       "[Year.AdminExpenses]" => "",
        "[Year.Gross]" => number_format($yearTotals_Gross, 2),
        "[Year.Expenses]" => number_format($yearTotals_Expenses, 2),
        "[Year.Net]" => number_format($yearTotals_Net, 2),
