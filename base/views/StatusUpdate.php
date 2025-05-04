@@ -375,30 +375,32 @@
        ]
       ];
       $_Dialog = "";
-      $actions = ($update["From"] != $you) ? $this->core->Element([
+      $block = ($update["From"] != $you) ? $this->core->Element(["div", $this->core->Element([
        "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
+        "class" => "InnerMargin UpdateButton",
         "data-processor" => $options["Block"]
        ]
-      ]) : "";
+      ]), [
+       "class" => "CenterText Desktop33"
+      ]]) : "";
       $displayName = $update["From"];
       $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $op = ($update["From"] == $you) ? $y : $this->core->Member($update["From"]);
-      $actions = ($this->core->ID != $you) ? $actions : "";
       $share = ($update["From"] == $you || $update["Privacy"] == md5("Public")) ? 1 : 0;
-      $share = ($share == 1) ? $this->core->Element([
-       "div", $this->core->Element(["button", "Share", [
+      $share = ($share == 1) ? $this->core->Element(["div", $this->core->Element([
+       "button", "Share", [
         "class" => "InnerMargin OpenCard",
         "data-encryption" => "AES",
         "data-view" => $options["Share"]
-       ]]), ["class" => "Desktop33"]
-      ]) : "";
+       ]]), [
+        "class" => "CenterText Desktop33"
+       ]]) : "";
       $verified = $op["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $_View = [
        "ChangeData" => [
-        "[StatusUpdate.Actions]" => $actions,
+        "[StatusUpdate.Block]" => $block,
         "[StatusUpdate.Body]" => $this->core->PlainText([
          "BBCodes" => 1,
          "Data" => base64_decode($update["Body"]),

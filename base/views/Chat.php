@@ -989,6 +989,7 @@
      $chat = $this->core->Data("Get", ["chat", $id]);
      $now = $this->core->timestamp;
      $contributors = $chat["Contributors"] ?? [];
+     $coverPhoto = $data["CoverPhoto"] ?? "";
      $created = $chat["Created"] ?? $now;
      $groupChats = $y["GroupChats"] ?? [];
      $messages = $chat["Messages"] ?? [];
@@ -1002,6 +1003,7 @@
      $username = $chat["UN"] ?? $username;
      $chat = [
       "Contributors" => $contributors,
+      "CoverPhoto" => $coverPhoto,
       "Created" => $created,
       "Description" => $description,
       "Group" => 1,

@@ -601,6 +601,7 @@
       foreach($contributors as $member => $role) {
        if($member == $you) {
         $active++;
+        break;
        }
       }
       $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
@@ -617,13 +618,13 @@
       $view = "v=".base64_encode("Chat:Home")."&AddTo=$addTo&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
       $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
       $options = [
-       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Group Chats")),
-       "Bookmark" => base64_encode("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($contentID)),
+       "Block" => $this->AESencrypt("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Group Chats")),
+       "Bookmark" => $this->AESencrypt("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($contentID)),
        "Contributors" => $contributors,
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-       "Edit" => base64_encode("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($contentID)."&Username=".base64_encode($data["UN"])),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => base64_encode($view)
+       "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
+       "Edit" => $this->AESencrypt("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($contentID)."&Username=".base64_encode($data["UN"])),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
+       "View" => $this->AESencrypt($view)
       ];
      }
     } elseif($type == "Extension") {
@@ -913,8 +914,8 @@
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
        "ShareLink" => $this->base."/@$from/status/$contentID",
-       "View" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
-       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
+       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4"),
+       "View" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID")
       ];
      }
     }

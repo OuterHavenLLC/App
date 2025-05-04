@@ -268,21 +268,21 @@
        ]
       ],
       [
-       "Name" => "UpdateContent",
+       "Name" => "UpdateContentAES",
        "Parameters" => [
         ".ShareViaChat$id",
         $this->core->AESencrypt("v=".base64_encode("Share:Chat")."&Body=$body&ID=".base64_encode($id))
        ]
       ],
       [
-       "Name" => "UpdateContent",
+       "Name" => "UpdateContentAES",
        "Parameters" => [
         ".ShareViaGroupChat$id",
         $this->core->AESencrypt("v=".base64_encode("Share:GroupChat")."&Body=$body&ID=".base64_encode($id))
        ]
       ],
       [
-       "Name" => "UpdateContent",
+       "Name" => "UpdateContentAES",
        "Parameters" => [
         ".ShareViaRecentChat$id",
         $this->core->AESencrypt("v=".base64_encode("Share:RecentChats")."&Body=$body&ID=".base64_encode($id))
