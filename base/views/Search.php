@@ -422,6 +422,8 @@
      $_List .= (!empty($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
     }
     $_Card = "";
+    $_Commands = [
+    ];
     $_Dialog = "";
     $_View = [
      "ChangeData" => [
@@ -607,6 +609,7 @@
   }
   function Lists(array $data): string {
    $_AccessCode = "Denied";
+   $_Commands = [];
    $_Extension = "";
    $_ExtensionID = "";
    $_List = [];
@@ -660,6 +663,7 @@
       if($_Extension["Empty"] == 0) {
        $info = $_Extension["DataModel"];
        $options = $_Extension["ListItem"]["Options"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[Extension.Category]" => $info["Category"],
         "[Extension.Delete]" => $options["Delete"],
@@ -670,6 +674,7 @@
        ]);
       }
      }
+     $_Extension = "";
     }
    } elseif($searchType == "BGP") {
     $_AccessCode = "Accepted";
@@ -764,6 +769,7 @@
         $memberRole = ($blog["UN"] == $post["UN"]) ? "Owner" : $contributors[$author];
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        array_push($_Commands, []);
         array_push($_List, [
          "[BlogPost.Actions]" => $actions,
          "[BlogPost.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
@@ -900,6 +906,7 @@
         "data-type" => base64_encode("#")
        ]]);
       }
+      array_push($_Commands, []);
       array_push($_List, [
        "[X.LI.Description]" => $de,
        "[X.LI.Header]" => $h,
@@ -920,8 +927,7 @@
                                       Blog_Title LIKE :Search
                         ORDER BY Blog_Created DESC
                         LIMIT $limit
-                        OFFSET $offset
-    ";
+                        OFFSET $offset";
     $sql->query($_Query, [
      ":Search" => $querysql
     ]);
@@ -949,6 +955,7 @@
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) {
        $options = $_Blog["ListItem"]["Options"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
         "[Info.Description]" => $_Blog["ListItem"]["Description"],
@@ -979,6 +986,7 @@
       ]]);
       $verified = $member["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+      array_push($_Commands, []);
       array_push($_List, [
        "[Bulletin.Date]" => $this->core->TimeAgo($value["Sent"]),
        "[Bulletin.From]" => $_Member["ListItem"]["Title"].$verified,
@@ -1036,6 +1044,7 @@
       $illegal = $article["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
+       array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
         "[Info.Description]" => $_Article["ListItem"]["Description"],
@@ -1068,6 +1077,7 @@
       $quantity = $product["Quantity"] ?? 0;
       if(!empty($product) && $isActive == 1 && $quantity != 0 && $illegal == 0) {
        $newCartList[$key] = $value;
+       array_push($_Commands, []);
        array_push($_List, [
         "[Product.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
         "[Product.Description]" => $_Product["ListItem"]["Description"],
@@ -1128,6 +1138,7 @@
         if(!empty($contributors) || $isGroupChat == 1) {
          $displayName = $chat["Title"] ?? "Untitled";
          $t = $this->core->Member($this->core->ID);
+         array_push($_Commands, []);
          array_push($_List, [
           "[Chat.DisplayName]" => $displayName,
           "[Chat.Online]" => "",
@@ -1228,6 +1239,7 @@
            $optionCheck2 = ($_HouseVotes == $houseRepresentatives && $_Illegal > $_Legal && $optionCheck2 == 1) ? 1 : 0;
            $title = $info["Title"] ?? $type;
            if($optionCheck == 1 || $optionCheck2 == 1) {
+            array_push($_Commands, []);
             array_push($_List, [
              "[Content.Description]" => $description,
              "[Content.Illegal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal")),
@@ -1272,6 +1284,7 @@
           $optionCheck2 = ($_HouseVotes == $houseRepresentatives && $_Illegal > $_Legal && $optionCheck2 == 1) ? 1 : 0;
           $title = $info["Title"] ?? $type;
           if($optionCheck == 1 || $optionCheck2 == 1) {
+           array_push($_Commands, []);
            array_push($_List, [
             "[Content.Description]" => $description,
             "[Content.Illegal]" => base64_encode("v=".base64_encode("Congress:Vote")."&ID=$contentID&Vote=".base64_encode("Illegal")),
@@ -1313,6 +1326,7 @@
         ]
        ]) : "";
        $voteCount = $info["Votes"] ?? 0;
+       array_push($_Commands, []);
        array_push($_List, [
         "[Tile.Action]" => $this->core->Element([
          "div", $action, ["class" => "VoteFor".md5($memberID)]
@@ -1345,6 +1359,7 @@
       if($check == 1 || $check2 == 1) {
        $t = ($member == $you) ? $y : $this->core->Member($member);
        if(!empty($t["Login"])) {
+        array_push($_Commands, []);
         array_push($_List, [
          "[ListItem.Button]" => $this->core->Element([
           "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
@@ -1373,6 +1388,7 @@
       $delete = base64_encode("v=".base64_encode("Contact:Delete"));
       $id = md5($key);
       $options = "v=".base64_encode("Contact:Options")."&UN=".base64_encode($key);
+      array_push($_Commands, []);
       array_push($_List, [
        "[Contact.Delete]" => $delete,
        "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
@@ -1415,6 +1431,7 @@
        "class" => "OpenCard v2",
        "data-view" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&back=1&b2=$b2&lPG=$parentView&pub=0&UN=".base64_encode($t["Login"]["Username"]))
       ]]);
+      array_push($_Commands, []);
       array_push($_List, [
        "[X.LI.DisplayName]" => $t["Personal"]["DisplayName"],
        "[X.LI.Description]" => $t["Personal"]["Description"],
@@ -1438,6 +1455,7 @@
       $accept = "v=".base64_encode("Contact:Requests")."&accept=1";
       $decline = "v=".base64_encode("Contact:Requests")."&decline=1";
       $memberID = md5($t["Login"]["Username"]);
+      array_push($_Commands, []);
       array_push($_List, [
        "[X.LI.Contact.Accept]" => base64_encode($accept),
        "[X.LI.Contact.Decline]" => base64_encode($decline),
@@ -1600,6 +1618,7 @@
         }
        }
        $description = ($type == "Shop") ? $description : $_Member["ListItem"]["Description"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"],
         "[X.LI.Description]" => $description,
@@ -1638,6 +1657,7 @@
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("DiscountCode:Edit")."&ID=$key")
       ]]);
+      array_push($_Commands, []);
       array_push($_List, [
        "[ListItem.Description]" => $value["Percentile"]."% Off: ".$value["Quantity"],
        "[ListItem.Options]" => $options,
@@ -1684,6 +1704,7 @@
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }
+     array_push($_Commands, []);
      array_push($_List, [
       "[Feedback.ID]" => $value,
       "[Feedback.Home]" => base64_encode("v=".base64_encode("Feedback:Home")."&ID=$value"),
@@ -1738,6 +1759,7 @@
        }
       } if($bl == 0 && ($active == 1 || $ck == 1 && $ck2 == 1) && $illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
         "[Info.Description]" => $_Forum["ListItem"]["Description"],
@@ -1777,6 +1799,7 @@
         $youBlockedThem = $this->core->CheckBlocked([$y, "Members", $them]);
         if($check == 1 && $theyBlockedYou == 0 && $youBlockedThem == 0) {
          $options = $_Member["ListItem"]["Options"];
+         array_push($_Commands, []);
          array_push($_List, [
           "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"],
           "[X.LI.Description]" => $_Member["ListItem"]["Description"],
@@ -1905,6 +1928,7 @@
         $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        array_push($_Commands, []);
         array_push($_List, [
          "[ForumPost.Actions]" => $actions,
          "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
@@ -2029,6 +2053,7 @@
         $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        array_push($_Commands, []);
         array_push($_List, [
          "[ForumPost.Actions]" => $actions,
          "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
@@ -2086,6 +2111,7 @@
          ]);
         }
        }
+       array_push($_Commands, []);
        array_push($_List, [
         "[Forum.ID]" => $forumID,
         "[Topic.Created]" => $created,
@@ -2208,6 +2234,15 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        array_push($_Commands, [
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Vote".$sql["StatusUpdate_ID"],
+           $options["Vote"]
+          ]
+         ]
+        ]);
         array_push($_List, [
          "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
          "[StatusUpdate.Body]" => $body,
@@ -2267,6 +2302,7 @@
        $options = $_Member["ListItem"]["Options"];
        $verified = $member["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+       array_push($_Commands, []);
        array_push($_List, [
         "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"].$verified,
         "[X.LI.Description]" => $_Member["ListItem"]["Description"],
@@ -2310,6 +2346,7 @@
       if($ck == 1 || $username == $you) {
        $coverPhoto = $value["CoverPhoto"] ?? "";
        $coverPhoto = base64_encode($t["Login"]["Username"]."-".explode(".", $coverPhoto)[0]);
+       array_push($_Commands, []);
        array_push($_List, [
         "[Album.CRID]" => $key,
         "[Album.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
@@ -2353,6 +2390,7 @@
        $illegal = $blog["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        if($illegal == 0) {
+        array_push($_Commands, []);
         array_push($_List, [
          "[Info.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
          "[Info.Description]" => $_Blog["ListItem"]["Description"],
@@ -2418,6 +2456,7 @@
       $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
       $ck2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
       if($ck == 1 && $ck2 == 1) {
+       array_push($_Commands, []);
        array_push($_List, [
         "[Article.Subtitle]" => "Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"]).".",
         "[Article.Description]" => $_Article["ListItem"]["Description"],
@@ -2481,6 +2520,7 @@
          $t = $this->core->Member($this->core->ID);
          $verified = $t["Verified"] ?? 0;
          $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+         array_push($_Commands, []);
          array_push($_List, [
           "[Chat.DisplayName]" => $displayName.$verified,
           "[Chat.Online]" => "",
@@ -2514,6 +2554,7 @@
          NULL,
          ["class" => "online"]
         ]) : "";
+        array_push($_Commands, []);
         array_push($_List, [
          "[Chat.DisplayName]" => $t["Personal"]["DisplayName"],
          "[Chat.Online]" => $online,
@@ -2558,6 +2599,7 @@
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
         "[Info.Description]" => $_Forum["ListItem"]["Description"],
@@ -2668,6 +2710,7 @@
         }
         $vote .= $option;
        }
+       array_push($_Commands, []);
        array_push($_List, [
         "[Poll.BlockOrDelete]" => $blockOrDelete,
         "[Poll.Description]" => $_Poll["ListItem"]["Description"],
@@ -2743,6 +2786,7 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        array_push($_Commands, []);
         array_push($_List, [
          "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
          "[StatusUpdate.Body]" => $body,
@@ -2798,6 +2842,7 @@
      if($_File["Empty"] == 0 && $bl == 0 && $albumID == $file["AID"]) {
       $options = $_File["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $file]);
+      array_push($_Commands, []);
       array_push($_List, [
        "[File.CoverPhoto]" => $source,
        "[File.Title]" => $file["Title"],
@@ -2838,6 +2883,7 @@
        $sql["Media_Username"],
        $file
       ]);
+      array_push($_Commands, []);
       array_push($_List, [
        "[File.CoverPhoto]" => $source,
        "[File.Title]" => $file["Title"],
@@ -2927,6 +2973,7 @@
         }
         $vote .= $option;
        }
+       array_push($_Commands, []);
        array_push($_List, [
         "[Poll.BlockOrDelete]" => $blockOrDelete,
         "[Poll.Description]" => $_Poll["ListItem"]["Description"],
@@ -2981,6 +3028,7 @@
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
         "[Info.Description]" => $_Product["ListItem"]["Description"],
@@ -3030,6 +3078,7 @@
        $shop = $_Shop["DataModel"];
        $check2 = $shop["Open"] ?? 0;
        if(($bl == 0 && $check == 1 && $check2 == 1) || $sql["Shop_Username"] == $you) {
+        array_push($_Commands, []);
         array_push($_List, [
          "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
          "[Shop.Description]" => $_Shop["ListItem"]["Description"],
@@ -3059,6 +3108,7 @@
       "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
      ]]);
      if(!empty($preset)) {
+      array_push($_Commands, []);
       array_push($_List, [
        "[ListItem.Description]" => "A service currently on offer by ".$shop["Title"],
        "[ListItem.Options]" => $options,
@@ -3081,6 +3131,7 @@
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=$value")
       ]]);
+      array_push($_Commands, []);
       array_push($_List, [
        "[ListItem.Description]" => "An Invoice created by ".$invoice["UN"]." &bull; Status: ".$invoice["Status"].".",
        "[ListItem.Options]" => $options,
@@ -3099,6 +3150,7 @@
        "class" => "BBB CompleteOrder v2 v2w",
        "data-u" => base64_encode("v=".base64_encode("Shop:CompleteOrder")."&ID=".base64_encode($key))
       ]]) : "";
+      array_push($_Commands, []);
       array_push($_List, [
        "[X.LI.Order.Complete]" => $complete,
        "[X.LI.Order.Instructions]" => base64_decode($value["Instructions"]),
@@ -3149,6 +3201,7 @@
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
         "[Info.Description]" => $_Product["ListItem"]["Description"],
@@ -3240,6 +3293,7 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+        array_push($_Commands, []);
         array_push($_List, [
          "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
          "[StatusUpdate.Body]" => $body,
@@ -3296,6 +3350,7 @@
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
       if($bl == 0 && $ck == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
+       array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Product["ListItem"]["CoverPhoto"],
         "[Info.Description]" => $_Product["ListItem"]["Description"],
@@ -3347,11 +3402,13 @@
        "[File.View]" => $options["View"]
       ];
       if(empty($mediaType)) {
+       array_push($_Commands, []);
        array_push($_List, $media);
       } else {
        $mediaTypes = json_decode(base64_decode($mediaType));
        foreach($mediaTypes as $mediaTypes) {
         if($this->core->CheckFileType([$file["EXT"], $mediaTypes]) == 1) {
+         array_push($_Commands, []);
          array_push($_List, $media);
         }
        }
@@ -3364,10 +3421,11 @@
     "Extension" => $_Extension,
     "ExtensionID" => $_ExtensionID,
     "Response" => [
+     "Commands" => $_Commands,
      "End" => "$end",
      "Limit" => $limit,
      "List" => $_List,
-     "NoResults" => base64_encode($this->core->Element([
+     "NoResults" => $this->core->AESencrypt($this->core->Element([
       "h3", $na, ["class" => "CenterText InnerMargin UpperCase"]
      ])),
      "Offset" => $offset

@@ -458,11 +458,6 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $id = base64_decode($id);
-    $action = $this->core->Element(["button", "Send Invite", [
-     "class" => "CardButton SendData dB2C",
-     "data-form" => ".Invite$id",
-     "data-processor" => base64_encode("v=".base64_encode("Page:SendInvite"))
-    ]]);
     $content = [];
     $contentOptions = $y["Pages"] ?? [];
     foreach($contentOptions as $key => $value) {
@@ -470,7 +465,11 @@
      $content[$value] = $article["Title"];
     }
     $_Card = [
-     "Action" => ,
+     "Action" =>$this->core->Element(["button", "Send Invite", [
+      "class" => "CardButton SendData dB2C",
+      "data-form" => ".Invite$id",
+      "data-processor" => base64_encode("v=".base64_encode("Page:SendInvite"))
+     ]]),
      "Front" => [
       "ChangeData" => [
        "[Invite.Content]" => json_encode($content, true),

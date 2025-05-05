@@ -1166,14 +1166,14 @@ class OH {
   }
  }
  static ReSearch(input) {
-  var Bar = input || {},
-   Container = $(Bar).parent().find(".SearchContainer") || {},
-   GridColumns = $(Bar).attr("data-columns") || "1",
-   List = $(Bar).attr("data-list") || "",
-   Offset = 0,
-   Processor,
-   Query = $(Bar).val() || "",
-   End;
+  let Bar = input || {},
+       Container = $(Bar).parent().find(".SearchContainer") || {},
+       GridColumns = $(Bar).attr("data-columns") || "1",
+       List = $(Bar).attr("data-list") || "",
+       Offset = 0,
+       Processor,
+       Query = $(Bar).val() || "",
+       End;
   if(Bar === {} || typeof Bar === "undefined") {
    this.Dialog({
     "Body": "ReSearch: The source input is missing."
@@ -1205,17 +1205,16 @@ class OH {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      this.Crash(data);
     } else {
-     var Data = JSON.parse(this.AESdecrypt(data)),
-      AccessCode = Data.AccessCode,
-      Extension = Data.Extension,
-      ExtensionID = Data.ExtensionID,
-      Response = Data.Response,
-      SearchID = "SearchList" + this.UUID(),
-      Grid = GridColumns;
+     let Data = JSON.parse(this.AESdecrypt(data)),
+          AccessCode = Data.AccessCode,
+          Extension = Data.Extension,
+          ExtensionID = Data.ExtensionID,
+          Response = Data.Response,
+          SearchID = "SearchList" + this.UUID(),
+          Grid = GridColumns;
      if(AccessCode !== "Accepted") {
-      $(Container).html(this.Base64decrypt(Response.NoResults));
-     }
-     if(Data.ExtensionID) {
+      $(Container).html(this.AESdecrypt(Response.NoResults));
+     } if(Data.ExtensionID) {
       Extension = this.LoadFromDatabase("Extensions", Data.ExtensionID);
      } else if(Data.Extension) {
       Extension = Promise.resolve(this.AESdecrypt(Data.Extension));
@@ -1229,7 +1228,6 @@ class OH {
       if(Data.ExtensionID) {
        response = this.AESdecrypt(response.Data);
       }
-      End = Response.End || 0;
       if(Grid === "2") {
        Grid = "Grid2";
       } else if(Grid === "3") {
@@ -1241,41 +1239,40 @@ class OH {
       }
       $(Container).html("<div class='" + Grid + " " + SearchID + "'>" + this.Loading + "</div>");
       Container = $(Container).find("." + SearchID);
-      var List = this.GetSortedList(Response.List),
-       ListItems = 0,
-       check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
+      let End = Response.End || 0,
+           List = this.GetSortedList(Response.List || {}),
+           ListItemCommands = this.GetSortedList(Response.Commands || {}),
+           ListItems = 0,
+           check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
       check = (typeof List === "object" || check === 1) ? 1 : 0;
       if(check === 1) {
        check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
        $("." + SearchID).empty();
        for(var i in List) {
-        var KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
-         ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
+        let KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
+             ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
         if(KeyCheck === 1 && ValueCheck === 1) {
-         var Search = (check === 0) ? 1 : 0,
-          Result = response || "",
-          value = List[i][1] || {};
+         let Search = (check === 0) ? 1 : 0,
+              Result = response || "",
+              value = List[i][1] || {};
          if(value !== {} && typeof value !== "undefined") {
           for(var j in value) {
            if(typeof Result === 'string') {
             Result = Result.replaceAll(value[j][0], value[j][1]);
            }
-          }
-          if(Result.search(Query) > -1) {
+          } if(Result.search(Query) > -1) {
            Search += 1;
-          }
-          if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
+          } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
            Search += 1;
-          }
-          if(Search > 0) {
+          } if(Search > 0) {
            ListItems += 1;
            $(Container).append(Result);
+           this.ExecuteCommands(ListItemCommands[i][1] || {});
           }
          }
         }
-       }
-       if(ListItems === 0) {
-        $(Container).html(this.Base64decrypt(Response.NoResults));
+       } if(ListItems === 0) {
+        $(Container).html(this.AESdecrypt(Response.NoResults));
        } else {
         setInterval(() => {
          if($(Container).is(":visible") && $(Container).length && End === 0) {
@@ -1295,36 +1292,34 @@ class OH {
             if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
              this.Crash(data);
             } else {
-             var Data = JSON.parse(this.AESdecrypt(data)),
-              Response = Data.Response;
-             End = Response.End || 0;
+             let Data = JSON.parse(this.AESdecrypt(data)),
+                  Response = Data.Response,
+                  End = Response.End || 0;
              if(End === 0) {
               Offset += Response.Limit;
              }
-             var List = this.GetSortedList(Response.List),
-              check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
+             let List = this.GetSortedList(Response.List),
+                  check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
              check = (typeof List === "object" || check === 1) ? 1 : 0;
              if(check === 1) {
               check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
               for(var i in List) {
-               var KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
-                ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
+               let KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
+                    ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
                if(KeyCheck === 1 && ValueCheck === 1) {
-                var Search = (check === 0) ? 1 : 0,
-                 Result = Extension,
-                 value = List[i][1] || {};
+                let Search = (check === 0) ? 1 : 0,
+                     Result = Extension,
+                     value = List[i][1] || {};
                 if(value !== {} && $.type(value) !== "undefined") {
                  for(var j in value) {
                   Result = Result.replaceAll(value[j][0], this.Base64decrypt(value[j][1]));
-                 }
-                 if(Result.search(Query) > -1) {
+                 } if(Result.search(Query) > -1) {
                   Search += 1;
-                 }
-                 if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
+                 } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
                   Search += 1;
-                 }
-                 if(Search > 0) {
+                 } if(Search > 0) {
                   $(Container).append(Result);
+                  this.ExecuteCommands(ListItemCommands[i][1] || {});
                  }
                 }
                }
