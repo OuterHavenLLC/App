@@ -3561,6 +3561,7 @@
    ]);
   }
   function ReSearch(array $data): string {
+   $_Commands = "";
    $_View = "";
    $_ViewTitle = "Re:Search";
    $data = $data["Data"] ?? [];
@@ -3615,13 +3616,80 @@
      }
     }
    } else {
-    $_ViewTitle .= (!empty($data["query"])) ? " $query" : "";
     $search = $this->lists;
     $secureQuery = $this->core->AESdecrypt($query);
     $suggestedMembers = $this->view(base64_encode("Search:ReSearch"), ["Data" => [
      "Component" => base64_encode("SuggestedMembers"),
      "query" => $data["query"]
     ]]);
+    $_Commands = [
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarArchive')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarArtists'"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarBlogs')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarChat')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarForums')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarLinks')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarMedia')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarMembers')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarPolls')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarProducts')"
+      ]
+     ],
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.SearchBarStatusUpdates')"
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
       "[ReSearch.Archive]" => base64_encode("v=$search&query=$secureQuery&lPG=ReSearch&st=CA"),
@@ -3640,9 +3708,11 @@
      ],
      "ExtensionID" => "bae5cdfa85bf2c690cbff302ba193b0b"
     ];
+    $_ViewTitle .= (!empty($data["query"])) ? " $query" : "";
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Title" => $_ViewTitle,
     "View" => $_View
    ]);
