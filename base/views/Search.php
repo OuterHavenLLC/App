@@ -474,6 +474,7 @@
   }
   function Links(array $data): string {
    $_AccessCode = "Denied";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "Unknown."
    ];
@@ -615,16 +616,52 @@
     }
    } else {
     $_AccessCode = "Accepted";
-    $_View = [
-     "ChangeData" => [
-      "[Link.Preview]" => base64_encode("v=".base64_encode("Search:Links")."&Preview=1")
+    $preview = $this->core->AESencrypt("v=".base64_encode("Search:Links")."&Preview=1");
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".AddLink > .Link",
+       [
+        [
+         "Attributes" => [
+          "name" => "Add",
+          "type" => "hidden"
+         ],
+         "Type" => "Text",
+         "Value" => 1
+        ],
+        [
+         "Attributes" => [
+          "class" => "LinkData",
+          "data-preview" => "[Link.Preview]",
+          "name" => "Link",
+          "placeholder" => $this->core->base,
+          "type" => "text"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
      ],
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".AddLink > .LinkPreview",
+       $preview
+      ]
+     ]
+    ];
+    $_View = [
+     "ChangeData" => [],
      "ExtensionID" => "f5b2784b0bcc291432a3d2dafa33849a"
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "View" => $_View
@@ -931,12 +968,12 @@
       }
       array_push($_Commands, []);
       array_push($_List, [
-       "[X.LI.Description]" => $de,
-       "[X.LI.Header]" => $h,
-       "[X.LI.ID]" => $v,
-       "[X.LI.Unblock]" => $u,
-       "[X.LI.Unblock.Proc]" => base64_encode($usernameblock),
-       "[X.LI.View]" => $vi
+       "[Blacklist.Description]" => $de,
+       "[Blacklist.Header]" => $h,
+       "[Blacklist.ID]" => $v,
+       "[Blacklist.Unblock]" => $u,
+       "[Blacklist.Unblock.Proc]" => base64_encode($usernameblock),
+       "[Blacklist.View]" => $vi
       ]);
      }
     }
@@ -1456,10 +1493,10 @@
       ]]);
       array_push($_Commands, []);
       array_push($_List, [
-       "[X.LI.DisplayName]" => $t["Personal"]["DisplayName"],
-       "[X.LI.Description]" => $t["Personal"]["Description"],
-       "[X.LI.Options]" => $opt,
-       "[X.LI.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:5%;width:90%")
+       "[Member.DisplayName]" => $t["Personal"]["DisplayName"],
+       "[Member.Description]" => $t["Personal"]["Description"],
+       "[Member.Options]" => $opt,
+       "[Member.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:5%;width:90%")
       ]);
      }
     }
@@ -1480,15 +1517,15 @@
       $memberID = md5($t["Login"]["Username"]);
       array_push($_Commands, []);
       array_push($_List, [
-       "[X.LI.Contact.Accept]" => base64_encode($accept),
-       "[X.LI.Contact.Decline]" => base64_encode($decline),
-       "[X.LI.Contact.DisplayName]" => $t["Personal"]["DisplayName"],
-       "[X.LI.Contact.Form]" => $memberID,
-       "[X.LI.Contact.ID]" => $memberID,
-       "[X.LI.Contact.IDaccept]" => $memberID,
-       "[X.LI.Contact.IDdecline]" => $memberID,
-       "[X.LI.Contact.ProfilePicture]" => $pp,
-       "[X.LI.Contact.Username]" => $t["Login"]["Username"]
+       "[Contact.Accept]" => base64_encode($accept),
+       "[Contact.Decline]" => base64_encode($decline),
+       "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
+       "[Contact.Form]" => $memberID,
+       "[Contact.ID]" => $memberID,
+       "[Contact.IDaccept]" => $memberID,
+       "[Contact.IDdecline]" => $memberID,
+       "[Contact.ProfilePicture]" => $pp,
+       "[Contact.Username]" => $t["Login"]["Username"]
       ]);
      }
     }
@@ -1643,10 +1680,10 @@
        $description = ($type == "Shop") ? $description : $_Member["ListItem"]["Description"];
        array_push($_Commands, []);
        array_push($_List, [
-        "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"],
-        "[X.LI.Description]" => $description,
-        "[X.LI.Options]" => $opt,
-        "[X.LI.ProfilePicture]" => $options["ProfilePicture"]
+        "[Member.DisplayName]" => $_Member["ListItem"]["Title"],
+        "[Member.Description]" => $description,
+        "[Member.Options]" => $opt,
+        "[Member.ProfilePicture]" => $options["ProfilePicture"]
        ]);
       }
      }
@@ -1824,10 +1861,10 @@
          $options = $_Member["ListItem"]["Options"];
          array_push($_Commands, []);
          array_push($_List, [
-          "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"],
-          "[X.LI.Description]" => $_Member["ListItem"]["Description"],
-          "[X.LI.Options]" => "",
-          "[X.LI.ProfilePicture]" => $options["ProfilePicture"]
+          "[Member.DisplayName]" => $_Member["ListItem"]["Title"],
+          "[Member.Description]" => $_Member["ListItem"]["Description"],
+          "[Member.Options]" => "",
+          "[Member.ProfilePicture]" => $options["ProfilePicture"]
          ]);
         }
        }
@@ -1951,21 +1988,40 @@
         $memberRole = ($forum["UN"] == $post["From"]) ? "Owner" : $manifest[$op["Login"]["Username"]];
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($_Commands, []);
+        array_push($_Commands, [
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Attachments".$sql["ForumPost_ID"],
+           $_ForumPost["ListItem"]["Attachments"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Notes".$sql["ForumPost_ID"],
+           $options["Notes"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Vote".$sql["ForumPost_ID"],
+           $options["Vote"]
+          ]
+         ],
+        ]);
         array_push($_List, [
          "[ForumPost.Actions]" => $actions,
-         "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
          "[ForumPost.Body]" => $body,
          "[ForumPost.Comment]" => $options["View"],
          "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
          "[ForumPost.ID]" => $sql["ForumPost_ID"],
          "[ForumPost.MemberRole]" => $memberRole,
          "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
-         "[ForumPost.Notes]" => $options["Notes"],
          "[ForumPost.OriginalPoster]" => $display.$verified,
          "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
-         "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
-         "[ForumPost.Votes]" => $options["Vote"]
+         "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"]
         ]);
        }
       }
@@ -2261,23 +2317,34 @@
          [
           "Name" => "UpdateContentAES",
           "Parameters" => [
+           ".Attachments".$sql["StatusUpdate_ID"],
+           $_StatusUpdate["ListItem"]["Attachments"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Notes".$sql["StatusUpdate_ID"],
+           $options["Notes"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
            ".Vote".$sql["StatusUpdate_ID"],
            $options["Vote"]
           ]
-         ]
+         ],
         ]);
         array_push($_List, [
-         "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
          "[StatusUpdate.Body]" => $body,
          "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
          "[StatusUpdate.DT]" => $options["View"],
          "[StatusUpdate.Edit]" => $edit,
          "[StatusUpdate.ID]" => $sql["StatusUpdate_ID"],
          "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-         "[StatusUpdate.Notes]" => $options["Notes"],
          "[StatusUpdate.OriginalPoster]" => $display.$verified,
-         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
-         "[StatusUpdate.Votes]" => $options["Vote"]
+         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%")
         ]);
        }
       }
@@ -2327,13 +2394,13 @@
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
        array_push($_Commands, []);
        array_push($_List, [
-        "[X.LI.DisplayName]" => $_Member["ListItem"]["Title"].$verified,
-        "[X.LI.Description]" => $_Member["ListItem"]["Description"],
-        "[X.LI.Options]" => $this->core->Element(["button", "View Profile", [
+        "[Member.DisplayName]" => $_Member["ListItem"]["Title"].$verified,
+        "[Member.Description]" => $_Member["ListItem"]["Description"],
+        "[Member.Options]" => $this->core->Element(["button", "View Profile", [
          "class" => "OpenCard v2",
          "data-view" => $options["View"]
         ]]),
-        "[X.LI.ProfilePicture]" => $options["ProfilePicture"]
+        "[Member.ProfilePicture]" => $options["ProfilePicture"]
        ]);
       }
      }
@@ -2809,19 +2876,38 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($_Commands, []);
+        array_push($_Commands, [
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Attachments".$sql["StatusUpdate_ID"],
+           $_StatusUpdate["ListItem"]["Attachments"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Notes".$sql["StatusUpdate_ID"],
+           $options["Notes"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Vote".$sql["StatusUpdate_ID"],
+           $options["Vote"]
+          ]
+         ],
+        ]);
         array_push($_List, [
-         "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
          "[StatusUpdate.Body]" => $body,
          "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
          "[StatusUpdate.DT]" => $options["View"],
          "[StatusUpdate.Edit]" => $edit,
          "[StatusUpdate.ID]" => $sql["StatusUpdate_ID"],
          "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-         "[StatusUpdate.Notes]" => $options["Notes"],
          "[StatusUpdate.OriginalPoster]" => $display.$verified,
-         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
-         "[StatusUpdate.Votes]" => $options["Vote"]
+         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%")
         ]);
        }
       }
@@ -3316,19 +3402,38 @@
         ]) : "";
         $verified = $op["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        array_push($_Commands, []);
+        array_push($_Commands, [
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Attachments".$sql["StatusUpdate_ID"],
+           $_StatusUpdate["ListItem"]["Attachments"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Notes".$sql["StatusUpdate_ID"],
+           $options["Notes"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".Vote".$sql["StatusUpdate_ID"],
+           $options["Vote"]
+          ]
+         ],
+        ]);
         array_push($_List, [
-         "[StatusUpdate.Attachments]" => $_StatusUpdate["ListItem"]["Attachments"],
          "[StatusUpdate.Body]" => $body,
          "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
          "[StatusUpdate.DT]" => $options["View"],
          "[StatusUpdate.Edit]" => $edit,
          "[StatusUpdate.ID]" => $sql["StatusUpdate_ID"],
          "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
-         "[StatusUpdate.Notes]" => $options["Notes"],
          "[StatusUpdate.OriginalPoster]" => $display.$verified,
-         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%"),
-         "[StatusUpdate.Votes]" => $options["Vote"]
+         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:5%;width:90%")
         ]);
        }
       }
