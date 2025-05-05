@@ -12,6 +12,7 @@
   function Containers(array $data): string {
    $_AddTopMargin = "0";
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The List Type is missing.",
     "Header" => "Not Found"
@@ -421,8 +422,24 @@
      $_List .= (!empty($data["UN"])) ? "&UN=".$data["UN"] : "";
      $_List .= (!empty($data["ftype"])) ? "&ftype=".$data["ftype"] : "";
     }
+    $id = $this->core->UUID("ReSearch".md5($you));
+    $searchUI = $this->core->Element(["p", "No Search UI found for <em>$variant</em>."]);
+    $variants = $this->core->Data("Get", ["app", md5("SearchUI")]);
+    for($i = 0; $i < count($variants); $i++) {
+     $info = $variants[$i] ?? [];
+     if(!empty($info["UI"]) && $info["ID"] == $variant) {
+      $searchUI = base64_decode($info["UI"]);
+      break;
+     }
+    }
     $_Card = "";
     $_Commands = [
+     [
+      "Name" => "LightSearch",
+      "Parameters" => [
+       "$(document).find('.LightSearch$id')"
+      ]
+     ]
     ];
     $_Dialog = "";
     $_View = [
@@ -433,7 +450,12 @@
       "[Search.ParentPage]" => $parentView,
       "[Search.Text]" => $searchBarText
      ],
-     "Extension" => $this->core->AESencrypt($this->core->RenderSearchUI($variant))
+     "Extension" => $this->core->AESencrypt($this->core->Change([[
+      "[Search.ID]" => $id,
+      "[Search.UI]" => $this->core->Change([[
+       "[Search.ID]" => $id
+      ], $searchUI])
+     ], $this->core->Extension("caa64184e321777584508a3e89bd6aea")]))
     ];
    } if(in_array($searchType, $cardSearchTypes) || $card == 1) {
     $_Card = [
@@ -445,6 +467,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);

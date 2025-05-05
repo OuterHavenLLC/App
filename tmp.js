@@ -504,6 +504,8 @@ class OH {
      this.Bulletins();
     } else if(Name === "GetCreditExchange" && ParameterCount === 1) {
      this.GetCreditExchange(Parameters[0]);
+    } else if(Name === "LightSearch" && ParameterCount === 1) {
+     this.ReSearch(eval(Parameters[0]));
     } else if(Name === "RefreshCoverPhoto" && ParameterCount === 2) {
      this.RefreshCoverPhoto(Parameters[0], Parameters[1]);
     } else if(Name === "RenderInputs" && ParameterCount === 2) {
@@ -1288,6 +1290,12 @@ class OH {
         $("." + SearchID).data("next-offset", Response.Limit || 0);
         $("." + SearchID).data("end", End);
         $("." + SearchID).data("loading", false);
+        if(End === 0) {
+         $("." + SearchID).append("<button class='RSLoadMore v2 v2w'>More Results</button>\r\n");
+         $("." + SearchID).find(".RSLoadMore").on("click", () => {
+          this.LoadMoreSearchResults("." + SearchID);
+         });
+        }
        }
       }
      }).catch(error => {
@@ -1299,6 +1307,68 @@ class OH {
     }
    },
    url: Processor
+  });
+ }
+ static LoadMoreSearchResults(container) {
+  if($(container).data("loading") || $(container).data("end")) {
+   return;
+  }
+  $(container).data("loading", true);
+  const processor = $(container).data("processor"),
+            query = $(container).data("query"),
+            extension = $(container).data("extension"),
+            nextOffset = $(container).data("next-offset"),
+            url = processor + "&offset=" + nextOffset;
+  $.ajax({
+   error: (error) => {
+    this.Dialog({
+     "Body": "LoadMoreSearchResults: Data retrieval error. Please see below:",
+    "Scrollable": JSON.stringify(error)
+    });
+    $(container).data("loading", false);
+   },
+   headers: {
+    Language: this.AESencrypt(this.LocalData("Get", "Language")),
+    Token: this.AESencrypt(this.LocalData("Get", "SecurityKey"))
+   },
+   method: "POST",
+   success: (data) => {
+    const currentItems = $(container).find(".SearchListItem").length;
+    let Data = JSON.parse(this.AESdecrypt(data)),
+         Response = Data.Response,
+         List = this.GetSortedList(Response.List || {}),
+         ListItemCommands = this.GetSortedList(Response.Commands || {})
+         batchIndex = 0;
+    for(let i in List) {
+     let KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
+          ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
+     if(KeyCheck === 1 && ValueCheck === 1) {
+      let CurrentListItemCommands = (ListItemCommands[i] && ListItemCommands[i][1]) ? ListItemCommands[i][1] : [],
+           Result = extension || "",
+           value = List[i][1] || {};
+      for(let j in value) {
+       if(typeof Result === "string") {
+        Result = Result.replaceAll(value[j][0], value[j][1]);
+       }
+      }
+      batchIndex += 1;
+      const itemNumber = currentItems + batchIndex;
+      $(container).append("<div class='SearchListItem${itemNumber} h'>${Result}</div>\r\n");
+      if(CurrentListItemCommands.length > 0) {
+       this.ExecuteCommands(CurrentListItemCommands);
+      }
+      $(container).find(".SearchListItem${itemNumber}").fadeIn(Math.round((batchIndex / 2) * 500));
+     }
+    }
+    if(Response.End) {
+     $(container).data("end", true);
+     $(container).find(".load-more").remove(); // Remove button if present
+    } else {
+     $(container).data("next-offset", nextOffset + (Response.Limit || 0));
+    }
+    $(container).data("loading", false);
+   },
+   url: url
   });
  }
  static SaveToDatabase(Store, Data) {
