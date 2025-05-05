@@ -1170,7 +1170,6 @@ class OH {
        Container = $(Bar).parent().find(".SearchContainer") || {},
        GridColumns = $(Bar).attr("data-columns") || "1",
        List = $(Bar).attr("data-list") || "",
-       Offset = 0,
        Processor,
        Query = $(Bar).val() || "",
        End;
@@ -1178,14 +1177,17 @@ class OH {
    this.Dialog({
     "Body": "ReSearch: The source input is missing."
    });
+   return;
   } else if(Container === {} || typeof Container === "undefined") {
    this.Dialog({
     "Body": "ReSearch: The list container is missing."
    });
+   return;
   } else if(List === "" || typeof List === "undefined") {
    this.Dialog({
     "Body": "ReSearch: The list source is missing."
    });
+   return;
   }
   Processor = this.base + this.Base64decrypt(List) + "&query=" + this.Base64encrypt($(Bar).val());
   $(Container).empty();
@@ -1214,6 +1216,7 @@ class OH {
           Grid = GridColumns;
      if(AccessCode !== "Accepted") {
       $(Container).html(this.AESdecrypt(Response.NoResults));
+      return;
      } if(Data.ExtensionID) {
       Extension = this.LoadFromDatabase("Extensions", Data.ExtensionID);
      } else if(Data.Extension) {
@@ -1227,8 +1230,7 @@ class OH {
      Extension.then(response => {
       if(Data.ExtensionID) {
        response = this.AESdecrypt(response.Data);
-      }
-      if(Grid === "2") {
+      } if(Grid === "2") {
        Grid = "Grid2";
       } else if(Grid === "3") {
        Grid = "Grid3";
@@ -1237,6 +1239,7 @@ class OH {
       } else {
        Grid = "NONAME";
       }
+      $(".active-search").removeClass("active-search");
       $(Container).html("<div class='" + Grid + " " + SearchID + "'>" + this.Loading + "</div>");
       Container = $(Container).find("." + SearchID);
       let End = Response.End || 0,
@@ -1252,7 +1255,8 @@ class OH {
         let KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
              ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
         if(KeyCheck === 1 && ValueCheck === 1) {
-         let Search = (check === 0) ? 1 : 0,
+         let CurrentListItemCommands = (ListItemCommands[i] && ListItemCommands[i][1]) ? ListItemCommands[i][1] : [],
+              Search = (check === 0) ? 1 : 0,
               Result = response || "",
               value = List[i][1] || {};
          if(value !== {} && typeof value !== "undefined") {
@@ -1266,71 +1270,24 @@ class OH {
            Search += 1;
           } if(Search > 0) {
            ListItems += 1;
-           $(Container).append(Result);
-           this.ExecuteCommands(ListItemCommands[i][1] || {});
+           $(Container).append("<div class='SearchListItem" + ListItems + " h'>" + Result + "</div>\r\n");
+           if(CurrentListItemCommands.length > 0) {
+            this.ExecuteCommands(CurrentListItemCommands);
+           }
+           $(Container).find(".SearchListItem" + ListItems).fadeIn(Math.round((ListItems / 2) * 500));
           }
          }
         }
        } if(ListItems === 0) {
         $(Container).html(this.AESdecrypt(Response.NoResults));
        } else {
-        setInterval(() => {
-         if($(Container).is(":visible") && $(Container).length && End === 0) {
-          $.ajax({
-           error: (error) => {
-            this.Dialog({
-             "Body": "ReSearch: Data retrieval error during infinite scroll, please see below.",
-             "Scrollable": JSON.stringify(error)
-            });
-           },
-           headers: {
-            Language: this.AESencrypt(this.LocalData("Get", "Language")),
-            Token: this.AESencrypt(this.LocalData("Get", "SecurityKey"))
-           },
-           method: "POST",
-           success: (data) => {
-            if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
-             this.Crash(data);
-            } else {
-             let Data = JSON.parse(this.AESdecrypt(data)),
-                  Response = Data.Response,
-                  End = Response.End || 0;
-             if(End === 0) {
-              Offset += Response.Limit;
-             }
-             let List = this.GetSortedList(Response.List),
-                  check = (List !== {} && typeof List !== "undefined") ? 1 : 0;
-             check = (typeof List === "object" || check === 1) ? 1 : 0;
-             if(check === 1) {
-              check = (Query !== "" && typeof Query !== "undefined") ? 1 : 0;
-              for(var i in List) {
-               let KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
-                    ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
-               if(KeyCheck === 1 && ValueCheck === 1) {
-                let Search = (check === 0) ? 1 : 0,
-                     Result = Extension,
-                     value = List[i][1] || {};
-                if(value !== {} && $.type(value) !== "undefined") {
-                 for(var j in value) {
-                  Result = Result.replaceAll(value[j][0], this.Base64decrypt(value[j][1]));
-                 } if(Result.search(Query) > -1) {
-                  Search += 1;
-                 } if(Result.toLowerCase().search(Query.toLowerCase()) > -1) {
-                  Search += 1;
-                 } if(Search > 0) {
-                  $(Container).append(Result);
-                  this.ExecuteCommands(ListItemCommands[i][1] || {});
-                 }
-                }
-               }
-              }
-             }
-            }
-           },
-           url: Processor + "&Offset=" + Offset
-          });
-         }
-        }, 4000);
+        $("." + SearchID).addClass("active-search");
+        $("." + SearchID).data("processor", Processor);
+        $("." + SearchID).data("query", Query);
+        $("." + SearchID).data("extension", response);
+        $("." + SearchID).data("next-offset", Response.Limit || 0);
+        $("." + SearchID).data("end", End);
+        $("." + SearchID).data("loading", false);
        }
       }
      }).catch(error => {
