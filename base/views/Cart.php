@@ -180,7 +180,7 @@
     "Body" => "The Shop Identifier is missing."
    ];
    $data = $data["Data"] ?? [];
-   $username = $data["UN"] $data["UN"] ?? base64_encode($you);
+   $username = $data["UN"] ?? base64_encode($you);
    $username = base64_decode($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -244,7 +244,6 @@
        ]
       ]
      ],
-     ],
      [
       "Name" => "RenderInputs",
       "Parameters" => [
@@ -262,6 +261,7 @@
          "Value" => base64_encode($discountCode)
         ]
        ]
+      ]
      ],
      [
       "Name" => "UpdateContentAES",
