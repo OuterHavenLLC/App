@@ -413,7 +413,7 @@
      [
       "Name" => "RenderInputs",
       "Parameters" => [
-       ".General$id",
+       ".ProductInformation$id",
        $generalInformation
       ]
      ],
@@ -675,6 +675,7 @@
        $actions .= ($username == $you) ? $this->core->Element([
         "button", "Delete", [
          "class" => "CloseCard OpenDialog Small v2",
+         "data-encryption" => "AES",
          "data-view" => $options["Delete"]
         ]
        ]) : $this->core->Element([
@@ -686,6 +687,7 @@
        $actions .= ($active == 1) ? $this->core->Element([
         "button", "Edit", [
          "class" => "GoToView Small v2",
+         "data-encryption" => "AES",
          "data-type" => "Product$id;".$options["Edit"]
         ]
        ]) : "";
