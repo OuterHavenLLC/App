@@ -6,8 +6,10 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Edit(array $data): string {
+   $_Card = "";
    $_Commands = "";
    $_Dialog = "";
+   $_View = "";
    $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $edit = base64_encode("Product:Edit");
@@ -39,8 +41,6 @@
    } elseif(!empty($editor)) {
     $_ExtensionID = "3e5dc31db9719800f28abbaa15ce1a37";
     $_ExtensionID = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $_ExtensionID;
-    $_ExtensionID = ($editor == "Donation") ? "6f4772a067646699073521d87b943433" : $_ExtensionID;
-    $_ExtensionID = ($editor == "Download") ? "5921c3ce04d9a878055ebc691b9f445a" : $_ExtensionID;
     $_ExtensionID = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $_ExtensionID;
     $action = ($new == 1) ? "Post" : "Update";
     $back = (!empty($parentView)) ? $this->core->Element(["button", "Back", [
@@ -73,6 +73,8 @@
     $coverPhoto = $product["CoverPhoto"] ?? "";
     $created = $product["Created"] ?? $this->core->timestamp;
     $demoFiles = $product["DemoFiles"] ?? [];
+    $description = $product["Description"] ?? "";
+    $disclaimer = $product["Disclaimer"] ?? "";
     $expirationQuantity = $product["ExpirationQuantity"] ?? 1;
     $expirationQuantities = [];
     $expirationTerm = $product["ExpirationTerm"] ?? "Year";
@@ -90,9 +92,11 @@
     $quantities = [];
     $quantities["-1"] = "Unlimited";
     $quantity = $product["Quantity"] ?? "-1";
+    $role = $product["Role"] ?? 0;
     $search = base64_encode("Search:Containers");
     $shops = $product["Shops"] ?? [];
     $subscriptionTerm = $product["SubscriptionTerm"] ?? "";
+    $title = $product["Title"] ?? "";
     $updates = $product["Updates"] ?? [];
     for($i = 1; $i <= 100; $i++) {
      $expirationQuantities[$i] = $i;
@@ -206,7 +210,7 @@
        "HeaderText" => "Title"
       ],
       "Type" => "Text",
-      "Value" => $this->core->AESencrypt($product["Title"])
+      "Value" => $this->core->AESencrypt($title)
      ],
      [
       "Attributes" => [
@@ -221,22 +225,7 @@
        "HeaderText" => "Description"
       ],
       "Type" => "TextBox",
-      "Value" => $this->core->AESencrypt($product["Description"])
-     ],
-     [
-      "Attributes" => [
-       "class" => "req",
-       "name" => "Disclaimer",
-       "placeholder" => "Disclaimer"
-      ],
-      "Options" => [
-       "Container" => 1,
-       "ContainerClass" => "NONAME",
-       "Header" => 1,
-       "HeaderText" => "Disclaimer"
-      ],
-      "Type" => "TextBox",
-      "Value" => $this->core->AESencrypt($product["Disclaimer"])
+      "Value" => $this->core->AESencrypt($description)
      ],
      [
       "Attributes" => [
@@ -257,6 +246,21 @@
        "Data" => $product["Body"],
        "Decode" => 1
       ]))
+     ],
+     [
+      "Attributes" => [
+       "class" => "req",
+       "name" => "Disclaimer",
+       "placeholder" => "Disclaimer"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "NONAME",
+       "Header" => 1,
+       "HeaderText" => "Disclaimer"
+      ],
+      "Type" => "TextBox",
+      "Value" => $this->core->AESencrypt($disclaimer)
      ],
      [
       "Attributes" => [
@@ -287,7 +291,7 @@
       ],
       "Name" => "Role",
       "Type" => "Select",
-      "Value" => $product["Role"]
+      "Value" => $role
      ]
     ];
     $inventory = [
@@ -425,54 +429,6 @@
       ]
      ]
     ];
-    $_Commands = ($editor == "Architecture") ? [
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".ProductInformation$id",
-       $generalInformation
-      ]
-     ],
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".Inventory$id",
-       $inventory
-      ]
-     ]
-    ] : $_Commands;
-    $_Commands = ($editor == "Donation") ? [
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".ProductInformation$id",
-       $generalInformation
-      ]
-     ],
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".Inventory$id",
-       $inventory
-      ]
-     ]
-    ] : $_Commands;
-    $_Commands = ($editor == "Download") ? [
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".ProductInformation$id",
-       $generalInformation
-      ]
-     ],
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".Inventory$id",
-       $inventory
-      ]
-     ]
-    ] : $_Commands;
     $_Commands = ($editor == "Subscription") ? [
      [
       "Name" => "RenderInputs",
@@ -519,8 +475,8 @@
        "Value" => $nsfw
       ]
      ]
-    ],
-    [
+    ]);
+    array_push($_Commands, [
      "Name" => "RenderVisibilityFilter",
      "Parameters" => [
       ".Privacy$id",
@@ -537,7 +493,7 @@
       "[Product.Created]" => $created,
       "[Product.Header]" => $header,
       "[Product.ID]" => $id,
-      "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
+      "[Product.Save]" => $this->core->AESencrypt("v=".base64_encode("Product:Save")),
       "[Product.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
      ],
      "ExtensionID" => $_ExtensionID
@@ -546,6 +502,11 @@
      "Front" => $_View
     ] : "";
     $_Dialog = "";
+    $_Dialog=[//TEMP
+     "Body" => "Debug data:",
+     "Header" => "Debug",
+     "Scrollable" => json_encode($_Commands, true)
+    ];//TEMP--*/
     $_View = ($card == 0) ? $_View : "";
    }
    return $this->core->JSONResponse([
