@@ -41,10 +41,9 @@
    } elseif(!empty($editor)) {
     $_ExtensionID = "3e5dc31db9719800f28abbaa15ce1a37";
     $_ExtensionID = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $_ExtensionID;
-    $_ExtensionID = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $_ExtensionID;
     $action = ($new == 1) ? "Post" : "Update";
     $back = (!empty($parentView)) ? $this->core->Element(["button", "Back", [
-     "class" => "GoToParent v2 v2w",
+     "class" => "BB GoToParent v2 v2w",
      "data-type" => $parentView
     ]]) : $back;
     $back = ($new == 1) ? $this->core->Element(["button", "Back", [
@@ -444,6 +443,15 @@
        [
         [
          "Attributes" => [
+          "name" => "Cost",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => "0"
+        ],
+        [
+         "Attributes" => [
           "class" => "CheckIfNumeric",
           "data-symbols" => "Y",
           "maxlen" => 7,
@@ -502,11 +510,6 @@
      "Front" => $_View
     ] : "";
     $_Dialog = "";
-    $_Dialog=[//TEMP
-     "Body" => "Debug data:",
-     "Header" => "Debug",
-     "Scrollable" => json_encode($_Commands, true)
-    ];//TEMP--*/
     $_View = ($card == 0) ? $_View : "";
    }
    return $this->core->JSONResponse([

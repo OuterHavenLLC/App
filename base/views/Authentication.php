@@ -302,7 +302,7 @@
      "data-type" => $parentPage
     ]]) : "";
     $closeDialog = ($dialog == 1) ? $this->core->Element([
-     "button", "Cancel", ["class" => "CloseDialog v2 v2w"]
+     "button", "Cancel", ["class" => "BB CloseDialog v2 v2w"]
     ]) : "";
     $view = "";
     $viewData = $data["ViewData"] ?? base64_encode(json_encode([], true));

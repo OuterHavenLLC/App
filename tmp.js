@@ -374,7 +374,7 @@ class OH {
    }
    if(NoClose === 0) {
     let Confirm = (Actions === "") ? "Okay" : "Cancel";
-    Actions += "<button class='CloseDialog v2 v2w' data-id='" + ID + "'>" + Confirm + "</button>\r\n";
+    Actions += "<button class='BB CloseDialog v2 v2w' data-id='" + ID + "'>" + Confirm + "</button>\r\n";
    }
    Dialog = "<div class='Frosted Dialog Rounded Shadowed h scr'>\r\n";
    if(Header !== "" && typeof Header !== "undefined") {
