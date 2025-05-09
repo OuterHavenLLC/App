@@ -470,10 +470,7 @@
    $body = "";
    $blockCommand = $content["Blacklisted"] ?? 0;
    $blockCommand = ($blockCommand == 0) ? "Block" : "Unblock";
-   $coverPhoto = $this->PlainText([
-    "Data" => "[Media:CP]",
-    "Display" => 1
-   ]);
+   $coverPhoto = "";
    $data = [];
    $description = "";
    $empty = 0;

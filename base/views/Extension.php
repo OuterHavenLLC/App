@@ -73,8 +73,9 @@
     $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
+      "data-encryption" => "AES",
       "data-form" => ".EditExtension$id",
-      "data-processor" => base64_encode("v=".base64_encode("Extension:Save"))
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Extension:Save"))
      ]]),
      "Front" => [
       "ChangeData" => [

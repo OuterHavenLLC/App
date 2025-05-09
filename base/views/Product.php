@@ -6,6 +6,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Edit(array $data): string {
+   $_Commands = "";
    $_Dialog = "";
    $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
@@ -36,6 +37,11 @@
      "Body" => "You must sign in to continue."
     ];
    } elseif(!empty($editor)) {
+    $_ExtensionID = "3e5dc31db9719800f28abbaa15ce1a37";
+    $_ExtensionID = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $_ExtensionID;
+    $_ExtensionID = ($editor == "Donation") ? "6f4772a067646699073521d87b943433" : $_ExtensionID;
+    $_ExtensionID = ($editor == "Download") ? "5921c3ce04d9a878055ebc691b9f445a" : $_ExtensionID;
+    $_ExtensionID = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $_ExtensionID;
     $action = ($new == 1) ? "Post" : "Update";
     $back = (!empty($parentView)) ? $this->core->Element(["button", "Back", [
      "class" => "GoToParent v2 v2w",
@@ -67,15 +73,13 @@
     $coverPhoto = $product["CoverPhoto"] ?? "";
     $created = $product["Created"] ?? $this->core->timestamp;
     $demoFiles = $product["DemoFiles"] ?? [];
+    $expirationQuantity = $product["ExpirationQuantity"] ?? 1;
     $expirationQuantities = [];
-    $extensionID = "3e5dc31db9719800f28abbaa15ce1a37";
-    $extensionID = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $extensionID;
-    $extensionID = ($editor == "Donation") ? "6f4772a067646699073521d87b943433" : $extensionID;
-    $extensionID = ($editor == "Download") ? "5921c3ce04d9a878055ebc691b9f445a" : $extensionID;
-    $extensionID = ($editor == "Subscription") ? "dd2cb760e5291e265889c262fc30d9a2" : $extensionID;
+    $expirationTerm = $product["ExpirationTerm"] ?? "Year";
     $forums = $product["Forums"] ?? [];
     $forumPosts = $product["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Product" : "Edit ".$product["Title"];
+    $instructions = ($editor == "Product") ? 1 : 0;
     $members = $product["Members"] ?? [];
     $nsfw = $product["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $product["PassPhrase"] ?? "";
@@ -124,40 +128,419 @@
       "ViewDesign" => []
      ]
     ]);
+    $generalInformation = [
+     [
+      "Attributes" => [
+       "name" => "Category",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $category
+     ],
+     [
+      "Attributes" => [
+       "name" => "Created",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $created
+     ],
+     [
+      "Attributes" => [
+       "name" => "ID",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $id
+     ],
+     [
+      "Attributes" => [
+       "name" => "Instructions",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $instructions
+     ],
+     [
+      "Attributes" => [
+       "name" => "Quantity",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $quantity
+     ],
+     [
+      "Attributes" => [
+       "name" => "ShopID",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $shopID
+     ],
+     [
+      "Attributes" => [
+       "name" => "new",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => $new
+     ],
+     [
+      "Attributes" => [
+       "class" => "req",
+       "name" => "Title",
+       "placeholder" => "Title",
+       "type" => "text"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "NONAME",
+       "Header" => 1,
+       "HeaderText" => "Title"
+      ],
+      "Type" => "Text",
+      "Value" => $this->core->AESencrypt($product["Title"])
+     ],
+     [
+      "Attributes" => [
+       "class" => "req",
+       "name" => "Description",
+       "placeholder" => "Description"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "NONAME",
+       "Header" => 1,
+       "HeaderText" => "Description"
+      ],
+      "Type" => "TextBox",
+      "Value" => $this->core->AESencrypt($product["Description"])
+     ],
+     [
+      "Attributes" => [
+       "class" => "req",
+       "name" => "Disclaimer",
+       "placeholder" => "Disclaimer"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "NONAME",
+       "Header" => 1,
+       "HeaderText" => "Disclaimer"
+      ],
+      "Type" => "TextBox",
+      "Value" => $this->core->AESencrypt($product["Disclaimer"])
+     ],
+     [
+      "Attributes" => [
+       "class" => "Edit$id req",
+       "id" => "EditProductBody$id",
+       "name" => "Body",
+       "placeholder" => "Body"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "NONAME",
+       "Header" => 1,
+       "HeaderText" => "Body",
+       "WYSIWYG" => 1
+      ],
+      "Type" => "TextBox",
+      "Value" => $this->core->AESencrypt($this->core->PlainText([
+       "Data" => $product["Body"],
+       "Decode" => 1
+      ]))
+     ],
+     [
+      "Attributes" => [
+       "name" => "PassPhrase",
+       "placeholder" => "Pass Phrase",
+       "type" => "text"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Pass Phrase"
+      ],
+      "Type" => "Text",
+      "Value" => $this->core->AESencrypt($passPhrase)
+     ],
+     [
+      "Attributes" => [],
+      "OptionGroup" => [
+       "0" => "Administrator",
+       "1" => "Contributor"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Role"
+      ],
+      "Name" => "Role",
+      "Type" => "Select",
+      "Value" => $product["Role"]
+     ]
+    ];
+    $inventory = [
+     [
+      "Attributes" => [
+       "class" => "CheckIfNumeric",
+       "data-symbols" => "Y",
+       "maxlen" => 7,
+       "name" => "Cost",
+       "placeholder" => "5.00",
+       "type" => "text"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Cost"
+      ],
+      "Type" => "Text",
+      "Value" => $this->core->AESencrypt($cost)
+     ],
+     [
+      "Attributes" => [
+       "class" => "CheckIfNumeric",
+       "data-symbols" => "Y",
+       "maxlen" => 7,
+       "name" => "Profit",
+       "placeholder" => "5.00",
+       "type" => "text"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Profit"
+      ],
+      "Type" => "Text",
+      "Value" => $this->core->AESencrypt($profit)
+     ]
+    ];
+    if($editor == "Product") {
+     array_push($generalInformation, [
+      "Attributes" => [],
+      "OptionGroup" => $expirationQuantities,
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Expiration Quantity"
+      ],
+      "Name" => "ExpirationQuantity",
+      "Type" => "Select",
+      "Value" => $expirationQuantity
+     ]);
+     array_push($generalInformation, [
+      "Attributes" => [],
+      "OptionGroup" => [
+       "month" => "Month",
+       "year" => "Year"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Expiration Time Span"
+      ],
+      "Name" => "ExpirationTimeSpan",
+      "Type" => "Select",
+      "Value" => $expirationTerm
+     ]);
+     array_push($inventory, [
+      "Attributes" => [],
+      "OptionGroup" => $quantities,
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Quantity"
+      ],
+      "Name" => "Quantity",
+      "Type" => "Select",
+      "Value" => 1
+     ]);
+    } else {
+     array_push($generalInformation, [
+      "Attributes" => [
+       "name" => "ExpirationQuantity",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => 1000
+     ]);
+     array_push($generalInformation, [
+      "Attributes" => [
+       "name" => "ExpirationTimeSpan",
+       "type" => "hidden"
+      ],
+      "Options" => [],
+      "Type" => "Text",
+      "Value" => "year"
+     ]);
+    } if($editor == "Subscription") {
+     array_push($generalInformation, [
+      "Attributes" => [],
+      "OptionGroup" => [
+       "month" => "Month",
+       "year" => "Year"
+      ],
+      "Options" => [
+       "Container" => 1,
+       "ContainerClass" => "Desktop50 MobileFull",
+       "Header" => 1,
+       "HeaderText" => "Subscription Term"
+      ],
+      "Name" => "SubscriptionTerm",
+      "Title" => "Subscription Term",
+      "Type" => "Select",
+      "Value" => $subscriptionTerm
+     ]);
+    }
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".General$id",
+       $generalInformation
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Inventory$id",
+       $inventory
+      ]
+     ]
+    ];
+    $_Commands = ($editor == "Architecture") ? [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ProductInformation$id",
+       $generalInformation
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Inventory$id",
+       $inventory
+      ]
+     ]
+    ] : $_Commands;
+    $_Commands = ($editor == "Donation") ? [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ProductInformation$id",
+       $generalInformation
+      ]
+     ],,
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Inventory$id",
+       $inventory
+      ]
+     ]
+    ] : $_Commands;
+    $_Commands = ($editor == "Download") ? [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ProductInformation$id",
+       $generalInformation
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Inventory$id",
+       $inventory
+      ]
+     ]
+    ] : $_Commands;
+    $_Commands = ($editor == "Subscription") ? [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ProductInformation$id",
+       $generalInformation
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Inventory$id",
+       [
+        [
+         "Attributes" => [
+          "class" => "CheckIfNumeric",
+          "data-symbols" => "Y",
+          "maxlen" => 7,
+          "name" => "Profit",
+          "placeholder" => "5.00",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Profit"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($profit)
+        ]
+       ]
+      ]
+     ]
+    ] : $_Commands;
+    array_push($_Commands, [
+     "Name" => "RenderVisibilityFilter",
+     "Parameters" => [
+      ".NSFW$id",
+      [
+       "Filter" => "NSFW",
+       "Name" => "NSFW",
+       "Title" => "Content Status",
+       "Value" => $nsfw
+      ]
+     ]
+    ],
+    [
+     "Name" => "RenderVisibilityFilter",
+     "Parameters" => [
+      ".Privacy$id",
+      [
+       "Value" => $privacy
+      ]
+     ]
+    ]);
     $_View = [
      "ChangeData" => [
       "[Product.Action]" => $action,
       "[Product.Attachments]" => $this->core->RenderView($attachments),
       "[Product.Back]" => $back,
-      "[Product.Body]" => base64_encode($this->core->PlainText([
-       "Data" => $product["Body"],
-       "Decode" => 1
-      ])),
-      "[Product.Category]" => $category,
-      "[Product.Cost]" => base64_encode($cost),
       "[Product.Created]" => $created,
-      "[Product.Description]" => base64_encode($product["Description"]),
-      "[Product.DesignView]" => "Edit$id",
-      "[Product.Disclaimer]" => base64_encode($product["Disclaimer"]),
-      "[Product.ExpirationQuantities]" => json_encode($expirationQuantities, true),
       "[Product.Header]" => $header,
       "[Product.ID]" => $id,
-      "[Product.Instructions]" => $product["Instructions"],
-      "[Product.New]" => $new,
-      "[Product.PassPhrase]" => base64_encode($passPhrase),
-      "[Product.Profit]" => base64_encode($profit),
-      "[Product.Quantity]" => $quantity,
-      "[Product.Quantities]" => json_encode($quantities, true),
-      "[Product.Role]" => $product["Role"],
       "[Product.Save]" => base64_encode("v=".base64_encode("Product:Save")),
-      "[Product.Shop]" => $shopID,
-      "[Product.SubscriptionTerm]" => $subscriptionTerm,
-      "[Product.Title]" => base64_encode($product["Title"]),
-      "[Product.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-      "[Product.Visibility.NSFW]" => $nsfw,
-      "[Product.Visibility.Privacy]" => $privacy
+      "[Product.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
      ],
-     "ExtensionID" => $extensionID
+     "ExtensionID" => $_ExtensionID
     ];
     $_Card = ($card == 1) ? [
      "Front" => $_View
@@ -167,12 +550,14 @@
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The requested Product could not be found."
    ];
@@ -321,6 +706,29 @@
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($product, "LiveView", [
         "ProductType" => "Product"
        ]);
+      $_Commands = [
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".AddToCart$id",
+         $this->core->AESencrypt("v=".base64_encode("Cart:Add")."&ID=$id&T=$username")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Conversation$id",
+         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$id",
+         $options["Vote"]
+        ]
+       ]
+      ];
        $_Dialog = "";
        $_View = [
         "ChangeData" => [
@@ -339,10 +747,6 @@
          "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
          "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
          "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
          "[Product.Actions]" => $actions,
          "[Product.Back]" => $back,
          "[Product.Body]" => $this->core->PlainText([
@@ -351,7 +755,6 @@
           "Display" => 1,
           "HTMLDecode" => 1
          ]),
-         "[Product.Brief.AddToCart]" => base64_encode("v=".base64_encode("Cart:Add")."&ID=$id&T=$username"),
          "[Product.Brief.Category]" => $this->core->Element([
           "p", $product["Category"],
           ["class" => "CenterText"]
@@ -362,11 +765,10 @@
          "[Product.CoverPhoto]"  => $_Product["ListItem"]["CoverPhoto"],
          "[Product.Disclaimer]" => htmlentities($product["Disclaimer"]),
          "[Product.ID]" => $id,
-         "[Product.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
          "[Product.Modified]" => $_Product["ListItem"]["Modified"],
+         "[Product.Report]" => $this->core->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
          "[Product.Title]" => $_Product["ListItem"]["Title"],
-         "[Product.Share]" => $share,
-         "[Product.Votes]" => $options["Vote"]
+         "[Product.Share]" => $share
         ],
         "ExtensionID" => "96a6768e7f03ab4c68c7532be93dee40"
        ];
@@ -382,6 +784,7 @@
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -741,7 +1144,7 @@
        "Updates" => $updates,
        "UN" => $shopOwner
       ];
-      $sql = New SQL($this->core->cypher->SQLCredentials());
+      /*--$sql = New SQL($this->core->cypher->SQLCredentials());
       $query = "REPLACE INTO Products(
        Product_Category,
        Product_Created,
@@ -794,10 +1197,11 @@
        $this->core->Statistic("New Product");
       } else {
        $this->core->Statistic("Edit Product");
-      }
+      }--*/
       $_Dialog = [
        "Body" => "The Product <em>$title</em> has been $actionTaken!",
-       "Header" => "Done"
+       "Header" => "Done",
+       "Scrollable" => json_encode($product, true)
       ];
      }
     }

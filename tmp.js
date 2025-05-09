@@ -667,6 +667,68 @@ class OH {
    };
   });
  }
+ static LoadMoreSearchResults(container) {
+  if($(container).data("loading") || $(container).data("end")) {
+   return;
+  }
+  $(container).data("loading", true);
+  const processor = $(container).data("processor"),
+            query = $(container).data("query"),
+            extension = $(container).data("extension"),
+            nextOffset = $(container).data("next-offset"),
+            url = processor + "&offset=" + nextOffset;
+  $.ajax({
+   error: (error) => {
+    this.Dialog({
+     "Body": "LoadMoreSearchResults: Data retrieval error. Please see below:",
+    "Scrollable": JSON.stringify(error)
+    });
+    $(container).data("loading", false);
+   },
+   headers: {
+    Language: this.AESencrypt(this.LocalData("Get", "Language")),
+    Token: this.AESencrypt(this.LocalData("Get", "SecurityKey"))
+   },
+   method: "POST",
+   success: (data) => {
+    const currentItems = $(container).find(".SearchListItem").length;
+    let Data = JSON.parse(this.AESdecrypt(data)),
+         Response = Data.Response,
+         List = this.GetSortedList(Response.List || {}),
+         ListItemCommands = this.GetSortedList(Response.Commands || {})
+         batchIndex = 0;
+    for(let i in List) {
+     let KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
+          ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
+     if(KeyCheck === 1 && ValueCheck === 1) {
+      let CurrentListItemCommands = (ListItemCommands[i] && ListItemCommands[i][1]) ? ListItemCommands[i][1] : [],
+           Result = extension || "",
+           value = List[i][1] || {};
+      for(let j in value) {
+       if(typeof Result === "string") {
+        Result = Result.replaceAll(value[j][0], value[j][1]);
+       }
+      }
+      batchIndex += 1;
+      const itemNumber = currentItems + batchIndex;
+      $(container).append("<div class='SearchListItem${itemNumber} h'>${Result}</div>\r\n");
+      if(CurrentListItemCommands.length > 0) {
+       this.ExecuteCommands(CurrentListItemCommands);
+      }
+      $(container).find(".SearchListItem${itemNumber}").fadeIn(Math.round((batchIndex / 2) * 500));
+     }
+    }
+    if(Response.End) {
+     $(container).data("end", true);
+     $(container).find(".load-more").remove(); // Remove button if present
+    } else {
+     $(container).data("next-offset", nextOffset + (Response.Limit || 0));
+    }
+    $(container).data("loading", false);
+   },
+   url: url
+  });
+ }
  static OpenCard(View, Encryption = "") {
   if(Encryption === "AES") {
    View = this.AESdecrypt(View);
@@ -1307,68 +1369,6 @@ class OH {
     }
    },
    url: Processor
-  });
- }
- static LoadMoreSearchResults(container) {
-  if($(container).data("loading") || $(container).data("end")) {
-   return;
-  }
-  $(container).data("loading", true);
-  const processor = $(container).data("processor"),
-            query = $(container).data("query"),
-            extension = $(container).data("extension"),
-            nextOffset = $(container).data("next-offset"),
-            url = processor + "&offset=" + nextOffset;
-  $.ajax({
-   error: (error) => {
-    this.Dialog({
-     "Body": "LoadMoreSearchResults: Data retrieval error. Please see below:",
-    "Scrollable": JSON.stringify(error)
-    });
-    $(container).data("loading", false);
-   },
-   headers: {
-    Language: this.AESencrypt(this.LocalData("Get", "Language")),
-    Token: this.AESencrypt(this.LocalData("Get", "SecurityKey"))
-   },
-   method: "POST",
-   success: (data) => {
-    const currentItems = $(container).find(".SearchListItem").length;
-    let Data = JSON.parse(this.AESdecrypt(data)),
-         Response = Data.Response,
-         List = this.GetSortedList(Response.List || {}),
-         ListItemCommands = this.GetSortedList(Response.Commands || {})
-         batchIndex = 0;
-    for(let i in List) {
-     let KeyCheck = ($.type(List[i][0]) !== "undefined") ? 1 : 0,
-          ValueCheck = ($.type(List[i][1]) !== "undefined") ? 1 : 0;
-     if(KeyCheck === 1 && ValueCheck === 1) {
-      let CurrentListItemCommands = (ListItemCommands[i] && ListItemCommands[i][1]) ? ListItemCommands[i][1] : [],
-           Result = extension || "",
-           value = List[i][1] || {};
-      for(let j in value) {
-       if(typeof Result === "string") {
-        Result = Result.replaceAll(value[j][0], value[j][1]);
-       }
-      }
-      batchIndex += 1;
-      const itemNumber = currentItems + batchIndex;
-      $(container).append("<div class='SearchListItem${itemNumber} h'>${Result}</div>\r\n");
-      if(CurrentListItemCommands.length > 0) {
-       this.ExecuteCommands(CurrentListItemCommands);
-      }
-      $(container).find(".SearchListItem${itemNumber}").fadeIn(Math.round((batchIndex / 2) * 500));
-     }
-    }
-    if(Response.End) {
-     $(container).data("end", true);
-     $(container).find(".load-more").remove(); // Remove button if present
-    } else {
-     $(container).data("next-offset", nextOffset + (Response.Limit || 0));
-    }
-    $(container).data("loading", false);
-   },
-   url: url
   });
  }
  static SaveToDatabase(Store, Data) {
@@ -2290,13 +2290,19 @@ $(document).on("click", ".ReportContent", (event) => {
 });
 $(document).on("click", ".SendData", (event) => {
  var $Button = $(event.currentTarget),
+       Encryption = $Button.attr("data-encryption") || "",
        Form = $Button.attr("data-form"),
        FormData = OH.Encrypt($(Form).find(OH.Inputs).serializeArray()) || {},
        Pass = 0,
-       Processor = OH.Base64decrypt($Button.attr("data-processor")),
+       Processor = $Button.attr("data-processor"),
        RequiredInputs = $(Form).find(".req").length,
        Target = $Button.attr("data-target") || Form,
        Text = $Button.text();
+ if(Encryption === "AES") {
+  Processor = OH.AESdecrypt(Processor);
+ } else {
+  Processor = OH.Base64decrypt(Processor);
+ }
  $Button.prop("disabled", true);
  $Button.text("&bull; &bull; &bull;");
  $.each($(Form).find("input[type='email']"), function() {

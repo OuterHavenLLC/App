@@ -386,7 +386,6 @@
      $_List .= "&Shop=$shop&st=$searchType";
      $searchBarText = "Invoices";
     } elseif($searchType == "SHOP-Products") {
-     $header = "Products";
      $username = $data["UN"] ?? base64_encode($you);
      $_List .= "&UN=$username&b2=$b2&lPG=$parentView&pub=$pub&st=$searchType";
      $searchBarText = "$b2";
@@ -402,7 +401,7 @@
        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&st=DC")
       ]
      ]) : "";
-     $variant = "3Column";
+     $variant = "3ColumnMinimal";
     } elseif($searchType == "SHOP-Orders") {
      $searchBarText = "Orders";
      $variant = "Minimal";
