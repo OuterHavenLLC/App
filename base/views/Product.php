@@ -448,7 +448,7 @@
        ".ProductInformation$id",
        $generalInformation
       ]
-     ],,
+     ],
      [
       "Name" => "RenderInputs",
       "Parameters" => [

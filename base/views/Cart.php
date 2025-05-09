@@ -6,9 +6,9 @@
   }
   function Add(array $data): string {
    $_Commands = "";
-   $_Dialog = $this->core->Element([
-    "p", "You must be signed in to make purchases.", ["class" => "CenterText"]
-   ]);
+   $_Dialog = [
+    "Body" => "You must be signed in to make purchases."
+   ];
    $_View = "";
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? "";
