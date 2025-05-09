@@ -510,6 +510,13 @@
      "Front" => $_View
     ] : "";
     $_Dialog = "";
+    // BEGIN TEMP
+    $_Dialog = [
+     "Body" => "Debug data:",
+     "Header" => "Debug",
+     "Scrollable" => json_encode($_Commands, true)
+    ];
+    // END TEMP
     $_View = ($card == 0) ? $_View : "";
    }
    return $this->core->JSONResponse([
