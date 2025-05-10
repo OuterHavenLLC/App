@@ -119,9 +119,9 @@
     } elseif($searchType == "ContactsProfileList") {
      $data = $this->core->FixMissing($data, ["UN"]);
      $username = base64_decode($data["UN"]);
-     $ck = ($username == $y["Login"]["Username"]) ? 1 : 0;
-     $t = ($ck == 1) ? $y : $this->core->Member($username);
-     $header = ($ck == 1) ? "Your Contacts" : $t["Personal"]["DisplayName"]."'s Contacts";
+     $check = ($username == $y["Login"]["Username"]) ? 1 : 0;
+     $t = ($check == 1) ? $y : $this->core->Member($username);
+     $header = ($check == 1) ? "Your Contacts" : $t["Personal"]["DisplayName"]."'s Contacts";
      $_List .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
      $searchBarText = "Contacts";
     } elseif($searchType == "ContactsRequests") {
@@ -243,8 +243,8 @@
      $ae = base64_encode("Album:Edit");
      $username = base64_decode($data["UN"]);
      $t = ($username == $you) ? $y : $this->core->Member($username);
-     $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
-     $header = ($ck == 1) ? "Your Albums" : $t["Personal"]["DisplayName"]."'s Albums";
+     $check = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
+     $header = ($check == 1) ? "Your Albums" : $t["Personal"]["DisplayName"]."'s Albums";
      $b2 = $b2 ?? $h;
      $b2 = urlencode($b2);
      $_List .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$parentView";
@@ -257,8 +257,8 @@
      $searchBarText = "your Blogs";
     } elseif($searchType == "MBR-CA") {
      $t = $this->core->Member(base64_decode($data["UN"]));
-     $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
-     $header = ($ck == 1) ? "Your Contributions" : $t["Personal"]["DisplayName"]."'s Contributions";
+     $check = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
+     $header = ($check == 1) ? "Your Contributions" : $t["Personal"]["DisplayName"]."'s Contributions";
      $_List .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
      $searchBarText = "the Archive";
     } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
@@ -278,8 +278,8 @@
      $variant = "3Column";
     } elseif($searchType == "MBR-JE") {
      $t = $this->core->Member(base64_decode($data["UN"]));
-     $ck = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
-     $header = ($ck == 1) ? "Your Journal" : $t["Personal"]["DisplayName"]."'s Journal";
+     $check = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
+     $header = ($check == 1) ? "Your Journal" : $t["Personal"]["DisplayName"]."'s Journal";
      $_List .= "&b2=$b2&lPG=$parentView";
      $searchBarText = "Entries";
     } elseif($searchType == "MBR-LLP") {
@@ -297,12 +297,12 @@
       "cms",
       md5($t["Login"]["Username"])
      ]);
-     $ck = ($t["Login"]["Username"] == $you) ? 1 : 0;
+     $check = ($t["Login"]["Username"] == $you) ? 1 : 0;
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
-     $header = ($ck == 1) ? "Your Stream" : $display."'s Stream";
+     $header = ($check == 1) ? "Your Stream" : $display."'s Stream";
      $_List .= "&UN=".base64_encode($t["Login"]["Username"]);
      $searchBarText = "Posts";
-     $options = (($bl == 0 || $ck == 1) && $notAnon == 1) ? $this->core->Element([
+     $options = (($bl == 0 || $check == 1) && $notAnon == 1) ? $this->core->Element([
       "button", "Say Something", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($t["Login"]["Username"]))
@@ -326,19 +326,19 @@
      $t = ($username == $you) ? $y : $this->core->Member($username);
      $fs = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
      $alb = $fs["Albums"][$aid] ?? [];
-     $ck = $y["Subscriptions"]["XFS"]["A"] ?? 0;
-     $ck = ($ck == 1 && $notAnon == 1) ? 1 : 0;
-     $ck2 = ($username == $this->core->ID && $y["Rank"] == md5("High Command")) ? 1 : 0;
+     $check = $y["Subscriptions"]["XFS"]["A"] ?? 0;
+     $check = ($check == 1 && $notAnon == 1) ? 1 : 0;
+     $check2 = ($username == $this->core->ID && $y["Rank"] == md5("High Command")) ? 1 : 0;
      $de = $alb["Description"] ?? "";
-     $display = ($ck2 == 1) ? "Anonymous" : $t["Personal"]["DisplayName"];
+     $display = ($check2 == 1) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $header = $alb["Title"] ?? "Unsorted";
-     $header = ($ck2 == 1) ? "System Media Library" : $header;
+     $header = ($check2 == 1) ? "System Media Library" : $header;
      $_List .= "&AID=$aid&UN=".$data["UN"];
      $searchBarText = "$header";
-     $usernamelimitedFiles = ($ck == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
-     $usernamelimitedFiles = ($ck2 == 1) ? "No Upload Limit" : $usernamelimitedFiles;
-     $ck = ($ck == 1 || $usage < $limit) ? 1 : 0;
-     if(($ck == 1 && $username == $you) || $ck2 == 1) {
+     $usernamelimitedFiles = ($check == 1) ? "You have unlimited storage." : "You used $xfsUsage out of $xfsLimit.";
+     $usernamelimitedFiles = ($check2 == 1) ? "No Upload Limit" : $usernamelimitedFiles;
+     $check = ($check == 1 || $usage < $limit) ? 1 : 0;
+     if(($check == 1 && $username == $you) || $check2 == 1) {
       $options = $this->core->Change([[
        "[Album.Description]" => $de,
        "[Album.Owner]" => $display,
@@ -394,8 +394,8 @@
      $isArtist = $t["Subscriptions"]["Artist"]["A"] ?? 0;
      $shopID = md5($t["Login"]["Username"]);
      $shop = $this->core->Data("Get", ["shop", $shopID]);
-     $ck = ($t["Login"]["Username"] == $you && $notAnon == 1) ? 1 : 0;
-     $options .= ($isArtist == 1 && $ck == 1) ? $this->core->Element([
+     $check = ($t["Login"]["Username"] == $you && $notAnon == 1) ? 1 : 0;
+     $options .= ($isArtist == 1 && $check == 1) ? $this->core->Element([
       "button", "Discount Codes", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&st=DC")
@@ -802,16 +802,16 @@
        $actions = ($this->core->ID != $you) ? $addTo.$actions : $addTo;
        $admin = ($blog["UN"] == $you || $post["UN"] == $you) ? 1 : 0;
        $cms = $this->core->Data("Get", ["cms", md5($post["UN"])]);
-       $ck = $this->core->CheckPrivacy([
+       $check = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $post["Privacy"],
         "UN" => $post["UN"],
         "Y" => $you
        ]);
-       $ck2 = ($post["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+       $check2 = ($post["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
        $illegal = $post["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       if($admin == 1 || ($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0)) {
+       if($admin == 1 || ($bl == 0 && $check == 1 && $check2 == 1 && $illegal == 0)) {
         $actions .= ($admin == 1) ? $this->core->Element(["button", "Delete", [
          "class" => "InnerMargin OpenDialog",
          "data-encryption" => "AES",
@@ -1003,8 +1003,8 @@
      if($_Blog["Empty"] == 0) {
       $blog = $_Blog["DataModel"];
       $cms = $this->core->Data("Get", ["cms", md5($blog["UN"])]);
-      $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $blog["NSFW"] == 0) ? 1 : 0;
-      $ck2 = $this->core->CheckPrivacy([
+      $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $blog["NSFW"] == 0) ? 1 : 0;
+      $check2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $blog["Privacy"],
        "UN" => $blog["UN"],
@@ -1012,7 +1012,7 @@
       ]);
       $illegal = $blog["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) {
+      if($bl == 0 && $check == 1 && $check2 == 1 && $illegal == 0) {
        $options = $_Blog["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -1090,19 +1090,19 @@
       $t = ($article["UN"] == $you) ? $y : $this->core->Member($article["UN"]);
       $cat = $article["Category"] ?? "";
       $cms = $this->core->Data("Get", ["cms", md5($article["UN"])]);
-      $ck = ($article["Category"] == $searchType) ? 1 : 0;
-      $ck2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck3 = (($searchType == "CA" && $article["Category"] == "CA") || ($searchType == "PR" && $article["Category"] == "PR")) ? 1 : 0;
-      $ck4 = $this->core->CheckPrivacy([
+      $check = ($article["Category"] == $searchType) ? 1 : 0;
+      $check2 = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check3 = (($searchType == "CA" && $article["Category"] == "CA") || ($searchType == "PR" && $article["Category"] == "PR")) ? 1 : 0;
+      $check4 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $article["Privacy"],
        "UN" => $article["UN"],
        "Y" => $you
       ]);
-      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) ? 1 : 0;
+      $check = ($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) ? 1 : 0;
       $illegal = $article["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $illegal == 0) {
+      if($bl == 0 && $check == 1 && $illegal == 0) {
        array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
@@ -1423,7 +1423,8 @@
          "[ListItem.Button]" => $this->core->Element([
           "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
            "class" => "OpenCard Small",
-           "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
+           "data-encryption" => "AES",
+           "data-view" => $this->core->AESencrypt("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
           ]
          ]).$this->core->Element([
           "h4", $t["Personal"]["DisplayName"], ["class" => "CenterText UpperCase"]
@@ -1479,13 +1480,13 @@
      $bl2 = $this->core->CheckBlocked([
       $y, "Members", $t["Login"]["Username"]
      ]);
-     $ck = $this->core->CheckPrivacy([
+     $check = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $t["Privacy"]["Profile"],
       "UN" => $t["Login"]["Username"],
       "Y" => $y["Login"]["Username"]
      ]);
-     if($bl == 0 && $bl2 == 0 && $ck == 1) {
+     if($bl == 0 && $bl2 == 0 && $check == 1) {
       $opt = $this->core->Element(["button", "View Profile", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&back=1&b2=$b2&lPG=$parentView&pub=0&UN=".base64_encode($t["Login"]["Username"]))
@@ -1535,9 +1536,9 @@
     $contributors = [];
     $id = $data["ID"] ?? "";
     $type = $data["Type"] ?? "";
-    $ck = (!empty($id)) ? 1 : 0;
-    $ck2 = (!empty($type)) ? 1 : 0;
-    if($ck == 1 && $ck2 == 1) {
+    $check = (!empty($id)) ? 1 : 0;
+    $check2 = (!empty($type)) ? 1 : 0;
+    if($check == 1 && $check2 == 1) {
      $id = base64_decode($id);
      $type = base64_decode($type);
      if($type == "Article") {
@@ -1587,7 +1588,7 @@
        $options = $_Member["ListItem"]["Options"];
        $them = $member["Login"]["Username"];
        $cms = $this->core->Data("Get", ["cms", md5($them)]);
-       $ck = $this->core->CheckPrivacy([
+       $check = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $member["Privacy"]["Profile"],
         "UN" => $them,
@@ -1598,13 +1599,13 @@
        if($theyBlockedYou == 0 && $youBlockedThem == 0 ) {
         if($type == "Article") {
          $ban = base64_encode("Page:Banish");
-         $ck2 = ($Page["UN"] == $you || $admin == 1) ? 1 : 0;
-         $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
-         if($ck == 1 || $ck2 == 1) {
-          $ck = ($Page["UN"] != $member && $Page["UN"] != $you) ? 1 : 0;
+         $check2 = ($Page["UN"] == $you || $admin == 1) ? 1 : 0;
+         $check2 = ($check2 == 1 && $member != $you) ? 1 : 0;
+         if($check == 1 || $check2 == 1) {
+          $check = ($Page["UN"] != $member && $Page["UN"] != $you) ? 1 : 0;
           $eid = base64_encode($Page["ID"]);
           $mbr = base64_encode($them);
-          $opt = ($ck == 1 && $ck2 == 1) ? $this->core->Element([
+          $opt = ($check == 1 && $check2 == 1) ? $this->core->Element([
            "button", "Banish", [
             "class" => "OpenDialog v2",
             "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
@@ -1617,13 +1618,13 @@
           ]) : "";
          }
         } elseif($type == "Blog") {
-         $ck2 = ($blog["UN"] == $you || $admin == 1) ? 1 : 0;
-         $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
-         if($ck == 1 || $ck2 == 1) {
-          $ck = ($blog["UN"] != $member && $blog["UN"] != $you) ? 1 : 0;
+         $check2 = ($blog["UN"] == $you || $admin == 1) ? 1 : 0;
+         $check2 = ($check2 == 1 && $member != $you) ? 1 : 0;
+         if($check == 1 || $check2 == 1) {
+          $check = ($blog["UN"] != $member && $blog["UN"] != $you) ? 1 : 0;
           $eid = base64_encode($blog["ID"]);
           $mbr = base64_encode($them);
-          $opt = ($ck == 1 && $ck2 == 1) ? $this->core->Element([
+          $opt = ($check == 1 && $check2 == 1) ? $this->core->Element([
            "button", "Banish", [
             "class" => "OpenDialog v2",
             "data-view" => base64_encode("v=".base64_encode("Blog:Banish")."&ID=$eid&Member=$mbr")
@@ -1636,21 +1637,21 @@
           ]) : "";
          }
         } elseif($type == "BlogPost") {
-         $ck2 = ($post["UN"] == $you || $admin == 1) ? 1 : 0;
-         $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
-         if($ck == 1 || $ck2 == 1) {
-          $ck = ($post["UN"] != $member && $post["UN"] != $you) ? 1 : 0;
+         $check2 = ($post["UN"] == $you || $admin == 1) ? 1 : 0;
+         $check2 = ($check2 == 1 && $member != $you) ? 1 : 0;
+         if($check == 1 || $check2 == 1) {
+          $check = ($post["UN"] != $member && $post["UN"] != $you) ? 1 : 0;
           $eid = base64_encode($post["ID"]);
           $mbr = base64_encode($them);
          }
         } elseif($type == "Forum") {
-         $ck2 = ($forum["UN"] == $you || $admin == 1) ? 1 : 0;
-         $ck2 = ($ck2 == 1 && $member != $you) ? 1 : 0;
-         if($ck == 1 || $ck2 == 1) {
-          $ck = ($forum["UN"] != $member && $forum["UN"] != $you) ? 1 : 0;
+         $check2 = ($forum["UN"] == $you || $admin == 1) ? 1 : 0;
+         $check2 = ($check2 == 1 && $member != $you) ? 1 : 0;
+         if($check == 1 || $check2 == 1) {
+          $check = ($forum["UN"] != $member && $forum["UN"] != $you) ? 1 : 0;
           $eid = base64_encode($forum["ID"]);
           $mbr = base64_encode($them);
-          $opt = ($ck == 1 && $ck2 == 1) ? $this->core->Element([
+          $opt = ($check == 1 && $check2 == 1) ? $this->core->Element([
            "button", "Banish", [
             "class" => "OpenDialog v2",
             "data-view" => base64_encode("v=".base64_encode("Forum:Banish")."&ID=$eid&Member=$mbr")
@@ -1663,11 +1664,11 @@
           ]) : "";
          }
         } elseif($type == "Shop") {
-         $ck = ($id == md5($you) && $them != $you) ? 1 : 0;
+         $check = ($id == md5($you) && $them != $you) ? 1 : 0;
          $description = "<b>".$role["Title"]."</b><br/>".$role["Description"];
          $eid = base64_encode($id);
          $memberID = base64_encode($them);
-         $opt = ($ck == 1) ? $this->core->Element(["button", "Edit", [
+         $opt = ($check == 1) ? $this->core->Element(["button", "Edit", [
           "class" => "OpenCard v2",
           "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
          ]]).$this->core->Element(["button", "Fire", [
@@ -1803,8 +1804,8 @@
       $manifest = $this->core->Data("Get", ["pfmanifest", $sql["Forum_ID"]]);
       $t = ($forum["UN"] == $you) ? $y : $this->core->Member($forum["UN"]);
       $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
-      $ck = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck2 = $this->core->CheckPrivacy([
+      $check = ($forum["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $forum["Privacy"],
        "UN" => $forum["UN"],
@@ -1816,7 +1817,7 @@
        if($active == 0 && $member == $you) {
         $active++;
        }
-      } if($bl == 0 && ($active == 1 || $ck == 1 && $ck2 == 1) && $illegal == 0) {
+      } if($bl == 0 && ($active == 1 || $check == 1 && $check2 == 1) && $illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -1931,16 +1932,16 @@
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        $op = ($sql["ForumPost_Username"] == $you) ? $y : $this->core->Member($sql["ForumPost_Username"]);
        $options = $_ForumPost["ListItem"]["Options"];
-       $ck = ($sql["Forum_Username"] == $you || $post["From"] == $you) ? 1 : 0;
-       $ck2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
-       $ck3 = $this->core->CheckPrivacy([
+       $check = ($sql["Forum_Username"] == $you || $post["From"] == $you) ? 1 : 0;
+       $check2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
+       $check3 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $post["Privacy"],
         "UN" => $post["From"],
         "Y" => $you
        ]);
        $passPhrase = $post["PassPhrase"] ?? "";
-       if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
+       if($bl == 0 && ($check2 == 1 && $check3 == 1) && $illegal == 0) {
         $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
@@ -1960,7 +1961,7 @@
          ]
         ]) : "";
         $actions = ($this->core->ID != $you) ? $addTo.$actions : $addTo;
-        if($ck == 1) {
+        if($check == 1) {
          $actions .= $this->core->Element([
           "button", "Delete", [
            "class" => "InnerMargin OpenDialog",
@@ -1968,7 +1969,7 @@
            "data-view" => $options["Delete"]
           ]
          ]);
-         $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element([
+         $actions .= ($admin == 1 || $check == 1) ? $this->core->Element([
           "button", "Edit", [
            "class" => "InnerMargin OpenCard",
            "data-encryption" => "AES",
@@ -2087,16 +2088,16 @@
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
        $op = ($sql["ForumPost_Username"] == $you) ? $y : $this->core->Member($sql["ForumPost_ID"]);
        $options = $_ForumPost["ListItem"]["Options"];
-       $ck = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
-       $ck2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
-       $ck3 = $this->core->CheckPrivacy([
+       $check = ($forum["UN"] == $you || $post["From"] == $you) ? 1 : 0;
+       $check2 = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $post["NSFW"] == 0) ? 1 : 0;
+       $check3 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $post["Privacy"],
         "UN" => $post["From"],
         "Y" => $you
        ]);
        $passPhrase = $post["PassPhrase"] ?? "";
-       if($bl == 0 && ($ck2 == 1 && $ck3 == 1) && $illegal == 0) {
+       if($bl == 0 && ($check2 == 1 && $check3 == 1) && $illegal == 0) {
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
         $actions = ($post["From"] != $you) ? $this->core->Element([
@@ -2107,14 +2108,14 @@
          ]
         ]) : "";
         $actions = ($this->core->ID != $you) ? $actions : "";
-        if($ck == 1) {
+        if($check == 1) {
          $actions .= $this->core->Element([
           "button", "Delete", [
            "class" => "InnerMargin OpenDialog",
            "data-view" => $options["Delete"]
           ]
          ]);
-         $actions .= ($admin == 1 || $ck == 1) ? $this->core->Element([
+         $actions .= ($admin == 1 || $check == 1) ? $this->core->Element([
           "button", "Edit", [
            "class" => "InnerMargin OpenCard",
            "data-view" => $options["Edit"]
@@ -2422,8 +2423,8 @@
        "Albums",
        base64_encode($t["Login"]["Username"]."-$key")
       ]);
-      $ck = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck2 = $this->core->CheckPrivacy([
+      $check = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $privacy,
        "UN" => $t["Login"]["Username"],
@@ -2431,8 +2432,8 @@
       ]);
       $illegal = $value["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      $ck = ($bl == 0 && $ck == 1 && $ck2 == 1 && $illegal == 0) ? 1 : 0;
-      if($ck == 1 || $username == $you) {
+      $check = ($bl == 0 && $check == 1 && $check2 == 1 && $illegal == 0) ? 1 : 0;
+      if($check == 1 || $username == $you) {
        $coverPhoto = $value["CoverPhoto"] ?? "";
        $coverPhoto = base64_encode($t["Login"]["Username"]."-".explode(".", $coverPhoto)[0]);
        array_push($_Commands, []);
@@ -2534,17 +2535,17 @@
       $privacy = $theirPrivacy["Profile"];
       $privacy = ($searchType == "CA") ? $theirPrivacy["Contributions"] : $privacy;
       $privacy = ($searchType == "JE") ? $theirPrivacy["Journal"] : $privacy;
-      $ck = ($article["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck2 = $this->core->CheckPrivacy([
+      $check = ($article["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $privacy,
        "UN" => $article["UN"],
        "Y" => $you
       ]);
-      $ck3 = ($illegal == 0 && $article["Category"] == $searchType) ? 1 : 0;
-      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-      $ck2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
-      if($ck == 1 && $ck2 == 1) {
+      $check3 = ($illegal == 0 && $article["Category"] == $searchType) ? 1 : 0;
+      $check = ($check == 1 && $check2 == 1 && $check3 == 1) ? 1 : 0;
+      $check2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
+      if($check == 1 && $check2 == 1) {
        array_push($_Commands, []);
        array_push($_List, [
         "[Article.Subtitle]" => "Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"]).".",
@@ -2752,8 +2753,8 @@
      ]);
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
-      $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      if($bl == 0 && $ck == 1) {
+      $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      if($bl == 0 && $check == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element([
         "div", $extension, ["class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"]
@@ -2847,16 +2848,16 @@
       if($check == 1 || ($bl == 0 && $illegal == 0)) {
        $op = ($check == 1) ? $y : $this->core->Member($from);
        $cms = $this->core->Data("Get", ["cms", md5($from)]);
-       $ck = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
-       $ck2 = $this->core->CheckPrivacy([
+       $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
+       $check2 = $this->core->CheckPrivacy([
         "Contacts" => $cms["Contacts"],
         "Privacy" => $update["Privacy"],
         "UN" => $update["From"],
         "Y" => $you
        ]);
-       $ck2 = 1;
+       $check2 = 1;
        $passPhrase = $update["PassPhrase"] ?? "";
-       if($bl == 0 && ($ck == 1 && $ck2 == 1)) {
+       if($bl == 0 && ($check == 1 && $check2 == 1)) {
         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $options = $_StatusUpdate["ListItem"]["Options"];
@@ -3028,8 +3029,8 @@
      ]);
      if($_Poll["Empty"] == 0) {
       $poll = $_Poll["DataModel"];
-      $ck = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      if($bl == 0 && $ck == 1) {
+      $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      if($bl == 0 && $check == 1) {
        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
@@ -3126,15 +3127,15 @@
        "Blacklisted" => $bl,
        "ID" => base64_encode("Member;".md5($sql["Product_Username"]))
       ]);
-      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
-      $ck3 = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
-      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-      $ck = ($ck == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
+      $check = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $check3 = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
+      $check = ($check == 1 && $check2 == 1 && $check3 == 1) ? 1 : 0;
+      $check = ($check == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $illegal == 0) {
+      if($bl == 0 && $check == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -3299,15 +3300,15 @@
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];
-      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
-      $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-      $ck = ($ck == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
+      $check = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $check3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+      $check = ($check == 1 && $check2 == 1 && $check3 == 1) ? 1 : 0;
+      $check = ($check == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $illegal == 0) {
+      if($bl == 0 && $check == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -3467,15 +3468,15 @@
      ]);
      if($_Product["Empty"] == 0) {
       $product = $_Product["DataModel"];
-      $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
-      $ck3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-      $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1) ? 1 : 0;
-      $ck = ($ck == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
+      $check = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
+      $check3 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+      $check = ($check == 1 && $check2 == 1 && $check3 == 1) ? 1 : 0;
+      $check = ($check == 1 || $sql["Product_Username"] == $this->core->ShopID) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $illegal == 0) {
+      if($bl == 0 && $check == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [

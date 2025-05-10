@@ -60,7 +60,9 @@
     "View" => $_View
    ]);
   }
-  function Home(): string {
+  function Home(array $data): string {
+   $data = $data["Data"] ?? [];
+   $card = $data["Card"] ?? 0;
    $eventMedia = $this->core->RenderEventMedia() ?? [];
    $shopID = base64_encode($this->core->ShopID);
    return $this->core->JSONResponse([

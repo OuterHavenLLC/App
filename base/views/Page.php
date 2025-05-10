@@ -21,7 +21,7 @@
      "Body" => "You cannot banish yourself.",
     ];
     if($member != $article["UN"] && $member != $y["Login"]["Username"]) {
-    $_AccessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $_Dialog = [
       "Actions" => [
        $this->core->Element(["button", "Cancel", [
@@ -116,6 +116,7 @@
   function Edit(array $data): string {
    $_AccessCode = "Denied";
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Article Identifier is missing."
    ];
@@ -147,9 +148,10 @@
     $author = $article["UN"] ?? $you;
     $blogs = $article["Blogs"] ?? [];
     $blogPosts = $article["BlogPosts"] ?? [];
+    $body = $article["Body"] ?? "";
     $chats = $article["Chat"] ?? [];
     $coverPhoto = $article["CoverPhoto"] ?? "";
-    $designViewEditor = "ArticleEditor$id";
+    $description = $article["Description"] ?? "";
     $forums = $article["Forums"] ?? [];
     $forumPosts = $article["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Article" : "Edit ".$article["Title"];
@@ -170,6 +172,7 @@
     $nsfw = $article["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $article["PassPhrase"] ?? "";
     $privacy = $article["Privacy"] ?? $y["Privacy"]["Posts"];
+    $title = $article["Title"] ?? "";
     $attachments = $this->view(base64_encode("WebUI:Attachments"), [
      "Header" => "Attachments",
      "ID" => $id,
@@ -200,37 +203,152 @@
     $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
-      "data-form" => ".EditPage$id",
+      "data-form" => ".EditArticle$id",
       "data-processor" => base64_encode("v=".base64_encode("Page:Save"))
      ]]),
      "Front" => [
       "ChangeData" => [
        "[Article.Attachments]" => $this->core->RenderView($attachments),
-       "[Article.Body]" => base64_encode($this->core->PlainText([
-        "Data" => $article["Body"],
-        "Decode" => 1
-       ])),
-       "[Article.Categories]" => json_encode($categories, true),
-       "[Article.Category]" => $category,
        "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
-       "[Article.Description]" => base64_encode($article["Description"]),
-       "[Article.DesignView]" => $designViewEditor,// TO BE DISOLVED
        "[Article.Header]" => $header,
        "[Article.ID]" => $id,
-       "[Article.New]" => $new,
-       "[Article.PassPhrase]" => base64_encode($passPhrase),
-       "[Article.Title]" => base64_encode($article["Title"]),
-       "[Article.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-       "[Article.Visibility.NSFW]" => $nsfw,
-       "[Article.Visibility.Privacy]" => $privacy
+       "[Article.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
       ],
       "ExtensionID" => "68526a90bfdbf5ea5830d216139585d7"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ArticleInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "class" => "Body req",
+          "id" => "EditArticleBody$id",
+          "name" => "Body",
+          "placeholder" => "Body"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Body",
+          "WYSIWYG" => 1
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($this->core->PlainText([
+          "Data" => $body,
+          "Decode" => 1
+         ]))
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase"
+          "type" => "text"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $categories,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Category"
+         ],
+         "Name" => "Category",
+         "Title" => "Article Category",
+         "Type" => "Select",
+         "Value" => $category
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
     $_Dialog = "";
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
@@ -377,6 +495,45 @@
        ]]) : "";
        $verified = $author["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+       $_Commands = [
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Conversation$id",
+          $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Notes$id",
+          $options["Notes"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Vote$id",
+          $options["Vote"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentRecursiveAES",
+         "Parameters" => [
+          ".Contributors$id",
+          $options["Contributors"],
+          15000
+         ]
+        ],
+        [
+         "Name" => "UpdateContentRecursiveAES",
+         "Parameters" => [
+          ".Subscribe$id",
+          $options["Subscribe"],
+          6000
+         ]
+        ]
+       ];
        $_View = [
         "ChangeData" => [
          "[Article.Actions]" => $actions,
@@ -387,7 +544,7 @@
           "Decode" => 1,
           "HTMLDecode" => 1
          ]),
-         "[Article.Contributors]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($contributors, true))),
+         "[Article.Contributors]" => $options["Contributors"],
          "[Article.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
          "[Article.Created]" => $this->core->TimeAgo($article["Created"]),
          "[Article.Description]" => $_Article["ListItem"]["Description"],
@@ -396,9 +553,7 @@
          "[Article.Notes]" => $options["Notes"],
          "[Article.Report]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Page;$id")),
          "[Article.Share]" => $share,
-         "[Article.Subscribe]" => $options["Subscribe"],
          "[Article.Title]" => $_Article["ListItem"]["Title"],
-         "[Article.Votes]" => $options["Vote"],
          "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
          "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
          "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
@@ -414,10 +569,6 @@
          "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
          "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
          "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
          "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
          "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
          "[Member.Description]" => $description
@@ -785,7 +936,7 @@
       "UN" => $author,
       "Updates" => $updates
      ];
-     $sql = New SQL($this->core->cypher->SQLCredentials());
+     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Articles(
       Article_Body,
       Article_Created,
@@ -850,10 +1001,11 @@
         ]);
        }
       }
-     }
+     }--*/
      $_Dialog = [
       "Body" => "The $newCategory has been $actionTaken!",
-      "Header" => "Done"
+      "Header" => "Done",
+      "Scrollable" => json_encode($article, true)
      ];
     }
    }

@@ -713,12 +713,14 @@
          $sql->execute();
          array_push($_Passed, [
           "HTML" => $this->core->Element([
-           "div", $this->core->GetAttachmentPreview([
+           "button", $this->core->GetAttachmentPreview([
             "DLL" => $file,
             "T" => $username,
             "Y" => $you
            ]), [
-            "class" => "InnerMargin Medium"
+            "class" => "Medium OpenCard RoundedLarge Shadowed",
+            "data-encryption" => "AES",
+            "data-view" => $this->core->AESencrypt("v=".base64_encode("File:Home")."&CARD=1&&ID=$id&UN=$username")
            ]
           ]),
           "Raw" => $file

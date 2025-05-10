@@ -2058,7 +2058,7 @@ $(document).on("click", ".GoToView", (event) => {
   $.ajax({
    error: (error) => {
     OH.Dialog({
-     "Body": "Data retrieval error, please see below.",
+     "Body": "GoToView: Data retrieval error, please see below.",
      "Scrollable": JSON.stringify(error)
     });
    },

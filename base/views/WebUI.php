@@ -295,8 +295,8 @@
     "AddTopMargin" => "0",
     "View" => [
      "ChangeData" => [
-      "[Gateway.Company]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")."&Card=1"),
       "[Gateway.Architecture]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")."&CARD=1"),
+      "[Gateway.Company]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")."&Card=1"),
       "[Gateway.Banner]" => $eventMedia["Banner"],
       "[Gateway.CoverPhoto]" => $eventMedia["CoverPhoto"],
       "[Gateway.IT]" => $this->core->AESencrypt("v=".base64_encode("Shop:Home")."&CARD=1&UN=".base64_encode($this->core->ShopID)),

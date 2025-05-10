@@ -5,7 +5,7 @@
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data): string {
+  function Edit(array $data): string {// DEBUG EDITOR COMMANDS EXECUTION AND PROCESOR
    $_Card = "";
    $_Commands = "";
    $_Dialog = "";
