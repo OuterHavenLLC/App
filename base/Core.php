@@ -540,13 +540,13 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Blogs")),
-       "Chat" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-       "Edit" => base64_encode("v=".base64_encode("Blog:Edit")."&BLG=$contentID"),
+       "Block" => $this->AESencrypt("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Blogs")),
+       "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
+       "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
+       "Edit" => $this->AESencrypt("v=".base64_encode("Blog:Edit")."&BLG=$contentID"),
        "Invite" => base64_encode("v=".base64_encode("Blog:Invite")."&ID=".base64_encode($contentID)),
-       "Post" => base64_encode("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
+       "Post" => $this->AESencrypt("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => $this->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Blog"),
        "View" => $this->AESencrypt("v=".base64_encode("Blog:Home")."&AddTo=$addTo&CARD=1&ID=$contentID"),
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
@@ -576,7 +576,7 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($additionalContentID)."&List=".base64_encode("Blog Posts")),
+       "Block" => $this->AESencrypt("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($additionalContentID)."&List=".base64_encode("Blog Posts")),
        "Contributors" => $this->AESencrypt("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("BlogPost")."&st=Contributors"),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&Post=$additionalContentID"),
@@ -664,14 +664,14 @@
       ], true);
       $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Files")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Media", ["class" => "CenterText"]]))."&ParentPage=Files&ViewData=".base64_encode($viewData)),
-       "Edit" => base64_encode("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContentID)."&UN=".base64_encode($contentID)),
-       "Report" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("File;$contentID;$additionalContentID")),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
+       "Block" => $this->AESencrypt("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Files")),
+       "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Media", ["class" => "CenterText"]]))."&ParentPage=Files&ViewData=".base64_encode($viewData)),
+       "Edit" => $this->AESencrypt("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContentID)."&UN=".base64_encode($contentID)),
+       "Report" => $this->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("File;$contentID;$additionalContentID")),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
        "Source" => $this->GetSourceFromExtension([$contentID, $data]),
        "View" => "$parentView;".base64_encode("v=".base64_encode("File:Home")."&AddTo=$addTo&ID=$additionalContentID&UN=$contentID&ParentView=$parentView&ViewData=$viewData"),
-       "Vote" => base64_encode("v=$vote&ID=$additionalContentID&Type=4")
+       "Vote" => $this->AESencrypt("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
      }
@@ -693,14 +693,14 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Forums")),
-       "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-       "Edit" => base64_encode("v=".base64_encode("Forum:Edit")."&ID=$contentID"),
-       "Invite" => base64_encode("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
-       "Post" => base64_encode("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
+       "Block" => $this->AESencrypt("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($contentID)."&List=".base64_encode("Forums")),
+       "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
+       "Edit" => $this->AESencrypt("v=".base64_encode("Forum:Edit")."&ID=$contentID"),
+       "Invite" => $this->AESencrypt("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
+       "Post" => $this->AESencrypt("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "View" => $this->AESencrypt("v=".base64_encode("Forum:Home")."&AddTo=$addTo&CARD=1&ID=".base64_encode($contentID)),
-       "Vote" => base64_encode("v=$vote&ID=$contentID&Type=4")
+       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
      }
@@ -757,12 +757,12 @@
       $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Blcok" => "",
-       "Edit" => base64_encode("v=".base64_encode("Profile:Preferences")),
+       "Edit" => $this->AESencrypt("v=".base64_encode("Profile:Preferences")),
        "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
-       "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
+       "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
        "ShareLink" => $this->base."/@$them",
-       "View" => base64_encode("v=".base64_encode("Profile:Home")."&AddTo=$addTo&Card=1&UN=".base64_encode($them)),
-       "Vote" => base64_encode("v=$vote&ID=".md5($them)."&Type=4")
+       "View" => $this->AESencrypt("v=".base64_encode("Profile:Home")."&AddTo=$addTo&Card=1&UN=".base64_encode($them)),
+       "Vote" => $this->AESencrypt("v=$vote&ID=".md5($them)."&Type=4")
       ];
      }
     } elseif($type == "Page") {

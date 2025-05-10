@@ -477,7 +477,7 @@
           "Attributes" => [
            "class" => "req",
            "name" => "Email",
-           "placeholder" => "Johnny.Test@outerhaven.nyc",
+           "placeholder" => "johnny.test@outerhaven.nyc",
            "type" => "email"
           ],
           "Options" => [
@@ -1613,7 +1613,7 @@
        $shop["InvoicePresets"] = $services;
        #$this->core->Data("Save", ["invoice-preset", $id, $service]);
        #$this->core->Data("Save", ["shop", $shopID, $shop]);
-       $_View = "Update Pre-set";
+       $_View = "Update Pre-set".json_encode($service, true);
        $_ResponseType = "UpdateText";
       } elseif($isPreset == 0) {
        $_Dialog = [

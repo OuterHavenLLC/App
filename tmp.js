@@ -1780,8 +1780,8 @@ $(document).on("change", ".UpdateRangeValue", (event) => {
 });
 $(document).on("click", ".Attach", (event) => {
  const $Button = $(event.currentTarget),
-  $Input = $(document).find(OH.Base64decrypt($Button.attr("data-input"))),
-  Media = $Button.attr("data-media") || "";
+           $Input = $(document).find(OH.Base64decrypt($Button.attr("data-input"))),
+           Media = $Button.attr("data-media") || "";
  $Button.prop("disabled", true);
  if(!$Input.length) {
   OH.Dialog({
@@ -1796,6 +1796,34 @@ $(document).on("click", ".Attach", (event) => {
   $Button.text(OH.Loading);
   OH.CloseCard();
  }
+});
+$(document).on("click", ".Block", (event) => {
+ const $Button = $(event.currentTarget),
+           View = $Button.attr("data-view") || OH.AESencrypt("");
+ $Button.prop("disabled", "true");
+ $.ajax({
+  error: (error) => {
+   OH.Dialog({
+    "Body": "Block: Data retrieval error, please see below.",
+    "Scrollable": JSON.stringify(error)
+   });
+  },
+  headers: {
+   Language: OH.AESencrypt(OH.LocalData("Get", "Language")),
+   Token: OH.AESencrypt(OH.LocalData("Get", "SecurityKey"))
+  },
+  method: "POST",
+  success: (data) => {
+   if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
+    OH.Crash(data);
+   } else {
+    const Data = OH.RenderView(data);
+    $Button.prop("disabled", false);
+    $Button.text(Data.View);
+   }
+  },
+  url: OH.base + OH.AESdecrypt(View)
+ });
 });
 $(document).on("click", ".Clone", (event) => {
  let $Button = $(event.currentTarget),
@@ -2501,6 +2529,34 @@ $(document).on("click", ".ToggleSideBar", (event) => {
    }, 500);
   }
  }
+});
+$(document).on("click", ".Unblock", (event) => {
+ const $Button = $(event.currentTarget),
+           View = $Button.attr("data-view") || OH.AESencrypt("");
+ $Button.prop("disabled", "true");
+ $.ajax({
+  error: (error) => {
+   OH.Dialog({
+    "Body": "Unblock: Data retrieval error, please see below.",
+    "Scrollable": JSON.stringify(error)
+   });
+  },
+  headers: {
+   Language: OH.AESencrypt(OH.LocalData("Get", "Language")),
+   Token: OH.AESencrypt(OH.LocalData("Get", "SecurityKey"))
+  },
+  method: "POST",
+  success: (data) => {
+   if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
+    OH.Crash(data);
+   } else {
+    const Data = OH.RenderView(data);
+    $Button.prop("disabled", false);
+    $Button.text(Data.View);
+   }
+  },
+  url: OH.base + OH.AESdecrypt(View)
+ });
 });
 $(document).on("click", ".UpdateButton", (event) => {
  const $Button = $(event.currentTarget),
