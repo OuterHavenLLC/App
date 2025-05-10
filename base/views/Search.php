@@ -787,8 +787,8 @@
        $post = $_BlogPost["DataModel"];
        $actions = ($sql["BlogPost_Username"] != $you) ? $this->core->Element([
         "button", "Block", [
-         "class" => "InnerMargin UpdateButton v2",
-         "data-processor" => $options["Block"]
+         "class" => "Block InnerMargin v2",
+         "data-view" => $options["Block"]
         ]
        ]) : "";
        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
@@ -850,10 +850,10 @@
     $_AccessCode = "Accepted";
     $_ExtensionID = "e05bae15ffea315dc49405d6c93f9b2c";
     if($notAnon == 1) {
-     $bl = base64_decode($data["BL"]);
-     $blacklist = $y["Blocked"][$bl] ?? [];
+     $list = base64_decode($data["BL"]);
+     $blacklist = $y["Blocked"][$list] ?? [];
      foreach($blacklist as $key => $value) {
-      $usernameblock = base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode("Unblock")."&Content=".base64_encode($value)."&List=".base64_encode($bl));
+      $blacklistProcessor = "v=".base64_encode("Profile:Block")."&ID=".$this->core->AESencrypt($value)."&List=".$this->core->AESencrypt($list);
       if($bl == "Albums") {
        $alb = explode("-", base64_decode($value));
        $t = ($alb[0] != $you) ? $this->core->Member($alb[0]) : $y;
@@ -971,7 +971,7 @@
        "[Blacklist.Header]" => $h,
        "[Blacklist.ID]" => $v,
        "[Blacklist.Unblock]" => $u,
-       "[Blacklist.Unblock.Proc]" => base64_encode($usernameblock),
+       "[Blacklist.Unblock.Processor]" => $this->core->AESencrypt($blacklistProcessor),
        "[Blacklist.View]" => $vi
       ]);
      }
@@ -1947,9 +1947,8 @@
         $con = base64_encode("Conversation:Home");
         $actions .= ($post["From"] != $you) ? $this->core->Element([
          "button", "Block", [
-          "class" => "InnerMargin",
-          "data-cmd" => base64_encode("B"),
-          "data-u" => $options["Block"]
+          "class" => "Block InnerMargin",
+          "data-view" => $options["Block"]
          ]
         ]) : "";
         $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
@@ -2102,9 +2101,8 @@
         $con = base64_encode("Conversation:Home");
         $actions = ($post["From"] != $you) ? $this->core->Element([
          "button", "Block", [
-          "class" => "InnerMargin",
-          "data-cmd" => base64_encode("B"),
-          "data-u" => $options["Block"]
+          "class" => "Block InnerMargin",
+          "data-view" => $options["Block"]
          ]
         ]) : "";
         $actions = ($this->core->ID != $you) ? $actions : "";
@@ -2755,15 +2753,14 @@
       $poll = $_Poll["DataModel"];
       $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       if($bl == 0 && $check == 1) {
-       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $extension = $this->core->Element([
         "div", $extension, ["class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"]
        ]);
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
-        "div", $this->core->Element(["button", $blockCommand, [
-         "class" => "UpdateButton v2 v2w",
-         "data-processor" => $options["Block"]
+        "div", $this->core->Element(["button", "Block", [
+         "class" => "Block v2 v2w",
+         "data-view" => $options["Block"]
         ]]), ["class" => "Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Delete", [
@@ -3031,12 +3028,11 @@
       $poll = $_Poll["DataModel"];
       $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       if($bl == 0 && $check == 1) {
-       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
-        "div", $this->core->Element(["button", $blockCommand, [
-         "class" => "UpdateButton v2 v2w",
-         "data-processor" => $options["Block"]
+        "div", $this->core->Element(["button", "Block", [
+         "class" => "Block v2 v2w",
+         "data-view" => $options["Block"]
         ]]), ["class" => "Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Delete", [

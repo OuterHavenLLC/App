@@ -72,67 +72,6 @@
     ]
    ]);
   }
-  function Blacklist(array $data): string {
-   $_Dialog = [
-    "Body" => "Some required data is missing."
-   ];
-   $_View = "";
-   $data = $data["Data"] ?? [];
-   $missing = 0;
-   $requiredData = [
-    "Command",
-    "Content",
-    "List"
-   ];
-   $_ResponseType = "N/A";
-   $y = $this->you;
-   $you = $y["Login"]["Username"];
-   foreach($requiredData as $required) {
-    if(empty($data[$required])) {
-     $missing++;
-    }
-   } if($this->core->ID == $you) {
-    $_Dialog = [
-     "Body" => "You must be signed in to subscribe.",
-     "Header" => "Forbidden"
-    ];
-   } elseif($missing == 0) {
-    $_Dialog = "";
-    $_ResponseType = "UpdateButton";
-    $command = base64_decode($data["Command"]);
-    $content = base64_decode($data["Content"]);
-    $list = base64_decode($data["List"]);
-    $blacklist = $y["Blocked"][$list] ?? [];
-    $newBlacklist = [];
-    $text = "Error";
-    foreach($blacklist as $key => $value) {
-     if($content != $value) {
-      array_push($newBlacklist, $value);
-     }
-    } if($command == "Block") {
-     array_push($newBlacklist, $content);
-     $text = "Unblock";
-    } elseif($command == "Unblock") {
-     $text = "Block";
-    }
-    $y["Blocked"][$list] = array_unique($newBlacklist);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $_View = [
-     "Attributes" => [
-      "class" => "Small UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($text)."&Content=".$data["Content"]."&List=".$data["List"])
-     ],
-     "Text" => $text
-    ];
-   }
-   return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
-    "Dialog" => $_Dialog,
-    "ResponseType" => $_ResponseType,
-    "View" => $_View
-   ]);
-  }
   function BlacklistCategories(): string {
    $_View = "";
    $y = $this->you;

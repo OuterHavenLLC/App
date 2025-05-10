@@ -194,6 +194,40 @@
     ]
    ]);
   }
+  function Block(array $data): string {
+   $_View = "Content ID or List missing.";
+   $data = $data["Data"] ?? [];
+   $id = $data["ID"] ?? "";
+   $list = $data["List"] ?? "";
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $_View = "Please Sign In";
+   } elseif(!empty($id)) {
+    $id = $this->core->AESencrypt($id);
+    $list = $this->core->AESencrypt($list);
+    $blacklist = $y["Blocked"][$list] ?? [];
+    $newBlacklist = [];
+    if(in_array($id, $blacklist)) {
+     foreach($blacklist as $key => $value) {
+      if($content != $value) {
+       array_push($newBlacklist, $value);
+      }
+     }
+     $_View = "Block";
+    } else {
+     array_push($newBlacklist, $content);
+     $_View = "Unblock";
+    }
+    $y["Blocked"][$list] = array_unique($newBlacklist);
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $_View .= json_encode($y["Blocked"], true);
+   }
+   return $this->core->JSONResponse([
+    "AddTopMargin" => "0",
+    "View" => $_View
+   ]);
+  }
   function DesignView(array $data): string {
    $data = $data["Data"] ?? [];
    $designView = $data["DV"] ?? "";
