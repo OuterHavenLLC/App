@@ -862,48 +862,48 @@
         md5($t["Login"]["Username"])
        ]);
        $alb = $fs["Albums"][$alb[1]];
-       $de = $alb["Description"];
+       $description = $alb["Description"];
        $header = "<em>".$alb["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blogs") {
        $bg = $this->core->Data("Get", ["blg", $id]);
-       $de = $bg["Description"];
+       $description = $bg["Description"];
        $header = "<em>".$bg["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blog Posts") {
        $bp = $this->core->Data("Get", ["bp", $id]);
-       $de = $bp["Description"];
+       $description = $bp["Description"];
        $header = "<em>".$bp["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Files") {
-       $de = "{file_description}";
+       $description = "{file_description}";
        $header = "<em>{file_name}</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forums") {
        $forum = $this->core->Data("Get", ["pf", $id]);
-       $de = $forum["Description"];
+       $description = $forum["Description"];
        $header = "<em>".$forum["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forum Posts") {
        $post = $this->core->Data("Get", ["post", $id]);
-       $de = $post["Description"];
+       $description = $post["Description"];
        $header = "<em>".$post["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
@@ -914,64 +914,62 @@
         ":ID" => $id
        ]);
        $sql = $sql->single();
-       if(count($sql) <= $limit) {
-        $end = 1;
-       } foreach($sql as $sql) {
-        $de = $sql["Link_Description"] ?? "No Description";
+       foreach($sql as $sql) {
+        $description = $sql["Link_Description"] ?? "No Description";
         $title = $sql["Link_Title"] ?? "Untitled";
-        $vi = $this->core->Element(["button", "Visit <em>$title</em>", [
+        $view = $this->core->Element(["button", "Visit <em>$title</em>", [
          "class" => "v2 v2w",
          "onclick" => "W('$value', '_blank');"
         ]]);
        }
       } elseif($bl == "Members") {
        $member = $this->core->Data("Get", ["mbr", $id]);
-       $de = $member["Description"];
+       $description = $member["Description"];
        $header = "<em>".$member["Personal"]["DisplayName"]."</em>";
-       $vi = $this->core->Element(["button", "View $h's Profile", [
+       $view = $this->core->Element(["button", "View $h's Profile", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Pages") {
        $page = $this->core->Data("Get", ["pg", $id]);
-       $de = $page["Description"];
+       $description = $page["Description"];
        $header = "<em>".$page["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Products") {
        $product = $this->core->Data("Get", ["product", $id]);
-       $de = $product["Description"];
+       $description = $product["Description"];
        $header = "<em>".$product["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Shops") {
        $shop = $this->core->Data("Get", ["shop", $id]);
-       $de = $shop["Description"];
+       $description = $shop["Description"];
        $header = "<em>".$shop["Title"]."</em>";
-       $vi = $this->core->Element(["button", "View $header", [
+       $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Status Updates") {
        $update = $this->core->Data("Get", ["su", $id]);
-       $de = $this->core->Excerpt(base64_decode($update["Body"]), 180);
+       $description = $this->core->Excerpt(base64_decode($update["Body"]), 180);
        $header = $update["From"];
-       $vi = $this->core->Element(["button", "View $u", [
+       $view = $this->core->Element(["button", "View $u", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       }
       array_push($_Commands, []);
       array_push($_List, [
-       "[Blacklist.Description]" => $de,
+       "[Blacklist.Description]" => $description,
        "[Blacklist.Header]" => $header,
        "[Blacklist.ID]" => $id,
        "[Blacklist.Unblock]" => $this->core->AESencrypt($blacklistProcessor),
-       "[Blacklist.View]" => $vi
+       "[Blacklist.View]" => $view
       ]);
      }
     }

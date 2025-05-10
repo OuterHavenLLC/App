@@ -1954,8 +1954,8 @@ $(document).on("click", ".CreditExchange", (event) => {
 });
 $(document).on("click", ".Delete", (event) => {
  const $Button = $(event.currentTarget),
-  Processor = $Button.attr("data-processor"),
-  Text = $Button.text();
+           Processor = $Button.attr("data-processor"),
+           Text = $Button.text();
  $Button.prop("disabled", true);
  $Button.text("Dispatching...");
  if(Processor === "" || typeof Processor === "undefined") {
