@@ -7,6 +7,7 @@
   function Add(array $data): string {
    $_AccessCode = "Denied";
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
    ];
@@ -75,12 +76,71 @@
          "Extension" => $this->core->AESencrypt($_Extension)
         ];
        } else {
+        $_Commands = [
+         [
+          "Name" => "RenderInputs",
+          "Parameters" => [
+           ".Charge$id",
+           [
+            [
+             "Attributes" => [
+              "name" => "ID",
+              "type" => "hidden"
+             ],
+             "Options" => [],
+             "Type" => "Text",
+             "Value" => $id
+            ],
+            [
+             "Attributes" => [
+              "name" => "Charge",
+              "type" => "hidden"
+             ],
+             "Options" => [],
+             "Type" => "Text",
+             "Value" => 1
+            ],
+            [
+             "Attributes" => [
+              "name" => "Shop",
+              "type" => "hidden"
+             ],
+             "Options" => [],
+             "Type" => "Text",
+             "Value" => $shopID
+            ],
+            [
+             "Attributes" => [
+              "name" => "ReadyForPayment"
+             ],
+             "Options" => [
+              "Container" => 1,
+              "ContainerClass" => "NONAME",
+              "Header" => 1,
+              "HeaderText" => "",
+              "Selected" => ""
+             ],
+             "Text" => "Set the Invoice status to <em>Ready for Payment</em>. You will not be able to add further charges or change the Invoice status again.",
+             "Type" => "Check",
+             "Value" => 1
+            ]
+           ]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentRecursiveAES",
+          "Parameters" => [
+           ".Charges$id",
+           $this->core->AESencrypt("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Charge&ViewCharges=1"),
+           6000
+          ]
+         ]
+        ];
         $_View = [
          "ChangeData" => [
           "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
-          "[Invoice.Charges]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Charge&ViewCharges=1"),
           "[Invoice.ID]" => $id,
-          "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+          "[Invoice.Save]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Save")),
           "[Invoice.Shop]" => $shopID
          ],
          "ExtensionID" => "60fe8170fa7a51cdd75097855c74a95c"
@@ -152,12 +212,71 @@
           "Update" => []
          ]
         ]);
+        $_Commands = [
+         [
+          "Name" => "RenderInputs",
+          "Parameters" => [
+           ".Note$id",
+           [
+            [
+             "Attributes" => [
+              "name" => "ID",
+              "type" => "hidden"
+             ],
+             "Options" => [],
+             "Type" => "Text",
+             "Value" => $id
+            ],
+            [
+             "Attributes" => [
+              "name" => "Note",
+              "type" => "hidden"
+             ],
+             "Options" => [],
+             "Type" => "Text",
+             "Value" => 1
+            ],
+            [
+             "Attributes" => [
+              "name" => "Shop",
+              "type" => "hidden"
+             ],
+             "Options" => [],
+             "Type" => "Text",
+             "Value" => $shopID
+            ],
+            [
+             "Attributes" => [
+              "class" => "req",
+              "name" => "InvoiceNote",
+              "placeholder" => "Say something..."
+             ],
+             "Options" => [
+              "Container" => 1,
+              "ContainerClass" => "NONAME",
+              "Header" => 1,
+              "HeaderText" => "Add Note"
+             ],
+             "Type" => "TextBox",
+             "Value" => ""
+            ]
+           ]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentRecursiveAES",
+          "Parameters" => [
+           ".Notes$id",
+           $this->core->AESencrypt("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Note&ViewNotes=1"),
+           6000
+          ]
+         ]
+        ];
         $_View = [
          "ChangeData" => [
           "[Invoice.Attachments]" => $this->core->RenderView($attachments),
           "[Invoice.ID]" => $id,
-          "[Invoice.Notes]" => base64_encode("v=".base64_encode("Invoice:Add")."&Invoice=$id&Shop=$shopID&Type=Note&ViewNotes=1"),
-          "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
+          "[Invoice.Save]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Save")),
           "[Invoice.Shop]" => $shopID
          ],
          "ExtensionID" => "82e29a8d9c5737b07a4db0a1de45c7db"
@@ -175,6 +294,7 @@
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "Success" => "CloseCard",
     "View" => $_View
@@ -182,6 +302,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -190,7 +311,7 @@
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? "";
    $isPreset = $data["Preset"] ?? 0;
-   $shop = $data["Shop"] ?? "";
+   $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -216,72 +337,189 @@
      ]);
      $_ChangeData = [
       "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
-      "[Invoice.Charges]" => json_encode([
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeTitle[]",
-         "placeholder" => "Deposit",
-         "type" => "text"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Title"
-        ],
-        "Type" => "Text",
-        "Value" => ""
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeDescription[]",
-         "placeholder" => "Why are you placing this charge?",
-         "type" => "text"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Description"
-        ],
-        "Type" => "TextBox",
-        "Value" => ""
-       ],
-       [
-        "Attributes" => [
-         "name" => "ChargePaid[]",
-         "type" => "hidden"
-        ],
-        "Options" => [],
-        "Type" => "Text",
-        "Value" => 0
-       ],
-       [
-        "Attributes" => [
-         "class" => "req",
-         "name" => "ChargeValue[]",
-         "placeholder" => "50.00",
-         "type" => "number"
-        ],
-        "Options" => [
-         "Container" => 1,
-         "ContainerClass" => "Desktop50 MobileFull",
-         "Header" => 1,
-         "HeaderText" => "Amount"
-        ],
-        "Type" => "Text",
-        "Value" => base64_encode(50.00)
-       ]
-      ], true),
-      "[Invoice.ChargeTo]" => base64_encode($invoice["ChargeTo"]),
-      "[Invoice.Email]" => base64_encode($invoice["Email"]),
       "[Invoice.ID]" => $id,
-      "[Invoice.Phone]" => base64_encode($invoice["Phone"]),
-      "[Invoice.Save]" => base64_encode("v=".base64_encode("Invoice:Save")),
-      "[Invoice.Shop]" => $shop,
-      "[Invoice.Username]" => $you
+      "[Invoice.Save]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Save"))
+     ];
+     $_Commands = [
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".Charges$id",
+        [
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "ChargeTitle[]",
+           "placeholder" => "Deposit",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Title"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "ChargeDescription[]",
+           "placeholder" => "Why are you placing this charge?",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Description"
+          ],
+          "Type" => "TextBox",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "name" => "ChargePaid[]",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => 0
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "ChargeValue[]",
+           "placeholder" => "50.00",
+           "type" => "number"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Amount"
+          ],
+          "Type" => "Text",
+          "Value" => $this->core->AESencrypt(50.00)
+         ]
+        ]
+       ]
+      ],
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".InvoiceInformation$id",
+        [
+         [
+          "Attributes" => [
+           "name" => "ID",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $id
+         ],
+         [
+          "Attributes" => [
+           "name" => "Shop",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $shopID
+         ],
+         [
+          "Attributes" => [
+           "name" => "UN",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $you
+         ],
+         [
+          "Attributes" => [
+           "name" => "new",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => 1
+         ],
+         [
+          "Attributes" => [
+           "name" => "Title",
+           "placeholder" => "A New Pre-set Invoice",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Header" => 1,
+           "HeaderText" => "Service Name"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "name" => "ChargeTo",
+           "placeholder" => "Which Member is paying?",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Header" => 1,
+           "HeaderText" => "Charge To"
+          ],
+          "Type" => "Text",
+          "Value" => $this->core->AESencrypt($invoice["ChargeTo"])
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Email",
+           "placeholder" => "Johnny.Test@outerhaven.nyc",
+           "type" => "email"
+          ],
+          "Options" => [
+           "Header" => 1,
+           "HeaderText" => "E-Mail"
+          ],
+          "Type" => "Text",
+          "Value" => $this->core->AESencrypt($invoice["Email"])
+         ],
+         [
+          "Attributes" => [
+           "name" => "Phone",
+           "placeholder" => "777-777-7777",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Header" => 1,
+           "HeaderText" => "Phone Number"
+          ],
+          "Type" => "Text",
+          "Value" => $this->core->AESencrypt($invoice["Phone"])
+         ]
+        ]
+       ]
+      ],
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".Preset$id",
+        [
+         [
+          "Attributes" => [
+           "name" => "Preset",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => 1
+         ]
+        ]
+       ]
+      ]
      ];
      $_Extension = "e372b28484951c22fe9920317c852436";
     }
@@ -297,12 +535,14 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
   function Forward(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
    ];
@@ -336,10 +576,68 @@
        "ExtensionID" => "bef71930eb3342a550ba9e8a971cebe2"
       ]
      ];
+     $_Commands = [
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".ForwardTo$id",
+        [
+   [
+    "Attributes" => [
+     "name" => "Forward",
+     "type" => "hidden"
+    ],
+    "Options" => [],
+    "Type" => "Text",
+    "Value" => 1
+   ],
+   [
+    "Attributes" => [
+     "name" => "ID",
+     "type" => "hidden"
+    ],
+    "Options" => [],
+    "Type" => "Text",
+    "Value" => $id
+   ],
+   [
+    "Attributes" => [
+     "name" => "Shop",
+     "type" => "hidden"
+    ],
+    "Options" => [],
+    "Type" => "Text",
+    "Value" => $shopID
+   ],
+   [
+    "Attributes" => [
+     "name" => "Email",
+     "placeholder" => "johnny.test@outerhaven.nyc",
+     "type" => "email"
+    ],
+    "Options" => [],
+    "Type" => "Text",
+    "Value" => ""
+   ],
+   [
+    "Attributes" => [
+     "name" => "Username",
+     "placeholder" => "JohnnyTest",
+     "type" => "text"
+    ],
+    "Options" => [],
+    "Type" => "Text",
+    "Value" => ""
+   ]
+        ]
+       ]
+      ]
+     ];
     }
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
@@ -546,6 +844,7 @@
    ]);
   }
   function Home(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Invoice Identifier is missing."
    ];
@@ -701,13 +1000,43 @@
       ];
      } else {
       $home = "v=".base64_encode("Invoice:Home")."&ID=$id&Shop=".$invoice["Shop"];
+      $_Commands = [
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Charges$id",
+         $this->core->AESencrypt("$home&Dependency=Charges"),
+         6000
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Options$id",
+         $this->core->AESencrypt("$home&Dependency=Options"),
+         6000
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Status$id",
+         $this->core->AESencrypt("$home&Dependency=Status"),
+         6000
+        ]
+       ],
+       [
+        "Name" => "UpdateContentRecursiveAES",
+        "Parameters" => [
+         ".Total$id",
+         $this->core->AESencrypt("$home&Dependency=Total"),
+         6000
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
-        "[Invoice.Charges]" => base64_encode("$home&Dependency=Charges"),
-        "[Invoice.ID]" => $id,
-        "[Invoice.Options]" => base64_encode("$home&Dependency=Options"),
-        "[Invoice.Status]" => base64_encode("$home&Dependency=Status"),
-        "[Invoice.Total]" => base64_encode("$home&Dependency=Total")
+        "[Invoice.ID]" => $id
        ],
        "ExtensionID" => "4a78b78f1ebff90e04a33b52fb5c5e97"
       ];
@@ -721,6 +1050,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "Title" => $_ViewTitle,
     "View" => $_View
@@ -1250,10 +1580,11 @@
         "Updates" => $updates
        ]);
        $invoice["Notes"] = $notes;
-       $this->core->Data("Save", ["invoice", $id, $invoice]);
+       #$this->core->Data("Save", ["invoice", $id, $invoice]);
        $_Dialog = [
         "Body" => "Your note has been added to the Invoice.",
-        "Header" => "Done"
+        "Header" => "Done",
+        "Scrollable" => json_encode($notes, true)
        ];
       } elseif(!empty($title) && $isPreset == 1) {
        $_AccessCode = "Accepted";
@@ -1280,8 +1611,8 @@
        array_push($services, $id);
        $services = array_unique($services);
        $shop["InvoicePresets"] = $services;
-       $this->core->Data("Save", ["invoice-preset", $id, $service]);
-       $this->core->Data("Save", ["shop", $shopID, $shop]);
+       #$this->core->Data("Save", ["invoice-preset", $id, $service]);
+       #$this->core->Data("Save", ["shop", $shopID, $shop]);
        $_View = "Update Pre-set";
        $_ResponseType = "UpdateText";
       } elseif($isPreset == 0) {
@@ -1345,7 +1676,7 @@
          $invoices = array_unique($invoices);
          $name = $data["ChargeTo"] ?? $data["Email"];
          $shop["Invoices"] = $invoices;
-         if(!empty($data["Email"])) {
+         /*--if(!empty($data["Email"])) {
           $this->core->SendEmail([
            "Message" => $this->core->Change([[
             "[Mail.Message]" => "Please review the Invoice linked below.",
@@ -1370,10 +1701,11 @@
          }
          $this->core->Statistic("New Invoice");
          $this->core->Data("Save", ["invoice", $id, $invoice]);
-         $this->core->Data("Save", ["shop", $shopID, $shop]);
+         $this->core->Data("Save", ["shop", $shopID, $shop]);--*/
          $_Dialog = [
           "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
-          "Header" => "Done"
+          "Header" => "Done",
+          "Scrollable" => json_encode($invoice, true)
          ];
          $_Success = "CloseCard";
         }
