@@ -852,10 +852,10 @@
     if($notAnon == 1) {
      $list = base64_decode($data["BL"]);
      $blacklist = $y["Blocked"][$list] ?? [];
-     foreach($blacklist as $key => $value) {
-      $blacklistProcessor = "v=".base64_encode("Profile:Block")."&ID=".$this->core->AESencrypt($value)."&List=".$this->core->AESencrypt($list);
+     foreach($blacklist as $key => $id) {
+      $blacklistProcessor = "v=".base64_encode("Profile:Block")."&ID=".$this->core->AESencrypt($id)."&List=".$this->core->AESencrypt($list);
       if($bl == "Albums") {
-       $alb = explode("-", base64_decode($value));
+       $alb = explode("-", base64_decode($id));
        $t = ($alb[0] != $you) ? $this->core->Member($alb[0]) : $y;
        $fs = $this->core->Data("Get", [
         "fs",
@@ -865,53 +865,53 @@
        $de = $alb["Description"];
        $header = "<em>".$alb["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blogs") {
-       $bg = $this->core->Data("Get", ["blg", $value]);
+       $bg = $this->core->Data("Get", ["blg", $id]);
        $de = $bg["Description"];
        $header = "<em>".$bg["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Blog Posts") {
-       $bp = $this->core->Data("Get", ["bp", $value]);
+       $bp = $this->core->Data("Get", ["bp", $id]);
        $de = $bp["Description"];
        $header = "<em>".$bp["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Files") {
        $de = "{file_description}";
        $header = "<em>{file_name}</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forums") {
-       $forum = $this->core->Data("Get", ["pf", $value]);
+       $forum = $this->core->Data("Get", ["pf", $id]);
        $de = $forum["Description"];
        $header = "<em>".$forum["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Forum Posts") {
-       $post = $this->core->Data("Get", ["post", $value]);
+       $post = $this->core->Data("Get", ["post", $id]);
        $de = $post["Description"];
        $header = "<em>".$post["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Links") {
        $_Query = "SELECT * FROM Links
                            WHERE Link_ID=$:ID";
        $sql->query($_Query, [
-        ":ID" => $value
+        ":ID" => $id
        ]);
        $sql = $sql->single();
        if(count($sql) <= $limit) {
@@ -925,53 +925,52 @@
         ]]);
        }
       } elseif($bl == "Members") {
-       $member = $this->core->Data("Get", ["mbr", $value]);
+       $member = $this->core->Data("Get", ["mbr", $id]);
        $de = $member["Description"];
        $header = "<em>".$member["Personal"]["DisplayName"]."</em>";
        $vi = $this->core->Element(["button", "View $h's Profile", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Pages") {
-       $page = $this->core->Data("Get", ["pg", $value]);
+       $page = $this->core->Data("Get", ["pg", $id]);
        $de = $page["Description"];
        $header = "<em>".$page["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Products") {
-       $product = $this->core->Data("Get", ["product", $value]);
+       $product = $this->core->Data("Get", ["product", $id]);
        $de = $product["Description"];
        $header = "<em>".$product["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Shops") {
-       $shop = $this->core->Data("Get", ["shop", $value]);
+       $shop = $this->core->Data("Get", ["shop", $id]);
        $de = $shop["Description"];
        $header = "<em>".$shop["Title"]."</em>";
        $vi = $this->core->Element(["button", "View $header", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       } elseif($bl == "Status Updates") {
-       $update = $this->core->Data("Get", ["su", $value]);
+       $update = $this->core->Data("Get", ["su", $id]);
        $de = $this->core->Excerpt(base64_decode($update["Body"]), 180);
        $header = $update["From"];
        $vi = $this->core->Element(["button", "View $u", [
-        "class" => "BB v2 v2w",
+        "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
       }
       array_push($_Commands, []);
       array_push($_List, [
        "[Blacklist.Description]" => $de,
-       "[Blacklist.Header]" => $h,
-       "[Blacklist.ID]" => $v,
-       "[Blacklist.Unblock]" => $u,
-       "[Blacklist.Unblock.Processor]" => $this->core->AESencrypt($blacklistProcessor),
+       "[Blacklist.Header]" => $header,
+       "[Blacklist.ID]" => $id,
+       "[Blacklist.Unblock]" => $this->core->AESencrypt($blacklistProcessor),
        "[Blacklist.View]" => $vi
       ]);
      }
