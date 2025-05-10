@@ -209,7 +209,7 @@
      "Front" => [
       "ChangeData" => [
        "[Article.Attachments]" => $this->core->RenderView($attachments),
-       "[Article.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
+       "[Article.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($article["Description"])."&ID=".base64_encode($id)."&Title=".base64_encode($article["Title"])."&Username=".base64_encode($author)),
        "[Article.Header]" => $header,
        "[Article.ID]" => $id,
        "[Article.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
@@ -295,7 +295,7 @@
         [
          "Attributes" => [
           "name" => "PassPhrase",
-          "placeholder" => "Pass Phrase"
+          "placeholder" => "Pass Phrase",
           "type" => "text"
          ],
          "Options" => [
@@ -428,7 +428,7 @@
       $options = $_Article["ListItem"]["Options"];
       $chat = $this->core->Data("Get", ["chat", $id]);
       $contributors = $article["Contributors"] ?? [];
-      $ck = ($article["UN"] == $you) ? 1 : 0;
+      $check = ($article["UN"] == $you) ? 1 : 0;
       if(in_array($article["Category"], ["CA", "JE"]) && $bl == 0) {
        foreach($contributors as $member => $role) {
         if($active == 0 && $member == $you) {
@@ -447,27 +447,30 @@
          "data-media" => base64_encode("Page;$id")
         ]
        ]) : "";
-       $actions .= ($ck == 0) ? $this->core->Element([
+       $actions .= ($check == 0) ? $this->core->Element([
         "button", $blockCommand, [
          "class" => "Small UpdateButton v2",
          "data-processor" => $options["Block"]
         ]
        ]) : "";
-       $actions .= (!empty($chat) && ($active == 1 || $ck == 1)) ? $this->core->Element([
+       $actions .= (!empty($chat) && ($active == 1 || $check == 1)) ? $this->core->Element([
         "button", "Chat", [
          "class" => "OpenCard Small v2 v2w",
+         "data-encryption" => "AES",
          "data-view" => $options["Chat"]
         ]
        ]) : "";
-       $actions .= ($admin == 1 || $active == 1 || $ck == 1) ? $this->core->Element([
+       $actions .= ($admin == 1 || $active == 1 || $check == 1) ? $this->core->Element([
         "button", "Edit", [
          "class" => "OpenCard Small v2",
+         "data-encryption" => "AES",
          "data-view" => $options["Edit"]
         ]
        ]) : "";
        $actions .= ($admin == 1) ? $this->core->Element([
         "button", "Contributors", [
          "class" => "OpenCard Small v2",
+         "data-encryption" => "AES",
          "data-view" => $options["Contributors"]
         ]
        ]) : "";
@@ -476,11 +479,11 @@
         "class" => "GoToParent LI header",
         "data-type" => $parentPage
        ]]) : "";
-       $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
+       $check = ($author["Login"]["Username"] == $you) ? 1 : 0;
        $contributors = $article["Contributors"] ?? [];
        $contributors[$article["UN"]] = "Admin";
-       $description = ($ck == 1) ? "You have not added a Description." : "";
-       $description = ($ck == 0) ? $author["Personal"]["DisplayName"]." has not added a Description." : $description;
+       $description = ($check == 1) ? "You have not added a Description." : "";
+       $description = ($check == 0) ? $author["Personal"]["DisplayName"]." has not added a Description." : $description;
        $description = (!empty($author["Personal"]["Description"])) ? $this->core->PlainText([
         "BBCodes" => 1,
         "Data" => $author["Personal"]["Description"],
@@ -488,7 +491,7 @@
         "HTMLDecode" => 1
        ]) : $description;
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($article, "LiveView");
-       $share = ($ck == 1 || $article["Privacy"] == md5("Public")) ? 1 : 0;
+       $share = ($check == 1 || $article["Privacy"] == md5("Public")) ? 1 : 0;
        $share = ($share == 1) ? $this->core->Element(["button", "Share", [
         "class" => "OpenCard Small v2",
         "data-view" => $options["Share"]
@@ -890,9 +893,9 @@
        }
       }
      } if($isPublic == 1 && $new == 1) {
-      $ck = ($author == $you) ? 1 : 0;
-      $ck = (!in_array($id, $y["Pages"]) && $ck == 1) ? 1 : 0;
-      if($ck == 1) {
+      $check = ($author == $you) ? 1 : 0;
+      $check = (!in_array($id, $y["Pages"]) && $check == 1) ? 1 : 0;
+      if($check == 1) {
        $newPages = $y["Pages"];
        array_push($newPages, $id);
        $y["Activity"]["LastActive"] = $now;
@@ -936,7 +939,7 @@
       "UN" => $author,
       "Updates" => $updates
      ];
-     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+     $sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Articles(
       Article_Body,
       Article_Created,
@@ -1001,11 +1004,10 @@
         ]);
        }
       }
-     }--*/
+     }
      $_Dialog = [
       "Body" => "The $newCategory has been $actionTaken!",
-      "Header" => "Done",
-      "Scrollable" => json_encode($article, true)
+      "Header" => "Done"
      ];
     }
    }

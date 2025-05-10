@@ -634,8 +634,8 @@
       "v" => base64_encode("Extension:Purge")
      ], true);
      $options = [
-      "Delete" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
-      "Edit" => base64_encode("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($contentID))
+      "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
+      "Edit" => $this->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode($contentID))
      ];
     } elseif($type == "File" && !empty($additionalContentID)) {
      $data = $this->Data("Get", ["fs", md5($contentID)]);
