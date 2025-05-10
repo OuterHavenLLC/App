@@ -101,8 +101,32 @@
    } else {
     $_ResponseType = "View";
     $parentView = "RecoverPassword";
+    $timestamp = $this->core->timestamp;
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".LostAndFoundEmail$timestamp",
+       [
+        [
+         "Attributes" => [
+          "class" => "EmptyOnSuccess req",
+          "name" => "Email",
+          "placeholder" => "johnny.test@outerhaven.nyc",
+          "type" => "email"
+         ],
+         "Options" => [
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
+      "[LostAndFound.ID]" => $timestamp,
       "[LostAndFound.Recovery.ParentView]" => $parentView,
       "[LostAndFound.Recovery.ParentView.Encoded]" => base64_encode($parentView),
       "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPassword")."&Step=".base64_encode(2)),
@@ -205,8 +229,32 @@
    } else {
     $_ResponseType = "View";
     $parentView = "RecoverPIN";
+    $timestamp = $this->core->timestamp;
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".LostAndFoundEmail$timestamp",
+       [
+        [
+         "Attributes" => [
+          "class" => "EmptyOnSuccess req",
+          "name" => "Email",
+          "placeholder" => "johnny.test@outerhaven.nyc",
+          "type" => "email"
+         ],
+         "Options" => [
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
+      "[LostAndFound.ID]" => $timestamp,
       "[LostAndFound.Recovery.ParentView]" => $parentView,
       "[LostAndFound.Recovery.ParentView.Encoded]" => base64_encode($parentView),
       "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("LostAndFound:RecoverPIN")."&Step=".base64_encode(2)),
@@ -304,8 +352,32 @@
     }
    } else {
     $_ResponseType = "View";
+    $timestamp = $this->core->timestamp;
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".LostAndFoundEmail$timestamp",
+       [
+        [
+         "Attributes" => [
+          "class" => "EmptyOnSuccess req",
+          "name" => "Email",
+          "placeholder" => "johnny.test@outerhaven.nyc",
+          "type" => "email"
+         ],
+         "Options" => [
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
+      "[LostAndFound.ID]" => $timestamp,
       "[LostAndFound.Recovery.ParentView]" => base64_decode($parentView),
       "[LostAndFound.Recovery.ParentView.Encoded]" => $parentView,
       "[LostAndFound.Recovery.Processor]" => base64_encode("v=".base64_encode("LostAndFound:RecoverUsername")."&Step=".base64_encode(2)),

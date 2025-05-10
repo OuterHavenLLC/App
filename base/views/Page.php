@@ -424,6 +424,7 @@
        $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $_Dialog = "";
       $_ViewTitle = $_Article["ListItem"]["Title"] ?? $_ViewTitle;
       $options = $_Article["ListItem"]["Options"];
       $chat = $this->core->Data("Get", ["chat", $id]);
