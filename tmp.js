@@ -2530,34 +2530,6 @@ $(document).on("click", ".ToggleSideBar", (event) => {
   }
  }
 });
-$(document).on("click", ".Unblock", (event) => {
- const $Button = $(event.currentTarget),
-           View = $Button.attr("data-view") || OH.AESencrypt("");
- $Button.prop("disabled", "true");
- $.ajax({
-  error: (error) => {
-   OH.Dialog({
-    "Body": "Unblock: Data retrieval error, please see below.",
-    "Scrollable": JSON.stringify(error)
-   });
-  },
-  headers: {
-   Language: OH.AESencrypt(OH.LocalData("Get", "Language")),
-   Token: OH.AESencrypt(OH.LocalData("Get", "SecurityKey"))
-  },
-  method: "POST",
-  success: (data) => {
-   if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
-    OH.Crash(data);
-   } else {
-    const Data = OH.RenderView(data);
-    $Button.prop("disabled", false);
-    $Button.text(Data.View);
-   }
-  },
-  url: OH.base + OH.AESdecrypt(View)
- });
-});
 $(document).on("click", ".UpdateButton", (event) => {
  const $Button = $(event.currentTarget),
   Encryption = $Button.attr("data-encryption") || "",
