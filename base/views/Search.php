@@ -3578,6 +3578,7 @@
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
                         LIMIT 100";
+    $_ViewTitle = "$query via $_ViewTitle";
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $sql->query($_Query, [
      ":Search" => $query
@@ -3632,7 +3633,7 @@
      [
       "Name" => "LightSearch",
       "Parameters" => [
-       "$(document).find('.SearchBarArtists'"
+       "$(document).find('.SearchBarArtists')"
       ]
      ],
      [
