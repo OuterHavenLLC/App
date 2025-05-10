@@ -180,7 +180,8 @@
         $_View .= $this->core->Element([
          "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
           "class" => "Small OpenCard",
-          "data-view" => base64_encode($view)
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt($view)
          ]
         ]);
        }
@@ -217,7 +218,8 @@
           "Y" => $you
          ]), [
           "class" => "FrostedBright Medium OpenCard Rounded",
-          "data-view" => base64_encode("v=".base64_encode("File:Home")."&CARD=1&ID=".$attachment[1]."&UN=".$attachment[0])
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("File:Home")."&CARD=1&ID=".$attachment[1]."&UN=".$attachment[0])
          ]
         ]);
        }
@@ -280,7 +282,8 @@
       $_View .= $this->core->Element([
        "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
         "class" => "OpenCard Small",
-        "data-view" => base64_encode("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
+        "data-encryption" => "AES",
+        "data-view" => $this->core->AESencrypt("v=".base64_encode("Profile:Home")."&Card=1&UN=".base64_encode($t["Login"]["Username"]))
        ]
       ]);
      }
