@@ -102,10 +102,9 @@
          "Data" => "[Media:CP]",
          "Display" => 1
         ]),
-        "[VIP.Chat]" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=5ec1e051bf732d19e09ea9673cd7986b"),
-        "[VIP.Email]" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=f7f6947173514c96a5b32b4931c92df1&UN=".base64_encode($this->core->ShopID)),
-        "[VIP.FAB]" => base64_encode("v=".base64_encode("Subscription:FARPlayer")),
-        "[VIP.Forum]" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=cb3e432f76b38eaa66c7269d658bd7ea")
+        "[VIP.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=5ec1e051bf732d19e09ea9673cd7986b"),
+        "[VIP.FAR]" => $this->core->AESencrypt("v=".base64_encode("Subscription:FARPlayer")),
+        "[VIP.Forum]" => $this->core->AESencrypt("v=".base64_encode("Forum:Home")."&CARD=1&ID=".base64_encode("cb3e432f76b38eaa66c7269d658bd7ea"))
        ],
        "ExtensionID" => "89d36f051962ca4bbfbcb1dc2bd41f60"
       ];

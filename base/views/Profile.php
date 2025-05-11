@@ -60,16 +60,16 @@
   function AddContentCheck(): string {
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $_View = ($this->core->ID != $you) ? $this->core->Element(["button", NULL, [
-    "class" => "AddContent OpenFirSTEPTool h",
-    "data-fst" => $this->core->AESencrypt("v=".base64_encode("Profile:AddContent"))
-   ]]) : "";
+   $_View = ($this->core->ID != $you) ? [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element(["button", NULL, [
+      "class" => "AddContent OpenFirSTEPTool",
+      "data-fst" => $this->core->AESencrypt("v=".base64_encode("Profile:AddContent"))
+     ]]))
+    ] : "";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "View" => [
-     "ChangeData" => [],
-     "Extension" => $this->core->AESencrypt($_View)
-    ]
+    "View" => $_View
    ]);
   }
   function BlacklistCategories(): string {

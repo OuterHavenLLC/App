@@ -6,6 +6,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -83,40 +84,151 @@
     $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
-      "data-form" => ".ForumPost$id",
-      "data-processor" => base64_encode("v=".base64_encode("ForumPost:Save"))
+      "data-encryption" => "AES",
+      "data-form" => ".EditForumPost$id",
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("ForumPost:Save"))
      ]]),
      "Front" => [
       "ChangeData" => [
        "[ForumPost.Attachments]" => $this->core->RenderView($attachments),
-       "[ForumPost.Body]" => base64_encode($this->core->PlainText([
-        "Data" => $post["Body"]
-       ])),
        "[ForumPost.Header]" => $header,
-       "[ForumPost.ForumID]" => $forumID,
        "[ForumPost.ID]" => $id,
-       "[ForumPost.New]" => $new,
-       "[ForumPost.NSFW]" => $nsfw,
-       "[ForumPost.PassPhrase]" => base64_encode($passPhrase),
-       "[ForumPost.Privacy]" => $privacy,
-       "[ForumPost.Title]" => base64_encode($title),
-       "[ForumPost.Topic]" => $topic,
-       "[ForumPost.Topics]" => json_encode($topics, true),
-       "[ForumPost.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign),
-       "[ForumPost.Visibility.NSFW]" => $nsfw,
-       "[ForumPost.Visibility.Privacy]" => $privacy
+       "[ForumPost.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
       ],
       "ExtensionID" => "cabbfc915c2edd4d4cba2835fe68b1cc"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".EditForumPost$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "FID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $forumID
+        ],
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "new",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "data-editor-identifier" => "EditForumPostBody$id",
+          "name" => "Body",
+          "placeholder" => "Body"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Body",
+          "WYSIWYG" => 1
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($this->core->PlainText([
+          "Data" => $post["Body"]
+         ]))
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $topics,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50",
+          "Header" => 1,
+          "HeaderText" => "Topic"
+         ],
+         "Name" => "Topic",
+         "Type" => "Select",
+         "Value" => $topic
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Forum or Post Identifier is missing."
    ];
@@ -234,29 +346,123 @@
        $memberRole = $manifest[$op["Login"]["Username"]];
        $verified = $op["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+       $_Commands = [
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Albums$id",
+          $liveViewSymbolicLinks["Albums"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Articles$id",
+          $liveViewSymbolicLinks["Articles"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Attachments$id",
+          $liveViewSymbolicLinks["Attachments"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Blogs$id",
+          $liveViewSymbolicLinks["Blogs"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".BlogPosts$id",
+          $liveViewSymbolicLinks["BlogPosts"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Chats$id",
+          $liveViewSymbolicLinks["Chats"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Conversation"$id,
+          $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Forums$id",
+          $liveViewSymbolicLinks["Forums"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".ForumPosts$id",
+          $liveViewSymbolicLinks["ForumPosts"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Members$id",
+          $liveViewSymbolicLinks["Members"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Notes$id",
+          $options["Notes"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Polls$id",
+          $liveViewSymbolicLinks["Polls"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Products$id",
+          $liveViewSymbolicLinks["Products"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Shops$id",
+          $liveViewSymbolicLinks["Shops"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Updates$id",
+          $liveViewSymbolicLinks["Updates"]
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Vote$id",
+          $options["Vote"]
+         ]
+        ]
+       ];
        $_View = [
         "ChangeData" => [
-         "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-         "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-         "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-         "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-         "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-         "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-         "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-         "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-         "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-         "[Attached.ID]" => $this->core->UUID("ForumPostAttachments"),
-         "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-         "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
-         "[Conversation.CRID]" => $id,
-         "[Conversation.CRIDE]" => base64_encode($id),
-         "[Conversation.Level]" => base64_encode(1),
-         "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
          "[ForumPost.Actions]" => $actions,
-         "[ForumPost.Attachments]" => $_ForumPost["ListItem"]["Attachments"],
          "[ForumPost.Body]" => $this->core->PlainText([
           "BBCodes" => 1,
           "Data" => $post["Body"],
@@ -266,14 +472,13 @@
          "[ForumPost.CoverPhoto]" => $_ForumPost["ListItem"]["CoverPhoto"],
          "[ForumPost.Created]" => $this->core->TimeAgo($post["Created"]),
          "[ForumPost.ID]" => $id,
-         "[ForumPost.Illegal]" => $options["Report"],
          "[ForumPost.MemberRole]" => $memberRole,
          "[ForumPost.Modified]" => $_ForumPost["ListItem"]["Modified"],
          "[ForumPost.OriginalPoster]" => $displayName.$verified,
          "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
+         "[ForumPost.Report]" => $options["Report"],
          "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
-         "[ForumPost.Share]" => $share,
-         "[ForumPost.Vote]" => $options["Vote"]
+         "[ForumPost.Share]" => $share
         ],
         "ExtensionID" => "d2be822502dd9de5e8b373ca25998c37"
        ];
@@ -396,17 +601,6 @@
     $now = $this->core->timestamp;
     $post = $this->core->Data("Get", ["post", $id]);
     $posts = $forum["Posts"] ?? [];
-    foreach($posts as $key => $value) {
-     if($i == 0 && $id == $value) {
-      $i++;
-     }
-    } if($i == 0) {
-     array_push($posts, $id);
-     $forum["Posts"] = $posts;
-     $y["Activity"]["LastActive"] = $now;
-     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-     $this->core->Data("Save", ["mbr", md5($you), $y]);
-    }
     $albums = [];
     $albumsData = $data["Album"] ?? [];
     $articles = [];
@@ -578,7 +772,7 @@
      "Topic" => $topic,
      "Updates" => $updates
     ];
-    $sql = New SQL($this->core->cypher->SQLCredentials());
+    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO ForumPosts(
      ForumPost_Body,
      ForumPost_Created,
@@ -615,13 +809,25 @@
      ":Username" => $post["From"]
     ]);
     $sql->execute();
-    $statistic = ($new == 1) ? "Save Forum Post" : "Update Forum Post";
     $this->core->Data("Save", ["pf", $fid, $forum]);
     $this->core->Data("Save", ["post", $id, $post]);
-    $this->core->Statistic($statistic);
+    foreach($posts as $key => $value) {
+     if($i == 0 && $id == $value) {
+      $i++;
+     }
+    } if($i == 0) {
+     array_push($posts, $id);
+     $forum["Posts"] = $posts;
+     $y["Activity"]["LastActive"] = $now;
+     $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
+     #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    }
+    $statistic = ($new == 1) ? "Save Forum Post" : "Update Forum Post";
+    $this->core->Statistic($statistic);--*/
     $_Dialog = [
      "Body" => "Your post has been $actionTaken.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($post, true)
     ];
    }
    return $this->core->JSONResponse([

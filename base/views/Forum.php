@@ -218,10 +218,12 @@
    ]);
   }
   function Home(array $data): string {
+   $_Card = "";
    $_Dialog = [
     "Body" => "The requested Forum could not be found.",
     "Header" => "Not Found"
    ];
+   $_View = "";
    $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $card = $data["CARD"] ?? 0;
@@ -232,7 +234,7 @@
    $back = $data["back"] ?? 0;
    $back = ($back == 1) ? $this->core->Element(["button", "Back to $b2", [
     "class" => "GoToParent LI header",
-    "data-type" => ".OHCC;$lpg"
+    "data-type" => $lpg
    ]]) : "";
    $public = $data["pub"] ?? 0;
    $y = $this->you;

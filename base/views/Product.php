@@ -5,7 +5,7 @@
    $this->illegal = $this->core->config["App"]["Illegal"] ?? 777;
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
-  function Edit(array $data): string {// DEBUG EDITOR COMMANDS EXECUTION AND PROCESOR
+  function Edit(array $data): string {
    $_Card = "";
    $_Commands = "";
    $_Dialog = "";
@@ -42,30 +42,15 @@
     $_ExtensionID = "3e5dc31db9719800f28abbaa15ce1a37";
     $_ExtensionID = ($editor == "Architecture") ? "c6d935b62b8dcb47785ccd6fa99fc468" : $_ExtensionID;
     $action = ($new == 1) ? "Post" : "Update";
-    $back = (!empty($parentView)) ? $this->core->Element(["button", "Back", [
-     "class" => "BB GoToParent v2 v2w",
-     "data-type" => $parentView
-    ]]) : $back;
-    $back = ($new == 1) ? $this->core->Element(["button", "Back", [
-     "class" => "GoToParent v2 v2w",
-     "data-type" => "ProductEditors"
-    ]]) : $back;
+    $backTo = ($new == 1) ? "ProductEditors" : $parentView;
     $editorLiveView = base64_encode("LiveView:EditorMossaic");
     $product = $this->core->Data("Get", ["product", $id]);
-    $product = $this->core->FixMissing($product, [
-     "Description",
-     "Disclaimer",
-     "Body",
-     "Instructions",
-     "Role",
-     "Price",
-     "Title"
-    ]);
     $albums = $product["Albums"] ?? [];
     $articles = $product["Articles"] ?? [];
     $attachments = $product["Attachments"] ?? [];
     $blogs = $product["Blogs"] ?? [];
     $blogPosts = $product["BlogPosts"] ?? [];
+    $body = $product["Body"] ?? "";
     $category = $product["Category"] ?? $editor;
     $chats = $product["Chat"] ?? [];
     $cost = $product["Cost"] ?? 0.00;
@@ -242,7 +227,7 @@
       ],
       "Type" => "TextBox",
       "Value" => $this->core->AESencrypt($this->core->PlainText([
-       "Data" => $product["Body"],
+       "Data" => $body,
        "Decode" => 1
       ]))
      ],
@@ -493,11 +478,15 @@
       ]
      ]
     ]);
+    $_Dialog = "";
     $_View = [
      "ChangeData" => [
       "[Product.Action]" => $action,
       "[Product.Attachments]" => $this->core->RenderView($attachments),
-      "[Product.Back]" => $back,
+      "[Product.Back]" => $this->core->Element(["button", "Back", [
+       "class" => "BB GoToParent v2 v2w",
+       "data-type" => $backTo
+      ]]),
       "[Product.Created]" => $created,
       "[Product.Header]" => $header,
       "[Product.ID]" => $id,
@@ -509,14 +498,6 @@
     $_Card = ($card == 1) ? [
      "Front" => $_View
     ] : "";
-    $_Dialog = "";
-    // BEGIN TEMP
-    $_Dialog = [
-     "Body" => "Debug data:",
-     "Header" => "Debug",
-     "Scrollable" => json_encode($_Commands, true)
-    ];
-    // END TEMP
     $_View = ($card == 0) ? $_View : "";
    }
    return $this->core->JSONResponse([
@@ -679,29 +660,29 @@
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($product, "LiveView", [
         "ProductType" => "Product"
        ]);
-      $_Commands = [
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".AddToCart$id",
-         $this->core->AESencrypt("v=".base64_encode("Cart:Add")."&ID=$id&T=$username")
+       $_Commands = [
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".AddToCart$id",
+          $this->core->AESencrypt("v=".base64_encode("Cart:Add")."&ID=$id&T=$username")
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Conversation$id",
+          $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Vote$id",
+          $options["Vote"]
+         ]
         ]
-       ],
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Conversation$id",
-         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
-        ]
-       ],
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Vote$id",
-         $options["Vote"]
-        ]
-       ]
-      ];
+       ];
        $_Dialog = "";
        $_View = [
         "ChangeData" => [

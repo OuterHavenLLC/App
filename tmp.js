@@ -34,6 +34,11 @@ class OH {
          $(".AddContent").fadeIn(500);
         }, 500);
        }
+      } else {
+       $(".AddContent").fadeOut(500);
+       setTimeout(() => {
+        $(".AddContent").remove();
+       }, 500);
       }
      }
     },
@@ -490,8 +495,8 @@ class OH {
    });
   }
  }
- static ExecuteCommands(Commands = "", Executed = "No") {
-  if(typeof Commands === "object" && Executed === "No") {
+ static ExecuteCommands(Commands = "") {
+  if(typeof Commands === "object") {
    $.each(Commands, (Key, Command) => {
     const AES = Command.AES || "No",
               Name = Command.Name || "",
@@ -2151,7 +2156,7 @@ $(document).on("click", ".Menu button", (event) => {
 });
 $(document).on("click", ".OpenBottomBar", (event) => {
  const $Button = $(event.currentTarget),
-  View = $Button.attr("data-view") || "";
+           View = $Button.attr("data-view") || "";
  if(View !== "" && typeof View !== "undefined") {
   $.ajax({
    error: (error) => {
@@ -2187,7 +2192,7 @@ $(document).on("click", ".OpenBottomBar", (event) => {
      }
     }
    },
-   url: OH.base + OH.Base64decrypt(View)
+   url: OH.base + OH.AESdecrypt(View)
   });
  }
 });
