@@ -6,6 +6,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Conversation Identifier is missing."
    ];
@@ -81,31 +82,117 @@
      "Front" => [
       "ChangeData" => [
        "[Conversation.Attachments]" => $this->core->RenderView($attachments),
-       "[Conversation.Body]" => base64_encode($this->core->PlainText([
-        "Data" => $body,
-        "Decode" => 1,
-        "HTMLDecode" => 1
-       ])),
-       "[Conversation.CommentID]" => $commentID,
        "[Conversation.Header]" => $header,
        "[Conversation.ID]" => $conversationID,
-       "[Conversation.Level]" => $level,
-       "[Conversation.New]" => $new,
-       "[Conversation.ReplyingTo]" => $replyingTo,
-       "[Conversation.Translate]" => $this->core->RenderView($translate),
-       "[Conversation.Visibility.NSFW]" => $nsfw,
-       "[Conversation.Visibility.Privacy]" => $privacy
+       "[Conversation.Translate]" => $this->core->RenderView($translate)
       ],
       "ExtensionID" => "0426a7fc6b31e5034b6c2cec489ea638"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".NewComment$conversationID",
+       [
+        [
+         "Attributes" => [
+          "name" => "CommentID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $commentID
+        ],
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $conversationID
+        ],
+        [
+         "Attributes" => [
+          "name" => "Level",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $level
+        ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "name" => "ReplyingTo",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $replyingTo
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Body",
+          "placeholder" => "Say something..."
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Body"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($this->core->PlainText([
+          "Data" => $body,
+          "Decode" => 1,
+          "HTMLDecode" => 1
+         ]))
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$conversationID",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$conversationID",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "commentID" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Conversation Identifier is missing.",
     "Header" => "Not Found"
@@ -122,6 +209,7 @@
    $you = $y["Login"]["Username"];
    $minimalDesign = $y["Personal"]["MinimalDesign"] ?? 0;
    if(!empty($conversationID)) {
+    $_Commands = [];
     $_Dialog = "";
     $anon = "Anonymous";
     $commentID = base64_decode($commentID);
@@ -134,11 +222,10 @@
     $im = base64_encode("LiveView:InlineMossaic");
     $vote = base64_encode("Vote:Containers");
     if($level == 1) {
-     # COMMENTS
-     $extension = $this->core->Extension("8938c49b85c52a5429cc8a9f46c14616");
+     $_Extension = $this->core->Extension("8938c49b85c52a5429cc8a9f46c14616");
      $_View = [
       "ChangeData" => [
-       "[Comment.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&new=1")
+       "[Comment.Editor]" => $this->core->AESencrypt("v=$edit&ConversationID=".base64_encode($conversationID)."&new=1")
       ],
       "ExtensionID" => "97e7d7d9a85b30e10ab51b23623ccee5"
      ];
@@ -166,12 +253,14 @@
        $opt = ($this->core->ID != $you && $value["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level))
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level))
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
        $verified = $op["Verified"] ?? 0;
@@ -188,15 +277,27 @@
         "[Comment.ID]" => $key,
         "[Comment.Options]" => $opt,
         "[Comment.OriginalPoster]" => $op.$verified,
-        "[Comment.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Comment.Replies]" => base64_encode("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(2)),
-        "[Comment.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
-       ], $extension]);
+        "[Comment.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);")
+       ], $_Extension]);
+       array_push($_Commands, [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Replies$key",
+         $this->core->AESencrypt("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(2))
+        ]
+       ]);
+       array_push($_Commands, [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$key",
+         $this->core->AESencrypt("v=$vote&ID=$key&Type=3")
+        ]
+       ]);
        $i++;
       }
      }
      $commentType .= $this->core->Change([[
-      "[Reply.Editor]" => base64_encode("v=$edit&CommentID=".base64_encode($commentID)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&new=1")
+      "[Reply.Editor]" => $this->core->AESencrypt("v=$edit&CommentID=".base64_encode($commentID)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&new=1")
      ], $this->core->Extension("5efa423862a163dd55a2785bc7327727")]);
      $_View = ($i > 0) ? [
       "ChangeData" => [],
@@ -204,8 +305,7 @@
      ] : $_View;
      $_View = ($minimalDesign == 1) ? "" : $_View;
     } elseif($level == 2) {
-     # REPLIES
-     $extension = $this->core->Extension("ccf260c40f8fa63be5686f5ceb2b95b1");
+     $_Extension = $this->core->Extension("8938c49b85c52a5429cc8a9f46c14616");
      $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $_View = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
@@ -233,47 +333,60 @@
        $opt = ($this->core->ID != $you && $value["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($value["CommentID"]))
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($value["CommentID"]))
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
       ]) : "";
       $verified = $op["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $commentType .= $this->core->Change([[
-       "[Reply.Attachments]" => $attachments,
-       "[Reply.Body]" => $this->core->PlainText([
+       "[Comment.Attachments]" => $attachments,
+       "[Comment.Body]" => $this->core->PlainText([
         "BBCodes" => 1,
         "Data" => base64_decode($value["Body"]),
         "Display" => 1,
         "HTMLDecode" => 1
        ]),
-       "[Reply.Created]" => $this->core->TimeAgo($value["Created"]),
-       "[Reply.ID]" => $key,
-       "[Reply.Options]" => $opt,
-       "[Reply.OriginalPoster]" => $op.$verified,
-       "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-       "[Reply.Replies]" => base64_encode("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(3)),
-       "[Reply.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
-      ], $extension]);
+       "[Comment.Created]" => $this->core->TimeAgo($value["Created"]),
+       "[Comment.ID]" => $key,
+       "[Comment.Options]" => $opt,
+       "[Comment.OriginalPoster]" => $op.$verified,
+       "[Comment.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);")
+      ], $_Extension]);
+      array_push($_Commands, [
+       "Name" => "UpdateContentAES",
+       "Parameters" => [
+        ".Replies$key",
+        $this->core->AESencrypt("v=$home&CommentID=".base64_encode($key)."&CRID=".base64_encode($conversationID)."&Level=".base64_encode(3))
+       ]
+      ]);
+      array_push($_Commands, [
+       "Name" => "UpdateContentAES",
+       "Parameters" => [
+        ".Vote$key",
+        $this->core->AESencrypt("v=$vote&ID=$key&Type=3")
+       ]
+      ]);
       $i++;
      }
     }
     $_View = ($i > 0) ? $commentType : $_View;
     $_View .= $this->core->Change([[
      "[Reply.DisplayName]" => $display,
-     "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
+     "[Reply.Editor]" => $this->core->AESencrypt("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
     ], $this->core->Extension("f6876eb53ff51bf537b1b1848500bdab")]);
     $_View = [
      "ChangeData" => [],
      "Extension"=>$this->core->AESencrypt($_View)
     ];
    } elseif($level == 3) {
-     # REPLIES TO REPLIES
-     $extension = $this->core->Extension("3847a50cd198853fe31434b6f4e922fd");
+     $_Extension = $this->core->Extension("3847a50cd198853fe31434b6f4e922fd");
      $t = $this->core->Member($conversation[$commentID]["From"]);
      $display = ($t["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $t["Personal"]["DisplayName"];
      $_View = $this->core->Extension("cc3c7b726c1d7f9c50f5f7869513bd80");
@@ -301,12 +414,14 @@
        $opt = ($this->core->ID != $you && $value["From"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Edit", [
          "class" => "InnerMargin OpenCard",
-         "data-view" => base64_encode("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($value["CommentID"]))
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=$edit&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($value["CommentID"]))
         ]]), ["class" => "CenterText Desktop33"]
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Hide", [
          "class" => "InnerMargin OpenDialog",
-         "data-view" => base64_encode("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=$hide&CommentID=".base64_encode($key)."&ConversationID=".base64_encode($conversationID))
         ]]), ["class" => "CenterText Desktop33"]
        ]) : "";
        $verified = $op["Verified"] ?? 0;
@@ -323,16 +438,22 @@
         "[Reply.ID]" => $key,
         "[Reply.Options]" => $opt,
         "[Reply.OriginalPoster]" => $op.$verified,
-        "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);"),
-        "[Reply.Votes]" => base64_encode("v=$vote&ID=$key&Type=3")
-       ], $extension]);
+        "[Reply.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;width:calc(100% - 1em);")
+       ], $_Extension]);
+       array_push($_Commands, [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$key",
+         $this->core->AESencrypt("v=$vote&ID=$key&Type=3")
+        ]
+       ]);
        $i++;
       }
      }
      $_View = ($i > 0) ? $commentType : $_View;
      $_View .= $this->core->Change([[
       "[Reply.DisplayName]" => $display,
-      "[Reply.Editor]" => base64_encode("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
+      "[Reply.Editor]" => $this->core->AESencrypt("v=$edit&ConversationID=".base64_encode($conversationID)."&Level=".base64_encode($level)."&ReplyingTo=".base64_encode($commentID)."&new=1")
      ], $this->core->Extension("f6876eb53ff51bf537b1b1848500bdab")]);
      $_View = [
       "ChangeData" => [],
@@ -341,6 +462,7 @@
     }
    }
    return $this->core->JSONResponse([
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -553,10 +675,11 @@
     if($purge != 0) {
      $conversation["Purge"] = $purge;
     }
-    $this->core->Data("Save", ["conversation", $id, $conversation]);
+    #$this->core->Data("Save", ["conversation", $id, $conversation]);
     $_Dialog = [
      "Body" => "Your $commentType was $actionTaken.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($conversation, true)
     ];
    }
    return $this->core->JSONResponse([
