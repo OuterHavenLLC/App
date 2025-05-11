@@ -76,6 +76,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -111,36 +112,166 @@
     $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
+      "data-encryption" => "AES",
       "data-form" => ".EditForum$id",
-      "data-processor" => base64_encode("v=".base64_encode("Forum:Save"))
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Forum:Save"))
      ]]),
      "Front" => [
       "ChangeData" => [
        "[Forum.Attachments]" => "",
-       "[Forum.About]" => base64_encode($about),
-       "[Forum.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
-       "[Forum.Created]" => $created,
-       "[Forum.Description]" => base64_encode($description),
+       "[Forum.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
        "[Forum.Header]" => $header,
-       "[Forum.ID]" => $id,
-       "[Forum.New]" => $new,
-       "[Forum.NSFW]" => $nsfw,
-       "[Forum.PassPhrase]" => base64_encode($passPhrase),
-       "[Forum.Privacy]" => $privacy,
-       "[Forum.Title]" => base64_encode($title),
-       "[Forum.Type]" => $type
+       "[Forum.ID]" => $id
       ],
       "ExtensionID" => "8304362aea73bddb2c12eb3f7eb226dc"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ForumInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "Created",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $created
+        ],
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "New",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $new
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "About",
+          "placeholder" => "Tell us about your Forum..."
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "About"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($about)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Describe yout Forum..."
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "47f9082fc380ca62d531096aa1d110f1" => "Private",
+          "3d067bedfe2f4677470dd6ccf64d05ed" => "Public"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Forum Type"
+         ],
+         "Name" => "Type",
+         "Title" => "Forum Type",
+         "Type" => "Select",
+         "Value" => $type
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function EditTopics(array $data): string {
    $_AccessCode = "Denied";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
    ];
@@ -190,6 +321,24 @@
        "[Topic.Title]" => $info["Title"]
       ], $this->core->Extension("5f5acd280261747ae18830eb70ce719c")]);
      }
+     $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ParentForumInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ]
+       ]
+      ]
+     ];
      $_View = [
       "ChangeData" => [
        "[Forum.ID]" => $id,
@@ -213,12 +362,14 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The requested Forum could not be found.",
     "Header" => "Not Found"
@@ -319,35 +470,40 @@
        ]) : "";
        $actions .= ($bl == 0 && $check == 0) ? $this->core->Element([
         "button", "Block", [
-         "class" => "CloseCard Small UpdateButton v2 v2w",
+         "class" => "Block CloseCard Small v2 v2w",
          "data-view" => $options["Block"]
         ]
        ]) : "";
        $actions .= (!empty($chat) && ($active == 1 || $check == 1)) ? $this->core->Element([
         "button", "Chat", [
          "class" => "OpenCard Small v2 v2w",
-         "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($id)."&Integrated=1")
         ]
        ]) : "";
        $actions .= (!in_array($forum["ID"], $doNotShare) && $forum["UN"] == $you && $public == 0) ? $this->core->Element([
         "button", "Delete", [
          "class" => "CloseCard OpenDialog Small v2",
+         "data-encryption" => "AES",
          "data-view" => $options["Delete"]
         ]
        ]) : "";
        $actions .= ($admin == 1) ? $this->core->Element(["button", "Edit", [
         "class" => "OpenCard Small v2 v2w",
+         "data-encryption" => "AES",
         "data-view" => $options["Edit"]
        ]]) : "";
        $actions .= ($active == 1 || $check == 1 || $forum["Type"] == "Public") ? $this->core->Element([
         "button", "Post", [
          "class" => "OpenCard Small v2 v2w",
+         "data-encryption" => "AES",
          "data-view" => $options["Post"]
         ]
        ]) : "";
        $actions .= ($forum["Type"] == "Public") ? $this->core->Element([
         "button", "Share", [
          "class" => "OpenCard Small v2 v2w",
+         "data-encryption" => "AES",
          "data-view" => $options["Share"]
         ]
        ]) : "";
@@ -355,12 +511,14 @@
        $createTopic = ($forum["UN"] == $you) ? $this->core->Element([
         "button", $createTopicAction, [
          "class" => "BigButton GoToView",
-         "data-type" => "ForumTopics$id;".base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".$data["ID"])
+         "data-encryption" => "AES",
+         "data-type" => "ForumTopics$id;".$this->core->AESencrypt("v=".base64_encode("Forum:EditTopics")."&ID=".$data["ID"])
         ]
        ]) : "";
        $invite = (!in_array($forum["ID"], $doNotShare) && $active == 1) ? $this->core->Element([
         "button", "Invite", [
          "class" => "OpenCard v2",
+         "data-encryption" => "AES",
          "data-view" => $options["Invite"]
         ]
        ]) : "";
@@ -372,25 +530,63 @@
         ]
        ]) : "";
        $search = base64_encode("Search:Containers");
+       $_Commands = [
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Administrators$id",
+          $this->core->AESencrypt("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin")
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Contributors$id",
+          $this->core->AESencrypt("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors")
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".FeaturedContributors$id",
+          $this->core->AESencrypt("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($manifest, true)))
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Posts$id",
+          $this->core->AESencrypt("v=$search&ID=".base64_encode($id)."&st=Forums-Posts")
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".TopicsList$id",
+          $this->core->AESencrypt("v=".base64_encode("Forum:Topics")."&ID=".base64_encode($id))
+         ]
+        ],
+        [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Vote$id",
+          $options["Vote"]
+         ]
+        ]
+       ];
        $_View = [
         "ChangeData" => [
          "[Forum.About]" => $forum["About"],
          "[Forum.Actions]" => $actions,
-         "[Forum.Administrators]" => base64_encode("v=$search&Admin=".base64_encode($forum["UN"])."&ID=".base64_encode($id)."&st=Forums-Admin"),
          "[Forum.Back]" => $back,
-         "[Forum.Contributors]" => base64_encode("v=$search&ID=".base64_encode($id)."&Type=".base64_encode("Forum")."&st=Contributors"),
-         "[Forum.Contributors.Featured]" => base64_encode("v=".base64_encode("LiveView:MemberGrid")."&List=".base64_encode(json_encode($manifest, true))),
          "[Forum.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
          "[Forum.CreateTopic]" => $createTopic,
-         "[Forum.EditTopics]" => base64_encode("v=".base64_encode("Forum:EditTopics")."&ID=".base64_encode($id)),
+         "[Forum.EditTopics]" => $this->core->AESencrypt("v=".base64_encode("Forum:EditTopics")."&ID=".base64_encode($id)),
          "[Forum.Description]" => $_Forum["ListItem"]["Description"],
          "[Forum.ID]" => $id,
          "[Forum.Invite]" => $invite,
          "[Forum.Join]" => $join,
-         "[Forum.Stream]" => base64_encode("v=$search&ID=".base64_encode($id)."&st=Forums-Posts"),
-         "[Forum.Title]" => $title,
-         "[Forum.Topics]" => base64_encode("v=".base64_encode("Forum:Topics")."&ID=".base64_encode($id)),
-         "[Forum.Votes]" => $options["Vote"]
+         "[Forum.Title]" => $title
         ],
         "ExtensionID" => "4159d14e4e8a7d8936efca6445d11449"
        ];
@@ -406,6 +602,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -850,7 +1047,7 @@
      "Type" => $type,
      "UN" => $owner
     ];
-    $sql = New SQL($this->core->cypher->SQLCredentials());
+    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Forums(
      Forum_Created,
      Forum_Description,
@@ -878,10 +1075,11 @@
      ":Username" => $owner
     ]);
     $sql->execute();
-    $this->core->Data("Save", ["pf", $id, $forum]);
+    $this->core->Data("Save", ["pf", $id, $forum]);--*/
     $_Dialog = [
      "Body" => "The Forum <em>$title</em> was $actionTaken.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($forum, true)
     ];
    }
    return $this->core->JSONResponse([
