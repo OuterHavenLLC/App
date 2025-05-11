@@ -1080,7 +1080,7 @@
        "Instructions" => $instructions,
        "Members" => $members,
        "ModifiedBy" => $modifiedBy,
-       "NSFW" => $data["nsfw"],
+       "NSFW" => $data["NSFW"],
        "PassPhrase" => $passPhrase,
        "Points" => $points,
        "Polls" => $polls,
@@ -1096,7 +1096,7 @@
        "Updates" => $updates,
        "UN" => $shopOwner
       ];
-      /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+      $sql = New SQL($this->core->cypher->SQLCredentials());
       $query = "REPLACE INTO Products(
        Product_Category,
        Product_Created,
@@ -1149,7 +1149,7 @@
        $this->core->Statistic("New Product");
       } else {
        $this->core->Statistic("Edit Product");
-      }--*/
+      }
       $_Dialog = [
        "Body" => "The Product <em>$title</em> has been $actionTaken!",
        "Header" => "Done",

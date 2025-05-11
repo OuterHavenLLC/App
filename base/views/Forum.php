@@ -1194,11 +1194,10 @@
        ];
       } else {
        $forum["Topics"] = $topics;
-       #$this->core->Data("Save", ["pf", $id, $forum]);
+       $this->core->Data("Save", ["pf", $id, $forum]);
        $_Dialog = [
         "Body" => "The Topic list was updated.",
-        "Header" => "Done",
-        "Scrollable" => json_encode($topics, true)
+        "Header" => "Done"
        ];
       }
      }

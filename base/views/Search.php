@@ -2163,8 +2163,8 @@
       $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $info["NSFW"] == 0) ? 1 : 0;
       if($check == 1) {
        $created = $info["Created"] ?? $now;
-       $i = 0;
        $modified = $info["Modified"] ?? $this->core->TimeAgo($now);
+       $postCount = 0;
        $posts = array_reverse($info["Posts"]);
        $postList = "";
        foreach($posts as $key => $post) {
@@ -2173,15 +2173,15 @@
          "Blacklisted" => $bl,
          "ID" => base64_encode("ForumPost;$forumID;$post")
         ]);
-        if($_ForumPost["Empty"] == 0 && $i < 5) {
-         $i++;
+        if($_ForumPost["Empty"] == 0 && $postCount < 5) {
+         $postCount++;
          $post = $_ForumPost["DataModel"];
          $postList .= $this->core->Element([
           "div", $this->core->Element([
            "h4", $post["Title"]
           ]).$this->core->Element([
            "p", $this->core->Excerpt(htmlentities($post["Body"]))
-          ]), ["class" => "Frosted Medium Rounded"]
+          ]), ["class" => "FrostedBright Medium Rounded"]
          ]);
         }
        }
@@ -2194,7 +2194,7 @@
         "[Topic.Modified]" => $modified,
         "[Topic.PostCount]" => $this->core->ShortNumber(count($posts)),
         "[Topic.Title]" => $info["Title"],
-        "[Topic.View]" => base64_encode("v=".base64_encode("Forum:Topic")."&Forum=".base64_encode($forumID)."&Topic=".base64_encode($topicID))
+        "[Topic.View]" => $this->core->AESencrypt("v=".base64_encode("Forum:Topic")."&Forum=".base64_encode($forumID)."&Topic=".base64_encode($topicID))
        ]);
       }
      }

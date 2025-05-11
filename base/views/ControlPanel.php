@@ -5,6 +5,7 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Home(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "You do not have permission to access this experience.",
     "Header" => "Unauthorized"
@@ -157,6 +158,8 @@
         "[Statistic.Name]" => $name
        ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")]);
       }
+      $_Commands = [
+      ];
       $_View = [
        "ChangeData" => [
         "[Admin.Databases]" => "W('$base/phpmyadmin', '_blank');",
@@ -266,6 +269,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => $_AddTopMargin,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
