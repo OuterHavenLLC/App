@@ -159,6 +159,133 @@
        ], $this->core->Extension("21af4585b38e4b15a37fce7dfbb95161")]);
       }
       $_Commands = [
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".AppConfiguration",
+         [
+          [
+           "Attributes" => [
+            "name" => "Name",
+            "placeholder" => "The Everything App",
+            "type" => "text"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Name"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($config["App"]["Name"])
+          ],
+          [
+           "Attributes" => [
+            "name" => "Description",
+            "placeholder" => "The go to platform for everything."
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Description"
+           ],
+           "Type" => "TextBox",
+           "Value" => $this->core->AESencrypt($config["App"]["Description"])
+          ],
+          [
+           "Attributes" => [
+            "name" => "Keywords",
+            "placeholder" => "Constitutional, Social, Media, Free, Speech"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Keywords"
+           ],
+           "Type" => "TextBox",
+           "Value" => $this->core->AESencrypt($config["App"]["Keywords"])
+          ],
+          [
+           "Attributes" => [],
+           "OptionGroup" => [
+            "0" => "Off",
+            "1" => "On"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Maintenance"
+           ],
+           "Name" => "Maintenance",
+           "Type" => "Select",
+           "Value" => $config["Maintenance"]
+          ],
+          [
+           "Attributes" => [
+            "name" => "ShopID",
+            "placeholder" => "Mike"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Shop Identifier"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($shopID)
+          ],
+          [
+           "Attributes" => [
+            "class" => "PersonalUIVariant",
+            "name" => "UIVariant",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $defaultUI
+          ]
+         ]
+        ]
+       ],
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".AppDomains",
+         [
+          [
+           "Attributes" => [
+            "name" => "Domains_Base",
+            "placeholder" => "outerhaven.nyc"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Main"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($domains_base)
+          ],
+          [
+           "Attributes" => [
+            "name" => "Domains_FileSystem",
+            "placeholder" => "efs.outerhaven.nyc"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "File System"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($domains_fileSystem)
+          ]
+         ]
+        ]
+       ]
       ];
       $_View = [
        "ChangeData" => [
@@ -170,20 +297,12 @@
         "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
         "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
         "[Admin.Server]" => "https://aws.amazon.com/",
-        "[Configuration.App.Description]" => $this->core->AESencrypt($config["App"]["Description"]),
-        "[Configuration.App.Domains.Base]" => $this->core->AESencrypt($domains_base),
-        "[Configuration.App.Domains.FileSystem]" => $this->core->AESencrypt($domains_fileSystem),
-        "[Configuration.App.Keywords]" => $this->core->AESencrypt($config["App"]["Keywords"]),
-        "[Configuration.App.Maintenance]" => $config["Maintenance"],
-        "[Configuration.App.Name]" => $this->core->AESencrypt($config["App"]["Name"]),
-        "[Configuration.App.ShopID]" => $this->core->AESencrypt($shopID),
         "[Configuration.App.UploadLimits]" => json_encode($config["XFS"], true),
         "[Configuration.App.UploadLimits.Audio]" => $config["XFS"]["limits"]["Audio"],
         "[Configuration.App.UploadLimits.Documents]" => $config["XFS"]["limits"]["Documents"],
         "[Configuration.App.UploadLimits.Photos]" => $config["XFS"]["limits"]["Images"],
         "[Configuration.App.UploadLimits.Total]" => $config["XFS"]["limits"]["Total"],
         "[Configuration.App.UploadLimits.Videos]" => $config["XFS"]["limits"]["Videos"],
-        "[Configuration.App.UIVariant]" => $defaultUI,
         "[Configuration.App.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
         "[Configuration.App.SearchUI]" => $searchUIvariants,
         "[Configuration.App.SearchUI.Clone]" => base64_encode($this->core->Change([[
