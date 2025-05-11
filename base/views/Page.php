@@ -275,7 +275,7 @@
         [
          "Attributes" => [
           "class" => "Body req",
-          "id" => "EditArticleBody$id",
+          "data-editor-identifier" => "EditArticleBody$id",
           "name" => "Body",
           "placeholder" => "Body"
          ],

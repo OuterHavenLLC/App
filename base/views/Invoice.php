@@ -50,17 +50,18 @@
         $invoice = $this->core->Data("Get", ["invoice", $id]);
         $chargeList = "";
         $charges = $invoice["Charges"] ?? [];
-        if(empty($chargeList)) {
+        if(empty($charges)) {
          $_Extension = $this->core->Element(["h4", "No Charges", [
           "class" => "CenterText UpperCase"
          ]]);
         } else {
+         $_Extension = "";
          foreach($charges as $key => $charge) {
           $description = $charge["Description"] ?? "Unknown";
           $paid = $charge["Paid"] ?? 0;
           $title = $charge["Title"] ?? "Unknown";
           $value = $charge["Value"] ?? 0.00;
-          $chargeList .= $this->core->Change([[
+          $_Extension .= $this->core->Change([[
            "[Invoice.Charge.Description]" => $description,
            "[Invoice.Charge.Title]" => $title,
            "[Invoice.Charge.Value]" => $this->core->Element([
@@ -69,7 +70,6 @@
            ])
           ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
          }
-         $_Extension = $chargeList;
         }
         $_View = [
          "ChangeData" => [],
@@ -154,14 +154,15 @@
         $noteList = "";
         $notes = $invoice["Notes"] ?? [];
         $notes = array_reverse($notes);
-        if(empty($noteList)) {
+        if(empty($notes)) {
          $_Extension = $this->core->Element(["h4", "No Notes", [
           "class" => "CenterText UpperCase"
          ]]);
         } else {
+         $_Extension = "";
          foreach($notes as $key => $note) {
           $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($note, "LiveView");
-          $noteList .= $this->core->Change([[
+          $_Extension .= $this->core->Change([[
            "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
            "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
            "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
@@ -188,7 +189,6 @@
            "Display" => 1
           ])]);
          }
-         $_extension = $noteList;
         }
         $_View = [
          "ChangeData" => [],
@@ -1580,11 +1580,10 @@
         "Updates" => $updates
        ]);
        $invoice["Notes"] = $notes;
-       #$this->core->Data("Save", ["invoice", $id, $invoice]);
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
        $_Dialog = [
         "Body" => "Your note has been added to the Invoice.",
-        "Header" => "Done",
-        "Scrollable" => json_encode($notes, true)
+        "Header" => "Done"
        ];
       } elseif(!empty($title) && $isPreset == 1) {
        $_AccessCode = "Accepted";
@@ -1611,8 +1610,8 @@
        array_push($services, $id);
        $services = array_unique($services);
        $shop["InvoicePresets"] = $services;
-       #$this->core->Data("Save", ["invoice-preset", $id, $service]);
-       #$this->core->Data("Save", ["shop", $shopID, $shop]);
+       $this->core->Data("Save", ["invoice-preset", $id, $service]);
+       $this->core->Data("Save", ["shop", $shopID, $shop]);
        $_View = "Update Pre-set".json_encode($service, true);
        $_ResponseType = "UpdateText";
       } elseif($isPreset == 0) {
@@ -1676,7 +1675,7 @@
          $invoices = array_unique($invoices);
          $name = $data["ChargeTo"] ?? $data["Email"];
          $shop["Invoices"] = $invoices;
-         /*--if(!empty($data["Email"])) {
+         if(!empty($data["Email"])) {
           $this->core->SendEmail([
            "Message" => $this->core->Change([[
             "[Mail.Message]" => "Please review the Invoice linked below.",
@@ -1701,11 +1700,10 @@
          }
          $this->core->Statistic("New Invoice");
          $this->core->Data("Save", ["invoice", $id, $invoice]);
-         $this->core->Data("Save", ["shop", $shopID, $shop]);--*/
+         $this->core->Data("Save", ["shop", $shopID, $shop]);
          $_Dialog = [
           "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
-          "Header" => "Done",
-          "Scrollable" => json_encode($invoice, true)
+          "Header" => "Done"
          ];
          $_Success = "CloseCard";
         }

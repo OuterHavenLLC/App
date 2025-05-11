@@ -681,7 +681,7 @@ class OH {
    error: (error) => {
     this.Dialog({
      "Body": "LoadMoreSearchResults: Data retrieval error. Please see below:",
-    "Scrollable": JSON.stringify(error)
+     "Scrollable": JSON.stringify(error)
     });
     $(container).data("loading", false);
    },
@@ -712,7 +712,7 @@ class OH {
       batchIndex += 1;
       const itemNumber = currentItems + batchIndex;
       $(container).append("<div class='SearchListItem${itemNumber} h'>${Result}</div>\r\n");
-      if(CurrentListItemCommands.length > 0) {
+      if(typeof CurrentListItemCommands !== "undefined") {
        this.ExecuteCommands(CurrentListItemCommands);
       }
       $(container).find(".SearchListItem${itemNumber}").fadeIn(Math.round((batchIndex / 2) * 500));
@@ -1039,7 +1039,9 @@ class OH {
       RenderInput = "<input" + RenderInputAttributes + " value='" + TextValue + "'/>\r\n";
      } else if(Type === "TextBox") {
       RenderInput = "<textarea " + RenderInputAttributes + ">" + this.AESdecrypt(Input["Value"]) + "</textarea>\r\n";
-      if(Options["WYSIWYG"] === 1) {
+      if(Options["LargeBox"] === 1) {
+       RenderInput = "<textarea " + RenderInputAttributes + " rows='40'>" + this.AESdecrypt(Input["Value"]) + "</textarea>\r\n";
+      } else if(Options["WYSIWYG"] === 1) {
        RenderInput = "<textarea " + RenderInputAttributes + " rows='40'>" + this.AESdecrypt(Input["Value"]) + "</textarea>\r\n";
        $.ajax({
         error: (error) => {
@@ -1335,7 +1337,7 @@ class OH {
           } if(Search > 0) {
            ListItems += 1;
            $(Container).append("<div class='SearchListItem" + ListItems + " h'>" + Result + "</div>\r\n");
-           if(CurrentListItemCommands.length > 0) {
+           if(typeof CurrentListItemCommands !== "undefined") {
             this.ExecuteCommands(CurrentListItemCommands);
            }
            $(Container).find(".SearchListItem" + ListItems).fadeIn(Math.round((ListItems / 2) * 500));

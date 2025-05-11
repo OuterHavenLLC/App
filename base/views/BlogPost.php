@@ -171,7 +171,7 @@
         [
          "Attributes" => [
           "class" => "Body req",
-          "id" => "EditPageBody$id",
+          "data-editor-identifier" => "EditPageBody$id",
           "name" => "Body",
           "placeholder" => "Body"
          ],

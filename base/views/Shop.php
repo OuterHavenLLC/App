@@ -241,6 +241,7 @@
         [
          "Attributes" => [
           "class" => "req",
+          "data-editor-identifier" => "HiringAgreement$id",
           "name" => "HireTerms",
           "placeholder" => "Describe your requirements, what potential clients can expect when hiring you, and any other terms and conditions of hire."
          ],
@@ -258,8 +259,8 @@
         ],
         [
          "Attributes" => [
-          "class" => "[Shop.DesignView] Welcome req",
-          "id" => "EditWelcomeMessage[Shop.ID]",
+          "class" => "req",
+          "data-editor-identifier" => "EditWelcomeMessage$id",
           "name" => "Welcome",
           "placeholder" => "Welcome"
          ],

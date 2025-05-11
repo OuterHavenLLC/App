@@ -145,7 +145,6 @@
         [
          "Attributes" => [
           "class" => "req",
-          "data-editor-identifier" => $id,
           "name" => "Body",
           "placeholder" => "Body"
          ],
@@ -154,7 +153,7 @@
           "ContainerClass" => "NONAME",
           "Header" => 1,
           "HeaderText" => "Body",
-          "WYSIWYG" => 1
+          "LargeBox" => 1
          ],
          "Type" => "TextBox",
          "Value" => $this->core->AESencrypt($this->core->PlainText([

@@ -135,7 +135,7 @@
         [
          "Attributes" => [
           "class" => "req",
-          "id" => "EditUpdateBody$id",
+          "data-editor-identifier" => "EditUpdateBody$id",
           "name" => "Body",
           "placeholder" => "Body"
          ],

@@ -229,7 +229,7 @@
      [
       "Attributes" => [
        "class" => "Edit$id req",
-       "id" => "EditProductBody$id",
+       "data-editor-identifier" => "EditProductBody$id",
        "name" => "Body",
        "placeholder" => "Body"
       ],
