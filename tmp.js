@@ -350,7 +350,7 @@ class OH {
  }
  static DeleteContainer(button) {
   var Button = button,
-   Container = $(Button).closest($(Button).attr("data-target"));
+        Container = $(Button).closest($(Button).attr("data-target"));
   $(Container).slideUp(500);
   setTimeout(() => {
    $(Container).remove();
@@ -2106,10 +2106,18 @@ $(document).on("click", ".GoToView", (event) => {
     if(/<\/?[a-z][\s\S]*>/i.test(data) === true) {
      OH.Crash(data);
     } else {
-     const Data = OH.RenderView(data);
+     const Data = OH.RenderView(data),
+               ChildView = "ViewPage" + ID,
+               ParentView = "ParentPage" + ID;
      Data.View.then(response => {
-      OH.GoToView("ParentPage" + ID, "ViewPage" + ID, response);
-      OH.ExecuteCommands(Data.Commands);
+      OH.GoToView(ParentView, ChildView, response);
+      if(ChildView.length && $(ChildView).is(":visible")) {
+       OH.ExecuteCommands(Data.Commands);
+      } else {
+       setTimeout(() => {
+        OH.ExecuteCommands(Data.Commands);
+       }, 600);
+      }
      }).catch(error => {
       OH.Dialog({
        "Body": "GoToView: Error rendering view data. Please see below:",
@@ -2708,7 +2716,7 @@ $(document).on("keyup", ".UnlockProtectedContent", (event) => {
  $.ajax({
   error: (error) => {
    OH.Dialog({
-    "Body": "Data retrieval error, please see below.",
+    "Body": "UnlockProtectedContent: Data retrieval error, please see below.",
     "Scrollable": JSON.stringify(error)
    });
   },

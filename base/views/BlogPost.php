@@ -306,23 +306,20 @@
       ]]);
       $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $_Dialog = [
-       "Body" => "The Key is missing."
-      ];
+      $_Dialog = "";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
-      if($key != $secureKey) {
-       $_Dialog = "";
-      } else {
-       $_Dialog = "";
+      if($key == $secureKey) {
        $_View = $this->view(base64_encode("BlogPost:Home"), ["Data" => [
         "Blog" => $blog,
         "Post" => $postID,
         "ViewProtectedContent" => 1
        ]]);
-       $_View = $this->core->RenderView($_View);
+       $_View = $this->core->RenderView($_View, 1);
+       $_Commands = $_View["Commands"];
+       $_View = $_View["View"];
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $options = $_BlogPost["ListItem"]["Options"];

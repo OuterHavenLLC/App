@@ -37,18 +37,13 @@
     ]]);
     $_View = $this->core->RenderView($_View);
     if($verifyPassPhrase == 1) {
-     $_Dialog = [
-      "Body" => "The Key is missing."
-     ];
+     $_Dialog = "";
      $_View = "";
      $key = $data["Key"] ?? base64_encode("");
      $key = base64_decode($key);
      $secureKey = $data["SecureKey"] ?? base64_encode("");
      $secureKey = base64_decode($secureKey);
-     if(md5($key) != $secureKey) {
-      $_Dialog = "";
-      $_View = "";
-     } else {
+     if(md5($key) == $secureKey) {
       $_AddTopMargin = "0";
       $_Dialog = "";
       $allowedAudio = $config["XFS"]["FT"]["A"] ?? [];

@@ -98,7 +98,7 @@
     $about = $forum["About"] ?? "";
     $author = $forum["UN"] ?? $you;
     $ca = base64_encode("Chat:Attachments");
-    $coverPhoto = $forum["ICO-SRC"] ?? "";
+    $coverPhoto = $forum["CoverPhoto"] ?? "";
     $created = $forum["Created"] ?? $now;
     $description = $forum["Description"] ?? "";
     $es = base64_encode("LiveView:EditorSingle");
@@ -270,7 +270,6 @@
    ]);
   }
   function EditTopics(array $data): string {
-   $_AccessCode = "Denied";
    $_Commands = "";
    $_Dialog = [
     "Body" => "The Forum Identifier is missing."
@@ -322,19 +321,20 @@
       ], $this->core->Extension("5f5acd280261747ae18830eb70ce719c")]);
      }
      $_Commands = [
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".ParentForumInformation$id",
-       [
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".ParentForumInformation$id",
         [
-         "Attributes" => [
-          "name" => "ID",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => $id
+         [
+          "Attributes" => [
+           "name" => "ID",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $id
+         ]
         ]
        ]
       ]
@@ -354,7 +354,7 @@
         "[Topic.Title]" => ""
        ], $this->core->Extension("5f5acd280261747ae18830eb70ce719c")])),
        "[Topics.List]" => $topicList,
-       "[Topics.Save]" => base64_encode("v=".base64_encode("Forum:SaveTopics"))
+       "[Topics.Save]" => $this->core->AESencrypt("v=".base64_encode("Forum:SaveTopics"))
       ],
       "ExtensionID" => "4a40ab9e976c8d00bb4ebc8c953cd3ca"
      ];
@@ -420,24 +420,23 @@
       ]]);
       $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $_Dialog = [
-       "Body" => "The Key is missing."
-      ];
+      $_Dialog = "";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
-      if($key != $secureKey) {
-       $_Dialog = "";
-      } else {
+      if($key == $secureKey) {
        $_View = $this->view(base64_encode("Forum:Home"), ["Data" => [
         "AddTo" => $addTo,
         "ID" => $data["ID"],
         "ViewProtectedContent" => 1
        ]]);
-       $_View = $this->core->RenderView($_View);
+       $_View = $this->core->RenderView($_View, 1);
+       $_Commands = $_View["Commands"];
+       $_View = $_View["View"];
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $_Dialog = "";
       $active = 0;
       $admin = 0;
       $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
@@ -982,8 +981,7 @@
    } elseif(!empty($id)) {
     $_AccessCode = "Accepted";
     $actionTaken = ($new == 1) ? "published" : "updated";
-    $coverPhoto = "";
-    $coverPhotoSource = "";
+    $coverPhoto = $data["CoverPhoto"] ?? "";
     if($new == 1) {
      array_push($y["Forums"], $id);
      $y["Forums"] = array_unique($y["Forums"]);
@@ -1032,8 +1030,7 @@
       "Data" => $data["Description"],
       "HTMLEncode" => 1
      ]),
-     "ICO" => $coverPhoto,
-     "ICO-SRC" => base64_encode($coverPhotoSource),
+     "CoverPhoto" => $coverPhoto,
      "ID" => $id,
      "Illegal" => $illegal,
      "Modified" => $now,
@@ -1047,7 +1044,7 @@
      "Type" => $type,
      "UN" => $owner
     ];
-    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Forums(
      Forum_Created,
      Forum_Description,
@@ -1075,11 +1072,10 @@
      ":Username" => $owner
     ]);
     $sql->execute();
-    $this->core->Data("Save", ["pf", $id, $forum]);--*/
+    $this->core->Data("Save", ["pf", $id, $forum]);
     $_Dialog = [
      "Body" => "The Forum <em>$title</em> was $actionTaken.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($forum, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
@@ -1198,10 +1194,11 @@
        ];
       } else {
        $forum["Topics"] = $topics;
-       $this->core->Data("Save", ["pf", $id, $forum]);
+       #$this->core->Data("Save", ["pf", $id, $forum]);
        $_Dialog = [
         "Body" => "The Topic list was updated.",
-        "Header" => "Done"
+        "Header" => "Done",
+        "Scrollable" => json_encode($topics, true)
        ];
       }
      }

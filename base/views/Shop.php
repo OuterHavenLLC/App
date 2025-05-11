@@ -990,20 +990,20 @@
       ]]);
       $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $_View = $this->core->Element(["p", "The Key is missing."]);
+      $_View = "";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
-      if($key != $secureKey) {
-       $_View = "";
-      } else {
+      if($key == $secureKey) {
        $_View = $this->view(base64_encode("Shop:Home"), ["Data" => [
         "AddTo" => $addTo,
         "UN" => $data["UN"],
         "ViewProtectedContent" => 1
        ]]);
-       $_View = $this->core->RenderView($_View);
+       $_View = $this->core->RenderView($_View, 1);
+       $_Commands = $_View["Commands"];
+       $_View = $_View["View"];
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_View = "";

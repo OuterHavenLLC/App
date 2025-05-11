@@ -102,7 +102,7 @@
      [
       "Name" => "RenderInputs",
       "Parameters" => [
-       ".EditForumPost$id",
+       ".ForumPostInformation$id",
        [
         [
          "Attributes" => [
@@ -270,24 +270,21 @@
        "Front" => $this->core->RenderView($_View)
       ];
      } elseif($verifyPassPhrase == 1) {
-      $_Dialog = [
-       "Body" => "The Key is missing."
-      ];
+      $_Dialog = "";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
-      if($key != $secureKey) {
-       $_Dialog = "";
-      } else {
-       $_Dialog = "";
+      if($key == $secureKey) {
        $_View = $this->view(base64_encode("ForumPost:Home"), ["Data" => [
         "EmbeddedView" => 1,
         "FID" => $fid,
         "ID" => $id,
         "ViewProtectedContent" => 1
        ]]);
-       $_View = $this->core->RenderView($_View);
+       $_View = $this->core->RenderView($_View, 1);
+       $_Commands = $_View["Commands"];
+       $_View = $_View["View"];
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_Dialog = [
@@ -392,7 +389,7 @@
         [
          "Name" => "UpdateContentAES",
          "Parameters" => [
-          ".Conversation"$id,
+          ".Conversation$id",
           $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
          ]
         ],
@@ -462,7 +459,7 @@
        ];
        $_View = [
         "ChangeData" => [
-         "[ForumPost.Actions]" => $actions,
+         "[ForumPost.Actions]" => $id.$actions,
          "[ForumPost.Body]" => $this->core->PlainText([
           "BBCodes" => 1,
           "Data" => $post["Body"],
@@ -772,7 +769,7 @@
      "Topic" => $topic,
      "Updates" => $updates
     ];
-    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO ForumPosts(
      ForumPost_Body,
      ForumPost_Created,
@@ -823,11 +820,10 @@
      #$this->core->Data("Save", ["mbr", md5($you), $y]);
     }
     $statistic = ($new == 1) ? "Save Forum Post" : "Update Forum Post";
-    $this->core->Statistic($statistic);--*/
+    $this->core->Statistic($statistic);
     $_Dialog = [
      "Body" => "Your post has been $actionTaken.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($post, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
