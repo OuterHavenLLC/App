@@ -761,7 +761,7 @@
        $votes[$you] = $voteID;
        $notes[$noteID]["Votes"] = $votes;
        $notesSourceContent["Notes"] = $notes;
-       #$this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
+       $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $_Dialog = [
         "Body" => "Your vote has been cast!",
         "Header" => "Done"
@@ -807,7 +807,6 @@
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($info, "LiveView");
        $verified = $author["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-       // ADD ATTACHMENTS COMMANDS
        array_push($_Commands, [
         "Name" => "UpdateCOntentAES",
         "Parameters" => [
@@ -901,6 +900,7 @@
    ]);
   }
   function SaveReport(array $data): string {
+   $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Content Identifier or Type are missing."
    ];
@@ -912,8 +912,6 @@
     $_Dialog = [
      "Body" => "The Report Type is incorrect."
     ];
-    $id = base64_decode($id);
-    $type = base64_decode($type);
     $types = [
      "CriminalActs",
      "ChildPorn",
@@ -929,9 +927,10 @@
      $additionalContentID = $contentID[2] ?? "";
      $contentType = $contentID[0] ?? "";
      $content = $this->core->GetContentData([
-      "Blocked" => 0,
       "ID" => $id
      ]);
+     $data = [];
+     $dlc = [];
      $id = $contentID[1] ?? "";
      $limit = $this->core->config["App"]["Illegal"] ?? 777;
      $wasDeemedLegal = 0;
@@ -952,7 +951,7 @@
         $wasDeemedLegal = $dlc["CongressDeemedLegal"] ?? 0;
         $data["Albums"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["fs", md5($id), $data]);
+         $this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Blog") {
@@ -963,7 +962,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["blg", $id, $data]);
+         $this->core->Data("Save", ["blg", $id, $data]);
         }
        }
       } elseif($contentType == "BlogPost") {
@@ -974,7 +973,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["bp", $id, $data]);
+         $this->core->Data("Save", ["bp", $id, $data]);
         }
        }
       } elseif($contentType == "File" && !empty($additionalContentID)) {
@@ -987,7 +986,7 @@
         $wasDeemedLegal = $dlc["CongressDeemedLegal"] ?? 0;
         $data["Files"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["fs", md5($id), $data]);
+         $this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Forum") {
@@ -998,7 +997,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["pf", $id, $data]);
+         $this->core->Data("Save", ["pf", $id, $data]);
         }
        }
       } elseif($contentType == "ForumPost") {
@@ -1009,7 +1008,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["post", $id, $data]);
+         $this->core->Data("Save", ["post", $id, $data]);
         }
        }
       } elseif($contentType == "Page") {
@@ -1020,7 +1019,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["pg", $id, $data]);
+         $this->core->Data("Save", ["pg", $id, $data]);
         }
        }
       } elseif($contentType == "Product") {
@@ -1031,7 +1030,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["product", $id, $data]);
+         $this->core->Data("Save", ["product", $id, $data]);
         }
        }
       } elseif($contentType == "StatusUpdate") {
@@ -1042,20 +1041,21 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         #$this->core->Data("Save", ["su", $id, $data]);
+         $this->core->Data("Save", ["su", $id, $data]);
         }
        }
       }
+      $_AccessCode = "Accepted";
       $_Dialog = [
        "Body" => "The Content was reported.",
-       "Header" => "Done",
-       "Scrollable" => json_encode($data, true)
+       "Header" => "Done"
       ];
      }
     }
    }
    return $this->core->JSONResponse([
-    "Dialog" => $_DIalog
+    "AccessCode" => $_AccessCode,
+    "Dialog" => $_Dialog
    ]);
   }
   function Vote(array $data): string {

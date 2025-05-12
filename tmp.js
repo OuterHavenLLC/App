@@ -2306,8 +2306,8 @@ $(document).on("click", ".RemoveFromAttachments", (event) => {
 $(document).on("click", ".ReportContent", (event) => {
  const $Button = $(event.currentTarget),
             ID = $Button.attr("data-id") || "",
-            Processor = OH.AESdecrypt($Button.attr("data-processor")),
             Type = $Button.attr("data-type") || "";
+ let Processor = OH.AESdecrypt($Button.attr("data-processor"));
  $Button.prop("disabled", true);
  if(ID !== "" && typeof ID !== "undefined") {
   Processor = Processor.replace("[ID]", ID);
