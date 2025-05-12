@@ -447,8 +447,7 @@
          "[Notes.Body]" => $info["Note"],
          "[Notes.Created]" => $info["Created"],
          "[Notes.DisplayName]" => $displayName,
-         "[Notes.NoteID]" => "",
-         "[Notes.Vote]" => ""
+         "[Notes.NoteID]" => ""
          ],
          "Extension" => $this->core->AESencrypt($this->core->Element([
           "h4", "Congressional Notes"
@@ -465,7 +464,6 @@
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName,
         "[Notes.NoteID]" => "",
-        "[Notes.Vote]" => ""
        ], $_Extension]);
       }
      }
@@ -799,6 +797,7 @@
        }
       }
      } elseif(!empty($notes)) {
+      $_Commands = [];
       $_Dialog = "";
       $_View = "";
       $noteList = [];
@@ -809,17 +808,18 @@
        $verified = $author["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
        // ADD ATTACHMENTS COMMANDS
+       array_push($_Commands, [
+        "Name" => "UpdateCOntentAES",
+        "Parameters" => [
+         ".Vote$note",
+         $this->core->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&NoteID=".base64_encode($note)."&Vote=1&dbID=".base64_encode($databaseID))
+        ]
+       ]);
        array_push($noteList, $this->core->Change([[
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName.$verified,
-        "[Notes.NoteID]" => $note,
-        "[Notes.Vote]" => $this->core->RenderView($this->view(base64_encode("Congress:Notes"), ["Data" => [
-         "ID" => base64_encode($id),
-         "NoteID" => base64_encode($note),
-         "Vote" => 1,
-         "dbID" => base64_encode($databaseID)
-        ]]))
+        "[Notes.NoteID]" => $note
        ], $_Extension]));
       }
       $noteList = array_reverse($noteList);
