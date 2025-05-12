@@ -406,7 +406,7 @@
         "[StatusUpdate.Created]" => $this->core->TimeAgo($update["Created"]),
         "[StatusUpdate.DisplayName]" => $displayName.$verified,
         "[StatusUpdate.ID]" => $update["ID"],
-        "[StatusUpdate.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
+        "[StatusUpdate.Illegal]" => $this->core->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
         "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
         "[StatusUpdate.Share]" => $share

@@ -56,6 +56,7 @@
   }
   function Home(array $data): string {
    $_AddTopMargin = "0";
+   $_Commands = "";
    $_View = "";
    $data = $data["Data"] ?? [];
    $chamber = $data["Chamber"] ?? "";
@@ -86,18 +87,27 @@
     $options .= (!empty($yourRole)) ? $this->core->Element([
      "button", "Elect Candidates", [
       "class" => "OpenDialog v2",
-      "data-view" => base64_encode("v=".base64_encode("Congress:Elect"))
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt("v=".base64_encode("Congress:Elect"))
      ]
     ]).$this->core->Element([
      "button", "Reported Content", [
       "class" => "OpenCard v2",
-      "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=Congress")
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt("v=$search&CARD=1&Chamber=$chamber&st=Congress")
      ]
     ]) : "";
+    $options .= ($y["Rank"] == md5("High Command")) ? $this->core->Element([//TEMP
+     "button", "Edit View", [
+      "class" => "OpenCard v2",
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("4ded3808da05154205a26c869289b6a2"))
+     ]
+    ]) : "";//TEMP
     $_View = [
      "ChangeData" => [
       "[Congress.Chamber]" => $chamber,
-      "[Congress.Staff]" => base64_encode("v=$search&Chamber=$chamber&st=CongressionalStaff$chamber"),
+      "[Congress.Staff]" => $this->core->AESencrypt("v=$search&Chamber=$chamber&st=CongressionalStaff$chamber"),
       "[Congress.Staff.Options]" => $options,
      ],
      "ExtensionID" => "4ded3808da05154205a26c869289b6a2"
@@ -107,32 +117,52 @@
     $joinTheHouse = ($houseRepresentatives < 100 && $notAnon == 1) ? $this->core->Element([
      "button", "Become a House Representative", [
       "class" => "UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode("HouseRepresentative"))
+      "data-encryption" => "AES",
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode("HouseRepresentative"))
      ]
     ]) : "";
     $joinTheHouse = ($yourRole == "HouseRepresentative") ? $this->core->Element([
      "button", "Resign", [
       "class" => "UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Leave")."&Role=".base64_encode("HouseRepresentative"))
+      "data-encryption" => "AES",
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Leave")."&Role=".base64_encode("HouseRepresentative"))
      ]
     ]) : $joinTheHouse;
     $joinTheSenate = ($senators < 50 && $notAnon == 1) ? $this->core->Element([
      "button", "Become a Senator", [
       "class" => "UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode("Senator"))
+      "data-encryption" => "AES",
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode("Senator"))
      ]
     ]) : "";
     $joinTheSenate = ($yourRole == "Senator") ? $this->core->Element([
      "button", "Resign", [
       "class" => "UpdateButton v2",
-      "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Leave")."&Role=".base64_encode("Senator"))
+      "data-encryption" => "AES",
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Leave")."&Role=".base64_encode("Senator"))
      ]
     ]) : $joinTheSenate;
+    $_Commands = [
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".House",
+       $this->core->AESencrypt("v=".base64_encode("Congress:Home")."&Chamber=House&Chambers=1"),
+       5000
+      ]
+     ],
+     [
+      "Name" => "UpdateContentRecursiveAES",
+      "Parameters" => [
+       ".Senate",
+       $this->core->AESencrypt("v=".base64_encode("Congress:Home")."&Chamber=Senate&Chambers=1"),
+       5000
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
-      "[Congress.Chambers.House]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=House&Chambers=1"),
       "[Congress.Chambers.House.Join]" => $joinTheHouse,
-      "[Congress.Chambers.Senate]" => base64_encode("v=".base64_encode("Congress:Home")."&Chamber=Senate&Chambers=1"),
       "[Congress.Chambers.Senate.Join]" => $joinTheSenate,
       "[Congress.CoverPhoto]" => $this->core->PlainText([
        "Data" => "[Media:Congress]",
@@ -144,6 +174,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => $_AddTopMargin,
+    "Commands" => $_Commands,
     "Title" => "Congress of ".$this->core->config["App"]["Name"],
     "View" => $_View
    ]);
@@ -199,7 +230,8 @@
       $_View = [
        "Attributes" => [
         "class" => "UpdateButton v2",
-        "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Leave")."&Role=".base64_encode($role))
+        "data-encryption" => "AES",
+        "data-processor" => $this->core->AESencrypt("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Leave")."&Role=".base64_encode($role))
        ],
        "Text" => "Resign"
       ];
@@ -209,7 +241,8 @@
      $_View = [
       "Attributes" => [
        "class" => "UpdateButton v2",
-       "data-processor" => base64_encode("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode($role))
+       "data-encryption" => "AES",
+       "data-processor" => $this->core->AESencrypt("v=".base64_encode("Congress:Join")."&Command=".base64_encode("Join")."&Role=".base64_encode($role))
       ],
       "Text" => "Become a $becomeRole"
      ];
@@ -224,9 +257,10 @@
   }
   function Nominate(array $data): string {
    $_AccessCode = "Accepted";
+   $_Commands = "";
    $_Dialog = "";
    $_View = "";
-   $_ResponseType = "View";
+   $_ResponseType = "N/A";
    $ballot = $this->core->Data("Get", ["app", md5("CongressionalBallot")]);
    $data = $data["Data"] ?? [];
    $addToBallot = $data["AddToBallot"] ?? "";
@@ -241,9 +275,8 @@
     if(!empty($addToBallot)) {
      $_AccessCode = "Denied";
      $_DIalog = [
-      "Body" => "The Chamber is missing."
+      "Body" => "The Chamber Identifier is missing."
      ];
-     $_ResponseType = "Dialog";
      $data = $this->core->DecodeBridgeData($data);
      $addToBallot = $data["AddToBallot"] ?? $addToBallot;
      $chamber = $data["Chamber"] ?? $chamber;
@@ -301,11 +334,54 @@
          $isOnStaff++;
         }
        } if($isNominated == 0 && $isOnStaff == 0) {
+        $_Commands = [
+         "Name" => "RenderInputs",
+         "Parameters" => [
+          ".NominateMember".md5($them),
+          [
+           [
+            "Attributes" => [
+             "name" => "AddToBallot",
+             "type" => "hidden"
+            ],
+            "OptionGroup" => [],
+            "Options" => [],
+            "Type" => "Text",
+            "Value" => 1
+           ],
+           [
+            "Attributes" => [
+             "name" => "Username",
+             "type" => "hidden"
+            ],
+            "OptionGroup" => [],
+            "Options" => [],
+            "Type" => "Text",
+            "Value" => $them
+           ],
+           [
+            "Attributes" => [],
+            "OptionGroup" => [
+             "House" => "House",
+             "Senate" => "Senate"
+            ],
+            "Options" => [
+             "Header" => 1,
+             "HeaderText" => "Congressional Chamber"
+            ],
+            "Name" => "Chamber",
+            "Title" => "Chamber",
+            "Type" => "Select",
+            "Value" => ""
+           ]
+          ]
+         ]
+        ];
         $_View = [
          "ChangeData" => [
           "[Nomination.DisplayName]" => $diaplayName,
           "[Nomination.ID]" => md5($them),
-          "[Nomination.Save]" => base64_encode("v=".base64_encode("Congress:Nominate")),
+          "[Nomination.Save]" => $this->core->AESencrypt("v=".base64_encode("Congress:Nominate")),
           "[Nomination.Username]" => $them
          ],
          "ExtensionID" => "f10284649796c26dd863d3872379e7d9"
@@ -326,6 +402,7 @@
   function Notes(array $data): string {
    $_AccessCode = "Dernied";
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Content or Database Identifier are missing."
    ];
@@ -336,14 +413,14 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($databaseID) && !empty($id)) {
-    $_Dialog = "";
-    $_View = "";
     $_AddNote = $this->core->AESencrypt("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
+    $_Dialog = "";
+    $_Extension = $this->core->Extension("bdd25e7c79eeafb218f1c2c76a49067b");
+    $_View = "";
     $_Congress = $this->core->Data("Get", ["app", md5("Congress")]);
-    $congressmen = $_Congress["Members"] ?? [];
     $databaseID = base64_decode($databaseID);
-    $extension = $this->core->Extension("bdd25e7c79eeafb218f1c2c76a49067b");
     $id = base64_decode($id);
+    $congressmen = $_Congress["Members"] ?? [];
     $notesSourceContent = $this->core->Data("Get", [$databaseID, $id]);
     $notes = $notesSourceContent["Notes"] ?? [];
     if(empty($congressmen[$you]) && !empty($notes)) {
@@ -375,7 +452,7 @@
          ],
          "Extension" => $this->core->AESencrypt($this->core->Element([
           "h4", "Congressional Notes"
-         ]).$extension)
+         ]).$_Extension)
         ];
        }
       }
@@ -389,7 +466,7 @@
         "[Notes.DisplayName]" => $displayName,
         "[Notes.NoteID]" => "",
         "[Notes.Vote]" => ""
-       ], $extension]);
+       ], $_Extension]);
       }
      }
      $_View = $this->core->Element(["div", $_View, [
@@ -450,13 +527,54 @@
        "Front" => [
         "ChangeData" => [
          "[Notes.Attachments]" => $this->core->RenderView($attachments),
-         "[Notes.DatabaseID]" => $databaseID,
-         "[Notes.ID]" => $id,
          "[Notes.NoteID]" => $noteID,
          "[Notes.Preview]" => $preview,
          "[Notes.TranslateAndViewDesign]" => $this->core->RenderView($translateAndViewDeign)
         ],
         "ExtensionID" => "8a016ee410595abcc9a119f63ca21a26"
+       ]
+      ];
+      $_Commands = [
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".CongressionalNote$noteID",
+         [
+          [
+           "Attributes" => [
+            "name" => "SecureDatabaseID",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $databaseID
+          ],
+          [
+           "Attributes" => [
+            "name" => "SecureID",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $id
+          ],
+          [
+           "Attributes" => [
+            "class" => "req",
+            "name" => "Body",
+            "placeholder" => "Body"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "NONAME",
+            "Header" => 1,
+            "HeaderText" => "Body"
+           ],
+           "Type" => "TextBox",
+           "Value" => ""
+          ]
+         ]
+        ]
        ]
       ];
      } elseif($save == 1) {
@@ -645,7 +763,7 @@
        $votes[$you] = $voteID;
        $notes[$noteID]["Votes"] = $votes;
        $notesSourceContent["Notes"] = $notes;
-       $this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
+       #$this->core->Data("Save", [$databaseID, $id, $notesSourceContent]);
        $_Dialog = [
         "Body" => "Your vote has been cast!",
         "Header" => "Done"
@@ -672,9 +790,9 @@
         $_Vote = "v=".base64_encode("Congress:Notes")."&ID=".base64_encode($id)."&dbID=".base64_encode($databaseID)."&NoteID=".base64_encode($noteID)."&SaveVote=1&VoteID=";
         $_View = [
          "ChangeData" => [
-          "[Notes.Helpful]" => base64_encode($_Vote."Up"),
+          "[Notes.Helpful]" => $this->core->AESencrypt($_Vote."Up"),
           "[Notes.NoteID]" => $noteID,
-          "[Notes.NotHelpful]" => base64_encode($_Vote."Down")
+          "[Notes.NotHelpful]" => $this->core->AESencrypt($_Vote."Down")
          ],
          "ExtensionID" => "77de16b56ee1c9f80e89ef8eed97662b"
         ];
@@ -690,22 +808,8 @@
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($info, "LiveView");
        $verified = $author["Verified"] ?? 0;
        $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
+       // ADD ATTACHMENTS COMMANDS
        array_push($noteList, $this->core->Change([[
-        "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-        "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-        "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-        "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-        "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-        "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-        "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-        "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-        "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-        "[Attached.ID]" => $this->core->UUID("ForumPostAttachments"),
-        "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-        "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-        "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-        "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-        "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
         "[Notes.Body]" => $info["Note"],
         "[Notes.Created]" => $info["Created"],
         "[Notes.DisplayName]" => $displayName.$verified,
@@ -716,7 +820,7 @@
          "Vote" => 1,
          "dbID" => base64_encode($databaseID)
         ]]))
-       ], $extension]));
+       ], $_Extension]));
       }
       $noteList = array_reverse($noteList);
       foreach($noteList as $note) {
@@ -743,6 +847,7 @@
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "Success" => "CloseCard",
@@ -750,6 +855,7 @@
    ]);
   }
   function Report(array $data): string {
+   $_Card = "";
    $_Dialog = [
     "Body" => "The Content Identifier is missing."
    ];
@@ -775,23 +881,23 @@
     } else {
      $preview = $content["Preview"] ?? [];
      $preview = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
-     $_Dialog = "";
      $_Card = [
       "Front" => [
        "ChangeData" => [
         "[Content.ID]" => $id,
-        "[Content.Processor]" => base64_encode("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
-        "[Content.SecureID]" => base64_encode($id),
+        "[Content.Processor]" => $this->core->AESencrypt("v=".base64_encode("Congress:SaveReport")."&ID=[ID]"),
+        "[Content.SecureID]" => $this->core->AESencrypt($id),
         "[Content.Preview]" => $preview
        ],
        "ExtensionID" => "0eaea9fae43712d8c810c737470021b3"
       ]
      ];
+     $_Dialog = "";
     }
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
-    "Dialog" => $_DIalog
+    "Dialog" => $_Dialog
    ]);
   }
   function SaveReport(array $data): string {
@@ -823,6 +929,7 @@
      $additionalContentID = $contentID[2] ?? "";
      $contentType = $contentID[0] ?? "";
      $content = $this->core->GetContentData([
+      "Blocked" => 0,
       "ID" => $id
      ]);
      $id = $contentID[1] ?? "";
@@ -845,7 +952,7 @@
         $wasDeemedLegal = $dlc["CongressDeemedLegal"] ?? 0;
         $data["Albums"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["fs", md5($id), $data]);
+         #$this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Blog") {
@@ -856,7 +963,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["blg", $id, $data]);
+         #$this->core->Data("Save", ["blg", $id, $data]);
         }
        }
       } elseif($contentType == "BlogPost") {
@@ -867,7 +974,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["bp", $id, $data]);
+         #$this->core->Data("Save", ["bp", $id, $data]);
         }
        }
       } elseif($contentType == "File" && !empty($additionalContentID)) {
@@ -880,7 +987,7 @@
         $wasDeemedLegal = $dlc["CongressDeemedLegal"] ?? 0;
         $data["Files"][$additionalContentID] = $dlc;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["fs", md5($id), $data]);
+         #$this->core->Data("Save", ["fs", md5($id), $data]);
         }
        }
       } elseif($contentType == "Forum") {
@@ -891,7 +998,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["pf", $id, $data]);
+         #$this->core->Data("Save", ["pf", $id, $data]);
         }
        }
       } elseif($contentType == "ForumPost") {
@@ -902,7 +1009,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["post", $id, $data]);
+         #$this->core->Data("Save", ["post", $id, $data]);
         }
        }
       } elseif($contentType == "Page") {
@@ -913,7 +1020,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["pg", $id, $data]);
+         #$this->core->Data("Save", ["pg", $id, $data]);
         }
        }
       } elseif($contentType == "Product") {
@@ -924,7 +1031,7 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["product", $id, $data]);
+         #$this->core->Data("Save", ["product", $id, $data]);
         }
        }
       } elseif($contentType == "StatusUpdate") {
@@ -935,13 +1042,14 @@
         $data["Illegal"] = round($data["Illegal"]);
         $wasDeemedLegal = $data["CongressDeemedLegal"] ?? 0;
         if($wasDeemedLegal == 0) {
-         $this->core->Data("Save", ["su", $id, $data]);
+         #$this->core->Data("Save", ["su", $id, $data]);
         }
        }
       }
       $_Dialog = [
        "Body" => "The Content was reported.",
-       "Header" => "Done"
+       "Header" => "Done",
+       "Scrollable" => json_encode($data, true)
       ];
      }
     }
@@ -1074,6 +1182,7 @@
    $_Dialog = [
     "Body" => "The Candidate or Chamber Identifiers are missing."
    ];
+   $_View = "";
    $data = $data["Data"] ?? [];
    $candidate = $data["Candidate"] ?? "";
    $chamber = $data["Chamber"] ?? "";
@@ -1085,6 +1194,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($candidate) && !empty($chamber)) {
+    $_Dialog = "";
     $_View = [
      "Body" => "Error voting for @$candidate..."
     ];
@@ -1105,7 +1215,8 @@
     }
    }
    return $this->core->JSONResponse([
-    "Dialog" => $_DIalog
+    "Dialog" => $_DIalog,
+    "View" => $_View
    ]);
   }
   function __destruct() {

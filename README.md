@@ -6,7 +6,7 @@ See [here](https://www.gnu.org/licenses/gpl-3.0.en.html) or [here](https://archi
 # Change Log
 ## 1.4: Safe Haven (coming soon…)
 ### Release Notes
-This release brings bug fixes to mission-critical experiences, a hybrid schema for data storage and indexing, and the first version of Heath Kits—an installation tool to help Developers deploy a copy of our platform onto their servers. This is the recommended starting point for all developers.
+This release brings bug fixes to mission-critical experiences, a hybrid schema for data storage and indexing, a major shift in resource load from server to client, and the first version of Heath Kits—an installation tool to help Developers deploy a copy of our platform onto their servers. This is the recommended starting point for all developers.
 
 ### Platform Improvements
 * Revised the media upload process.
@@ -57,7 +57,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * The client now stores and retrieves Extension data via the local browser database and an associated class.
 * Server responses are now capable of sending multiple view types via a single response.
 * The client now assumes most rendering responsibilities, except for server-side callback functions.
-* Command lists take the place of most in-line client function calls, except for custom logic, to ensure uniformity and security when executing client logic. (coming soon...)
+* Command lists take the place of most in-line client function calls, except for custom logic, to ensure uniformity and security when executing client logic.
 
 ### Heath Kit
 * Coming soon...

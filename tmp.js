@@ -1961,6 +1961,7 @@ $(document).on("click", ".CreditExchange", (event) => {
 });
 $(document).on("click", ".Delete", (event) => {
  const $Button = $(event.currentTarget),
+           Encryption = $Button.attr("data-encryption") || "",
            Processor = $Button.attr("data-processor"),
            Text = $Button.text();
  $Button.prop("disabled", true);
@@ -1968,6 +1969,11 @@ $(document).on("click", ".Delete", (event) => {
  if(Processor === "" || typeof Processor === "undefined") {
   OH.DeleteContainer($Button);
  } else {
+  if(Encryption === "AES") {
+   Processor =  OH.AESdecrypt(Processor);
+  } else {
+   Processor =  OH.Base64decrypt(Processor);
+  }
   $.ajax({
    error: (error) => {
     OH.Dialog({
@@ -2299,16 +2305,16 @@ $(document).on("click", ".RemoveFromAttachments", (event) => {
 });
 $(document).on("click", ".ReportContent", (event) => {
  const $Button = $(event.currentTarget),
-  ID = $Button.attr("data-id"),
-  Processor = OH.Base64decrypt($Button.attr("data-processor")),
-  Type = OH.Base64encrypt($Button.attr("data-type"));
+            ID = $Button.attr("data-id"),
+            Processor = OH.AESdecrypt($Button.attr("data-processor")),
+            Type = OH.AESdecrypt($Button.attr("data-type"));
  $Button.prop("disabled", true);
  if(ID !== "" && typeof ID !== "undefined") {
   Processor = Processor.replace("[ID]", ID);
   $.ajax({
    error: (error) => {
     OH.Dialog({
-     "Body": "Data retrieval error, please see below.",
+     "Body": "Report: Data retrieval error, please see below.",
      "Scrollable": JSON.stringify(error)
     });
    },

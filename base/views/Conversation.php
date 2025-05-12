@@ -187,7 +187,7 @@
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
-    "commentID" => $_Commands,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
@@ -503,15 +503,15 @@
   }
   function Save(array $data): string {
    $_AccessCode = "Denied";
-   $_Dialog = [
-    "Body" => "The Conversation or $commentType Identifier are missing."
-   ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $commentID = $data["CommentID"] ?? "";
    $id = $data["ID"] ?? "";
    $level = $data["Level"] ?? 1;
    $commentType = ($level == 1) ? "comment" : "reply";
+   $_Dialog = [
+    "Body" => "The Conversation or $commentType Identifier are missing."
+   ];
    $new = $data["New"] ?? 0;
    $replyingTo = $data["ReplyingTo"] ?? "";
    $y = $this->you;
@@ -675,11 +675,10 @@
     if($purge != 0) {
      $conversation["Purge"] = $purge;
     }
-    #$this->core->Data("Save", ["conversation", $id, $conversation]);
+    $this->core->Data("Save", ["conversation", $id, $conversation]);
     $_Dialog = [
      "Body" => "Your $commentType was $actionTaken.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($conversation, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([

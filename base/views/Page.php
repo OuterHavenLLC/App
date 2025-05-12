@@ -55,7 +55,7 @@
     $_Card = [
      "Front" => [
       "ChangeData" => [
-       "Article.Body]" => $this->core->PlainText([
+       "[Article.Body]" => $this->core->PlainText([
         "BBCodes" => 1,
         "Data" => $article["Body"],
         "Decode" => 1,

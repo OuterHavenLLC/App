@@ -5,12 +5,11 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Edit(array $data): string {
+   $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Extension Identifier is missing."
    ];
-   $_Card = "";
-   $_Commands = "";
-   $_Dialog = "";
    $data = $data["Data"] ?? [];
    $id = $data["ID"] ?? base64_encode("");
    $new = $data["New"] ?? 0;
