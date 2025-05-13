@@ -5,14 +5,12 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Delete(array $data): string {
-   $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Username is missing."
    ];
-   $_ResponseType = "N/A";
    $data = $data["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
-   $username = $data["Username"] ?? "";
+   $username = $data["Username"] ?? $this->core->AESencrypt("");
+   $username = $this->core->AESdecrypt($username);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -21,9 +19,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($username) && $username != $you) {
-    $_AccessCode = "Accepted";
     $_Dialog = "";
-    $_ResponseType = "Destruct";
     $_theirContacts = $this->core->Data("Get", ["cms", md5($username)]);
     $_yourContacts = $this->core->Data("Get", ["cms", md5($you)]);
     $theirContacts = $_theirContacts["Contacts"] ?? [];
@@ -45,9 +41,7 @@
     $this->core->Data("Save", ["cms", md5($you), $_yourContacts]);
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "Dialog" => $_Dialog,
-    "ResponseType" => $responseType
+    "Dialog" => $_Dialog
    ]);
   }
   function Options(array $data): string {
@@ -56,16 +50,12 @@
    ];
    $_View = "";
    $data = $data["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["UN"]);
-   $username = $data["UN"];
+   $username = $data["UN"] ?? "";
    $y = $this->you;
    if(!empty($username)) {
     $username = base64_decode($username);
     $card = base64_encode("Profile:Home");
-    $contacts = $this->core->Data("Get", [
-     "cms",
-     md5($y["Login"]["Username"])
-    ]);
+    $contacts = $this->core->Data("Get", ["cms", md5($y["Login"]["Username"])]);
     $contacts = $contacts["Contacts"] ?? [];
     $contact = $contacts[$username];
     $t = $this->core->Member($username);
@@ -77,13 +67,13 @@
     ]);
     $_View = [
      "ChangeData" => [
-      "[Contact.Card]" => base64_encode("CARD=1&v=$card&UN=".$data["UN"]),
+      "[Contact.Card]" => $this->core->AESencrypt("CARD=1&v=$card&UN=".$data["UN"]),
       "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
       "[Contact.ID]" => md5($username),
       "[Contact.List]" => $contact["List"],
-      "[Contact.Notes]" => base64_encode($contact["Notes"]),
+      "[Contact.Notes]" => $this->core->AESencrypt($contact["Notes"]),
       "[Contact.ProfilePicture]" => $profilePicture,
-      "[Contact.Update]" => base64_encode("v=".base64_encode("Contact:Save")),
+      "[Contact.Update]" => $this->core->AESencrypt("v=".base64_encode("Contact:Save")),
       "[Contact.Username]" => $username
      ],
      "ExtensionID" => "297c6906ec2f4cb2013789358c5ea77b"

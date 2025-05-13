@@ -33,7 +33,7 @@
  ]);
  foreach($databases as $key => $database) {
   $database = explode(".", $database);
-  if(!empty($database[3]) && !in_array($database[3], $oh->core->RestrictedIDs)) {
+  if(!empty($database[3])) {
    $data = $oh->core->Data("Get", [$database[2], $database[3]]);
    $purge = $data["Purge"] ?? 0;
    if(!empty($data) && $purge == 0) {

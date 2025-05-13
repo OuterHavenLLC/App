@@ -97,18 +97,21 @@
       "data-view" => $this->core->AESencrypt("v=$search&CARD=1&Chamber=$chamber&st=Congress")
      ]
     ]) : "";
-    $options .= ($y["Rank"] == md5("High Command")) ? $this->core->Element([//TEMP
-     "button", "Edit View", [
-      "class" => "OpenCard v2",
-      "data-encryption" => "AES",
-      "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("4ded3808da05154205a26c869289b6a2"))
+    $_Commands = [
+     [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".CongressionalChamberStaff$chamber",
+       [
+        $this->core->AESencrypt("v=$search&Chamber=$chamber&st=CongressionalStaff$chamber")
+       ]
+      ]
      ]
-    ]) : "";//TEMP
+    ];
     $_View = [
      "ChangeData" => [
       "[Congress.Chamber]" => $chamber,
-      "[Congress.Staff]" => $this->core->AESencrypt("v=$search&Chamber=$chamber&st=CongressionalStaff$chamber"),
-      "[Congress.Staff.Options]" => $options,
+      "[Congress.Staff.Options]" => $options
      ],
      "ExtensionID" => "4ded3808da05154205a26c869289b6a2"
     ];

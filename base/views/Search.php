@@ -1435,25 +1435,19 @@
     $_AccessCode = "Accepted";
     $_ExtensionID = "ccba635d8c7eca7b0b6af5b22d60eb55";
     if($notAnon == 1) {
-     $cms = $this->core->Data("Get", [
-      "cms",
-      md5($y["Login"]["Username"])
-     ]);
+     $cms = $this->core->Data("Get", ["cms", md5($y["Login"]["Username"])]);
      $cms = $cms["Contacts"] ?? [];
      foreach($cms as $key => $value) {
       $t = $this->core->Member($key);
-      $delete = base64_encode("v=".base64_encode("Contact:Delete"));
       $id = md5($key);
-      $options = "v=".base64_encode("Contact:Options")."&UN=".base64_encode($key);
       array_push($_Commands, []);
       array_push($_List, [
-       "[Contact.Delete]" => $delete,
+       "[Contact.Delete]" => $this->core->AESencrypt("v=".base64_encode("Contact:Delete")."&Username=".$this->core->AESencrypt($key)),
        "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
-       "[Contact.Form]" => $id,
        "[Contact.ID]" => $id,
+       "[Contact.Options]" => $this->core->AESencrypt("v=".base64_encode("Contact:Options")."&UN=".base64_encode($key)),
        "[Contact.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:5%;width:90%"),
-       "[Contact.Username]" => $key,
-       "[Options]" => $options
+       "[Contact.Username]" => $key
       ]);
      }
     }
