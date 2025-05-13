@@ -25,9 +25,11 @@
   <div class="AppContainer"></div>
   <div class="FrostedGlass RegSel h scr"></div>
   <script>
-   setTimeout(() => {
-    OH.UpdateContent(".AppContainer", "[App.Content]", "AES");
-   }, 500);
+   if($(window).location !== "[App.Base]/") {
+    setTimeout(() => {
+     OH.UpdateContent(".AppContainer", "[App.Content]", "AES");
+    }, 500);
+   }
   </script>
  </body>
 </html>

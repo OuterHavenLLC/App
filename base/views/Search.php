@@ -232,8 +232,18 @@
      $searchBarText = "the ".$searchType;
      $options = ($card == 0) ? $this->core->Element(["button", "Say Something", [
       "class" => "BBB MobileFull OpenCard v2",
-      "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
      ]]) : "";
+     //BEGIN TEMP
+     $options .= ($y["Rank"] == md5("High Command")) ? $this->core->Element([
+      "button", "Edit View", [
+       "class" => "MobileFull OpenCard v2",
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("297c6906ec2f4cb2013789358c5ea77b"))
+      ]
+     ]) : "";
+     //END TEMP
      $variant = "2Column";
     } elseif($searchType == "MBR") {
      $header = "Members";

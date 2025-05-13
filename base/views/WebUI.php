@@ -575,10 +575,10 @@
    } elseif($type == "ReSearch") {
     $_Commands = [
      [
-      "Name" => "UpdateContent",
+      "Name" => "UpdateContentAES",
       "Parameters" => [
        ".Content",
-       base64_encode($view)
+       $this->core->AESencrypt($view)
       ]
      ]
     ];
@@ -590,6 +590,20 @@
     ];
    }
    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
+   #$_View = $_View ?? [
+   $_View = [
+    "ChangeData" => [],
+    "Extension" => $this->core->AESencrypt($this->core->Element([
+     "h1", "Error"
+    ]).$this->core->Element([
+     "p", "The Public Containers could not be rendered. Please see below:"
+    ]).$this->core->Element([
+     "p", json_encode([
+      "Type" => $type,
+      "View" => $view
+     ], true)
+    ]))
+   ];
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Commands" => $_Commands,

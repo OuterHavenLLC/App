@@ -45,6 +45,7 @@
    ]);
   }
   function Options(array $data): string {
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Username is missing."
    ];
@@ -65,22 +66,70 @@
      "Data" => $profilePicture,
      "Display" => 1
     ]);
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ContactInformation".md5($username),
+       [
+        [
+         "Attributes" => [
+          "name" => "Username",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $username
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "55c53cfda992192581cb4f006109df47" => "Acquaintances",
+          "43b5ac258be80f9a8f5bc8d3c6036e2b" => "Close Contacts",
+          "9aa698f602b1e5694855cee73a683488" => "Contacts"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Contact List"
+         ],
+         "Name" => "ContactList",
+         "Type" => "Select",
+         "Value" => $contact["List"]
+        ],
+        [
+         "Attributes" => [
+          "name" => "Notes",
+          "placeholder" => "Write a note about [Contact.DisplayName]..."
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Notes"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($contact["Notes"])
+        ]
+       ]
+      ]
+     ]
+    ];
     $_View = [
      "ChangeData" => [
-      "[Contact.Card]" => $this->core->AESencrypt("CARD=1&v=$card&UN=".$data["UN"]),
+      "[Contact.Card]" => $this->core->AESencrypt("v=$card&CARD=1&UN=".$data["UN"]),
       "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
       "[Contact.ID]" => md5($username),
-      "[Contact.List]" => $contact["List"],
-      "[Contact.Notes]" => $this->core->AESencrypt($contact["Notes"]),
       "[Contact.ProfilePicture]" => $profilePicture,
-      "[Contact.Update]" => $this->core->AESencrypt("v=".base64_encode("Contact:Save")),
-      "[Contact.Username]" => $username
+      "[Contact.Update]" => $this->core->AESencrypt("v=".base64_encode("Contact:Save"))
      ],
      "ExtensionID" => "297c6906ec2f4cb2013789358c5ea77b"
     ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -223,8 +272,8 @@
    ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
-   $data = $this->core->FixMissing($data, ["Username", "notes"]);
-   $username = $data["Username"];
+   $notes = $data["Notes"] ?? "";
+   $username = $data["Username"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -239,7 +288,7 @@
     $contacts[$username] = [
      "Added" => $contacts[$username]["Added"],
      "List" => $list,
-     "Notes" => $data["Notes"]
+     "Notes" => $notes
     ];
     $cms["Contacts"] = $contacts;
     $this->core->Data("Save", ["cms", md5($you), $cms]);

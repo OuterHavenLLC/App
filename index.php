@@ -70,93 +70,93 @@
   $command = $oh->core->FixMissing($command, [0, 1, 2, 3]);
   if($command[0] == "Error") {
    # ERRORS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Error")."&Error=".$command[1]);
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Error")."&Error=".$command[1]);
   } elseif($command[0] == "MadeInNY") {
    # MADE IN NEW YORK
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Shop:MadeInNewYork"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Shop:MadeInNewYork"));
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Shop:Home")."Public=1&UN=".base64_encode($command[1]));
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Shop:Home")."Public=1&UN=".base64_encode($command[1]));
     if(!empty($command[2])) {
-     $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Product:Home")."&CallSign=".urlencode($command[2])."&UN=".base64_encode($command[1]));
+     $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Product:Home")."&CallSign=".urlencode($command[2])."&UN=".base64_encode($command[1]));
     }
    }
   } elseif($command[0] == "Member") {
    # MEMBERS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Profile:Home")."&back=0&UN=".base64_encode($command[1]));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Profile:Home")."&back=0&UN=".base64_encode($command[1]));
    if(!empty($command[3]) && $command[2] == "status") {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("StstuaUpdate:Public")."&ID=".base64_encode($command[3])."&UN=".base64_encode($command[2]));
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("StstuaUpdate:Public")."&ID=".base64_encode($command[3])."&UN=".base64_encode($command[2]));
    }
   } elseif($command[0] == "VVA") {
    # VISUAL VANGUARD ARCHITECTURE
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:VVA"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Company:VVA"));
   } elseif($command[0] == "about") {
    # ABOUT
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:Home"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Company:Home"));
   } elseif($command[0] == "archive") {
    # COMMUNITY ARCHIVE
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Page:Home")."&ID=".$command[1]);
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Page:Home")."&ID=".$command[1]);
   } elseif($command[0] == "blogs") {
    # BLOGS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Search:Containers")."&st=BLG");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Search:Containers")."&st=BLG");
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Blog:Home")."&CallSign=".$command[1]."&ID=".$command[1]);
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Blog:Home")."&CallSign=".$command[1]."&ID=".$command[1]);
     if(!empty($command[2])) {
-     $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("BlogPost:Home")."CallSign=".$command[1]."&BLG=".$command[1]."&ID=".$command[2]);
+     $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("BlogPost:Home")."CallSign=".$command[1]."&BLG=".$command[1]."&ID=".$command[2]);
     }
    }
   } elseif($command[0] == "chat") {
    # CHAT
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Chat")."&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Containers"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Chat&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Containers"));
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Chat")."&View=".$oh->core->AESencrypt("v=".base64_encode("Chat:Public")."&ID=".base64_encode($command[1]));
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Chat&View=".$oh->core->AESencrypt("v=".base64_encode("Chat:Public")."&ID=".base64_encode($command[1]));
    }
   } elseif($command[0] == "congress") {
    # CONGRESS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Congress:Home")."&pub=1");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Congress:Home")."&pub=1");
   } elseif($command[0] == "donate") {
    # DONATE
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:Donate")."&pub=1");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Company:Donate")."&pub=1");
   } elseif($command[0] == "event") {
    # FREE AMERICA RADIO EVENTS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Company:FreeAmericaRadio"));
   } elseif($command[0] == "feedback") {
    # FEEDBACK
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:VVA")."&ID=".$command[1]."&Public=1");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Company:VVA")."&ID=".$command[1]."&Public=1");
   } elseif($command[0] == "forums") {
    # FORUMS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Forum:Public")."&CallSign=".$command[1]."&ID=".$command[1]);
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Forum:Public")."&CallSign=".$command[1]."&ID=".$command[1]);
   } elseif($command[0] == "hire") {
    # HIRE
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Invoice:Hire")."&ID=".md5($oh->core->ShopID));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Invoice:Hire")."&ID=".md5($oh->core->ShopID));
   } elseif($command[0] == "invoice") {
    # INVOICE
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Error")."&Error=404");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Error")."&Error=404");
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Invoice:Home")."&ID=".$command[1]);
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Invoice:Home")."&ID=".$command[1]);
    }
   } elseif($command[0] == "poll") {
    # POLLS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Error")."&Error=404");
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("WebUI:Error")."&Error=404");
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Poll:Home")."&ID=".$command[1]);
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Poll:Home")."&ID=".$command[1]);
    }
   } elseif($command[0] == "revenue") {
    # REVENUE
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($command[1]));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($command[1]));
   } elseif($command[0] == "search") {
    # SEARCH
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch"));
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch")."&query=".base64_encode($command[1]));
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch")."&query=".base64_encode($command[1]));
    }
   } elseif($command[0] == "statistics") {
    # STATISTICS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Company:Statistics"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Company:Statistics"));
   } elseif($command[0] == "topics") {
    # TOPICS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch")."&query=".base64_encode("#FreedomAlwaysWins"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch")."&query=".base64_encode("#FreedomAlwaysWins"));
    if(!empty($command[1])) {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=".$oh->core->AESencrypt("Public")."&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch")."&query=".base64_encode("#".$command[1]));
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".$oh->core->AESencrypt("v=".base64_encode("Search:ReSearch")."&query=".base64_encode("#".$command[1]));
    }
   } else {
    $oh->core->Statistic("Visits");
