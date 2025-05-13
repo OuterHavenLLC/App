@@ -25,11 +25,12 @@
   <div class="AppContainer"></div>
   <div class="FrostedGlass RegSel h scr"></div>
   <script>
-   if($(window).location !== "[App.Base]/") {
-    $(() => {
+   $(() => {
+    if($(window).location !== "[App.Base]/") {
      OH.UpdateContent(".AppContainer", "[App.Content]", "AES");
-    });
-   }
+    }
+    $("body > script").remove();
+   });
   </script>
  </body>
 </html>
