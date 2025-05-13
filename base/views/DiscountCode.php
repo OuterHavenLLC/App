@@ -6,20 +6,20 @@
   }
   function Edit(array $data): string {
    $data = $data["Data"] ?? [];
-   $new = $data["new"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $id = $data["ID"] ?? $this->core->UUID("ShopDiscountCodesBy$you");
-   $action = ($new == 1) ? "Post" : "Update";
    $shopID = $data["Shop"] ?? md5($you);
-   $discount = $this->core->Data("Get", ["dc", $shopID]);
-   $discount = $discount[$id] ?? [];
-   $code = $discount["Code"] ?? base64_encode("");
-   $dollarAmount = $discount["DollarAmount"] ?? 1.00;
-   $percentage = $discount["Percentile"] ?? 5;
+   $discountCodes = $this->core->Data("Get", ["dc", $shopID]);
+   $discountCode = $discountCode[$id] ?? [];
+   $code = $discountCode["Code"] ?? $this->core->AESencrypt("");
+   $dollarAmount = $discountCode["DollarAmount"] ?? 1.00;
+   $new = $data["new"] ?? 0;
+   $percentage = $discountCodes["Percentile"] ?? 5;
    $percentages = [];
    $quantities = [];
-   $quantity = $discount["Quantity"] ?? 0;
+   $quantity = $discountCode["Quantity"] ?? 0;
+   $action = ($new == 1) ? "Post" : "Update";
    for($i = 1; $i < 100; $i++) {
     if($i <= 75) {
      $percentages[$i] = $i;
@@ -79,7 +79,7 @@
           "HeaderText" => "Discount Code"
          ],
          "Type" => "Text",
-         "Value" => $code
+         "Value" => $this->core->AESencrypt($code)
         ],
         [
          "Attributes" => [
@@ -95,7 +95,7 @@
           "HeaderText" => "Dollar Amount"
          ],
          "Type" => "Text",
-         "Value" => $dollarAmount
+         "Value" => $this->core->AESencrypt($dollarAmount)
         ],
         [
          "Attributes" => [],
@@ -203,7 +203,7 @@
     $_Dialog = [
      "Body" => "The Code is missing."
     ];
-    if(!empty($DiscountCode)) {
+    if(!empty($discountCode)) {
      $_AccessCode = "Accepted";
      $actionTaken = ($new == 1) ? "posted" : "updated";
      $discountCodes = $this->core->Data("Get", ["dc", md5($you)]);
@@ -213,11 +213,10 @@
       "Percentile" => $data["Percentile"],
       "Quantity" => $data["DiscountCodeQTY"]
      ];
-     #$this->core->Data("Save", ["dc", md5($you), $discountCodes]);
+     $this->core->Data("Save", ["dc", md5($you), $discountCodes]);
      $_Dialog = [
       "Body" => "The Code <em>$discountCode</em> was $actionTaken!",
-      "Header" => "Done",
-      "Scrollable" => json_encode($discountCodes, true)
+      "Header" => "Done"
      ];
     }
    }

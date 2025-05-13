@@ -788,7 +788,12 @@
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $_View = "";
+   $_View = [
+    "ChangeData" => [],
+    "Extension" => $this->core->AESencrypt($this->core->Element([
+     "p", "No open jobs are currently available.", ["class" => "CenterText"]
+    ]))
+   ];
    $data = $data["Data"] ?? [];
    $id = $data["Shop"] ?? "";
    $y = $this->you;
@@ -801,17 +806,18 @@
     $hire = (md5($you) != $id) ? 1 : 0;
     $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
     $hire = (!empty($shop["InvoicePresets"]) && $hire == 1) ? 1 : 0;
+    $invoices = $shop["Invoices"] ?? [];
     $limit = $shop["HireLimit"] ?? 5;
     $openInvoices = 0;
     $partners = $shop["Contributors"] ?? [];
     $hireText = (count($partners) == 1) ? "Me" : "Us";
-    foreach($shop["Invoices"] as $key => $invoice) {
+    foreach($invoices as $key => $invoice) {
      $invoice = $this->core->Data("Get", ["invoice", $invoice]);
      if($invoice["Status"] == "Open") {
       $openInvoices++;
      }
-    } if($enableHireSection == 1 && $openInvoices < $limit) {
-     $_View = ($hire == 1 && $shop["Open"] == 1) ? [
+    } if($hire == 1 && $shop["Open"] == 1) {
+     $_View = ($enableHireSection == 1 && $openInvoices < $limit) ? [
       "ChangeData" => [
        "[Hire.Text]" => $hireText,
        "[Hire.View]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")

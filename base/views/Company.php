@@ -358,7 +358,7 @@
       "Name" => "UpdateContentRecursiveAES",
       "Parameters" => [
        ".VVAHire",
-       $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=".md5($this->core->ShopID)),
+       $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=".$this->core->ShopID),
        30000
       ]
      ]
