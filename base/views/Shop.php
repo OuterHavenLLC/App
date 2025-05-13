@@ -2404,7 +2404,6 @@
   }
   function SaveDiscountCodes(array $data): string {
    $data = $data["Data"] ?? [];
-   $data = $this->core->FixMissing($data, ["DC", "ID"]);
    $discountCode = $data["DC"] ?? "";
    $i = 0;
    $id = $data["ID"] ?? "";
@@ -2416,7 +2415,7 @@
    } elseif(!empty($discountCode) && !empty($id)) {
     $id = base64_decode($id);
     $discount = $this->core->Data("Get", ["dc", $id]);
-    $code = base64_decode($data["DC"]);
+    $code = base64_decode($discountCode);
     $encryptedCode = $discountCode ?? base64_encode("OuterHaven.DC.Invalid");
     $_View = "<em>$code</em> is an Invalid code.";
     foreach($discount as $key => $value) {

@@ -175,12 +175,15 @@
      $dce = base64_encode("DiscountCode:Edit");
      $header = "Discount Codes";
      $searchBarText = "Codes";
+     $shopID = $data["Shop"] ?? md5($you);
      $options = ($notAnon == 1) ? $this->core->Element([
       "button", "+", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=$dce&new=1")
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=$dce&Shop=$shopID&new=1")
       ]
      ]) : "";
+     $_List .= "&Shop=$shopID";
     } elseif($searchType == "Feedback") {
      $header = "Feedback";
      $_List .= "&lPG=$parentView";
@@ -408,7 +411,8 @@
      $options .= ($isArtist == 1 && $check == 1) ? $this->core->Element([
       "button", "Discount Codes", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("Search:Containers")."&st=DC")
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$shopID&st=DC")
       ]
      ]) : "";
      $variant = "3ColumnMinimal";
@@ -1703,9 +1707,10 @@
    } elseif($searchType == "DC") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
+    $shopID = $data["Shop"] ?? md5($you);
     if($notAnon == 1) {
-     $x = $this->core->Data("Get", ["dc", md5($you)]);
-     foreach($x as $key => $value) {
+     $discountCodes = $this->core->Data("Get", ["dc", $shopID]);
+     foreach($discountCodes as $key => $value) {
       $viewData = json_encode([
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
        "ID" => base64_encode($key),
@@ -1713,10 +1718,12 @@
       ], true);
       $options = $this->core->Element(["button", "Delete", [
        "class" => "A OpenDialog v2",
-       "data-view" => base64_encode("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData))
       ]]).$this->core->Element(["button", "Edit", [
        "class" => "OpenCard v2",
-       "data-view" => base64_encode("v=".base64_encode("DiscountCode:Edit")."&ID=$key")
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("DiscountCode:Edit")."&ID=$key&Shop=$shopID")
       ]]);
       array_push($_Commands, []);
       array_push($_List, [

@@ -539,8 +539,7 @@
    $_Commands = "";
    $_View = "";
    $data = $data["Data"] ?? [];
-   $type = $data["Type"] ?? $this->core->AESencrypt("");
-   $type = $this->core->AESdecrypt($type);
+   $type = $data["Type"] ?? "";
    $view = $data["View"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -578,7 +577,7 @@
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".Content",
-       $this->core->AESencrypt($view)
+       $view
       ]
      ]
     ];
@@ -590,8 +589,7 @@
     ];
    }
    $setUIvariant = $y["Personal"]["UIVariant"] ?? 0;
-   #$_View = $_View ?? [
-   $_View = [
+   $_View = $_View ?? [
     "ChangeData" => [],
     "Extension" => $this->core->AESencrypt($this->core->Element([
      "h1", "Error"
