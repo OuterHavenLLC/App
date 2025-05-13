@@ -540,7 +540,8 @@
    $_View = "";
    $data = $data["Data"] ?? [];
    $type = $data["Type"] ?? "";
-   $view = $data["View"] ?? "";
+   $view = $data["View"] ?? base64_encode("");
+   $view = base64_decode($view);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($type == "Chat") {
@@ -555,7 +556,7 @@
     ];
     $_View = [
      "ChangeData" => [],
-     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Chat"))
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI($type))
     ];
    } elseif($type == "Public") {
     $_Commands = [
@@ -563,13 +564,13 @@
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".Content",
-       $view
+       $this->core->AESencrypt($view)
       ]
      ]
     ];
     $_View = [
      "ChangeData" => [],
-     "Extension" => $this->core->AESencrypt($this->core->RenderUI("Public"))
+     "Extension" => $this->core->AESencrypt($this->core->RenderUI($type))
     ];
    } elseif($type == "ReSearch") {
     $_Commands = [
@@ -577,7 +578,7 @@
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".Content",
-       $view
+       $this->core->AESencrypt($view)
       ]
      ]
     ];
@@ -598,7 +599,7 @@
     ]).$this->core->Element([
      "p", json_encode([
       "Type" => $type,
-      "View" => $view
+      "View" => $this->core->AESdecrypt($view)
      ], true)
     ]))
    ];

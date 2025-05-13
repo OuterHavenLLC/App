@@ -21,8 +21,9 @@
    $quantities = [];
    $quantity = $discount["Quantity"] ?? 0;
    for($i = 1; $i < 100; $i++) {
-    $percentages[$i] = $i;
-   } for($i = 1; $i < 100; $i++) {
+    if($i <= 75) {
+     $percentages[$i] = $i;
+    }
     $quantities[$i] = $i;
    }
    return $this->core->JSONResponse([
@@ -30,7 +31,7 @@
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
       "data-encryption" => "AES",
-      "data-form" => ".Discount$id",
+      "data-form" => ".EditDiscountCode$id",
       "data-processor" => $this->core->AESencrypt("v=".base64_encode("DiscountCode:Save"))
      ]]),
      "Front" => [
