@@ -240,7 +240,7 @@
      ]]) : "";
      //BEGIN TEMP
      $options .= ($y["Rank"] == md5("High Command")) ? $this->core->Element([
-      "button", "Edit View", [
+      "button", "Edit non-indexed View", [
        "class" => "MobileFull OpenCard v2",
        "data-encryption" => "AES",
        "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("297c6906ec2f4cb2013789358c5ea77b"))

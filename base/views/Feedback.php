@@ -6,6 +6,7 @@
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Feedback Identifier is missing."
    ];
@@ -28,7 +29,8 @@
       "Action" => $this->core->Element(["button", "Respond", [
        "class" => "CardButton SendData",
        "data-form" => ".FeedbackEditor$id",
-       "data-processor" => base64_encode("v=".base64_encode("Feedback:SaveResponse"))
+       "data-encryption" => "AES",
+       "data-processor" => $this->core->AESencrypt("v=".base64_encode("Feedback:SaveResponse"))
       ]]),
       "Front" => [
        "ChangeData" => [
@@ -42,6 +44,8 @@
        ],
        "ExtensionID" => "56718d75fb9ac2092c667697083ec73f"
       ]
+     ];
+     $_Commands = [
      ];
     }
    } elseif($public == 1) {
@@ -71,6 +75,8 @@
      if($feedback["UseParaphrasedQuestion"] == 1) {
       $title = $feedback["ParaphrasedQuestion"];
      }
+     $_Commands = [
+     ];
      $_View = [
       "ChangeData" => [
       "[Feedback.ID]" => $id,
@@ -86,6 +92,7 @@
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -115,7 +122,7 @@
   function Save(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = [
-    "Body" => "An internal error has ocurred."
+    "Body" => "A message is required."
    ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -156,7 +163,7 @@
      "From" => $you,
      "Sent" => $now
     ]);
-    $sql = New SQL($this->core->cypher->SQLCredentials());
+    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Feedback(
      Feedback_Created,
      Feedback_ID,
@@ -186,10 +193,11 @@
     ]);
     $sql->execute();
     $this->core->Data("Save", ["feedback", $id, $feedback]);
-    $this->core->Statistic("New Feedback");
+    $this->core->Statistic("New Feedback");--*/
     $_Dialog = [
      "Body" => "We will be in touch as soon as possible!",
-     "Header" => "Thank you"
+     "Header" => "Thank you",
+     "Scrollable" => json_encode($feedback, true)
     ];
    }
    return $this->core->JSONResponse([
@@ -200,7 +208,7 @@
   }
   function SaveResponse(array $data): string {
    $_Dialog = [
-    "Body" => "The Feedback Identifier is missing."
+    "Body" => "The Feedback Identifier or Message are missing."
    ];
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -234,7 +242,7 @@
      "From" => $you,
      "Sent" => $this->core->timestamp
     ]);
-    if($feedback["Username"] != $you) {
+    /*--if($feedback["Username"] != $you) {
      $this->core->SendEmail([
       "Message" => $this->core->Change([[
        "[Mail.Message]" => $this->core->PlainText([
@@ -248,10 +256,11 @@
       "To" => $feedback["Email"]
      ]);
     }
-    $this->core->Data("Save", ["feedback", $id, $feedback]);
+    $this->core->Data("Save", ["feedback", $id, $feedback]);--*/
     $_Dialog = [
      "Body" => "Your response has been sent.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($feedback, true)
     ];
    }
    return $this->core->JSONResponse([
