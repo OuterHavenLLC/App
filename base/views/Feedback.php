@@ -42,7 +42,7 @@
      ];
      $_Commands = [
       [
-       "Name" => "RenderInpouts",
+       "Name" => "RenderInputs",
        "Parameters" => [
         ".SendResponse$id",
         [
@@ -168,7 +168,7 @@
      }
      $_Commands = [
       [
-       "Name" => "RenderInpouts",
+       "Name" => "RenderInputs",
        "Parameters" => [
         ".SendResponse$id",
         [
@@ -267,150 +267,150 @@
       "data-form" => ".ContactForm$id",
       "data-processor" => $this->core->AESencrypt("v=".base64_encode("Feedback:Save"))
      ]]),
-     "Commands" => [
-      [
-       "Name" => "RenderInpouts",
-       "Parameters" => [
-        ".NewFeedbackThread$id",
-        [
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "Email",
-           "placeholder" => "johnny.test@outerhaven.nyc",
-           "type" => "email"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "NONAME",
-           "Header" => 1,
-           "HeaderText" => "E-Mail"
-          ],
-          "Type" => "Text",
-          "Value" => $this->core->AESencrypt($y["Personal"]["Email"])
-         ],
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "Name",
-           "placeholder" => "John Doe",
-           "type" => "text"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "NONAME",
-           "Header" => 1,
-           "HeaderText" => "Name"
-          ],
-          "Type" => "Text",
-          "Value" => $this->core->AESencrypt($y["Personal"]["FirstName"])
-         ],
-         [
-          "Attributes" => [
-           "class" => "CheckIfNumeric req",
-           "name" => "Phone",
-           "pattern" => "\d*",
-           "placeholder" => "7777777777",
-           "type" => "number"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "NONAME",
-           "Header" => 1,
-           "HeaderText" => "Phone Number"
-          ],
-          "Type" => "Text",
-          "Value" => ""
-         ],
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "Subject",
-           "placeholder" => "Subject",
-           "type" => "text"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "NONAME",
-           "Header" => 1,
-           "HeaderText" => "Subject"
-          ],
-          "Type" => "Text",
-          "Value" => ""
-         ],
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "Message",
-           "placeholder" => "Say Something..."
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "NONAME",
-           "Header" => 1,
-           "HeaderText" => "Body"
-          ],
-          "Type" => "TextBox",
-          "Value" => ""
-         ],
-         [
-          "Attributes" => [],
-          "OptionGroup" => [
-           "0" => "No",
-           "1" => "Yes"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "Desktop50 MobileFull",
-           "Header" => 1,
-           "HeaderText" => "Allow Indexing?"
-          ],
-          "Name" => "Index",
-          "Type" => "Select",
-          "Value" => 0
-         ],
-         [
-          "Attributes" => [],
-          "OptionGroup" => [
-           "1" => "High",
-           "2" => "Normal",
-           "3" => "Low"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "Desktop50 MobileFull",
-           "Header" => 1,
-           "HeaderText" => "Priority"
-          ],
-          "Name" => "Priority",
-          "Type" => "Select",
-          "Value" => 2
-         ],
-         [
-          "Attributes" => [],
-          "OptionGroup" => [
-           "0" => "No",
-           "1" => "Yes"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "Desktop50 MobileFull",
-           "Header" => 1,
-           "HeaderText" => "Send Occasional Emails?"
-          ],
-          "Name" => "SendOccasionalEmails",
-          "Type" => "Select",
-          "Value" => 0
-         ]
-        ]
-       ]
-      ]
-     ],
      "Front" => [
       "ChangeData" => [
        "[Feedback.ID]" => $id
       ],
       "ExtensionID" => "2b5ca0270981e891ce01dba62ef32fe4"
+     ]
+    ],
+    "Commands" => [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".NewFeedbackThread$id",
+       [
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Email",
+          "placeholder" => "johnny.test@outerhaven.nyc",
+          "type" => "email"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "E-Mail"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($y["Personal"]["Email"])
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Name",
+          "placeholder" => "John Doe",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Name"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($y["Personal"]["FirstName"])
+        ],
+        [
+         "Attributes" => [
+          "class" => "CheckIfNumeric req",
+          "name" => "Phone",
+          "pattern" => "\d*",
+          "placeholder" => "7777777777",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Phone Number"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Subject",
+          "placeholder" => "Subject",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Subject"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Message",
+          "placeholder" => "Say Something..."
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Body"
+         ],
+         "Type" => "TextBox",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "No",
+          "1" => "Yes"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Allow Indexing?"
+         ],
+         "Name" => "Index",
+         "Type" => "Select",
+         "Value" => 0
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "1" => "High",
+          "2" => "Normal",
+          "3" => "Low"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Priority"
+         ],
+         "Name" => "Priority",
+         "Type" => "Select",
+         "Value" => 2
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "0" => "No",
+          "1" => "Yes"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Send Occasional Emails?"
+         ],
+         "Name" => "SendOccasionalEmails",
+         "Type" => "Select",
+         "Value" => 0
+        ]
+       ]
+      ]
      ]
     ]
    ]);
