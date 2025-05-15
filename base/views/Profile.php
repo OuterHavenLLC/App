@@ -112,13 +112,23 @@
   function Blacklists(): string {
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   $id = md5($you);
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "View" => [
-    "ChangeData" => [
-     "[Blacklist.Categories]" => $this->core->AESencrypt("v=".base64_encode("Profile:BlacklistCategories"))
+    "Commands" => [
+     [
+      "Name" => "UpdateContentAES",
+      [
+       ".Blacklists$id",
+       $this->core->AESencrypt("v=".base64_encode("Profile:BlacklistCategories"))
+      ]
+     ]
     ],
-    "ExtensionID" => "03d53918c3da9fbc174f94710182a8f2"
+    "View" => [
+     "ChangeData" => [
+      "[Blacklists.ID]" => $id
+     ],
+     "ExtensionID" => "03d53918c3da9fbc174f94710182a8f2"
     ]
    ]);
   }
@@ -126,11 +136,24 @@
    $search = base64_encode("Search:Containers");
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "View" => [
-     "ChangeData" => [
-      "[BulletinCenter.Bulletins]" => base64_encode("v=$search&st=Bulletins"),
-      "[BulletinCenter.ContactRequests]" => base64_encode("v=$search&Chat=0&st=ContactsRequests")
+    "Commands" => [
+     [
+      "Name" => "UpdateContentAES",
+      [
+       ".BulletinCenterBulletinsList",
+       $this->core->AESencrypt("v=$search&st=Bulletins")
+      ]
      ],
+     [
+      "Name" => "UpdateContentAES",
+      [
+       ".BulletinCenterContactsList",
+       $this->core->AESencrypt("v=$search&Chat=0&st=ContactsRequests")
+      ]
+     ]
+    ],
+    "View" => [
+     "ChangeData" => [],
      "ExtensionID" => "6cbe240071d79ac32edbe98679fcad39"
     ]
    ]);
@@ -196,9 +219,10 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$article["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Page:Home")."&CARD=1&ID=".$data["ArticleID"]),
        "data-MAR" => base64_encode($mar),
-       "data-target" => ".Bulletin$id .Options"
+       "data-encryption" => "AES",
+       "data-target" => ".Bulletin$id .Options",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Page:Home")."&CARD=1&ID=".$data["ArticleID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "BlogUpdate") {
@@ -206,9 +230,10 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$blog["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=".$data["ArticleID"]),
        "data-MAR" => base64_encode($mar),
-       "data-target" => ".Bulletin$id .Options"
+       "data-encryption" => "AES",
+       "data-target" => ".Bulletin$id .Options",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Blog:Home")."&CARD=1&ID=".$data["ArticleID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "BlogPostUpdate") {
@@ -216,9 +241,10 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$post["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&ID=".$data["ArticleID"]),
        "data-MAR" => base64_encode($mar),
-       "data-target" => ".Bulletin$id .Options"
+       "data-encryption" => "AES",
+       "data-target" => ".Bulletin$id .Options",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("BlogPost:Home")."&CARD=1&ID=".$data["ArticleID"])
       ]
      ]);
     } if($bulletin["Type"] == "ContactRequest") {
@@ -239,16 +265,18 @@
       $_View .= $this->core->Element(["div", $this->core->Element([
        "button", "Accept", [
         "class" => "BBB Close MarkAsRead SendData v2 v2w",
-        "data-form" => ".Bulletin$id .Options",
         "data-MAR" => base64_encode($mar),
+        "data-encryption" => "AES",
+        "data-form" => ".Bulletin$id .Options",
         "data-processor" => base64_encode($accept),
         "data-target" => ".Bulletin$id .Options"
        ]]), ["class" => "Desktop50"]
       ]).$this->core->Element(["div", $this->core->Element([
        "button", "Decline", [
         "class" => "Close MarkAsRead SendData v2 v2w",
-        "data-form" => ".Bulletin$id .Options",
         "data-MAR" => base64_encode($mar),
+        "data-encryption" => "AES",
+        "data-form" => ".Bulletin$id .Options",
         "data-processor" => base64_encode($decline),
         "data-target" => ".Bulletin$id .Options"
        ]]), ["class" => "Desktop50"]
@@ -259,7 +287,8 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$article["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Page:Home")."&CARD=1&ID=".$article["ID"])
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Page:Home")."&CARD=1&ID=".$article["ID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToBlog") {
@@ -267,7 +296,8 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$blog["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Blog:Home")."&CARD=1&ID=".$blog["ID"])
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Blog:Home")."&CARD=1&ID=".$blog["ID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToForum") {
@@ -275,7 +305,8 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$forum["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Forum:Home")."&CARD=1&ID=".$forum["ID"])
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Forum:Home")."&CARD=1&ID=".$forum["ID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "InviteToShop") {
@@ -283,7 +314,8 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$shop["Title"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Shop:Home")."&CARD=1&ID=".$data["ShopID"])
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Shop:Home")."&CARD=1&ID=".$data["ShopID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "Invoice" || $bulletin["Type"] == "NewJob") {
@@ -291,7 +323,8 @@
      $_View = $this->core->Element([
       "button", "View Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
       ]
      ]);
     } elseif($bulletin["Type"] == "InvoiceForward") {
@@ -299,7 +332,8 @@
      $_View = $this->core->Element([
       "button", "View Forwarded Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
       ]
      ]);
     } elseif($bulletin["Type"] == "InvoiceUpdate") {
@@ -307,7 +341,8 @@
      $_View = $this->core->Element([
       "button", "View Updated Invoice", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Invoice:Home")."&Card=1&ID=".$data["Invoice"])
       ]
      ]);
     } elseif($bulletin["Type"] == "NewArticle") {
@@ -315,9 +350,10 @@
      $_View = $this->core->Element([
       "button", "Take me to <em>".$article["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Page:Home")."&CARD=1&ID=".$data["ArticleID"]),
        "data-MAR" => base64_encode($mar),
-       "data-target" => ".Bulletin$id .Options"
+       "data-encryption" => "AES",
+       "data-target" => ".Bulletin$id .Options",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Page:Home")."&CARD=1&ID=".$data["ArticleID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "NewBlogPost") {
@@ -326,15 +362,17 @@
       "button", "Take me to <em>".$post["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
        "data-MAR" => base64_encode($mar),
+       "data-encryption" => "AES",
        "data-target" => ".Bulletin$id .Options",
-       "data-view" => base64_encode("v=".base64_encode("BlogPost:Home")."&CARD=1&Blog=".$data["BlogID"]."&Post=".$data["PostID"])
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("BlogPost:Home")."&CARD=1&Blog=".$data["BlogID"]."&Post=".$data["PostID"])
       ]
      ]);
     } elseif($bulletin["Type"] == "NewMessage") {
      $_View = $this->core->Element([
       "button", "Chat with <em>".$data["From"]."</em>", [
        "class" => "BBB Close OpenCard v2 v2w",
-       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&Username=".base64_encode($data["From"]))
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&Username=".base64_encode($data["From"]))
       ]
      ]);
     } elseif($bulletin["Type"] == "NewPoll") {
@@ -343,8 +381,9 @@
       "button", "Take me to <em>".$poll["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
        "data-MAR" => base64_encode($mar),
+       "data-encryption" => "AES",
        "data-target" => ".Bulletin$id .Options",
-       "data-view" => base64_encode("v=".base64_encode("Poll:Home")."&ID=".base64_encode($data["PollID"]))
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Poll:Home")."&ID=".base64_encode($data["PollID"]))
       ]
      ]);
     } elseif($bulletin["Type"] == "NewProduct") {
@@ -356,8 +395,9 @@
       "button", "Take me to <em>".$product["Title"]."</em>", [
        "class" => "BBB Close MarkAsRead OpenCard v2 v2w",
        "data-MAR" => base64_encode($mar),
+       "data-encryption" => "AES",
        "data-target" => ".Bulletin$id .Options",
-       "data-view" => base64_encode("v=".base64_encode("Product:Home")."&CARD=1&ID=".$product["ID"]."&UN=".$data["ShopID"])
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Product:Home")."&CARD=1&ID=".$product["ID"]."&UN=".$data["ShopID"])
       ]
      ]);
     }
@@ -424,10 +464,14 @@
       "[Member.DisplayName]" => $member["Personal"]["DisplayName"]
      ],
      "Extension" => $this->core->AESencrypt($this->core->Element([
-      "h3", "Success", ["class" => "CenterText UpperCase"]
+      "h3", "Success", [
+       "class" => "CenterText UpperCase"
+      ]
      ]).$this->core->Element([
       "p", "[Member.DisplayName]'s Rank within <em>[App.Name]</em> was Changed to $rank.",
-      ["class" => "CenterText"]
+      [
+       "class" => "CenterText"
+      ]
      ]))
     ];
    }
@@ -458,7 +502,11 @@
      "div", $this->core->Element([
       "p", "Your profile is now inactive and you can sign in at any time to activate it, we hope to see you again soon!"
      ]), ["class" => "FrostedBright RoundedLarge Shadowed"]
-    ]).$this->core->RenderView($_View);
+    ]).$this->core->RenderView($_View, 1)["View"];
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
@@ -497,7 +545,7 @@
     ]) : "";
     $options .= (!empty($donations["SubscribeStar"])) ? $this->core->Element([
      "button", "Donate via SubscribeStar", [
-      "class" => "LI LIL",
+      "class" => "LI",
       "onclick" => "W('https://subscribestar.com/".$donations["SubscribeStar"]."', '_blank');"
      ]
     ]) : "";
@@ -509,6 +557,7 @@
    ]);
   }
   function Home(array $data): string {
+   $_AddTopMargin = "0";
    $_Card = "";
    $_Commands = "";
    $_Dialog = [
@@ -519,7 +568,6 @@
    $_ViewTitle = $this->core->config["App"]["Name"];
    $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
-   $_AddTopMargin = "0";
    $member = $data["UN"] ?? "";
    $parentPage = $data["lPG"] ?? "";
    $b2 = $data["b2"] ?? "";
@@ -615,7 +663,6 @@
        $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $_AccessCode = "Accepted";
       $blockCommand = ($_YouBlockedThem == 0) ? "Block" : "Unblock";
       $actions = $this->core->Element([
        "button", $blockCommand, [
@@ -823,12 +870,47 @@
       foreach($coverPhotos as $key => $image) {
        $newCoverPhotos[$key] = $this->core->CoverPhoto($image);
       }
+      $memberID = md5($id);
+      $_Commands = [
+       [
+        "Name" => "RefreshCoverPhoto",
+        "Parameters" => [
+         ".MemberCP$memberID",
+         $newCoverPhotos,
+         $coverPhotosSlideShowDisabled
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Conversation$memberID",
+         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($memberID)."&LVL=".base64_encode(1))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Nominate$memberID",
+         $this->core->AESencrypt("v=".base64_encode("Congress:Nominate")."&Username=".base64_encode($id))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Stream$memberID",
+         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&st=MBR-SU")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$memberID",
+         $options["Vote"]
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
-        "[Conversation.CRID]" => md5($id),
-        "[Conversation.CRIDE]" => base64_encode(md5($id)),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
         "[Member.Actions]" => $actions,
         "[Member.AddContact]" => $addContact,
         "[Member.Albums]" => $albums,
@@ -837,20 +919,15 @@
         "[Member.Back]" => $back,
         "[Member.ChangeRank]" => $changeRank,
         "[Member.CoverPhoto]" => $_Member["ListItem"]["CoverPhoto"],
-        "[Member.CoverPhotos]" => json_encode($newCoverPhotos, true),
-        "[Member.CoverPhotos.DisableSlideShow]" => $coverPhotosSlideShowDisabled,
         "[Member.Contacts]" => $contacts,
         "[Member.Description]" => $_Member["ListItem"]["Description"],
         "[Member.DisplayName]" => $displayName.$verified,
         "[Member.Footer]" => $this->core->Extension("a095e689f81ac28068b4bf426b871f71"),
-        "[Member.ID]" => md5($id),
+        "[Member.ID]" => $memberID,
         "[Member.Journal]" => $journal,
-        "[Member.Nominate]" => base64_encode("v=".base64_encode("Congress:Nominate")."&Username=".base64_encode($id)),
         "[Member.ProfilePicture]" => $options["ProfilePicture"],
         "[Member.Share]" => $share,
-        "[Member.Stream]" => base64_encode("v=$search&UN=".base64_encode($id)."&st=MBR-SU"),
-        "[Member.Username]" => $id,
-        "[Member.Votes]" => $options["Vote"]
+        "[Member.Username]" => $id
        ],
        "ExtensionID" => "72f902ad0530ad7ed5431dac7c5f9576"
       ];
@@ -862,7 +939,6 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
     "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
     "Commands" => $_Commands,
@@ -991,8 +1067,9 @@
    ]);
   }
   function Preferences(array $data): string {
-   $_AddTopMargin = 1;
+   $_AddTopMargin = "1";
    $_Card = "";
+   $_Commands = "";
    $_Dialog = "";
    $_View = "";
    $data = $data["Data"] ?? [];
@@ -1024,17 +1101,12 @@
     $_View = $this->core->RenderView($_View);
     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     if($verifyPassPhrase == 1) {
-     $_Dialog = [
-      "Body" => "The Key is missing."
-     ];
+     $_Dialog = "";
      $key = $data["Key"] ?? base64_encode("");
      $key = base64_decode($key);
      $secureKey = $data["SecureKey"] ?? base64_encode("");
      $secureKey = base64_decode($secureKey);
-     if(md5($key) != $secureKey) {
-      $_Dialog = "";
-     } else {
-      $_AccessCode = "Accepted";
+     if(md5($key) == $secureKey) {
       $_AddTopMargin = "0";
       $_LiveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode("CoverPhoto")."&Media=");
       $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=".base64_encode("Attach:.AddTo[Clone.ID]")."&CARD=1&lPG=Files&st=XFS&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]));
@@ -1165,14 +1237,16 @@
        ],
        "ExtensionID" => "e54cb66a338c9dfdcf0afa2fec3b6d8a"
       ];
+      $_Commands = [
+      ];
       $_Dialog = "";
      }
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
     "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
@@ -1203,17 +1277,12 @@
     ]]);
     $_View = $this->core->RenderView($_View);
     if($verifyPassPhrase == 1) {
-     $_Dialog = [
-      "Body" => "The Key is missing."
-     ];
+     $_Dialog = "";
      $key = $data["Key"] ?? base64_encode("");
      $key = base64_decode($key);
      $secureKey = $data["SecureKey"] ?? base64_encode("");
      $secureKey = base64_decode($secureKey);
-     if(md5($key) != $secureKey) {
-      $_Dialog = "";
-     } else {
-      $_Dialog = "";
+     if(md5($key) == $secureKey) {
       $articles = $y["Pages"] ?? [];
       $blogs = $y["Blogs"] ?? [];
       $chats = $y["GroupChats"] ?? [];
@@ -1466,13 +1535,15 @@
     $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
     $newMember["Verified"] = $y["Verified"] ?? 0;
-    $this->core->Data("Save", ["mbr", md5($you), $newMember]);
+    #$this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $message = "Your Preferences were saved!";
    }
+   $newMember = $newMember ?? [];
    return $this->core->JSONResponse([
     "Dialog" => [
      "Body" => $message,
-     "Header" => $_Header
+     "Header" => $_Header,
+     "Scrollable" => json_encode($newMember, true)
     ],
     "SetUIVariant" => $_UIVariant
    ]);
@@ -1480,6 +1551,7 @@
   function SavePassword(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = "";
+   $_View = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
@@ -1511,24 +1583,29 @@
      "Body" => "The new Passwords do not match."
     ];
    } else {
-    $_AccessCode = "Accepted";
+    $_Dialog = "";
     $y["Activity"]["LastPasswordChange"] = $this->core->timestamp;
     $y["Login"]["Password"] = md5($data["NewPassword"]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $_Dialog = [
-     "Body" => "Your Password has been updated.",
-     "Header" => "Done"
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $_Dialog = "";
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "p", "Your Password has been updated."
+     ]))
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    "Success" => "CloseDialog"
+    "Success" => "ReplaceContent",
+    "View" => $_View
    ]);
   }
   function SavePIN(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = "";
+   $_View = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
    $data = $this->core->FixMissing($data, [
@@ -1566,21 +1643,25 @@
    } else {
     $_AccessCode = "Accepted";
     $y["Login"]["PIN"] = md5($data["NewPIN"]);
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $_Dialog = [
-     "Body" => "Your PIN has been updated.",
-     "Header" => "Done"
+    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $_Dialog = "";
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "p", "Your PIN has been updated."
+     ]))
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    "Success" => "CloseDialog"
+    "Success" => "ReplaceContent",
+    "View" => $_View
    ]);
   }
   function SignIn(array $data): string {
    $_AddTopMargin = "0";
-   $_Commands = [];
+   $_Commands = "";
    $_Dialog = "";
    $_ResponseType = "GoToView";
    $_View = "";
@@ -1657,12 +1738,12 @@
         ]
        ]
       ];
-      $_ResponseType = "View";
+      $_ResponseType = "N/A";
       $_View = "";
      }
     }
    } else {
-    $_ResponseType = "View";
+    $_ResponseType = "N/A";
     $_View = [
      "ChangeData" => [
       "[SignIn.ParentView]" => "MainView",
@@ -1808,7 +1889,7 @@
      $message = "The Username <em>$username</em> is already in use.";
     } else {
      $_AccessCode = "Accepted";
-     $_ResponseType = "View";
+     $_ResponseType = "N/A";
      /*--$this->core->Data("Save", ["cms", $usernameID, [
       "Contacts" => [],
       "Requests" => []
@@ -1911,7 +1992,7 @@
      $_View = "";
     }
    } else {
-    $_ResponseType = "View";
+    $_ResponseType = "N/A";
     $birthMonths = [];
     $birthYears = [];
     for($i = 1; $i <= 12; $i++) {
@@ -1925,7 +2006,7 @@
       "[SignUp.BirthYears]" => json_encode($birthYears, true),
       "[SignUp.MinimumAge]" => $this->core->config["minAge"],
       "[SignUp.ParentView]" => "MainView",
-      "[SignUp.Processor]" => base64_encode("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2)),
+      "[SignUp.Processor]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2)),
       "[SignUp.ReturnView]" => base64_encode("Profile:SignUp"),
       "[SignUp.ViewData]" => base64_encode(json_encode([
        "Step" => base64_encode(3)
