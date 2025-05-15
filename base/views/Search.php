@@ -243,7 +243,7 @@
       "button", "Edit non-indexed View", [
        "class" => "MobileFull OpenCard v2",
        "data-encryption" => "AES",
-       "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("823bed33cd089cc8973d0fbc56dbfa28"))
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("184ada666b3eb85de07e414139a9a0dc"))
       ]
      ]) : "";
      //END TEMP
@@ -2733,7 +2733,7 @@
     }
    } elseif($searchType == "MBR-Polls") {
     $_AccessCode = "Accepted";
-    $_ExtensionID = "184ada666b3eb85de07e414139a9a0dc";
+    #$_ExtensionID = "184ada666b3eb85de07e414139a9a0dc";
     $_Query = "SELECT * FROM Polls
                         JOIN Members
                         ON Member_Username=Poll_Username
@@ -2761,9 +2761,11 @@
       $poll = $_Poll["DataModel"];
       $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       if($bl == 0 && $check == 1) {
-       $extension = $this->core->Element([
-        "div", $extension, ["class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"]
-       ]);
+       $_Extension = $this->core->AESencrypt($this->core->Element([
+        "div", $this->core->Extension($_ExtensionID), [
+         "class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"
+        ]
+       ]));
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Block", [

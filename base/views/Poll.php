@@ -13,18 +13,86 @@
     "Card" => [
      "Action" => $this->core->Element(["button", "Post", [
       "class" => "CardButton SendData",
+      "data-encryption" => "AES",
       "data-form" => ".NewPoll$id",
-      "data-processor" => base64_encode("v=".base64_encode("Poll:Save"))
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Poll:Save"))
      ]]),
      "Front" => [
       "ChangeData" => [
        "[Poll.ID]" => $id,
        "[Poll.Option]" => str_replace("[Clone.ID]", "DefaultOption", $option),
-       "[Poll.OptionClone]" => base64_encode($option),
-       "[Poll.Visibility.NSFW]" => $y["Privacy"]["NSFW"],
-       "[Poll.Visibility.Privacy]" => $y["Privacy"]["Posts"]
+       "[Poll.OptionClone]" => base64_encode($option)
       ],
       "ExtensionID" => "823bed33cd089cc8973d0fbc56dbfa28"
+     ]
+    ],
+    "Commands" => [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".PollInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Scream",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Do you like scary movies?"
+         ],
+         "Type" => "TextBox",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $y["Privacy"]["NSFW"],
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $y["Privacy"]["Posts"]
+       ]
+      ]
      ]
     ]
    ]);
@@ -237,7 +305,7 @@
     $polls = $y["Polls"] ?? [];
     array_push($polls, $id);
     $y["Polls"] = array_unique($polls);
-    $sql = New SQL($this->core->cypher->SQLCredentials());
+    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Polls(
      Poll_Created,
      Poll_Description,
@@ -265,8 +333,6 @@
      ":Username" => $poll["UN"]
     ]);
     $sql->execute();
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $this->core->Data("Save", ["poll", $id, $poll]);
     foreach($contacts as $key => $member) {
      $this->core->SendBulletin([
       "Data" => [
@@ -276,9 +342,13 @@
       "Type" => "NewPoll"
      ]);
     }
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["poll", $id, $poll]);
+    $this->core->Statistic("New Poll");--*/
     $_Dialog = [
      "Body" => "Your new poll has been saved.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($poll, true)
     ];
    }
    return $this->core->JSONResponse([
