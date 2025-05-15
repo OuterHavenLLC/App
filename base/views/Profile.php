@@ -51,6 +51,10 @@
      "class" => "LI OpenCard",
      "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1")
     ]]);
+    $_View = [
+     "ChangeData" => [],
+     "Extension" => $this->core->AESencrypt($_View)
+    ];
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",

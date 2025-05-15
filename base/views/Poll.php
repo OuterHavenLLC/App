@@ -8,7 +8,7 @@
    $option = $this->core->Extension("3013dd986b7729f1fc38b82586ee9d8d");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $id = $this->core->UUID("ANewPollBy$you");
+   $id = $this->core->UUID("ANewCommunityPollBy$you");
    return $this->core->JSONResponse([
     "Card" => [
      "Action" => $this->core->Element(["button", "Post", [
@@ -188,7 +188,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
@@ -248,7 +248,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
@@ -307,7 +307,7 @@
     $polls = $y["Polls"] ?? [];
     array_push($polls, $id);
     $y["Polls"] = array_unique($polls);
-    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Polls(
      Poll_Created,
      Poll_Description,
@@ -346,16 +346,15 @@
     }
     $this->core->Data("Save", ["mbr", md5($you), $y]);
     $this->core->Data("Save", ["poll", $id, $poll]);
-    $this->core->Statistic("New Poll");--*/
+    $this->core->Statistic("New Poll");
     $_Dialog = [
      "Body" => "Your new poll has been saved.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($poll, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "Success" => "CloseCard"
    ]);
   }
@@ -378,7 +377,7 @@
     ];
    } elseif(!empty($choice) && !empty($id)) {
     $_AccessCode = "Accepted";
-    $_Dialog = "';"
+    $_Dialog = "";
     $_ResponseType = "ReplaceContent";
     $choice = base64_decode($choice);
     $id = base64_decode($id);
@@ -399,7 +398,7 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "View" => $_View
    ]);
