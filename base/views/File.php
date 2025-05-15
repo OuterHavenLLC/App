@@ -11,7 +11,7 @@
    if(empty($mediaPath) || readfile($mediaLink)) {
     return $this->core->JSONResponse([
      "Dialog" => [
-      "Body" => "Media Not Found."
+      "Body" => "Media Not Found at <em>$mediaLink</em>."
      ]
     ]);
    } else {

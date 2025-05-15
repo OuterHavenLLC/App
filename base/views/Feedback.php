@@ -348,6 +348,7 @@
         [
          "Attributes" => [
           "class" => "req",
+          "id" => "NewFeedbackMessage$id",
           "name" => "Message",
           "placeholder" => "Say Something..."
          ],
@@ -355,7 +356,8 @@
           "Container" => 1,
           "ContainerClass" => "NONAME",
           "Header" => 1,
-          "HeaderText" => "Body"
+          "HeaderText" => "Body",
+          "WYSIWYG" => 1
          ],
          "Type" => "TextBox",
          "Value" => ""
@@ -392,22 +394,6 @@
          "Name" => "Priority",
          "Type" => "Select",
          "Value" => 2
-        ],
-        [
-         "Attributes" => [],
-         "OptionGroup" => [
-          "0" => "No",
-          "1" => "Yes"
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "Desktop50 MobileFull",
-          "Header" => 1,
-          "HeaderText" => "Send Occasional Emails?"
-         ],
-         "Name" => "SendOccasionalEmails",
-         "Type" => "Select",
-         "Value" => 0
         ]
        ]
       ]
@@ -459,7 +445,7 @@
      "From" => $you,
      "Sent" => $now
     ]);
-    /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+    $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Feedback(
      Feedback_Created,
      Feedback_ID,
@@ -489,11 +475,10 @@
     ]);
     $sql->execute();
     $this->core->Data("Save", ["feedback", $id, $feedback]);
-    $this->core->Statistic("New Feedback");--*/
+    $this->core->Statistic("New Feedback");
     $_Dialog = [
      "Body" => "We will be in touch as soon as possible!",
-     "Header" => "Thank you",
-     "Scrollable" => json_encode($feedback, true)
+     "Header" => "Thank you"
     ];
    }
    return $this->core->JSONResponse([
