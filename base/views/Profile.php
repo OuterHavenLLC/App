@@ -13,47 +13,60 @@
     $_IsVIP = $y["Subscriptions"]["VIP"]["A"] ?? 0;
     $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
     $_View = $this->core->Element([
-     "h1", "Create Content", ["class" => "CenterText UpperCase"]
+     "h1", "Create Something New!", ["class" => "CenterText UpperCase"]
     ]).$this->core->Element([
      "p", "Your central hub of content creation.", ["class" => "CenterText"]
     ]).$this->core->Element(["button", "Album", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Album:Edit")."&new=1")
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Album:Edit")."&new=1")
     ]]).$this->core->Element(["button", "Article", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Page:Edit")."&new=1")
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Page:Edit")."&new=1")
     ]]);
     $_View .= ($_IsSubscribed == 1) ? $this->core->Element(["button", "Blog", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Blog:Edit")."&Member=".base64_encode($you)."&new=1")
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Blog:Edit")."&Member=".base64_encode($you)."&new=1")
     ]]).$this->core->Element(["button", "Forum", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Forum:Edit")."&new=1")
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Forum:Edit")."&new=1")
     ]]) : "";
     $_View .= $this->core->Element(["button", "Group Chat", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you))
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&GenerateID=1&Username=".base64_encode($you))
     ]]).$this->core->Element(["button", "Link", [
-     "class" => "LI OpenFirSTEPTool",
-     "data-fst" => base64_encode("v=".base64_encode("Search:Links"))
+     "class" => "LI GoToView",
+     "data-type" => "ContentHub;".$this->core->AESencrypt("v=".base64_encode("Search:Links"))
     ]]).$this->core->Element(["button", "Media", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("File:Upload")."&AID=".md5("unsorted"))
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("File:Upload")."&AID=".md5("unsorted"))
     ]]).$this->core->Element(["button", "Poll", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Poll:Create"))
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Poll:Create"))
     ]]);
     $_View .= ($_IsArtist == 1) ? $this->core->Element(["button", "Product or Service", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("Product:Edit")."&Card=1")
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("Product:Edit")."&Card=1")
     ]]) : "";
     $_View .= $this->core->Element(["button", "Status Update", [
      "class" => "LI OpenCard",
-     "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1")
+     "data-encryption" => "AES",
+     "data-view" => $this->core->AESencrypt("v=".base64_encode("StatusUpdate:Edit")."&new=1")
     ]]);
     $_View = [
      "ChangeData" => [],
-     "Extension" => $this->core->AESencrypt($_View)
+     "Extension" => $this->core->AESencrypt($this->core->Element([
+      "div", $_View, [
+       "class" => "ParentPageContentHub"
+      ]
+     ]))
     ];
    }
    return $this->core->JSONResponse([
