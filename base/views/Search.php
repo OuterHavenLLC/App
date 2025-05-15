@@ -243,7 +243,7 @@
       "button", "Edit non-indexed View", [
        "class" => "MobileFull OpenCard v2",
        "data-encryption" => "AES",
-       "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("297c6906ec2f4cb2013789358c5ea77b"))
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("823bed33cd089cc8973d0fbc56dbfa28"))
       ]
      ]) : "";
      //END TEMP
@@ -3494,6 +3494,8 @@
     }
    } elseif($searchType == "XFS") {
     $_AccessCode = "Accepted";
+    $_Username = $data["UN"] ?? base64_encode($you);
+    $_Username = base64_decode($_Username);
     $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
     $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
     $_Query = "SELECT * FROM $_Database
@@ -3505,8 +3507,6 @@
                         ORDER BY Media_Created DESC
                         LIMIT $limit
                         OFFSET $offset";
-    $_Username = $data["UN"] ?? base64_encode($you);
-    $_Username = base64_decode($_Username);
     $mediaType = $data["ftype"] ?? "";
     $sql->query($_Query, [
      ":Database" => $_Database,
@@ -3524,10 +3524,10 @@
       "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
-     if($_File["Empty"] == 0 && $bl == 0) {
+     if($_File["Empty"] == 0) {
       $file = $_File["DataModel"];
       $options = $_File["ListItem"]["Options"];
-      $source = $this->core->GetSourceFromExtension([$sql["Media_Username"], $file]);
+      $source = $this->core->GetSourceFromExtension([$sql["Media_Username"], $sql["Media_ID"]]);
       $media = [
        "[File.CoverPhoto]" => $source,
        "[File.Title]" => $file["Title"],

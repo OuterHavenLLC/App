@@ -285,20 +285,21 @@
       ]) : "";
       $media = $this->core->Data("Get", ["fs", md5($username)]);
       $coverPhoto = $album["CoverPhoto"] ?? "";
-      $coverPhoto = base64_encode("$username-".explode(".", $coverPhoto)[1]);
+      $coverPhoto = (!empty($coverPhoto)) ? explode(".", $coverPhoto)[1] : $coverPhoto;
+      $coverPhoto = base64_encode("$username-$coverPhoto");
       $_Commands = [
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Vote$id",
-         $options["Vote"]
-        ]
-       ],
        [
         "Name" => "UpdateContentAES",
         "Parameters" => [
          ".Stream$id",
          $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&AID=$id&UN=".base64_encode($t["Login"]["Username"])."&st=MBR-XFS")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$id",
+         $options["Vote"]
         ]
        ]
       ];

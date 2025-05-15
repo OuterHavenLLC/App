@@ -25,6 +25,7 @@
   }
   function Edit(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The File Identifier is missing."
    ];
@@ -43,55 +44,158 @@
     $id = base64_decode($id);
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
-    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]);
-    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
+    $mediaSystem = $this->core->Data("Get", ["fs", md5($username)]);
+    $medias = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "app",
      "fs"
-    ]) : $fileSystem["Files"];
-    $file = $files[$id] ?? [];
+    ]) : $mediaSystem["Files"];
+    $media = $medias[$id] ?? [];
     $albums = [];
     if($this->core->ID != $username) {
-     foreach($fileSystem["Albums"] as $key => $album) {
+     foreach($mediaSystem["Albums"] as $key => $album) {
       $albums[$key] = $album["Title"];
      }
     } else {
      $albums[md5("unsorted")] = "System Media Library";
     }
-    $album = $file["AID"] ?? md5("unsorted");
-    $description = $file["Description"] ?? "";
-    $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $passPhrase = $file["PassPhrase"] ?? "";
-    $privacy = $file["Privacy"] ?? $y["Privacy"]["DLL"];
-    $title = $file["Title"] ?? "Untitles";
+    $album = $media["AID"] ?? md5("unsorted");
+    $description = $media["Description"] ?? "";
+    $nsfw = $media["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $passPhrase = $media["PassPhrase"] ?? "";
+    $privacy = $media["Privacy"] ?? $y["Privacy"]["DLL"];
+    $title = $media["Title"] ?? "Untitles";
     $_Card = [
      "Action" => $this->core->Element(["button", "Update", [
       "class" => "CardButton SendData",
-      "data-form" => ".EditFile$id",
-      "data-processor" => base64_encode("v=".base64_encode("File:Save"))
+      "data-encryption" => "AES",
+      "data-form" => ".EditMedia$id",
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("File:Save"))
      ]]),
      "Front" => [
       "ChangeData" => [
-       "[File.Album]" => $album,
-       "[File.Albums]" => json_encode($albums, true),
-       "[File.Description]" => base64_encode($description),
-       "[File.ID]" => $id,
-       "[File.NSFW]" => $nsfw,
-       "[File.PassPhrase]" => base64_encode($passPhrase),
-       "[File.Privacy]" => $privacy,
-       "[File.Title]" => base64_encode($title),
-       "[File.Username]" => $username
+       "[File.ID]" => $id
       ],
       "ExtensionID" => "7c85540db53add027bddeb42221dd104"
+     ]
+    ];
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".MediaInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "Username",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $username
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Title",
+          "placeholder" => "Title",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Title"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($title)
+        ],
+        [
+         "Attributes" => [
+          "name" => "Description",
+          "placeholder" => "Description"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Description"
+         ],
+         "Type" => "TextBox",
+         "Value" => $this->core->AESencrypt($description)
+        ],
+        [
+         "Attributes" => [
+          "name" => "PassPhrase",
+          "placeholder" => "Pass Phrase",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Pass Phrase"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($passPhrase)
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $albums,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Album"
+         ],
+         "Name" => "Album",
+         "Title" => "Album",
+         "Type" => "Select",
+         "Value" => $album
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".NSFW$id",
+       [
+        "Filter" => "NSFW",
+        "Name" => "NSFW",
+        "Title" => "Content Status",
+        "Value" => $nsfw
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderVisibilityFilter",
+      "Parameters" => [
+       ".Privacy$id",
+       [
+        "Value" => $privacy
+       ]
+      ]
      ]
     ];
    }
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The File Identifier or Username are missing."
    ];
@@ -115,14 +219,14 @@
     $attachmentID = $t["Login"]["Username"]."-".$id;
     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-    $_File = $this->core->GetContentData([
+    $_Media = $this->core->GetContentData([
      "Blacklisted" => $bl,
      "ID" => base64_encode("File;$username;$id"),
      "ParentPage" => $parentView
     ]);
-    if($_File["Empty"] == 0) {
-     $file = $_File["DataModel"];
-     $passPhrase = $file["PassPhrase"] ?? "";
+    if($_Media["Empty"] == 0) {
+     $media = $_Media["DataModel"];
+     $passPhrase = $media["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
@@ -131,7 +235,7 @@
         "h1", "Protected Content", ["class" => "CenterText"]
        ])),
        "ParentPage" => "Files",
-       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_File["ListItem"]["Title"]."</em>."),
+       "Text" => base64_encode("Please enter the Pass Phrase given to you to access <em>".$_Media["ListItem"]["Title"]."</em>."),
        "ViewData" => base64_encode(json_encode([
         "Added" => $added,
         "AddTo" => $addTo,
@@ -165,16 +269,16 @@
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_Dialog = "";
-      $options = $_File["ListItem"]["Options"];
+      $options = $_Media["ListItem"]["Options"];
       $actions = ($username != $you) ? $this->core->Element([
-       "button", $blockCommand, [
+       "button", "Block", [
         "class" => "Small UpdateButton v2",
         "data-processor" => $options["Block"]
        ]
       ]) : "";
       $check = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
-      $addToMedia = ($check == 1) ? $file["Name"] : $attachmentID;
+      $addToMedia = ($check == 1) ? $media["Name"] : $attachmentID;
       $actions .= (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
         "class" => "Attach Small v2",
@@ -185,26 +289,28 @@
       $actions .= ($check == 1 || $username == $you) ? $this->core->Element([
        "button", "Delete", [
         "class" => "GoToView Small v2",
+         "data-encryption" => "AES",
         "data-type" => "Media$id;".$options["Delete"]
        ]
       ]) : "";
       $actions .= $this->core->Element([
        "button", "Download", [
         "class" => "Download Small v2",
-        "data-media" => base64_encode(base64_encode("$username/".$file["Name"])),
+        "data-media" => base64_encode(base64_encode("$username/".$media["Name"])),
         "data-view" => base64_encode("v=".base64_encode("File:Download"))
        ]
       ]);
       $actions .= ($check == 1 || $username == $you) ? $this->core->Element([
        "button", "Edit", [
         "class" => "OpenCard Small v2",
+         "data-encryption" => "AES",
         "data-view" => $options["Edit"]
        ]
       ]) : "";
-      $fileCheck = $this->core->CheckFileType([$file["EXT"], "Photo"]);
-      $nsfw = $file["NSFW"] ?? $y["Privacy"]["NSFW"];
+      $mediaCheck = $this->core->CheckFileType([$media["EXT"], "Photo"]);
+      $nsfw = $media["NSFW"] ?? $y["Privacy"]["NSFW"];
       $setAsProfileImage = "";
-      if($nsfw == 0 && $fileCheck == 1) {
+      if($nsfw == 0 && $mediaCheck == 1) {
        $_Source = $options["Source"];
        $httpResponse = $this->core->RenderHTTPResponse($_Source);
        if($httpResponse != 200) {
@@ -218,40 +324,46 @@
        $setAsProfileImage = ($_Size == 1) ? $this->core->Element([
         "button", "Set as Your $cp", [
          "class" => "OpenDialog Disable v2",
-         "data-view" => base64_encode("v=".base64_encode("File:SaveProfileImage")."&DLC=".base64_encode($attachmentID)."&FT=$type")
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=".base64_encode("File:SaveProfileImage")."&DLC=".base64_encode($attachmentID)."&FT=$type")
         ]
        ]) : "";
       }
       $nsfw = ($nsfw == 1) ? "Adults Only" : "Kid-Friendly";
-      $share = ($file["Privacy"] == md5("Public") || $t["Login"]["Username"] == $you) ? 1 : 0;
+      $share = ($media["Privacy"] == md5("Public") || $t["Login"]["Username"] == $you) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([
        "button", "Share", [
         "class" => "OpenCard Small v2",
         "data-view" => $options["Share"]
       ]]) : "";
+      $_Commands = [
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Conversation$id",
+         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
-        "[Conversation.CRID]" => $id,
-        "[Conversation.CRIDE]" => base64_encode($id),
-        "[Conversation.Level]" => base64_encode(1),
-        "[Conversation.URL]" => base64_encode("v=".base64_encode("Conversation:Home")."&CRID=[CRID]&LVL=[LVL]"),
-        "[File.Actions]" => $actions,
-        "[File.AddTo]" => $addTo,
-        "[File.Back]" => $back,
-        "[File.Description]" => $file["Description"],
-        "[File.Extension]" => $file["EXT"],
-        "[File.ID]" => $id,
-        "[File.Illegal]" => $options["Report"],
-        "[File.Modified]" => $this->core->TimeAgo($file["Modified"]),
-        "[File.Name]" => $file["Name"],
-        "[File.NSFW]" => $nsfw,
-        "[File.Preview]" => $_File["ListItem"]["Attachments"],
-        "[File.SetAsProfileImage]" => $setAsProfileImage,
-        "[File.Share]" => $share,
-        "[File.Title]" => $_File["ListItem"]["Title"],
-        "[File.Type]" => $file["Type"],
-        "[File.Uploaded]" => $this->core->TimeAgo($file["Timestamp"]),
-        "[File.Votes]" => $options["Vote"]
+        "[Media.Actions]" => $actions,
+        "[Media.AddTo]" => $addTo,
+        "[Media.Back]" => $back,
+        "[Media.Description]" => $media["Description"],
+        "[Media.Extension]" => $media["EXT"],
+        "[Media.ID]" => $id,
+        "[Media.Illegal]" => $options["Report"],
+        "[Media.Modified]" => $this->core->TimeAgo($media["Modified"]),
+        "[Media.Name]" => $media["Name"],
+        "[Media.NSFW]" => $nsfw,
+        "[Media.Preview]" => $_Media["ListItem"]["Attachments"],
+        "[Media.SetAsProfileImage]" => $setAsProfileImage,
+        "[Media.Share]" => $share,
+        "[Media.Title]" => $_Media["ListItem"]["Title"],
+        "[Media.Type]" => $media["Type"],
+        "[Media.Uploaded]" => $this->core->TimeAgo($media["Timestamp"]),
+        "[Media.Votes]" => $options["Vote"]
        ],
        "ExtensionID" => "c31701a05a48069702cd7590d31ebd63"
       ];
@@ -264,6 +376,7 @@
    $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -296,23 +409,23 @@
     ];
     $_ID = explode("-", base64_decode($id));
     $_Name = "Unknown";
-    $files = $_FileSystem["Files"] ?? [];
+    $medias = $_MediaStore["Files"] ?? [];
     $id = $_ID[1];
     $username = $_ID[0];
-    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]);
-    $files = $fileSystem["Files"] ?? [];
-    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
+    $mediaSystem = $this->core->Data("Get", ["fs", md5($username)]);
+    $medias = $mediaSystem["Files"] ?? [];
+    $medias = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "app",
      "fs"
-    ]) : $files;
-    $file = $files[$id] ?? [];
+    ]) : $medias;
+    $media = $medias[$id] ?? [];
     $newFiles = [];
     $points = $this->core->config["PTS"]["DeleteFile"];
-    if(!empty($file["ID"])) {
+    if(!empty($media["ID"])) {
      $_Dialog = "";
-     $albumID = $file["AID"];
-     $albums = $fileSystem["Albums"] ?? [];
-     foreach($files as $key => $value) {
+     $albumID = $media["AID"];
+     $albums = $mediaSystem["Albums"] ?? [];
+     foreach($medias as $key => $value) {
       if($id != $value["ID"]) {
        $newFiles[$key] = $value;
       } else {
@@ -361,10 +474,10 @@
       $sql->execute();
       $this->core->Data("Save", ["app", "fs", $newFiles]);
      } else {
-      $fileSystem["Albums"] = $albums;
-      $fileSystem["Files"] = $newFiles;
+      $mediaSystem["Albums"] = $albums;
+      $mediaSystem["Files"] = $newFiles;
       $y["Points"] = $y["Points"] + $points;
-      $this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+      $this->core->Data("Save", ["fs", md5($you), $mediaSystem]);
       $this->core->Data("Save", ["mbr", md5($you), $y]);
      }
      $_View = $this->core->Element([
@@ -403,24 +516,24 @@
    } elseif(!empty($id)) {
     $_AccessCode = "Accepted";
     $username = $data["Username"] ?? $you;
-    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]);
-    $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
+    $mediaSystem = $this->core->Data("Get", ["fs", md5($username)]);
+    $medias = ($this->core->ID == $username) ? $this->core->Data("Get", [
      "app",
      "fs"
-    ]) : $fileSystem["Files"];
+    ]) : $mediaSystem["Files"];
     $now = $this->core->timestamp;
-    $file = $files[$id] ?? [];
-    $file["AID"] = $data["Album"] ?? md5("unsorted");
-    $file["Created"] = $files[$id]["Created"] ?? $now;
-    $file["Description"] = $data["Description"] ?? "";
-    $file["Illegal"] = $files[$id]["Illegal"] ?? 0;
-    $file["Modified"] = $now;
-    $file["NSFW"] = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $file["PassPhrase"] = $data["PassPhrase"] ?? "";
-    $file["Privacy"] = $data["Privacy"] ?? $y["Privacy"]["DLL"];
-    $file["Purge"] = $file["Purge"] ?? 0;
-    $file["Title"] = $data["Title"] ?? "Untitled";
-    $files[$id] = $file;
+    $media = $medias[$id] ?? [];
+    $media["AID"] = $data["Album"] ?? md5("unsorted");
+    $media["Created"] = $medias[$id]["Created"] ?? $now;
+    $media["Description"] = $data["Description"] ?? "";
+    $media["Illegal"] = $medias[$id]["Illegal"] ?? 0;
+    $media["Modified"] = $now;
+    $media["NSFW"] = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $media["PassPhrase"] = $data["PassPhrase"] ?? "";
+    $media["Privacy"] = $data["Privacy"] ?? $y["Privacy"]["DLL"];
+    $media["Purge"] = $media["Purge"] ?? 0;
+    $media["Title"] = $data["Title"] ?? "Untitled";
+    $medias[$id] = $media;
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $query = "REPLACE INTO Forums(
      Media_Created,
@@ -441,23 +554,23 @@
     )";
     $sql->query($query, [
      ":Created" => $created,
-     ":Description" => $file["Description"],
+     ":Description" => $media["Description"],
      ":ID" => $id,
-     ":NSFW" => $file["NSFW"],
-     ":Privacy" => $file["Privacy"],
-     ":Title" => $file["Title"],
+     ":NSFW" => $media["NSFW"],
+     ":Privacy" => $media["Privacy"],
+     ":Title" => $media["Title"],
      ":Username" => $username
     ]);
     $sql->execute();
     if($this->core->ID == $username) {
-     #$this->core->Data("Save", ["app", "fs", $files]);
+     #$this->core->Data("Save", ["app", "fs", $medias]);
     } else {
-     $fileSystem["Files"] = $files;
-     #$this->core->Data("Save", ["fs", md5($you), $fileSystem]);
+     $mediaSystem["Files"] = $medias;
+     #$this->core->Data("Save", ["fs", md5($you), $mediaSystem]);
     }
-    #$this->core->Statistic("Edit Media");
+    $this->core->Statistic("Edit Media");
     $_Dialog = [
-     "Body" => "The file <em>".$file["Title"]."</em> was updated.<br/>",
+     "Body" => "The file <em>".$media["Title"]."</em> was updated.<br/>",
      "Header" => "Done"
     ];
    }
@@ -531,7 +644,7 @@
     ];
    } else {
     header("Content-Type: application/json");
-    $_FileSystem = $this->core->Data("Get", ["fs", md5($you)]);
+    $_MediaStore = $this->core->Data("Get", ["fs", md5($you)]);
     $_DLC = $this->core->config["XFS"]["FT"] ?? [];
     if($this->core->ID == $username && $y["Rank"] != md5("High Command")) {
      $_JSON = [
@@ -542,10 +655,10 @@
     } else {
      $_IsHighConmmand = ($this->core->ID == $username && $y["Rank"] == md5("High Command")) ? 1 : 0;
      $allowed = array_merge($_DLC["A"], $_DLC["D"], $_DLC["P"], $_DLC["V"]);
-     $albums = $_FileSystem["Albums"] ?? [];
-     $files = $_FileSystem["Files"] ?? [];
+     $albums = $_MediaStore["Albums"] ?? [];
+     $medias = $_MediaStore["Files"] ?? [];
      if($_IsHighConmmand == 1) {
-      $files = $this->core->Data("Get", ["app", "fs"]);
+      $medias = $this->core->Data("Get", ["app", "fs"]);
      }
      $now = $this->core->timestamp;
      $nsfw = $data["NSFW"] ?? $this->core->AESencrypt($y["Privacy"]["NSFW"]);
@@ -559,7 +672,7 @@
      $limits = $this->core->config["XFS"]["limits"] ?? [];
      $limit = str_replace(",", "", $limits["Total"]);
      $usage = 0;
-     foreach($files as $key => $info) {
+     foreach($medias as $key => $info) {
       $size = $info["Size"] ?? 0;
       $usage = $usage + $size;
      }
@@ -594,7 +707,7 @@
         $check3 = ($size2 < $limits["Documents"]) ? 1 : 0;
         $type = $this->core->config["XFS"]["FT"]["_FT"][1];
        }
-       $fileCheck = [
+       $mediaCheck = [
         "Checks" => [
          "AdministratorClearance" => $_IsHighConmmand,
          "Album" => $id,
@@ -637,14 +750,14 @@
         } elseif($usage > $limit) {
          $err = "Total storage limit exceeded";
         }
-        array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
+        array_push($_Failed, [$uploads["name"][$key], $err, $mediaCheck]);
        } else {
         if(!move_uploaded_file($tmp, $root.basename($name))) {
-         array_push($fileCheck, "Failed to move $name to your library.");
-         array_push($_Failed, [$uploads["name"][$key], $err, $fileCheck]);
+         array_push($mediaCheck, "Failed to move $name to your library.");
+         array_push($_Failed, [$uploads["name"][$key], $err, $mediaCheck]);
         } else {
          $_AccessCode = "Accepted";
-         $file = [
+         $media = [
           "AID" => $albumID,
           "Description" => "",
           "EXT" => $ext,
@@ -659,24 +772,24 @@
           "Timestamp" => $now,
           "Type" => $type
          ];
-         $files[$id] = $file;
+         $medias[$id] = $media;
          if($_IsHighConmmand == 1) {
-          $files[$id]["UN"] = $you;
-          $this->core->Data("Save", ["app", "fs", $files]);
+          $medias[$id]["UN"] = $you;
+          $this->core->Data("Save", ["app", "fs", $medias]);
          } else {
-          $_FileSystem = $_FileSystem ?? [];
-          $_FileSystem["Albums"] = $albums;
-          $_FileSystem["Files"] = $files;
+          $_MediaStore = $_MediaStore ?? [];
+          $_MediaStore["Albums"] = $albums;
+          $_MediaStore["Files"] = $medias;
           if(in_array($ext, $this->core->config["XFS"]["FT"]["P"])) {
            $thumbnail = $this->core->Thumbnail([
             "File" => $name,
             "Username" => $you
            ])["AlbumCover"] ?? $name;
-           $_FileSystem["Albums"][$albumID]["CoverPhoto"] = $thumbnail;
+           $_MediaStore["Albums"][$albumID]["CoverPhoto"] = $thumbnail;
           }
-          $_FileSystem["Albums"][$albumID]["Modified"] = $now;
+          $_MediaStore["Albums"][$albumID]["Modified"] = $now;
           $y["Points"] = $y["Points"] + $this->core->config["PTS"]["NewContent"];
-          $this->core->Data("Save", ["fs", md5($you), $_FileSystem]);
+          $this->core->Data("Save", ["fs", md5($you), $_MediaStore]);
           $this->core->Data("Save", ["mbr", md5($you), $y]);
          }
          $database = ($_IsHighConmmand == 1) ? "CoreMedia" : "Media";
@@ -702,16 +815,16 @@
           ":Created" => $now,
           ":Description" => "",
           ":ID" => $id,
-          ":NSFW" => $file["NSFW"],
-          ":Privacy" => $file["Privacy"],
-          ":Title" => $file["Title"],
+          ":NSFW" => $media["NSFW"],
+          ":Privacy" => $media["Privacy"],
+          ":Title" => $media["Title"],
           ":Username" => $username
          ]);
          $sql->execute();
          array_push($_Passed, [
           "HTML" => $this->core->Element([
            "button", $this->core->GetAttachmentPreview([
-            "DLL" => $file,
+            "DLL" => $media,
             "T" => $username,
             "Y" => $you
            ]), [
@@ -720,7 +833,7 @@
             "data-view" => $this->core->AESencrypt("v=".base64_encode("File:Home")."&CARD=1&&ID=$id&UN=$username")
            ]
           ]),
-          "Raw" => $file
+          "Raw" => $media
          ]);
         }
        }
@@ -757,12 +870,12 @@
    } elseif(!empty($albumID)) {
     $_IsHighConmmand = ($y["Rank"] == md5("High Command")) ? 1 : 0;
     $username = $data["UN"] ?? $you;
-    $fileSystem = $this->core->Data("Get", ["fs", md5($username)]);
-    $files = $fileSystem["Files"] ?? [];
+    $mediaSystem = $this->core->Data("Get", ["fs", md5($username)]);
+    $medias = $mediaSystem["Files"] ?? [];
     $limit = $this->core->config["XFS"]["limits"]["Total"] ?? 0;
     $limit = $limit."MB";
     $usage = 0;
-    foreach($files as $key => $value) {
+    foreach($medias as $key => $value) {
      $usage = $usage + $value["Size"];
     }
     $usage = $this->core->ByteNotation($usage)."MB";
@@ -777,10 +890,10 @@
     if(!empty($username) && $uploadsAllowed == 1) {
      $check = ($_IsHighConmmand == 1 && $this->core->ID == $username) ? 1 : 0;
      $check2 = ($username == $you) ? 1 : 0;
-     $files = ($this->core->ID == $username) ? $this->core->Data("Get", [
+     $medias = ($this->core->ID == $username) ? $this->core->Data("Get", [
       "app",
       "fs"
-     ]) : $files;
+     ]) : $medias;
      $_Dialog = [
       "Body" => "You do not have permission to upload files to $username's Library.",
       "Header" => "Forbidden"
@@ -797,14 +910,14 @@
        $options .= "<input name=\"AID\" type=\"hidden\" value=\"$albumID\"/>\r\n";
        $options .= "<input name=\"NSFW\" type=\"hidden\" value=\"".$y["Privacy"]["NSFW"]."\"/>\r\n";
        $options .= "<input name=\"Privacy\" type=\"hidden\" value=\"".$y["Privacy"]["Posts"]."\"/>\r\n";
-       $title = $fileSystem["Albums"][$albumID]["Title"] ?? "Unsorted";
+       $title = $mediaSystem["Albums"][$albumID]["Title"] ?? "Unsorted";
       }
       $_Card = [
        "Front" => [
         "ChangeData" => [
          "[Upload.Limit]" => $limit,
          "[Upload.Options]" => $options,
-         "[Upload.Processor]" => base64_encode("v=".base64_encode("File:SaveUpload")),
+         "[Upload.Processor]" => $this->core->AESencrypt("v=".base64_encode("File:SaveUpload")),
          "[Upload.Title]" => $title
         ],
         "ExtensionID" => "bf6bb3ddf61497a81485d5eded18e5f8"
