@@ -69,6 +69,12 @@
      $bl = base64_decode($data["BL"]);
      $header = "$bl Blacklist";
      $_List .= (!empty($data["BL"])) ? "&BL=".$data["BL"] : "";
+     $options =  ($notAnon == 1) ? $this->core->Element([
+      "button", "Back to Blacklists", [
+       "class" => "GoToParent v2",
+       "data-type" => "Blacklists"
+      ]
+     ]) : "";
      $searchBarText = "$bl Blacklist";
     } elseif($searchType == "BLG") {
      $header = "Blogs";

@@ -79,9 +79,9 @@
    $blacklists = $y["Blocked"] ?? [];
    foreach($blacklists as $list => $info) {
     $_View .= $this->core->Element(["button", $list, [
-     "class" => "LI OpenFirSTEPTool v2 v2w",
+     "class" => "GoToView LI v2 v2w",
      "data-encryption" => "AES",
-     "data-type" => "PARENTPAGE;".$this->core->AESencrypt("v=".base64_encode("Search:Containers")."&st=BL&BL=".base64_encode($list))
+     "data-type" => "Blacklists;".$this->core->AESencrypt("v=".base64_encode("Search:Containers")."&st=BL&BL=".base64_encode($list))
     ]]);
    }
    return $this->core->JSONResponse([
