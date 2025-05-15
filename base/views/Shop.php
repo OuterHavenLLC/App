@@ -846,6 +846,7 @@
      "Body" => "You must sign in to view your shopping history."
     ];
    } elseif(!empty($id)) {
+    $_Dialog = "";
     $_View = "";
     $history = $y["Shopping"]["History"] ?? [];
     $history = $history[$id] ?? [];
@@ -888,9 +889,10 @@
         $subscription = ($id == $subscriptions["Developer"]["ID"]) ? "Blogger" : $subscription;
         $subscription = ($id == $subscriptions["VIP"]["ID"]) ? "VIP" : $subscription;
         $subscription = ($id == $subscriptions["XFS"]["ID"]) ? "XFS" : $subscription;
-        $options = $this->core->Element(["button", "Go to ".$subscriptions[$sub]["Title"], [
+        $options = $this->core->Element(["button", "Go to ".$subscriptions[$subscription]["Title"], [
          "class" => "BBB OpenCard v2 v2w",
-         "data-view" => base64_encode("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($subscription))
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($subscription))
         ]]);
        }
        $options .= (!empty($media)) ? $this->core->Element(["button", "Download Media", [

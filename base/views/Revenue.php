@@ -392,7 +392,6 @@
    $profit = $data["Profit"] ?? 0;
    $profit = str_replace(",", "", $profit);
    $quantity = $data["Quantity"] ?? 1;
-   $responseType = "Dialog";
    $shop = $data["Shop"] ?? "";
    $title = $data["Title"] ?? "Unknown";
    $type = $data["Type"] ?? "Sale";
@@ -407,7 +406,6 @@
     $_View = $this->core->Element(["p", "Error loading the Revenue data for @$shop."]);
     if($_Shop["Empty"] == 0) {
      $now = $this->core->timestamp;
-     $responseType = "View";
      $yearData = $this->core->Data("Get", ["revenue", date("Y")."-".md5($shop)]);
      $owner = $yearData["Owner"] ?? $shop;
      $payroll = $yearData["Payroll"] ?? [];

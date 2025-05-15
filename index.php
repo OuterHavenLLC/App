@@ -170,7 +170,7 @@
    "[App.Title]" => $oh->core->config["App"]["Name"]
   ], $oh->core->PlainText([
    "BBCodes" => 1,
-   "Data" => file_get_contents("./index.txt"),
+   "Data" => $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-68255ab0c67e0"),
    "Display" => 1
   ])]);
  } if(!empty($api) && !in_array($api, $doNotEncode)) {

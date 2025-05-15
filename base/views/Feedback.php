@@ -35,17 +35,108 @@
       "Front" => [
        "ChangeData" => [
        "[Feedback.ID]" => $id,
-       "[Feedback.ParaphrasedQuestion]" => base64_encode($paraphrasedQuestion),
-       "[Feedback.Priority]" => $feedback["Priority"],
-       "[Feedback.Resolved]" => $feedback["Resolved"],
-       "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
-       "[Feedback.Title]" => $title,
-       "[Feedback.UseParaphrasedQuestion]" => $feedback["UseParaphrasedQuestion"]
+       "[Feedback.Title]" => $title
        ],
        "ExtensionID" => "56718d75fb9ac2092c667697083ec73f"
       ]
      ];
      $_Commands = [
+      [
+       "Name" => "RenderInpouts",
+       "Parameters" => [
+        ".SendResponse$id",
+        [
+         [
+          "Attributes" => [
+           "name" => "ID",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $id
+         ],
+         [
+          "Attributes" => [
+           "name" => "ParaphrasedQuestion",
+           "placeholder" => "Paraphrased Question",
+           "type" => "text"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $this->core->AESencrypt($feedback["ParaphrasedQuestion"])
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Message",
+           "placeholder" => "Say something..."
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME"
+          ],
+          "Type" => "TextBox",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "0" => "No",
+           "1" => "Yes"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Paraphrase"
+          ],
+          "Name" => "UseParaphrasedQuestion",
+          "Type" => "Select",
+          "Value" => $feedback["UseParaphrasedQuestion"]
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "1" => "High",
+           "2" => "Normal",
+           "3" => "Low"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Priority"
+          ],
+          "Name" => "Priority",
+          "Type" => "Select",
+          "Value" => $feedback["Priority"]
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "0" => "No",
+           "1" => "Yes"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Resolved"
+          ],
+          "Name" => "Resolved",
+          "Type" => "Select",
+          "Value" => $feedback["Resolved"]
+         ]
+        ]
+       ]
+      ],
+      [
+       "Name" => "UpdateContentRecursiveAES",
+       "Parameters" => [
+        ".FeedbackStream$id",
+        $this->core->AESencrypt("v=".base64_encode("Feedback:Stream")."&ID=$id")
+       ]
+      ]
      ];
     }
    } elseif($public == 1) {
@@ -76,14 +167,81 @@
       $title = $feedback["ParaphrasedQuestion"];
      }
      $_Commands = [
+      [
+       "Name" => "RenderInpouts",
+       "Parameters" => [
+        ".SendResponse$id",
+        [
+         [
+          "Attributes" => [
+           "name" => "ID",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $id
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Message",
+           "placeholder" => "Say something..."
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME"
+          ],
+          "Type" => "TextBox",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "1" => "High",
+           "2" => "Normal",
+           "3" => "Low"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Priority"
+          ],
+          "Name" => "Priority",
+          "Type" => "Select",
+          "Value" => $feedback["Priority"]
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "0" => "No",
+           "1" => "Yes"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Resolved"
+          ],
+          "Name" => "Resolved",
+          "Type" => "Select",
+          "Value" => $feedback["Resolved"]
+         ]
+        ]
+       ]
+      ],
+      [
+       "Name" => "UpdateContentRecursiveAES",
+       "Parameters" => [
+        ".FeedbackStream$id",
+        $this->core->AESencrypt("v=".base64_encode("Feedback:Stream")."&ID=$id")
+       ]
+      ]
      ];
      $_View = [
       "ChangeData" => [
       "[Feedback.ID]" => $id,
-      "[Feedback.Priority]" => $feedback["Priority"],
-      "[Feedback.Resolved]" => $feedback["Resolved"],
-      "[Feedback.Processor]" => base64_encode("v=".base64_encode("Feedback:SaveResponse")),
-      "[Feedback.Stream]" => base64_encode("v=".base64_encode("Feedback:Stream")."&ID=$id"),
+      "[Feedback.Processor]" => $this->core->AESencrypt("v=".base64_encode("Feedback:SaveResponse")),
       "[Feedback.Title]" => $title
       ],
       "ExtensionID" => "599e260591d6dca59a8e0a52f5bd64be"
@@ -105,14 +263,152 @@
     "Card" => [
      "Action" => $this->core->Element(["button", "Send", [
       "class" => "CardButton SendData",
+      "data-encryption" => "AES",
       "data-form" => ".ContactForm$id",
-      "data-processor" => base64_encode("v=".base64_encode("Feedback:Save"))
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Feedback:Save"))
      ]]),
+     "Commands" => [
+      [
+       "Name" => "RenderInpouts",
+       "Parameters" => [
+        ".NewFeedbackThread$id",
+        [
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Email",
+           "placeholder" => "johnny.test@outerhaven.nyc",
+           "type" => "email"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "E-Mail"
+          ],
+          "Type" => "Text",
+          "Value" => $this->core->AESencrypt($y["Personal"]["Email"])
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Name",
+           "placeholder" => "John Doe",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Name"
+          ],
+          "Type" => "Text",
+          "Value" => $this->core->AESencrypt($y["Personal"]["FirstName"])
+         ],
+         [
+          "Attributes" => [
+           "class" => "CheckIfNumeric req",
+           "name" => "Phone",
+           "pattern" => "\d*",
+           "placeholder" => "7777777777",
+           "type" => "number"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Phone Number"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Subject",
+           "placeholder" => "Subject",
+           "type" => "text"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Subject"
+          ],
+          "Type" => "Text",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [
+           "class" => "req",
+           "name" => "Message",
+           "placeholder" => "Say Something..."
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Body"
+          ],
+          "Type" => "TextBox",
+          "Value" => ""
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "0" => "No",
+           "1" => "Yes"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Allow Indexing?"
+          ],
+          "Name" => "Index",
+          "Type" => "Select",
+          "Value" => 0
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "1" => "High",
+           "2" => "Normal",
+           "3" => "Low"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Priority"
+          ],
+          "Name" => "Priority",
+          "Type" => "Select",
+          "Value" => 2
+         ],
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "0" => "No",
+           "1" => "Yes"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "Desktop50 MobileFull",
+           "Header" => 1,
+           "HeaderText" => "Send Occasional Emails?"
+          ],
+          "Name" => "SendOccasionalEmails",
+          "Type" => "Select",
+          "Value" => 0
+         ]
+        ]
+       ]
+      ]
+     ],
      "Front" => [
       "ChangeData" => [
-       "[Feedback.Email]" => base64_encode($y["Personal"]["Email"]),
-       "[Feedback.ID]" => $id,
-       "[Feedback.Name]" => base64_encode($y["Personal"]["FirstName"])
+       "[Feedback.ID]" => $id
       ],
       "ExtensionID" => "2b5ca0270981e891ce01dba62ef32fe4"
      ]
@@ -242,7 +538,7 @@
      "From" => $you,
      "Sent" => $this->core->timestamp
     ]);
-    /*--if($feedback["Username"] != $you) {
+    if($feedback["Username"] != $you) {
      $this->core->SendEmail([
       "Message" => $this->core->Change([[
        "[Mail.Message]" => $this->core->PlainText([
@@ -256,11 +552,11 @@
       "To" => $feedback["Email"]
      ]);
     }
-    $this->core->Data("Save", ["feedback", $id, $feedback]);--*/
+    $this->core->Data("Save", ["feedback", $id, $feedback]);
+    $this->core->Statistic("New Feedback Response");
     $_Dialog = [
      "Body" => "Your response has been sent.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($feedback, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([
