@@ -1167,7 +1167,7 @@
           "data-target" => ".CoverPhotos[Clone.ID]"
          ]]).$this->core->Element([
           "div", $this->core->Change([[
-           "[Media.Add]" => base64_encode($_SymbolicLink),
+           "[Media.Add]" => $this->core->AESencrypt($_SymbolicLink),
            "[Media.File]" => "",
            "[Media.ID]" => "[Clone.ID]",
            "[Media.Input]" => "CoverPhotos[]",
