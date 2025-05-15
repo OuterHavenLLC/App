@@ -129,12 +129,13 @@
      $options = $_Poll["ListItem"]["Options"];
      $blockOrDelete = ($poll["UN"] == $you) ? $this->core->Element([
       "div", $this->core->Element(["button", $blockCommand, [
-       "class" => "UpdateButton v2 v2w",
+       "class" => "Block v2 v2w",
        "data-processor" => $options["Block"]
       ]]), ["class" => "Desktop33"]
      ]).$this->core->Element([
       "div", $this->core->Element(["button", "Delete", [
        "class" => "OpenDialog v2 v2w",
+       "data-encryption" => "AES",
        "data-view" => $options["Delete"]
       ]]), ["class" => "Desktop33"]
      ]) : "";
@@ -162,14 +163,15 @@
        $option = $this->core->Element(["button", $option, [
         "class" => "LI UpdateContent",
         "data-container" => ".Poll$id",
-        "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($id))
+        "data-encryption" => "AES",
+        "data-view" => $this->core->AESencrypt("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($id))
        ]]);
       }
       $vote .= $option;
      }
      $_Extension = $this->core->Extension("184ada666b3eb85de07e414139a9a0dc");
      $_Extension = ($containers == 1) ? $this->core->Element(["div", $_Extension, [
-      "class" => "FrostedBright Poll[Poll.ID] Rounded"
+      "class" => "Frosted Poll[Poll.ID] Rounded"
      ]]) : $_Extension;
      $_View = [
       "ChangeData" => [

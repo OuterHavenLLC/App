@@ -2733,7 +2733,11 @@
     }
    } elseif($searchType == "MBR-Polls") {
     $_AccessCode = "Accepted";
-    #$_ExtensionID = "184ada666b3eb85de07e414139a9a0dc";
+    $_Extension = $this->core->AESencrypt($this->core->Element([
+     "div", $this->core->Extension("184ada666b3eb85de07e414139a9a0dc"), [
+      "class" => "Frosted Poll[Poll.ID] Rounded"
+     ]
+    ]));
     $_Query = "SELECT * FROM Polls
                         JOIN Members
                         ON Member_Username=Poll_Username
@@ -2761,11 +2765,6 @@
       $poll = $_Poll["DataModel"];
       $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       if($bl == 0 && $check == 1) {
-       $_Extension = $this->core->AESencrypt($this->core->Element([
-        "div", $this->core->Extension($_ExtensionID), [
-         "class" => "FrostedBright Poll".$sql["Poll_ID"]." Rounded"
-        ]
-       ]));
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Block", [
@@ -2775,6 +2774,7 @@
        ]).$this->core->Element([
         "div", $this->core->Element(["button", "Delete", [
          "class" => "OpenDialog v2 v2w",
+         "data-encryption" => "AES",
          "data-view" => $options["Delete"]
         ]]), ["class" => "Desktop33"]
        ]) : "";
@@ -2802,7 +2802,8 @@
          $option = $this->core->Element(["button", $option, [
           "class" => "LI UpdateContent",
           "data-container" => ".Poll".$sql["Poll_ID"],
-          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($sql["Poll_ID"]))
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($sql["Poll_ID"]))
          ]]);
         }
         $vote .= $option;
@@ -3011,7 +3012,7 @@
     $_AccessCode = "Accepted";
     $_Extension = $this->core->AESencrypt($this->core->Element([
      "div", $this->core->Extension("184ada666b3eb85de07e414139a9a0dc"), [
-      "class" => "FrostedBright Poll[Poll.ID] Rounded"
+      "class" => "Frosted Poll[Poll.ID] Rounded"
      ]
     ]));
     $_Query = "SELECT * FROM Polls
