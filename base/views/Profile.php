@@ -1816,6 +1816,7 @@
    ]);
   }
   function Purge(array $data): string {
+   $_AddTopMargin = "0";
    $_Dialog = "";
    $data = $data["Data"] ?? [];
    $y = $this->you;
@@ -1826,8 +1827,8 @@
      "Header" => "Forbidden"
     ];
    } else {
+    $_AddTopMargin = 1;
     $_Dialog = "";
-    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
      "Header" => base64_encode($this->core->Element([
       "h1", "Delete Profile", ["class" => "CenterText"]
@@ -1841,6 +1842,7 @@
      ], true))
     ]]);
     $_View = $this->core->RenderView($_View);
+    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     if($verifyPassPhrase == 1) {
      $_Dialog = "";
      $key = $data["Key"] ?? base64_encode("");
@@ -2008,8 +2010,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $_AddTopMargin,
     "Dialog" => $_Dialog,
     "View" => $_View
    ]);
@@ -2116,6 +2117,7 @@
   function SavePassword(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = "";
+   $_ResponseType = "";
    $_View = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -2153,6 +2155,7 @@
     $y["Login"]["Password"] = md5($data["NewPassword"]);
     #$this->core->Data("Save", ["mbr", md5($you), $y]);
     $_Dialog = "";
+    $_ResponseType = "ReplaceContent";
     $_View = [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($this->core->Element([
@@ -2163,13 +2166,14 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    "Success" => "ReplaceContent",
+    "ReSearch" => $_ResponseType,
     "View" => $_View
    ]);
   }
   function SavePIN(array $data): string {
    $_AccessCode = "Denied";
    $_Dialog = "";
+   $_ResponseType = "";
    $_View = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -2210,6 +2214,7 @@
     $y["Login"]["PIN"] = md5($data["NewPIN"]);
     #$this->core->Data("Save", ["mbr", md5($you), $y]);
     $_Dialog = "";
+    $_ResponseType = "ReplaceContent";
     $_View = [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($this->core->Element([
@@ -2220,7 +2225,7 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    "Success" => "ReplaceContent",
+    "ReSearch" => $_ResponseType,
     "View" => $_View
    ]);
   }
