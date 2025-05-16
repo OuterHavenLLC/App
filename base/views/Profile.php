@@ -1145,8 +1145,8 @@
      $secureKey = base64_decode($secureKey);
      if(md5($key) == $secureKey) {
       $_AddTopMargin = "0";
-      $_LiveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode("CoverPhoto")."&Media=");
-      $_SymbolicLink = "v=".base64_encode("Search:Containers")."&AddTo=".base64_encode("Attach:.AddTo[Clone.ID]")."&CARD=1&lPG=Files&st=XFS&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]));
+      $_CoverPhotoClone = $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad");
+      $_LiveView = $this->core->AESencrypt("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode("CoverPhoto")."&Media=");
       $id = md5($you);
       $autoResponse = $y["Personal"]["AutoResponse"] ?? "";
       $birthMonths = [];
@@ -1176,13 +1176,13 @@
         ]]).$this->core->Element([
          "div", $this->core->Change([[
           "[Clone.ID]" => $key,
-          "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=".base64_encode("Attach:.AddTo$key")."&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]))),
+          "[Media.Add]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=".base64_encode("Attach:.AddTo$key")."&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]))),
           "[Media.File]" => $image,
           "[Media.ID]" => $cloneID,
           "[Media.Input]" => "CoverPhotos[]",
           "[Media.Input.LiveView]" => $_LiveView,
           "[Media.Name]" => "Cover Photo"
-         ], $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad")]), [
+         ], $_CoverPhotoClone]), [
           "class" => "NONAME"
          ]
         ]), [
@@ -1782,13 +1782,13 @@
           "data-target" => ".CoverPhotos[Clone.ID]"
          ]]).$this->core->Element([
           "div", $this->core->Change([[
-           "[Media.Add]" => $this->core->AESencrypt($_SymbolicLink),
+           "[Media.Add]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&AddTo=".base64_encode("Attach:.AddTo[Clone.ID]")."&CARD=1&lPG=Files&st=XFS&UN=".base64_encode($you)."&ftype=".base64_encode(json_encode(["Photo"]))),
            "[Media.File]" => "",
            "[Media.ID]" => "[Clone.ID]",
            "[Media.Input]" => "CoverPhotos[]",
            "[Media.Input.LiveView]" => $_LiveView,
            "[Media.Name]" => "Cover Photo"
-          ], $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad")]), [
+          ], $_CoverPhotoClone]), [
            "class" => "NONAME"
           ]
          ]), [
