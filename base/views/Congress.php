@@ -77,7 +77,7 @@
      $senators++;
     }
    } if(!empty($chamber) && $chambers == 1) {
-    $_AddTopMargin = "1";
+    $_AddTopMargin = 1;
     $options = "";
     $search = base64_encode("Search:Containers");
     $options = ($notAnon == 1) ? $this->core->Element(["button", "Ballot", [

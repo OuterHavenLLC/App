@@ -244,15 +244,6 @@
       "data-encryption" => "AES",
       "data-view" => $this->core->AESencrypt("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
      ]]) : "";
-     //BEGIN TEMP
-     $options .= ($y["Rank"] == md5("High Command")) ? $this->core->Element([
-      "button", "Edit non-indexed View", [
-       "class" => "MobileFull OpenCard v2",
-       "data-encryption" => "AES",
-       "data-view" => $this->core->AESencrypt("v=".base64_encode("Extension:Edit")."&ID=".base64_encode("184ada666b3eb85de07e414139a9a0dc"))
-      ]
-     ]) : "";
-     //END TEMP
      $variant = "2Column";
     } elseif($searchType == "MBR") {
      $header = "Members";

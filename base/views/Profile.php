@@ -2145,6 +2145,10 @@
     $_Dialog = [
      "Body" => "The Passwords do not match."
     ];
+   } elseif($data["CurrentPassword"] == $data["NewPassword"]) {
+    $_Dialog = [
+     "Body" => "You may not re-use your current PIN."
+    ];
    } elseif($data["NewPassword"] != $data["NewPassword2"]) {
     $_Dialog = [
      "Body" => "The new Passwords do not match."
@@ -2153,20 +2157,20 @@
     $_Dialog = "";
     $y["Activity"]["LastPasswordChange"] = $this->core->timestamp;
     $y["Login"]["Password"] = md5($data["NewPassword"]);
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
     $_Dialog = "";
     $_ResponseType = "ReplaceContent";
     $_View = [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($this->core->Element([
-      "p", "Your Password has been updated.".json_encode([$y["Login"], md5($data["NewPassword"])], true)
+      "p", "Your Password has been updated. You may close this card."
      ]))
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    "ReSearch" => $_ResponseType,
+    "ResponseType" => $_ResponseType,
     "View" => $_View
    ]);
   }
@@ -2203,29 +2207,33 @@
     ];
    } elseif(md5($data["CurrentPIN"]) != $y["Login"]["PIN"]) {
     $_Dialog = [
-     "Body" => "The PINs do not match."
+     "Body" => "The PIN do not match your current PIN."
+    ];
+   } elseif($data["CurrentPIN"] == $data["NewPIN"]) {
+    $_Dialog = [
+     "Body" => "You may not re-use your current PIN."
     ];
    } elseif($data["NewPIN"] != $data["NewPIN2"]) {
     $_Dialog = [
      "Body" => "The new PINs do not match."
     ];
    } else {
-    $_AccessCode = "Accepted";
     $y["Login"]["PIN"] = md5($data["NewPIN"]);
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
+    $_AccessCode = "Accepted";
     $_Dialog = "";
     $_ResponseType = "ReplaceContent";
     $_View = [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($this->core->Element([
-      "p", "Your PIN has been updated.".json_encode([$y["Login"], md5($data["NewPIN"])], true)
+      "p", "Your PIN has been updated. You may close this card."
      ]))
     ];
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    "ReSearch" => $_ResponseType,
+    "ResponseType" => $_ResponseType,
     "View" => $_View
    ]);
   }

@@ -702,7 +702,7 @@
    ];
    $_ResponseType = "View";
    $_View = "";
-   $_AddTopMargin = "1";
+   $_AddTopMargin = 1;
    $data = $data["Data"] ?? [];
    $_2FA = $data["2FA"] ?? "";
    $_2FAconfirm = $data["2FAconfirm"] ?? "";
@@ -715,7 +715,7 @@
      "Body" => "The code you entered does not match the one we sent you."
     ];
     $_View = "";
-    $_AddTopMargin = "1";
+    $_AddTopMargin = 1;
     $data = $this->core->DecodeBridgeData($data);
     $_2FA = $data["2FA"] ?? "";
     $_2FA = md5($_2FA);
