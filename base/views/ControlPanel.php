@@ -5,13 +5,13 @@
    $this->you = $this->core->Member($this->core->Authenticate("Get"));
   }
   function Home(array $data): string {
+   $_AddTopMargin = 1;
    $_Commands = "";
    $_Dialog = [
     "Body" => "You do not have permission to access this experience.",
     "Header" => "Unauthorized"
    ];
    $_View = "";
-   $_AddTopMargin = 1;
    $data = $data["Data"] ?? [];
    $y = $this->you;
    $you = $y["Login"]["Username"];

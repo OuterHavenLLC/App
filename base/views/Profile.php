@@ -624,7 +624,7 @@
      $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
      $_ViewTitle = "$displayName @ ".$_ViewTitle;
      $_AccessCode = "Accepted";
-     $_AddTopMargin = "1";
+     $_AddTopMargin = 1;
      $passPhrase = $member["Privacy"]["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
@@ -1104,7 +1104,7 @@
    ]);
   }
   function Preferences(array $data): string {
-   $_AddTopMargin = "1";
+   $_AddTopMargin = 1;
    $_Commands = "";
    $_Dialog = "";
    $_View = "";
@@ -1507,28 +1507,6 @@
         "Name" => "RenderInputs",
          "Parameters" => [
          [
-          ".SecurityPassPhrase$id",
-          [
-           [
-            "Attributes" => [
-             "class" => "EmptyOnSuccess",
-             "name" => "PIN",
-             "pattern" => "\d*",
-             "placeholder" => "PIN",
-             "type" => "text"
-            ],
-            "Options" => [],
-            "Type" => "Text",
-            "Value" => ""
-           ]
-          ]
-         ]
-        ]
-       ],
-       [
-        "Name" => "RenderInputs",
-         "Parameters" => [
-         [
           ".PrivacyForumsType$id",
           [
            [
@@ -1707,7 +1685,7 @@
            [
             "Name" => "Privacy_Contributions",
             "Title" => "Contributions",
-            "Value" => $y["Privacy"]["Contributors"]
+            "Value" => $y["Privacy"]["Contributions"]
            ],
            [
             "Name" => "Privacy_DLL",
@@ -2178,7 +2156,7 @@
     $_View = [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($this->core->Element([
-      "p", "Your Password has been updated."
+      "p", "Your Password has been updated.".json_encode([$y["Login"], md5($data["NewPassword"])], true)
      ]))
     ];
    }
@@ -2235,7 +2213,7 @@
     $_View = [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($this->core->Element([
-      "p", "Your PIN has been updated."
+      "p", "Your PIN has been updated.".json_encode([$y["Login"], md5($data["NewPIN"])], true)
      ]))
     ];
    }
@@ -2257,7 +2235,7 @@
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $_AddTopMargin = "1";
+    $_AddTopMargin = 1;
     $_Dialog = [
      "Body" => "We could not find the username you entered."
     ];
@@ -2284,7 +2262,7 @@
      $_View = $this->core->RenderView($_View);
     }
    } elseif($step == 3) {
-    $_AddTopMargin = "1";
+    $_AddTopMargin = 1;
     $_Dialog = [
      "Body" => "We could not find the username you entered."
     ];
@@ -2362,7 +2340,7 @@
    $step = base64_decode($step);
    if($step == 2) {
     $_AccessCode = "Denied";
-    $_AddTopMargin = "1";
+    $_AddTopMargin = 1;
     $data = $this->core->DecodeBridgeData($data);
     $birthMonth = $data["BirthMonth"] ?? 10;
     $birthYear = $data["BirthYear"] ?? 1995;
@@ -2439,7 +2417,7 @@
     }
    } elseif($step == 3) {
     $_AccessCode = "Denied";
-    $_AddTopMargin = "1";
+    $_AddTopMargin = 1;
     $birthMonth = $data["BirthMonth"] ?? base64_encode(10);
     $birthMonth = base64_decode($birthMonth);
     $birthYear = $data["BirthYear"] ?? base64_encode(1995);
