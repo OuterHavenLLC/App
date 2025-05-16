@@ -2545,7 +2545,7 @@
       ]
      ];
      $_Commands = [
-      [
+      /*--[
        "Name" => "SignIn",
        "Parameters" => [
         $this->core->Authenticate("Save", [
@@ -2553,7 +2553,7 @@
          "Username" => $username
         ])
        ]
-      ],
+      ],--*/
       [
        "Name" => "UpdateContent",
        "Parameters" => [
