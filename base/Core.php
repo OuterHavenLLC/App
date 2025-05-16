@@ -757,6 +757,8 @@
       $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Blcok" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Members")),
+       "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($them)),
+       "Donate" => $this->AESencrypt("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($them)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Profile:Preferences")),
        "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
@@ -1376,7 +1378,7 @@
     ], $r]);--*/
   }
   function ProfilePicture(array $member, $style = NULL) {
-   $style = (!empty($style)) ? " style=\"$style\"" : "";
+   $style = (!empty($style)) ? "$style" : "width:100%";
    $base = $this->efs;
    $profilePicture = $member["Personal"] ?? [];
    $profilePicture = $member["Personal"]["ProfilePicture"] ?? "";
@@ -1385,7 +1387,7 @@
     $source = $base.base64_decode($profilePicture);
    }
    return $this->PlainText([
-    "Data" => "<img src=\"$source\"$style/>",
+    "Data" => "<img src=\"$source\" style=\"$style\"/>\r\n",
     "Display" => 1
    ]);
   }

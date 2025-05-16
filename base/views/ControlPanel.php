@@ -24,7 +24,6 @@
     $_LiveView = base64_encode("v=".base64_encode("LiveView:CoreMedia")."&DLC=");
     $_Search = base64_encode("Search:Containers");
     $config = $this->core->config ?? [];
-    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
      "Header" => base64_encode($this->core->Element([
       "h1", "Control Panel", ["class" => "CenterText"]
@@ -37,6 +36,7 @@
      ], true))
     ]]);
     $_View = $this->core->RenderView($_View);
+    $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     if($verifyPassPhrase == 1) {
      $_Dialog = "";
      $_View = "";
@@ -46,7 +46,6 @@
      $secureKey = base64_decode($secureKey);
      if(md5($key) == $secureKey) {
       $_AddTopMargin = "0";
-      $_Dialog = "";
       $allowedAudio = $config["XFS"]["FT"]["A"] ?? [];
       $allowedAudioList = "";
       $allowedDocuments = $config["XFS"]["FT"]["D"] ?? [];

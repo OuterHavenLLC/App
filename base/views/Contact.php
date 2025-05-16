@@ -254,7 +254,7 @@
     $this->core->Data("Save", ["cms", md5($you), $yourContacts]);
     $_View = [
      "ChangeData" => [],
-     "ExtensionID" => $this->core->AESencrypt($_VIew)
+     "Extension" => $this->core->AESencrypt($_VIew)
     ];
    }
    $_View = ($bulletin == 1) ? "" : $_View;

@@ -625,7 +625,7 @@
    $data = $data["Data"] ?? [];
    $albumID = $data["AID"] ?? $this->core->AESencrypt(md5("unsorted"));
    $albumID = $this->core->AESdecrypt($albumID);
-   $err = "Internal Error";
+   $error = "Internal Error";
    $username = $data["UN"] ?? $this->core->AESencrypt("");
    $username = $this->core->AESdecrypt($username);
    $y = $this->you;
@@ -740,21 +740,21 @@
        ];
        if($check == 0 || $check2 == 0 || $check3 == 0) {
         if(!in_array($ext, $allowed)) {
-         $err = "Invalid file type";
+         $error = "Invalid file type";
         } elseif($check == 0) {
-         $err = "Forbidden";
+         $error = "Forbidden";
         } elseif($check2 == 0) {
-         $err = "File Clearance failed";
+         $error = "File Clearance failed";
         } elseif($check3 == 0) {
-         $err = "File storage limit exceeded";
+         $error = "File storage limit exceeded";
         } elseif($usage > $limit) {
-         $err = "Total storage limit exceeded";
+         $error = "Total storage limit exceeded";
         }
-        array_push($_Failed, [$uploads["name"][$key], $err, $mediaCheck]);
+        array_push($_Failed, [$uploads["name"][$key], $error, $mediaCheck]);
        } else {
         if(!move_uploaded_file($tmp, $root.basename($name))) {
          array_push($mediaCheck, "Failed to move $name to your library.");
-         array_push($_Failed, [$uploads["name"][$key], $err, $mediaCheck]);
+         array_push($_Failed, [$uploads["name"][$key], $error, $mediaCheck]);
         } else {
          $_AccessCode = "Accepted";
          $media = [

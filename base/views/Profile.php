@@ -664,24 +664,65 @@
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $blockCommand = ($_YouBlockedThem == 0) ? "Block" : "Unblock";
-      $actions = $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => base64_encode("v=".base64_encode("Profile:Blacklist")."&Command=".base64_encode($blockCommand)."&Content=".base64_encode($id)."&List=".base64_encode("Members"))
+      $memberID = md5($id);
+      $coverPhotos = $member["Personal"]["CoverPhotos"] ?? [];
+      $newCoverPhotos = [];
+      foreach($coverPhotos as $key => $image) {
+       $newCoverPhotos[$key] = $this->core->CoverPhoto($image);
+      }
+      $_Commands = [
+       [
+        "Name" => "RefreshCoverPhoto",
+        "Parameters" => [
+         ".MemberCP$memberID",
+         $newCoverPhotos,
+         $coverPhotosSlideShowDisabled
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Conversation$memberID",
+         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($memberID)."&LVL=".base64_encode(1))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Nominate$memberID",
+         $this->core->AESencrypt("v=".base64_encode("Congress:Nominate")."&Username=".base64_encode($id))
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Stream$memberID",
+         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&st=MBR-SU")
+        ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Vote$memberID",
+         $options["Vote"]
+        ]
        ]
-      ]);
-      $actions .= ($chat == 0) ? $this->core->Element(["button", "Chat", [
+      ];
+      $_Dialog = "";
+      $actions = ($chat == 0) ? $this->core->Element(["button", "Chat", [
        "class" => "OpenCard Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($id))
+       "data-encryption" => "AES",
+       "data-view" => $options["Chat"]
       ]]) : "";
       $actions .= ($_IsArtist == 1) ? $this->core->Element(["button", "Donate", [
        "class" => "OpenCardSmall Small v2",
-       "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($id))
+       "data-encryption" => "AES",
+       "data-view" => $options["Donate"]
       ]]) : "";
       $actions .= ($_IsVIP == 0 && $y["Rank"] == md5("High Command")) ? $this->core->Element(["button", "Make VIP", [
-       "class" => "SendData Small v2",
-       "data-form" => ".Profile$id",
-       "data-processor" => base64_encode("v=".base64_encode("Profile:MakeVIP")."&ID=".base64_encode($id))
+       "class" => "OpenDialog Small v2",
+       "data-encryption" => "AES",
+       "data-processor" => $this->core->AESencrypt("v=".base64_encode("Profile:MakeVIP")."&ID=".base64_encode($id))
       ]]) : "";
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
       $addTo = (!empty($addToData) && $id != $this->core->ID) ? $this->core->Element([
@@ -733,9 +774,11 @@
       $changeRank = "";
       $contacts = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their contacts to themselves."
+       "[Error.Message]" => "$displayName keeps their contacts to themselves.",
+       "Header" => "Forbidden"
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Contacts"] == $public || $visible == 1) {
+       $_Dialog = "";
        $contacts = $this->view($search, ["Data" => [
         "UN" => base64_encode($id),
         "b2" => $b2,
@@ -761,18 +804,20 @@
         if($contactStatus["TheyRequested"] > 0) {
          $changeData = [
           "[ContactRequest.Header]" => "Pending Request",
-          "[ContactRequest.ID]" => $id,
+          "[ContactRequest.ID]" => $memberID,
           "[ContactRequest.Option]" => $this->core->Element([
            "div", $this->core->Element(["button", "Accept", [
             "class" => "BBB SendData v2 v2w",
-            "data-form" => ".ContactRequest$id",
-            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&accept=1")
+            "data-encryption" => "AES",
+            "data-form" => ".ContactRequest$memberID",
+            "data-processor" => $this->core->AESencrypt("v=".base64_encode("Contact:Requests")."&accept=1")
            ]]), ["class" => "Desktop50"]
           ]).$this->core->Element([
            "div", $this->core->Element(["button", "Decline", [
             "class" => "BB SendData v2 v2w",
+            "data-encryption" => "AES",
             "data-form" => ".ContactRequest$id",
-            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests")."&decline=1")
+            "data-processor" => $this->core->AESencrypt("v=".base64_encode("Contact:Requests")."&decline=1")
            ]]), ["class" => "Desktop50"]
           ]),
           "[ContactRequest.Text]" => "$display sent you a contact request.",
@@ -785,8 +830,9 @@
           "[ContactRequest.Option]" => $this->core->Element([
            "button", "Cancel Request", [
             "class" => "BB SendData v2 v2w",
+            "data-encryption" => "AES",
             "data-form" => ".ContactRequest$id",
-            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests"))
+            "data-processor" => $this->core->AESencrypt("v=".base64_encode("Contact:Requests"))
            ]
           ]),
           "[ContactRequest.Text]" => "Cancel the contact request you snet to $display.",
@@ -799,8 +845,9 @@
           "[ContactRequest.Option]" => $this->core->Element([
            "button", "Add $displayName", [
             "class" => "BB SendData v2 v2w",
+            "data-encryption" => "AES",
             "data-form" => ".ContactRequest$id",
-            "data-processor" => base64_encode("v=".base64_encode("Contact:Requests"))
+            "data-processor" => $this->core->AESencrypt("v=".base64_encode("Contact:Requests"))
            ]
           ]),
           "[ContactRequest.Text]" => "Send $displayName a Contact Request.",
@@ -826,18 +873,52 @@
           "Member" => "Member",
           "Support" => "Support"
          ];
-        }
+        }array_push($_Commands, [
+         "Name" => "RenderInputs",
+         "Parameters" => [
+          "..ChangeRank$memberID",
+          [
+           [
+            "Attributes" => [
+             "class" => "AuthPIN$memberID",
+             "name" => "PIN",
+             "type" => "hidden"
+            ],
+            "Options" => [],
+            "Type" => "Text",
+            "Value" => ""
+           ],
+           [
+            "Attributes" => [
+             "name" => "Username",
+             "type" => "hidden"
+            ],
+            "Options" => [],
+            "Type" => "Text",
+            "Value" => $id
+           ],
+           [
+            "Attributes" => [],
+            "OptionGroup" => $ranks,
+            "Options" => [
+             "Header" => 1,
+             "HeaderText" => "Rank"
+            ],
+            "Name" => "Rank",
+            "Title" => "Rank",
+            "Type" => "Select",
+            "Value" => $member["Rank"]
+           ]
+          ]
+         ]
+        ]);
         $changeRank = $this->core->Change([[
-         "[Ranks.Authentication]" => base64_encode("v=".base64_encode("Profile:ChangeRank")),
+         "[Ranks.Authentication]" => $this->core->AESencrypt("v=".base64_encode("Profile:ChangeRank")),
          "[Ranks.DisplayName]" => $displayName,
-         "[Ranks.ID]" => md5($id),
-         "[Ranks.Options]" => json_encode($ranks, true),
-         "[Ranks.Username]" => $id,
-         "[Ranks.YourRank]" => $y["Rank"]
+         "[Ranks.ID]" => $memberID
         ], $this->core->Extension("914dd9428c38eecf503e3a5dda861559")]);
        }
       }
-      $coverPhotos = $member["Personal"]["CoverPhotos"] ?? [];
       $coverPhotosSlideShowDisabled = $member["Personal"]["CoverPhotoSelection"] ?? "Single";
       $coverPhotosSlideShowDisabled = ($coverPhotosSlideShowDisabled == "Multiple") ? "false" : "true";
       $embeddedView = $data["EmbeddedView"] ?? 0;
@@ -856,65 +937,25 @@
        ]]);
        $journal = $this->core->RenderView($journal);
       }
-      $newCoverPhotos = [];
       $options = $_Member["ListItem"]["Options"];
       $share = ($id == $you || $privacy["Profile"] == $public) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([
        "button", "Share", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Share"]
        ]
       ]) : "";
       $verified = $member["Verified"] ?? 0;
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-      foreach($coverPhotos as $key => $image) {
-       $newCoverPhotos[$key] = $this->core->CoverPhoto($image);
-      }
-      $memberID = md5($id);
-      $_Commands = [
-       [
-        "Name" => "RefreshCoverPhoto",
-        "Parameters" => [
-         ".MemberCP$memberID",
-         $newCoverPhotos,
-         $coverPhotosSlideShowDisabled
-        ]
-       ],
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Conversation$memberID",
-         $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($memberID)."&LVL=".base64_encode(1))
-        ]
-       ],
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Nominate$memberID",
-         $this->core->AESencrypt("v=".base64_encode("Congress:Nominate")."&Username=".base64_encode($id))
-        ]
-       ],
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Stream$memberID",
-         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&st=MBR-SU")
-        ]
-       ],
-       [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Vote$memberID",
-         $options["Vote"]
-        ]
-       ]
-      ];
       $_View = [
        "ChangeData" => [
         "[Member.Actions]" => $actions,
         "[Member.AddContact]" => $addContact,
         "[Member.Albums]" => $albums,
         "[Member.Articles]" => $articles,
+        "[Member.Block]" => $options["Block"],
+        "[Member.Block.Text]" => $blockCommand,
         "[Member.Blogs]" => $blogs,
         "[Member.Back]" => $back,
         "[Member.ChangeRank]" => $changeRank,
@@ -922,7 +963,6 @@
         "[Member.Contacts]" => $contacts,
         "[Member.Description]" => $_Member["ListItem"]["Description"],
         "[Member.DisplayName]" => $displayName.$verified,
-        "[Member.Footer]" => $this->core->Extension("a095e689f81ac28068b4bf426b871f71"),
         "[Member.ID]" => $memberID,
         "[Member.Journal]" => $journal,
         "[Member.ProfilePicture]" => $options["ProfilePicture"],
@@ -948,7 +988,6 @@
    ]);
   }
   function MakeVIP(array $data): string {
-   $_AccessCode = "Denied";
    $_Dialog = [
     "Body" => "The Member Identifier is missing."
    ];
@@ -957,14 +996,13 @@
    $manifest = [];
    $y = $this->you;
    if(!empty($id)) {
-    $t = base64_decode($id);
-    $t = ($t == $y["Login"]["Username"]) ? $y : $this->core->Member($t);
-    $displayName = $t["Personal"]["DisplayName"];
     $_Dialog = [
      "Body" => "$displayName is already a VIP Member."
     ];
+    $t = base64_decode($id);
+    $t = ($t == $y["Login"]["Username"]) ? $y : $this->core->Member($t);
+    $displayName = $t["Personal"]["DisplayName"];
     if($t["Subscriptions"]["VIP"]["A"] == 0) {
-     $_AccessCode = "Accepted";
      $_VIPForum = "cb3e432f76b38eaa66c7269d658bd7ea";
      $t["Points"] = $t["Points"] + 1000000;
      $manifest = $this->core->Data("Get", ["pfmanifest", $_VIPForum]);
@@ -987,8 +1025,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "Dialog" => $_Dialog,
-    "JSON" => $manifest
+    "Dialog" => $_Dialog
    ]);
   }
   function MarkBulletinAsRead(array $data): string {
@@ -1068,7 +1105,6 @@
   }
   function Preferences(array $data): string {
    $_AddTopMargin = "1";
-   $_Card = "";
    $_Commands = "";
    $_Dialog = "";
    $_View = "";
@@ -1102,6 +1138,7 @@
     $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
     if($verifyPassPhrase == 1) {
      $_Dialog = "";
+     $_View = "";
      $key = $data["Key"] ?? base64_encode("");
      $key = base64_decode($key);
      $secureKey = $data["SecureKey"] ?? base64_encode("");
@@ -1153,43 +1190,6 @@
         ]
        ]);
       }
-      $_Card = [
-       "ChangeData" => [
-        "[Preferences.Deactivate]" => $this->core->AESencrypt("v=".base64_encode("Profile:Deactivate")),
-        "[Preferences.ID]" => $id,
-        "[Preferences.Links.EditShop]" => $this->core->AESencrypt("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode(md5($you))),
-        "[Preferences.Links.NewPassword]" => $this->core->AESencrypt("v=".base64_encode("Profile:NewPassword")),
-        "[Preferences.Links.NewPIN]" => $this->core->AESencrypt("v=".base64_encode("Profile:NewPIN")),
-        "[Preferences.Personal.CoverPhotos]" => $coverPhotosList,
-        "[Preferences.Personal.CoverPhotos.Clone]" => base64_encode($this->core->Element([
-         "div", $this->core->Element(["button", "X", [
-          "class" => "Delete v1",
-          "data-target" => ".CoverPhotos[Clone.ID]"
-         ]]).$this->core->Element([
-          "div", $this->core->Change([[
-           "[Media.Add]" => $this->core->AESencrypt($_SymbolicLink),
-           "[Media.File]" => "",
-           "[Media.ID]" => "[Clone.ID]",
-           "[Media.Input]" => "CoverPhotos[]",
-           "[Media.Input.LiveView]" => $_LiveView,
-           "[Media.Name]" => "Cover Photo"
-          ], $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad")]), [
-           "class" => "NONAME"
-          ]
-         ]), [
-          "class" => "CoverPhotos[Clone.ID] Frosted Rounded"
-         ]
-        ])),
-        "[Preferences.Personal.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
-        "[Preferences.Privacy.Polls]" => $polls,
-        "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
-        "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
-        "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
-        "[Preferences.Purge]" => $this->core->AESencrypt("v=".base64_encode("Profile:Purge")),
-        "[Preferences.Save]" => $this->core->AESencrypt("v=".base64_encode("Profile:Save"))
-       ],
-       "ExtensionID" => "e54cb66a338c9dfdcf0afa2fec3b6d8a"
-      ];
       $_Commands = [
        [
         "Name" => "RenderInputs",
@@ -1790,15 +1790,51 @@
         ]
        ]
       ];
-      $_Dialog = "";
+      $_View = [
+       "ChangeData" => [
+        "[Preferences.Deactivate]" => $this->core->AESencrypt("v=".base64_encode("Profile:Deactivate")),
+        "[Preferences.ID]" => $id,
+        "[Preferences.Links.EditShop]" => $this->core->AESencrypt("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode(md5($you))),
+        "[Preferences.Links.NewPassword]" => $this->core->AESencrypt("v=".base64_encode("Profile:NewPassword")),
+        "[Preferences.Links.NewPIN]" => $this->core->AESencrypt("v=".base64_encode("Profile:NewPIN")),
+        "[Preferences.Personal.CoverPhotos]" => $coverPhotosList,
+        "[Preferences.Personal.CoverPhotos.Clone]" => base64_encode($this->core->Element([
+         "div", $this->core->Element(["button", "X", [
+          "class" => "Delete v1",
+          "data-target" => ".CoverPhotos[Clone.ID]"
+         ]]).$this->core->Element([
+          "div", $this->core->Change([[
+           "[Media.Add]" => $this->core->AESencrypt($_SymbolicLink),
+           "[Media.File]" => "",
+           "[Media.ID]" => "[Clone.ID]",
+           "[Media.Input]" => "CoverPhotos[]",
+           "[Media.Input.LiveView]" => $_LiveView,
+           "[Media.Name]" => "Cover Photo"
+          ], $this->core->Extension("02ec63fe4f0fffe5e6f17621eb3b50ad")]), [
+           "class" => "NONAME"
+          ]
+         ]), [
+          "class" => "CoverPhotos[Clone.ID] Frosted Rounded"
+         ]
+        ])),
+        "[Preferences.Personal.UIVariants]" => $this->core->Extension("4d3675248e05b4672863c6a7fd1df770"),
+        "[Preferences.Privacy.Polls]" => $polls,
+        "[Preferences.Privacy.RelationshipStatus]" => $y["Privacy"]["RelationshipStatus"],
+        "[Preferences.Privacy.RelationshipWith]" => $y["Privacy"]["RelationshipWith"],
+        "[Preferences.Privacy.Shop]" => $y["Privacy"]["Shop"],
+        "[Preferences.Purge]" => $this->core->AESencrypt("v=".base64_encode("Profile:Purge")),
+        "[Preferences.Save]" => $this->core->AESencrypt("v=".base64_encode("Profile:Save"))
+       ],
+       "ExtensionID" => "e54cb66a338c9dfdcf0afa2fec3b6d8a"
+      ];
      }
     }
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => $_AddTopMargin,
-    "Card" => $_Card,
     "Commands" => $_Commands,
-    "Dialog" => $_Dialog
+    "Dialog" => $_Dialog,
+    "View" => $_View
    ]);
   }
   function Purge(array $data): string {

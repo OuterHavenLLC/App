@@ -51,7 +51,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "Dialog" => $_DIalog
+    "Dialog" => $_Dialog
    ]);
   }
   function Home(array $data): string {
@@ -254,7 +254,7 @@
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
@@ -277,7 +277,7 @@
    if(!empty($member)) {
     if(!empty($addToBallot)) {
      $_AccessCode = "Denied";
-     $_DIalog = [
+     $_Dialog = [
       "Body" => "The Chamber Identifier is missing."
      ];
      $data = $this->core->DecodeBridgeData($data);
@@ -286,6 +286,7 @@
      $member = $data["Username"] ?? $member;
      if(($chamber == "House" || $chamber == "Senate") && $addToBallot == 1) {
       $_AccessCode = "Accepted";
+      $_Dialog = "";
       $_ResponseType = "ReplaceContent";
       $isOnStaff = 0;
       foreach($congressionalStaff as $staff => $role) {
@@ -316,6 +317,7 @@
       ];
      }
     } else {
+     $_Dialog = "";
      $member = base64_decode($member);
      $member = ($member == $you) ? $y : $this->core->Member($member);
      if(!empty($member["Login"])) {
@@ -397,7 +399,7 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "View" => $_View
    ]);
@@ -746,11 +748,11 @@
         "Body" => "The Note Identifier is missing."
        ];
       } elseif(empty($voteID)) {
-       $_DIalog = [
+       $_Dialog = [
         "Body" => "The Vote Identifier is missing."
        ];
       } elseif(!in_array($voteID, ["Down", "Up"])) {
-       $_DIalog = [
+       $_Dialog = [
         "Body" => "An invalid Vote Identifier was supplied."
        ];
       } else {
@@ -1178,7 +1180,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "Dialog" => $_DIalog
+    "Dialog" => $_Dialog
    ]);
   }
   function VoteForCandidate(array $data): string {
@@ -1218,7 +1220,7 @@
     }
    }
    return $this->core->JSONResponse([
-    "Dialog" => $_DIalog,
+    "Dialog" => $_Dialog,
     "View" => $_View
    ]);
   }
