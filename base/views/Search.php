@@ -605,8 +605,9 @@
        $_View = $this->core->Extension("aacfffd7976e2702d91a5c7084471ebc");
        $_View .= $this->core->Element(["button", "Save", [
         "class" => "SendData v2 v2w",
+        "data-encryption" => "AES",
         "data-form" => ".AddLink",
-        "data-processor" => base64_encode("v=".base64_encode("Search:Links"))
+        "data-processor" => $this->core->AESencrypt("v=".base64_encode("Search:Links"))
        ]]);
        $_View = [
         "ChangeData" => [
@@ -626,7 +627,6 @@
     }
    } else {
     $_AccessCode = "Accepted";
-    $preview = $this->core->AESencrypt("v=".base64_encode("Search:Links")."&Preview=1");
     $_Commands = [
      [
       "Name" => "RenderInputs",
@@ -644,7 +644,7 @@
         [
          "Attributes" => [
           "class" => "LinkData",
-          "data-preview" => "[Link.Preview]",
+          "data-preview" => $this->core->AESencrypt("v=".base64_encode("Search:Links")."&Preview=1"),
           "name" => "Link",
           "placeholder" => $this->core->base,
           "type" => "text"

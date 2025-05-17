@@ -2676,7 +2676,8 @@
           "class" => "req",
           "name" => "Password",
           "placeholder" => "Password",
-          "type" => "password"
+          #"type" => "password"//TEMP
+          "type" => "text"
          ],
          "Options" => [
           "Container" => 1,
@@ -2694,7 +2695,8 @@
           "class" => "req",
           "name" => "Password2",
           "placeholder" => "Confirm Password",
-          "type" => "password"
+          #"type" => "password"//TEMP
+          "type" => "text"
          ],
          "Options" => [
           "Container" => 1,
