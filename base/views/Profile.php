@@ -2229,11 +2229,11 @@
     if($member["Empty"] == 0) {
      $member = $member["DataModel"];
      $viewData = [];
+     $viewData["ParentView"] = "SignIn";
      $viewData["Step"] = base64_encode(3);
      $viewData["Username"] = $this->core->AESencrypt($member["Login"]["Username"]);
      $data = [];
      $data["Email"] = base64_encode($member["Personal"]["Email"]);
-     $data["ParentView"] = base64_encode("SignIn");
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignIn"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
@@ -2292,15 +2292,6 @@
       "Parameters" => [
        ".SignIn",
        [
-        [
-         "Attributes" => [
-          "name" => "ParentView",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => "SignIn"
-        ],
         [
          "Attributes" => [
           "autocomplete" => "username",
@@ -2362,10 +2353,10 @@
     $check = ($age > $_MinimumAge) ? 1 : 0;
     $email = $data["Email"] ?? "";
     $gender = $data["Gender"] ?? "Male";
-    $message = "Internal Error";
-    $name = $data["Name"] ?? "John";
     $i = 0;
     $members = $this->core->DatabaseSet("Member");
+    $message = "Internal Error";
+    $name = $data["Name"] ?? "John";
     $password = $data["Password"] ?? "";
     $password2 = $data["Password2"] ?? "";
     $pin = $data["PIN"] ?? "";
@@ -2379,7 +2370,6 @@
      $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
      if(($emailIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
-      break;
      }
     } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
      $message = "A valid Email address is required.";
@@ -2414,13 +2404,13 @@
      $viewData["Gender"] = $this->core->AESencrypt($gender);
      $viewData["Email"] = $this->core->AESencrypt($email);
      $viewData["Name"] = $this->core->AESencrypt($name);
+     $viewData["ParentView"] = "SignUp";
      $viewData["Password"] = $this->core->AESencrypt($password);
      $viewData["PIN"] = $this->core->AESencrypt($pin);
      $viewData["Step"] = base64_encode(3);
      $viewData["Username"] = $this->core->AESencrypt($username);
      $data = [];
      $data["Email"] = base64_encode($email);
-     $data["ParentView"] = base64_encode("SignIn");
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignUp"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
@@ -2600,7 +2590,7 @@
          "Name" => "BirthMonth",
          "Title" => "Category",
          "Type" => "Select",
-         "Value" => "10"
+         "Value" => 10
         ],
         [
          "Attributes" => [],
@@ -2614,7 +2604,7 @@
          "Name" => "BirthYear",
          "Title" => "Category",
          "Type" => "Select",
-         "Value" => "1995"
+         "Value" => 1995
         ],
         [
          "Attributes" => [],
