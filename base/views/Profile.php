@@ -2014,7 +2014,7 @@
     $coverPhotos = [];
     $coverPhotosData = $data["CoverPhotos"] ?? [];
     $newMember = $this->core->NewMember(["Username" => $you]);
-    $now -= $this->core->timestamp;
+    $now = $this->core->timestamp;
     $firstName = $data["name"] ?? "";
     foreach($data as $key => $value) {
      if(strpos($key, "Donations_") !== false) {
@@ -2069,15 +2069,14 @@
     $newMember["Polls"] = $y["Polls"] ?? [];
     $newMember["Rank"] = $y["Rank"];
     $newMember["Verified"] = $y["Verified"] ?? 0;
-    #$this->core->Data("Save", ["mbr", md5($you), $newMember]);
+    $this->core->Data("Save", ["mbr", md5($you), $newMember]);
     $message = "Your Preferences were saved!";
    }
    $newMember = $newMember ?? [];
    return $this->core->JSONResponse([
     "Dialog" => [
      "Body" => $message,
-     "Header" => $_Header,
-     "Scrollable" => json_encode($newMember, true)
+     "Header" => $_Header
     ],
     "SetUIVariant" => $_UIVariant
    ]);
@@ -2338,8 +2337,6 @@
     $pin = $data["PIN"] ?? "";
     $pin2 = $data["PIN2"] ?? "";
     $username = $data["Username"] ?? "";
-    $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
-    $viewData = json_decode(base64_decode($viewData), true);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
@@ -2374,6 +2371,7 @@
      $message = "The Username <em>$username</em> is already in use.";
     } else {
      $_AccessCode = "Accepted";
+     $viewData = [];
      $viewData["Age"] = base64_encode($age);
      $viewData["BirthMonth"] = base64_encode($birthMonth);
      $viewData["BirthYear"] = base64_encode($birthYear);
@@ -2387,6 +2385,7 @@
      $data = [];
      $data["Email"] = base64_encode($email);
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignUp"));
+     $data["ReturnView"] = base64_encode(3);
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $_View = $this->core->RenderView($_View);
@@ -2435,7 +2434,7 @@
      $message = "The Username <em>$username</em> is already in use.";
     } else {
      $_AccessCode = "Accepted";
-     $_ResponseType = "N/A";
+     $_ResponseType = "";
      /*--$this->core->Data("Save", ["cms", $usernameID, [
       "Contacts" => [],
       "Requests" => []
@@ -2546,17 +2545,219 @@
     } for($i = 1776; $i <= (date("Y") - $_MinimumAge); $i++) {
      $birthYears[$i] = $i;
     }
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".SignUpBasic",
+       [
+        [
+         "Attributes" => [
+          "name" => "ReturnView",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => base64_encode("Profile:SignUp")
+        ],
+        [
+         "Attributes" => [
+          "name" => "ViewPairID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => "SignUp"
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $birthMonths,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Birth Month"
+         ],
+         "Name" => "BirthMonth",
+         "Title" => "Category",
+         "Type" => "Select",
+         "Value" => "10"
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => $birthYears,
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Birth Year"
+         ],
+         "Name" => "BirthYear",
+         "Title" => "Category",
+         "Type" => "Select",
+         "Value" => "1995"
+        ],
+        [
+         "Attributes" => [],
+         "OptionGroup" => [
+          "Female" => "Female",
+          "Male" => "Male"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Gender"
+         ],
+         "Name" => "Personal_Gender",
+         "Title" => "Gender",
+         "Type" => "Select",
+         "Value" => "Male"
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Email",
+          "placeholder" => "johnny.test@outerhaven.nyc",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Email"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Name",
+          "placeholder" => "John",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Name"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Username",
+          "placeholder" => "JohnnyTest",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Username"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".SignUpPassword",
+       [
+        [
+         "Attributes" => [
+          "autocomplete" => "new-password",
+          "class" => "req",
+          "name" => "Password",
+          "placeholder" => "Password",
+          "type" => "password"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Password"
+         ],
+         "Title" => "Password",
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "autocomplete" => "new-password",
+          "class" => "req",
+          "name" => "Password2",
+          "placeholder" => "Confirm Password",
+          "type" => "password"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Confirm Password"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".SignUpPIN",
+       [
+        [
+         "Attributes" => [
+          "class" => "req",
+          "maxlen" => 8,
+          "name" => "PIN",
+          "pattern" => "\d*",
+          "placeholder" => "PIN",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "PIN"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "maxlen" => 8,
+          "name" => "PIN2",
+          "pattern" => "\d*",
+          "placeholder" => "Confirm PIN",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Confirm PIN"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ],
+    ];
     $_View = [
      "ChangeData" => [
-      "[SignUp.BirthMonths]" => json_encode($birthMonths, true),
-      "[SignUp.BirthYears]" => json_encode($birthYears, true),
       "[SignUp.MinimumAge]" => $this->core->config["minAge"],
       "[SignUp.ParentView]" => "MainView",
-      "[SignUp.Processor]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2)),
-      "[SignUp.ReturnView]" => base64_encode("Profile:SignUp"),
-      "[SignUp.ViewData]" => base64_encode(json_encode([
-       "Step" => base64_encode(3)
-      ], true))
+      "[SignUp.Processor]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2))
      ],
      "ExtensionID" => "c48eb7cf715c4e41e2fb62bdfa60f198"
     ];

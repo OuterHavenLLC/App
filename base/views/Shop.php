@@ -249,7 +249,7 @@
           "Container" => 1,
           "ContainerClass" => "NONAME",
           "Header" => 1,
-          "HeaderText" => "Terms of Hire",
+          "HeaderText" => "Hiring Agreement",
           "WYSIWYG" => 1
          ],
          "Type" => "TextBox",
@@ -260,7 +260,7 @@
         [
          "Attributes" => [
           "class" => "req",
-          "data-editor-identifier" => "EditWelcomeMessage$id",
+          "data-editor-identifier" => "ShopWelcomeMessage$id",
           "name" => "Welcome",
           "placeholder" => "Welcome"
          ],
