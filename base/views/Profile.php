@@ -2407,16 +2407,16 @@
     } else {
      $_AccessCode = "Accepted";
      $viewData = [];
-     $viewData["Age"] = base64_encode($age);
-     $viewData["BirthMonth"] = base64_encode($birthMonth);
-     $viewData["BirthYear"] = base64_encode($birthYear);
-     $viewData["Gender"] = base64_encode($gender);
-     $viewData["Email"] = base64_encode($email);
-     $viewData["Name"] = base64_encode($name);
-     $viewData["Password"] = base64_encode($password);
-     $viewData["PIN"] = base64_encode($pin);
+     $viewData["Age"] = $this->core->AESencrypt($age);
+     $viewData["BirthMonth"] = $this->core->AESencrypt($birthMonth);
+     $viewData["BirthYear"] = $this->core->AESencrypt($birthYear);
+     $viewData["Gender"] = $this->core->AESencrypt($gender);
+     $viewData["Email"] = $this->core->AESencrypt($email);
+     $viewData["Name"] = $this->core->AESencrypt($name);
+     $viewData["Password"] = $this->core->AESencrypt($password);
+     $viewData["PIN"] = $this->core->AESencrypt($pin);
      $viewData["Step"] = base64_encode(3);
-     $viewData["Username"] = base64_encode($username);
+     $viewData["Username"] = $this->core->AESencrypt($username);
      $data = [];
      $data["Email"] = base64_encode($email);
      $data["ParentView"] = base64_encode("SignIn");
@@ -2433,27 +2433,27 @@
    } elseif($step == 3) {
     $_AccessCode = "Denied";
     $_AddTopMargin = 1;
-    $birthMonth = $data["BirthMonth"] ?? base64_encode(10);
-    $birthMonth = base64_decode($birthMonth);
-    $birthYear = $data["BirthYear"] ?? base64_encode(1995);
-    $birthYear = base64_decode($birthYear);
+    $birthMonth = $data["BirthMonth"] ?? $this->core->AESencrypt(10);
+    $birthMonth = $this->core->AESdecrypt($birthMonth);
+    $birthYear = $data["BirthYear"] ?? $this->core->AESencrypt(1995);
+    $birthYear = $this->core->AESdecrypt($birthYear);
     $age = date("Y") - $birthYear;
     $check = ($age > $_MinimumAge) ? 1 : 0;
-    $email = $data["Email"] ?? base64_encode("");
-    $email = base64_decode($email);
-    $gender = $data["Gender"] ?? base64_encode("Male");
-    $gender = base64_decode($gender);
-    $firstName = $data["Name"] ?? base64_encode("John");
-    $firstName = explode(" ", base64_decode($firstName))[0];
+    $email = $data["Email"] ?? $this->core->AESencrypt("");
+    $email = $this->core->AESdecrypt($email);
+    $gender = $data["Gender"] ?? $this->core->AESencrypt("Male");
+    $gender = $this->core->AESdecrypt($gender);
+    $firstName = $data["Name"] ?? $this->core->AESencrypt("John");
+    $firstName = explode(" ", $this->core->AESdecrypt($firstName))[0];
     $i = 0;
     $members = $this->core->DatabaseSet("Member");
     $now = $this->core->timestamp;
-    $password = $data["Password"] ?? base64_encode("");
-    $password = base64_decode($password);
-    $pin = $data["PIN"] ?? base64_encode("");
-    $pin = base64_decode($pin);
-    $username = $data["Username"] ?? base64_encode("");
-    $username = base64_decode($username);
+    $password = $data["Password"] ?? $this->core->AESencrypt("");
+    $password = $this->core->AESdecrypt($password);
+    $pin = $data["PIN"] ?? $this->core->AESencrypt("");
+    $pin = $this->core->AESdecrypt($pin);
+    $username = $data["Username"] ?? $this->core->AESencrypt("");
+    $username = $this->core->AESdecrypt($username);
     $usernameID = md5($username);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
@@ -2468,7 +2468,7 @@
     } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
      $message = "A valid Email address is required.";
     } if($i > 0) {
-     $message = "The Username <em>$username</em> is already in use.";
+     $message = "The Username <em>$username</em> is taken.";
     } else {
      $_AccessCode = "Accepted";
      $_ResponseType = "";
@@ -2513,7 +2513,7 @@
         "Description" => "Oversees general operations and administrative duties.",
         "Hired" => $now,
         "Paid" => 0,
-        "Title" => "CEO"
+        "Title" => "Founded & CEO"
        ]
       ],
       "CoverPhoto" => "",
