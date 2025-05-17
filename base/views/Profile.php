@@ -2765,7 +2765,7 @@
     ];
    }
    $_Dialog = [
-    "Body" => "This experience is temporarily down while we finish updates. Your profile will not be created if you proceed.",
+    "Body" => "This experience is undergoing uogrades, and will be back within 48 hours.",
     "Header" => "Sign Up"
    ];
    return $this->core->JSONResponse([

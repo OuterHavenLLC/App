@@ -21,7 +21,7 @@
     ];
    } elseif($y["Rank"] == md5("High Command")) {
     $_Dialog = "";
-    $_LiveView = base64_encode("v=".base64_encode("LiveView:CoreMedia")."&DLC=");
+    $_LiveView = $this->core->AESencrypt("v=".base64_encode("LiveView:CoreMedia")."&DLC=");
     $_Search = base64_encode("Search:Containers");
     $config = $this->core->config ?? [];
     $_View = $this->view(base64_encode("Authentication:ProtectedContent"), ["Data" => [
@@ -110,7 +110,7 @@
         "[Event.ID]" => $event,
         "[Event.Link]" => $info["Link"],
         "[Event.Title]" => $info["Title"],
-        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($this->core->ID)),
+        "[Media.Add]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&CARD=1&st=XFS&AddTo=$addTo&ftype=".base64_encode(json_encode(["Photo"]))."&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $coverPhoto,
         "[Media.Input]" => "EventCoverPhoto[]",
         "[Media.Input.LiveView]" => $_LiveView
@@ -128,7 +128,7 @@
        $file = (!empty($info["File"])) ? base64_encode($info["File"]) : "";
        $media .= $this->core->Change([[
         "[Clone.ID]" => $key,
-        "[Media.Add]" => base64_encode("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&UN=".base64_encode($this->core->ID)),
+        "[Media.Add]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&lPG=Files&st=XFS&AddTo=$addTo&UN=".base64_encode($this->core->ID)),
         "[Media.File]" => $file,
         "[Media.ID]" => $key,
         "[Media.Input]" => "MediaFile[]",
