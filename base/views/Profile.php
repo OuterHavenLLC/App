@@ -2237,9 +2237,7 @@
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignIn"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
-     $_View = $this->core->RenderView($_View, 1);
-     $_Commands = $_View["Commands"];
-     $_View = $_View["View"];
+     $_View = $this->core->RenderView($_View);
     }
    } elseif($step == 3) {
     $_AddTopMargin = 1;
@@ -2426,9 +2424,7 @@
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignUp"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
-     $_View = $this->core->RenderView($_View, 1);
-     $_Commands = $_View["Commands"];
-     $_View = $_View["View"];
+     $_View = $this->core->RenderView($_View);
     } if($_AccessCode != "Accepted") {
      $_Dialog = [
       "Body" => $message
