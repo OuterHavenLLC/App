@@ -2211,7 +2211,6 @@
    $_ResponseType = "GoToView";
    $_View = "";
    $data = $data["Data"] ?? [];
-   $parentView = $viewData["ParentView"] ?? base64_encode("SignIn");
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
@@ -2229,13 +2228,12 @@
     ]);
     if($member["Empty"] == 0) {
      $member = $member["DataModel"];
-     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
-     $viewData = json_decode(base64_decode($viewData), true);
+     $viewData = [];
      $viewData["Step"] = base64_encode(3);
      $viewData["Username"] = $this->core->AESencrypt($member["Login"]["Username"]);
      $data = [];
      $data["Email"] = base64_encode($member["Personal"]["Email"]);
-     $data["ParentView"] = $parentView;
+     $data["ParentView"] = base64_encode("SignIn");
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignIn"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
@@ -2276,23 +2274,59 @@
         ]
        ],
        [
-        "Name" => "UpdateContent",
+        "Name" => "UpdateContentAES",
         "Parameters" => [
          ".Content",
-         base64_encode("v=".base64_encode("WebUI:Landing"))
+         $this->core->AESencrypt("v=".base64_encode("WebUI:Landing"))
         ]
        ]
       ];
-      $_ResponseType = "N/A";
+      $_ResponseType = "";
       $_View = "";
      }
     }
    } else {
-    $_ResponseType = "N/A";
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".SignIn",
+       [
+        [
+         "Attributes" => [
+          "name" => "ParentView",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => "SignIn"
+        ],
+        [
+         "Attributes" => [
+          "autocomplete" => "username",
+          "class" => "EmptyOnSuccess req",
+          "name" => "Username",
+          "placeholder" => "Username",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Username"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ]
+    ];
+    $_ResponseType = "";
     $_View = [
      "ChangeData" => [
       "[SignIn.ParentView]" => "MainView",
-      "[SignIn.Processor]" => base64_encode("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(2))
+      "[SignIn.Processor]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignIn")."&Step=".base64_encode(2))
      ],
      "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-67a2fadba8755"
     ];
@@ -2311,11 +2345,10 @@
    $_Commands = "";
    $_Dialog = "";
    $_MinimumAge = $this->core->config["minRegAge"] ?? 13;
+   $_ResponseType = "GoToView";
    $_View = "";
    $data = $data["Data"] ?? [];
-   $_ResponseType = "GoToView";
    $securityKey = "";
-   $parentView = $viewData["ParentView"] ?? base64_encode("SignUp");
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
@@ -2340,10 +2373,12 @@
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
-     $emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
+     #$emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
+     $emailIsTaken = 0;//TEMP
      $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
-     if(($usernameIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
+     if(($emailIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
+      break;
      }
     } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
      $message = "A valid Email address is required.";
@@ -2378,14 +2413,14 @@
      $viewData["Gender"] = base64_encode($gender);
      $viewData["Email"] = base64_encode($email);
      $viewData["Name"] = base64_encode($name);
-     $viewData["ParentView"] = "SignUp";
      $viewData["Password"] = base64_encode($password);
      $viewData["PIN"] = base64_encode($pin);
+     $viewData["Step"] = base64_encode(3);
      $viewData["Username"] = base64_encode($username);
      $data = [];
      $data["Email"] = base64_encode($email);
+     $data["ParentView"] = base64_encode("SignIn");
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignUp"));
-     $data["ReturnView"] = base64_encode(3);
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $_View = $this->core->RenderView($_View);
@@ -2423,10 +2458,12 @@
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
-     $emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
+     #$emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
+     $emailIsTaken = 0;//TEMP
      $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
-     if(($usernameIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
+     if(($emailIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
+      break;
      }
     } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
      $message = "A valid Email address is required.";
@@ -2522,10 +2559,10 @@
        ]
       ],--*/
       [
-       "Name" => "UpdateContent",
+       "Name" => "UpdateContentAES",
        "Parameters" => [
         ".Content",
-        base64_encode("v=".base64_encode("WebUI:Landing"))
+        $this->core->AESencrypt("v=".base64_encode("WebUI:Landing"))
        ]
       ]
      ];
@@ -2537,7 +2574,7 @@
      $_View = "";
     }
    } else {
-    $_ResponseType = "N/A";
+    $_ResponseType = "";
     $birthMonths = [];
     $birthYears = [];
     for($i = 1; $i <= 12; $i++) {
@@ -2551,24 +2588,6 @@
       "Parameters" => [
        ".SignUpBasic",
        [
-        [
-         "Attributes" => [
-          "name" => "ReturnView",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => base64_encode("Profile:SignUp")
-        ],
-        [
-         "Attributes" => [
-          "name" => "ViewPairID",
-          "type" => "hidden"
-         ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => "SignUp"
-        ],
         [
          "Attributes" => [],
          "OptionGroup" => $birthMonths,
@@ -2616,7 +2635,7 @@
         ],
         [
          "Attributes" => [
-          "class" => "req",
+          "class" => "EmptyOnSuccess req",
           "name" => "Email",
           "placeholder" => "johnny.test@outerhaven.nyc",
           "type" => "text"
@@ -2632,7 +2651,7 @@
         ],
         [
          "Attributes" => [
-          "class" => "req",
+          "class" => "EmptyOnSuccess req",
           "name" => "Name",
           "placeholder" => "John",
           "type" => "text"
@@ -2648,7 +2667,7 @@
         ],
         [
          "Attributes" => [
-          "class" => "req",
+          "class" => "EmptyOnSuccess req",
           "name" => "Username",
           "placeholder" => "JohnnyTest",
           "type" => "text"
@@ -2673,7 +2692,7 @@
         [
          "Attributes" => [
           "autocomplete" => "new-password",
-          "class" => "req",
+          "class" => "EmptyOnSuccess req",
           "name" => "Password",
           "placeholder" => "Password",
           #"type" => "password"//TEMP
@@ -2692,7 +2711,7 @@
         [
          "Attributes" => [
           "autocomplete" => "new-password",
-          "class" => "req",
+          "class" => "EmptyOnSuccess req",
           "name" => "Password2",
           "placeholder" => "Confirm Password",
           #"type" => "password"//TEMP
@@ -2717,7 +2736,7 @@
        [
         [
          "Attributes" => [
-          "class" => "req",
+          "class" => "EmptyOnSuccess req",
           "maxlen" => 8,
           "name" => "PIN",
           "pattern" => "\d*",
@@ -2735,7 +2754,7 @@
         ],
         [
          "Attributes" => [
-          "class" => "req",
+          "class" => "EmptyOnSuccess req",
           "maxlen" => 8,
           "name" => "PIN2",
           "pattern" => "\d*",
@@ -2764,10 +2783,6 @@
      "ExtensionID" => "c48eb7cf715c4e41e2fb62bdfa60f198"
     ];
    }
-   $_Dialog = [
-    "Body" => "This experience is undergoing uogrades, and will be back within 48 hours.",
-    "Header" => "Sign Up"
-   ];
    return $this->core->JSONResponse([
     "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
