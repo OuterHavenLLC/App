@@ -1193,576 +1193,544 @@
       $_Commands = [
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".MemberInformation$id",
          [
-          ".MemberInformation$id",
           [
-           [
-            "Attributes" => [
-             "class" => "req",
-             "name" => "name",
-             "placeholder" => "John",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "First Name"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($y["Personal"]["FirstName"])
+           "Attributes" => [
+            "class" => "req",
+            "name" => "name",
+            "placeholder" => "John",
+            "type" => "text"
            ],
-           [
-            "Attributes" => [
-             "class" => "req",
-             "name" => "Personal_DisplayName",
-             "placeholder" => "John Doe",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Display Name"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($y["Personal"]["DisplayName"])
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "First Name"
            ],
-           [
-            "Attributes" => [
-             "class" => "req",
-             "name" => "Personal_Email",
-             "placeholder" => "johnny.test@outerhaven.nyc",
-             "type" => "email"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "E-Mail"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($y["Personal"]["Email"])
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($y["Personal"]["FirstName"])
+          ],
+          [
+           "Attributes" => [
+            "class" => "req",
+            "name" => "Personal_DisplayName",
+            "placeholder" => "John Doe",
+            "type" => "text"
            ],
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "Female" => "Female",
-             "Male" => "Male"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Gender"
-            ],
-            "Name" => "Personal_Gender",
-            "Type" => "Select",
-            "Value" => $y["Personal"]["Gender"]
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Display Name"
            ],
-           [
-            "Attributes" => [
-             "name" => "LastPasswordChange",
-             "type" => "hidden"
-            ],
-            "OptionGroup" => [],
-            "Options" => [],
-            "Type" => "Text",
-            "Value" => $lastPasswordChange
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($y["Personal"]["DisplayName"])
+          ],
+          [
+           "Attributes" => [
+            "class" => "req",
+            "name" => "Personal_Email",
+            "placeholder" => "johnny.test@outerhaven.nyc",
+            "type" => "email"
            ],
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "0" => "Offline",
-             "1" => "Online"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Online Status"
-            ],
-            "Name" => "OnlineStatus",
-            "Type" => "Select",
-            "Value" => $y["Activity"]["OnlineStatus"],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "E-Mail"
            ],
-           [
-            "Attributes" => [
-             "name" => "Personal_Description",
-             "placeholder" => "Describe yourself..."
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "NONAME",
-             "Header" => 1,
-             "HeaderText" => "Description"
-            ],
-            "Type" => "TextBox",
-            "Value" => $this->core->AESencrypt($y["Personal"]["Description"])
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($y["Personal"]["Email"])
+          ],
+          [
+           "Attributes" => [],
+           "OptionGroup" => [
+            "Female" => "Female",
+            "Male" => "Male"
            ],
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "cc8ff50881a92c6da502af83e5736dfa" => "Engaged",
-             "6b3dd3c40eca496b70653422b4e8ac60" => "In a Relationship",
-             "e570489bea0f3850f322e397aa275e12" => "It's Complicated",
-             "3ad9e20e1f957c1b5f2c069bae8f8205" => "Married",
-             "66ba162102bbf6ae31b522aec561735e" => "Single",
-             "7d03b2de73afb1449622783576301e75" => "Swinger",
-             "2ef86623469f785760c19802da21e7fd" => "Widowed"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Relationship Status"
-            ],
-            "Name" => "Personal_RelationshipStatus",
-            "Type" => "Select",
-            "Value" => $y["Personal"]["RelationshipStatus"]
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Gender"
            ],
-           [
-            "Attributes" => [
-             "name" => "Personal_RelationshipWith",
-             "placeholder" => "Who with? (if anyone)",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Who with? (if anyone)"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($relationshipWith)
-           ]
+           "Name" => "Personal_Gender",
+           "Type" => "Select",
+           "Value" => $y["Personal"]["Gender"]
+          ],
+          [
+           "Attributes" => [
+            "name" => "LastPasswordChange",
+            "type" => "hidden"
+           ],
+           "OptionGroup" => [],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $lastPasswordChange
+          ],
+          [
+           "Attributes" => [],
+           "OptionGroup" => [
+            "0" => "Offline",
+            "1" => "Online"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Online Status"
+           ],
+           "Name" => "OnlineStatus",
+           "Type" => "Select",
+           "Value" => $y["Activity"]["OnlineStatus"],
+          ],
+          [
+           "Attributes" => [
+            "name" => "Personal_Description",
+            "placeholder" => "Describe yourself..."
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "NONAME",
+            "Header" => 1,
+            "HeaderText" => "Description"
+           ],
+           "Type" => "TextBox",
+           "Value" => $this->core->AESencrypt($y["Personal"]["Description"])
+          ],
+          [
+           "Attributes" => [],
+           "OptionGroup" => [
+            "cc8ff50881a92c6da502af83e5736dfa" => "Engaged",
+            "6b3dd3c40eca496b70653422b4e8ac60" => "In a Relationship",
+            "e570489bea0f3850f322e397aa275e12" => "It's Complicated",
+            "3ad9e20e1f957c1b5f2c069bae8f8205" => "Married",
+            "66ba162102bbf6ae31b522aec561735e" => "Single",
+            "7d03b2de73afb1449622783576301e75" => "Swinger",
+            "2ef86623469f785760c19802da21e7fd" => "Widowed"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Relationship Status"
+           ],
+           "Name" => "Personal_RelationshipStatus",
+           "Type" => "Select",
+           "Value" => $y["Personal"]["RelationshipStatus"]
+          ],
+          [
+           "Attributes" => [
+            "name" => "Personal_RelationshipWith",
+            "placeholder" => "Who with? (if anyone)",
+            "type" => "text"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Who with? (if anyone)"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($relationshipWith)
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".Birthday$id",
          [
-          ".Birthday$id",
           [
-           [
-            "Attributes" => [],
-            "OptionGroup" => $birthMonths,
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Month"
-            ],
-            "Name" => "BirthMonth",
-            "Type" => "Select",
-            "Value" => $y["Personal"]["Birthday"]["Month"]
+           "Attributes" => [],
+           "OptionGroup" => $birthMonths,
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Month"
            ],
-           [
-            "Attributes" => [],
-            "OptionGroup" => $birthYears,
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Year"
-            ],
-            "Name" => "BirthYear",
-            "Type" => "Select",
-            "Value" => $y["Personal"]["Birthday"]["Year"]
-           ]
-          ]
-         ]
-        ]
-       ],
-       [
-        "Name" => "RenderInputs",
-         "Parameters" => [
-         [
-          ".Patreon$id",
+           "Name" => "BirthMonth",
+           "Type" => "Select",
+           "Value" => $y["Personal"]["Birthday"]["Month"]
+          ],
           [
-           [
-            "Attributes" => [
-             "name" => "Donations_Patreon",
-             "placeholder" => "JohnDoe",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Header" => 1,
-             "HeaderText" => "Patreon"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($y["Donations"]["Patreon"])
-           ]
-          ]
-         ]
-        ]
-       ],
-       [
-        "Name" => "RenderInputs",
-         "Parameters" => [
-         [
-          ".PayPal$id",
-          [
-           [
-            "Attributes" => [
-             "name" => "Donations_PayPal",
-             "placeholder" => "JohnDoe",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Header" => 1,
-             "HeaderText" => "PayPal"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($y["Donations"]["PayPal"])
-           ]
-          ]
-         ]
-        ]
-       ],
-       [
-        "Name" => "RenderInputs",
-         "Parameters" => [
-         [
-          ".Personal$id",
-          [
-           [
-            "Attributes" => [
-             "name" => "Personal_AutoResponse",
-             "placeholder" => "On vacation, back in October!",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Header" => 1,
-             "HeaderText" => "Automatic Response"
-            ],
-            "Type" => "TextBox",
-            "Value" => $this->core->AESencrypt($autoResponse)
+           "Attributes" => [],
+           "OptionGroup" => $birthYears,
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Year"
            ],
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "Multiple" => "Slide Show",
-             "Single" => "Single"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 FrostedBright MobileFull RoundedLarge",
-             "Header" => 1,
-             "HeaderText" => "Amount of Cover Photos to display"
-            ],
-            "Name" => "CoverPhotoSelection",
-            "Type" => "Select",
-            "Value" => $coverPhotosSelection
+           "Name" => "BirthYear",
+           "Type" => "Select",
+           "Value" => $y["Personal"]["Birthday"]["Year"]
+          ]
+         ]
+        ]
+       ],
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".Patreon$id",
+         [
+          [
+           "Attributes" => [
+            "name" => "Donations_Patreon",
+            "placeholder" => "JohnDoe",
+            "type" => "text"
            ],
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "0" => "No",
-             "1" => "Yes"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 FrostedBright MobileFull RoundedLarge",
-             "Header" => 1,
-             "HeaderText" => "Accept nominations?"
-            ],
-            "Name" => "Electable",
-            "Type" => "Select",
-            "Value" => $chooseElectable
+           "Options" => [
+            "Header" => 1,
+            "HeaderText" => "Patreon"
            ],
-           [
-            "Attributes" => [
-             "name" => "Personal_MinimalDesign"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 FrostedBright MobileFull RoundedLarge",
-             "Header" => 1,
-             "HeaderText" => "Minimal Design",
-             "Selected" => $chooseMinimalDesign
-            ],
-            "Text" => "Choose whether or not to render design and social media elements such as votes",
-            "Type" => "Check",
-            "Value" => 1
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($y["Donations"]["Patreon"])
+          ]
+         ]
+        ]
+       ],
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".PayPal$id",
+         [
+          [
+           "Attributes" => [
+            "name" => "Donations_PayPal",
+            "placeholder" => "JohnDoe",
+            "type" => "text"
            ],
-           [
-            "Attributes" => [
-             "class" => "PersonalUIVariant",
-             "name" => "Personal_UIVariant",
-             "type" => "hidden"
-            ],
-            "Options" => [],
-            "Type" => "Text",
-            "Value" => $setUIVariant
-           ]
+           "Options" => [
+            "Header" => 1,
+            "HeaderText" => "PayPal"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($y["Donations"]["PayPal"])
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".Personal$id",
          [
-          ".PrivacyForumsType$id",
           [
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "Private" => "Private",
-             "Public" => "Public"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull"
-            ],
-            "Name" => "Privacy_ForumsType",
-            "Type" => "Select",
-            "Value" => $y["Privacy"]["ForumsType"]
-           ]
+           "Attributes" => [
+            "name" => "Personal_AutoResponse",
+            "placeholder" => "On vacation, back in October!",
+            "type" => "text"
+           ],
+           "Options" => [
+            "Header" => 1,
+            "HeaderText" => "Automatic Response"
+           ],
+           "Type" => "TextBox",
+           "Value" => $this->core->AESencrypt($autoResponse)
+          ],
+          [
+           "Attributes" => [],
+           "OptionGroup" => [
+            "Multiple" => "Slide Show",
+            "Single" => "Single"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 FrostedBright MobileFull RoundedLarge",
+            "Header" => 1,
+            "HeaderText" => "Amount of Cover Photos to display"
+           ],
+           "Name" => "CoverPhotoSelection",
+           "Type" => "Select",
+           "Value" => $coverPhotosSelection
+          ],
+          [
+           "Attributes" => [],
+           "OptionGroup" => [
+            "0" => "No",
+            "1" => "Yes"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 FrostedBright MobileFull RoundedLarge",
+            "Header" => 1,
+            "HeaderText" => "Accept nominations?"
+           ],
+           "Name" => "Electable",
+           "Type" => "Select",
+           "Value" => $chooseElectable
+          ],
+          [
+           "Attributes" => [
+            "name" => "Personal_MinimalDesign"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 FrostedBright MobileFull RoundedLarge",
+            "Header" => 1,
+            "HeaderText" => "Minimal Design",
+            "Selected" => $chooseMinimalDesign
+           ],
+           "Text" => "Choose whether or not to render design and social media elements such as votes",
+           "Type" => "Check",
+           "Value" => 1
+          ],
+          [
+           "Attributes" => [
+            "class" => "PersonalUIVariant",
+            "name" => "Personal_UIVariant",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $setUIVariant
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".PrivacyForumsType$id",
          [
-          ".PrivacyLookMeUp$id",
           [
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "0" => "No",
-             "1" => "Yes"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull"
-            ],
-            "Name" => "Privacy_LookMeUp",
-            "Type" => "Select",
-            "Value" => $y["Privacy"]["LookMeUp"]
-           ]
+           "Attributes" => [],
+           "OptionGroup" => [
+            "Private" => "Private",
+            "Public" => "Public"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull"
+           ],
+           "Name" => "Privacy_ForumsType",
+           "Type" => "Select",
+           "Value" => $y["Privacy"]["ForumsType"]
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".PrivacyLookMeUp$id",
          [
-          ".SecurityPassPhrase$id",
           [
-           [
-            "Attributes" => [
-             "name" => "Privacy_PassPhrase",
-             "placeholder" => "Pass Phrase",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Container" => 1,
-             "ContainerClass" => "Desktop50 MobileFull",
-             "Header" => 1,
-             "HeaderText" => "Pass Phrase"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($passPhrase)
-           ]
+           "Attributes" => [],
+           "OptionGroup" => [
+            "0" => "No",
+            "1" => "Yes"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull"
+           ],
+           "Name" => "Privacy_LookMeUp",
+           "Type" => "Select",
+           "Value" => $y["Privacy"]["LookMeUp"]
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".SecurityPassPhrase$id",
          [
-          ".Container$id",
           [
+           "Attributes" => [
+            "name" => "Privacy_PassPhrase",
+            "placeholder" => "Pass Phrase",
+            "type" => "text"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Pass Phrase"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($passPhrase)
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".SecurityRequirePassword$id",
          [
-          ".SecurityRequirePassword$id",
           [
-           [
-            "Attributes" => [],
-            "OptionGroup" => [
-             "No" => "No",
-             "Yes" => "Yes"
-            ],
-            "Options" => [],
-            "Name" => "RequirePassword",
-            "Title" => "Require Password to complete Sign In?",
-            "Type" => "Select",
-            "Value" => $passwordOnSignIn
-           ]
+           "Attributes" => [],
+           "OptionGroup" => [
+            "No" => "No",
+            "Yes" => "Yes"
+           ],
+           "Options" => [],
+           "Name" => "RequirePassword",
+           "Title" => "Require Password to complete Sign In?",
+           "Type" => "Select",
+           "Value" => $passwordOnSignIn
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderInputs",
-         "Parameters" => [
+        "Parameters" => [
+         ".SubscribeStar$id",
          [
-          ".SubscribeStar$id",
           [
-           [
-            "Attributes" => [
-             "name" => "Donations_SubscribeStar",
-             "placeholder" => "JohnDoe",
-             "type" => "text"
-            ],
-            "Options" => [
-             "Header" => 1,
-             "HeaderText" => "SubscribeStar"
-            ],
-            "Type" => "Text",
-            "Value" => $this->core->AESencrypt($y["Donations"]["SubscribeStar"])
-           ]
+           "Attributes" => [
+            "name" => "Donations_SubscribeStar",
+            "placeholder" => "JohnDoe",
+            "type" => "text"
+           ],
+           "Options" => [
+            "Header" => 1,
+            "HeaderText" => "SubscribeStar"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($y["Donations"]["SubscribeStar"])
           ]
          ]
         ]
        ],
        [
         "Name" => "RenderVisibilityFilters",
-         "Parameters" => [
+        "Parameters" => [
+         ".VisibilityFilters$id",
          [
-          ".VisibilityFilters$id",
           [
-           [
-            "Name" => "Privacy_Albums",
-            "Title" => "Albums",
-            "Value" => $y["Privacy"]["Albums"]
-           ],
-           [
-            "Name" => "Privacy_Archive",
-            "Title" => "Archive",
-            "Value" => $y["Privacy"]["Archive"]
-           ],
-           [
-            "Name" => "Privacy_Articles",
-            "Title" => "Articles",
-            "Value" => $y["Privacy"]["Articles"]
-           ],
-           [
-            "Name" => "Privacy_Comments",
-            "Title" => "Comments",
-            "Value" => $y["Privacy"]["Comments"]
-           ],
-           [
-            "Name" => "Privacy_ContactInfo",
-            "Title" => "Contact Info",
-            "Value" => $y["Privacy"]["ContactInfo"]
-           ],
-           [
-            "Name" => "Privacy_ContactInfoDonate",
-            "Title" => "Donate",
-            "Value" => $y["Privacy"]["ContactInfoDonate"]
-           ],
-           [
-            "Name" => "Privacy_ContactInfoEmails",
-            "Title" => "E-Mails",
-            "Value" => $y["Privacy"]["ContactInfoEmails"]
-           ],
-           [
-            "Name" => "Privacy_ContactRequests",
-            "Title" => "Contact Requests",
-            "Value" => $y["Privacy"]["ContactRequests"]
-           ],
-           [
-            "Name" => "Privacy_Contacts",
-            "Title" => "Contacts",
-            "Value" => $y["Privacy"]["Contacts"]
-           ],
-           [
-            "Name" => "Privacy_Contributions",
-            "Title" => "Contributions",
-            "Value" => $y["Privacy"]["Contributions"]
-           ],
-           [
-            "Name" => "Privacy_DLL",
-            "Title" => "Downloads",
-            "Value" => $y["Privacy"]["DLL"]
-           ],
-           [
-            "Name" => "Privacy_Gender",
-            "Title" => "Gender",
-            "Value" => $y["Privacy"]["Gender"]
-           ],
-           [
-            "Name" => "Privacy_Journal",
-            "Title" => "Journal",
-            "Value" => $y["Privacy"]["Journal"]
-           ],
-           [
-            "Name" => "Privacy_LastActivity",
-            "Title" => "Last Activity",
-            "Value" => $y["Privacy"]["LastActivity"]
-           ],
-           [
-            "Name" => "Privacy_MSG",
-            "Title" => "Messages",
-            "Value" => $y["Privacy"]["MSG"]
-           ],
-           [
-            "Filter" => "NSFW",
-            "Name" => "Privacy_NSFW",
-            "Title" => "Profile Status",
-            "Value" => $y["Privacy"]["NSFW"]
-           ],
-           [
-            "Name" => "Privacy_OnlineStatus",
-            "Title" => "Online Status",
-            "Value" => $y["Privacy"]["OnlineStatus"]
-           ],
-           [
-            "Name" => "Privacy_Polls",
-            "Title" => "Polls",
-            "Value" => $y["Privacy"]["Polls"]
-           ],
-           [
-            "Name" => "Privacy_Posts",
-            "Title" => "Posts",
-            "Value" =>  $y["Privacy"]["Posts"]
-           ],
-           [
-            "Name" => "Privacy_Products",
-            "Title" => "Products",
-            "Value" => $y["Privacy"]["Products"]
-           ],
-           [
-            "Name" => "Privacy_Profile",
-            "Title" => "Profile",
-            "Value" => $y["Privacy"]["Profile"]
-           ],
-           [
-            "Name" => "Privacy_Registered",
-            "Title" => "Registered",
-            "Value" => $y["Privacy"]["Registered"]
-           ], 
-           [
-            "Name" => "Privacy_RelationshipStatus",
-            "Title" => "Relationship Status",
-            "Value" => $y["Privacy"]["RelationshipStatus"]
-           ], 
-           [
-            "Name" => "Privacy_RelationshipWith",
-            "Title" => "Relationship With",
-            "Value" => $y["Privacy"]["RelationshipWith"]
-           ],
-           [
-            "Name" => "Privacy_Shop",
-            "Title" => "Shop",
-            "Value" => $y["Privacy"]["Shop"]
-           ]
+           "Name" => "Privacy_Albums",
+           "Title" => "Albums",
+           "Value" => $y["Privacy"]["Albums"]
+          ],
+          [
+           "Name" => "Privacy_Archive",
+           "Title" => "Archive",
+           "Value" => $y["Privacy"]["Archive"]
+          ],
+          [
+           "Name" => "Privacy_Articles",
+           "Title" => "Articles",
+           "Value" => $y["Privacy"]["Articles"]
+          ],
+          [
+           "Name" => "Privacy_Comments",
+           "Title" => "Comments",
+           "Value" => $y["Privacy"]["Comments"]
+          ],
+          [
+           "Name" => "Privacy_ContactInfo",
+           "Title" => "Contact Info",
+           "Value" => $y["Privacy"]["ContactInfo"]
+          ],
+          [
+           "Name" => "Privacy_ContactInfoDonate",
+           "Title" => "Donate",
+           "Value" => $y["Privacy"]["ContactInfoDonate"]
+          ],
+          [
+           "Name" => "Privacy_ContactInfoEmails",
+           "Title" => "E-Mails",
+           "Value" => $y["Privacy"]["ContactInfoEmails"]
+          ],
+          [
+           "Name" => "Privacy_ContactRequests",
+           "Title" => "Contact Requests",
+           "Value" => $y["Privacy"]["ContactRequests"]
+          ],
+          [
+           "Name" => "Privacy_Contacts",
+           "Title" => "Contacts",
+           "Value" => $y["Privacy"]["Contacts"]
+          ],
+          [
+           "Name" => "Privacy_Contributions",
+           "Title" => "Contributions",
+           "Value" => $y["Privacy"]["Contributions"]
+          ],
+          [
+           "Name" => "Privacy_DLL",
+           "Title" => "Downloads",
+           "Value" => $y["Privacy"]["DLL"]
+          ],
+          [
+           "Name" => "Privacy_Gender",
+           "Title" => "Gender",
+           "Value" => $y["Privacy"]["Gender"]
+          ],
+          [
+           "Name" => "Privacy_Journal",
+           "Title" => "Journal",
+           "Value" => $y["Privacy"]["Journal"]
+          ],
+          [
+           "Name" => "Privacy_LastActivity",
+           "Title" => "Last Activity",
+           "Value" => $y["Privacy"]["LastActivity"]
+          ],
+          [
+           "Name" => "Privacy_MSG",
+           "Title" => "Messages",
+           "Value" => $y["Privacy"]["MSG"]
+          ],
+          [
+           "Filter" => "NSFW",
+           "Name" => "Privacy_NSFW",
+           "Title" => "Profile Status",
+           "Value" => $y["Privacy"]["NSFW"]
+          ],
+          [
+           "Name" => "Privacy_OnlineStatus",
+           "Title" => "Online Status",
+           "Value" => $y["Privacy"]["OnlineStatus"]
+          ],
+          [
+           "Name" => "Privacy_Polls",
+           "Title" => "Polls",
+           "Value" => $y["Privacy"]["Polls"]
+          ],
+          [
+           "Name" => "Privacy_Posts",
+           "Title" => "Posts",
+           "Value" =>  $y["Privacy"]["Posts"]
+          ],
+          [
+           "Name" => "Privacy_Products",
+           "Title" => "Products",
+           "Value" => $y["Privacy"]["Products"]
+          ],
+          [
+           "Name" => "Privacy_Profile",
+           "Title" => "Profile",
+           "Value" => $y["Privacy"]["Profile"]
+          ],
+          [
+           "Name" => "Privacy_Registered",
+           "Title" => "Registered",
+           "Value" => $y["Privacy"]["Registered"]
+          ], 
+          [
+           "Name" => "Privacy_RelationshipStatus",
+           "Title" => "Relationship Status",
+           "Value" => $y["Privacy"]["RelationshipStatus"]
+          ], 
+          [
+           "Name" => "Privacy_RelationshipWith",
+           "Title" => "Relationship With",
+           "Value" => $y["Privacy"]["RelationshipWith"]
+          ],
+          [
+           "Name" => "Privacy_Shop",
+           "Title" => "Shop",
+           "Value" => $y["Privacy"]["Shop"]
           ]
          ]
         ]
