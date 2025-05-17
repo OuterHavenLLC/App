@@ -2237,7 +2237,9 @@
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignIn"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
-     $_View = $this->core->RenderView($_View);
+     $_View = $this->core->RenderView($_View, 1);
+     $_Commands = $_View["Commands"];
+     $_View = $_View["View"];
     }
    } elseif($step == 3) {
     $_AddTopMargin = 1;
@@ -2340,6 +2342,7 @@
    ]);
   }
   function SignUp(array $data): string {
+   $_AccessCode = "Denied";
    $_AddTopMargin = "0";
    $_Card = "";
    $_Commands = "";
@@ -2423,7 +2426,9 @@
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignUp"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
-     $_View = $this->core->RenderView($_View);
+     $_View = $this->core->RenderView($_View, 1);
+     $_Commands = $_View["Commands"];
+     $_View = $_View["View"];
     } if($_AccessCode != "Accepted") {
      $_Dialog = [
       "Body" => $message
@@ -2433,6 +2438,7 @@
    } elseif($step == 3) {
     $_AccessCode = "Denied";
     $_AddTopMargin = 1;
+    $_ResponseType = "";
     $birthMonth = $data["BirthMonth"] ?? $this->core->AESencrypt(10);
     $birthMonth = $this->core->AESdecrypt($birthMonth);
     $birthYear = $data["BirthYear"] ?? $this->core->AESencrypt(1995);
@@ -2471,7 +2477,6 @@
      $message = "The Username <em>$username</em> is taken.";
     } else {
      $_AccessCode = "Accepted";
-     $_ResponseType = "";
      /*--$this->core->Data("Save", ["cms", $usernameID, [
       "Contacts" => [],
       "Requests" => []
@@ -2574,7 +2579,6 @@
      $_View = "";
     }
    } else {
-    $_ResponseType = "";
     $birthMonths = [];
     $birthYears = [];
     for($i = 1; $i <= 12; $i++) {
@@ -2774,6 +2778,7 @@
       ]
      ],
     ];
+    $_ResponseType = "";
     $_View = [
      "ChangeData" => [
       "[SignUp.MinimumAge]" => $this->core->config["minAge"],

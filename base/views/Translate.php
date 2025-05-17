@@ -48,7 +48,7 @@
       "[Trsnalate.Clone]" => base64_encode($clone),
       "[Trsnalate.ID]" => $id,
       "[Trsnalate.Translations]" => $translationsList,
-      "[Trsnalate.Save]" => base64_encode("v=".base64_encode("Translate:Save")),
+      "[Trsnalate.Save]" => $this->core->AESencrypt("v=".base64_encode("Translate:Save")),
      ],
      "ExtensionID" => "d4ccf0731cd5ee5c10c04a9193bd61d5"
     ];
@@ -76,7 +76,6 @@
     "Body" => "The Translation Package Identirifer is missing."
    ];
    $data = $data["Data"] ?? [];
-   $data = $this->core->DecodeBridgeData($data);
    $id = $data["ID"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
@@ -86,6 +85,7 @@
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
+    $data = $this->core->DecodeBridgeData($data);
     $purge = $translations["Purge"] ?? 0;
     $translations = [];
     for($i = 0; $i < count($data["TranslatePackageID"]); $i++) {
