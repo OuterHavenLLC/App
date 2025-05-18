@@ -2237,6 +2237,7 @@
      $data["Email"] = base64_encode($member["Personal"]["Email"]);
      $data["ReturnView"] = base64_encode(base64_encode("Profile:SignIn"));
      $data["ViewData"] = base64_encode(json_encode($viewData));
+     $_Dialog = "";
      $_View = $this->view(base64_encode("WebUI:TwoFactorAuthentication"), ["Data" => $data]);
      $_View = $this->core->RenderView($_View);
     }
@@ -2253,6 +2254,7 @@
      "ID" => base64_encode("Member;".md5($username))
     ]);
     if($member["Empty"] == 0) {
+     $_Dialog = "";
      $member = $member["DataModel"];
      $passwordRequired = $member["Login"]["RequirePassword"] ?? "Yes";
      if(empty($password) && $passwordRequired == "Yes") {
@@ -2332,7 +2334,6 @@
    ]);
   }
   function SignUp(array $data): string {
-   $_AccessCode = "Denied";
    $_AddTopMargin = "0";
    $_Card = "";
    $_Commands = "";
@@ -2379,6 +2380,8 @@
      $message = "A Password is required.";
     } elseif($password != $password2) {
      $message = "Your Passwords must match.";
+    } elseif($password == $username) {
+     $message = "Matching your password and username is a very bad idea!";
     } elseif(empty($pin)) {
      $message = "A PIN is required.";
     } elseif(!is_numeric($pin) || !is_numeric($pin2)) {
@@ -2391,7 +2394,7 @@
      $message = "Usernames may only contain letters, numbers, hyphens (-), and underscores (_).";
     } elseif(strpos($username, "Ghost_")) {
      $message = "You cannot be a ghost.";
-    } elseif($username == $this->core->ID) {
+    } elseif($this->core->ID == $username) {
      $message = $this->core->ID." is the system profile and cannot be used.";
     } elseif($check == 0) {
      $message = "You must be $_MinimumAge or older to sign up.";
@@ -2399,7 +2402,6 @@
      $message = "The Username <em>$username</em> is already in use.";
     } else {
      $_AccessCode = "Accepted";
-     $viewData = [];
      $viewData["Age"] = $this->core->AESencrypt($age);
      $viewData["BirthMonth"] = $this->core->AESencrypt($birthMonth);
      $viewData["BirthYear"] = $this->core->AESencrypt($birthYear);
@@ -2421,6 +2423,7 @@
      $_Dialog = [
       "Body" => $message
      ];
+     $_ResponseType = "";
      $_View = "";
     }
    } elseif($step == 3) {
@@ -2559,13 +2562,13 @@
        ]
       ]
      ];
-     $_View = "";
     } if($_AccessCode != "Accepted") {
      $_Dialog = [
       "Body" => $message
      ];
-     $_View = "";
     }
+    $_ResponseType = "";
+    $_View = "";
    } else {
     $birthMonths = [];
     $birthYears = [];
@@ -2770,17 +2773,13 @@
     $_View = [
      "ChangeData" => [
       "[SignUp.MinimumAge]" => $this->core->config["minAge"],
-      "[SignUp.ParentView]" => "MainView",
       "[SignUp.Processor]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2))
      ],
      "ExtensionID" => "c48eb7cf715c4e41e2fb62bdfa60f198"
     ];
-    $_Dialog = [
-     "Body" => "This experience is being debugged, we anticipate full readiness within the next 48 hours.",
-     "Header" => "Sign Up"
-    ];
    }
    return $this->core->JSONResponse([
+    "AccessCode" => "Accepted",
     "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
     "Commands" => $_Commands,
