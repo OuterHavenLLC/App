@@ -1128,8 +1128,8 @@
    $response["Activity"]["LastActive"] = $this->timestamp;
    return $response;
   }
-  function NewMember(array $a) {
-   $a = $this->FixMissing($a, [
+  function NewMember(array $data) {
+   $data = $this->FixMissing($data, [
     "CoverPhoto",
     "Donations_Patreon",
     "Donations_PayPal",
@@ -1139,29 +1139,29 @@
     "ProfilePicture",
     "SubscribeStar"
    ]);
-   $age = $a["Age"] ?? $this->config["minAge"];
-   $birthMonth = $a["BirthMonth"] ?? 10;
-   $birthYear = $a["BirthYear"] ?? 1995;
-   $blogs = $a["Blogs"] ?? [];
-   $cart = $a["Cart"] ?? [];
-   $displayName = $a["DisplayName"] ?? $this->ID;
-   $forums = $a["Forums"] ?? [];
-   $email = $a["Email"] ?? "johnny.test@apple.com";
-   $firstName = $a["FirstName"] ?? "John";
-   $gender = $a["Gender"] ?? "Male";
-   $history = $a["History"] ?? [];
+   $age = $data["Age"] ?? $this->config["minAge"];
+   $birthMonth = $data["BirthMonth"] ?? 10;
+   $birthYear = $data["BirthYear"] ?? 1995;
+   $blogs = $data["Blogs"] ?? [];
+   $cart = $data["Cart"] ?? [];
+   $displayName = $data["DisplayName"] ?? $this->ID;
+   $forums = $data["Forums"] ?? [];
+   $email = $data["Email"] ?? "johnny.test@apple.com";
+   $firstName = $data["FirstName"] ?? "John";
+   $gender = $data["Gender"] ?? "Male";
+   $history = $data["History"] ?? [];
    $now = $this->timestamp;
-   $lastActive = $a["LastActive"] ?? $now;
-   $lastPasswordChange = $a["LastPasswordChange"] ?? $now;
-   $onlineStatus = $a["OnlineStatus"] ?? 1;
-   $pages = $a["Pages"] ?? [];
-   $password = $a["Password"] ?? md5("P@ssw0rd!");
-   $pin = $a["PIN"] ?? md5(0000000);
-   $polls = $a["Polls"] ?? [];
-   $rank = $a["Rank"] ?? md5("Member");
-   $registered = $a["Registered"] ?? $this->timestamp;
-   $relationshipStatus = $a["RelationshipStatus"] ?? md5("Single");
-   $username = $a["Username"] ?? $this->ID;
+   $lastActive = $data["LastActive"] ?? $now;
+   $lastPasswordChange = $data["LastPasswordChange"] ?? $now;
+   $onlineStatus = $data["OnlineStatus"] ?? 1;
+   $pages = $data["Pages"] ?? [];
+   $password = $data["Password"] ?? "P@ssw0rd!";
+   $pin = $data["PIN"] ?? 0000000;
+   $polls = $data["Polls"] ?? [];
+   $rank = $data["Rank"] ?? md5("Member");
+   $registered = $data["Registered"] ?? $this->timestamp;
+   $relationshipStatus = $data["RelationshipStatus"] ?? md5("Single");
+   $username = $data["Username"] ?? $this->ID;
    return [
     "Activity" => [
      "LastActive" => $lastActive,
@@ -1189,9 +1189,9 @@
     ],
     "Blogs" => $blogs,
     "Donations" => [
-     "Patreon" => $a["Patreon"],
-     "PayPal" => $a["PayPal"],
-     "SubscribeStar" => $a["SubscribeStar"]
+     "Patreon" => $data["Patreon"],
+     "PayPal" => $data["PayPal"],
+     "SubscribeStar" => $data["SubscribeStar"]
     ],
     "Forums" => $forums,
     "GroupChats" => [],
@@ -1210,7 +1210,7 @@
       "Month" => $birthMonth,
       "Year" => $birthYear
      ],
-     "CoverPhoto" => $a["CoverPhoto"],
+     "CoverPhoto" => $data["CoverPhoto"],
      "DisplayName" => $displayName,
      "Description" => "",
      "Electable" => 0,
@@ -1218,7 +1218,7 @@
      "FirstName" => $firstName,
      "Gender" => $gender,
      "MinimalDesign" => 0,
-     "ProfilePicture" => $a["ProfilePicture"],
+     "ProfilePicture" => $data["ProfilePicture"],
      "RelationshipStatus" => $relationshipStatus,
      "RelationshipWith" => "",
      "UIVariant" => 0

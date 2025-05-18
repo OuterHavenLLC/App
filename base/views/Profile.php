@@ -2334,6 +2334,7 @@
    ]);
   }
   function SignUp(array $data): string {
+   $_AccessCode = "Denied";
    $_AddTopMargin = "0";
    $_Card = "";
    $_Commands = "";
@@ -2346,7 +2347,6 @@
    $step = $data["Step"] ?? base64_encode(1);
    $step = base64_decode($step);
    if($step == 2) {
-    $_AccessCode = "Denied";
     $_AddTopMargin = 1;
     $data = $this->core->DecodeBridgeData($data);
     $birthMonth = $data["BirthMonth"] ?? 10;
@@ -2367,8 +2367,7 @@
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
-     #$emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
-     $emailIsTaken = 0;//TEMP
+     $emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
      $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
      if(($emailIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
@@ -2394,12 +2393,14 @@
      $message = "Usernames may only contain letters, numbers, hyphens (-), and underscores (_).";
     } elseif(strpos($username, "Ghost_")) {
      $message = "You cannot be a ghost.";
+    } elseif(strpos($password, $pin) || strpos($username, $pin)) {
+     $message = "Your PIN should not be a part of your Password or Username. Please use a unique PIN to strengthen your Profile security.";
     } elseif($this->core->ID == $username) {
      $message = $this->core->ID." is the system profile and cannot be used.";
     } elseif($check == 0) {
      $message = "You must be $_MinimumAge or older to sign up.";
     } elseif($i > 0) {
-     $message = "The Username <em>$username</em> is already in use.";
+     $message = "The Username <em>$username</em> is taken.";
     } else {
      $_AccessCode = "Accepted";
      $viewData["Age"] = $this->core->AESencrypt($age);
@@ -2455,8 +2456,7 @@
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
-     #$emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
-     $emailIsTaken = 0;//TEMP
+     $emailIsTaken = ($member["Personal"]["Email"] == $email) ? 1 : 0;
      $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
      if(($emailIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
@@ -2468,7 +2468,7 @@
      $message = "The Username <em>$username</em> is taken.";
     } else {
      $_AccessCode = "Accepted";
-     /*--$this->core->Data("Save", ["cms", $usernameID, [
+     $this->core->Data("Save", ["cms", $usernameID, [
       "Contacts" => [],
       "Requests" => []
      ]]);
@@ -2497,7 +2497,7 @@
        "FirstName" => $firstName,
        "Gender" => $gender,
        "Password" => $password,
-       "PIN" => md5($pin),
+       "PIN" => $pin,
        "Username" => $username
       ])
      ]);
@@ -2535,7 +2535,7 @@
        "To" => $email
       ]);
      }
-     $this->core->Statistic("New Member");--*/
+     $this->core->Statistic("New Member");
      $_Card = [
       "Front" => [
        "ChangeData" => [
@@ -2545,7 +2545,7 @@
       ]
      ];
      $_Commands = [
-      /*--[
+      [
        "Name" => "SignIn",
        "Parameters" => [
         $this->core->Authenticate("Save", [
@@ -2553,7 +2553,7 @@
          "Username" => $username
         ])
        ]
-      ],--*/
+      ],
       [
        "Name" => "UpdateContentAES",
        "Parameters" => [
@@ -2690,8 +2690,7 @@
           "class" => "EmptyOnSuccess req",
           "name" => "Password",
           "placeholder" => "Password",
-          #"type" => "password"//TEMP
-          "type" => "text"
+          "type" => "password"
          ],
          "Options" => [
           "Container" => 1,
@@ -2709,8 +2708,7 @@
           "class" => "EmptyOnSuccess req",
           "name" => "Password2",
           "placeholder" => "Confirm Password",
-          #"type" => "password"//TEMP
-          "type" => "text"
+          "type" => "password"
          ],
          "Options" => [
           "Container" => 1,
@@ -2779,7 +2777,7 @@
     ];
    }
    return $this->core->JSONResponse([
-    "AccessCode" => "Accepted",
+    "AccessCode" => $_AccessCode,
     "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
     "Commands" => $_Commands,
