@@ -756,7 +756,7 @@
       $title = ($them == $this->ID) ? "Anonymous" : $displayName;
       $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Blcok" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Members")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Members")),
        "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($them)),
        "Donate" => $this->AESencrypt("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($them)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Profile:Preferences")),

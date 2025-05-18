@@ -585,7 +585,6 @@
     "Blacklisted" => 0,
     "ID" => base64_encode("Member;".md5(base64_decode($member)))
    ]);
-   $member = $_Member["DataModel"];
    if(strpos(base64_decode($data["UN"]), "Ghost_")) {
     $_Dialog = [
      "Body" => "You cannot talk to ghosts."
@@ -595,14 +594,17 @@
      "Body" => "The Member may have reduced their visibility.",
      "Header" => "Not Found"
     ];
+    $member = $_Member["DataModel"];
     $id = $member["Login"]["Username"] ?? "";
-    $blocked = $this->core->CheckBlocked([$y, "Members", $id]);
     $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]);
     $_TheyBlockedYou = $this->core->CheckBlocked([$_Member["DataModel"], "Members", $you]);
-    $_YouBlockedThem = $this->core->CheckBlocked([$y, "Members", $id]);
+    $blocked = $this->core->CheckBlocked([$y, "Members", $id]);
+    $coverPhotosSlideShowDisabled = $member["Personal"]["CoverPhotoSelection"] ?? "Single";
+    $coverPhotosSlideShowDisabled = ($coverPhotosSlideShowDisabled == "Multiple") ? "false" : "true";
     $displayName = $_Member["ListItem"]["Title"];
     $b2 = ($id == $you) ? "Your Profile" : "$displayName's Profile";
     $lpg = "Profile".md5($id);
+    $options = $_Member["ListItem"]["Options"];
     $privacy = $member["Privacy"] ?? [];
     $subscriptions = $member["Subscriptions"] ?? [];
     $check = ($id == $you) ? 1 : 0;
@@ -618,7 +620,7 @@
      "UN" => $id,
      "Y" => $you
     ]);
-    if($_TheyBlockedYou == 0 && $_YouBlockedThem == 0 && ($check == 1 || $check2 == 1 || $visible == 1)) {
+    if($_TheyBlockedYou == 0 && ($check == 1 || $check2 == 1 || $visible == 1)) {
      $_IsArtist = $subscriptions["Artist"]["A"] ?? 0;
      $_IsVIP = $subscriptions["VIP"]["A"] ?? 0;
      $_IsSubscribed = (($_IsArtist + $_IsVIP) > 0) ? 1 : 0;
@@ -663,7 +665,7 @@
        $_View = $this->core->RenderView($_View);
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
-      $blockCommand = ($_YouBlockedThem == 0) ? "Block" : "Unblock";
+      $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
       $memberID = md5($id);
       $coverPhotos = $member["Personal"]["CoverPhotos"] ?? [];
       $newCoverPhotos = [];
@@ -920,8 +922,6 @@
         ], $this->core->Extension("914dd9428c38eecf503e3a5dda861559")]);
        }
       }
-      $coverPhotosSlideShowDisabled = $member["Personal"]["CoverPhotoSelection"] ?? "Single";
-      $coverPhotosSlideShowDisabled = ($coverPhotosSlideShowDisabled == "Multiple") ? "false" : "true";
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $gender = $member["Personal"]["Gender"] ?? "Male";
       $gender = $this->core->Gender($gender);
@@ -938,7 +938,6 @@
        ]]);
        $journal = $this->core->RenderView($journal);
       }
-      $options = $_Member["ListItem"]["Options"];
       $share = ($id == $you || $privacy["Profile"] == $public) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([
        "button", "Share", [
