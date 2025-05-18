@@ -2262,9 +2262,9 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
-      "Blacklisted" => $bl,
+      "Blacklisted" => $blocked,
       "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
      if($_StatusUpdate["Empty"] == 0) {
@@ -2273,17 +2273,8 @@
       $check = ($from == $you) ? 1 : 0;
       $illegal = $update["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($check == 1 || ($bl == 0 && $illegal == 0)) {
-       $attachments = "";
-       if(!empty($update["Attachments"])) {
-        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
-         "Data" => [
-          "ID" => base64_encode(implode(";", $update["Attachments"])),
-          "Type" => base64_encode("DLC")
-         ]
-        ]);
-        $attachments = $this->core->RenderView($attachments);
-       }
+      if($check == 1 || ($blocked == 0 && $illegal == 0)) {
+       $attachments = $update["Attachments"] ?? [];
        $op = ($from == $you) ? $y : $this->core->Member($from);
        $cms = $this->core->Data("Get", ["cms", md5($from)]);
        $privacy = $op["Privacy"]["Posts"] ?? md5("Public");

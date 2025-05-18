@@ -498,7 +498,7 @@
      $data = $data["Albums"][$additionalContentID] ?? [];
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode("")."&Type=".base64_encode("DLC"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode("")."&Type=".base64_encode("DLC"));
       $body = "";
       $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $coverPhoto = $this->GetSourceFromExtension([
@@ -529,7 +529,7 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["CoverPhoto"] ?? "";
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
@@ -558,7 +558,7 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["Attachments"] ?? [];
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
@@ -681,7 +681,7 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["CoverPhoto"] ?? "";
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $body = "";
       $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
@@ -710,7 +710,7 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["Attachments"] ?? [];
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
@@ -746,7 +746,7 @@
      $them = $data["Login"]["Username"] ?? "";
      if($empty == 0) {
       $attachments = $data["Personal"]["CoverPhoto"] ?? "";
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $body = "";
       $coverPhoto = $data["Personal"]["CoverPhoto"] ?? $coverPhoto;
       $description = "You have not added a Description.";
@@ -773,7 +773,7 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["Attachments"] ?? [];
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
@@ -808,7 +808,7 @@
      $empty = $data["Purge"] ?? 0;
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode("")."&Type=".base64_encode("DLC"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode("")."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
@@ -831,7 +831,7 @@
      $empty = (empty($data) || $empty == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["DemoFiles"] ?? [];
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"));
       $body = $data["Body"] ?? "";
       $body = $this->PlainText([
        "Data" => $body,
@@ -865,7 +865,7 @@
      $empty = (empty($data) || empty($owner) || $empty == 1 || $empty2 == 1) ? 1 : 0;
      if($empty == 0) {
       $attachments = $data["CoverPhoto"] ?? "";
-      $attachments = base64_encode("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
+      $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
       $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
@@ -913,8 +913,8 @@
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
        "ShareLink" => $this->base."/@$from/status/$contentID",
-       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4"),
-       "View" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID")
+       "View" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
+       "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }
     }
