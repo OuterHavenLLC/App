@@ -240,9 +240,8 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($fid) && !empty($id)) {
-    $bl = $this->core->CheckBlocked([$y, "Forum Posts", $id]);
     $_ForumPost = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("ForumPost;$fid;$id")
     ]);
     if($_ForumPost["Empty"] == 0) {
@@ -315,7 +314,6 @@
       $privacy = $post["Privacy"] ?? $op["Privacy"]["Posts"];
       if($check == 1 || $check2 == 1) {
        $_Dialog = "";
-       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $actions = ($post["From"] != $you) ? $this->core->Element(["button", $blockCommand, [
         "class" => "InnerMargin UpdateButton v2",
         "data-processor" => $options["Block"]
@@ -338,6 +336,9 @@
         ]]) : "";
        }
        $actions = ($this->core->ID != $you) ? $actions : "";
+       $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $id]);
+       $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
+       $purgeRenderCode = ($post["From"] == $you) ? "PURGE" : "DO NOT PURGE";
        $op = ($post["From"] == $you) ? $y : $this->core->Member($post["From"]);
        $displayName = ($op["Login"]["Username"] == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
        $memberRole = $manifest[$op["Login"]["Username"]];
@@ -459,7 +460,9 @@
        ];
        $_View = [
         "ChangeData" => [
-         "[ForumPost.Actions]" => $id.$actions,
+         "[ForumPost.Actions]" => $actions,
+         "[ForumPost.Block]" => $options["Block"],
+         "[ForumPost.Block.Text]" => $blockCommand,
          "[ForumPost.Body]" => $this->core->PlainText([
           "BBCodes" => 1,
           "Data" => $post["Body"],
@@ -475,7 +478,8 @@
          "[ForumPost.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
          "[ForumPost.Report]" => $options["Report"],
          "[ForumPost.Title]" => $_ForumPost["ListItem"]["Title"],
-         "[ForumPost.Share]" => $share
+         "[ForumPost.Share]" => $share,
+         "[PurgeRenderCode]" => $purgeRenderCode
         ],
         "ExtensionID" => "d2be822502dd9de5e8b373ca25998c37"
        ];

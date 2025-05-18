@@ -278,10 +278,9 @@
      }
     }
    } if((!empty($blog) && !empty($postID)) || $i > 0) {
-    $bl = $this->core->CheckBlocked([$y, "Blog Posts", $postID]);
     $_BlogPost = $this->core->GetContentData([
      "BackTo" => $backTo,
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("BlogPost;$blog;$postID")
     ]);
     if($_BlogPost["Empty"] == 0) {
@@ -324,16 +323,12 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $options = $_BlogPost["ListItem"]["Options"];
       $author = ($post["UN"] == $you) ? $y : $this->core->Member($post["UN"]);
-      $ck = ($author["Login"]["Username"] == $you) ? 1 : 0;
+      $check = ($author["Login"]["Username"] == $you) ? 1 : 0;
       $description = $author["Personal"]["DisplayName"] ?? "";
       $extensionID = $post["TPL"] ?? "b793826c26014b81fdc1f3f94a52c9a6";
-      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
-      $actions = ($post["UN"] != $you) ? $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => $options["Block"]
-       ]
-      ]) : "";
+      $blocked = $this->core->CheckBlocked([$y, "Blog Posts", $postID]);
+      $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
+      $purgeRenderCode = ($post["UN"] == $you) ? "PURGE" : "DO NOT PURGE";
       $actions = $this->core->Element([
        "button", "View Profile", [
         "class" => "OpenCard Small v2",
@@ -395,6 +390,8 @@
         "[Article.Actions]" => $actions,
         "[Article.Attachments]" => $_BlogPost["ListItem"]["Attachments"],
         "[Article.Back]" => $back,
+        "[Article.Block]" => $options["Block"],
+        "[Article.Block.Text]" => $blockCommand,
         "[Article.Body]" => $_BlogPost["ListItem"]["Body"],
         "[Article.Contributors]" => $options["Contributors"],
         "[Article.CoverPhoto]" => $_BlogPost["ListItem"]["CoverPhoto"],
@@ -425,7 +422,8 @@
         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
         "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
         "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
-        "[Member.Description]" => $description
+        "[Member.Description]" => $description,
+        "[PurgeRenderCode]" => $purgeRenderCode
        ],
        "ExtensionID" => $extensionID
       ];

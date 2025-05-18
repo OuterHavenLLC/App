@@ -240,7 +240,7 @@
      $header = "The ".$searchType;
      $searchBarText = "the ".$searchType;
      $options = ($card == 0) ? $this->core->Element(["button", "Say Something", [
-      "class" => "BBB MobileFull OpenCard v2",
+      "class" => "BBB OpenCard v2",
       "data-encryption" => "AES",
       "data-view" => $this->core->AESencrypt("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($you))
      ]]) : "";

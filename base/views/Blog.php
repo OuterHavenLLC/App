@@ -290,9 +290,8 @@
      }
     }
    } if(!empty($id) || $i > 0) {
-    $bl = $this->core->CheckBlocked([$y, "Blogs", $id]);
     $_Blog = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Blog;$id")
     ]);
     $active = 0;
@@ -355,19 +354,15 @@
       $_Dialog = "";
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
       $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
-      $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+      $bloacked = $this->core->CheckBlocked([$y, "Blogs", $id]);
+      $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
       $chat = $this->core->Data("Get", ["chat", $id]);
+      $purgeRenderCode = ($blog["UN"] == $you) ? "PURGE" : "DO NOT PURGE";
       $actions = (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
         "class" => "Attach Small v2",
         "data-input" => base64_encode($addToData[1]),
         "data-media" => base64_encode("Blog;$id")
-       ]
-      ]) : "";
-      $actions .= ($blog["UN"] != $you) ? $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => $options["Block"]
        ]
       ]) : "";
       $actions .= (!empty($chat)) ? $this->core->Element([
@@ -455,10 +450,13 @@
         "[Blog.About]" => "About ".$owner["Personal"]["DisplayName"],
         "[Blog.Actions]" => $actions,
         "[Blog.Back]" => $back,
+        "[Blog.Block]" => $options["Block"],
+        "[Blog.Block.Text]" => $blockCommand,
         "[Blog.CoverPhoto]" => $_Blog["ListItem"]["CoverPhoto"],
         "[Blog.Description]" => $_Blog["ListItem"]["Description"],
         "[Blog.ID]" => $id,
-        "[Blog.Title]" => $_Blog["ListItem"]["Title"]
+        "[Blog.Title]" => $_Blog["ListItem"]["Title"],
+        "[PurgeRenderCode]" => $purgeRenderCode
        ],
        "ExtensionID" => $extensionID
       ];

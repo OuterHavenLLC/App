@@ -58,74 +58,85 @@
     $card = base64_encode("Profile:Home");
     $contacts = $this->core->Data("Get", ["cms", md5($y["Login"]["Username"])]);
     $contacts = $contacts["Contacts"] ?? [];
-    $contact = $contacts[$username];
-    $t = $this->core->Member($username);
-    $profilePicture = $t["Personal"]["ProfilePicture"] ?? "";
-    $profilePicture = (!empty($profilePicture)) ? $this->core->efs.base64_decode($profilePicture) : "[Media:LOGO]";
-    $profilePicture = $this->PlainText([
-     "Data" => $profilePicture,
-     "Display" => 1
+    $contact = $contacts[$username] ?? [];
+    $_Member = $this->core->GetContentData([
+     "Blacklisted" => 0,
+     "ID" => base64_encode("Member;".md5(base64_decode($username)))
     ]);
-    $_Commands = [
-     [
-      "Name" => "RenderInputs",
-      "Parameters" => [
-       ".ContactInformation".md5($username),
-       [
+    if(!empty($contact) && $_Member["Empty"] == 0) {
+     $member = $_Member["DataModel"];
+     $blocked = $this->core->CheckBlocked([$y, "Members", $username]);
+     $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
+     $options = $_Member["ListItem"]["Options"];
+     $profilePicture = $member["Personal"]["ProfilePicture"] ?? "";
+     $profilePicture = (!empty($profilePicture)) ? $this->core->efs.base64_decode($profilePicture) : "[Media:LOGO]";
+     $profilePicture = $this->PlainText([
+      "Data" => $profilePicture,
+      "Display" => 1
+     ]);
+     $_Commands = [
+      [
+       "Name" => "RenderInputs",
+       "Parameters" => [
+        ".ContactInformation".md5($username),
         [
-         "Attributes" => [
-          "name" => "Username",
-          "type" => "hidden"
+         [
+          "Attributes" => [
+           "name" => "Username",
+           "type" => "hidden"
+          ],
+          "Options" => [],
+          "Type" => "Text",
+          "Value" => $username
          ],
-         "Options" => [],
-         "Type" => "Text",
-         "Value" => $username
-        ],
-        [
-         "Attributes" => [],
-         "OptionGroup" => [
-          "55c53cfda992192581cb4f006109df47" => "Acquaintances",
-          "43b5ac258be80f9a8f5bc8d3c6036e2b" => "Close Contacts",
-          "9aa698f602b1e5694855cee73a683488" => "Contacts"
+         [
+          "Attributes" => [],
+          "OptionGroup" => [
+           "55c53cfda992192581cb4f006109df47" => "Acquaintances",
+           "43b5ac258be80f9a8f5bc8d3c6036e2b" => "Close Contacts",
+           "9aa698f602b1e5694855cee73a683488" => "Contacts"
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Contact List"
+          ],
+          "Name" => "ContactList",
+          "Type" => "Select",
+          "Value" => $contact["List"]
          ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "NONAME",
-          "Header" => 1,
-          "HeaderText" => "Contact List"
-         ],
-         "Name" => "ContactList",
-         "Type" => "Select",
-         "Value" => $contact["List"]
-        ],
-        [
-         "Attributes" => [
-          "name" => "Notes",
-          "placeholder" => "Write a note about [Contact.DisplayName]..."
-         ],
-         "Options" => [
-          "Container" => 1,
-          "ContainerClass" => "NONAME",
-          "Header" => 1,
-          "HeaderText" => "Notes"
-         ],
-         "Type" => "TextBox",
-         "Value" => $this->core->AESencrypt($contact["Notes"])
+         [
+          "Attributes" => [
+           "name" => "Notes",
+           "placeholder" => "Write a note about [Contact.DisplayName]..."
+          ],
+          "Options" => [
+           "Container" => 1,
+           "ContainerClass" => "NONAME",
+           "Header" => 1,
+           "HeaderText" => "Notes"
+          ],
+          "Type" => "TextBox",
+          "Value" => $this->core->AESencrypt($contact["Notes"])
+         ]
         ]
        ]
       ]
-     ]
-    ];
-    $_View = [
-     "ChangeData" => [
-      "[Contact.Card]" => $this->core->AESencrypt("v=$card&CARD=1&UN=".$data["UN"]),
-      "[Contact.DisplayName]" => $t["Personal"]["DisplayName"],
-      "[Contact.ID]" => md5($username),
-      "[Contact.ProfilePicture]" => $profilePicture,
-      "[Contact.Update]" => $this->core->AESencrypt("v=".base64_encode("Contact:Save"))
-     ],
-     "ExtensionID" => "297c6906ec2f4cb2013789358c5ea77b"
-    ];
+     ];
+     $_View = [
+      "ChangeData" => [
+       "[Contact.Block]" => $options["Block"],
+       "[Contact.Block.Text]" => $blockCommand,
+       "[Contact.Card]" => $options["View"],
+       "[Contact.DisplayName]" => $member["Personal"]["DisplayName"],
+       "[Contact.ID]" => md5($username),
+       "[Contact.ProfilePicture]" => $profilePicture,
+       "[Contact.Update]" => $this->core->AESencrypt("v=".base64_encode("Contact:Save"))
+      ],
+      "ExtensionID" => "297c6906ec2f4cb2013789358c5ea77b"
+     ];
+    }
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",

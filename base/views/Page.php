@@ -372,10 +372,9 @@
    if(!empty($id)) {
     $active = 0;
     $admin = 0;
-    $bl = $this->core->CheckBlocked([$y, "Pages", $id]);
     $_Article = $this->core->GetContentData([
      "BackTo" => $backTo,
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Page;$id")
     ]);
     if($_Article["Empty"] == 0) {
@@ -423,6 +422,7 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_Dialog = "";
       $_ViewTitle = $_Article["ListItem"]["Title"] ?? $_ViewTitle;
+      $blocked = $this->core->CheckBlocked([$y, "Pages", $id]);
       $options = $_Article["ListItem"]["Options"];
       $chat = $this->core->Data("Get", ["chat", $id]);
       $contributors = $article["Contributors"] ?? [];
@@ -436,19 +436,12 @@
          }
         }
        }
-       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
        $actions = (!empty($addToData)) ? $this->core->Element([
         "button", "Attach", [
          "class" => "Attach Small v2",
          "data-input" => base64_encode($addToData[1]),
          "data-media" => base64_encode("Page;$id")
-        ]
-       ]) : "";
-       $actions .= ($check == 0) ? $this->core->Element([
-        "button", $blockCommand, [
-         "class" => "Small UpdateButton v2",
-         "data-processor" => $options["Block"]
         ]
        ]) : "";
        $actions .= (!empty($chat) && ($active == 1 || $check == 1)) ? $this->core->Element([
@@ -478,6 +471,7 @@
         "data-type" => $parentPage
        ]]) : "";
        $check = ($author["Login"]["Username"] == $you) ? 1 : 0;
+       $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
        $contributors = $article["Contributors"] ?? [];
        $contributors[$article["UN"]] = "Admin";
        $description = ($check == 1) ? "You have not added a Description." : "";
@@ -489,6 +483,7 @@
         "HTMLDecode" => 1
        ]) : $description;
        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($article, "LiveView");
+       $purgeRenderCode = ($check == 1) ? "PURGE" : "DO NOT PURGE";
        $share = ($check == 1 || $article["Privacy"] == md5("Public")) ? 1 : 0;
        $share = ($share == 1) ? $this->core->Element(["button", "Share", [
         "class" => "OpenCard Small v2",
@@ -540,6 +535,8 @@
          "[Article.Actions]" => $actions,
          "[Article.Attachments]" => $_Article["ListItem"]["Attachments"],
          "[Article.Back]" => $back,
+         "[Article.Block]" => $options["Block"],
+         "[Article.Block.Text]" => $blockCommand,
          "[Article.Body]" => $this->core->PlainText([
           "Data" => $article["Body"],
           "Decode" => 1,
@@ -572,7 +569,8 @@
          "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
          "[Member.DisplayName]" => $author["Personal"]["DisplayName"].$verified,
          "[Member.ProfilePicture]" => $this->core->ProfilePicture($author, "margin:0.5em;max-width:12em;width:calc(100% - 1em)"),
-         "[Member.Description]" => $description
+         "[Member.Description]" => $description,
+         "[PurgeRenderCode]" => $purgeRenderCode
         ],
         "ExtensionID" => "b793826c26014b81fdc1f3f94a52c9a6"
        ];

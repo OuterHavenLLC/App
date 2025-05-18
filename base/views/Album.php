@@ -186,9 +186,8 @@
    $fsUsage = number_format(round($fsUsage / 1000));
    $fsUsage = str_replace(",", "", $fsUsage);
    if(!empty($id) && !empty($username)) {
-    $bl = $this->core->CheckBlocked([$y, "Albums", $id]);
     $_Album = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Album;$username;$id"),
      "Owner" => $username
     ]);
@@ -238,12 +237,15 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $_Dialog = "";
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
+      $blocked = $this->core->CheckBlocked([$y, "Albums", $id]);
+      $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $options = $_Album["ListItem"]["Options"];
       $t = ($username == $you) ? $y : $this->core->Member($username);
       $check = ($t["Login"]["Username"] == $you) ? 1 : 0;
       $check2 = $y["Subscriptions"]["XFS"]["A"] ?? 0;
       $check2 = ($check2 == 1 || $fsUsage < $fsLimit) ? 1 : 0;
+      $purgeRenderCode = ($check == 1) ? "PURGE" : "DO NOT PURGE";
       $actions = (!empty($addToData)) ? $this->core->Element([
        "button", "Attach", [
         "class" => "Attach Small v2",
@@ -251,21 +253,17 @@
         "data-media" => base64_encode("Album;$username;$id")
        ]
       ]) : "";
-      $actions .= ($check == 0) ? $this->core->Element([
-       "button", "Block", [
-        "class" => "Small UpdateButton v2",
-        "data-processor" => $options["Block"]
-       ]
-      ]) : "";
       if($check == 1) {
        $actions .= ($id != md5("unsorted")) ? $this->core->Element([
         "button", "Delete", [
          "class" => "CloseCard OpenDialog Small v2 v2w",
+         "data-encryption" => "AES",
          "data-view" => $options["Delete"]
         ]
        ]) : "";
        $actions .= $this->core->Element(["button", "Edit", [
         "class" => "OpenCard Small v2 v2w",
+        "data-encryption" => "AES",
         "data-view" => $options["Edit"]
        ]]);
       }
@@ -274,12 +272,14 @@
       $actions .= ($share == 1) ? $this->core->Element([
        "button", "Share", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Share"]
        ]
       ]) : "";
       $actions .= ($check == 1 && $check2 == 1) ? $this->core->Element([
        "button", "Upload", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Upload"]
        ]
       ]) : "";
@@ -306,6 +306,8 @@
       $_View = [
        "ChangeData" => [
         "[Album.Actions]" => $actions,
+        "[Album.Block]" => $options["Block"],
+        "[Album.Block.Text]" => $blockCommand,
         "[Album.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
         "[Album.Created]" => $this->core->TimeAgo($album["Created"]),
         "[Album.Description]" => $album["Description"],
@@ -313,7 +315,8 @@
         "[Album.Modified]" => $this->core->TimeAgo($album["Modified"]),
         "[Album.Illegal]" => base64_encode("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Album;$username;$id")),
         "[Album.Owner]" => $t["Personal"]["DisplayName"],
-        "[Album.Title]" => $_Album["ListItem"]["Title"]
+        "[Album.Title]" => $_Album["ListItem"]["Title"],
+        "[PurgeRenderCode]" => $purgeRenderCode
        ],
        "ExtensionID" => "91c56e0ee2a632b493451aa044c32515"
       ];

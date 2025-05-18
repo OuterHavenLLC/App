@@ -392,10 +392,9 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $id = base64_decode($id);
-    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
     $chat = $this->core->Data("Get", ["chat", $id]);
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Forum;$id")
     ]);
     if($_Forum["Empty"] == 0) {
@@ -467,12 +466,6 @@
          "data-media" => base64_encode($forum["ID"])
         ]
        ]) : "";
-       $actions .= ($bl == 0 && $check == 0) ? $this->core->Element([
-        "button", "Block", [
-         "class" => "Block CloseCard Small v2 v2w",
-         "data-view" => $options["Block"]
-        ]
-       ]) : "";
        $actions .= (!empty($chat) && ($active == 1 || $check == 1)) ? $this->core->Element([
         "button", "Chat", [
          "class" => "OpenCard Small v2 v2w",
@@ -529,6 +522,9 @@
         ]
        ]) : "";
        $search = base64_encode("Search:Containers");
+       $blocked = $this->core->CheckBlocked([$y, "Forums", $id]);
+       $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
+       $purgeRenderCode = ($check == 0) ? "PURGE" : "DO NOT PURGE";
        $_Commands = [
         [
          "Name" => "UpdateContentAES",
@@ -578,6 +574,8 @@
          "[Forum.About]" => $forum["About"],
          "[Forum.Actions]" => $actions,
          "[Forum.Back]" => $back,
+         "[Forum.Block]" => $options["Block"],
+         "[Forum.Block.Text]" => $blockCommand,
          "[Forum.CoverPhoto]" => $_Forum["ListItem"]["CoverPhoto"],
          "[Forum.CreateTopic]" => $createTopic,
          "[Forum.EditTopics]" => $this->core->AESencrypt("v=".base64_encode("Forum:EditTopics")."&ID=".base64_encode($id)),
@@ -585,7 +583,8 @@
          "[Forum.ID]" => $id,
          "[Forum.Invite]" => $invite,
          "[Forum.Join]" => $join,
-         "[Forum.Title]" => $title
+         "[Forum.Title]" => $title,
+         "[PurgeRenderCode]" => $purgeRenderCode
         ],
         "ExtensionID" => "4159d14e4e8a7d8936efca6445d11449"
        ];

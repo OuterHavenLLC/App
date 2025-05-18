@@ -334,12 +334,12 @@
        "Body" => "We could lnot locate the requested Chat.",
        "Header" => "Not Found"
       ];
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $id]);
       $_Chat = $this->core->GetContentData([
-       "Blacklisted" => $bl,
+       "Blacklisted" => 0,
        "ID" => base64_encode("Chat;$id"),
        "Integrated" => $integrated
       ]);
+      $blocked = $this->core->CheckBlocked([$y, "Group Chats", $id]);
       if($_Chat["Empty"] == 0) {
        $_Dialog = "";
        $chat = $_Chat["DataModel"];
@@ -387,7 +387,7 @@
           $active++;
          }
         }
-        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+        $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
         $bookmarkCommand = ($active == 0) ? "Add " : "Remove ";
         $bookmarkCommand .= "Bookmark";
         $doNotShare = $this->core->RestrictedIDs;
@@ -401,46 +401,57 @@
           "data-media" => base64_encode("Chat;$id")
          ]
         ]) : "";
-        $actions .= ($chat["UN"] != $you) ? $this->core->Element([
-         "button", $blockCommand, [
-          "class" => "Small UpdateButton v2",
-          "data-processor" => $options["Block"]
-         ]
-        ]) : $this->core->Element([
+        $actions .= ($chat["UN"] == $you) ? $this->core->Element([
          "button", "Edit", [
           "class" => "OpenCard v2",
+          "data-encryption" => "AES",
           "data-view" => $options["Edit"]
          ]
-        ]);
+        ]) : "";
         $actions .= ($chat["UN"] != $you && $privacy == 1 && $share == 1) ? $this->core->Element([
          "button", $bookmarkCommand, [
           "class" => "UpdateButton v2",
+          "data-encryption" => "AES",
           "data-processor" => $options["Bookmark"]
          ]
         ]) : "";
         $actions .= ($delete == 1 && $integrated == 1) ? $this->core->Element([
          "button", "Delete", [
-          "class" => "CloseCard OpenDialog v2",
+          "class" => "Red CloseCard OpenDialog v2",
+          "data-encryption" => "AES",
           "data-view" => $options["Delete"]
          ]
         ]) : "";
         $actions .= ($privacy == 1 && $share == 1) ? $this->core->Element([
          "button", "Share", [
           "class" => "OpenCard v2",
+          "data-encryption" => "AES",
           "data-view" => $options["Share"]
          ]
         ]) : "";
+        $purgeRenderCode = ($chat["UN"] == $you) ? "PURGE" : "DO NOT PURGE";
+        $_Commands = [
+         [
+          "Name" => "UpdateContentRecursiveAES",
+          "Parameters" => [
+           ".Attachments$id",
+           $this->core->AESencrypt("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
+           15000
+         ]
+        ];
         $_View = [
          "ChangeData" => [
-         "[Chat.Attachments]" => base64_encode("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
+         "[Chat.Actions]" => $actions,
+         "[Chat.Block]" => $options["Block"],
+         "[Chat.Block.Text]" => $blockCommand,
          "[Chat.Body]" => $body,
          "[Chat.Created]" => $this->core->TimeAgo($chat["Created"]),
          "[Chat.Description]" => $_Chat["ListItem"]["Description"],
          "[Chat.ID]" => $id,
          "[Chat.Modified]" => $_Chat["ListItem"]["Modified"],
-         "[Chat.Options]" => $actions,
-         "[Chat.PaidMessages]" => base64_encode("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
+         "[Chat.PaidMessages]" => $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
          "[Chat.Title]" => $_Chat["ListItem"]["Title"],
+         "[PurgeRenderCode]" => $purgeRenderCode
          ],
          "ExtensionID" => "5252215b917d920d5d2204dd5e3c8168"
         ];
@@ -461,17 +472,19 @@
      $messageID = $data["MessageID"] ?? "";
      if(!empty($messageID)) {
       $_Dialog = "";
-      $attachments = "";
       $chat = $this->core->Data("Get", ["chat", $chatID]);
       $messageID = base64_decode($messageID);
       $messages = $chat["Messages"] ?? [];
       $message = $messages[$messageID] ?? [];
-      if(!empty($message["Attachments"])) {
-       $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-        "ID" => base64_encode(implode(";", $message["Attachments"])),
-        "Type" => base64_encode("DLC")
-       ]]);
-       $attachments = $this->core->RenderView($attachments);
+      $attachments = $message["Attachments"] ?? "";
+      if(!empty($attachments)) {
+       array_push($_Commands, [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Attachments$chatID$messageID",
+         $this->core->AESencrypt("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode(implode(";", $attachments)))
+        ]
+       ]);
       }
       $t = ($message["From"] == $you) ? $y : $this->core->Member($message["From"]);
       $paid = $message["Paid"] ?? 0;
@@ -489,12 +502,13 @@
       $_Card = [
        "Front" => [
         "ChangeData" => [
-         "[Message.Attachments]" => $attachments,
+         "[Message.ChatID]" => $chatID,
          "[Message.Class]" => "MSGPaid",
-         "[Message.MSG]" => $this->core->PlainText([
+         "[Message.Message]" => $this->core->PlainText([
           "Data" => $text,
           "Display" => 1
          ]),
+         "[Message.Message.ID]" => $messageID,
          "[Message.Sent]" => $this->core->TimeAgo($message["Timestamp"])
         ],
         "ExtensionID" => "1f4b13bf6e6471a7f5f9743afffeecf9"
@@ -515,7 +529,8 @@
          "p", "<strong>@".$value["From"]."</strong> paid $amount"
         ]), [
          "class" => "OpenCard PaidMessage",
-         "data-view" => base64_encode("v=".base64_encode("Chat:Home")."&ID=$chatID&MessageID=".base64_encode($key)."&PaidMessage=1")
+         "data-encryption" => "AES",
+         "data-view" => $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=$chatID&MessageID=".base64_encode($key)."&PaidMessage=1")
         ]
        ]);
       }

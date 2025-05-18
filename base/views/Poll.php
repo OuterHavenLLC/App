@@ -105,7 +105,6 @@
    $data = $data["Data"] ?? [];
    $containers = $data["Containers"] ?? 1;
    $id = $data["ID"] ?? "";
-   $public = $data["pub"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -115,14 +114,14 @@
     ];
    } elseif(!empty($id)) {
     $id = base64_decode($id);
-    $bl = $this->core->CheckBlocked([$y, "Polls", $id]);
     $_Poll = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Poll;$id")
     ]);
     if($_Poll["Empty"] == 0) {
      $_Dialog = "";
-     $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+     $blocked = $this->core->CheckBlocked([$y, "Polls", $id]);
+     $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
      $extension = $this->core->Element([
       "div", $extension, ["class" => "FrostedBright Poll$value Rounded"]
      ]);

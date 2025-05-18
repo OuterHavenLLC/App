@@ -233,15 +233,15 @@
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
       $cms = $this->core->Data("Get", ["cms", md5($value["From"])]);
-      $ck = ($value["NSFW"] == 0 || ($y["age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      $ck2 = $this->core->CheckPrivacy([
+      $check = ($value["NSFW"] == 0 || ($y["age"] >= $this->core->config["minAge"])) ? 1 : 0;
+      $check2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $value["Privacy"],
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
-      $ck3 = (empty($value["CommentID"])) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1) {
+      $check3 = (empty($value["CommentID"])) ? 1 : 0;
+      if($bl == 0 && $check == 1 && $check2 == 1 && $check3 == 1) {
        $attachments = $value["DLC"] ?? "";
        if(!empty($attachments)) {
         $attachments = (!empty($attachments)) ?  $this->view($in, ["Data" => [
@@ -313,15 +313,15 @@
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
       $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
-      $ck = ($commentID == $value["CommentID"]) ? 1 : 0;
-      $ck2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
-      $ck3 = $this->core->CheckPrivacy([
+      $check = ($commentID == $value["CommentID"]) ? 1 : 0;
+      $check2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
+      $check3 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $value["Privacy"],
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
-      if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1) {
+      if($bl == 0 && $check == 1 && $check2 == 1 && $check3 == 1) {
        $attachments = $value["DLC"] ?? "";
        if(!empty($attachments)) {
         $attachments = (!empty($attachments)) ?  $this->view($in, ["Data" => [
@@ -394,15 +394,15 @@
       $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
       $bl = $this->core->CheckBlocked([$y, "Comments", $key]);
       $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
-      $ck = ($commentID == $value["CommentID"]) ? 1 : 0;
-      $ck2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
-      $ck3 = $this->core->CheckPrivacy([
+      $check = ($commentID == $value["CommentID"]) ? 1 : 0;
+      $check2 = ($value["NSFW"] == 0 || $y["Personal"]["Age"] >= $this->core->config["minAge"]) ? 1 : 0;
+      $check3 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],
        "Privacy" => $value["Privacy"],
        "UN" => $t["Login"]["Username"],
        "Y" => $you
       ]);
-      if($bl == 0 && $ck == 1 && $ck2 == 1 && $ck3 == 1) {
+      if($bl == 0 && $check == 1 && $check2 == 1 && $check3 == 1) {
        $attachments = $value["DLC"] ?? "";
        if(!empty($attachments)) {
         $attachments = (!empty($attachments)) ?  $this->view($in, ["Data" => [

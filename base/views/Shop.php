@@ -788,12 +788,7 @@
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $_View = [
-    "ChangeData" => [],
-    "Extension" => $this->core->AESencrypt($this->core->Element([
-     "p", "No open jobs are currently available.", ["class" => "CenterText"]
-    ]))
-   ];
+   $_View = "";
    $data = $data["Data"] ?? [];
    $id = $data["Shop"] ?? "";
    $y = $this->you;
@@ -972,9 +967,8 @@
      }
     }
    } if(!empty($username) || $i > 0) {
-    $bl = $this->core->CheckBlocked([$y, "Members", $username]);
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Shop;$id")
     ]);
     if($_Shop["Empty"] == 0) {
@@ -1043,29 +1037,9 @@
           break;
          }
         }
-        $blockCommand = ($bl == 0) ? "Block" : "Unblock";
+        $blocked = $this->core->CheckBlocked([$y, "Members", $username]);
+        $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
         $check = ($active == 1 || $username == $you) ? 1 : 0;
-        $block = (!empty($addToData)) ? $this->core->Element([
-         "button", "Attach", [
-          "class" => "Attach Small v2",
-          "data-input" => base64_encode($addToData[1]),
-          "data-media" => base64_encode("Shop;".md5($username))
-         ]
-        ]) : "";
-        $block .= ($check == 0) ? $this->core->Element([
-         "button", $blockCommand, [
-          "class" => "Small UpdateButton v2",
-          "data-encryption" => "AES",
-          "data-processor" => $options["Block"]
-         ]
-        ]) : "";
-        $chat = (!empty($chat) && $check == 1) ? $this->core->Element([
-         "button", "Partner Chat", [
-          "class" => "OpenCard Small v2",
-          "data-encryption" => "AES",
-          "data-view" => $options["Chat"]
-         ]
-        ]) : "";
         $hire = ($username == $you) ? $this->core->Element([
          "button", "Hire", [
           "class" => "OpenCard Medium v2",
@@ -1088,23 +1062,37 @@
          ]
         ]) : "";
         $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
-        $edit = ($check == 1) ? $this->core->Element([
+        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
+        $purgeRenderCode = ($username == $you) ? "PURGE" : "DO NOT PURGE";
+        $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
+        $actions = (!empty($addToData)) ? $this->core->Element([
+         "button", "Attach", [
+          "class" => "Attach Small v2",
+          "data-input" => base64_encode($addToData[1]),
+          "data-media" => base64_encode("Shop;".md5($username))
+         ]
+        ]) : "";
+        $actions .= ($check == 1) ? $this->core->Element([
          "button", "Edit", [
           "class" => "OpenCard Small v2",
           "data-encryption" => "AES",
           "data-view" => $options["Edit"]
          ]
         ]) : "";
-        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
-        $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
-        $share = ($share == 1) ? $this->core->Element([
+        $actions .= (!empty($chat) && $check == 1) ? $this->core->Element([
+         "button", "Partner Chat", [
+          "class" => "OpenCard Small v2",
+          "data-encryption" => "AES",
+          "data-view" => $options["Chat"]
+         ]
+        ]) : "";
+        $actions .= ($share == 1) ? $this->core->Element([
          "button", "Share", [
           "class" => "OpenCard Small v2",
           "data-encryption" => "AES",
           "data-view" => $options["Share"]
          ]
         ]) : "";
-        $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
         $_Commands = [
          [
           "Name" => "UpdateContentAES",
@@ -1153,39 +1141,24 @@
         ];
         $_View = [
          "ChangeData" => [
-          "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-          "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-          "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-          "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-          "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-          "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-          "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-          "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-          "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-          "[Attached.ID]" => $this->core->UUID("ShopAttachments"),
-          "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-          "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-          "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-          "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-          "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
+          "[Shop.Actions]" => $actions,
           "[Shop.Back]" => $back,
-          "[Shop.Block]" => $block,
+          "[Shop.Block]" => $options["Block"],
+          "[Shop.Block.Text]" => $blockCommand,
           "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
           "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
           "[Shop.Dashboard]" => $dashboard,
           "[Shop.DashboardView]" => $dashboardView,
           "[Shop.Disclaimer]" => $disclaimer,
-          "[Shop.Edit]" => $edit,
           "[Shop.History]" => $this->core->AESencrypt("v=".base64_encode("Shop:History")."&ID=$id"),
           "[Shop.ID]" => $id,
-          "[Shop.PartnerChat]" => $chat,
           "[Shop.Revenue]" => $options["Revenue"],
-          "[Shop.Share]" => $share,
           "[Shop.Title]" => $_Shop["ListItem"]["Title"],
           "[Shop.Welcome]" => $this->core->PlainText([
            "Data" => $shop["Welcome"],
            "HTMLDecode" => 1
-          ])
+          ]),
+          "[PurgeRenderCode]" => $purgeRenderCode
          ],
          "ExtensionID" => "f009776d658c21277f8cfa611b843c24"
         ];

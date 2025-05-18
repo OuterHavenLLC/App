@@ -581,9 +581,8 @@
    $pub = $data["pub"] ?? 0;
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $bl = $this->core->CheckBlocked([$y, "Members", $member]);
    $_Member = $this->core->GetContentData([
-    "Blacklisted" => $bl,
+    "Blacklisted" => 0,
     "ID" => base64_encode("Member;".md5(base64_decode($member)))
    ]);
    $member = $_Member["DataModel"];
@@ -596,7 +595,8 @@
      "Body" => "The Member may have reduced their visibility.",
      "Header" => "Not Found"
     ];
-    $id = $member["Login"]["Username"];
+    $id = $member["Login"]["Username"] ?? "";
+    $blocked = $this->core->CheckBlocked([$y, "Members", $id]);
     $_TheirContacts = $this->core->Data("Get", ["cms", md5($id)]);
     $_TheyBlockedYou = $this->core->CheckBlocked([$_Member["DataModel"], "Members", $you]);
     $_YouBlockedThem = $this->core->CheckBlocked([$y, "Members", $id]);
@@ -667,6 +667,7 @@
       $memberID = md5($id);
       $coverPhotos = $member["Personal"]["CoverPhotos"] ?? [];
       $newCoverPhotos = [];
+      $purgeRenderCode = ($id == $you) ? "PURGE" : "DO NOT PURGE";
       foreach($coverPhotos as $key => $image) {
        $newCoverPhotos[$key] = $this->core->CoverPhoto($image);
       }
@@ -967,7 +968,8 @@
         "[Member.Journal]" => $journal,
         "[Member.ProfilePicture]" => $options["ProfilePicture"],
         "[Member.Share]" => $share,
-        "[Member.Username]" => $id
+        "[Member.Username]" => $id,
+        "[PurgeRenderCode]" => $purgeRenderCode
        ],
        "ExtensionID" => "72f902ad0530ad7ed5431dac7c5f9576"
       ];
@@ -2370,6 +2372,7 @@
      $usernameIsTaken = ($member["Login"]["Username"] == $username) ? 1 : 0;
      if(($emailIsTaken == 1 || $usernameIsTaken == 1) && $i == 0) {
       $i++;
+      break;
      }
     } if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
      $message = "A valid Email address is required.";
@@ -2772,6 +2775,10 @@
       "[SignUp.Processor]" => $this->core->AESencrypt("v=".base64_encode("Profile:SignUp")."&Step=".base64_encode(2))
      ],
      "ExtensionID" => "c48eb7cf715c4e41e2fb62bdfa60f198"
+    ];
+    $_Dialog = [
+     "Body" => "This experience is being debugged, we anticipate full readiness within the next 48 hours.",
+     "Header" => "Sign Up"
     ];
    }
    return $this->core->JSONResponse([

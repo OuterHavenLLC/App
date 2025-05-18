@@ -209,14 +209,15 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $bl = $this->core->CheckBlocked([$y, "Status Updates", $data["SU"]]);
-    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $_StatusUpdate = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("StatusUpdate;$id")
     ]);
     if($_StatusUpdate["Empty"] == 0) {
+     $blocked = $this->core->CheckBlocked([$y, "Status Updates", $data["SU"]]);
+     $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
      $options = $_StatusUpdate["ListItem"]["Options"];
+     $purgeRenderCode = ($update["From"] == $you) ? "PURGE" : "DO NOT PURGE";
      $update = $_StatusUpdate["DataModel"];
      $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($update, "LiveView");
      $passPhrase = $update["PassPhrase"] ?? "";
@@ -371,14 +372,6 @@
        ]
       ];
       $_Dialog = "";
-      $block = ($update["From"] != $you) ? $this->core->Element(["div", $this->core->Element([
-       "button", $blockCommand, [
-        "class" => "InnerMargin UpdateButton",
-        "data-processor" => $options["Block"]
-       ]
-      ]), [
-       "class" => "CenterText Desktop33"
-      ]]) : "";
       $displayName = $update["From"];
       $displayName = (!empty($update["To"]) && $update["From"] != $update["To"]) ? "$displayName to ".$update["To"] : $displayName;
       $embeddedView = $data["EmbeddedView"] ?? 0;
@@ -396,7 +389,8 @@
       $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
       $_View = [
        "ChangeData" => [
-        "[StatusUpdate.Block]" => $block,
+        "[StatusUpdate.Block]" => $options["Block"],
+        "[StatusUpdate.Block.Text]" => $blockCommand,
         "[StatusUpdate.Body]" => $this->core->PlainText([
          "BBCodes" => 1,
          "Data" => base64_decode($update["Body"]),
@@ -409,7 +403,8 @@
         "[StatusUpdate.Illegal]" => $this->core->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("StatusUpdate;".$update["ID"])),
         "[StatusUpdate.Modified]" => $_StatusUpdate["ListItem"]["Modified"],
         "[StatusUpdate.ProfilePicture]" => $this->core->ProfilePicture($op, "margin:0.5em;width:calc(100% - 1em);"),
-        "[StatusUpdate.Share]" => $share
+        "[StatusUpdate.Share]" => $share,
+        "[PurgeRenderCode]" => $purgeRenderCode
        ],
        "ExtensionID" => "2e76fb1523c34ed0c8092cde66895eb1"
       ];

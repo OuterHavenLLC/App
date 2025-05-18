@@ -215,18 +215,19 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($username)) {
-    $t = ($username == $you) ? $y : $this->core->Member($username);
-    $attachmentID = $t["Login"]["Username"]."-".$id;
-    $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
-    $blockCommand = ($bl == 0) ? "Block" : "Unblock";
     $_Media = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("File;$username;$id"),
      "ParentPage" => $parentView
     ]);
     if($_Media["Empty"] == 0) {
+     $t = ($username == $you) ? $y : $this->core->Member($username);
+     $attachmentID = $t["Login"]["Username"]."-".$id;
+     $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
+     $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
      $media = $_Media["DataModel"];
      $passPhrase = $media["PassPhrase"] ?? "";
+     $purgeRenderCode = ($t["Login"]["Username"] == $you) ? "PURGE" : "DO NOT PURGE";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
      if(!empty($passPhrase) && $verifyPassPhrase == 0 && $viewProtectedContent == 0) {
@@ -350,20 +351,23 @@
         "[Media.Actions]" => $actions,
         "[Media.AddTo]" => $addTo,
         "[Media.Back]" => $back,
+        "[Media.Block]" => $options["Block"],
+        "[Media.Block.Text]" => $blockCommand,
         "[Media.Description]" => $media["Description"],
         "[Media.Extension]" => $media["EXT"],
         "[Media.ID]" => $id,
-        "[Media.Illegal]" => $options["Report"],
         "[Media.Modified]" => $this->core->TimeAgo($media["Modified"]),
         "[Media.Name]" => $media["Name"],
         "[Media.NSFW]" => $nsfw,
+        "[Media.Report]" => $options["Report"],
         "[Media.Preview]" => $_Media["ListItem"]["Attachments"],
         "[Media.SetAsProfileImage]" => $setAsProfileImage,
         "[Media.Share]" => $share,
         "[Media.Title]" => $_Media["ListItem"]["Title"],
         "[Media.Type]" => $media["Type"],
         "[Media.Uploaded]" => $this->core->TimeAgo($media["Timestamp"]),
-        "[Media.Votes]" => $options["Vote"]
+        "[Media.Votes]" => $options["Vote"],
+        "[PurgeRenderCode]" => $purgeRenderCode
        ],
        "ExtensionID" => "c31701a05a48069702cd7590d31ebd63"
       ];

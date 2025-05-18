@@ -549,10 +549,9 @@
     }
    } if((!empty($id) || $i > 0) && !empty($username)) {
     $base = $this->core->base;
-    $bl = $this->core->CheckBlocked([$y, "Products", $id]);
     $username = base64_decode($username);
     $_Product = $this->core->GetContentData([
-     "Blacklisted" => $bl,
+     "Blacklisted" => 0,
      "ID" => base64_encode("Product;$id"),
      "Owner" => base64_encode($username)
     ]);
@@ -595,7 +594,10 @@
        $_View = $_View["View"];
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
+      $blocked = $this->core->CheckBlocked([$y, "Products", $id]);
+      $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
       $options = $_Product["ListItem"]["Options"];
+      $purgeRenderCode = ($username == $you) ? "PURGE" : "DO NOT PURGE";
       $shop = $this->core->Data("Get", ["shop", md5($username)]);
       $ck = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $ck2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
@@ -605,7 +607,7 @@
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal < $this->illegal) ? 1 : 0;
       $illegal = ($illegal == 1 && $t["Login"]["Username"] != $this->core->ShopID) ? 1 : 0;
-      if($bl == 0 && $ck == 1 && $illegal == 0) {
+      if($ck == 1 && $illegal == 0) {
        $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
        $actions = (!empty($addToData)) ? $this->core->Element([
         "button", "Attach", [
@@ -621,19 +623,13 @@
          $active++;
         }
        }
-       $blockCommand = ($bl == 0) ? "Block" : "Unblock";
        $actions .= ($username == $you) ? $this->core->Element([
         "button", "Delete", [
          "class" => "CloseCard OpenDialog Small v2",
          "data-encryption" => "AES",
          "data-view" => $options["Delete"]
         ]
-       ]) : $this->core->Element([
-        "button", $blockCommand, [
-         "class" => "Small UpdateButton v2",
-         "data-processor" => $options["Block"]
-        ]
-       ]);
+       ]) : "";
        $actions .= ($active == 1) ? $this->core->Element([
         "button", "Edit", [
          "class" => "GoToView Small v2",
@@ -684,23 +680,10 @@
        $_Dialog = "";
        $_View = [
         "ChangeData" => [
-         "[Attached.Albums]" => $liveViewSymbolicLinks["Albums"],
-         "[Attached.Articles]" => $liveViewSymbolicLinks["Articles"],
-         "[Attached.Attachments]" => $liveViewSymbolicLinks["Attachments"],
-         "[Attached.Blogs]" => $liveViewSymbolicLinks["Blogs"],
-         "[Attached.BlogPosts]" => $liveViewSymbolicLinks["BlogPosts"],
-         "[Attached.Chats]" => $liveViewSymbolicLinks["Chats"],
-         "[Attached.DemoFiles]" => $liveViewSymbolicLinks["DemoFiles"],
-         "[Attached.Forums]" => $liveViewSymbolicLinks["Forums"],
-         "[Attached.ForumPosts]" => $liveViewSymbolicLinks["ForumPosts"],
-         "[Attached.ID]" => $this->core->UUID("UpdateAttachments"),
-         "[Attached.Members]" => $liveViewSymbolicLinks["Members"],
-         "[Attached.Polls]" => $liveViewSymbolicLinks["Polls"],
-         "[Attached.Products]" => $liveViewSymbolicLinks["Products"],
-         "[Attached.Shops]" => $liveViewSymbolicLinks["Shops"],
-         "[Attached.Updates]" => $liveViewSymbolicLinks["Updates"],
          "[Product.Actions]" => $actions,
          "[Product.Back]" => $back,
+         "[Product.Block]" => $options["Block"],
+         "[Product.Block.Text]" => $blockCommand,
          "[Product.Body]" => $this->core->PlainText([
           "Data" => $product["Body"],
           "Decode" => 1,
@@ -720,7 +703,8 @@
          "[Product.Modified]" => $_Product["ListItem"]["Modified"],
          "[Product.Report]" => $this->core->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("Product;$id")),
          "[Product.Title]" => $_Product["ListItem"]["Title"],
-         "[Product.Share]" => $share
+         "[Product.Share]" => $share,
+         "[PurgeRenderCode]" => $purgeRenderCode
         ],
         "ExtensionID" => "96a6768e7f03ab4c68c7532be93dee40"
        ];
