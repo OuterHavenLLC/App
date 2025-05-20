@@ -143,10 +143,13 @@
   }
   function All(array $data): string {
    $data = $data["Data"] ?? [];
+   $month = date("M");
+   $shopID = $data["Shop"] ?? $this->core->AESencrypt(md5($you));
+   $year = date("Y");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $shopID = $data["Shop"] ?? $this->core->AESencrypt(md5($you));
    $shopID = $this->core->AESdecrypt($shopID);
+   $revenue = $this->core->Data("Get", ["revenue", "$year-$shopID"]);
    $data = [];
    // BEGIN TEMP
    $data = [
@@ -196,6 +199,7 @@
       "December"
      ]
     ],
+    "Revenue" => $revenue
    ];
    // END TEMP
    return $this->core->JSONResponse([

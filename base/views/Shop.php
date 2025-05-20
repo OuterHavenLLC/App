@@ -1054,12 +1054,6 @@
          "[Dashboard.Revenue.Year]" => date("Y"),
          "[Dashboard.Services]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
         ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
-        $dashboardView = ($active == 1 || $username == $you) ? $this->core->Element([
-         "button", "Dashboard", [
-          "class" => "PS Small v2",
-          "data-type" => ".Shop$id;.ShopNavigation;.Dashboard"
-         ]
-        ]) : "";
         $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
         $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
         $purgeRenderCode = ($username == $you) ? "PURGE" : "DO NOT PURGE";
@@ -1069,6 +1063,12 @@
           "class" => "Attach Small v2",
           "data-input" => base64_encode($addToData[1]),
           "data-media" => base64_encode("Shop;".md5($username))
+         ]
+        ]) : "";
+        $actions .= ($active == 1 || $username == $you) ? $this->core->Element([
+         "button", "Dashboard", [
+          "class" => "PS Small v2",
+          "data-type" => ".Shop$id;.ShopNavigation;.Dashboard"
          ]
         ]) : "";
         $actions .= ($check == 1) ? $this->core->Element([
@@ -1194,6 +1194,13 @@
          [
           "Name" => "UpdateContentAES",
           "Parameters" => [
+           ".Revenue$id",
+           $options["Revenue"]
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
            ".Vote$id",
            $options["Vote"]
           ]
@@ -1224,11 +1231,9 @@
           "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
           "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
           "[Shop.Dashboard]" => $dashboard,
-          "[Shop.DashboardView]" => $dashboardView,
           "[Shop.Disclaimer]" => $disclaimer,
           "[Shop.History]" => $this->core->AESencrypt("v=".base64_encode("Shop:History")."&ID=$id"),
           "[Shop.ID]" => $id,
-          "[Shop.Revenue]" => $options["Revenue"],
           "[Shop.Title]" => $_Shop["ListItem"]["Title"],
           "[Shop.Welcome]" => $this->core->PlainText([
            "Data" => $shop["Welcome"],
@@ -1935,7 +1940,7 @@
        $changeData = [
         "[Payment.Message]" => $message,
         "[Payment.PayPal.ClientID]" => base64_decode($paypal["ClientID"]),
-        "[Payment.Processor]" => base64_encode($processor),
+        "[Payment.Processor]" => $this->core->AESencrypt($processor),
         "[Payment.Region]" => $this->core->language,
         "[Payment.Shop]" => $shopID,
         "[Payment.Title]" => $title,

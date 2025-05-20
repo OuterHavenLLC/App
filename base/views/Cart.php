@@ -34,14 +34,14 @@
      $profit = $product["Profit"] ?? 0;
      $quantities = [];
      $quantity = $product["Quantity"] ?? 0;
-     $ck = (!empty($id)) ? 1 : 0;
-     $ck2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-     $ck3 = $shop["Open"] ?? 0;
-     $ck4 = ($quantity != 0) ? 1 : 0;
-     $ck = ($ck == 1 && $ck2 == 1 && $ck3 == 1 && $ck4 == 1) ? 1 : 0;
+     $check = (!empty($id)) ? 1 : 0;
+     $check2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
+     $check3 = $shop["Open"] ?? 0;
+     $check4 = ($quantity != 0) ? 1 : 0;
+     $check = ($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) ? 1 : 0;
      for($i = 0; $i <= $productQuantity; $i++) {
       $quantities[$i] = $i;
-     } if($ck == 1 || ($t["Login"]["Username"] == $this->core->ShopID && $quantity != 0)) {
+     } if($check == 1 || ($t["Login"]["Username"] == $this->core->ShopID && $quantity != 0)) {
       $instructions = ($category == "Product" && $hasInstructions == 1) ? $this->core->Element([
        "textarea", NULL, [
         "name" => "Instructions",
@@ -79,7 +79,7 @@
        [
         "Name" => "RenderInputs",
         "Parameters" => [
-         "ATC$id",
+         ".ATC$id",
          [
           [
            "Attributes" => [
@@ -107,21 +107,15 @@
            "Options" => [],
            "Type" => "Text",
            "Value" => $t["Login"]["Username"]
-          ]
+          ],
+          $quantity
          ]
-        ]
-       ],
-       [
-        "Name" => "RenderInputs",
-        "Parameters" => [
-         "ATCQuantity$id",
-         $quantity
         ]
        ]
       ];
       $_View = [
        "ChangeData" => [
-        "[AddToCart.Data]" => base64_encode("v=".base64_encode("Cart:SaveAdd")),
+        "[AddToCart.Data]" => $this->core->AESencrypt("v=".base64_encode("Cart:SaveAdd")),
         "[AddToCart.Product.ID]" => $id,
         "[AddToCart.Product.Instructions]" => $instructions,
         "[AddToCart.Product.LowStock]" => $lowStock,
@@ -298,7 +292,7 @@
   }
   function SaveAdd(array $data): string {
    $_AccessCode = "Denied";
-   $_DIalog = [
+   $_Dialog = [
     "Body" => "The Member or Product Identifier is missing."
    ];
    $data = $data["Data"] ?? [];
