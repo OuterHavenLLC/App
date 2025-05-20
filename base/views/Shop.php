@@ -81,8 +81,6 @@
     $owner = array_key_first($owner);
     $shop = $this->core->FixMissing($shop, [
      "Description",
-     "Live",
-     "Open",
      "Title",
      "Welcome"
     ]);
@@ -105,8 +103,10 @@
      $hireLimits[$i] = $i;
     }
     $hireTerms = $shop["HireTerms"] ?? $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
+    $live = $shop["Live"] ?? 0;
     $members = $shop["Members"] ?? [];
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
+    $open = $shop["Open"] ?? 0;
     $passPhrase = $shop["PassPhrase"] ?? "";
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $percentages = [];
@@ -596,7 +596,7 @@
          "Name" => "Live",
          "Title" => "Live",
          "Type" => "Select",
-         "Value" => $shop["Live"]
+         "Value" => $live
         ],
         [
          "Attributes" => [],
@@ -613,7 +613,7 @@
          "Name" => "Open",
          "Title" => "Open",
          "Type" => "Select",
-         "Value" => $shop["Open"]
+         "Value" => $open
         ]
        ]
       ]
@@ -1228,7 +1228,7 @@
           "[Shop.Back]" => $back,
           "[Shop.Block]" => $options["Block"],
           "[Shop.Block.Text]" => $blockCommand,
-          "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
+          "[Shop.Cart]" => $this->core->AESencrypt("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
           "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
           "[Shop.Dashboard]" => $dashboard.json_encode($revenue["All"], true),
           "[Shop.Disclaimer]" => $disclaimer,
@@ -2186,7 +2186,7 @@
      $created = $shop["Created"] ?? $created;
      $modifiedBy = $shop["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
-     $nsfw = $data["nsfw"] ?? 0;
+     $nsfw = $data["NSFW"] ?? 0;
      $open = $data["Open"] ?? 0;
      $passPhrase = $data["PassPhrase"] ?? "";
      $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
@@ -2383,7 +2383,7 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    "Success" => "CloseCard"
+    #"Success" => "CloseCard"
    ]);
   }
   function SaveBanish(array $data): string {
