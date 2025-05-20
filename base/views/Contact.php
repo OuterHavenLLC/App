@@ -60,7 +60,6 @@
     $contacts = $contacts["Contacts"] ?? [];
     $contact = $contacts[$username] ?? [];
     $_Member = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Member;".md5(base64_decode($username)))
     ]);
     if(!empty($contact) && $_Member["Empty"] == 0) {

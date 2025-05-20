@@ -241,7 +241,6 @@
    $you = $y["Login"]["Username"];
    if(!empty($fid) && !empty($id)) {
     $_ForumPost = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("ForumPost;$fid;$id")
     ]);
     if($_ForumPost["Empty"] == 0) {

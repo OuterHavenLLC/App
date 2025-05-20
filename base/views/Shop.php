@@ -849,13 +849,12 @@
     $newHistory = [];
     foreach(array_reverse($history) as $key => $value) {
      $product = $value["ID"] ?? "";
+     $blocked = $this->core->CheckBlocked([$y, "Products", $product]);
      $quantity = $value["Quantity"] ?? 1;
-     $bl = $this->core->CheckBlocked([$y, "Products", $product]);
      $_Product = $this->core->GetContentData([
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Product;$product")
      ]);
-     if($_Product["Empty"] == 0) {
+     if($_Product["Empty"] == 0 && $blocked == 0) {
       $options = "";
       $product = $_Product["DataModel"];
       $check = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
@@ -968,7 +967,6 @@
     }
    } if(!empty($username) || $i > 0) {
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Shop;$id")
     ]);
     if($_Shop["Empty"] == 0) {
@@ -1048,7 +1046,7 @@
          ]
         ]) : "";
         $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
-         "[Dashboard.Charts]" => "",
+         "[Dashboard.Charts]" => "",// SUBJECT TO CHANGE
          "[Dashboard.Hire]" => $hire,
          "[Dashboard.Invoices]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
          "[Dashboard.NewProduct]" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
@@ -1994,7 +1992,6 @@
       }
      } foreach($bundledProducts as $bundled) {
       $_Product = $this->core->GetContentData([
-       "Blacklisted" => 0,
        "ID" => $bundled
       ]);
       if($_Product["Empty"] == 0) {

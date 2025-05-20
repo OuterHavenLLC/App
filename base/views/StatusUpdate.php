@@ -210,7 +210,6 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $_StatusUpdate = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("StatusUpdate;$id")
     ]);
     if($_StatusUpdate["Empty"] == 0) {

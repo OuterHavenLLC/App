@@ -66,7 +66,7 @@
      $_List .= (!empty($data["ID"])) ? "&ID=".$data["ID"] : "";
      $searchBarText = "Posts";
     } elseif($searchType == "BL") {
-     $bl = base64_decode($data["BL"]);
+     $blocked = base64_decode($data["BL"]);
      $header = "$bl Blacklist";
      $_List .= (!empty($data["BL"])) ? "&BL=".$data["BL"] : "";
      $options =  ($notAnon == 1) ? $this->core->Element([
@@ -302,7 +302,7 @@
     } elseif($searchType == "MBR-SU") {
      $t = base64_decode($data["UN"]);
      $t = ($t != $you) ? $this->core->Member($t) : $y;
-     $bl = $this->core->CheckBlocked([$t, "Members", $you]);
+     $blocked = $this->core->CheckBlocked([$t, "Members", $you]);
      $cms = $this->core->Data("Get", [
       "cms",
       md5($t["Login"]["Username"])
@@ -312,7 +312,7 @@
      $header = ($check == 1) ? "Your Stream" : $display."'s Stream";
      $_List .= "&UN=".base64_encode($t["Login"]["Username"]);
      $searchBarText = "Posts";
-     $options = (($bl == 0 || $check == 1) && $notAnon == 1) ? $this->core->Element([
+     $options = (($blocked == 0 || $check == 1) && $notAnon == 1) ? $this->core->Element([
       "button", "Say Something", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("v=".base64_encode("StatusUpdate:Edit")."&new=1&UN=".base64_encode($t["Login"]["Username"]))
@@ -727,7 +727,6 @@
      } foreach($sql as $sql) {
       $_Extension = $this->core->GetContentData([
        "AddTo" => $addTo,
-       "Blacklisted" => 0,
        "ID" => base64_encode("Extension;".$sql["Extension_ID"])
       ]);
       if($_Extension["Empty"] == 0) {
@@ -787,13 +786,12 @@
       $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
       $_IsBlogger = $owner["Subscriptions"]["Blogger"]["A"] ?? 0;
       $title = $blog["Title"] ?? "";
-      $bl = $this->core->CheckBlocked([$y, "Blog Posts", $sql["BlogPost_ID"]]);
+      $blocked = $this->core->CheckBlocked([$y, "Blog Posts", $sql["BlogPost_ID"]]);
       $_BlogPost = $this->core->GetContentData([
        "BackTo" => $title,
-       "Blacklisted" => $bl,
        "ID" => base64_encode("BlogPost;".$sql["BlogPost_Blog"].";".$sql["BlogPost_ID"])
       ]);
-      if($_BlogPost["Empty"] == 0) {
+      if($_BlogPost["Empty"] == 0 && blocked == 0) {
        $options = $_BlogPost["ListItem"]["Options"];
        $post = $_BlogPost["DataModel"];
        $actions = ($sql["BlogPost_Username"] != $you) ? $this->core->Element([
@@ -822,7 +820,7 @@
        $check2 = ($post["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
        $illegal = $post["Illegal"] ?? 0;
        $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-       if($admin == 1 || ($bl == 0 && $check == 1 && $check2 == 1 && $illegal == 0)) {
+       if($admin == 1 || ($blocked == 0 && $check == 1 && $check2 == 1 && $illegal == 0)) {
         $actions .= ($admin == 1) ? $this->core->Element(["button", "Delete", [
          "class" => "InnerMargin OpenDialog",
          "data-encryption" => "AES",
@@ -865,7 +863,7 @@
      $blacklist = $y["Blocked"][$list] ?? [];
      foreach($blacklist as $key => $id) {
       $blacklistProcessor = "v=".base64_encode("Profile:Block")."&ID=".$this->core->AESencrypt($id)."&List=".$this->core->AESencrypt($list);
-      if($bl == "Albums") {
+      if($blocked == "Albums") {
        $alb = explode("-", base64_decode($id));
        $t = ($alb[0] != $you) ? $this->core->Member($alb[0]) : $y;
        $fs = $this->core->Data("Get", [
@@ -879,7 +877,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Blogs") {
+      } elseif($blocked == "Blogs") {
        $bg = $this->core->Data("Get", ["blg", $id]);
        $description = $bg["Description"];
        $header = "<em>".$bg["Title"]."</em>";
@@ -887,7 +885,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Blog Posts") {
+      } elseif($blocked == "Blog Posts") {
        $bp = $this->core->Data("Get", ["bp", $id]);
        $description = $bp["Description"];
        $header = "<em>".$bp["Title"]."</em>";
@@ -895,14 +893,14 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Files") {
+      } elseif($blocked == "Files") {
        $description = "{file_description}";
        $header = "<em>{file_name}</em>";
        $view = $this->core->Element(["button", "View $header", [
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Forums") {
+      } elseif($blocked == "Forums") {
        $forum = $this->core->Data("Get", ["pf", $id]);
        $description = $forum["Description"];
        $header = "<em>".$forum["Title"]."</em>";
@@ -910,7 +908,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Forum Posts") {
+      } elseif($blocked == "Forum Posts") {
        $post = $this->core->Data("Get", ["post", $id]);
        $description = $post["Description"];
        $header = "<em>".$post["Title"]."</em>";
@@ -918,7 +916,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Links") {
+      } elseif($blocked == "Links") {
        $_Query = "SELECT * FROM Links
                            WHERE Link_ID=$:ID";
        $sql->query($_Query, [
@@ -933,7 +931,7 @@
          "onclick" => "W('$value', '_blank');"
         ]]);
        }
-      } elseif($bl == "Members") {
+      } elseif($blocked == "Members") {
        $member = $this->core->Data("Get", ["mbr", $id]);
        $description = $member["Description"];
        $header = "<em>".$member["Personal"]["DisplayName"]."</em>";
@@ -941,7 +939,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Pages") {
+      } elseif($blocked == "Pages") {
        $page = $this->core->Data("Get", ["pg", $id]);
        $description = $page["Description"];
        $header = "<em>".$page["Title"]."</em>";
@@ -949,7 +947,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Products") {
+      } elseif($blocked == "Products") {
        $product = $this->core->Data("Get", ["product", $id]);
        $description = $product["Description"];
        $header = "<em>".$product["Title"]."</em>";
@@ -957,7 +955,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Shops") {
+      } elseif($blocked == "Shops") {
        $shop = $this->core->Data("Get", ["shop", $id]);
        $description = $shop["Description"];
        $header = "<em>".$shop["Title"]."</em>";
@@ -965,7 +963,7 @@
         "class" => "v2 v2w",
         "data-type" => base64_encode("#")
        ]]);
-      } elseif($bl == "Status Updates") {
+      } elseif($blocked == "Status Updates") {
        $update = $this->core->Data("Get", ["su", $id]);
        $description = $this->core->Excerpt(base64_decode($update["Body"]), 180);
        $header = $update["From"];
@@ -1002,13 +1000,12 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Blog;".$sql["Blog_ID"])
      ]);
-     if($_Blog["Empty"] == 0) {
+     if($_Blog["Empty"] == 0 && $blocked == 0) {
       $blog = $_Blog["DataModel"];
       $cms = $this->core->Data("Get", ["cms", md5($blog["UN"])]);
       $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $blog["NSFW"] == 0) ? 1 : 0;
@@ -1020,7 +1017,7 @@
       ]);
       $illegal = $blog["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && $check == 1 && $check2 == 1 && $illegal == 0) {
+      if($blocked == 0 && $check == 1 && $check2 == 1 && $illegal == 0) {
        $options = $_Blog["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -1037,12 +1034,11 @@
     $_ExtensionID = "ae30582e627bc060926cfacf206920ce";
     $bulletins = $this->core->Data("Get", ["bulletins", md5($you)]);
     foreach($bulletins as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Members", $value["From"]]);;
+     $blocked = $this->core->CheckBlocked([$y, "Members", $value["From"]]);;
      $_Member = $this->core->GetContentData([
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Member;".md5($value["From"]))
      ]);
-     if($_Member["Empty"] == 0) {
+     if($_Member["Empty"] == 0 && $blocked == 0) {
       $member = $_Member["DataModel"];
       $value["ID"] = $key;
       $message = $this->view(base64_encode("Profile:BulletinMessage"), [
@@ -1083,15 +1079,14 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Pages", $sql["Article_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Pages", $sql["Article_ID"]]);
      $_Article = $this->core->GetContentData([
       "AddTo" => $addTo,
       "BackTo" => $b2,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Page;".$sql["Article_ID"]),
       "ParentPage" => $parentView
      ]);
-     if($_Article["Empty"] == 0) {
+     if($_Article["Empty"] == 0 && $blocked == 0) {
       $article = $_Article["DataModel"];
       $i++;
       $nsfw = $article["NSFW"] ?? 0;
@@ -1110,7 +1105,7 @@
       $check = ($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) ? 1 : 0;
       $illegal = $article["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($bl == 0 && $check == 1 && $illegal == 0) {
+      if($blocked == 0 && $check == 1 && $illegal == 0) {
        array_push($_Commands, []);
        array_push($_List, [
         "[Info.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
@@ -1131,9 +1126,8 @@
     $products = $y["Shopping"]["Cart"][$shop] ?? [];
     $products = $products["Products"] ?? [];
     foreach($products as $key => $value) {
-     $bl = $this->core->CheckBlocked([$y, "Products", $key]);;
+     $blocked = $this->core->CheckBlocked([$y, "Products", $key]);;
      $_Product = $this->core->GetContentData([
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Product;$key")
      ]);
      if($_Product["Empty"] == 0) {
@@ -1179,14 +1173,13 @@
      if(count($sql) <= $limit) {
       $end = 1;
      } foreach($sql as $sql) {
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
+      $blocked = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
        "AddTo" => $addTo,
-       "Blacklisted" => $bl,
        "ID" => base64_encode("Chat;".$sql["Chat_ID"]),
        "Integrated" => $integrated
       ]);
-      if(!in_array($sql["Chat_ID"], $this->core->RestrictedIDs) && $_Chat["Empty"] == 0) {
+      if(!in_array($sql["Chat_ID"], $this->core->RestrictedIDs) && $_Chat["Empty"] == 0 && $blocked == 0) {
        $active = 0;
        $chat = $_Chat["DataModel"];
        $contributors = $chat["Contributors"] ?? [];
@@ -1199,7 +1192,7 @@
        $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
        $privacy = $chat["Privacy"] ?? 0;
        $privacy = ($active == 1 || $privacy != md5("Private")) ? 1 : 0;
-       if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
+       if($chat["UN"] == $you || ($blocked == 0 && $nsfw == 1 && $privacy == 1)) {
         $contributors = $chat["Contributors"] ?? [];
         $isGroupChat = $chat["Group"] ?? 0;
         if(!empty($contributors) || $isGroupChat == 1) {
@@ -1476,7 +1469,7 @@
       "cms",
       md5($t["Login"]["Username"])
      ]);
-     $bl = $this->core->CheckBlocked([
+     $blocked = $this->core->CheckBlocked([
       $t, "Members", $y["Login"]["Username"]
      ]);
      $bl2 = $this->core->CheckBlocked([
@@ -1488,7 +1481,7 @@
       "UN" => $t["Login"]["Username"],
       "Y" => $y["Login"]["Username"]
      ]);
-     if($bl == 0 && $bl2 == 0 && $check == 1) {
+     if($blocked == 0 && $bl2 == 0 && $check == 1) {
       $opt = $this->core->Element(["button", "View Profile", [
        "class" => "OpenCard v2",
        "data-view" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&back=1&b2=$b2&lPG=$parentView&pub=0&UN=".base64_encode($t["Login"]["Username"]))
@@ -1579,13 +1572,12 @@
       $shop = $this->core->Data("Get", ["shop", $id]);
       $contributors = $shop["Contributors"] ?? [];
      } foreach($contributors as $member => $role) {
-      $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
+      $blocked = $this->core->CheckBlocked([$y, "Members", $member]);;
       $_Member = $this->core->GetContentData([
        "AddTo" => $addTo,
-       "Blacklisted" => $bl,
        "ID" => base64_encode("Member;".md5($member))
       ]);
-      if($_Member["Empty"] == 0) {
+      if($_Member["Empty"] == 0 && $blocked == 0) {
        $member = $_Member["DataModel"];
        $options = $_Member["ListItem"]["Options"];
        $them = $member["Login"]["Username"];
@@ -1797,13 +1789,12 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);
      $_Forum = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Forum;".$sql["Forum_ID"])
      ]);
-     if(!in_array($sql["Forum_ID"], $this->core->RestrictedIDs) && $_Forum["Empty"] == 0) {
+     if(!in_array($sql["Forum_ID"], $this->core->RestrictedIDs) && $_Forum["Empty"] == 0 && $blocked == 0) {
       $active = 0;
       $forum = $_Forum["DataModel"];
       $manifest = $this->core->Data("Get", ["pfmanifest", $sql["Forum_ID"]]);
@@ -1822,7 +1813,7 @@
        if($active == 0 && $member == $you) {
         $active++;
        }
-      } if($bl == 0 && ($active == 1 || $check == 1 && $check2 == 1) && $illegal == 0) {
+      } if($blocked == 0 && ($active == 1 || $check == 1 && $check2 == 1) && $illegal == 0) {
        $options = $_Forum["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -1845,12 +1836,11 @@
      $manifest = $this->core->Data("Get", ["pfmanifest", $id]);
      foreach($manifest as $member => $role) {
       if($member == $admin || $role == "Admin") {
-       $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
+       $blocked = $this->core->CheckBlocked([$y, "Members", $member]);;
        $_Member = $this->core->GetContentData([
-        "Blacklisted" => $bl,
         "ID" => base64_encode("Member;".md5($member))
        ]);
-       if($_Member["Empty"] == 0) {
+       if($_Member["Empty"] == 0 && $blocked == 0) {
         $member = $_Member["DataModel"];
         $them = $member["Login"]["Username"];
         $contacts = $this->core->Data("Get", ["cms", md5($them)]);
@@ -1922,13 +1912,12 @@
      if(count($sql) <= $limit) {
       $end = 1;
      } foreach($sql as $sql) {
-      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
+      $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
-       "Blacklisted" => $bl,
        "ID" => base64_encode("ForumPost;".$sql["ForumPost_Forum"].";".$sql["ForumPost_ID"])
       ]);
       $forum = $this->core->Data("Get", ["pf", $sql["ForumPost_Forum"]]);
-      if($_ForumPost["Empty"] == 0) {
+      if($_ForumPost["Empty"] == 0 && $blocked == 0) {
        $actions = "";
        $active = 0;
        $post = $_ForumPost["DataModel"];
@@ -1946,8 +1935,8 @@
         "Y" => $you
        ]);
        $passPhrase = $post["PassPhrase"] ?? "";
-       if($bl == 0 && ($check2 == 1 && $check3 == 1) && $illegal == 0) {
-        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
+       if($blocked == 0 && ($check2 == 1 && $check3 == 1) && $illegal == 0) {
+        $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
         $actions .= ($post["From"] != $you) ? $this->core->Element([
@@ -2060,7 +2049,6 @@
     }
     $topicID = $data["Topic"] ?? "";
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Forum;$forumID")
     ]);
     if($_Forum["Empty"] == 0) {
@@ -2077,13 +2065,12 @@
      if(count($sql) <= $limit) {
       $end = 1;
      } foreach($sql as $sql) {
-      $bl = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
+      $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
        "AddTo" => $addTo,
-       "Blacklisted" => $bl,
        "ID" => base64_encode("ForumPost;$forumID;".$sql["ForumPost_ID"])
       ]);
-      if($_ForumPost["Empty"] == 0 && $i <= 5) {
+      if($_ForumPost["Empty"] == 0 && $blocked == 0 && $i <= 5) {
        $actions = "";
        $active = 0;
        $post = $_ForumPost["DataModel"];
@@ -2101,7 +2088,7 @@
         "Y" => $you
        ]);
        $passPhrase = $post["PassPhrase"] ?? "";
-       if($bl == 0 && ($check2 == 1 && $check3 == 1) && $illegal == 0) {
+       if($blocked == 0 && ($check2 == 1 && $check3 == 1) && $illegal == 0) {
         $body = (empty($passPhrase)) ? $_ForumPost["ListItem"]["Body"] : $this->ContentIsProtected;
         $con = base64_encode("Conversation:Home");
         $actions = ($post["From"] != $you) ? $this->core->Element([
@@ -2160,7 +2147,6 @@
     $_ExtensionID = "099d6de4214f55e68ea49395a63b5e4d";
     $forumID = $data["Forum"] ?? "";
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Forum;$forumID")
     ]);
     if($_Forum["Empty"] == 0) {
@@ -2176,12 +2162,11 @@
        $posts = array_reverse($info["Posts"]);
        $postList = "";
        foreach($posts as $key => $post) {
-        $bl = $this->core->CheckBlocked([$y, "Forum Posts", $post]);
+        $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $post]);
         $_ForumPost = $this->core->GetContentData([
-         "Blacklisted" => $bl,
          "ID" => base64_encode("ForumPost;$forumID;$post")
         ]);
-        if($_ForumPost["Empty"] == 0 && $postCount < 5) {
+        if($_ForumPost["Empty"] == 0 && $blocked == 0 && $postCount < 5) {
          $postCount++;
          $post = $_ForumPost["DataModel"];
          $postList .= $this->core->Element([
@@ -2264,10 +2249,9 @@
     } foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
-      "Blacklisted" => $blocked,
       "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
-     if($_StatusUpdate["Empty"] == 0) {
+     if($_StatusUpdate["Empty"] == 0 && $blocked == 0) {
       $update = $_StatusUpdate["DataModel"];
       $from = $update["From"] ?? "";
       $check = ($from == $you) ? 1 : 0;
@@ -2362,14 +2346,13 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Member;".md5($sql["Member_Username"]))
      ]);
      $member = $_Member["DataModel"];
-     if($_Member["Empty"] == 0) {
+     if($_Member["Empty"] == 0 && $blocked == 0) {
       $them = $member["Login"]["Username"];
       $cms = $this->core->Data("Get", ["cms", md5($them)]);
       $contacts = $cms["Contacts"] ?? [];
@@ -2412,7 +2395,7 @@
       $tP = $t["Privacy"];
       $nsfw = $value["NSFW"] ?? $t["Privacy"]["NSFW"];
       $privacy = $value["Privacy"] ?? $t["Privacy"]["Albums"];
-      $bl = $this->core->CheckBlocked([
+      $blocked = $this->core->CheckBlocked([
        $y,
        "Albums",
        base64_encode($t["Login"]["Username"]."-$key")
@@ -2426,7 +2409,7 @@
       ]);
       $illegal = $value["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      $check = ($bl == 0 && $check == 1 && $check2 == 1 && $illegal == 0) ? 1 : 0;
+      $check = ($blocked == 0 && $check == 1 && $check2 == 1 && $illegal == 0) ? 1 : 0;
       if($check == 1 || $username == $you) {
        $coverPhoto = $value["CoverPhoto"] ?? "";
        $coverPhoto = base64_encode($t["Login"]["Username"]."-".explode(".", $coverPhoto)[0]);
@@ -2462,13 +2445,12 @@
      if(count($sql) <= $limit) {
       $end = 1;
      } foreach($sql as $sql) {
-      $bl = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
+      $blocked = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
        "AddTo" => $addTo,
-       "Blacklisted" => $bl,
        "ID" => base64_encode("Blog;".$sql["Blog_ID"])
       ]);
-      if($_Blog["Empty"] == 0) {
+      if($_Blog["Empty"] == 0 && $blocked == 0) {
        $options = $_Blog["ListItem"]["Options"];
        $blog = $_Blog["DataModel"];
        $illegal = $blog["Illegal"] ?? 0;
@@ -2501,7 +2483,7 @@
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
-    $bl = $this->core->CheckBlocked([$t, "Members", $you]);
+    $blocked = $this->core->CheckBlocked([$t, "Members", $you]);
     $sql->query($_Query, [
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
@@ -2515,11 +2497,10 @@
      $_Article = $this->core->GetContentData([
       "AddTo" => $addTo,
       "BackTo" => $backTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Page;".$sql["Article_ID"]),
       "ParentPage" => $parentView
      ]);
-     if($_Article["Empty"] == 0) {
+     if($_Article["Empty"] == 0 && $blocked == 0) {
       $options = $_Article["ListItem"]["Options"];
       $searchType = str_replace("MBR-", "", $searchType);
       $article = $_Article["DataModel"];
@@ -2538,7 +2519,7 @@
       ]);
       $check3 = ($illegal == 0 && $article["Category"] == $searchType) ? 1 : 0;
       $check = ($check == 1 && $check2 == 1 && $check3 == 1) ? 1 : 0;
-      $check2 = ($bl == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
+      $check2 = ($blocked == 0 || $t["Login"]["Username"] == $you) ? 1 : 0;
       if($check == 1 && $check2 == 1) {
        array_push($_Commands, []);
        array_push($_List, [
@@ -2580,14 +2561,13 @@
        $end = 1;
       } foreach($sql as $sql) {
        $active = 0;
-       $bl = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
+       $blocked = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
        $_Chat = $this->core->GetContentData([
         "AddTo" => $addTo,
-        "Blacklisted" => $bl,
         "ID" => base64_encode("Chat;".$sql["Chat_ID"]),
         "Integrated" => $integrated
        ]);
-       if($_Chat["Empty"] == 0) {
+       if($_Chat["Empty"] == 0 && $blocked == 0) {
         $chat = $_Chat["DataModel"];
         $contributors = $chat["Contributors"] ?? [];
         foreach($contributors as $member => $role) {
@@ -2599,7 +2579,7 @@
         $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
         $privacy = $chat["Privacy"] ?? 0;
         $privacy = ($active == 1 || $privacy != md5("Private")) ? 1 : 0;
-        if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
+        if($chat["UN"] == $you || ($blocked == 0 && $nsfw == 1 && $privacy == 1)) {
          $displayName = $chat["Title"] ?? "Untitled";
          $t = $this->core->Member($this->core->ID);
          $verified = $t["Verified"] ?? 0;
@@ -2623,12 +2603,11 @@
       }
       $contacts = array_unique($contacts);
       foreach($contacts as $key => $member) {
-       $bl = $this->core->CheckBlocked([$y, "Members", $member]);;
+       $blocked = $this->core->CheckBlocked([$y, "Members", $member]);;
        $_Member = $this->core->GetContentData([
-        "Blacklisted" => $bl,
         "ID" => base64_encode("Member;".md5($member))
        ]);
-       if($_Member["Empty"] == 0) {
+       if($_Member["Empty"] == 0 && $blocked == 0) {
         $view = "v=".base64_encode("Chat:Home")."&1on1=1&Username=".base64_encode($member);
         $view .= ($integrated == 1) ? "&Card=1" : "";
         $t = $_Member["DataModel"];
@@ -2670,13 +2649,12 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);;
+     $blocked = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);;
      $_Forum = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Forum;".$sql["Forum_ID"])
      ]);
-     if($_Forum["Empty"] == 0) {
+     if($_Forum["Empty"] == 0 && $blocked == 0) {
       $active = 0;
       $forum = $_Forum["DataModel"];
       $illegal = $forum["Illegal"] ?? 0;
@@ -2699,13 +2677,12 @@
     if($notAnon == 1) {
      $articles = $y["Pages"] ?? [];
      foreach($articles as $key => $value) {
-      $bl = $this->core->CheckBlocked([$y, "Pages", $value]);;
+      $blocked = $this->core->CheckBlocked([$y, "Pages", $value]);;
       $_Article = $this->core->GetContentData([
        "AddTo" => $addTo,
-       "Blacklisted" => $bl,
        "ID" => base64_encode("Page;$value")
       ]);
-      if($_Article["Empty"] == 0) {
+      if($_Article["Empty"] == 0 && $blocked == 0) {
        $article = $_Article["DataModel"];
        $options = $_Article["ListItem"]["Options"];
        array_push($_List, [
@@ -2743,16 +2720,15 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Poll;".$sql["Poll_ID"])
      ]);
-     if($_Poll["Empty"] == 0) {
+     if($_Poll["Empty"] == 0 && $blocked == 0) {
       $poll = $_Poll["DataModel"];
       $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      if($bl == 0 && $check == 1) {
+      if($blocked == 0 && $check == 1) {
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Block", [
@@ -2829,19 +2805,18 @@
      $end = 1;
     } foreach($sql as $sql) {
      $id = $value["UpdateID"] ?? "";
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
-     if($_StatusUpdate["Empty"] == 0) {
+     if($_StatusUpdate["Empty"] == 0 && $blocked == 0) {
       $update = $_StatusUpdate["DataModel"];
       $from = $update["From"] ?? $this->core->ID;
       $check = ($from == $you) ? 1 : 0;
       $illegal = $update["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($check == 1 || ($bl == 0 && $illegal == 0)) {
+      if($check == 1 || ($blocked == 0 && $illegal == 0)) {
        $op = ($check == 1) ? $y : $this->core->Member($from);
        $cms = $this->core->Data("Get", ["cms", md5($from)]);
        $check = ($y["Personal"]["Age"] >= $this->core->config["minAge"] || $update["NSFW"] == 0) ? 1 : 0;
@@ -2853,7 +2828,7 @@
        ]);
        $check2 = 1;
        $passPhrase = $update["PassPhrase"] ?? "";
-       if($bl == 0 && ($check == 1 && $check2 == 1)) {
+       if($blocked == 0 && ($check == 1 && $check2 == 1)) {
         $body = (empty($passPhrase)) ? $_StatusUpdate["ListItem"]["Body"] : $this->ContentIsProtected;
         $display = ($from == $this->core->ID) ? "Anonymous" : $op["Personal"]["DisplayName"];
         $options = $_StatusUpdate["ListItem"]["Options"];
@@ -2937,14 +2912,13 @@
      $end = 1;
     } foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
-     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
+     $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
      $file = $_File["DataModel"];
-     if($_File["Empty"] == 0 && $bl == 0 && $albumID == $file["AID"]) {
+     if($_File["Empty"] == 0 && $blocked == 0 && $albumID == $file["AID"]) {
       $options = $_File["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $file]);
       array_push($_Commands, []);
@@ -2975,13 +2949,12 @@
      $end = 1;
     } foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
-     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
+     $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
-     if($_File["Empty"] == 0 && $bl == 0) {
+     if($_File["Empty"] == 0 && $blocked == 0) {
       $file = $_File["DataModel"];
       $options = $_File["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([
@@ -3018,15 +2991,14 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Poll;".$sql["Poll_ID"])
      ]);
-     if($_Poll["Empty"] == 0) {
+     if($_Poll["Empty"] == 0 && $blocked == 0) {
       $poll = $_Poll["DataModel"];
       $check = ($poll["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
-      if($bl == 0 && $check == 1) {
+      if($blocked == 0 && $check == 1) {
        $options = $_Poll["ListItem"]["Options"];
        $blockOrDelete = ($sql["Poll_Username"] == $you) ? $this->core->Element([
         "div", $this->core->Element(["button", "Block", [
@@ -3108,18 +3080,16 @@
      $end = 1;
     } foreach($sql as $sql) {
      $b2 = $b2 ?? "Products";
-     $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
       "AddTo" => $addTo,
       "BackTo" => $b2,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Product;".$sql["Product_ID"])
      ]);
-     if($_Product["Empty"] == 0) {
+     if($_Product["Empty"] == 0 && $blocked == 0) {
       $product = $_Product["DataModel"];
-      $bl = $this->core->CheckBlocked([$y, "Members", $sql["Product_Username"]]);
+      $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Product_Username"]]);
       $owner = $this->core->GetContentData([
-       "Blacklisted" => $bl,
        "ID" => base64_encode("Member;".md5($sql["Product_Username"]))
       ]);
       $check = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
@@ -3130,7 +3100,7 @@
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
-      if($bl == 0 && $check == 1 && $illegal == 0) {
+      if($blocked == 0 && $check == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -3163,13 +3133,12 @@
      if(count($sql) <= $limit) {
       $end = 1;
      } foreach($sql as $sql) {
-      $bl = $this->core->CheckBlocked([$y, "Members", $sql["Shop_Username"]]);
+      $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Shop_Username"]]);
       $_Shop = $this->core->GetContentData([
        "AddTo" => $addTo,
-       "Blacklisted" => $bl,
        "ID" => base64_encode("Shop;".$sql["Shop_ID"])
       ]);
-      if($_Shop["Empty"] == 0) {
+      if($_Shop["Empty"] == 0 && $blocked == 0) {
        $cms = $this->core->Data("Get", ["cms", $sql["Shop_ID"]]);
        $cms = $cms["Contacts"] ?? [];
        $t = $this->core->Member($sql["Shop_Username"]);
@@ -3181,7 +3150,7 @@
        ]);
        $shop = $_Shop["DataModel"];
        $check2 = $shop["Open"] ?? 0;
-       if(($bl == 0 && $check == 1 && $check2 == 1) || $sql["Shop_Username"] == $you) {
+       if(($blocked == 0 && $check == 1 && $check2 == 1) || $sql["Shop_Username"] == $you) {
         array_push($_Commands, []);
         array_push($_List, [
          "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
@@ -3287,13 +3256,12 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Product;".$sql["Product_ID"])
      ]);
-     if($_Product["Empty"] == 0) {
+     if($_Product["Empty"] == 0 && $blocked == 0) {
       $product = $_Product["DataModel"];
       $check = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $check2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
@@ -3303,7 +3271,7 @@
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
-      if($bl == 0 && $check == 1 && $illegal == 0) {
+      if($blocked == 0 && $check == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -3334,19 +3302,18 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("StatusUpdate;".$sql["StatusUpdate_ID"])
      ]);
-     if($_StatusUpdate["Empty"] == 0) {
+     if($_StatusUpdate["Empty"] == 0 && $blocked == 0) {
       $update = $_StatusUpdate["DataModel"];
       $from = $update["From"] ?? "";
       $check = ($from == $you) ? 1 : 0;
       $illegal = $update["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
-      if($check == 1 || ($bl == 0 && $illegal == 0)) {
+      if($check == 1 || ($blocked == 0 && $illegal == 0)) {
        $attachments = "";
        if(!empty($update["Attachments"])) {
         $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
@@ -3455,13 +3422,12 @@
     if(count($sql) <= $limit) {
      $end = 1;
     } foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Product;".$sql["Product_ID"])
      ]);
-     if($_Product["Empty"] == 0) {
+     if($_Product["Empty"] == 0 && $blocked == 0) {
       $product = $_Product["DataModel"];
       $check = ($product["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $check2 = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
@@ -3471,7 +3437,7 @@
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       $illegal = ($sql["Product_Username"] != $this->core->ShopID) ? 1 : 0;
-      if($bl == 0 && $check == 1 && $illegal == 0) {
+      if($blocked == 0 && $check == 1 && $illegal == 0) {
        $options = $_Product["ListItem"]["Options"];
        array_push($_Commands, []);
        array_push($_List, [
@@ -3509,13 +3475,12 @@
      $end = 1;
     } foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
-     $bl = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
+     $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
      $_File = $this->core->GetContentData([
       "AddTo" => $addTo,
-      "Blacklisted" => $bl,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
-     if($_File["Empty"] == 0) {
+     if($_File["Empty"] == 0 && $blocked == 0) {
       $file = $_File["DataModel"];
       $options = $_File["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([$sql["Media_Username"], $sql["Media_ID"]]);
@@ -3580,13 +3545,12 @@
     ]);
     $sql = $sql->set();
     foreach($sql as $sql) {
-     $bl = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
+     $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Member;".md5($sql["Member_Username"]))
      ]);
      $member = $_Member["DataModel"];
-     if($_Member["Empty"] == 0) {
+     if($_Member["Empty"] == 0 && $blocked == 0) {
       $them = $member["Login"]["Username"];
       $cms = $this->core->Data("Get", ["cms", md5($them)]);
       $contacts = $cms["Contacts"] ?? [];

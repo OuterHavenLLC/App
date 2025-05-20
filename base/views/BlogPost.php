@@ -280,7 +280,6 @@
    } if((!empty($blog) && !empty($postID)) || $i > 0) {
     $_BlogPost = $this->core->GetContentData([
      "BackTo" => $backTo,
-     "Blacklisted" => 0,
      "ID" => base64_encode("BlogPost;$blog;$postID")
     ]);
     if($_BlogPost["Empty"] == 0) {

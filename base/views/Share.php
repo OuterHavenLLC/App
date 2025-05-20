@@ -29,12 +29,11 @@
      $id = base64_decode($id);
      foreach($contacts as $member => $info) {
       if(empty($query) || strpos($member, $query) !== false) {
-       $bl = $this->core->CheckBlocked([$y, "Members", md5($member)]);;
+       $blocked = $this->core->CheckBlocked([$y, "Members", md5($member)]);;
        $_Member = $this->core->GetContentData([
-        "Blacklisted" => $bl,
         "ID" => base64_encode("Member;".md5($member))
        ]);
-       if($_Member["Empty"] == 0) {
+       if($_Member["Empty"] == 0 && $blocked == 0) {
         $i++;
         $online = $t["Activity"]["OnlineStatus"] ?? 0;
         $online = ($online == 1) ? $this->core->Element([
@@ -92,13 +91,12 @@
      $id = base64_decode($id);
      foreach($groups as $key => $group) {
       $group = str_replace("nyc.outerhaven.chat.", "", $group);
-      $bl = $this->core->CheckBlocked([$y, "Group Chats", $group]);
+      $blocked = $this->core->CheckBlocked([$y, "Group Chats", $group]);
       $_Chat = $this->core->GetContentData([
-       "Blacklisted" => $bl,
        "ID" => base64_encode("Chat;$group"),
        "Integrated" => 1
       ]);
-      if($_Chat["Empty"] == 0) {
+      if($_Chat["Empty"] == 0 && $blocked == 0) {
        $active = 0;
        $chat = $_Chat["DataModel"];
        $contributors = $chat["Contributors"] ?? [];
@@ -325,12 +323,11 @@
      $recentChats = array_reverse(array_unique($recentChats));
      foreach($recentChats as $key => $member) {
       if(empty($query) || strpos($member, $query) !== false) {
-       $bl = $this->core->CheckBlocked([$y, "Members", md5($member)]);;
+       $blocked = $this->core->CheckBlocked([$y, "Members", md5($member)]);;
        $_Member = $this->core->GetContentData([
-        "Blacklisted" => $bl,
         "ID" => base64_encode("Member;".md5($member))
        ]);
-       if($_Member["Empty"] == 0) {
+       if($_Member["Empty"] == 0 && $blocked == 0) {
         $_View .= $this->core->Element([
          "button", $this->core->ProfilePicture($t, "margin:5%;width:90%"), [
           "class" => "OpenCard Small",

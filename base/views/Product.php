@@ -551,7 +551,6 @@
     $base = $this->core->base;
     $username = base64_decode($username);
     $_Product = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Product;$id"),
      "Owner" => base64_encode($username)
     ]);

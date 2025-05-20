@@ -335,7 +335,6 @@
        "Header" => "Not Found"
       ];
       $_Chat = $this->core->GetContentData([
-       "Blacklisted" => 0,
        "ID" => base64_encode("Chat;$id"),
        "Integrated" => $integrated
       ]);

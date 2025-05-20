@@ -115,7 +115,6 @@
    } elseif(!empty($id)) {
     $id = base64_decode($id);
     $_Poll = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Poll;$id")
     ]);
     if($_Poll["Empty"] == 0) {

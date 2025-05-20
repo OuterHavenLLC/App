@@ -582,7 +582,6 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    $_Member = $this->core->GetContentData([
-    "Blacklisted" => 0,
     "ID" => base64_encode("Member;".md5(base64_decode($member)))
    ]);
    if(strpos(base64_decode($data["UN"]), "Ghost_")) {
@@ -2224,7 +2223,6 @@
     $viewData = $data["ViewData"] ?? base64_encode(json_encode([]));
     $viewData = json_decode(base64_decode($viewData), true);
     $member = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Member;".md5($username))
     ]);
     if($member["Empty"] == 0) {
@@ -2250,7 +2248,6 @@
     $password = $data["Password"] ?? "";
     $username = $data["Username"] ?? "";
     $member = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Member;".md5($username))
     ]);
     if($member["Empty"] == 0) {

@@ -187,7 +187,6 @@
    $fsUsage = str_replace(",", "", $fsUsage);
    if(!empty($id) && !empty($username)) {
     $_Album = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Album;$username;$id"),
      "Owner" => $username
     ]);

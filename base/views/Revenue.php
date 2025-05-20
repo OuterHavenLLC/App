@@ -157,15 +157,13 @@
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
     $shop = base64_decode($shop);
-    $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
+    $blocked = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => $bl,
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
-    if($_Shop["Empty"] == 0) {
+    if($_Shop["Empty"] == 0 && $blocked == 0) {
      $_Owner = $this->core->GetContentData([
-      "Blacklisted" => $bl,
       "ID" => base64_encode("Member;".md5($shop))
      ]);
      $_Owner = ($_Owner["Empty"] == 0) ? $_Owner : $this->core->RenderGhostMember();
@@ -229,14 +227,13 @@
     $payPeriodTotals_Net = 0;
     $payPeriodTotals_Taxes = 0;
     $shop = base64_decode($shop);
-    $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
+    $blocked = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => $bl,
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
     $year = base64_decode($year);
-    if($_Shop["Empty"] == 0) {
+    if($_Shop["Empty"] == 0 && $blocked == 0) {
      $revenue =$this->core->Data("Get", ["revenue", "$year-".md5($shop)]);
      $payroll = $revenue["Payroll"] ?? [];
      $payPeriodData = $payroll[$payPeriodID] ?? [];
@@ -399,7 +396,6 @@
    $you = $y["Login"]["Username"];
    if(!empty($shop)) {
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
@@ -492,9 +488,7 @@
    if(!empty($shop) && !empty($year)) {
     $adminExpenseList = "";
     $shop = base64_decode($shop);
-    $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => $bl,
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);
@@ -605,9 +599,7 @@
     $_View = "";
     $i = 0;
     $shop = base64_decode($shop);
-    $bl = $this->core->CheckBlocked([$y, "Members", $shop]);
     $_Shop = $this->core->GetContentData([
-     "Blacklisted" => $bl,
      "ID" => base64_encode("Shop;".md5($shop)),
      "Owner" => $shop
     ]);

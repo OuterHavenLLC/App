@@ -289,10 +289,8 @@
      "Body" => "The requested Forum could not be found."
     ];
     $id = base64_decode($id);
-    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
     $chat = $this->core->Data("Get", ["chat", $id]);
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => $bl,
      "ID" => base64_encode("Forum;$id")
     ]);
     if($_Forum["Empty"] == 0) {
@@ -394,7 +392,6 @@
     $id = base64_decode($id);
     $chat = $this->core->Data("Get", ["chat", $id]);
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Forum;$id")
     ]);
     if($_Forum["Empty"] == 0) {
@@ -766,7 +763,6 @@
     ];
     $id = base64_decode($id);
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Forum;$id")
     ]);
     if($_Forum["Empty"] == 0) {
@@ -881,7 +877,6 @@
     ];
     $forumID = base64_decode($forumID);
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Forum;$forumID")
     ]);
     if($_Forum["Empty"] == 0) {
@@ -1148,7 +1143,6 @@
       "Body" => "The Forum could not be loaded."
      ];
      $_Forum = $this->core->GetContentData([
-      "Blacklisted" => 0,
       "ID" => base64_encode("Forum;$id")
      ]);
      if($_Forum["Empty"] == 0) {
@@ -1312,13 +1306,12 @@
     ];
     $action = "";
     $forumID = base64_decode($forumID);
-    $bl = $this->core->CheckBlocked([$y, "Forums", $forumID]);
+    $blocked = $this->core->CheckBlocked([$y, "Forums", $forumID]);
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => $bl,
      "ID" => base64_encode("Forum;$forumID")
     ]);
     $topicID = base64_decode($topicID);
-    if($_Forum["Empty"] == 0) {
+    if($_Forum["Empty"] == 0 && $blocked == 0) {
      $_Dialog = "";
      $_Extension = $this->core->Element([
       "h1", "[Topic.Title]"
@@ -1390,9 +1383,7 @@
     ];
     $action = "";
     $id = base64_decode($id);
-    $bl = $this->core->CheckBlocked([$y, "Forums", $id]);
     $_Forum = $this->core->GetContentData([
-     "Blacklisted" => $bl,
      "ID" => base64_encode("Forum;$id")
     ]);
     if($_Forum["Empty"] == 0) {

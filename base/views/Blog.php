@@ -291,7 +291,6 @@
     }
    } if(!empty($id) || $i > 0) {
     $_Blog = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("Blog;$id")
     ]);
     $active = 0;

@@ -216,7 +216,6 @@
    $you = $y["Login"]["Username"];
    if(!empty($id) && !empty($username)) {
     $_Media = $this->core->GetContentData([
-     "Blacklisted" => 0,
      "ID" => base64_encode("File;$username;$id"),
      "ParentPage" => $parentView
     ]);

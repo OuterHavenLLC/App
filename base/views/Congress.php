@@ -488,9 +488,7 @@
       $_Type = ($databaseID == "pg") ? "Page" : "";
       $_Type = ($databaseID == "su") ? "StatusUpdate" : $_Type;
       $dataModel = $this->core->GetContentData([
-       "BackTo" => "",
-       "Blacklisted" => 0,
-       "ID" => base64_encode($_Type.";$id")
+       "ID" => base64_encode("$_Type;$id")
       ]);
       $noteID = $this->core->UUID("CongressionalNoteBy$you");
       $preview = $dataModel["Preview"];
@@ -873,7 +871,6 @@
     ];
    } elseif(!empty($id)) {
     $content = $this->core->GetContentData([
-     "BackTo" => "",
      "ID" => $id
     ]);
     $wasDeemedLegal = $content["DataModel"]["CongressDeemedLegal"] ?? 0;

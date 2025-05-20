@@ -374,7 +374,6 @@
     $admin = 0;
     $_Article = $this->core->GetContentData([
      "BackTo" => $backTo,
-     "Blacklisted" => 0,
      "ID" => base64_encode("Page;$id")
     ]);
     if($_Article["Empty"] == 0) {

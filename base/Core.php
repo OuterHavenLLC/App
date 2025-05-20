@@ -468,8 +468,6 @@
    $attachments = "";
    $backTo = $content["BackTo"] ?? "";
    $body = "";
-   $blockCommand = $content["Blacklisted"] ?? 0;
-   $blockCommand = ($blockCommand == 0) ? "Block" : "Unblock";
    $coverPhoto = "";
    $data = [];
    $description = "";

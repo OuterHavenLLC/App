@@ -79,7 +79,6 @@
     } else {
      $contentID = base64_encode($media);
      $_Media = $this->core->GetContentData([
-      "Blacklisted" => 0,
       "ID" => $contentID
      ]);
      if($_Media["Empty"] == 0) {
@@ -136,7 +135,6 @@
      foreach($attachments as $key => $attachment) {
       if(!empty($attachment)) {
        $_Media = $this->core->GetContentData([
-        "Blacklisted" => 0,
         "ID" => $attachment
        ]);
        if($_Media["Empty"] == 0) {
@@ -170,7 +168,6 @@
       if(!empty($attachment)) {
        $i++;
        $member = $this->core->GetContentData([
-        "Blacklisted" => 0,
         "ID" => $attachment
        ]);
        if($member["Empty"] == 0) {
@@ -236,7 +233,6 @@
      foreach($attachments as $key => $attachment) {
       if(!empty($attachment)) {
        $_Media = $this->core->GetContentData([
-        "Blacklisted" => 0,
         "ID" => $attachment
        ]);
        if($_Media["Empty"] == 0) {
