@@ -1923,7 +1923,7 @@
        }
       } if($step == 2) {
        $_ExtensionID = "83d6fedaa3fa042d53722ec0a757e910";
-       $_ExtensionID = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $$_ExtensionID;
+       $_ExtensionID = ($type == "PaidMessage") ? "4b055a0b7ebacc45458ab2017b9bf7eb" : $_ExtensionID;
        $form = $data["Form"] ?? base64_encode("");
        $form = base64_decode($form);
        $changeData = [
@@ -1967,7 +1967,7 @@
     "View" => $_View
    ]);
   }
-  function ProcessCartOrder(array $data): string {
+  function ProcessCartOrder(array $data): array {
    $_AccessCode = "Accepted";
    $_View = "";
    $isBundled = $data["IsBundled"] ?? 0;
@@ -2494,6 +2494,7 @@
       ];
       $_View = "<em>$code</em> was applied to your order!";
       $i++;
+      break;
      }
     }
     $this->core->Data("Save", ["dc", $id, $discount]);

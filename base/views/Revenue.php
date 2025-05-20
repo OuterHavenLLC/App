@@ -572,6 +572,7 @@
      $payPeriods = "";
      foreach($payPeriodData as $id => $payPeriod) {
       $adminExpenses = $payPeriod["AdministrativeExpenses"] ?? [];
+      $adminExpensesList = "";
       $partnerPaymentsOwed = 0;
       $partners = $payPeriod["Partners"] ?? [];
       $payPeriodTotals_Gross = 0;
