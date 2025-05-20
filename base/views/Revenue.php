@@ -266,7 +266,6 @@
    }
    return $this->core->JSONResponse([
     "JSON" => [
-     "All" => $revenue,
      "PayPeriod" => [
       "Data" => $payPeriodTotals,
       "Labels" => $payPeriodLabels
