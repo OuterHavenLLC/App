@@ -2383,7 +2383,7 @@
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    #"Success" => "CloseCard"
+    "Success" => "CloseCard"
    ]);
   }
   function SaveBanish(array $data): string {
