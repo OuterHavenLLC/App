@@ -663,7 +663,7 @@
       ],
       "ExtensionID" => "489a64595f3ec2ec39d1c568cd8a8597"
      ];
-    } elseif($check == 0 && $this->core->ID != $you) {
+    } elseif(($check == 0 && $this->core->ID != $you) || $this->core->ID == $you) {
      $_Dialog = "";
      $_View = "";
     }

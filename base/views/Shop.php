@@ -79,11 +79,6 @@
     $shop = $this->core->Data("Get", ["shop", $id]);
     $owner = $shop["Contributors"] ?? [];
     $owner = array_key_first($owner);
-    $shop = $this->core->FixMissing($shop, [
-     "Description",
-     "Title",
-     "Welcome"
-    ]);
     $adminExpenses = $shop["AdministrativeExpenses"] ?? [];
     $adminExpensesList = "";
     $albums = $shop["Albums"] ?? [];
@@ -93,6 +88,7 @@
     $blogPosts = $shop["BlogPosts"] ?? [];
     $chats = $shop["Chat"] ?? [];
     $coverPhoto = $shop["CoverPhoto"] ?? "";
+    $description = $shop["Description"] ?? "";
     $enableHireSection = $shop["EnableHireSection"] ?? 0;
     $forums = $shop["Forums"] ?? [];
     $forumPosts = $shop["ForumPosts"] ?? [];
@@ -134,7 +130,9 @@
       "Translate" => []
      ]
     ]);
+    $title = $shop["Title"] ?? "";
     $updates = $shop["Updates"] ?? [];
+    $welcome = $shop["Welcome"] ?? "";
     $attachments = $this->view(base64_encode("WebUI:Attachments"), [
      "Header" => "Attachments",
      "ID" => $id,
@@ -221,7 +219,7 @@
           "HeaderText" => "Title"
          ],
          "Type" => "Text",
-         "Value" => $this->core->AESencrypt($shop["Title"])
+         "Value" => $this->core->AESencrypt($title)
         ],
         [
          "Attributes" => [
@@ -236,7 +234,7 @@
           "HeaderText" => "Description"
          ],
          "Type" => "TextBox",
-         "Value" => $this->core->AESencrypt($shop["Description"])
+         "Value" => $this->core->AESencrypt($description)
         ],
         [
          "Attributes" => [
@@ -273,7 +271,7 @@
          ],
          "Type" => "TextBox",
          "Value" => $this->core->AESencrypt($this->core->PlainText([
-          "Data" => $shop["Welcome"]
+          "Data" => $welcome
          ]))
         ],
         [
@@ -1104,11 +1102,9 @@
             "Chart" => "AnnualRevenue$id",
             "DataSets" => [
              [
-              "backgroundColor" => "gradient",
               "borderColor" => "white",
               "borderWidth" => 0.5,
               "data" => $revenue["Year"]["Data"],
-              "fill" => "true",
               "label" => "Net Revenue",
               "tension" => 0.4
              ]
@@ -1130,7 +1126,6 @@
               "borderColor" => "white",
               "borderWidth" => 0.5,
               "data" => $revenue["Month"]["Data"],
-              "fill" => "true",
               "label" => "Net Revenue",
               "tension" => 0.4
              ]
@@ -1148,11 +1143,9 @@
             "Chart" => "PayPeriodRevenue$id",
             "DataSets" => [
              [
-              "backgroundColor" => "gradient",
               "borderColor" => "white",
               "borderWidth" => 0.5,
               "data" => $revenue["PayPeriod"]["Data"],
-              "fill" => "true",
               "label" => "Net Revenue",
               "tension" => 0.4
              ]
@@ -1262,6 +1255,7 @@
    $_Search = base64_encode("Search:Containers");
    $data = $data["Data"] ?? [];
    $back = $data["back"] ?? "";
+   $backTo = urlencode("Made in New York");
    $id = md5($this->core->ShopID);
    $shop = $this->core->Data("Get", ["shop", $id]);
    $partners = $shop["Contributors"] ?? [];
@@ -1281,14 +1275,14 @@
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".MiNYArtists",
-       $this->core->AESencrypt("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=SHOP")
+       $this->core->AESencrypt("v=".$_Search."&b2=$backTo&lPG=MadeInNY&st=SHOP")
       ]
      ],
      [
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".MiNYProducts",
-       $this->core->AESencrypt("v=".$_Search."&b2=Made in New York&lPG=MadeInNY&st=Products")
+       $this->core->AESencrypt("v=".$_Search."&b2=$backTo&lPG=MadeInNY&st=Products")
       ]
      ],
      [
