@@ -1230,7 +1230,7 @@
           "[Shop.Block.Text]" => $blockCommand,
           "[Shop.Cart]" => base64_encode("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
           "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
-          "[Shop.Dashboard]" => $dashboard,
+          "[Shop.Dashboard]" => $dashboard.json_encode($revenue["All"], true),
           "[Shop.Disclaimer]" => $disclaimer,
           "[Shop.History]" => $this->core->AESencrypt("v=".base64_encode("Shop:History")."&ID=$id"),
           "[Shop.ID]" => $id,

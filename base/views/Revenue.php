@@ -153,6 +153,7 @@
    $data = [];
    // BEGIN TEMP
    $data = [
+    "All" => $revenue,
     "PayPeriod" => [
      "Data" => [
       800000,
@@ -198,8 +199,7 @@
       "May",
       "December"
      ]
-    ],
-    "Revenue" => $revenue
+    ]
    ];
    // END TEMP
    return $this->core->JSONResponse([
