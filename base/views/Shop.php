@@ -1333,6 +1333,7 @@
    $viewPairID = base64_decode($viewPairID);
    $y = $this->you;
    $you = $y["Login"]["Username"];
+   $_ViewTitle = $title;
    if($this->core->ID == $you && $type != "Donation") {
     $_Dialog = [
      "Body" => "You must sign in to continue."

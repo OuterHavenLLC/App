@@ -46,7 +46,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Revised the process for bundled products.
 * Shop Partners may add media attachments to invoice notes.
 * Streamlined subscriptions to incentivize Artist and V.I.P. subscriptions. Pricing is now $5.00/month for new Artists, $100.00/year for Developers, and $5.00/month for all V.I.P. Members.
-* Charts are now used to graphically represent current sales data, comparisons, and platform statistics. (coming soon...)
+* Charts are now used to graphically represent current sales data, comparisons, and platform statistics. (in progress...)
 
 ### Re:Search
 * A new hybrid database schema allows for faster indexing and list retrieval while protecting Member data via the encrypted data files.
