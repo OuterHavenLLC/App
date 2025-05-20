@@ -415,7 +415,9 @@
      $variant = "3ColumnMinimal";
     } elseif($searchType == "SHOP-Orders") {
      $searchBarText = "Orders";
+     $shopID = $data["Shop"] ?? md5($you);
      $variant = "Minimal";
+     $_List .= "&Shop=$shopID";
     } elseif($searchType == "StatusUpdates") {
      $header = "Status Updates";
      $searchBarText = "Updates";
@@ -3215,7 +3217,8 @@
    } elseif($searchType == "SHOP-Orders") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "504e2a25db677d0b782d977f7b36ff30";
-    $purchaseOrders = $this->core->Data("Get", ["po", md5($you)]);
+    $shopID = $data["Shop"] ?? md5($you);
+    $purchaseOrders = $this->core->Data("Get", ["po", $shopID]);
     foreach($purchaseOrders as $key => $value) {
      $member = $this->core->Member($value["UN"]);
      if(!empty($member["Login"])) {

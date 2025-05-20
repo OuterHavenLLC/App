@@ -1046,12 +1046,13 @@
          ]
         ]) : "";
         $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
-         "[Dashboard.Charts]" => "",// SUBJECT TO CHANGE
          "[Dashboard.Hire]" => $hire,
-         "[Dashboard.Invoices]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
-         "[Dashboard.NewProduct]" => base64_encode("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
-         "[Dashboard.Orders]" => base64_encode("v=$_Search&st=SHOP-Orders"),
-         "[Dashboard.Services]" => base64_encode("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
+         "[Dashboard.ID]" => $id,
+         "[Dashboard.Invoices]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
+         "[Dashboard.NewProduct]" => $this->core->AESencrypt("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
+         "[Dashboard.Revenue.Month]" => date("M"),
+         "[Dashboard.Revenue.Year]" => date("Y"),
+         "[Dashboard.Services]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
         ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
         $dashboardView = ($active == 1 || $username == $you) ? $this->core->Element([
          "button", "Dashboard", [
@@ -1091,12 +1092,89 @@
           "data-view" => $options["Share"]
          ]
         ]) : "";
+        $revenue = $this->view(base64_encode("Revenue:All"), ["Data" => [
+         "Shop" => $this->core->AESencrypt($id)
+        ]]);
+        $revenue = $this->core->RenderView($revenue, 1)["JSON"] ?? [];
         $_Commands = [
+         [
+          "Name" => "RenderChart",
+          "Parameters" => [
+           [
+            "Chart" => "AnnualRevenue$id",
+            "DataSets" => [
+             [
+              "backgroundColor" => "gradient",
+              "borderColor" => "white",
+              "borderWidth" => 0.5,
+              "data" => $revenue["Year"]["Data"],
+              "fill" => "true",
+              "label" => "Gross Revenue",
+              "tension" => 0.4
+             ]
+            ],
+            "Labels" => $revenue["Year"]["Labels"],
+            "Title" => date("Y")." Annual Revenue",
+            "Type" => "line"
+           ]
+          ]
+         ],
+         [
+          "Name" => "RenderChart",
+          "Parameters" => [
+           [
+            "Chart" => "MonthlyRevenue$id",
+            "DataSets" => [
+             [
+              "backgroundColor" => "gradient",
+              "borderColor" => "white",
+              "borderWidth" => 0.5,
+              "data" => $revenue["Month"]["Data"],
+              "fill" => "true",
+              "label" => "Gross Revenue",
+              "tension" => 0.4
+             ]
+            ],
+            "Labels" => $revenue["Month"]["Labels"],
+            "Title" => "Revenue for ".date("M"),
+            "Type" => "line"
+           ]
+          ]
+         ],
+         [
+          "Name" => "RenderChart",
+          "Parameters" => [
+           [
+            "Chart" => "PayPeriodRevenue$id",
+            "DataSets" => [
+             [
+              "backgroundColor" => "gradient",
+              "borderColor" => "white",
+              "borderWidth" => 0.5,
+              "data" => $revenue["PayPeriod"]["Data"],
+              "fill" => "true",
+              "label" => "Gross Revenue",
+              "tension" => 0.4
+             ]
+            ],
+            "Labels" => $revenue["PayPeriod"]["Labels"],
+            "Title" => "Pay Period Revenue",
+            "Type" => "line"
+           ]
+          ]
+         ],
          [
           "Name" => "UpdateContentAES",
           "Parameters" => [
            ".Conversation$id",
            $this->core->AESencrypt("v=".base64_encode("Conversation:Home")."&CRID=".base64_encode($id)."&LVL=".base64_encode(1))
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".DashboardPurchaseOrders$id",
+           $this->core->AESencrypt("v=$_Search&Shop=$id&st=SHOP-Orders")
           ]
          ],
          [

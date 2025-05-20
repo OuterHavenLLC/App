@@ -141,6 +141,67 @@
     "Dialog" => $_Dialog
    ]);
   }
+  function All(array $data): string {
+   $data = $data["Data"] ?? [];
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   $shopID = $data["Shop"] ?? $this->core->AESencrypt(md5($you));
+   $shopID = $this->core->AESdecrypt($shopID);
+   $data = [];
+   // BEGIN TEMP
+   $data = [
+    "PayPeriod" => [
+     "Data" => [
+      800000,
+      300000
+     ],
+     "Labels" => [
+      "Period #1 for ".date("M"),
+      "Period #2 for ".date("M")
+     ]
+    ],
+    "Month" => [
+     "Data" => [
+      200000,
+      300000,
+      400000,
+      600000,
+      900000,
+      1000000
+     ],
+     "Labels" => [
+      1,
+      2,
+      3,
+      4,
+      5,
+      31
+     ]
+    ],
+    "Year" => [
+     "Data" => [
+      2000000,
+      3000000,
+      4000000,
+      6000000,
+      8000000,
+      10000000
+     ],
+     "Labels" => [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "December"
+     ]
+    ],
+   ];
+   // END TEMP
+   return $this->core->JSONResponse([
+    "JSON" => $data
+   ]);
+  }
   function Home(array $data): string {
    $_AssTopMargin = "0";
    $_Card = "";
