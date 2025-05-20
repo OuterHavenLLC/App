@@ -1109,12 +1109,12 @@
               "borderWidth" => 0.5,
               "data" => $revenue["Year"]["Data"],
               "fill" => "true",
-              "label" => "Gross Revenue",
+              "label" => "Net Revenue",
               "tension" => 0.4
              ]
             ],
             "Labels" => $revenue["Year"]["Labels"],
-            "Title" => date("Y")." Annual Revenue",
+            "Title" => "Annual Revenue for ".date("Y"),
             "Type" => "line"
            ]
           ]
@@ -1131,13 +1131,13 @@
               "borderWidth" => 0.5,
               "data" => $revenue["Month"]["Data"],
               "fill" => "true",
-              "label" => "Gross Revenue",
+              "label" => "Net Revenue",
               "tension" => 0.4
              ]
             ],
             "Labels" => $revenue["Month"]["Labels"],
             "Title" => "Revenue for ".date("M"),
-            "Type" => "line"
+            "Type" => "bar"
            ]
           ]
          ],
@@ -1153,12 +1153,12 @@
               "borderWidth" => 0.5,
               "data" => $revenue["PayPeriod"]["Data"],
               "fill" => "true",
-              "label" => "Gross Revenue",
+              "label" => "Net Revenue",
               "tension" => 0.4
              ]
             ],
             "Labels" => $revenue["PayPeriod"]["Labels"],
-            "Title" => "Pay Period Revenue",
+            "Title" => "Revenue by Pay Period",
             "Type" => "line"
            ]
           ]
@@ -1230,7 +1230,7 @@
           "[Shop.Block.Text]" => $blockCommand,
           "[Shop.Cart]" => $this->core->AESencrypt("v=".base64_encode("Cart:Home")."&UN=".$data["UN"]."&ViewPiarID=".base64_encode("Shop$id")),
           "[Shop.CoverPhoto]" => $_Shop["ListItem"]["CoverPhoto"],
-          "[Shop.Dashboard]" => $dashboard.json_encode($revenue["All"], true),
+          "[Shop.Dashboard]" => $dashboard,
           "[Shop.Disclaimer]" => $disclaimer,
           "[Shop.History]" => $this->core->AESencrypt("v=".base64_encode("Shop:History")."&ID=$id"),
           "[Shop.ID]" => $id,

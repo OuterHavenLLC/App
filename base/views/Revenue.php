@@ -143,67 +143,149 @@
   }
   function All(array $data): string {
    $data = $data["Data"] ?? [];
-   $month = date("M");
+   $day = date("d");
+   $month = date("m");
    $shopID = $data["Shop"] ?? $this->core->AESencrypt(md5($you));
    $year = date("Y");
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   $shopID = $this->core->AESdecrypt($shopID);
-   $revenue = $this->core->Data("Get", ["revenue", "$year-$shopID"]);
-   $data = [];
-   // BEGIN TEMP
-   $data = [
-    "All" => $revenue,
-    "PayPeriod" => [
-     "Data" => [
-      800000,
-      300000
-     ],
-     "Labels" => [
-      "Period #1 for ".date("M"),
-      "Period #2 for ".date("M")
-     ]
+   $currentPayPeriod = [1, 2];
+   $currentPayPeriod = ($month == 2) ? [3, 4] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 3) ? [5, 6] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 4) ? [7, 8] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 5) ? [9, 10] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 6) ? [11, 12] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 7) ? [13, 14] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 8) ? [15, 16] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 9) ? [17, 18] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 10) ? [19, 20] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 11) ? [21, 22] : $currentPayPeriod;
+   $currentPayPeriod = ($month == 12) ? [23, 24] : $currentPayPeriod;
+   $currentPayPeriodByDay = $currentPayPeriod[1];
+   $currentPayPeriodByDay = ($day < 15) ? $currentPayPeriod[0] : $currentPayPeriodByDay;
+   $monthLabels = [];
+   $monthTotals = [];
+   $months = [
+    [
+     "Label" => "January",
+     "PayPeriods" => [1, 2]
     ],
-    "Month" => [
-     "Data" => [
-      200000,
-      300000,
-      400000,
-      600000,
-      900000,
-      1000000
-     ],
-     "Labels" => [
-      1,
-      2,
-      3,
-      4,
-      5,
-      31
-     ]
+    [
+     "Label" => "February",
+     "PayPeriods" => [3, 4]
     ],
-    "Year" => [
-     "Data" => [
-      2000000,
-      3000000,
-      4000000,
-      6000000,
-      8000000,
-      10000000
-     ],
-     "Labels" => [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "December"
-     ]
+    [
+     "Label" => "March",
+     "PayPeriods" => [5, 6]
+    ],
+    [
+     "Label" => "April",
+     "PayPeriods" => [7, 8]
+    ],
+    [
+     "Label" => "May",
+     "PayPeriods" => [9, 10]
+    ],
+    [
+     "Label" => "June",
+     "PayPeriods" => [11, 12]
+    ],
+    [
+     "Label" => "July",
+     "PayPeriods" => [13, 14]
+    ],
+    [
+     "Label" => "August",
+     "PayPeriods" => [15, 16]
+    ],
+    [
+     "Label" => "September",
+     "PayPeriods" => [17, 18]
+    ],
+    [
+     "Label" => "October",
+     "PayPeriods" => [19, 20]
+    ],
+    [
+     "Label" => "November",
+     "PayPeriods" => [21, 22]
+    ],
+    [
+     "Label" => "December",
+     "PayPeriods" => [23, 24]
     ]
    ];
-   // END TEMP
+   $payPeriodLabels = [];
+   $payPeriodTotals = [];
+   $payPeriod1 = 0;
+   $payPeriod2 = 0;
+   $payPeriods = [];
+   $shopID = $this->core->AESdecrypt($shopID);
+   $revenue = $this->core->Data("Get", ["revenue", "$year-$shopID"]);
+   $payPeriodData = $revenue["Payroll"] ?? [];
+   $shop = $this->core->Data("Get", ["shop", $shopID]);
+   $tax = $shop["Tax"] ?? 10.00;
+   $transactions = $revenue["Transactions"] ?? [];
+   foreach($payPeriodData as $id => $payPeriod) {
+    $payPeriods[$id] = [
+     "Label" => "Pay Period #$id",
+     "Total" => 0
+    ];
+    $gross = 0;
+    $expenses = 0;
+    $net = 0;
+    foreach($transactions as $transaction => $info) {
+     $check = ($info["Timestamp_UNIX"] >= $payPeriod["Begins_UNIX"]) ? 1 : 0;
+     $check2 = ($info["Timestamp_UNIX"] <= $payPeriod["Ends_UNIX"]) ? 1 : 0;
+     if($check == 1 && $check2 == 1) {
+      $gross = $gross + $info["Profit"];
+      if(!in_array($info["Type"], ["Disbursement", "Refund"])) {
+       $expenses = $expenses + $info["Cost"];
+      }
+     }
+    }
+    $gross = $gross + $expenses;
+    $taxes = $gross * ($tax / 100);
+    $net = $gross - $expenses - $taxes;
+    $payPeriods[$id]["Total"] = $net;
+    if(in_array($id, $currentPayPeriod)) {
+     if($id == $currentPayPeriod[0]) {
+      $payPeriod1 = $payPeriod1 + $payPeriods[$id]["Total"];
+     } elseif($id == $currentPayPeriod[1]) {
+      $payPeriod2 = $payPeriod2 + $payPeriods[$id]["Total"];
+     }
+    }
+   } foreach($payPeriods as $id => $info) {
+    array_push($payPeriodLabels, $info["Label"]);
+    array_push($payPeriodTotals, number_format($info["Total"], 2));
+   } for($i = 0; $i < 12; $i++) {
+    $monthPayPeriod1 = $payPeriods[$months[$i]["PayPeriods"][0]]["Total"];
+    $monthPayPeriod2 = $payPeriods[$months[$i]["PayPeriods"][1]]["Total"];
+    array_push($monthLabels, $months[$i]["Label"]);
+    array_push($monthTotals, number_format($monthPayPeriod1 + $monthPayPeriod2, 2));
+   }
    return $this->core->JSONResponse([
-    "JSON" => $data
+    "JSON" => [
+     "All" => $revenue,
+     "PayPeriod" => [
+      "Data" => $payPeriodTotals,
+      "Labels" => $payPeriodLabels
+     ],
+     "Month" => [
+      "Data" => [
+       $payPeriod1,
+       $payPeriod2
+      ],
+      "Labels" => [
+       "First Half (Pay Period #".$currentPayPeriod[0].")",
+       "Second Half (Pay Period #".$currentPayPeriod[1].")"
+      ]
+     ],
+     "Year" => [
+      "Data" => $monthTotals,
+      "Labels" => $monthLabels
+     ]
+    ]
    ]);
   }
   function Home(array $data): string {
