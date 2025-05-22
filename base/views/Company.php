@@ -65,8 +65,23 @@
    $card = $data["Card"] ?? 0;
    $eventMedia = $this->core->RenderEventMedia() ?? [];
    $shopID = base64_encode($this->core->ShopID);
+   $_View = [
+    "ChangeData" => [
+     "[App.Banner]" => $eventMedia["Banner"],
+     "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
+     "[App.Feedback]" => $this->core->AESencrypt("v=".base64_encode("Feedback:NewThread")),
+     "[App.Shop]" => $this->core->AESencrypt("v=".base64_encode("Shop:Home")."&b2=".urlencode("Company Home")."&back=1&lPG=OHC&UN=$shopID"),
+     "[App.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")."&TopMargin=".base64_encode("0")."&back=1")
+    ],
+    "ExtensionID" => "0a24912129c7df643f36cb26038300d6"
+   ];
+   $_Card = ($card == 1) ? [
+    "Front" => $_View
+   ] : "";
+   $_View = ($card == 0) ? $_View : "";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Card" => $_Card,
     "Commands" => [
      [
       "Name" => "UpdateContentAES",
@@ -106,16 +121,7 @@
      ]
     ],
     "Title" => "About ".$this->core->config["App"]["Name"],
-    "View" => [
-     "ChangeData" => [
-      "[App.Banner]" => $eventMedia["Banner"],
-      "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
-      "[App.Feedback]" => base64_encode("v=".base64_encode("Feedback:NewThread")),
-      "[App.Shop]" => base64_encode("v=".base64_encode("Shop:Home")."&b2=".urlencode("Company Home")."&back=1&lPG=OHC&UN=$shopID"),
-      "[App.VVA]" => base64_encode("v=".base64_encode("Company:VVA")."&TopMargin=".base64_encode("0")."&back=1")
-     ],
-     "ExtensionID" => "0a24912129c7df643f36cb26038300d6"
-    ]
+    "View" => $_View
    ]);
   }
   function Partners(): string {
