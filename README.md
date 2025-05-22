@@ -33,6 +33,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * A new Public() view now pre-loads the main UI containers and asynchronously renders in a given view.
 * All client functions were re-organized into a single class, and the logic was modernized.
 * Standardized the Block buttons and revamped the processor view—now located in WebUI->Block().
+* Platform Statistics are now augmented with charts for Month and Year totals.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.
