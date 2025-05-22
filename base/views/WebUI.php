@@ -97,10 +97,10 @@
        $cloneID = $this->core->UUID("AttachmentMedia".rand(100, 999));
        $addTo = base64_encode("Attach:.AddTo$cloneID");
        $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
-       $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
+       $liveView = $this->core->AESencrypt("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
        $mediaList .= $this->core->Change([[
         "[Clone.ID]" => $cloneID,
-        "[Media.Add]" => base64_encode($addMedia),
+        "[Media.Add]" => $this->core->AESencrypt($addMedia),
         "[Media.File]" => $attachments,
         "[Media.ID]" => $cloneID,
         "[Media.Input]" => $mediaInput,
@@ -114,11 +114,11 @@
         $cloneID = $this->core->UUID("AttachmentMedia".rand(100, 999));
         $addTo = base64_encode("Attach:.AddTo$cloneID");
         $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
-        $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
+        $liveView = $this->core->AESencrypt("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
         $mediaList .= $this->core->Change([[
          "[Clone.Content]" => $this->core->Change([[
           "[Clone.ID]" => $cloneID,
-          "[Media.Add]" => base64_encode($addMedia),
+          "[Media.Add]" => $this->core->AESencrypt($addMedia),
           "[Media.File]" => $attachments[$i],
           "[Media.ID]" => $cloneID,
           "[Media.Input]" => $mediaInput,
@@ -133,11 +133,11 @@
       $addMedia = $symbolicLinks[$mediaType] ?? $symbolicLinks["Default"];
       $addMedia = str_replace("[Link.AddTo]", $addTo, $_SymbolicLink.$addMedia);
       $cloneSourceID = $this->core->UUID("CloneSource".md5($key));
-      $liveView = base64_encode("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
+      $liveView = $this->core->AESencrypt("v=".base64_encode("LiveView:Editor")."&MediaType=".base64_encode($key)."&Media=");
       $mediaListID = $this->core->UUID("MediaList".md5($key));
       $mediaListIDSS = ($key != "CoverPhoto") ? "$mediaListID SideScroll" : $mediaListID;
       $mediaClone = $this->core->Change([[
-       "[Media.Add]" => base64_encode($addMedia),
+       "[Media.Add]" => $this->core->AESencrypt($addMedia),
        "[Media.File]" => "",
        "[Media.ID]" => "[Clone.ID]",
        "[Media.Input]" => $mediaInput,
