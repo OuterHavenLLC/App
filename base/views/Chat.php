@@ -1261,14 +1261,25 @@
      if(!empty($autoResponse)) {
       $theirChat = $this->core->Data("Get", ["chat", md5($to)]);
       $messages[$now] = [
-       "Attachments" => [],
+       "Albums" => $albums,
+       "Articles" => $articles,
+       "Attachments" => $attachments,
+       "Blogs" => $blogs,
+       "BlogPosts" => $blogPosts,
+       "Chats" => $chats,
+       "Forums" => $forums,
+       "ForumPosts" => $forumPosts,
        "From" => $to,
        "Message" => $autoResponse,
        "Paid" => 0,
        "PaidAmount" => $paidAmount,
+       "Polls" => $polls,
+       "Products" => $products,
        "Read" => 0,
+       "Shops" => $shops,
        "Timestamp" => $now,
-       "To" => $you
+       "To" => $you,
+       "Updates" => $updates
       ];
       $this->core->Data("Save", ["chat", md5($to), $theirChat]);
      }

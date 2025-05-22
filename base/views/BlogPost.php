@@ -24,7 +24,6 @@
    } elseif((!empty($blog) && !empty($post)) || $new == 1) {
     $id = ($new == 1) ? $this->core->UUID("BlogPostBy$you") : $post;
     $action = ($new == 1) ? "Post" : "Update";
-    $attachments = "";
     $blog = $this->core->Data("Get", ["blg", $blog]);
     $post = $this->core->Data("Get", ["bp", $id]);
     $albums = $post["Albums"] ?? [];
@@ -595,9 +594,9 @@
      $purge = $data["Purge"] ?? 0;
      $shops = [];
      $shopsData = $data["Shop"] ?? [];
+     $subscribers = $post["Subscribers"] ?? [];
      $updates = [];
      $updatesData = $data["Update"] ?? [];
-     $subscribers = $post["Subscribers"] ?? [];
      $post["Contributors"][$you] = ($author == $you) ? "Admin" : "Member";
      if(!empty($albumsData)) {
       $media = $albumsData;

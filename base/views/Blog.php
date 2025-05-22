@@ -98,19 +98,31 @@
    } elseif(!empty($id) || $new == 1) {
     $_Dialog = "";
     $action = ($new == 1) ? "Post" : "Update";
-    $id = ($new == 1) ? md5($you."_BLG_".uniqid()) : $id;
+    $id = ($new == 1) ? $this->core->UUID("ANewBlogBy$you") : $id;
     $blog = $this->core->Data("Get", ["blg", $id]);
+    $albums = $blog["Albums"] ?? [];
+    $articles = $blog["Articles"] ?? [];
+    $attachments = $blog["Attachments"] ?? [];
     $author = $blog["UN"] ?? $you;
-    $coverPhotoSource = $blog["ICO-SRC"] ?? "";
+    $blogs = $blog["Blogs"] ?? [];
+    $blogPosts = $blog["BlogPosts"] ?? [];
+    $chats = $blog["Chat"] ?? [];
+    $coverPhoto = $blog["CoverPhoto"] ?? "";
     $description = $blog["Description"] ?? "";
+    $forums = $blog["Forums"] ?? [];
+    $forumPosts = $blog["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Blog" : "Edit ".$blog["Title"];
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $blog["PassPhrase"] ?? "";
+    $polls = $blog["Polls"] ?? [];
     $privacy = $blog["Privacy"] ?? $y["Privacy"]["Posts"];
+    $products = $blog["Products"] ?? [];
+    $shops = $blog["Shops"] ?? [];
     $template = $blog["TPL"] ?? "";
     $templateOptions = $this->core->DatabaseSet("Extensions");
     $templates = [];
     $title = $blog["Title"] ?? "";
+    $updates = $blog["Updates"] ?? [];
     foreach($templateOptions as $key => $value) {
      $value = str_replace("nyc.outerhaven.extension.", "", $value);
      $template = $this->core->Data("Get", ["extension", $value]) ?? [];
@@ -118,18 +130,46 @@
       $templates[$value] = $template["Title"];
      }
     }
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
+     "ID" => $id,
+     "Media" => [
+      "Album" => $albums,
+      "Article" => $articles,
+      "Attachment" => $attachments,
+      "Blog" => $blogs,
+      "BlogPost" => $blogPosts,
+      "Chat" => $chats,
+      "CoverPhoto" => $coverPhoto,
+      "Forum" => $forums,
+      "ForumPost" => $forumPosts,
+      "Member" => $members,
+      "Poll" => $polls,
+      "Product" => $products,
+      "Shop" => $shops,
+      "Update" => $updates
+     ]
+    ]);
+    $translate = $this->view(base64_encode("WebUI:Attachments"), [
+     "ID" => $id,
+     "Media" => [
+      "Translate" => []
+     ]
+    ]);
     $_Card = [
      "Action" => $this->core->Element(["button", $action, [
       "class" => "CardButton SendData",
       "data-form" => ".EditBlog$id",
-      "data-processor" => base64_encode("v=".base64_encode("Blog:Save"))
+      "data-encryption" => "AES",
+      "data-processor" => $this->core->AESencrypt("v=".base64_encode("Blog:Save"))
      ]]),
      "Front" => [
       "ChangeData" => [
-       "[Blog.Attachments]" => "",
+       "[Blog.Attachments]" => $this->core->RenderView($attachments),
        "[Blog.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
        "[Blog.Header]" => $header,
-       "[Blog.ID]" => $id
+       "[Blog.ID]" => $id,
+       "[Blog.Translate]" => $this->core->RenderView($translate)
       ],
       "ExtensionID" => "7759aead7a3727dd2baed97550872677"
      ]
@@ -647,20 +687,47 @@
     } else {
      $_AccessCode = "Accepted";
      $blog = $this->core->Data("Get", ["blg", $id]);
+     $albums = [];
+     $albumsData = $data["Album"] ?? [];
+     $articles = [];
+     $articlesData = $data["Article"] ?? [];
+     $attachments = [];
+     $attachmentsData = $data["Attachment"] ?? [];
      $author = $blog["UN"] ?? $you;
      $actionTaken = ($new == 1) ? "posted" : "updated";
+     $blogs = [];
+     $blogsData = $data["Blog"] ?? [];
+     $blogPosts = [];
+     $blogPostsData = $data["BlogPost"] ?? [];
+     $chats = [];
+     $chatsData = $data["Chat"] ?? [];
      $contributors = $blog["Contributors"] ?? [];
      $contributors[$author] = "Admin";
+     $coverPhoto = $dats["CoverPhoto"] ?? "";
      $created = $blog["Created"] ?? $now;
+     $forums = [];
+     $forumsData = $data["Forum"] ?? [];
+     $forumPosts = [];
+     $forumPostsData = $data["ForumPost"] ?? [];
      $illegal = $blog["Illegal"] ?? 0;
+     $members = []; 
+     $membersData = $data["Member"] ?? [];
      $modifiedBy = $blog["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["NSFW"];
      $passPhrase = $data["PassPhrase"] ?? "";
+     $polls = []; 
+     $pollsData = $data["Poll"] ?? [];
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Posts"];
+     $products = [];
+     $productsData = $data["Product"] ?? [];
      $purge = $blog["Purge"] ?? 0;
      $posts = $blog["Posts"] ?? [];
+     $shops = [];
+     $shopsData = $data["Shop"] ?? [];
      $subscribers = $blog["Subscribers"] ?? [];
+     $updates = [];
+     $updatesData = $data["Update"] ?? [];
      foreach($subscribers as $key => $value) {
       $this->core->SendBulletin([
        "Data" => [
@@ -669,23 +736,95 @@
        "To" => $value,
        "Type" => "BlogUpdate"
       ]);
-     } if(!empty($data["CoverPhoto"])) {
-      $dlc = array_reverse(explode(";", base64_decode($data["CoverPhoto"])));
-      foreach($dlc as $dlc) {
-       if(!empty($dlc) && $i == 0) {
-        $f = explode("-", base64_decode($dlc));
-        if(!empty($f[0]) && !empty($f[1])) {
-         $t = $this->core->Member($f[0]);
-         $efs = $this->core->Data("Get", [
-          "fs",
-          md5($t["Login"]["Username"])
-         ]) ?? [];
-         $fileName = $efs["Files"][$f[1]]["Name"] ?? "";
-         if(!empty($fileName)) {
-          $coverPhoto = base64_encode($f[0]."-".$f[1]);
-          $i++;
-         }
-        }
+     } if(!empty($albumsData)) {
+      $media = $albumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($albums, $media[$i]);
+       }
+      }
+     } if(!empty($articlesData)) {
+      $media = $articlesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($articles, $media[$i]);
+       }
+      }
+     } if(!empty($attachmentsData)) {
+      $media = $attachmentsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($attachments, $media[$i]);
+       }
+      }
+     } if(!empty($blogsData)) {
+      $media = $blogsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogs, $media[$i]);
+       }
+      }
+     } if(!empty($blogPostsData)) {
+      $media = $blogPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogPosts, $media[$i]);
+       }
+      }
+     } if(!empty($chatsData)) {
+      $media = $chatsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($chats, $media[$i]);
+       }
+      }
+     } if(!empty($forumsData)) {
+      $media = $forumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forums, $media[$i]);
+       }
+      }
+     } if(!empty($forumPostsData)) {
+      $media = $forumPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forumPosts, $media[$i]);
+       }
+      }
+     } if(!empty($membersData)) {
+      $media = $membersData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($members, $media[$i]);
+       }
+      }
+     } if(!empty($pollsData)) {
+      $media = $pollsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($polls, $media[$i]);
+       }
+      }
+     } if(!empty($productsData)) {
+      $media = $productsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($products, $media[$i]);
+       }
+      }
+     } if(!empty($shopsData)) {
+      $media = $shopsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($shops, $media[$i]);
+       }
+      }
+     } if(!empty($updatesData)) {
+      $media = $updatesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($updates, $media[$i]);
        }
       }
      } if(!in_array($id, $y["Blogs"]) && $new == 1) {
@@ -696,9 +835,17 @@
       }
      }
      $blog = [
+      "Albums" => $albums,
+      "Articles" => $articles,
+      "Attachments" => $attachments,
+      "Blogs" => $blogs,
+      "BlogPosts" => $blogPosts,
+      "Chats" => $chats,
       "Contributors" => $contributors,
-      "Created" => $created,
       "CoverPhoto" => $coverPhoto,
+      "Created" => $created,
+      "Forums" => $forums,
+      "ForumPosts" => $forumPosts,
       "ID" => $id,
       "Illegal" => $illegal,
       "Modified" => $now,
@@ -707,13 +854,17 @@
       "NSFW" => $nsfw,
       "PassPhrase" => $passPhrase,
       "Privacy" => $privacy,
+      "Polls" => $polls,
       "Posts" => $posts,
+      "Products" => $products,
       "Purge" => $purge,
+      "Shops" => $shops,
       "Title" => $title,
       "TPL" => $data["TPL-BLG"],
-      "UN" => $author
+      "UN" => $author,
+      "Updates" => $updates
      ];
-     $sql = New SQL($this->core->cypher->SQLCredentials());
+     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Blogs(
       Blog_Created,
       Blog_Description,
@@ -743,15 +894,16 @@
      $sql->execute();
      $this->core->Data("Save", ["blg", $id, $blog]);
      $this->core->Data("Save", ["mbr", md5($you), $y]);
-     $_Dialog = [
-      "Body" => "The Blog <em>$title</em> was $actionTaken!",
-      "Header" => "Done"
-     ];
      if($new == 1) {
       $this->core->Statistic("Save Blog");
      } else {
       $this->core->Statistic("Update Blog");
-     }
+     }--*/
+     $_Dialog = [
+      "Body" => "The Blog <em>$title</em> was $actionTaken!",
+      "Header" => "Done",
+      "Scrollable" => json_encode($blog, true)
+     ];
     }
    }
    return $this->core->JSONResponse([
