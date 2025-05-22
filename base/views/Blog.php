@@ -127,7 +127,7 @@
      "Front" => [
       "ChangeData" => [
        "[Blog.Attachments]" => "",
-       "[Blog.Chat]" => base64_encode("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
+       "[Blog.Chat]" => $this->core->AESencrypt("v=".base64_encode("Chat:Edit")."&Description=".base64_encode($description)."&ID=".base64_encode($id)."&Title=".base64_encode($title)."&Username=".base64_encode($author)),
        "[Blog.Header]" => $header,
        "[Blog.ID]" => $id
       ],

@@ -362,12 +362,12 @@
          "[Media.ID]" => "",
          "[Media.Name]" => ""
         ], $this->core->Extension("f1a8c31050b241ebcea22f33cf6171f4")])),
-        "[Configuration.Save.App]" => base64_encode("v=".base64_encode("ControlPanel:SaveApp")),
-        "[Configuration.Save.Events]" => base64_encode("v=".base64_encode("ControlPanel:SaveEvents")),
-        "[Configuration.Save.Media]" => base64_encode("v=".base64_encode("ControlPanel:SaveMedia")),
-        "[Configuration.Save.Search]" => base64_encode("v=".base64_encode("ControlPanel:SaveSearch")),
-        "[Configuration.Save.Statistics]" => base64_encode("v=".base64_encode("ControlPanel:SaveStatistics")),
-        "[Configuration.Save.UI]" => base64_encode("v=".base64_encode("ControlPanel:SaveUI")),
+        "[Configuration.Save.App]" => $this->core->AESencrypt("v=".base64_encode("ControlPanel:SaveApp")),
+        "[Configuration.Save.Events]" => $this->core->AESencrypt("v=".base64_encode("ControlPanel:SaveEvents")),
+        "[Configuration.Save.Media]" => $this->core->AESencrypt("v=".base64_encode("ControlPanel:SaveMedia")),
+        "[Configuration.Save.Search]" => $this->core->AESencrypt("v=".base64_encode("ControlPanel:SaveSearch")),
+        "[Configuration.Save.Statistics]" => $this->core->AESencrypt("v=".base64_encode("ControlPanel:SaveStatistics")),
+        "[Configuration.Save.UI]" => $this->core->AESencrypt("v=".base64_encode("ControlPanel:SaveUI")),
         "[Configuration.Search]" => $search,
         "[Configuration.Search.Clone]" => base64_encode($this->core->Change([[
          "[List.Description]" => "",

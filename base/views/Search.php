@@ -367,6 +367,11 @@
      $_List .= "&lPG=Files";
      $searchBarText = "Files";
      $variant = "3Column";
+    } elseif($searchType == "PaidMessages") {
+     $chat = $data["Chat"] ?? "";
+     $searchBarText = "paid messages";
+     $variant = "Minimal";
+     $_List .= "&Chat=$chat";
     } elseif($searchType == "Polls") {
      $header = "Polls";
      $searchBarText = "Polls";
@@ -2624,7 +2629,7 @@
          "[Chat.DisplayName]" => $t["Personal"]["DisplayName"],
          "[Chat.Online]" => $online,
          "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:90%"),
-         "[Chat.View]" => base64_encode($view)
+         "[Chat.View]" => $this->core->AESencrypt($view)
         ]);
        }
       }
@@ -2970,6 +2975,28 @@
        "[File.View]" => $options["View"]
       ]);
      }
+    }
+   } elseif($searchType == "PaidMessages") {
+    $_AccessCode = "Accepted";
+    $_Extension = $this->core->AESencrypt($this->core->Element([
+     "div", NULL, [
+      "class" => "NONAME ReSearchPaidMessage[Message.ID]"
+     ]
+    ]));
+    $chatID = $data["Chat"] ?? "";
+    $chat = $this->core->Data("Get", ["chat", $chatID]);
+    $messages = $chat["Messages"] ?? [];
+    foreach($messages as $key => $info) {
+     array_push($_Commands, [
+      "Name" => "UpdateContentAES",
+      "Parameters" => [
+       ".ReSearchPaidMessage".md5($key),
+       $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=$chatID&MessageID=".base64_encode($key)."&PaidMessage=1")
+      ]
+     ]);
+     array_push($_List, [
+      "[Message.ID]" => md5($key)
+     ]);
     }
    } elseif($searchType == "Polls") {
     $_AccessCode = "Accepted";

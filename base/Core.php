@@ -610,7 +610,7 @@
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Chat:Purge")
       ], true);
-      $view = "v=".base64_encode("Chat:Home")."&AddTo=$addTo&ID=".base64_encode($contentID)."&Integrated=".$content["Integrated"];
+      $view = "v=".base64_encode("Chat:Home")."&AddTo=$addTo&ID=".base64_encode($contentID)."&Group=1&Integrated=".$content["Integrated"];
       $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Group Chats")),

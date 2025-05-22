@@ -2283,6 +2283,7 @@
       ];
       $_ResponseType = "";
       $_View = "";
+      $this->core->Statistic("Sign In");
      }
     }
    } else {

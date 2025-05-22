@@ -436,6 +436,14 @@
            ".Attachments$id",
            $this->core->AESencrypt("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode($id)),
            15000
+          ]
+         ],
+         [
+          "Name" => "UpdateContentAES",
+          "Parameters" => [
+           ".PaidMessageSearch$id",
+           $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Chat=$id&st=PaidMessages")
+          ]
          ]
         ];
         $_View = [
@@ -539,6 +547,7 @@
       "Extension" => $this->core->AESencrypt($_View)
      ];
     } else {
+      $chat = $this->core->Data("Get", ["chat", $id]);
      $_Dialog = [
       "Body" => "The Group Chat has not been created."
      ];
@@ -559,7 +568,25 @@
       $displayName = $t["Personal"]["DisplayName"];
       $to = $t["Personal"]["DisplayName"];
      } if(($check == 1 && $group == 1) || $oneOnOne == 1) {
-      $_Dialog = "";
+      $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+       "Header" => "Attachments",
+       "ID" => $id,
+       "Media" => [
+        "Album" => [],
+        "Article" => [],
+        "Attachment" => [],
+        "Blog" => [],
+        "BlogPost" => [],
+        "Chat" => [],
+        "Forum" => [],
+        "ForumPost" => [],
+        "Member" => [],
+        "Poll" => [],
+        "Product" => [],
+        "Shop" => [],
+        "Update" => []
+       ]
+      ]);
       $_Commands = [
        [
         "Name" => "RenderInputs",
@@ -666,7 +693,7 @@
         "Parameters" => [
          ".ChatBody$id",
          $this->core->AESencrypt("v=".base64_encode("Chat:List")."&1on1=$oneOnOne&Group=$group&ID=$chatID"),
-         3000
+         6000
         ]
        ],
        [
@@ -674,19 +701,21 @@
         "Parameters" => [
          ".ChatPaidMessages$id",
          $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=$id&PaidMessages=1"),
-         3000
+         15000
         ]
-       ],
+       ]
       ];
+      $_Dialog = "";
       $_View = [
        "ChangeData" => [
        "[Chat.ActivityStatus]" => $active,
+       "[Chat.Attachments]" => $this->core->RenderView($attachments),
        "[Chat.Body]" => $body,
        "[Chat.DisplayName]" => $displayName,
        "[Chat.ID]" => $id,
-       "[Chat.PaidMessage]" => base64_encode("v=".base64_encode("Shop:Pay")."&Shop=".md5($chat["UN"])."&Type=PaidMessage&ViewPairID=".base64_encode("PaidMessage$id")),
+       "[Chat.PaidMessage]" => $this->core->AESencrypt("v=".base64_encode("Shop:Pay")."&Shop=".md5($chat["UN"])."&Type=PaidMessage&ViewPairID=".base64_encode("PaidMessage$id")),
        "[Chat.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:0.5em;max-width:6em;width:calc(100% - 1em)"),
-       "[Chat.Send]" => base64_encode("v=".base64_encode("Chat:Save")),
+       "[Chat.Send]" => $this->core->AESencrypt("v=".base64_encode("Chat:Save")),
        "[Chat.To]" => $to,
        "[Chat.Type]" => $group
        ],
@@ -734,29 +763,31 @@
      $yourChat = $yourChat["Messages"] ?? [];
      $chat = array_merge($theirChat, $yourChat);
     } if($group == 1 || $oneOnOne == 1) {
-     foreach($chat as $key => $value) {
+     foreach($chat as $key => $info) {
       $check = 1;
       $check2 = 1;
       if($oneOnOne == 1) {
-       $check = ($value["From"] == $to && $value["To"] == $you) ? 1 : 0;
-       $check2 = ($value["From"] == $you && $to == $value["To"]) ? 1 : 0;
+       $check = ($info["From"] == $to && $info["To"] == $you) ? 1 : 0;
+       $check2 = ($info["From"] == $you && $to == $info["To"]) ? 1 : 0;
       } if($group == 1 || $check == 1 || $check2 == 1) {
-       $attachments = "";
-       if(!empty($value["Attachments"])) {
-        $attachments = $this->view(base64_encode("LiveView:InlineMossaic"), ["Data" => [
-         "ID" => base64_encode(implode(";", $value["Attachments"])),
-         "Type" => base64_encode("DLC")
-        ]]);
-        $attachments = $this->core->RenderView($attachments);
+       $attachments = $info["Attachments"] ?? "";
+       if(!empty($attachments)) {
+        array_push($_Commands, [
+         "Name" => "UpdateContentAES",
+         "Parameters" => [
+          ".Attachments".md5($id).md5($key),
+          $this->core->AESencrypt("v=".base64_encode("Chat:Attachments")."&ID=".base64_encode(implode(";", $attachments)))
+         ]
+        ]);
        }
-       $message = $value["Message"] ?? "";;
-       if($value["From"] != $you) {
-        $t = ($value["From"] == $you) ? $y : $this->core->Member($value["From"]);
+       $message = $info["Message"] ?? "";;
+       if($info["From"] != $you) {
+        $t = ($info["From"] == $you) ? $y : $this->core->Member($value["From"]);
         $profilePicture = $this->core->ProfilePicture($t, "margin:0.5em;max-width:4em;width:calc(100% - 1em)");
         $verified = $t["Verified"] ?? 0;
         $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-        $message = $value["Message"] ?? "";
-        $message = ($value["Paid"] == 1) ? "<strong>@".$value["From"].".$verified Paid ".$value["PaidAmount"]."</strong><br/>$message" : "<strong>@".$value["From"]."$verified</strong><br/>$message";
+        $message = $info["Message"] ?? "";
+        $message = ($info["Paid"] == 1) ? "<strong>@".$info["From"].".$verified Paid ".$info["PaidAmount"]."</strong><br/>$message" : "<strong>@".$info["From"]."$verified</strong><br/>$message";
         $message = (!empty($message)) ? $this->core->Element([
          "p", $message
         ]) : "";
@@ -770,17 +801,18 @@
          "p", $message
         ]) : "";
        }
-       $paid = $value["Paid"] ?? 0;
-       $class = ($value["From"] != $you) ? "MSGt" : "MSGy";
+       $paid = $info["Paid"] ?? 0;
+       $class = ($info["From"] != $you) ? "MSGt" : "MSGy";
        $class = ($paid == 1) ? "MSGPaid" : $class;
        $chat[$key] = [
-        "[Message.Attachments]" => $attachments,
         "[Message.Class]" => $class,
-        "[Message.MSG]" => $this->core->PlainText([
+        "[Message.ChatID]" => md5($id),
+        "[Message.Message.ID]" => md5($key),
+        "[Message.Message]" => $this->core->PlainText([
          "Data" => $message,
          "Display" => 1
         ]),
-        "[Message.Sent]" => $this->core->TimeAgo($value["Timestamp"])
+        "[Message.Sent]" => $this->core->TimeAgo($info["Timestamp"])
        ];
       }
      }
@@ -1070,20 +1102,125 @@
     }
    } elseif(!empty($id) && ($check == 1 || $check2 == 1 || $check3 == 1)) {
     $_AccessCode = "Accepted";
+    $albums = [];
+    $albumsData = $data["Album"] ?? [];
+    $articles = [];
+    $articlesData = $data["Article"] ?? [];
     $attachments = [];
+    $attachmentsData = $data["Attachment"] ?? [];
+    $blogs = [];
+    $blogsData = $data["Blog"] ?? [];
+    $blogPosts = [];
+    $blogPostsData = $data["BlogPost"] ?? [];
     $chat = [];
+    $chats = [];
+    $chatsData = $data["Chat"] ?? [];
+    $forums = [];
+    $forumsData = $data["Forum"] ?? [];
+    $forumPosts = [];
+    $forumPostsData = $data["ForumPost"] ?? [];
+    $members = []; 
+    $membersData = $data["Member"] ?? [];
     $now = $this->core->timestamp;
-    if(!empty($attachmentData)) {
-     $dlc = array_reverse(explode(";", base64_decode($attachmentData)));
-     foreach($dlc as $dlc) {
-      if(!empty($dlc)) {
-       $f = explode("-", base64_decode($dlc));
-       if(!empty($f[0]) && !empty($f[1])) {
-        array_push($attachments, base64_encode($f[0]."-".$f[1]));
-       }
+    $polls = []; 
+    $pollsData = $data["Poll"] ?? [];
+    $products = [];
+    $productsData = $data["Product"] ?? [];
+    $shops = [];
+    $shopsData = $data["Shop"] ?? [];
+    $updates = [];
+    $updatesData = $data["Update"] ?? [];
+    if(!empty($albumsData)) {
+     $media = $albumsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($albums, $media[$i]);
       }
      }
-     $attachments = array_unique($attachments);
+    } if(!empty($articlesData)) {
+     $media = $articlesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($articles, $media[$i]);
+      }
+     }
+    } if(!empty($attachmentsData)) {
+     $media = $attachmentsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($attachments, $media[$i]);
+      }
+     }
+    } if(!empty($blogsData)) {
+     $media = $blogsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogs, $media[$i]);
+      }
+     }
+    } if(!empty($blogPostsData)) {
+     $media = $blogPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($blogPosts, $media[$i]);
+      }
+     }
+    } if(!empty($chatsData)) {
+     $media = $chatsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($chats, $media[$i]);
+      }
+     }
+    } if(!empty($forumsData)) {
+     $media = $forumsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forums, $media[$i]);
+      }
+     }
+    } if(!empty($forumPostsData)) {
+     $media = $forumPostsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($forumPosts, $media[$i]);
+      }
+     }
+    } if(!empty($membersData)) {
+     $media = $membersData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($members, $media[$i]);
+      }
+     }
+    } if(!empty($pollsData)) {
+     $media = $pollsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($polls, $media[$i]);
+      }
+     }
+    } if(!empty($productsData)) {
+     $media = $productsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($products, $media[$i]);
+      }
+     }
+    } if(!empty($shopsData)) {
+     $media = $shopsData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($shops, $media[$i]);
+      }
+     }
+    } if(!empty($updatesData)) {
+     $media = $updatesData;
+     for($i = 0; $i < count($media); $i++) {
+      if(!empty($media[$i])) {
+       array_push($updates, $media[$i]);
+      }
+     }
     } if($group == 1) {
      $chat = $this->core->Data("Get", ["chat", $id]);
      $chat["UN"] = $chat["UN"] ?? $you;
@@ -1112,7 +1249,7 @@
      "To" => $to
     ];
     $chat["Messages"] = $messages;
-    if($group == 1) {
+    /*--if($group == 1) {
      $this->core->Data("Save", ["chat", $id, $chat]);
     } elseif($oneOnOne == 1) {
      $this->core->Data("Save", ["chat", md5($you), $chat]);
@@ -1137,10 +1274,11 @@
       ];
       $this->core->Data("Save", ["chat", md5($to), $theirChat]);
      }
-    }
+    }--*/
     $_Dialog = [
      "Body" => "Your message has been sent.",
-     "Header" => "Done"
+     "Header" => "Done",
+     "Scrollable" => json_encode($chat, true)
     ];
    }
    return $this->core->JSONResponse([
