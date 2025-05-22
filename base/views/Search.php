@@ -729,7 +729,7 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? 1 : 0;
+     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $_Extension = $this->core->GetContentData([
        "AddTo" => $addTo,
@@ -785,7 +785,7 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? 1 : 0;
+     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blog = $this->core->Data("Get", ["blg", $sql["BlogPost_Blog"]]);
       $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
@@ -1002,7 +1002,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
@@ -1080,7 +1080,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Pages", $sql["Article_ID"]]);
      $_Article = $this->core->GetContentData([
@@ -1173,7 +1173,7 @@
       ":Username" => $you
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? 1 : 0;
+     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
@@ -1741,7 +1741,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $feedback = $this->core->Data("Get", ["feedback", $sql["Feedback_ID"]]);
      $mesasge = $feedback["Thread"] ?? [];
@@ -1787,7 +1787,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);
      $_Forum = $this->core->GetContentData([
@@ -1909,7 +1909,7 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? 1 : 0;
+     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
@@ -2061,7 +2061,7 @@
       ":Topic" => $topicID
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? 1 : 0;
+     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
@@ -2205,7 +2205,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $icon = parse_url($sql["Link_ID"], PHP_URL_SCHEME)."://".parse_url($sql["Link_ID"], PHP_URL_HOST); 
      $icon = trim($icon, "/");
@@ -2233,7 +2233,8 @@
                                       StatusUpdate_Username LIKE :Username)
                         AND StatusUpdate_Privacy=:Privacy
                         ORDER BY StatusUpdate_Created DESC
-                        LIMIT $limit
+                        #LIMIT $limit
+                        LIMIT 2
                         OFFSET $offset";
     $sql->query($_Query, [
      ":Body" => $querysql,
@@ -2241,7 +2242,7 @@
      ":Username" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
@@ -2339,7 +2340,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
@@ -2437,7 +2438,7 @@
       ":Username" => $you
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? 1 : 0;
+     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
@@ -2483,7 +2484,7 @@
      ":Username" => $t["Login"]["Username"]
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
      $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
@@ -2550,7 +2551,7 @@
        ":Username" => $you
       ]);
       $sql = $sql->set();
-      $end = (count($sql) <= $limit) ? 1 : 0;
+      $end = (count($sql) <= $limit) ? "Yes" : "No";
       foreach($sql as $sql) {
        $active = 0;
        $blocked = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
@@ -2638,7 +2639,7 @@
      ":Username" => $you
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);;
      $_Forum = $this->core->GetContentData([
@@ -2708,7 +2709,7 @@
      ":Username" => $you
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
@@ -2791,7 +2792,7 @@
      ":Username" => base64_decode($data["UN"])
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $id = $value["UpdateID"] ?? "";
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
@@ -2897,7 +2898,7 @@
      ":Username" => $t["Login"]["Username"]
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
@@ -2933,7 +2934,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
@@ -2996,7 +2997,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
@@ -3083,7 +3084,7 @@
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $b2 = $b2 ?? "Products";
      $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
@@ -3136,7 +3137,7 @@
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? 1 : 0;
+     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Shop_Username"]]);
       $_Shop = $this->core->GetContentData([
@@ -3259,7 +3260,7 @@
      ":Shop" => md5($username)
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
@@ -3304,7 +3305,7 @@
      ":Username" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
@@ -3423,7 +3424,7 @@
      ":Shop" => md5($this->core->ShopID)
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
@@ -3474,7 +3475,7 @@
      ":Username" => $_Username
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? 1 : 0;
+    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
@@ -3512,7 +3513,7 @@
     "ExtensionID" => $_ExtensionID,
     "Response" => [
      "Commands" => $_Commands,
-     "End" => "$end",
+     "End" => $end,
      "Limit" => $limit,
      "List" => $_List,
      "NoResults" => $this->core->AESencrypt($this->core->Element([
