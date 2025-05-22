@@ -1237,14 +1237,25 @@
     $paid = $data["Paid"] ?? 0;
     $paidAmount = $data["PaidAmount"] ?? "$0.00";
     $messages[$now] = [
+     "Albums" => $albums,
+     "Articles" => $articles,
      "Attachments" => $attachments,
-     "From" => $you,
-     "Message" => $message,
+     "Blogs" => $blogs,
+     "BlogPosts" => $blogPosts,
+     "Chats" => $chats,
+     "Forums" => $forums,
+     "ForumPosts" => $forumPosts,
+     "From" => $to,
+     "Message" => $autoResponse,
      "Paid" => $paid,
      "PaidAmount" => $paidAmount,
+     "Polls" => $polls,
+     "Products" => $products,
      "Read" => 0,
+     "Shops" => $shops,
      "Timestamp" => $now,
-     "To" => $to
+     "To" => $you,
+     "Updates" => $updates
     ];
     $chat["Messages"] = $messages;
     if($group == 1) {
