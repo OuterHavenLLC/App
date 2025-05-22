@@ -211,7 +211,7 @@
           "Header" => 1,
           "HeaderText" => "Template"
          ],
-         "Name" => "TPL-BLG",
+         "Name" => "Template",
          "Type" => "Select",
          "Value" => $template
         ]
@@ -726,7 +726,7 @@
       "Shops" => $shops,
       "Subscribers" => $subscribers,
       "Title" => $title,
-      "TPL" => $data["TPL-BLG"],
+      "TPL" => $data["Template"],
       "UN" => $author,
       "Updates" => $updates
      ];

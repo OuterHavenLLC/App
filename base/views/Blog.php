@@ -253,7 +253,7 @@
           "Header" => 1,
           "HeaderText" => "Template"
          ],
-         "Name" => "TPL-BLG",
+         "Name" => "Template",
          "Type" => "Select",
          "Value" => $template
         ]
@@ -407,39 +407,46 @@
       $actions .= (!empty($chat)) ? $this->core->Element([
        "button", "Chat", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Chat"]
        ]
       ]) : "";
       $actions .= ($blog["UN"] == $you && $public == 0) ? $this->core->Element([
        "button", "Delete", [
         "class" => "CloseCard OpenDialog Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Delete"]
        ]
       ]) : "";
       $actions .= ($_IsArtist == 1) ? $this->core->Element([
        "button", "Donate", [
         "class" => "OpenDialog Small v2",
-        "data-view" => base64_encode("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($owner["Login"]["Username"]))
+        "data-encryption" => "AES",
+        "data-view" => $this->core->AESencrypt("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($owner["Login"]["Username"]))
        ]
       ]) : "";
       $actions .= ($_IsSubscribed == 1 && $admin == 1) ? $this->core->Element([
        "button", "Edit", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Edit"]
        ]
       ]).$this->core->Element([
        "button", "Invite", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Invite"]
        ]
       ]).$this->core->Element([
        "button", "Post", [
         "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
         "data-view" => $options["Post"]
        ]
       ]) : "";
       $actions .= $this->core->Element(["button", "Share", [
        "class" => "OpenCard Small v2",
+        "data-encryption" => "AES",
        "data-view" => $options["Share"]
       ]]);
       $extensionID = $blog["TPL"] ?? "02a29f11df8a2664849b85d259ac8fc9";
@@ -860,7 +867,7 @@
       "Purge" => $purge,
       "Shops" => $shops,
       "Title" => $title,
-      "TPL" => $data["TPL-BLG"],
+      "TPL" => $data["Template"],
       "UN" => $author,
       "Updates" => $updates
      ];
