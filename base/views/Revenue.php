@@ -264,7 +264,7 @@
     array_push($payPeriodLabels, $info["Label"]);
     array_push($payPeriodTotals, number_format($info["Total"], 2));
    } for($i = 0; $i < 12; $i++) {
-    if(empty($months[$i]) || empty($months[$i]["PayPeriods"])) {
+    if(empty($payPeriods[$months[$i]["PayPeriods"][0]])) {
      array_push($monthLabels, $months[$i]["Label"]);
      array_push($monthTotals, 0.00);
     } else {
