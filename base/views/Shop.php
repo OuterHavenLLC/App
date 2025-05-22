@@ -1099,18 +1099,23 @@
           "Name" => "RenderChart",
           "Parameters" => [
            [
+            "BackgroundColor" => [
+             0,
+             255,
+             0
+            ],
             "Chart" => "AnnualRevenue$id",
             "DataSets" => [
              [
               "borderColor" => "white",
               "borderWidth" => 0.5,
               "data" => $revenue["Year"]["Data"],
-              "label" => "Net Revenue",
+              "label" => "Profits",
               "tension" => 0.4
              ]
             ],
             "Labels" => $revenue["Year"]["Labels"],
-            "Title" => "Annual Revenue for ".date("Y"),
+            "Title" => "Annual Profits for ".date("Y"),
             "Type" => "line"
            ]
           ]
@@ -1119,6 +1124,11 @@
           "Name" => "RenderChart",
           "Parameters" => [
            [
+            "BackgroundColor" => [
+             0,
+             255,
+             0
+            ],
             "Chart" => "MonthlyRevenue$id",
             "DataSets" => [
              [
@@ -1126,12 +1136,12 @@
               "borderColor" => "white",
               "borderWidth" => 0.5,
               "data" => $revenue["Month"]["Data"],
-              "label" => "Net Revenue",
+              "label" => "Profit",
               "tension" => 0.4
              ]
             ],
             "Labels" => $revenue["Month"]["Labels"],
-            "Title" => "Revenue for ".date("M"),
+            "Title" => "Profit for ".date("M"),
             "Type" => "bar"
            ]
           ]
@@ -1140,18 +1150,23 @@
           "Name" => "RenderChart",
           "Parameters" => [
            [
+            "BackgroundColor" => [
+             0,
+             255,
+             0
+            ],
             "Chart" => "PayPeriodRevenue$id",
             "DataSets" => [
              [
               "borderColor" => "white",
               "borderWidth" => 0.5,
               "data" => $revenue["PayPeriod"]["Data"],
-              "label" => "Net Revenue",
+              "label" => "Profit",
               "tension" => 0.4
              ]
             ],
             "Labels" => $revenue["PayPeriod"]["Labels"],
-            "Title" => "Revenue by Pay Period",
+            "Title" => "Profits by Pay Period",
             "Type" => "line"
            ]
           ]

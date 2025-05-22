@@ -227,6 +227,8 @@
    $tax = $shop["Tax"] ?? 10.00;
    $transactions = $revenue["Transactions"] ?? [];
    foreach($payPeriodData as $id => $payPeriod) {
+    $adminExpenses = $payPeriod["AdministrativeExpenses"] ?? [];
+    $administrativeExpenses = 0;
     $payPeriods[$id] = [
      "Label" => "Pay Period #$id",
      "Total" => 0
@@ -243,10 +245,13 @@
        $expenses = $expenses + $info["Cost"];
       }
      }
+    } foreach($adminExpenses as $key => $info) {
+     $percentage = $info["Percentage"] ?? 0;
+     $administrativeExpenses = $gross * (number_format($percentage, 2) / 100);
     }
     $gross = $gross + $expenses;
     $taxes = $gross * ($tax / 100);
-    $net = $gross - $expenses - $taxes;
+    $net = $gross - $administrativeExpenses - $expenses - $taxes;
     $payPeriods[$id]["Total"] = $net;
     if(in_array($id, $currentPayPeriod)) {
      if($id == $currentPayPeriod[0]) {
@@ -412,9 +417,8 @@
         ], $this->core->Extension("a2adc6269f67244fc703a6f3269c9dfe")]);
        }
       } foreach($adminExpenses as $expense => $info) {
-       $adminExpensePercentage = $info["Percentage"] ?? 0.00;
-       $adminExpensePercentage = number_format($adminExpensePercentage, 2);
-       $amount = $payPeriodTotals_Gross * ($adminExpensePercentage / 100);
+       $adminExpensePercentage = $info["Percentage"] ?? 0;
+       $amount = $payPeriodTotals_Gross * (number_format($adminExpensePercentage, 2) / 100);
        $payPeriodTotals_Expenses = $amount + $payPeriodTotals_Expenses;
        $adminExpensesList .= $this->core->Change([[
         "[AdminExpense.Amount]" => $amount,
