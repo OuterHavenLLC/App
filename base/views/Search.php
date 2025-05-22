@@ -2979,23 +2979,22 @@
    } elseif($searchType == "PaidMessages") {
     $_AccessCode = "Accepted";
     $_Extension = $this->core->AESencrypt($this->core->Element([
-     "div", NULL, [
-      "class" => "NONAME ReSearchPaidMessage[Message.ID]"
+     "div", "[Message]", [
+      "class" => "NONAME"
      ]
     ]));
     $chatID = $data["Chat"] ?? "";
     $chat = $this->core->Data("Get", ["chat", $chatID]);
     $messages = $chat["Messages"] ?? [];
+    $messages = array_reverse($messages);
     foreach($messages as $key => $info) {
-     array_push($_Commands, [
-      "Name" => "UpdateContentAES",
-      "Parameters" => [
-       ".ReSearchPaidMessage".md5($key),
-       $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=$chatID&MessageID=".base64_encode($key)."&PaidMessage=1")
-      ]
-     ]);
+     $message = $this->view(base64_encode("Chat:Home"), ["Data" => [
+      "ID" => $chatID,
+      "MessageID" => base64_encode($key),
+      "PaidMessage" => 1
+     ]]);
      array_push($_List, [
-      "[Message.ID]" => md5($key)
+      "[Message]" => $this->core->RenderView($message)
      ]);
     }
    } elseif($searchType == "Polls") {

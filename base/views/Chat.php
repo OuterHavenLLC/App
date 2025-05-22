@@ -456,7 +456,6 @@
          "[Chat.Description]" => $_Chat["ListItem"]["Description"],
          "[Chat.ID]" => $id,
          "[Chat.Modified]" => $_Chat["ListItem"]["Modified"],
-         "[Chat.PaidMessages]" => $this->core->AESencrypt("v=".base64_encode("Chat:Home")."&ID=".base64_encode($id)."&PaidMessages=1"),
          "[Chat.Title]" => $_Chat["ListItem"]["Title"],
          "[PurgeRenderCode]" => $purgeRenderCode
          ],
@@ -547,7 +546,6 @@
       "Extension" => $this->core->AESencrypt($_View)
      ];
     } else {
-      $chat = $this->core->Data("Get", ["chat", $id]);
      $_Dialog = [
       "Body" => "The Group Chat has not been created."
      ];
