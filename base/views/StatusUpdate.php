@@ -213,11 +213,11 @@
      "ID" => base64_encode("StatusUpdate;$id")
     ]);
     if($_StatusUpdate["Empty"] == 0) {
+     $update = $_StatusUpdate["DataModel"];
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $data["SU"]]);
      $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
      $options = $_StatusUpdate["ListItem"]["Options"];
      $purgeRenderCode = ($update["From"] == $you) ? "PURGE" : "DO NOT PURGE";
-     $update = $_StatusUpdate["DataModel"];
      $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($update, "LiveView");
      $passPhrase = $update["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;

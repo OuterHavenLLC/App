@@ -2233,8 +2233,7 @@
                                       StatusUpdate_Username LIKE :Username)
                         AND StatusUpdate_Privacy=:Privacy
                         ORDER BY StatusUpdate_Created DESC
-                        #LIMIT $limit
-                        LIMIT 2
+                        LIMIT $limit
                         OFFSET $offset";
     $sql->query($_Query, [
      ":Body" => $querysql,
