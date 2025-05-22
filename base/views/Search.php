@@ -798,7 +798,7 @@
        "BackTo" => $title,
        "ID" => base64_encode("BlogPost;".$sql["BlogPost_Blog"].";".$sql["BlogPost_ID"])
       ]);
-      if($_BlogPost["Empty"] == 0 && blocked == 0) {
+      if($_BlogPost["Empty"] == 0 && $blocked == 0) {
        $options = $_BlogPost["ListItem"]["Options"];
        $post = $_BlogPost["DataModel"];
        $actions = ($sql["BlogPost_Username"] != $you) ? $this->core->Element([

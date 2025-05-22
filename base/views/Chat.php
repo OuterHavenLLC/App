@@ -1247,7 +1247,7 @@
      "To" => $to
     ];
     $chat["Messages"] = $messages;
-    /*--if($group == 1) {
+    if($group == 1) {
      $this->core->Data("Save", ["chat", $id, $chat]);
     } elseif($oneOnOne == 1) {
      $this->core->Data("Save", ["chat", md5($you), $chat]);
@@ -1272,11 +1272,10 @@
       ];
       $this->core->Data("Save", ["chat", md5($to), $theirChat]);
      }
-    }--*/
+    }
     $_Dialog = [
      "Body" => "Your message has been sent.",
-     "Header" => "Done",
-     "Scrollable" => json_encode($chat, true)
+     "Header" => "Done"
     ];
    }
    return $this->core->JSONResponse([

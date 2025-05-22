@@ -353,7 +353,7 @@
       $_Dialog = "";
       $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
       $admin = ($active == 1 || $admin == 1 || $blog["UN"] == $you) ? 1 : 0;
-      $bloacked = $this->core->CheckBlocked([$y, "Blogs", $id]);
+      $blocked = $this->core->CheckBlocked([$y, "Blogs", $id]);
       $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
       $chat = $this->core->Data("Get", ["chat", $id]);
       $purgeRenderCode = ($blog["UN"] == $you) ? "PURGE" : "DO NOT PURGE";
