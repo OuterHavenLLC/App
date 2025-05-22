@@ -264,10 +264,15 @@
     array_push($payPeriodLabels, $info["Label"]);
     array_push($payPeriodTotals, number_format($info["Total"], 2));
    } for($i = 0; $i < 12; $i++) {
-    $monthPayPeriod1 = $payPeriods[$months[$i]["PayPeriods"][0]]["Total"];
-    $monthPayPeriod2 = $payPeriods[$months[$i]["PayPeriods"][1]]["Total"];
-    array_push($monthLabels, $months[$i]["Label"]);
-    array_push($monthTotals, number_format($monthPayPeriod1 + $monthPayPeriod2, 2));
+    if(empty($months[$i]) || empty($months[$i]["PayPeriods"])) {
+     array_push($monthLabels, $months[$i]["Label"]);
+     array_push($monthTotals, 0.00);
+    } else {
+     $monthPayPeriod1 = $payPeriods[$months[$i]["PayPeriods"][0]]["Total"];
+     $monthPayPeriod2 = $payPeriods[$months[$i]["PayPeriods"][1]]["Total"];
+     array_push($monthLabels, $months[$i]["Label"]);
+     array_push($monthTotals, number_format($monthPayPeriod1 + $monthPayPeriod2, 2));
+    }
    }
    return $this->core->JSONResponse([
     "JSON" => [

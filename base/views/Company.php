@@ -184,6 +184,10 @@
     $_View = "";
     $i = 0;
     $lineItem = $this->core->Extension("d019a2b62accac6e883e04b358953f3f");
+    $statisticsData = [
+     "Data" => [],
+     "Labels" => []
+    ];
     $tile = $this->core->Extension("633ddf914ed8a2e2aa7e023471ec83b2");
     if($view == "Month") {
      $days = "";
@@ -213,16 +217,45 @@
       ], $tile]);
      } foreach($monthTotals as $name => $value) {
       $name = $references[$name] ?? $name;
+      $value = number_format($value);
       $monthLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
-       "[Statistic.Value]" => number_format($value)
+       "[Statistic.Value]" => $value
       ], $lineItem]);
+      array_push($statisticsData["Data"], $value);
+      array_push($statisticsData["Labels"], $name);
      }
      $monthName = $this->core->GetMonthConversion($month);
+     array_push($_Commands, [
+      "Name" => "RenderChart",
+      "Parameters" => [
+       [
+        "BackgroundColor" => [
+         0,
+         0,
+         255
+        ],
+        "Chart" => "StatisticsMonth$month",
+        "DataSets" => [
+         [
+          "borderColor" => "white",
+          "borderWidth" => 0.5,
+          "data" => $statisticsData["Data"],
+          "label" => "Statistics",
+          "tension" => 0.4
+         ]
+        ],
+        "Labels" => $statisticsData["Labels"],
+        "Title" => "Statistics for $monthName",
+        "Type" => "bar"
+       ]
+      ]
+     ]);
      $_View = ($i > 0) ? $this->core->Change([
       [
        "[Month.Days]" => $days,
        "[Month.Name]" => "$monthName, $year",
+       "[Month.Number]" => $month,
        "[Month.Totals]" => $monthLineItems
       ], $this->core->Extension("a936651004efc98932b63c2d684715f8")
      ]) : $this->core->Element(["h4", "No Statistics Recorded for Statistics Month $month", [
@@ -264,13 +297,42 @@
       ]]);
      } foreach($yearTotals as $name => $value) {
       $name = $references[$name] ?? $name;
+      $value = number_format($value);
       $yearLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
-       "[Statistic.Value]" => number_format($value)
+       "[Statistic.Value]" => $value
       ], $lineItem]);
+      array_push($statisticsData["Data"], $value);
+      array_push($statisticsData["Labels"], $name);
      }
+     array_push($_Commands, [
+      "Name" => "RenderChart",
+      "Parameters" => [
+       [
+        "BackgroundColor" => [
+         0,
+         0,
+         255
+        ],
+        "Chart" => "StatisticsYear$year",
+        "DataSets" => [
+         [
+          "borderColor" => "white",
+          "borderWidth" => 0.5,
+          "data" => $statisticsData["Data"],
+          "label" => "Statistics",
+          "tension" => 0.4
+         ]
+        ],
+        "Labels" => $statisticsData["Labels"],
+        "Title" => "Statistics for $year",
+        "Type" => "bar"
+       ]
+      ]
+     ]);
      $_View = ($i > 0) ? $this->core->Change([
       [
+       "[Year]" => $year,
        "[Year.Months]" => $months,
        "[Year.Totals]" => $yearLineItems
       ], $this->core->Extension("64ae7d51379d924fc223df7aa6364f4c")
