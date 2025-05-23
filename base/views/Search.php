@@ -2015,6 +2015,7 @@
     } if($active == 1 || $admin == 1 || $forumType == "Public") {
      $rowCount = New SQL($this->core->cypher->SQLCredentials());
      $rowCount->query($_Count, [
+      ":Forum" => $id,
       ":Search" => $querysql
      ]);
      $rowCount = $rowCount->single();
@@ -2182,7 +2183,9 @@
      $topic = $topics[$topicID] ?? [];
      $rowCount = New SQL($this->core->cypher->SQLCredentials());
      $rowCount->query($_Count, [
-      ":Search" => $querysql
+      ":Forum" => $id,
+      ":Search" => $querysql,
+      ":Topic" => $topicID
      ]);
      $rowCount = $rowCount->single();
      $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -2387,7 +2390,10 @@
                         OFFSET :Offset";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Body" => $querysql,
+     ":Privacy" => md5("Public"),
+     ":Search" => $querysql,
+     ":Username" => $querysql
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -2607,7 +2613,8 @@
     if($notAnon == 1) {
      $rowCount = New SQL($this->core->cypher->SQLCredentials());
      $rowCount->query($_Count, [
-      ":Search" => $querysql
+      ":Search" => $querysql,
+      ":Username" => $you
      ]);
      $rowCount = $rowCount->single();
      $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -2666,7 +2673,8 @@
     $blocked = $this->core->CheckBlocked([$t, "Members", $you]);
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Username" => $t["Login"]["Username"]
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -2746,7 +2754,8 @@
      if($group == 1) {
       $rowCount = New SQL($this->core->cypher->SQLCredentials());
       $rowCount->query($_Count, [
-       ":Search" => $querysql
+       ":Search" => $querysql,
+       ":Username" => $you
       ]);
       $rowCount = $rowCount->single();
       $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -2846,7 +2855,8 @@
                         OFFSET :Offset";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Username" => $you
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -2929,7 +2939,8 @@
                         OFFSET :Offset";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Username" => $you
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -3023,9 +3034,12 @@
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT :Limit
                         OFFSET :Offset";
+    $username = $data["UN"] ?? base64_encode("");
+    $username = base64_decode($username);
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Username" => $username
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -3033,7 +3047,7 @@
      ":Limit" => $limit,
      ":Offset" => $offset,
      ":Body" => $querysql,
-     ":Username" => base64_decode($data["UN"])
+     ":Username" => $username
     ]);
     $sql = $sql->set();
     foreach($sql as $sql) {
@@ -3143,7 +3157,8 @@
     $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Username" => $t["Login"]["Username"]
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -3569,7 +3584,8 @@
     $username = base64_decode($username);
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Shop" => md5($username)
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -3626,7 +3642,9 @@
                         OFFSET :Offset";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Body" => $querysql,
+     ":Search" => $querysql,
+     ":Username" => $querysql
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -3759,7 +3777,8 @@
                         OFFSET :Offset";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Shop" => md5($this->core->ShopID)
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
@@ -3822,7 +3841,8 @@
     $mediaType = $data["ftype"] ?? "";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Search" => $querysql
+     ":Search" => $querysql,
+     ":Username" => $_Username
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
