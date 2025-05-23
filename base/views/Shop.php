@@ -2459,6 +2459,7 @@
     $credits = $points * 0.00001;
     $creditsDecimal = number_format($credits, 2);
     if($points < $y["Points"]) {
+     $_AccessCode = "Accepted";
      $yourCredits = $y["Shopping"]["Cart"][$id]["Credits"] ?? 0;
      $y["Shopping"]["Cart"][$id]["Credits"] = $creditsDecimal + $yourCredits;
      $y["Points"] = $y["Points"] - $points;
@@ -2470,6 +2471,7 @@
     }
    }
    return $this->core->JSONResponse([
+    "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog
    ]);
   }
