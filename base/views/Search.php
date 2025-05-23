@@ -2376,33 +2376,30 @@
     $_Count = "SELECT COUNT(*) FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
-                        WHERE (StatusUpdate_Body LIKE :Body OR
-                                      StatusUpdate_Username LIKE :Username)
+                        WHERE (StatusUpdate_Body LIKE :Search OR
+                                      StatusUpdate_Username LIKE :Search)
                         AND StatusUpdate_Privacy=:Privacy";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
-                        WHERE (StatusUpdate_Body LIKE :Body OR
-                                      StatusUpdate_Username LIKE :Username)
+                        WHERE (StatusUpdate_Body LIKE :Search OR
+                                      StatusUpdate_Username LIKE :Search)
                         AND StatusUpdate_Privacy=:Privacy
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT :Limit
                         OFFSET :Offset";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Body" => $querysql,
      ":Privacy" => md5("Public"),
-     ":Search" => $querysql,
-     ":Username" => $querysql
+     ":Search" => $querysql
     ]);
     $rowCount = $rowCount->single();
     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
-     ":Body" => $querysql,
      ":Limit" => $limit,
      ":Offset" => $offset,
      ":Privacy" => md5("Public"),
-     ":Username" => $querysql
+     ":Search" => $querysql
     ]);
     $sql = $sql->set();
     foreach($sql as $sql) {
@@ -2621,6 +2618,7 @@
      $sql->query($_Query, [
       ":Limit" => $limit,
       ":Offset" => $offset,
+      ":Search" => $querysql,
       ":Username" => $you
      ]);
      $sql = $sql->set();

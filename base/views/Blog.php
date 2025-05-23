@@ -872,7 +872,7 @@
       "UN" => $author,
       "Updates" => $updates
      ];
-     /*--$sql = New SQL($this->core->cypher->SQLCredentials());
+     $sql = New SQL($this->core->cypher->SQLCredentials());
      $query = "REPLACE INTO Blogs(
       Blog_Created,
       Blog_Description,
@@ -906,18 +906,17 @@
       $this->core->Statistic("Save Blog");
      } else {
       $this->core->Statistic("Update Blog");
-     }--*/
+     }
      $_Dialog = [
       "Body" => "The Blog <em>$title</em> was $actionTaken!",
-      "Header" => "Done",
-      "Scrollable" => json_encode($blog, true)
+      "Header" => "Done"
      ];
     }
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
     "Dialog" => $_Dialog,
-    #"Success" => "CloseCard"
+    "Success" => "CloseCard"
    ]);
   }
   function SaveBanish(array $data): string {
