@@ -713,6 +713,14 @@
     $_AccessCode = "Accepted";
     $_ExtensionID = "da5c43f7719b17a9fab1797887c5c0d1";
     if($notAnon == 1 && $y["Rank"] == md5("High Command")) {
+     $_Count = "SELECT COUNT(*) FROM Extensions
+                         JOIN Members
+                         ON Member_Username=Extension_Username
+                         WHERE Extension_Body LIKE :Search OR
+                                       Extension_Description LIKE :Search OR
+                                       Extension_ID LIKE :Search OR
+                                       Extension_Title LIKE :Search OR
+                                       Extension_Username LIKE :Search";
      $_Query = "SELECT * FROM Extensions
                          JOIN Members
                          ON Member_Username=Extension_Username
@@ -722,14 +730,20 @@
                                        Extension_Title LIKE :Search OR
                                        Extension_Username LIKE :Search
                          ORDER BY Extension_Created DESC
-                         LIMIT $limit
-                         OFFSET $offset
-     ";
+                         LIMIT :Limit
+                         OFFSET :Offset";
+     $rowCount = New SQL($this->core->cypher->SQLCredentials());
+     $rowCount->query($_Count, [
+      ":Search" => $querysql
+     ]);
+     $rowCount = $rowCount->single();
+     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
      $sql->query($_Query, [
+      ":Limit" => $limit,
+      ":Offset" => $offset,
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $_Extension = $this->core->GetContentData([
        "AddTo" => $addTo,
@@ -742,7 +756,7 @@
        array_push($_List, [
         "[Extension.Category]" => $info["Category"],
         "[Extension.Delete]" => $options["Delete"],
-        "[Extension.Description]" => $sql["Extension_Description"],
+        "[Extension.Description]" => $sql["Extension_Description"].$end,
         "[Extension.Edit]" => $options["Edit"],
         "[Extension.ID]" => $sql["Extension_ID"],
         "[Extension.Title]" => $sql["Extension_Title"]
@@ -757,6 +771,23 @@
     $_BlogID = base64_decode($_BlogID);
     $_ExtensionID = "dba88e1a123132be03b9a2e13995306d";
     if($notAnon == 1) {
+     $_Count = "SELECT COUNT(*) FROM BlogPosts 
+                         JOIN Blogs
+                         ON Blog_ID=BlogPost_Blog
+                         JOIN Members M
+                         ON Member_Username=BlogPost_Username
+                         WHERE (BlogPost_Body LIKE :Search OR
+                                       BlogPost_Description LIKE :Search OR
+                                       BlogPost_Title LIKE :Search)
+                         AND BlogPost_Blog=:Blog";
+     $_Count = (!empty($addTo)) ? "SELECT COUNT(*) FROM BlogPosts 
+                         JOIN Blogs
+                         ON Blog_ID=BlogPost_Blog
+                         JOIN Members M
+                         ON Member_Username=BlogPost_Username
+                         WHERE (BlogPost_Body LIKE :Search OR
+                                       BlogPost_Description LIKE :Search OR
+                                       BlogPost_Title LIKE :Search)" : $_Count;
      $_Query = "SELECT * FROM BlogPosts 
                          JOIN Blogs
                          ON Blog_ID=BlogPost_Blog
@@ -767,8 +798,8 @@
                                        BlogPost_Title LIKE :Search)
                          AND BlogPost_Blog=:Blog
                          ORDER BY BlogPost_Created DESC
-                         LIMIT $limit
-                         OFFSET $offset";
+                         LIMIT :Limit
+                         OFFSET :Offset";
      $_Query = (!empty($addTo)) ? "SELECT * FROM BlogPosts 
                          JOIN Blogs
                          ON Blog_ID=BlogPost_Blog
@@ -778,14 +809,22 @@
                                        BlogPost_Description LIKE :Search OR
                                        BlogPost_Title LIKE :Search)
                          ORDER BY BlogPost_Created DESC
-                         LIMIT $limit
-                         OFFSET $offset" : $_Query;
-     $sql->query($_Query, [
+                         LIMIT :Limit
+                         OFFSET :Offset" : $_Query;
+     $rowCount = New SQL($this->core->cypher->SQLCredentials());
+     $rowCount->query($_Count, [
       ":Blog" => $_BlogID,
       ":Search" => $querysql
      ]);
+     $rowCount = $rowCount->single();
+     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+     $sql->query($_Query, [
+      ":Blog" => $_BlogID,
+      ":Limit" => $limit,
+      ":Offset" => $offset,
+      ":Search" => $querysql
+     ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blog = $this->core->Data("Get", ["blg", $sql["BlogPost_Blog"]]);
       $owner = ($blog["UN"] == $you) ? $y : $this->core->Member($blog["UN"]);
@@ -990,19 +1029,31 @@
    } elseif($searchType == "BLG") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $_Count = "SELECT COUNT(*) FROM Blogs
+                        JOIN Members
+                        ON Member_Username=Blog_Username
+                        WHERE Blog_Description LIKE :Search OR
+                                      Blog_Title LIKE :Search";
     $_Query = "SELECT * FROM Blogs
                         JOIN Members
                         ON Member_Username=Blog_Username
                         WHERE Blog_Description LIKE :Search OR
                                       Blog_Title LIKE :Search
                         ORDER BY Blog_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
      $_Blog = $this->core->GetContentData([
@@ -1067,6 +1118,12 @@
    } elseif($searchType == "CA" || $searchType == "PR") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e7829132e382ee4ab843f23685a123cf";
+    $_Count = "SELECT COUNT(*) FROM Articles
+                        JOIN Members
+                        ON Member_Username=Article_Username
+                        WHERE Article_Body LIKE :Search OR
+                                      Article_Description LIKE :Search OR
+                                      Article_Title LIKE :Search";
     $_Query = "SELECT * FROM Articles
                         JOIN Members
                         ON Member_Username=Article_Username
@@ -1074,13 +1131,20 @@
                                       Article_Description LIKE :Search OR
                                       Article_Title LIKE :Search
                         ORDER BY Article_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Pages", $sql["Article_ID"]]);
      $_Article = $this->core->GetContentData([
@@ -1159,21 +1223,31 @@
     $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
     $integrated = $data["Integrated"] ?? 0;
     if($notAnon == 1) {
+     $_ExtensionID = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $_ExtensionID;
+     $_Count = "SELECT COUNT(*) FROM Chat
+                         JOIN Members
+                         ON Member_Username=Chat_Username
+                         WHERE Chat_Description LIKE :Search OR
+                                       Chat_Title LIKE :Search";
      $_Query = "SELECT * FROM Chat
                          JOIN Members
                          ON Member_Username=Chat_Username
                          WHERE Chat_Description LIKE :Search OR
                                        Chat_Title LIKE :Search
                          ORDER BY Chat_Created DESC
-                         LIMIT $limit
-                         OFFSET $offset";
-     $_ExtensionID = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $_ExtensionID;
+                         LIMIT :Limit
+                         OFFSET :Offset";
+     $rowCount = New SQL($this->core->cypher->SQLCredentials());
+     $rowCount->query($_Count, [
+      ":Search" => $querysql
+     ]);
+     $rowCount = $rowCount->single();
+     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
      $sql->query($_Query, [
       ":Search" => $querysql,
       ":Username" => $you
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
       $_Chat = $this->core->GetContentData([
@@ -1460,39 +1534,30 @@
    } elseif($searchType == "ContactsProfileList") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
-    $x = $this->core->Data("Get", [
-     "cms",
-     md5(base64_decode($data["UN"]))
-    ]);
-    $x = $x["Contacts"] ?? [];
-    foreach($x as $k => $v) {
-     $t = $this->core->Member($k);
-     $cms = $this->core->Data("Get", [
-      "cms",
-      md5($t["Login"]["Username"])
-     ]);
-     $blocked = $this->core->CheckBlocked([
-      $t, "Members", $y["Login"]["Username"]
-     ]);
-     $bl2 = $this->core->CheckBlocked([
-      $y, "Members", $t["Login"]["Username"]
-     ]);
+    $username = $data["UN"] ?? base64_encode("");
+    $username = base64_decode($username);
+    $contacts = $this->core->Data("Get", ["cms", md5($username)])["Contacts"] ?? [];
+    foreach($contacts as $key => $info) {
+     $t = $this->core->Member($key);
+     $cms = $this->core->Data("Get", ["cms", md5($key)]);
+     $blocked = $this->core->CheckBlocked([$t, "Members", $y["Login"]["Username"]]);
+     $blocked2 = $this->core->CheckBlocked([$y, "Members", $key]);
      $check = $this->core->CheckPrivacy([
       "Contacts" => $cms["Contacts"],
       "Privacy" => $t["Privacy"]["Profile"],
-      "UN" => $t["Login"]["Username"],
+      "UN" => $key,
       "Y" => $y["Login"]["Username"]
      ]);
-     if($blocked == 0 && $bl2 == 0 && $check == 1) {
-      $opt = $this->core->Element(["button", "View Profile", [
-       "class" => "OpenCard v2",
-       "data-view" => base64_encode("CARD=1&v=".base64_encode("Profile:Home")."&back=1&b2=$b2&lPG=$parentView&pub=0&UN=".base64_encode($t["Login"]["Username"]))
-      ]]);
+     if($blocked == 0 && $blocked2 == 0 && $check == 1) {
       array_push($_Commands, []);
       array_push($_List, [
        "[Member.DisplayName]" => $t["Personal"]["DisplayName"],
        "[Member.Description]" => $t["Personal"]["Description"],
-       "[Member.Options]" => $opt,
+       "[Member.Options]" => $this->core->Element(["button", "View Profile", [
+        "class" => "OpenCard v2",
+        "data-encryption" => "AES",
+        "data-view" => $this->core->AESencrypt("CARD=1&v=".base64_encode("Profile:Home")."&back=1&b2=$b2&lPG=$parentView&pub=0&UN=".base64_encode($t["Login"]["Username"]))
+       ]]),
        "[Member.ProfilePicture]" => $this->core->ProfilePicture($t, "margin:5%;width:90%")
       ]);
      }
@@ -1501,17 +1566,13 @@
     $_AccessCode = "Accepted";
     $_ExtensionID = "8b6ac25587a4524c00b311c184f6c69b";
     if($notAnon == 1) {
-     $cms = $this->core->Data("Get", [
-      "cms",
-      md5($y["Login"]["Username"])
-     ]);
-     $cms = $cms["Requests"] ?? [];
+     $cms = $this->core->Data("Get", ["cms", md5($y["Login"]["Username"])])["Requests"] ?? [];
      foreach($cms as $key => $value) {
       $t = $this->core->Member($value);
-      $pp = $this->core->ProfilePicture($t, "margin:5%;width:90%");
+      $profilePicture = $this->core->ProfilePicture($t, "margin:5%;width:90%");
       $accept = "v=".base64_encode("Contact:Requests")."&accept=1";
       $decline = "v=".base64_encode("Contact:Requests")."&decline=1";
-      $memberID = md5($t["Login"]["Username"]);
+      $memberID = md5($value);
       array_push($_Commands, []);
       array_push($_List, [
        "[Contact.Accept]" => base64_encode($accept),
@@ -1521,7 +1582,7 @@
        "[Contact.ID]" => $memberID,
        "[Contact.IDaccept]" => $memberID,
        "[Contact.IDdecline]" => $memberID,
-       "[Contact.ProfilePicture]" => $pp,
+       "[Contact.ProfilePicture]" => $profilePicture,
        "[Contact.Username]" => $t["Login"]["Username"]
       ]);
      }
@@ -1604,12 +1665,14 @@
           $opt = ($check == 1 && $check2 == 1) ? $this->core->Element([
            "button", "Banish", [
             "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=$ban&ID=$eid&Member=$mbr")
+            "data-encryption" => "AES",
+            "data-view" => $this->core->AESencrypt("v=$ban&ID=$eid&Member=$mbr")
            ]
           ]).$this->core->Element([
            "button", "Change Role", [
             "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=".base64_encode("Authentication:ArticleChangeMemberRole")."&ID=$eid&Member=$mbr")
+            "data-encryption" => "AES",
+            "data-view" => $this->core->AESencrypt("v=".base64_encode("Authentication:ArticleChangeMemberRole")."&ID=$eid&Member=$mbr")
            ]
           ]) : "";
          }
@@ -1623,12 +1686,14 @@
           $opt = ($check == 1 && $check2 == 1) ? $this->core->Element([
            "button", "Banish", [
             "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=".base64_encode("Blog:Banish")."&ID=$eid&Member=$mbr")
+            "data-encryption" => "AES",
+            "data-view" => $this->core->AESencrypt("v=".base64_encode("Blog:Banish")."&ID=$eid&Member=$mbr")
            ]
           ]).$this->core->Element([
            "button", "Change Role", [
             "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=".base64_encode("Authentication:BlogChangeMemberRole")."&ID=$eid&Member=$mbr")
+            "data-encryption" => "AES",
+            "data-view" => $this->core->AESencrypt("v=".base64_encode("Authentication:BlogChangeMemberRole")."&ID=$eid&Member=$mbr")
            ]
           ]) : "";
          }
@@ -1650,12 +1715,14 @@
           $opt = ($check == 1 && $check2 == 1) ? $this->core->Element([
            "button", "Banish", [
             "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=".base64_encode("Forum:Banish")."&ID=$eid&Member=$mbr")
+            "data-encryption" => "AES",
+            "data-view" => $this->core->AESencrypt("v=".base64_encode("Forum:Banish")."&ID=$eid&Member=$mbr")
            ]
           ]).$this->core->Element([
            "button", "Change Role", [
             "class" => "OpenDialog v2",
-            "data-view" => base64_encode("v=".base64_encode("Authentication:PFChangeMemberRole")."&ID=$eid&Member=$mbr")
+            "data-encryption" => "AES",
+            "data-view" => $this->core->AESencrypt("v=".base64_encode("Authentication:PFChangeMemberRole")."&ID=$eid&Member=$mbr")
            ]
           ]) : "";
          }
@@ -1666,10 +1733,12 @@
          $memberID = base64_encode($them);
          $opt = ($check == 1) ? $this->core->Element(["button", "Edit", [
           "class" => "OpenCard v2",
-          "data-view" => base64_encode("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("Shop:EditPartner")."&UN=$memberID")
          ]]).$this->core->Element(["button", "Fire", [
           "class" => "OpenDialog v2",
-          "data-view" => base64_encode("v=".base64_encode("Shop:Banish")."&ID=$eid&UN=$memberID")
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("Shop:Banish")."&ID=$eid&UN=$memberID")
          ]]) : "";
         }
        }
@@ -1727,6 +1796,12 @@
    } elseif($searchType == "Feedback") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e7c4e4ed0a59537ffd00a2b452694750";
+    $_Count = "SELECT COUNT(*) FROM Feedback
+                        JOIN Members
+                        ON Member_Username=Feedback_Username
+                        WHERE Feedback_Message LIKE :Search OR
+                                      Feedback_ParaphrasedQuestion LIKE :Search OR
+                                      Feedback_Subject LIKE :Search";
     $_Query = "SELECT * FROM Feedback
                         JOIN Members
                         ON Member_Username=Feedback_Username
@@ -1734,14 +1809,21 @@
                                       Feedback_ParaphrasedQuestion LIKE :Search OR
                                       Feedback_Subject LIKE :Search
                         ORDER BY Feedback_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $now = $this->core->timestamp;
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $feedback = $this->core->Data("Get", ["feedback", $sql["Feedback_ID"]]);
      $mesasge = $feedback["Thread"] ?? [];
@@ -1774,20 +1856,32 @@
     }
    } elseif($searchType == "Forums") {
     $_AccessCode = "Accepted";
+    $_Count = "SELECT COUNT(*) FROM Forums
+                        JOIN Members
+                        ON Member_Username=Forum_Username
+                        WHERE Forum_Description LIKE :Search OR
+                                      Forum_Title LIKE :Search";
     $_Query = "SELECT * FROM Forums
                         JOIN Members
                         ON Member_Username=Forum_Username
                         WHERE Forum_Description LIKE :Search OR
                                       Forum_Title LIKE :Search
                         ORDER BY Forum_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);
      $_Forum = $this->core->GetContentData([
@@ -1869,6 +1963,21 @@
    } elseif($searchType == "Forums-Posts") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "150dcee8ecbe0e324a47a8b5f3886edf";
+    $_Count = "SELECT COUNT(*) FROM ForumPosts
+                        JOIN Forums
+                        ON Forum_ID=ForumPost_Forum
+                        JOIN Members M
+                        ON Member_Username=ForumPost_Username
+                        WHERE (ForumPost_Body LIKE :Search OR
+                                      ForumPost_Title LIKE :Search)
+                        AND ForumPost_Forum=:Forum";
+    $_Count = (!empty($addTo)) ? "SELECT COUNT(*) FROM ForumPosts
+                        JOIN Forums
+                        ON Forum_ID=ForumPost_Forum
+                        JOIN Members M
+                        ON Member_Username=ForumPost_Username
+                        WHERE (ForumPost_Body LIKE :Search OR
+                                      ForumPost_Title LIKE :Search)" : $_Count;
     $_Query = "SELECT * FROM ForumPosts
                         JOIN Forums
                         ON Forum_ID=ForumPost_Forum
@@ -1878,8 +1987,8 @@
                                       ForumPost_Title LIKE :Search)
                         AND ForumPost_Forum=:Forum
                         ORDER BY ForumPost_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     $_Query = (!empty($addTo)) ? "SELECT * FROM ForumPosts
                         JOIN Forums
                         ON Forum_ID=ForumPost_Forum
@@ -1888,8 +1997,8 @@
                         WHERE (ForumPost_Body LIKE :Search OR
                                       ForumPost_Title LIKE :Search)
                         ORDER BY ForumPost_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset" : $_Query;
+                        LIMIT :Limit
+                        OFFSET :Offset" : $_Query;
     $active = 0;
     $admin = 0;
     $id = $data["ID"] ?? "";
@@ -1904,12 +2013,19 @@
       }
      }
     } if($active == 1 || $admin == 1 || $forumType == "Public") {
+     $rowCount = New SQL($this->core->cypher->SQLCredentials());
+     $rowCount->query($_Count, [
+      ":Search" => $querysql
+     ]);
+     $rowCount = $rowCount->single();
+     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
      $sql->query($_Query, [
       ":Forum" => $id,
+      ":Limit" => $limit,
+      ":Offset" => $offset,
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
@@ -2022,6 +2138,15 @@
    } elseif($searchType == "Forums-Topic") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "150dcee8ecbe0e324a47a8b5f3886edf";
+    $_Count = "SELECT COUNT(*) FROM ForumPosts
+                        JOIN Forum
+                        ON Forum_ID=ForumPost_Forum
+                        JOIN Members
+                        ON Member_Username=ForumPost_Username
+                        WHERE (ForumPost_Body LIKE :Search OR
+                                      ForumPost_Title LIKE :Search)
+                        AND ForumPost_Forum=:Forum
+                        AND ForumPost_Topic=:Topic";
     $_Query = "SELECT * FROM ForumPosts
                         JOIN Forum
                         ON Forum_ID=ForumPost_Forum
@@ -2032,8 +2157,8 @@
                         AND ForumPost_Forum=:Forum
                         AND ForumPost_Topic=:Topic
                         ORDER BY ForumPost_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     $active = 0;
     $admin = 0;
     $forumID = $data["Forum"] ?? "";
@@ -2055,13 +2180,20 @@
      $now = $this->core->timestamp;
      $topics = $forum["Topics"] ?? [];
      $topic = $topics[$topicID] ?? [];
+     $rowCount = New SQL($this->core->cypher->SQLCredentials());
+     $rowCount->query($_Count, [
+      ":Search" => $querysql
+     ]);
+     $rowCount = $rowCount->single();
+     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
      $sql->query($_Query, [
       ":Forum" => $id,
+      ":Limit" => $limit,
+      ":Offset" => $offset,
       ":Search" => $querysql,
       ":Topic" => $topicID
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Forum Posts", $sql["ForumPost_ID"]]);
       $_ForumPost = $this->core->GetContentData([
@@ -2193,19 +2325,31 @@
    } elseif($searchType == "Links") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "aacfffd7976e2702d91a5c7084471ebc";
+    $_Count = "SELECT COUNT(*) FROM Links
+                        WHERE Link_Description LIKE :Search OR
+                                      Link_Keywords LIKE :Search OR
+                                      Link_ID LIKE :Search OR
+                                      Link_Title LIKE :Search";
     $_Query = "SELECT * FROM Links
                         WHERE Link_Description LIKE :Search OR
                                       Link_Keywords LIKE :Search OR
                                       Link_ID LIKE :Search OR
                                       Link_Title LIKE :Search
                         ORDER BY Link_Title DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $icon = parse_url($sql["Link_ID"], PHP_URL_SCHEME)."://".parse_url($sql["Link_ID"], PHP_URL_HOST); 
      $icon = trim($icon, "/");
@@ -2226,6 +2370,12 @@
    } elseif($searchType == "Mainstream") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
+    $_Count = "SELECT COUNT(*) FROM StatusUpdates
+                        JOIN Members
+                        ON Member_Username=StatusUpdate_Username
+                        WHERE (StatusUpdate_Body LIKE :Body OR
+                                      StatusUpdate_Username LIKE :Username)
+                        AND StatusUpdate_Privacy=:Privacy";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
@@ -2233,15 +2383,22 @@
                                       StatusUpdate_Username LIKE :Username)
                         AND StatusUpdate_Privacy=:Privacy
                         ORDER BY StatusUpdate_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
      ":Body" => $querysql,
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Privacy" => md5("Public"),
      ":Username" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
@@ -2327,19 +2484,29 @@
    } elseif($searchType == "MBR") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
+    $_Count = "SELECT COUNT(*) FROM Members
+                        WHERE Member_Description LIKE :Search OR
+                                      Member_DisplayName LIKE :Search OR
+                                      Member_Username LIKE :Search";
     $_Query = "SELECT * FROM Members
                         WHERE Member_Description LIKE :Search OR
                                       Member_DisplayName LIKE :Search OR
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
-    $home = base64_encode("Profile:Home");
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Member_Username"]]);
      $_Member = $this->core->GetContentData([
@@ -2370,6 +2537,7 @@
         "[Member.Description]" => $_Member["ListItem"]["Description"],
         "[Member.Options]" => $this->core->Element(["button", "View Profile", [
          "class" => "OpenCard v2",
+         "data-encryption" => "AES",
          "data-view" => $options["View"]
         ]]),
         "[Member.ProfilePicture]" => $options["ProfilePicture"]
@@ -2421,6 +2589,12 @@
    } elseif($searchType == "MBR-BLG") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $_Count = "SELECT COUNT(*) FROM Blogs
+                        JOIN Members
+                        ON Member_Username=Blog_Username
+                        WHERE (Blog_Description LIKE :Search OR
+                                      Blog_Title LIKE :Search)
+                        AND Blog_Username=:Username";
     $_Query = "SELECT * FROM Blogs
                         JOIN Members
                         ON Member_Username=Blog_Username
@@ -2428,16 +2602,21 @@
                                       Blog_Title LIKE :Search)
                         AND Blog_Username=:Username
                         ORDER BY Blog_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     if($notAnon == 1) {
-     $home = base64_encode("Blog:Home");
+     $rowCount = New SQL($this->core->cypher->SQLCredentials());
+     $rowCount->query($_Count, [
+      ":Search" => $querysql
+     ]);
+     $rowCount = $rowCount->single();
+     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
      $sql->query($_Query, [
-      ":Search" => $querysql,
+      ":Limit" => $limit,
+      ":Offset" => $offset,
       ":Username" => $you
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Blogs", $sql["Blog_ID"]]);
       $_Blog = $this->core->GetContentData([
@@ -2464,6 +2643,13 @@
    } elseif($searchType == "MBR-CA" || $searchType == "MBR-JE") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "90bfbfb86908fdc401c79329bedd7df5";
+    $_Count = "SELECT COUNT(*) FROM Articles
+                       JOIN Members
+                       ON Member_Username=Article_Username
+                       WHERE (Article_Body LIKE :Search OR
+                                     Article_Description LIKE :Search OR
+                                     Article_Title LIKE :Search)
+                       AND Article_Username=:Username";
     $_Query = "SELECT * FROM Articles
                        JOIN Members
                        ON Member_Username=Article_Username
@@ -2472,18 +2658,25 @@
                                      Article_Title LIKE :Search)
                        AND Article_Username=:Username
                        ORDER BY Article_Created DESC
-                       LIMIT $limit
-                       OFFSET $offset";
+                       LIMIT :Limit
+                       OFFSET :Offset";
     $t = $data["UN"] ?? base64_encode($you);
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $blocked = $this->core->CheckBlocked([$t, "Members", $you]);
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $cms = $this->core->Data("Get", ["cms", md5($t["Login"]["Username"])]);
      $backTo = ($t["Login"]["Username"] == $you) ? "Your Profile" : $t["Personal"]["DisplayName"]."'s Profile";
@@ -2528,6 +2721,12 @@
    } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
+    $_Count = "SELECT COUNT(*) FROM Chat
+                        JOIN Members
+                        ON Member_Username=Chat_Username
+                        WHERE (Chat_Description LIKE :Search OR
+                                      Chat_Title LIKE :Search)
+                        AND Chat_Username=:Username";
     $_Query = "SELECT * FROM Chat
                         JOIN Members
                         ON Member_Username=Chat_Username
@@ -2535,8 +2734,8 @@
                                       Chat_Title LIKE :Search)
                         AND Chat_Username=:Username
                         ORDER BY Chat_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     $group = $data["Group"] ?? 0;
     $integrated = $data["Integrated"] ?? 0;
     $oneOnOne = $data["1on1"] ?? 0;
@@ -2545,12 +2744,19 @@
      $extension = ($integrated == 0) ? "183d39e5527b3af3e7652181a0e36e25" : $extension;
      $extension = $this->core->Extension($extension);
      if($group == 1) {
+      $rowCount = New SQL($this->core->cypher->SQLCredentials());
+      $rowCount->query($_Count, [
+       ":Search" => $querysql
+      ]);
+      $rowCount = $rowCount->single();
+      $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
       $sql->query($_Query, [
+       ":Limit" => $limit,
+       ":Offset" => $offset,
        ":Search" => $querysql,
        ":Username" => $you
       ]);
       $sql = $sql->set();
-      $end = (count($sql) <= $limit) ? "Yes" : "No";
       foreach($sql as $sql) {
        $active = 0;
        $blocked = $this->core->CheckBlocked([$y, "Group Chats", $sql["Chat_ID"]]);
@@ -2623,6 +2829,12 @@
    } elseif($searchType == "MBR-Forums") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $_Count = "SELECT COUNT(*) FROM Forums
+                        JOIN Members
+                        ON Member_Username=Forum_Username
+                        WHERE (Forum_Description LIKE :Search OR
+                                      Forum_Title LIKE :Search)
+                        AND Forum_Username=:Username";
     $_Query = "SELECT * FROM Forums
                         JOIN Members
                         ON Member_Username=Forum_Username
@@ -2630,15 +2842,21 @@
                                       Forum_Title LIKE :Search)
                         AND Forum_Username=:Username
                         ORDER BY Forum_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
-    $home = base64_encode("Forum:Home");
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql,
      ":Username" => $you
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Forums", $sql["Forum_ID"]]);;
      $_Forum = $this->core->GetContentData([
@@ -2694,6 +2912,12 @@
       "class" => "Frosted Poll[Poll.ID] Rounded"
      ]
     ]));
+    $_Count = "SELECT COUNT(*) FROM Polls
+                        JOIN Members
+                        ON Member_Username=Poll_Username
+                        WHERE (Poll_Description LIKE :Search OR
+                                      Poll_Title LIKE :Search)
+                        AND Poll_Username=:Username";
     $_Query = "SELECT * FROM Polls
                         JOIN Members
                         ON Member_Username=Poll_Username
@@ -2701,14 +2925,21 @@
                                       Poll_Title LIKE :Search)
                         AND Poll_Username=:Username
                         ORDER BY Poll_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql,
      ":Username" => $you
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
@@ -2777,6 +3008,12 @@
    } elseif($searchType == "MBR-SU") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
+    $_Count = "SELECT COUNT(*) FROM StatusUpdates
+                        JOIN Members
+                        ON Member_Username=StatusUpdate_Username
+                        WHERE StatusUpdate_Body LIKE :Body
+                        AND (StatusUpdate_To=:Username OR
+                                 StatusUpdate_Username=:Username)";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
@@ -2784,14 +3021,21 @@
                         AND (StatusUpdate_To=:Username OR
                                  StatusUpdate_Username=:Username)
                         ORDER BY StatusUpdate_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Body" => $querysql,
      ":Username" => base64_decode($data["UN"])
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $id = $value["UpdateID"] ?? "";
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
@@ -2880,6 +3124,12 @@
     $t = base64_decode($t);
     $t = ($t == $you) ? $y : $this->core->Member($t);
     $database = ($t["Login"]["Username"] == $this->core->ID) ? "CoreMedia" : "Media";
+    $_Count = "SELECT COUNT(*) FROM $database
+                        JOIN Members
+                        ON Member_Username=Media_Username
+                        WHERE (Media_Description LIKE :Search OR
+                                      Media_Title LIKE :Search)
+                        AND Media_Username=:Username";
     $_Query = "SELECT * FROM $database
                         JOIN Members
                         ON Member_Username=Media_Username
@@ -2887,17 +3137,24 @@
                                       Media_Title LIKE :Search)
                         AND Media_Username=:Username
                         ORDER BY Media_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     $albumID = $data["AID"] ?? md5("unsorted");
     $fileSystem = $this->core->Data("Get", ["fs", md5($t["Login"]["Username"])]);
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
      ":Database" => $database,
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
@@ -2920,6 +3177,12 @@
    } elseif($searchType == "Media") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
+    $_Count = "SELECT COUNT(*) FROM Media
+                        JOIN Members
+                        ON Member_Username=Media_Username
+                        WHERE Media_Description LIKE :Search OR
+                                      Media_Title LIKE :Search OR
+                                      Media_Username LIKE :Search";
     $_Query = "SELECT * FROM Media
                         JOIN Members
                         ON Member_Username=Media_Username
@@ -2927,13 +3190,20 @@
                                       Media_Title LIKE :Search OR
                                       Media_Username LIKE :Search
                         ORDER BY Media_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
@@ -2984,19 +3254,31 @@
       "class" => "Frosted Poll[Poll.ID] Rounded"
      ]
     ]));
+    $_Count = "SELECT COUNT(*) FROM Polls
+                        JOIN Members
+                        ON Member_Username=Poll_Username
+                        WHERE Poll_Description LIKE :Search OR
+                                      Poll_Title LIKE :Search";
     $_Query = "SELECT * FROM Polls
                         JOIN Members
                         ON Member_Username=Poll_Username
                         WHERE Poll_Description LIKE :Search OR
                                       Poll_Title LIKE :Search
                         ORDER BY Poll_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Polls", $sql["Poll_ID"]]);
      $_Poll = $this->core->GetContentData([
@@ -3071,19 +3353,31 @@
    } elseif($searchType == "Products") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $_Count = "SELECT COUNT(*) FROM Products
+                        JOIN Members
+                        ON Member_Username=Product_Username
+                        WHERE Product_Description LIKE :Search OR
+                                      Product_Title LIKE :Search";
     $_Query = "SELECT * FROM Products
                         JOIN Members
                         ON Member_Username=Product_Username
                         WHERE Product_Description LIKE :Search OR
                                       Product_Title LIKE :Search
                         ORDER BY Product_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $b2 = $b2 ?? "Products";
      $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
@@ -3121,6 +3415,12 @@
    } elseif($searchType == "SHOP") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "6d8aedce27f06e675566fd1d553c5d92";
+    $_Count = "SELECT COUNT(*) FROM Shops
+                        JOIN Members
+                        ON Member_Username=Shop_Username
+                        WHERE Shop_Description LIKE :Search OR
+                                      Shop_Title LIKE :Search OR
+                                      Shop_Welcome LIKE :Search";
     $_Query = "SELECT * FROM Shops
                         JOIN Members
                         ON Member_Username=Shop_Username
@@ -3128,15 +3428,22 @@
                                       Shop_Title LIKE :Search OR
                                       Shop_Welcome LIKE :Search
                         ORDER BY Shop_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     if($notAnon == 1) {
      $b2 = $b2 ?? "Artists";
+     $rowCount = New SQL($this->core->cypher->SQLCredentials());
+     $rowCount->query($_Count, [
+      ":Search" => $querysql
+     ]);
+     $rowCount = $rowCount->single();
+     $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
      $sql->query($_Query, [
+      ":Limit" => $limit,
+      ":Offset" => $offset,
       ":Search" => $querysql
      ]);
      $sql = $sql->set();
-     $end = (count($sql) <= $limit) ? "Yes" : "No";
      foreach($sql as $sql) {
       $blocked = $this->core->CheckBlocked([$y, "Members", $sql["Shop_Username"]]);
       $_Shop = $this->core->GetContentData([
@@ -3243,6 +3550,12 @@
    } elseif($searchType == "SHOP-Products") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $_Count = "SELECT COUNT(*) FROM Products
+                        JOIN Members
+                        ON Member_Username=Product_Username
+                        WHERE (Product_Description LIKE :Search OR
+                                      Product_Title LIKE :Search)
+                        AND Product_Shop=:Shop";
     $_Query = "SELECT * FROM Products
                         JOIN Members
                         ON Member_Username=Product_Username
@@ -3250,16 +3563,23 @@
                                       Product_Title LIKE :Search)
                         AND Product_Shop=:Shop
                         ORDER BY Product_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     $username = $data["UN"] ?? base64_encode($you);
     $username = base64_decode($username);
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql,
      ":Shop" => md5($username)
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
@@ -3291,20 +3611,32 @@
    } elseif($searchType == "StatusUpdates") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
+    $_Count = "SELECT COUNT(*) FROM StatusUpdates
+                        JOIN Members
+                        ON Member_Username=StatusUpdate_Username
+                        WHERE StatusUpdate_Body LIKE :Body OR
+                                      StatusUpdate_Username LIKE :Username";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
                         WHERE StatusUpdate_Body LIKE :Body OR
                                       StatusUpdate_Username LIKE :Username
                         ORDER BY StatusUpdate_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Body" => $querysql,
      ":Username" => $querysql
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Status Updates", $sql["StatusUpdate_ID"]]);
      $_StatusUpdate = $this->core->GetContentData([
@@ -3408,6 +3740,13 @@
    } elseif($searchType == "VVA") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
+    $_Count = "SELECT COUNT(*) FROM Products
+                        JOIN Members
+                        ON Member_Username=Product_Username
+                        WHERE (Product_Description LIKE :Search OR
+                                      Product_Title LIKE :Search)
+                        AND Product_Category='Architecture'
+                        AND Product_Shop=:Shop";
     $_Query = "SELECT * FROM Products
                         JOIN Members
                         ON Member_Username=Product_Username
@@ -3416,14 +3755,21 @@
                         AND Product_Category='Architecture'
                         AND Product_Shop=:Shop
                         ORDER BY Product_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Search" => $querysql,
      ":Shop" => md5($this->core->ShopID)
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $blocked = $this->core->CheckBlocked([$y, "Products", $sql["Product_ID"]]);
      $_Product = $this->core->GetContentData([
@@ -3458,6 +3804,12 @@
     $_Username = base64_decode($_Username);
     $_Database = ($_Username == $this->core->ID) ? "CoreMedia" : "Media";
     $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
+    $_Count = "SELECT COUNT(*) FROM $_Database
+                        JOIN Members
+                        ON Member_Username=Media_Username
+                        WHERE (Media_Description LIKE :Search OR
+                                      Media_Title LIKE :Search)
+                        AND Media_Username=:Username";
     $_Query = "SELECT * FROM $_Database
                         JOIN Members
                         ON Member_Username=Media_Username
@@ -3465,16 +3817,23 @@
                                       Media_Title LIKE :Search)
                         AND Media_Username=:Username
                         ORDER BY Media_Created DESC
-                        LIMIT $limit
-                        OFFSET $offset";
+                        LIMIT :Limit
+                        OFFSET :Offset";
     $mediaType = $data["ftype"] ?? "";
+    $rowCount = New SQL($this->core->cypher->SQLCredentials());
+    $rowCount->query($_Count, [
+     ":Search" => $querysql
+    ]);
+    $rowCount = $rowCount->single();
+    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
     $sql->query($_Query, [
+     ":Limit" => $limit,
+     ":Offset" => $offset,
      ":Database" => $_Database,
      ":Search" => $querysql,
      ":Username" => $_Username
     ]);
     $sql = $sql->set();
-    $end = (count($sql) <= $limit) ? "Yes" : "No";
     foreach($sql as $sql) {
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
@@ -3539,7 +3898,7 @@
                         WHERE Member_DisplayName LIKE :Search OR
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
-                        LIMIT 100";
+                        LIMIT 50";
     $_ViewTitle = "$query via $_ViewTitle";
     $sql = New SQL($this->core->cypher->SQLCredentials());
     $sql->query($_Query, [

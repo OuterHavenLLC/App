@@ -426,7 +426,7 @@
       $chat = $this->core->Data("Get", ["chat", $id]);
       $contributors = $article["Contributors"] ?? [];
       $check = ($article["UN"] == $you) ? 1 : 0;
-      if(in_array($article["Category"], ["CA", "JE"]) && $bl == 0) {
+      if(in_array($article["Category"], ["CA", "JE"]) && $blocked == 0) {
        foreach($contributors as $member => $role) {
         if($active == 0 && $member == $you) {
          $active = 1;

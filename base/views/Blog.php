@@ -112,6 +112,7 @@
     $forums = $blog["Forums"] ?? [];
     $forumPosts = $blog["ForumPosts"] ?? [];
     $header = ($new == 1) ? "New Blog" : "Edit ".$blog["Title"];
+    $members = $blog["Members"] ?? [];
     $nsfw = $blog["NSFW"] ?? $y["Privacy"]["NSFW"];
     $passPhrase = $blog["PassPhrase"] ?? "";
     $polls = $blog["Polls"] ?? [];
