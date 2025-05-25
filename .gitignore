@@ -1,5 +1,6 @@
 .DS_*
 */.DS_*
+_ExportDatabases/*
 Heath Kit/Data/*
 base/Cypher.php
 data/*
