@@ -61,7 +61,8 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Command lists take the place of most in-line client function calls, except for custom logic, to ensure uniformity and security when executing client logic.
 
 ### Heath Kit
-* Coming soon...
+* Established the installer's architecture and data store.
+* Work in progress...
 
 ## 1.3: Compendium
 ### Release Notes
