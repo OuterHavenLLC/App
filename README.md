@@ -1,6 +1,5 @@
 # Outer Haven Web App
 Here you will find the up-to-date change log for all releases of the platform.
-See SETUP.md (coming soon...) for Heath Kit configuration and installation.
 See [here](https://www.gnu.org/licenses/gpl-3.0.en.html) or [here](https://archive.is/VGJCa) for licensing information. Feel free to [view](https://outerhaven.nyc/?_API=JS&v=Client) the live client-side logic.
 
 # Change Log
