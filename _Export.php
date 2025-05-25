@@ -10,7 +10,7 @@
    $data = $oh->core->Data("Get", [$database[2], $database[3]]);
    $exportFile = $destination;
    if(!is_dir($exportFile)) {
-    mkdir($exportFile, 0777, true);
+    mkdir($exportFile, 0775, true);
    }
    $dataFile = fopen($exportFile.implode(".", $database), "w+");
    fwrite($dataFile, json_encode($data, true));
