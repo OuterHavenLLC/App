@@ -329,7 +329,7 @@
     "AddTopMargin" => "0",
     "View" => [
      "ChangeData" => [
-      "[Gateway.Architecture]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")."&CARD=1"),
+      "[Gateway.Architecture]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")."&Card=1"),
       "[Gateway.Company]" => $this->core->AESencrypt("v=".base64_encode("Company:Home")."&Card=1"),
       "[Gateway.Banner]" => $eventMedia["Banner"],
       "[Gateway.CoverPhoto]" => $eventMedia["CoverPhoto"],

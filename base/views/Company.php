@@ -375,7 +375,6 @@
    $_AddTopMargin = 1;
    $_Card = "";
    $_View = "";
-   $data = $data["Data"] ?? [];
    $_AddTopMargin = $data["TopMargin"] ?? base64_encode($_AddTopMargin);
    $_AddTopMargin = base64_decode($_AddTopMargin);
    $data = $data["Data"] ?? [];
@@ -386,7 +385,7 @@
      "data-type" => "OHC"
     ]
    ]) : "";
-   $card = $data["CARD"] ?? 0;
+   $card = $data["Card"] ?? 0;
    $_View = [
     "ChangeData" => [
      "[VVA.Back]" => $back
