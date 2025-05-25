@@ -268,12 +268,13 @@
     $dataFile .= (!empty($data[1]) && !is_array($data[1])) ? ".".$data[1] : "";
     if($action == "Export") {
      $databases = $this->DatabaseSet() ?? [];
-     $destination = $this->DocumentRoot."/export/";
+     $destination = $this->DocumentRoot."/_ExportDatabases/";
      foreach($databases as $key => $database) {
       $database = explode(".", $database);
       if(!empty($database[3])) {
        $data = $this->Data("Get", [$database[2], $database[3]]);
        file_put_contents("$destination/".implode(".", $database), json_encode($data, true));
+       echo "<p>STORE ".implode(".", $database)."... OK</p>\r\n";
       }
      }
     } elseif($action == "Get") {
@@ -1474,7 +1475,7 @@
     $this->Data("Save", ["bulletins", md5($to), $bulletins]);
    }
   }
-  function SendEmail(array $a) {
+  function SendEmail(array $emailData) {
    $keys = [
     "Message",
     "Title",
@@ -1482,7 +1483,7 @@
    ];
    $i = 0;
    foreach($keys as $key) {
-    if(!empty($a[$key])) {
+    if(!empty($emailData[$key])) {
      $i++;
     }
    } if(count($keys) == $i) {
@@ -1494,7 +1495,7 @@
        ])
       ]).$this->Element([
        "body", $this->Change([[
-        "[Mail.Message]" => $a["Message"]
+        "[Mail.Message]" => $emailData["Message"]
        ], $this->Extension("c790e0a597e171ff1d308f923cfc20c9")])
       ])
      ]);
@@ -1503,8 +1504,8 @@
       "Host" => $data["Host"],
       "Message" => base64_encode($message),
       "Password" => $data["Password"],
-      "Title" => base64_encode($a["Title"]),
-      "To" => base64_encode(filter_var($a["To"], FILTER_VALIDATE_EMAIL)),
+      "Title" => base64_encode($emailData["Title"]),
+      "To" => base64_encode(filter_var($emailData["To"], FILTER_VALIDATE_EMAIL)),
       "Username" => $data["Username"]
      ];
      $cURL = curl_init("https://mail.outerhaven.nyc/send.php");
