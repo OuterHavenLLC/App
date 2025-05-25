@@ -1,5 +1,6 @@
 .DS_*
 */.DS_*
+Heath Kit/Data/*
 base/Cypher.php
 data/*
 efs/*/
