@@ -274,7 +274,7 @@
       if(!empty($database[3])) {
        $data = $this->Data("Get", [$database[2], $database[3]]);
        file_put_contents("$destination/".implode(".", $database), json_encode($data, true));
-       echo "<p>STORE ".implode(".", $database)."... OK</p>\r\n";
+       echo "<p>EXPORT ".implode(".", $database)."... OK</p>\r\n";
       }
      }
     } elseif($action == "Get") {
