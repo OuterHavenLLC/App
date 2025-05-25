@@ -1,0 +1,1 @@
+{"Body":"&lt;div class=&quot;FrostedBright Rounded&quot;&gt;\r\n &lt;h3&gt;[Tile.Header]&lt;\/h3&gt;\r\n &lt;div class=&quot;InnerMargin&quot;&gt;\r\n  [Tile.Data]\r\n &lt;\/div&gt;\r\n [Tile.Action]\r\n&lt;\/div&gt;","Category":"Extension","Description":"Renders a simple Tile for list items with headers, data, and optional calls to action.","Title":"Common: Tile","UN":"Mike"}

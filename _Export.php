@@ -8,7 +8,13 @@
   $database = explode(".", $database);
   if(!empty($database[3])) {
    $data = $oh->core->Data("Get", [$database[2], $database[3]]);
-   file_put_contents($destination.implode(".", $database), json_encode($data, true));
+   $exportFile = $destination;
+   if(!is_dir($exportFile)) {
+    mkdir($exportFile, 0777, true);
+   }
+   $dataFile = fopen($exportFile.implode(".", $database), "w+");
+   fwrite($dataFile, json_encode($data, true));
+   fclose($dataFile);
    echo "<p>EXPORT ".implode(".", $database)."... OK</p>\r\n";
   }
  }
