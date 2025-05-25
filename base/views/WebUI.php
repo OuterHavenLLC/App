@@ -256,9 +256,19 @@
     "View" => [
      "ChangeData" => [],
      "Extension" => $this->core->AESencrypt($this->core->Element([
-      "h1", "Something went wrong...", ["class" => "UpperCase"]
-     ]).$this->core->Element([
-      "p", $error
+      "div", $this->core->Element([
+       "div", NULL, [
+        "class" => "TopBarMargin"
+       ]
+      ]).$this->core->Element([
+       "h1", "Something went wrong..."
+      ]).$this->core->Element([
+       "p", "Error code: $error.", [
+        "class" => "FrostedBright RoundedLarge"
+       ]
+      ]), [
+       "class" => "Desktop75 InnerMargin"
+      ]
      ]))
     ]
    ]);
