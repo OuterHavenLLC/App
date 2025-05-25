@@ -752,9 +752,15 @@
      $returnView = $data["ReturnView"] ?? base64_encode("");
      $this->core->SendEmail([
       "Message" => $this->core->Element([
-       "p", "Use this code to verify your email address: "
-      ]).$this->core->Element([
-       "h3", $_2FA
+       "div", $this->core->Element([
+        "p", "Use this code to verify your email address: "
+       ]).$this->core->Element([
+        "h3", $_2FA, [
+         "class" => "Frosted Rounded"
+        ]
+       ]), [
+        "class" => "FrostedBright RoundedLarge Shadowed"
+       ]
       ]),
       "Title" => "Your Verification Code",
       "To" => $email
