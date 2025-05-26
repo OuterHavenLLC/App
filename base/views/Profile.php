@@ -2362,6 +2362,7 @@
     $pin = $data["PIN"] ?? "";
     $pin2 = $data["PIN2"] ?? "";
     $username = $data["Username"] ?? "";
+    $validateUsername = $this->core->ValidateUsername($username);
     foreach($members as $key => $value) {
      $value = str_replace("nyc.outerhaven.mbr.", "", $value);
      $member = $this->core->Data("Get", ["mbr", $value]);
@@ -2387,6 +2388,8 @@
      $message = "Your PINs must match.";
     } elseif(empty($username)) {
      $message = "A Username is required.";
+    } elseif(!empty($validateUsername["Error"])) {
+     $message = $validateUsername["Error"];
     } elseif(!preg_match("/^[a-zA-Z0-9-_]+$/", $username)) {
      $message = "Usernames may only contain letters, numbers, hyphens (-), and underscores (_).";
     } elseif(strpos($username, "Ghost_")) {

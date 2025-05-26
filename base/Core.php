@@ -1677,6 +1677,33 @@
    $data = vsprintf("%s%s-%s-%s-%s-%s%s%s-", str_split(bin2hex($data), 4));
    return uniqid($data);
   }
+  function ValidateUsername(string $username = ""): array {
+   $username = trim($username);
+   if(empty($username)) {
+    return [
+     "Error" => "Your username cannot be empty.",
+     "Sanitized" => "",
+     "Valid" => false
+    ];
+   } if(strlen($username) < 4 || strlen($username) > 20) {
+    return [
+     "Error" => "Your username must be between 4 and 20 characters.",
+     "Sanitized" => "",
+     "Valid" => false
+    ];
+   } if(!preg_match("/^[a-zA-Z0-9]+$/", $username)) {
+    return [
+     "Error" => "Your username can only contain letters and numbers",
+     "Sanitized" => "",
+     "Valid" => false
+    ];
+   }
+   return [
+    "Error" => "",
+    "Sanitized" => $username,
+    "Valid" => true
+   ];
+  }
   function VerificationBadge() {
    return $this->Element(["span", NULL, [
     "alt" => "This Member is verified via Purchase.",
