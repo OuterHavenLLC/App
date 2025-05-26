@@ -736,7 +736,7 @@
      $rowCount->query($_Count, [
       ":Search" => $querysql
      ]);
-     $rowCount = $rowCount->single();
+     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
       ":Limit" => $limit,
       ":Search" => $querysql
@@ -764,7 +764,7 @@
      }
      $_Extension = "";
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "BGP") {
     $_AccessCode = "Accepted";
     $_BlogID = $data["ID"] ?? base64_encode("");
@@ -816,7 +816,7 @@
       ":Blog" => $_BlogID,
       ":Search" => $querysql
      ]);
-     $rowCount = $rowCount->single();
+     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
       ":Blog" => $_BlogID,
       ":Limit" => $limit,
@@ -898,7 +898,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "BL") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e05bae15ffea315dc49405d6c93f9b2c";
@@ -1046,7 +1046,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -1083,7 +1083,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Bulletins") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ae30582e627bc060926cfacf206920ce";
@@ -1137,7 +1137,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -1182,7 +1182,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "CART") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "dea3da71b28244bf7cf84e276d5d1cba";
@@ -1241,7 +1241,7 @@
      $rowCount->query($_Count, [
       ":Search" => $querysql
      ]);
-     $rowCount = $rowCount->single();
+     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
       ":Search" => $querysql,
       ":Username" => $you
@@ -1284,8 +1284,8 @@
        }
       }
      }
+     $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Congress") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "1f32642e05747ba3cec15d7c9fffbd0f";
@@ -1811,12 +1811,12 @@
                         ORDER BY Feedback_Created DESC
                         LIMIT :Limit
                         OFFSET $offset";
+    $now = $this->core->timestamp;
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
-    $now = $this->core->timestamp;
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -1853,7 +1853,7 @@
       "[Feedback.Title]" => $title
      ]);
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Forums") {
     $_AccessCode = "Accepted";
     $_Count = "SELECT COUNT(*) FROM Forums
@@ -1874,7 +1874,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -1918,7 +1918,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Forums-Admin") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
@@ -2018,7 +2018,7 @@
       ":Forum" => $id,
       ":Search" => $querysql
      ]);
-     $rowCount = $rowCount->single();
+     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
       ":Forum" => $id,
       ":Limit" => $limit,
@@ -2135,7 +2135,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Forums-Topic") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "150dcee8ecbe0e324a47a8b5f3886edf";
@@ -2187,7 +2187,7 @@
       ":Search" => $querysql,
       ":Topic" => $topicID
      ]);
-     $rowCount = $rowCount->single();
+     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
       ":Forum" => $id,
       ":Limit" => $limit,
@@ -2273,8 +2273,8 @@
        }
       }
      }
+     $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Forums-Topics") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "099d6de4214f55e68ea49395a63b5e4d";
@@ -2345,7 +2345,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -2369,7 +2369,7 @@
       "[Link.Title]" => $sql["Link_Title"]
      ]);
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Mainstream") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
@@ -2393,7 +2393,7 @@
      ":Privacy" => md5("Public"),
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Privacy" => md5("Public"),
@@ -2483,7 +2483,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "MBR") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ba17995aafb2074a28053618fb71b912";
@@ -2502,7 +2502,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -2547,7 +2547,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "MBR-ALB") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "b6728e167b401a5314ba47dd6e4a55fd";
@@ -2613,7 +2613,7 @@
       ":Search" => $querysql,
       ":Username" => $you
      ]);
-     $rowCount = $rowCount->single();
+     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
       ":Limit" => $limit,
       ":Search" => $querysql,
@@ -2643,8 +2643,8 @@
        }
       }
      }
+     $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "MBR-CA" || $searchType == "MBR-JE") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "90bfbfb86908fdc401c79329bedd7df5";
@@ -2674,7 +2674,7 @@
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql,
@@ -2723,7 +2723,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "343f78d13872e3b4e2ac0ba587ff2910";
@@ -2755,7 +2755,7 @@
        ":Search" => $querysql,
        ":Username" => $you
       ]);
-      $rowCount = $rowCount->single();
+      $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
       $sql->query($_Query, [
        ":Limit" => $limit,
        ":Search" => $querysql,
@@ -2798,7 +2798,7 @@
         }
        }
       }
-      $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+      $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
      } elseif($oneOnOne == 1) {
       $chat = $this->core->Data("Get", ["chat", md5($you)]);
       $contacts = [];
@@ -2858,7 +2858,7 @@
      ":Search" => $querysql,
      ":Username" => $you
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql,
@@ -2889,7 +2889,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "MBR-LLP") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "da5c43f7719b17a9fab1797887c5c0d1";
@@ -2942,7 +2942,7 @@
      ":Search" => $querysql,
      ":Username" => $you
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql,
@@ -3015,7 +3015,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "MBR-SU") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
@@ -3041,7 +3041,7 @@
      ":Search" => $querysql,
      ":Username" => $username
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Body" => $querysql,
@@ -3130,7 +3130,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "MBR-XFS") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
@@ -3160,7 +3160,7 @@
      ":Search" => $querysql,
      ":Username" => $t["Login"]["Username"]
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Database" => $database,
      ":Limit" => $limit,
@@ -3188,7 +3188,7 @@
       ]);
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Media") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e15a0735c2cb8fa2d508ee1e8a6d658d";
@@ -3211,7 +3211,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -3240,7 +3240,7 @@
       ]);
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "PaidMessages") {
     $_AccessCode = "Accepted";
     $_Extension = $this->core->AESencrypt($this->core->Element([
@@ -3286,7 +3286,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -3364,7 +3364,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "Products") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
@@ -3385,7 +3385,7 @@
     $rowCount->query($_Count, [
      ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql
@@ -3426,7 +3426,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "SHOP") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "6d8aedce27f06e675566fd1d553c5d92";
@@ -3451,7 +3451,7 @@
      $rowCount->query($_Count, [
       ":Search" => $querysql
      ]);
-     $rowCount = $rowCount->single();
+     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
       ":Limit" => $limit,
       ":Search" => $querysql
@@ -3488,8 +3488,8 @@
        }
       }
      }
+     $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "SHOP-InvoicePresets") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
@@ -3587,7 +3587,7 @@
      ":Search" => $querysql,
      ":Shop" => md5($username)
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql,
@@ -3623,34 +3623,31 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "StatusUpdates") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "18bc18d5df4b3516c473b82823782657";
     $_Count = "SELECT COUNT(*) FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
-                        WHERE StatusUpdate_Body LIKE :Body OR
-                                      StatusUpdate_Username LIKE :Username";
+                        WHERE StatusUpdate_Body LIKE :Search OR
+                                      StatusUpdate_Username LIKE :Search";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
-                        WHERE StatusUpdate_Body LIKE :Body OR
-                                      StatusUpdate_Username LIKE :Username
+                        WHERE StatusUpdate_Body LIKE :Search OR
+                                      StatusUpdate_Username LIKE :Search
                         ORDER BY StatusUpdate_Created DESC
                         LIMIT :Limit
                         OFFSET $offset";
     $rowCount = New SQL($this->core->cypher->SQLCredentials());
     $rowCount->query($_Count, [
-     ":Body" => $querysql,
-     ":Search" => $querysql,
-     ":Username" => $querysql
+     ":Search" => $querysql
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
-     ":Body" => $querysql,
-     ":Username" => $querysql
+     ":Search" => $querysql
     ]);
     $sql = $sql->set();
     foreach($sql as $sql) {
@@ -3754,7 +3751,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "VVA") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "ed27ee7ba73f34ead6be92293b99f844";
@@ -3780,7 +3777,7 @@
      ":Search" => $querysql,
      ":Shop" => md5($this->core->ShopID)
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Search" => $querysql,
@@ -3816,7 +3813,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    } elseif($searchType == "XFS") {
     $_AccessCode = "Accepted";
     $_Username = $data["UN"] ?? base64_encode($you);
@@ -3844,7 +3841,7 @@
      ":Search" => $querysql,
      ":Username" => $_Username
     ]);
-    $rowCount = $rowCount->single();
+    $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
      ":Database" => $_Database,
@@ -3883,7 +3880,7 @@
       }
      }
     }
-    $end = ($rowCount["COUNT(*)"] <= ($limit + $offset)) ? "Yes" : "No";
+    $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,

@@ -2380,6 +2380,10 @@
      $message = "Your Passwords must match.";
     } elseif($password == $username) {
      $message = "Matching your password and username is a very bad idea!";
+    } elseif(strpos($password, $pin) || strpos($username, $pin)) {
+     $message = "Your PIN should not be a part of your Password or Username. Please use a unique PIN to strengthen your Profile security.";
+    } elseif($this->core->ID == $username) {
+     $message = $this->core->ID." is the system profile and cannot be used.";
     } elseif(empty($pin)) {
      $message = "A PIN is required.";
     } elseif(!is_numeric($pin) || !is_numeric($pin2)) {
@@ -2388,16 +2392,12 @@
      $message = "Your PINs must match.";
     } elseif(empty($username)) {
      $message = "A Username is required.";
-    } elseif(!empty($validateUsername["Error"])) {
-     $message = $validateUsername["Error"];
     } elseif(!preg_match("/^[a-zA-Z0-9-_]+$/", $username)) {
      $message = "Usernames may only contain letters, numbers, hyphens (-), and underscores (_).";
     } elseif(strpos($username, "Ghost_")) {
      $message = "You cannot be a ghost.";
-    } elseif(strpos($password, $pin) || strpos($username, $pin)) {
-     $message = "Your PIN should not be a part of your Password or Username. Please use a unique PIN to strengthen your Profile security.";
-    } elseif($this->core->ID == $username) {
-     $message = $this->core->ID." is the system profile and cannot be used.";
+    } elseif(!empty($validateUsername["Error"])) {
+     $message = $validateUsername["Error"];
     } elseif($check == 0) {
      $message = "You must be $_MinimumAge or older to sign up.";
     } elseif($i > 0) {
