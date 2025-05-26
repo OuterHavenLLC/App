@@ -141,7 +141,7 @@
      $voteCounts = [];
      $votes = 0;
      $youVoted = 0;
-     foreach($poll["Votes"] as $number => $info) {
+     foreach($poll["Votes"] as $key => $info) {
       if($info[0] == $you) {
        $choice = $info[1] ?? 0;
        $voteCounts[$choice] = $voteCounts[$choice] ?? 0;
@@ -157,7 +157,7 @@
        "max" => $votes,
        "value" => $voteShare
       ]]);
-      if($this->core->ID == $you || $youVoted == 0) {
+      if($this->core->ID != $you && $youVoted == 0) {
        $option = $this->core->Element(["button", $option, [
         "class" => "LI UpdateContent",
         "data-container" => ".Poll$id",

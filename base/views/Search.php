@@ -3327,7 +3327,7 @@
        $voteCounts = [];
        $votes = 0;
        $youVoted = 0;
-       foreach($poll["Votes"] as $number => $info) {
+       foreach($poll["Votes"] as $key => $info) {
         if($info[0] == $you) {
          $choice = $info[1] ?? 0;
          $voteCounts[$choice] = $voteCounts[$choice] ?? 0;
@@ -3343,11 +3343,12 @@
          "max" => $votes,
          "value" => $voteShare
         ]]);
-        if($notAnon == 0 || $youVoted == 0) {
+        if($notAnon == 1 && $youVoted == 0) {
          $option = $this->core->Element(["button", $option, [
           "class" => "LI UpdateContent",
           "data-container" => ".Poll".$sql["Poll_ID"],
-          "data-view" => base64_encode("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($sql["Poll_ID"]))
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("Poll:Vote")."&Choice=".base64_encode($number)."&ID=".base64_encode($sql["Poll_ID"]))
          ]]);
         }
         $vote .= $option;
@@ -3958,7 +3959,7 @@
     $secureQuery = $this->core->AESdecrypt($query);
     $suggestedMembers = $this->view(base64_encode("Search:ReSearch"), ["Data" => [
      "Component" => base64_encode("SuggestedMembers"),
-     "query" => $data["query"]
+     "query" => $this->core->AESencrypt($query)
     ]]);
     $_Commands = [
      [
