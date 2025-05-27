@@ -244,7 +244,10 @@
    return "$r://";
   }
   function CoverPhoto(string $attachment) {
-   $coverPhoto = "";
+   $coverPhoto = $this->PlainText([
+    "Data" => "[Media:CP]",
+    "Display" => 1
+   ]);
    if(!empty($attachment)) {
     $attachment = explode("-", base64_decode($attachment));
     if(!empty($attachment[0]) && !empty($attachment[1])) {
