@@ -858,7 +858,7 @@
       $check = (strtotime($this->core->timestamp) < $product["Expires"]) ? 1 : 0;
       $illegal = $product["Illegal"] ?? 0;
       $illegal = ($illegal >= $illegalContent) ? 1 : 0;
-      if($id == $this->core->ShopID || ($bl == 0 && $check == 1 && $illegal == 0)) {
+      if($id == $this->core->ShopID || ($blocked == 0 && $check == 1 && $illegal == 0)) {
        $category = $product["Category"];
        $newHistory[$key] = $value;
        $i++;
@@ -1054,7 +1054,7 @@
         ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
         $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
         $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
-        $purgeRenderCode = ($username == $you) ? "PURGE" : "DO NOT PURGE";
+        $purgeRenderCode = ($this->core->ID == $you !! $username == $you) ? "PURGE" : "DO NOT PURGE";
         $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
         $actions = (!empty($addToData)) ? $this->core->Element([
          "button", "Attach", [
@@ -1095,82 +1095,6 @@
         ]]);
         $revenue = $this->core->RenderView($revenue, 1)["JSON"] ?? [];
         $_Commands = [
-         [
-          "Name" => "RenderChart",
-          "Parameters" => [
-           [
-            "BackgroundColor" => [
-             0,
-             255,
-             0
-            ],
-            "Chart" => "AnnualRevenue$id",
-            "DataSets" => [
-             [
-              "borderColor" => "white",
-              "borderWidth" => 0.5,
-              "data" => $revenue["Year"]["Data"],
-              "label" => "Profits",
-              "tension" => 0.4
-             ]
-            ],
-            "Labels" => $revenue["Year"]["Labels"],
-            "Title" => "Annual Profits for ".date("Y"),
-            "Type" => "line"
-           ]
-          ]
-         ],
-         [
-          "Name" => "RenderChart",
-          "Parameters" => [
-           [
-            "BackgroundColor" => [
-             0,
-             255,
-             0
-            ],
-            "Chart" => "MonthlyRevenue$id",
-            "DataSets" => [
-             [
-              "backgroundColor" => "gradient",
-              "borderColor" => "white",
-              "borderWidth" => 0.5,
-              "data" => $revenue["Month"]["Data"],
-              "label" => "Profit",
-              "tension" => 0.4
-             ]
-            ],
-            "Labels" => $revenue["Month"]["Labels"],
-            "Title" => "Profit for ".date("M"),
-            "Type" => "bar"
-           ]
-          ]
-         ],
-         [
-          "Name" => "RenderChart",
-          "Parameters" => [
-           [
-            "BackgroundColor" => [
-             0,
-             255,
-             0
-            ],
-            "Chart" => "PayPeriodRevenue$id",
-            "DataSets" => [
-             [
-              "borderColor" => "white",
-              "borderWidth" => 0.5,
-              "data" => $revenue["PayPeriod"]["Data"],
-              "label" => "Profit",
-              "tension" => 0.4
-             ]
-            ],
-            "Labels" => $revenue["PayPeriod"]["Labels"],
-            "Title" => "Profits by Pay Period",
-            "Type" => "line"
-           ]
-          ]
-         ],
          [
           "Name" => "UpdateContentAES",
           "Parameters" => [
@@ -1230,6 +1154,84 @@
           ]
          ]
         ];
+        if($active == 1 || $username == $you) {
+         array_push($_Commands, [
+          "Name" => "RenderChart",
+          "Parameters" => [
+           [
+            "BackgroundColor" => [
+             0,
+             255,
+             0
+            ],
+            "Chart" => "AnnualRevenue$id",
+            "DataSets" => [
+             [
+              "borderColor" => "white",
+              "borderWidth" => 0.5,
+              "data" => $revenue["Year"]["Data"],
+              "label" => "Profits",
+              "tension" => 0.4
+             ]
+            ],
+            "Labels" => $revenue["Year"]["Labels"],
+            "Title" => "Annual Profits for ".date("Y"),
+            "Type" => "line"
+           ]
+          ]
+         ]);
+         array_push($_Commands, [
+          "Name" => "RenderChart",
+          "Parameters" => [
+           [
+            "BackgroundColor" => [
+             0,
+             255,
+             0
+            ],
+            "Chart" => "MonthlyRevenue$id",
+            "DataSets" => [
+             [
+              "backgroundColor" => "gradient",
+              "borderColor" => "white",
+              "borderWidth" => 0.5,
+              "data" => $revenue["Month"]["Data"],
+              "label" => "Profit",
+              "tension" => 0.4
+             ]
+            ],
+            "Labels" => $revenue["Month"]["Labels"],
+            "Title" => "Profit for ".date("M"),
+            "Type" => "bar"
+           ]
+          ]
+         ]);
+         array_push($_Commands, [
+          "Name" => "RenderChart",
+          "Parameters" => [
+           [
+            "BackgroundColor" => [
+             0,
+             255,
+             0
+            ],
+            "Chart" => "PayPeriodRevenue$id",
+            "DataSets" => [
+             [
+              "borderColor" => "white",
+              "borderWidth" => 0.5,
+              "data" => $revenue["PayPeriod"]["Data"],
+              "label" => "Profit",
+              "tension" => 0.4
+             ]
+            ],
+            "Labels" => $revenue["PayPeriod"]["Labels"],
+            "Title" => "Profits by Pay Period",
+            "Type" => "line"
+           ]
+          ]
+         ]);
+        }
         $_View = [
          "ChangeData" => [
           "[Shop.Actions]" => $actions,

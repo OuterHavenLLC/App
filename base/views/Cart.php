@@ -173,6 +173,7 @@
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
+   $_View = "";
    $data = $data["Data"] ?? [];
    $username = $data["UN"] ?? base64_encode($you);
    $username = base64_decode($username);
