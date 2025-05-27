@@ -36,6 +36,7 @@
     $class .= ($type == 2) ? "" : $class;
     $class .= ($type == 3) ? " Desktop66" : $class;
     $class .= ($type == 4) ? " Medium" : $class;
+    $isAnon = ($this->core->ID == $you) ? 1 : 0;
     $retract = $this->core->AESencrypt("v=".base64_encode("Vote:Retract")."&ID=$id&Type=$type");
     $save = "v=".base64_encode("Vote:Save")."&ID=$id&Type=$type&Vote=";
     $down = ($_Votes[$you] == "Down") ? $this->core->Element([
@@ -53,6 +54,7 @@
       "data-view" => $this->core->AESencrypt($save."Down")
      ]
     ]);
+    $down = ($isAnon == 0) ? $down : "&nbsp;";
     $up = ($_Votes[$you] == "Up") ? $this->core->Element([
      "button", "Up", [
       "class" => "Selected UpdateContent v2 v2w",
@@ -68,17 +70,26 @@
       "data-view" => $this->core->AESencrypt($save."Up")
      ]
     ]);
+    $up = ($isAnon == 0) ? $up : "&nbsp;";
     $votes = $_VoteUp - $_VoteDown;
-    $_View = $this->core->Element(["div", $up, [
-     "class" => "Desktop33"
-    ]]).$this->core->Element(["div", $this->core->Element([
-     "div", $this->core->ShortNumber($votes),
-     ["class" => "CenterText InnerMargin"]
-    ]), [
-     "class" => "Desktop33"
-    ]]).$this->core->Element(["div", $down, [
-     "class" => "Desktop33"
-    ]]);
+    $_View = $this->core->Element([
+     "div", $up, [
+      "class" => "Desktop33"
+     ]
+    ]).$this->core->Element([
+     "div", $this->core->Element([
+      "div", $this->core->ShortNumber($votes),
+      [
+       "class" => "CenterText InnerMargin"
+      ]
+     ]), [
+      "class" => "Desktop33"
+     ]
+    ]).$this->core->Element([
+     "div", $down, [
+      "class" => "Desktop33"
+     ]
+    ]);
     $_View = ($refresh == 0) ? $this->core->Element([
      "div", $_View, ["class" => $class]
     ]) : $_View;

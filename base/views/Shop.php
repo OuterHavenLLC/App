@@ -1021,6 +1021,7 @@
         "Y" => $you
        ]);
        $check2 = ($this->core->ShopID == $username) ? 1 : $check2;
+       $isAnon = ($this->core->ID == $you) ? 1 : 0;
        $options = $_Shop["ListItem"]["Options"];
        $partners = $shop["Contributors"] ?? [];
        $services = $shop["InvoicePresets"] ?? [];
@@ -1036,13 +1037,6 @@
         $blocked = $this->core->CheckBlocked([$y, "Members", $username]);
         $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
         $check = ($active == 1 || $username == $you) ? 1 : 0;
-        $hire = ($username == $you) ? $this->core->Element([
-         "button", "Hire", [
-          "class" => "OpenCard Medium v2",
-          "data-encryption" => "AES",
-          "data-view" => $this->core->AESencrypt("v=".base64_encode("Shop:EditPartner")."&new=1")
-         ]
-        ]) : "";
         $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
          "[Dashboard.Hire]" => $hire,
          "[Dashboard.ID]" => $id,
@@ -1053,9 +1047,16 @@
          "[Dashboard.Services]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
         ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
         $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
+        $hire = ($username == $you) ? $this->core->Element([
+         "button", "Hire", [
+          "class" => "OpenCard Medium v2",
+          "data-encryption" => "AES",
+          "data-view" => $this->core->AESencrypt("v=".base64_encode("Shop:EditPartner")."&new=1")
+         ]
+        ]) : "";
         $liveViewSymbolicLinks = $this->core->GetSymbolicLinks($shop, "LiveView");
-        $purgeRenderCode = ($this->core->ID == $you !! $username == $you) ? "PURGE" : "DO NOT PURGE";
-        $share = (md5($you) == $id || $shop["Privacy"] == md5("Public")) ? 1 : 0;
+        $purgeRenderCode = ($isAnon == 1) ? "PURGE" : "DO NOT PURGE";
+        $share = ((md5($you) == $id || $shop["Privacy"] == md5("Public")) && $isAnon == 0) ? 1 : 0;
         $actions = (!empty($addToData)) ? $this->core->Element([
          "button", "Attach", [
           "class" => "Attach Small v2",
@@ -1333,7 +1334,7 @@
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $_ResponseType = "N/A";
+   $_ResponseType = "";
    $_View = "";
    $data = $data["Data"] ?? [];
    $now = $this->core->timestamp;

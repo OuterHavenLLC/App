@@ -106,7 +106,7 @@
    }
   } elseif($command[0] == "chat") {
    # CHAT
-   $content = "v=".base64_encode("WebUI:Public")."&Type=Chat&View=".base64_encode("v=".base64_encode("WebUI:Containers"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Chat&View=".base64_encode("v=".base64_encode("Chat:Public"));
    if(!empty($command[1])) {
     $content = "v=".base64_encode("WebUI:Public")."&Type=Chat&View=".base64_encode("v=".base64_encode("Chat:Public")."&ID=".base64_encode($command[1]));
    }

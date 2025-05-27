@@ -837,10 +837,11 @@
   }
   function Menu(array $data): string {
    $_Commands = "";
-   $_Dialog = [
-    "Body" => "You must sign in to continue."
+   $_Dialog = "";
+   $_View = [
+    "ChangeData" => [],
+    "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-6835ab1befb17"
    ];
-   $_View = "";
    $data = $data["Data"] ?? [];
    $integrated = $data["Integrated"] ?? 0;
    $y = $this->you;

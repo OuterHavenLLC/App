@@ -565,7 +565,9 @@
      ]
     ];
     $_View = [
-     "ChangeData" => [],
+     "ChangeData" => [
+      "[Chat.Menu]" => $this->core->AESencrypt("v=".base64_encode("Chat:Menu"))
+     ],
      "Extension" => $this->core->AESencrypt($this->core->RenderUI($type))
     ];
    } elseif($type == "Public") {

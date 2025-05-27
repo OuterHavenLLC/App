@@ -8,6 +8,11 @@
   echo "<p>Here is a example of what this configuration file should contain:</p>\r\n";
   echo "<p>".json_encode($jsonExample, true)."</p>\r\n";
  } else {
-  # NEXT STEPS
+  $sql = New SQL($oh->core->cypher->SQLCredentials());
+  if(!$sql) {
+   echo "<p>Could not connect to the SQL database. Please ensure the ReSearch database exists, the credentials are accurate.</p>\r\n";
+  } else {
+   # NEXT STEPS
+  }
  }
 ?>

@@ -109,7 +109,7 @@
        $nsfw = ($nsfw == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
        $privacy = $chat["Privacy"] ?? 0;
        $privacy = ($active == 1 || $privacy != md5("Private")) ? 1 : 0;
-       if($chat["UN"] == $you || ($bl == 0 && $nsfw == 1 && $privacy == 1)) {
+       if($chat["UN"] == $you || ($blocked == 0 && $nsfw == 1 && $privacy == 1)) {
         $contributors = $chat["Contributors"] ?? [];
         $isGroupChat = $chat["Group"] ?? 0;
         if(!empty($contributors) || $isGroupChat == 1) {
