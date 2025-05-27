@@ -1243,8 +1243,8 @@
      ]);
      $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
      $sql->query($_Query, [
-      ":Search" => $querysql,
-      ":Username" => $you
+      ":Limit" => $limit,
+      ":Search" => $querysql
      ]);
      $sql = $sql->set();
      foreach($sql as $sql) {
@@ -2366,7 +2366,8 @@
         "class" => "InnerMargin"
        ]
       ]),
-      "[Link.Title]" => $sql["Link_Title"]
+      "[Link.Title]" => $sql["Link_Title"],
+      "[Link.URL]" => $sql["Link_ID"]
      ]);
     }
     $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
@@ -3912,8 +3913,8 @@
    $you = $y["Login"]["Username"];
    if($component == "SuggestedMembers") {
     $_Query = "SELECT * FROM Members
-                        #WHERE Member_Descriptction LIKE :Search OR
-                        WHERE Member_DisplayName LIKE :Search OR
+                        WHERE Member_Description LIKE :Search OR
+                                      Member_DisplayName LIKE :Search OR
                                       Member_Username LIKE :Search
                         ORDER BY Member_Created DESC
                         LIMIT 50";
@@ -3929,7 +3930,7 @@
       "ID" => base64_encode("Member;".md5($sql["Member_Username"]))
      ]);
      $member = $_Member["DataModel"];
-     if($_Member["Empty"] == 0 && $blocked == 0) {
+     if($_Member["Empty"] == 0) {
       $them = $member["Login"]["Username"];
       $cms = $this->core->Data("Get", ["cms", md5($them)]);
       $contacts = $cms["Contacts"] ?? [];
@@ -3941,13 +3942,13 @@
       ]);
       $lookMeUp = $member["Privacy"]["LookMeUp"] ?? 0;
       $theyBlockedYou = $this->core->CheckBlocked([$member, "Members", $you]);
-      $youBlockedThem = $this->core->CheckBlocked([$y, "Members", $them]);
-      if($theyBlockedYou == 0 && $youBlockedThem == 0 && $check == 1 && $lookMeUp == 1) {
+      if($theyBlockedYou == 0 && $check == 1 && $lookMeUp == 1) {
        $options = $_Member["ListItem"]["Options"];
        $profilePicture = $this->core->ProfilePicture($member, "max-width:4em;width:100%");
        $_View .= $this->core->Element(["div", $this->core->Element([
         "button", $profilePicture, [
          "class" => "OpenCard v1",
+         "data-encryption" => "AES",
          "data-view" => $options["View"]
         ]
        ]), ["class" => "Small"]]);
