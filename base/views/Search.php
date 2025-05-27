@@ -3022,13 +3022,13 @@
     $_Count = "SELECT COUNT(*) FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
-                        WHERE StatusUpdate_Body LIKE :Body
+                        WHERE StatusUpdate_Body LIKE :Search
                         AND (StatusUpdate_To=:Username OR
                                  StatusUpdate_Username=:Username)";
     $_Query = "SELECT * FROM StatusUpdates
                         JOIN Members
                         ON Member_Username=StatusUpdate_Username
-                        WHERE StatusUpdate_Body LIKE :Body
+                        WHERE StatusUpdate_Body LIKE :Search
                         AND (StatusUpdate_To=:Username OR
                                  StatusUpdate_Username=:Username)
                         ORDER BY StatusUpdate_Created DESC
@@ -3044,7 +3044,7 @@
     $rowCount = $rowCount->single()["COUNT(*)"] ?? 0;
     $sql->query($_Query, [
      ":Limit" => $limit,
-     ":Body" => $querysql,
+     ":Search" => $querysql,
      ":Username" => $username
     ]);
     $sql = $sql->set();

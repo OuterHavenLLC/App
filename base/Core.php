@@ -349,26 +349,27 @@
   function Decrypt($data) {
    return $this->cypher->Decrypt($data);
   }
-  function Element(array $a) {
-   $a[2] = $a[2] ?? [];
-   $r = "";
-   if(!empty($a[0])) {
-    $a["DLL"] = $a["DLL"] ?? 0;
-    $d = "";
-    if(!empty($a[2])) {
-     foreach($a[2] as $k => $v) {
-      if(empty($v)) {
-       $d .= " $k";
+  function Element(array $data) {
+   $data[2] = $data[2] ?? [];
+   $element = "";
+   if(!empty($data[0])) {
+    $attributes = "";
+    $data["DLL"] = $data["DLL"] ?? 0;
+    if(!empty($data[2])) {
+     foreach($data[2] as $key => $value) {
+      if(empty($value)) {
+       $attributes .= " $key";
       } else {
-       $d .= " $k=\"$v\"";
+       $attributes .= " $key=\"$value\"";
       }
      }
     }
-    $r = "<".$a[0]."$d>".$a[1]."</".$a[0].">";
+    $data[1] = (is_array($data[1])) ? json_encode($data[1], true) : $data[1];
+    $element = "<".$data[0]."$attributes>".$data[1]."</".$data[0].">";
    } else {
-    $r = $this->Element(["p", "An Element type must be defined."]);
+    $element = $this->Element(["p", "An Element type must be defined."]);
    }
-   return "$r\r\n";
+   return "$element\r\n";
   }
   function Encrypt($data) {
    return $this->cypher->Encrypt($data);

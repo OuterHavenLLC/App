@@ -72,7 +72,9 @@
        $_View .= $this->core->Element([
         "h4", "Embed Code", ["class" => "CenterText"]
        ]).$this->core->Element([
-        "p", "[Embed&colon;".base64_encode(implode(";", $attachment))."]", ["class" => "CenterText"]
+        "p", "[Embed&colon;".base64_encode(implode(";", $attachment))."]", [
+         "class" => "CenterText"
+        ]
        ]);
       }
      }
@@ -85,9 +87,13 @@
       $i++;
       $_View = $_Media["Preview"]["Content"] ?? "";
       $_View .= $this->core->Element([
-       "h4", "Embed Code", ["class" => "CenterText"]
+       "h4", "Embed Code", [
+        "class" => "CenterText"
+       ]
       ]).$this->core->Element([
-       "p", "[Embed&colon;$contentID]", ["class" => "CenterText"]
+       "p", "[Embed&colon;$contentID]", [
+        "class" => "CenterText"
+       ]
       ]);
      }
     }
@@ -102,12 +108,11 @@
    ]);
   }
   function InlineMossaic(array $data): string {
-   $_View = "";
+   $_View = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
    $data = $data["Data"] ?? [];
    $i = 0;
    $media = $data["ID"] ?? base64_encode("");
    $media = base64_decode($media);
-   $_View = $this->core->Element(["div", NULL, ["class" => "NONAME"]]);
    $mediaType = $data["Type"] ?? base64_encode("");
    $mediaType = base64_decode($mediaType);
    $y = $this->you;
@@ -141,14 +146,20 @@
         $i++;
         $options = $_Media["ListItem"]["Options"] ?? [];
         $preview = $_Media["Preview"]["Content"] ?? "";
-        $_View .= (!empty($options["View"])) ? $this->core->Element(["button", $this->core->Element([
-         "div", $preview, ["class" => "NONAME"]
-        ]).$this->core->Element([
-         "p", "View in Full", ["class" => "CenterText"]
-        ]), [
-         "class" => "FrostedBright OpenCard Rounded",
-         "data-view" => $options["View"]
-        ]]) : $_View;
+        $_View .= (!empty($options["View"])) ? $this->core->Element([
+         "button", $this->core->Element([
+          "div", $preview, [
+           "class" => "NONAME"
+          ]
+         ]).$this->core->Element([
+          "p", "View in Full", [
+           "class" => "CenterText"
+          ]
+         ]), [
+          "class" => "FrostedBright OpenCard Rounded",
+          "data-view" => $options["View"]
+         ]
+        ]) : $preview;
        }
       }
      } if($i > 0) {
@@ -158,9 +169,13 @@
       $mediaType = ($mediaType == "ProductNotBundled") ? "Products" : $mediaType;
       $mediaType = ($mediaType == "StatusUpdate") ? "Status Updates" : $mediaType;
       $_View = $this->core->Element([
-       "h4", $mediaType, ["class" => "UpperCase"]
+       "h4", $mediaType, [
+        "class" => "UpperCase"
+       ]
       ]).$this->core->Element([
-       "div", $_View, ["class" => "SideScroll"]
+       "div", $_View, [
+        "class" => "SideScroll"
+       ]
       ]);
      }
     } elseif($mediaType == "Artist" || $mediaType == "Member") {
@@ -185,9 +200,13 @@
       }
      } if($i > 0) {
       $_View = $this->core->Element([
-       "h4", "Featured ".$mediaType."s", ["class" => "UpperCase"]
+       "h4", "Featured ".$mediaType."s", [
+        "class" => "UpperCase"
+       ]
       ]).$this->core->Element([
-       "div", $_View, ["class" => "SideScroll"]
+       "div", $_View, [
+        "class" => "SideScroll"
+       ]
       ]);
      }
     } elseif($mediaType == "CoverPhoto") {
@@ -224,9 +243,13 @@
      } if($i > 0) {
       $mediaType = ($mediaType == "DemoFile") ? "Demo Media" : "Attachments";
       $_View = $this->core->Element([
-       "h4", $mediaType, ["class" => "UpperCase"]
+       "h4", $mediaType, [
+        "class" => "UpperCase"
+       ]
       ]).$this->core->Element([
-       "div", $_View, ["class" => "SideScroll"]
+       "div", $_View, [
+        "class" => "SideScroll"
+       ]
       ]);
      }
     } elseif($mediaType == "NonArtist") {
@@ -242,9 +265,13 @@
       }
      } if($i > 0) {
       $_View = $this->core->Element([
-       "h4", "Featured Members", ["class" => "UpperCase"]
+       "h4", "Featured Members", [
+        "class" => "UpperCase"
+       ]
       ]).$this->core->Element([
-       "div", $_View, ["class" => "SideScroll"]
+       "div", $_View, [
+        "class" => "SideScroll"
+       ]
       ]);
      }
     }
@@ -288,9 +315,13 @@
      "p", "None, yet..."
     ]) : $_View;
     $_View = $this->core->Element([
-     "h4", "Contributors", ["class" => "UpperCase"]
+     "h4", "Contributors", [
+      "class" => "UpperCase"
+     ]
     ]).$this->core->Element([
-     "div", $_View, ["class" => "SideScroll"]
+     "div", $_View, [
+      "class" => "SideScroll"
+     ]
     ]);
    }
    return $this->core->JSONResponse([

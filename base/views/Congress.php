@@ -77,13 +77,16 @@
      $senators++;
     }
    } if(!empty($chamber) && $chambers == 1) {
-    $_AddTopMargin = 1;
+    $_AddTopMargin = "1";
     $options = "";
     $search = base64_encode("Search:Containers");
-    $options = ($notAnon == 1) ? $this->core->Element(["button", "Ballot", [
-     "class" => "OpenCard v2",
-     "data-view" => base64_encode("v=$search&CARD=1&Chamber=$chamber&st=CongressionalBallot")
-    ]]) : "";
+    $options = ($notAnon == 1) ? $this->core->Element([
+     "button", "Ballot", [
+      "class" => "OpenCard v2",
+      "data-encryption" => "AES",
+      "data-view" => $this->core->AESencrypt("v=$search&CARD=1&Chamber=$chamber&st=CongressionalBallot")
+     ]
+    ]) : "";
     $options .= (!empty($yourRole)) ? $this->core->Element([
      "button", "Elect Candidates", [
       "class" => "OpenDialog v2",
@@ -411,7 +414,7 @@
    $_Dialog = [
     "Body" => "The Content or Database Identifier are missing."
    ];
-   $_ResponseType = "N/A";
+   $_ResponseType = "";
    $data = $data["Data"] ?? [];
    $databaseID = $data["dbID"] ?? "";
    $id = $data["ID"] ?? "";
@@ -419,10 +422,10 @@
    $you = $y["Login"]["Username"];
    if(!empty($databaseID) && !empty($id)) {
     $_AddNote = $this->core->AESencrypt("v=".base64_encode("Congress:Notes")."&Add=1&ID=$id&dbID=$databaseID");
+    $_Congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $_Dialog = "";
     $_Extension = $this->core->Extension("bdd25e7c79eeafb218f1c2c76a49067b");
     $_View = "";
-    $_Congress = $this->core->Data("Get", ["app", md5("Congress")]);
     $databaseID = base64_decode($databaseID);
     $id = base64_decode($id);
     $congressmen = $_Congress["Members"] ?? [];
@@ -449,10 +452,10 @@
         $displayName = $author["Personal"]["DisplayName"] ?? "[REDACTED]";
         $_View = [
          "ChangeData" => [
-         "[Notes.Body]" => $info["Note"],
-         "[Notes.Created]" => $info["Created"],
-         "[Notes.DisplayName]" => $displayName,
-         "[Notes.NoteID]" => ""
+          "[Notes.Body]" => $info["Note"],
+          "[Notes.Created]" => $info["Created"],
+          "[Notes.DisplayName]" => $displayName,
+          "[Notes.NoteID]" => ""
          ],
          "Extension" => $this->core->AESencrypt($this->core->Element([
           "h4", "Congressional Notes"
@@ -472,12 +475,13 @@
        ], $_Extension]);
       }
      }
-     $_View = $this->core->Element(["div", $_View, [
-      "class" => "FrostedBright Rounded"
-     ]]);
-     $_View = [
+     $_View = $_View ?? [
       "ChangeData" => [],
-      "Extension" => $this->core->AESencrypt($_View)
+      "Extension" => $this->core->AESencrypt($this->core->Element([
+       "div", $_View, [
+        "class" => "FrostedBright Rounded"
+       ]
+      ]))
      ];
     } elseif(!empty($congressmen[$you])) {
      $add = $data["Add"] ?? 0;
