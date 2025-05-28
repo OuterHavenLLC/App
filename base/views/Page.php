@@ -516,14 +516,6 @@
         [
          "Name" => "UpdateContentRecursiveAES",
          "Parameters" => [
-          ".Contributors$id",
-          $options["Contributors"],
-          15000
-         ]
-        ],
-        [
-         "Name" => "UpdateContentRecursiveAES",
-         "Parameters" => [
           ".Subscribe$id",
           $options["Subscribe"],
           6000
