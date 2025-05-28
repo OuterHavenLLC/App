@@ -71,7 +71,7 @@
      "[App.CoverPhoto]" => $eventMedia["CoverPhoto"],
      "[App.Feedback]" => $this->core->AESencrypt("v=".base64_encode("Feedback:NewThread")),
      "[App.Shop]" => $this->core->AESencrypt("v=".base64_encode("Shop:Home")."&b2=".urlencode("Company Home")."&back=1&lPG=OHC&UN=$shopID"),
-     "[App.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")."&TopMargin=".base64_encode("0")."&back=1")
+     "[App.VVA]" => $this->core->AESencrypt("v=".base64_encode("Company:VVA")."&AddTopMargin=".base64_encode("0")."&back=1")
     ],
     "ExtensionID" => "0a24912129c7df643f36cb26038300d6"
    ];
@@ -108,7 +108,7 @@
       "Name" => "UpdateContentAES",
       "Parameters" => [
        ".AppStatistics",
-       $this->core->AESencrypt("v=".base64_encode("Company:Statistics")."&TopMargin=".base64_encode("0"))
+       $this->core->AESencrypt("v=".base64_encode("Company:Statistics")."&AddTopMargin=".base64_encode("0"))
       ]
      ],
      [
@@ -160,7 +160,6 @@
    ]);
   }
   function Statistics(array $data): string {
-   $_AddTopMargin = 1;
    $_Commands = [
     [
      "Name" => "UpdateContentAES",
@@ -175,7 +174,7 @@
     "ExtensionID" => "0ba6b9256b4c686505aa66d23bec6b5c"
    ];
    $data = $data["Data"] ?? [];
-   $_AddTopMargin = $data["AddTopMargin"] ?? base64_encode($_AddTopMargin);
+   $_AddTopMargin = $data["AddTopMargin"] ?? base64_encode(1);
    $_AddTopMargin = base64_decode($_AddTopMargin);
    $month = $data["Month"] ?? base64_encode("");
    $month = base64_decode($month);
@@ -371,10 +370,9 @@
    ]);
   }
   function VVA(array $data): string {
-   $_AddTopMargin = 1;
    $_Card = "";
    $_View = "";
-   $_AddTopMargin = $data["TopMargin"] ?? base64_encode($_AddTopMargin);
+   $_AddTopMargin = $data["AddTopMargin"] ?? base64_encode(1);
    $_AddTopMargin = base64_decode($_AddTopMargin);
    $data = $data["Data"] ?? [];
    $back = $data["back"] ?? 0;
