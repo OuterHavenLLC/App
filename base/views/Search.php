@@ -255,10 +255,11 @@
      $t = ($username == $you) ? $y : $this->core->Member($username);
      $check = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $header = ($check == 1) ? "Your Albums" : $t["Personal"]["DisplayName"]."'s Albums";
-     $b2 = $b2 ?? $h;
+     $b2 = $b2 ?? $header;
      $b2 = urlencode($b2);
      $_List .= "&UN=".base64_encode($t["Login"]["Username"])."&b2=$b2&lPG=$parentView";
      $searchBarText = "Albums";
+     $variant = "3Column";
     } elseif($searchType == "MBR-BLG") {
      $bd = base64_encode("Authentication:DeleteBlogs");
      $be = base64_encode("Blog:Edit");
@@ -271,6 +272,7 @@
      $header = ($check == 1) ? "Your Contributions" : $t["Personal"]["DisplayName"]."'s Contributions";
      $_List .= "&b2=$b2&lPG=$parentView&UN=".$data["UN"];
      $searchBarText = "the Archive";
+     $variant = "2Column";
     } elseif($searchType == "MBR-Chat" || $searchType == "MBR-GroupChat") {
      $group = $data["Group"] ?? 0;
      $integrated = $data["Integrated"] ?? 0;
@@ -2584,8 +2586,8 @@
        array_push($_List, [
         "[Album.CRID]" => $key,
         "[Album.CoverPhoto]" => $this->core->CoverPhoto($coverPhoto),
-        "[Album.Lobby]" => base64_encode("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$key&UN=$username"),
-        "[Album.Title]" => $value["Title"]
+        "[Album.Title]" => $value["Title"],
+        "[Album.View]" => $this->core->AESencrypt("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$key&UN=$username")
        ]);
       }
      }

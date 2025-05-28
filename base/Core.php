@@ -1481,21 +1481,16 @@
     }
    } if(count($keys) == $i) {
     try {
-     $message = $this->Element([
-      "html", $this->Element([
-       "head", $this->Element([
-        "style", $this->Extension("669ae04b308fc630f8e06317313d9efe")
-       ])
-      ]).$this->Element([
-       "body", $this->Change([[
-        "[Mail.Message]" => $emailData["Message"]
-       ], $this->Extension("c790e0a597e171ff1d308f923cfc20c9")])
-      ])
-     ]);
      $data = $this->cypher->MailCredentials();
      $data = [
       "Host" => $data["Host"],
-      "Message" => base64_encode($message),
+      "Message" => base64_encode($this->Change([
+       [
+        "[Mail.Design]" => $this->Extension("669ae04b308fc630f8e06317313d9efe"),
+        "[Mail.Message]" => $emailData["Message"]
+       ],
+       $this->Extension("c790e0a597e171ff1d308f923cfc20c9")
+      ])),
       "Password" => $data["Password"],
       "Title" => base64_encode($emailData["Title"]),
       "To" => base64_encode(filter_var($emailData["To"], FILTER_VALIDATE_EMAIL)),
@@ -1507,6 +1502,9 @@
      curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
      curl_exec($cURL);
      curl_close($cURL);
+     return $this->Element([
+      "p", "Mail sent!"
+     ]);
     } catch(Exception $error) {
      return $this->Element([
       "p", "Failed to send mail: ".$error->getMessage()
