@@ -293,7 +293,8 @@
      $check = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
      $header = ($check == 1) ? "Your Journal" : $t["Personal"]["DisplayName"]."'s Journal";
      $_List .= "&b2=$b2&lPG=$parentView";
-     $searchBarText = "Entries";
+     $searchBarText = "journal entries";
+     $variant = "2Column";
     } elseif($searchType == "MBR-LLP") {
      $header = "Your Articles";
      $_List .= "&b2=$b2&lPG=$parentView";
@@ -2650,7 +2651,7 @@
     }
    } elseif($searchType == "MBR-CA" || $searchType == "MBR-JE") {
     $_AccessCode = "Accepted";
-    $_ExtensionID = "90bfbfb86908fdc401c79329bedd7df5";
+    $_ExtensionID = "e7829132e382ee4ab843f23685a123cf";
     $_Count = "SELECT COUNT(*) FROM Articles
                        JOIN Members
                        ON Member_Username=Article_Username
@@ -2717,11 +2718,10 @@
       if($check == 1 && $check2 == 1) {
        array_push($_Commands, []);
        array_push($_List, [
-        "[Article.Subtitle]" => "Posted by ".$t["Personal"]["DisplayName"]." ".$this->core->TimeAgo($article["Created"]).".",
-        "[Article.Description]" => $_Article["ListItem"]["Description"],
-        "[Article.ParentPage]" => $parentView,
-        "[Article.Title]" => $_Article["ListItem"]["Title"],
-        "[Article.ViewPage]" => $options["View"]
+        "[Info.CoverPhoto]" => $_Article["ListItem"]["CoverPhoto"],
+        "[Info.Description]" => $_Article["ListItem"]["Description"],
+        "[Info.Title]" => $_Article["ListItem"]["Title"],
+        "[Info.View]" => "$parentView;".$options["View"]
        ]);
       }
      }

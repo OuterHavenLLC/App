@@ -354,6 +354,7 @@
   }
   function Home(array $data): string {
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The requested Article could not be found.",
     "Header" => "Not Found"
@@ -590,6 +591,7 @@
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "Title" => $_ViewTitle,
     "View" => $_View
