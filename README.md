@@ -33,6 +33,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * All client functions were re-organized into a single class, and the logic was modernized.
 * Standardized the Block buttons and revamped the processor view—now located in WebUI->Block().
 * Platform Statistics are now augmented with charts for Month and Year totals.
+* The client may now purge designated blocks of render code the the PlainText() object, which is now more broadly deployed across the client logic.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.
@@ -62,6 +63,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 
 ### Heath Kit
 * Established the installer's architecture and data store.
+* Created the example JSON configuration file.
 * Work in progress...
 
 ## 1.3: Compendium
