@@ -195,17 +195,17 @@
    ]);
   }
   function Block(array $data): string {
-   $_View = "Content ID or List missing.";
+   $_View = "Missing ID or List";
    $data = $data["Data"] ?? [];
-   $id = $data["ID"] ?? "";
-   $list = $data["List"] ?? "";
+   $id = $data["ID"] ?? base64_encode("");
+   $id = base64_decode($id);
+   $list = $data["List"] ?? base64_encode("");
+   $list = base64_decode($list);
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
     $_View = "Please Sign In";
-   } elseif(!empty($id)) {
-    $id = $this->core->AESencrypt($id);
-    $list = $this->core->AESencrypt($list);
+   } elseif(!empty($id) && !empty($list)) {
     $blacklist = $y["Blocked"][$list] ?? [];
     $newBlacklist = [];
     if(in_array($id, $blacklist)) {
@@ -216,12 +216,11 @@
      }
      $_View = "Block";
     } else {
-     array_push($newBlacklist, $content);
+     array_push($newBlacklist, $id);
      $_View = "Unblock";
     }
     $y["Blocked"][$list] = array_unique($newBlacklist);
-    #$this->core->Data("Save", ["mbr", md5($you), $y]);
-    $_View .= json_encode($y["Blocked"], true);
+    $this->core->Data("Save", ["mbr", md5($you), $y]);
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",

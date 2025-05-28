@@ -516,7 +516,7 @@
       $title = $data["Title"] ?? "";
       $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt("$contentID-$additionalContentID")."&List=".$this->AESencrypt("Albums")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode("$contentID-$additionalContentID")."&List=".base64_encode("Albums")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Album:Edit")."&AID=$additionalContentID&UN=".base64_encode($contentID)),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("Album")."&Username=".base64_encode($contentID)),
@@ -542,7 +542,7 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Blogs")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Blogs")),
        "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Blog:Edit")."&BLG=$contentID"),
@@ -578,7 +578,7 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($additionalContentID)."&List=".$this->AESencrypt("Blog Posts")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($additionalContentID)."&List=".base64_encode("Blog Posts")),
        "Contributors" => $this->AESencrypt("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("BlogPost")."&st=Contributors"),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&Post=$additionalContentID"),
@@ -617,7 +617,7 @@
       $view = "v=".base64_encode("Chat:Home")."&AddTo=$addTo&ID=".base64_encode($contentID)."&Group=1&Integrated=".$content["Integrated"];
       $view .= ($content["Integrated"] == 1) ? "&Card=1" : "";
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Group Chats")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Group Chats")),
        "Bookmark" => $this->AESencrypt("v=".base64_encode("Chat:Bookmark")."&Command=".base64_encode($bookmarkCommand)."&ID=".base64_encode($contentID)),
        "Contributors" => $contributors,
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
@@ -666,7 +666,7 @@
       ], true);
       $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Files")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Files")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Header=".base64_encode($this->Element(["h1", "Delete Media", ["class" => "CenterText"]]))."&ParentPage=Files&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("File:Edit")."&ID=".base64_encode($additionalContentID)."&UN=".base64_encode($contentID)),
        "Report" => $this->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("File;$contentID;$additionalContentID")),
@@ -695,7 +695,7 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Forums")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Forums")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Forum:Edit")."&ID=$contentID"),
        "Invite" => $this->AESencrypt("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
@@ -729,7 +729,7 @@
       ], true);
       $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($additionalContentID)."&List=".$this->AESencrypt("Forum Posts")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($additionalContentID)."&List=".base64_encode("Forum Posts")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&ID=$additionalContentID"),
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("post")),
@@ -758,7 +758,7 @@
       $title = ($them == $this->ID) ? "Anonymous" : $displayName;
       $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Members")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Members")),
        "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&1on1=1&Card=1&ID=".base64_encode($them)),
        "Donate" => $this->AESencrypt("v=".base64_encode("Profile:Donate")."&UN=".base64_encode($them)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Profile:Preferences")),
@@ -792,7 +792,7 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Pages")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Pages")),
        "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode($contentID)."&Integrated=1"),
        "Contributors" => $this->AESencrypt("v=".base64_encode("Search:Containers")."&CARD=1&ID=".base64_encode($contentID)."&Type=".base64_encode("Article")."&st=Contributors"),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
@@ -821,7 +821,7 @@
        "v" => base64_encode("Poll:Purge")
       ], true);
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Polls")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Polls")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "View" => $this->AESencrypt("v=".base64_encode("Poll:Home")."&AddTo=$addTo&ID=$contentID")
@@ -851,7 +851,7 @@
       ], true);
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Products")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Products")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Product:Edit")."&ParentView=Product$contentID&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".$data["UN"]),
@@ -872,7 +872,7 @@
       $description = $data["Description"] ?? "";
       $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Shops")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Shops")),
        "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
        "Edit" => $this->AESencrypt("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($owner["Login"]["Username"])),
        "Hire" => $this->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=$contentID"),
@@ -909,7 +909,7 @@
       ], true);
       $vote = ($from != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
-       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".$this->AESencrypt($contentID)."&List=".$this->AESencrypt("Status Updates")),
+       "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Status Updates")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Edit")."&SU=$contentID"),
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
