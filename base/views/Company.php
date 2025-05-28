@@ -209,10 +209,10 @@
        $dayTotals[$name] = $dayStat + $value;
        $monthStat = $monthTotals[$name] ?? 0;
        $monthTotals[$name] = $monthStat + $value;
-      } foreach($dayTotals as $key => $value) {
-       $key = $references[$key] ?? $key;
+      } foreach($dayTotals as $name => $value) {
+       $name = $references[$name] ?? $name;
        $dayLineItems .= $this->core->Change([[
-        "[Statistic.Name]" => $key,
+        "[Statistic.Name]" => $name,
         "[Statistic.Value]" => number_format($value)
        ], $lineItem]);
       }
@@ -225,7 +225,7 @@
       $name = $references[$name] ?? $name;
       $monthLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
-       "[Statistic.Value]" => $value
+       "[Statistic.Value]" => number_format($value)
       ], $lineItem]);
       array_push($statisticsData["Data"], $value);
       array_push($statisticsData["Labels"], $name);
@@ -305,7 +305,7 @@
       $name = $references[$name] ?? $name;
       $yearLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
-       "[Statistic.Value]" => $value
+       "[Statistic.Value]" => number_format($value)
       ], $lineItem]);
       array_push($statisticsData["Data"], $value);
       array_push($statisticsData["Labels"], $name);
