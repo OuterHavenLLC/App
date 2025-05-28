@@ -11,6 +11,12 @@
   $sql = New SQL($oh->core->cypher->SQLCredentials());
   if(!$sql) {
    echo "<p>Could not connect to the SQL database. Please ensure the ReSearch database exists, the credentials are accurate.</p>\r\n";
+  } elseif(!extension_loaded("curl")) {
+   echo "<p>Please ensure the cURL extension (<em>php-curl</em>) is installed and enabled.</p>\r\n";
+  } elseif(!extension_loaded("ftp")) {
+   echo "<p>Please ensure the FTP extension (<em>php-ftp</em>) is installed and enabled.</p>\r\n";
+  } elseif(!extension_loaded("gd")) {
+   echo "<p>Please ensure the GD Image extension (<em>php-gd</em>) is installed and enabled.</p>\r\n";
   } else {
    # NEXT STEPS
   }
