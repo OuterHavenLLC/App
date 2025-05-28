@@ -1,2 +1,13 @@
 {
+ "AppInformation": {
+  "Description": "The wild west of the Internet.",
+  "Host": "example.com",
+  "MediaHost": "media.example.com",
+  "Name": "Safe Haven"
+ },
+ "DatabaseCredentials": {
+  "Database": "Database",
+  "Password": "Password",
+  "Username": "Username"
+ },
 }

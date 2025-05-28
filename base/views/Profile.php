@@ -645,17 +645,13 @@
       ]]);
       $_View = $this->core->RenderView($_View);
      } elseif($verifyPassPhrase == 1) {
-      $_Dialog = [
-       "Body" => "The Key is missing."
-      ];
       $_AddTopMargin = "0";
       $key = $data["Key"] ?? base64_encode("");
       $key = base64_decode($key);
       $secureKey = $data["SecureKey"] ?? base64_encode("");
       $secureKey = base64_decode($secureKey);
-      if($key != $secureKey) {
+      if($key == $secureKey) {
        $_Dialog = "";
-      } else {
        $_View = $this->view(base64_encode("Profile:Home"), ["Data" => [
         "AddTo" => $addTo,
         "UN" => base64_encode($id),

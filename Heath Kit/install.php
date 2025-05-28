@@ -8,7 +8,11 @@
   echo "<p>Here is a example of what this configuration file should contain:</p>\r\n";
   echo "<p>".json_encode($jsonExample, true)."</p>\r\n";
  } else {
-  $sql = New SQL($oh->core->cypher->SQLCredentials());
+  $database = $json["DatabaseCredentials"] ?? [];
+  foreach($database as $key => $value) {
+   $database[$key] = base64_encode($value);
+  }
+  $sql = New SQL($database);
   if(!$sql) {
    echo "<p>Could not connect to the SQL database. Please ensure the ReSearch database exists, the credentials are accurate.</p>\r\n";
   } elseif(!extension_loaded("curl")) {
