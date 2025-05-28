@@ -154,7 +154,7 @@
    }
   } elseif($command[0] == "statistics") {
    # STATISTICS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Company:Statistics"));
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Company:Statistics")."&AddTopMargin=".base64_encode(1));
   } elseif($command[0] == "topics") {
    # TOPICS
    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Search:ReSearch")."&query=".$oh->core->AESencrypt("#FreedomAlwaysWins"));

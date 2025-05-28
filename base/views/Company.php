@@ -175,7 +175,7 @@
     "ExtensionID" => "0ba6b9256b4c686505aa66d23bec6b5c"
    ];
    $data = $data["Data"] ?? [];
-   $_AddTopMargin = $data["TopMargin"] ?? base64_encode($_AddTopMargin);
+   $_AddTopMargin = $data["AddTopMargin"] ?? base64_encode($_AddTopMargin);
    $_AddTopMargin = base64_decode($_AddTopMargin);
    $month = $data["Month"] ?? base64_encode("");
    $month = base64_decode($month);
@@ -223,7 +223,6 @@
       ], $tile]);
      } foreach($monthTotals as $name => $value) {
       $name = $references[$name] ?? $name;
-      $value = number_format($value);
       $monthLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
        "[Statistic.Value]" => $value
@@ -294,7 +293,8 @@
       $months .= $this->core->Element(["div", $this->core->Change([[
        "[Tile.Action]" => $this->core->Element(["button", "View", [
         "class" => "GoToView v2 v2w",
-        "data-type" => "Statistics;".base64_encode("v=".base64_encode("Company:Statistics")."&Month=".base64_encode($month)."&View=".base64_encode("Month")."&Year=".base64_encode($year)),
+        "data-encryption" => "AES",
+        "data-type" => "Statistics;".$this->core->AESencrypt("v=".base64_encode("Company:Statistics")."&Month=".base64_encode($month)."&View=".base64_encode("Month")."&Year=".base64_encode($year)),
        ]]),
        "[Tile.Data]" => $monthLineItems,
        "[Tile.Header]" => $monthName
@@ -303,7 +303,6 @@
       ]]);
      } foreach($yearTotals as $name => $value) {
       $name = $references[$name] ?? $name;
-      $value = number_format($value);
       $yearLineItems .= $this->core->Change([[
        "[Statistic.Name]" => $name,
        "[Statistic.Value]" => $value
