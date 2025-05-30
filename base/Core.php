@@ -1009,21 +1009,21 @@
    $r = ($month == "12") ? "December" : $r;
    return $r;
   }
-  function GetSourceFromExtension(array $a) {
+  function GetSourceFromExtension(array $data) {
    $_ALL = $this->config["XFS"]["FT"] ?? [];
-   $file = $a[1] ?? "";
+   $media = $data[1] ?? "";
    $source = $this->PlainText([
     "Data" => "[Media:Document]",
     "Display" => 1
    ]);
-   $r = $this->efs.$source;
-   if(!empty($a[0]) && !empty($file)) {
-    if(!is_array($file)) {
-     $extension = explode(".", $file)[1] ?? "";
-     $name = $file;
+   $username = $data[0] ?? "";
+   if(!empty($username) && !empty($media)) {
+    if(!is_array($media)) {
+     $extension = explode(".", $media)[1] ?? "";
+     $name = $media[0];
     } else {
-     $extension = $file["EXT"];
-     $name = $file["Name"];
+     $extension = $media["EXT"];
+     $name = $media["Name"];
     } if(in_array($extension, $_ALL["A"])) {
      $source = $this->PlainText([
       "Data" => "[Media:Audio]",
@@ -1035,20 +1035,16 @@
       "Display" => 1
      ]);
     } elseif(in_array($extension, $_ALL["P"])) {
-     $source = $this->Thumbnail([
-      "File" => $name,
-      "Username" => $a[0]
-     ])["FullPath"];
+     $source = $this->efs."$username/$name";
     } elseif(in_array($extension, $_ALL["V"])) {
      $source = $this->PlainText([
       "Data" => "[Media:Video]",
       "Display" => 1
      ]);
-    } if(in_array($extension, $_ALL["P"])) {
-     $r = $source;
     }
    }
-   return $r;
+   $source = $source ?? "Debug: ".json_encode($data, true);
+   return $source;
   }
   function GetSymbolicLinks($data = [], string $type, $extras = []) {
    $links = [];

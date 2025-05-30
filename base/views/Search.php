@@ -1344,7 +1344,7 @@
          $files = $this->core->Data("Get", ["fs", $id[3]]);
          $files = $files["Files"] ?? [];
          $type = "File";
-         foreach($files as $file => $info) {
+         foreach($files as $media => $info) {
           $congressDeemedLegal = $info["CongressDeemedLegal"] ?? 0;
           $illegal = $info["Illegal"] ?? 0;
           if($congressDeemedLegal == 0 && $illegal >= $illegalThreshold) {
@@ -1367,7 +1367,7 @@
              $_Legal++;
             }
            }
-           $contentID = base64_encode("$type;".$id[2]."-".$id[3].";$file");
+           $contentID = base64_encode("$type;".$id[2]."-".$id[3].";$media");
            $description = $info["Description"] ?? $type;
            $houseCleared = $_Congress["HouseCleared"] ?? 0;
            $voted = ($congressmen[$you] == "HouseRepresentative") ? "$_HouseVotes out of $houseRepresentatives House Representatives" : "$_SenateVotes out of $senators Senators";
@@ -3175,19 +3175,22 @@
      $offset++;
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
-     $_File = $this->core->GetContentData([
+     $_Media = $this->core->GetContentData([
       "AddTo" => $addTo,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
-     $file = $_File["DataModel"];
-     if($_File["Empty"] == 0 && $blocked == 0 && $albumID == $file["AID"]) {
-      $options = $_File["ListItem"]["Options"];
-      $source = $this->core->GetSourceFromExtension([$t["Login"]["Username"], $file]);
+     $media = $_Media["DataModel"];
+     if($_Media["Empty"] == 0 && $blocked == 0 && $albumID == $media["AID"]) {
+      $options = $_Media["ListItem"]["Options"];
+      $source = $this->core->GetSourceFromExtension([
+       $sql["Media_Username"],
+       $media
+      ]);
       array_push($_Commands, []);
       array_push($_List, [
-       "[File.CoverPhoto]" => $source,
-       "[File.Title]" => $file["Title"],
-       "[File.View]" => $options["View"]
+       "[Media.CoverPhoto]" => $source,
+       "[Media.Title]" => $media["Title"],
+       "[Media.View]" => $options["View"]
       ]);
      }
     }
@@ -3224,22 +3227,22 @@
      $offset++;
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
-     $_File = $this->core->GetContentData([
+     $_Media = $this->core->GetContentData([
       "AddTo" => $addTo,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
-     if($_File["Empty"] == 0 && $blocked == 0) {
-      $file = $_File["DataModel"];
-      $options = $_File["ListItem"]["Options"];
+     if($_Media["Empty"] == 0 && $blocked == 0) {
+      $media = $_Media["DataModel"];
+      $options = $_Media["ListItem"]["Options"];
       $source = $this->core->GetSourceFromExtension([
        $sql["Media_Username"],
-       $file
+       $media
       ]);
       array_push($_Commands, []);
       array_push($_List, [
-       "[File.CoverPhoto]" => $source,
-       "[File.Title]" => $file["Title"],
-       "[File.View]" => $options["View"]
+       "[Media.CoverPhoto]" => $source,
+       "[Media.Title]" => $media["Title"],
+       "[Media.View]" => $options["View"]
       ]);
      }
     }
@@ -3857,18 +3860,21 @@
      $offset++;
      $attachmentID = base64_encode($sql["Media_Username"]."-".$sql["Media_ID"]);
      $blocked = $this->core->CheckBlocked([$y, "Files", $attachmentID]);
-     $_File = $this->core->GetContentData([
+     $_Media = $this->core->GetContentData([
       "AddTo" => $addTo,
       "ID" => base64_encode("File;".$sql["Media_Username"].";".$sql["Media_ID"])
      ]);
-     if($_File["Empty"] == 0 && $blocked == 0) {
-      $file = $_File["DataModel"];
-      $options = $_File["ListItem"]["Options"];
-      $source = $this->core->GetSourceFromExtension([$sql["Media_Username"], $sql["Media_ID"]]);
+     if($_Media["Empty"] == 0 && $blocked == 0) {
+      $media = $_Media["DataModel"];
+      $options = $_Media["ListItem"]["Options"];
+      $source = $this->core->GetSourceFromExtension([
+       $sql["Media_Username"],
+       $media
+      ]);
       $media = [
-       "[File.CoverPhoto]" => $source,
-       "[File.Title]" => $file["Title"],
-       "[File.View]" => $options["View"]
+       "[Media.CoverPhoto]" => $source,
+       "[Media.Title]" => $media["Title"],
+       "[Media.View]" => $options["View"]
       ];
       if(empty($mediaType)) {
        array_push($_Commands, []);
@@ -3876,7 +3882,7 @@
       } else {
        $mediaTypes = json_decode(base64_decode($mediaType));
        foreach($mediaTypes as $mediaTypes) {
-        if($this->core->CheckFileType([$file["EXT"], $mediaTypes]) == 1) {
+        if($this->core->CheckFileType([$media["EXT"], $mediaTypes]) == 1) {
          array_push($_Commands, []);
          array_push($_List, $media);
         }
