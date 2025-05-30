@@ -953,7 +953,7 @@
       $_Extension = "";
       $check = 0;
       $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
-      foreach($shop["Contributors"] as $member => $role) {
+      foreach($_Shop["Contributors"] as $member => $role) {
        if($check == 0 && $member == $you) {
         $check++;
        }
@@ -1332,6 +1332,7 @@
    $_Dialog = [
     "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
+   $_Mail = $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4");
    $_ResponseType = "";
    $_Success = "";
    $_View = "";
@@ -1441,31 +1442,35 @@
            "href" => $this->core->base."/invoice/$id"
           ]
          ])
-        ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+        ], $_Mail]),
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
        ]);
        if(!empty($member)) {
-        $this->core->SendBulletin([
+        /*--$this->core->SendBulletin([
          "Data" => [
           "Invoice" => $id,
           "Shop" => $invoice["Shop"]
          ],
          "To" => $member,
          "Type" => "InvoiceUpdate"
-        ]);
+        ]);--*/
         $bulletin = " <em>$member</em> will receive a Bulletin shortly.";
        }
        $invoice["Charges"] = $charges;
-       $this->core->Data("Save", ["invoice", $id, $invoice]);
+       #$this->core->Data("Save", ["invoice", $id, $invoice]);
        $_ResponseType = "ReplaceContent";
        $_View = [
         "ChangeData" => [],
         "Extension" => $this->core->AESencrypt($this->core->Element([
-         "h4", "Success!", ["class" => "CenterText UpperCase"]
+         "h4", "Success!", [
+          "class" => "CenterText UpperCase"
+         ]
         ]).$this->core->Element([
          "p", "Your Invoice has been updated.$bulletin",
-         ["class" => "CenterText"]
+         [
+          "class" => "CenterText"
+         ]
         ]))
        ];
       } elseif($isForwarding == 1) {
@@ -1515,7 +1520,7 @@
              "href" => $this->core->base."/invoice/$id"
             ]
            ])
-          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+          ], $_Mail]),
           "Title" => $shop["Title"].": Invoice $id",
           "To" => $email
          ]);
@@ -1686,20 +1691,14 @@
        ];
       } elseif(!empty($title) && $isPreset == 1) {
        $_AccessCode = "Accepted";
+       $_Dialog = "";
        $description = $data["ChargeDescription"][0] ?? "Unknown";
        $service = $this->core->Data("Get", ["invoice-preset", $id]);
        $serviceTitle = $title ?? "New Service";
        $title = $data["ChargeTitle"][0] ?? "Unknown";
        $value = $data["ChargeValue"][0] ?? 0.00;
        $service = [
-        "Charges" => [
-         [
-          "Description" => $description,
-          "Paid" => 0,
-          "Title" => $title,
-          "Value" => $value
-         ]
-        ],
+        "Charges" => [],
         "Notes" => [],
         "PaidInFull" => 0,
         "Shop" => $shopID,
@@ -1707,36 +1706,41 @@
         "Title" => $serviceTitle,
         "UN" => $you
        ];
+       array_push($service["Charges"], [
+        "Description" => $description,
+        "Paid" => 0,
+        "Title" => $title,
+        "Value" => $value
+       ]);
        $services = $shop["InvoicePresets"] ?? [];
        array_push($services, $id);
        $services = array_unique($services);
        $shop["InvoicePresets"] = $services;
-       #$this->core->Data("Save", ["invoice-preset", $id, $service]);
-       #$this->core->Data("Save", ["shop", $shopID, $shop]);
-       $_View = "Update Pre-set".json_encode($service, true);
+       $this->core->Data("Save", ["invoice-preset", $id, $service]);
+       $this->core->Data("Save", ["shop", $shopID, $shop]);
        $_ResponseType = "UpdateText";
+       $_View = "Update Service";
       } elseif($isPreset == 0) {
        $_Dialog = [
         "Body" => "We could not find the Member <strong>$member</strong>."
        ];
-       $_Mail = $this->core->Extension("7a421d1b6fd3b4958838e853ae492588");
+       $chargeTo = $data["ChargeTo"] ?? "";
        $check = 0;
        $email = $data["Email"] ?? "";
-       $member = $data["ChargeTo"] ?? "";
        $members = $this->core->DatabaseSet("Member");
-       $name = $member ?? $email;
+       $name = $chargeTo ?? $email;
        $phone = $data["Phone"] ?? "";
        foreach($members as $key => $value) {
         $value = str_replace("nyc.outerhaven.mbr.", "", $value);
         if($check == 0) {
-         $them = $this->core->Data("Get", ["mbr", $value]);
-         $them = $t["Login"]["Username"] ?? "";
-         if(!empty($them) && $member == $them) {
+         $member = $this->core->Data("Get", ["mbr", $value]);
+         $member = $member["Login"]["Username"] ?? "";
+         if(!empty($member) && $chargeTo == $member) {
           $check++;
           break;
          }
         }
-       } if(!empty($email) || (!empty($member) && $check == 1)) {
+       } if(filter_var($email, FILTER_VALIDATE_EMAIL) || (!empty($member) && $check == 1)) {
         $_AccessCode = "Accepted";
         $chargeData = $data["ChargeTitle"] ?? 0;
         $charges = [];
@@ -1775,7 +1779,6 @@
         $invoices = $shop["Invoices"] ?? [];
         array_push($invoices, $id);
         $invoices = array_unique($invoices);
-        $name = $data["ChargeTo"] ?? $data["Email"];
         $shop["Invoices"] = $invoices;
         if(!empty($email)) {
          $this->core->SendEmail([
@@ -1813,7 +1816,7 @@
          "Header" => "Done",
          "Scrollable" => json_encode($invoice, true)
         ];
-        $_Success = "CloseCard";
+        #$_Success = "CloseCard";
        }
       }
      }

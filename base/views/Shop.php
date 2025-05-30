@@ -1828,7 +1828,7 @@
          } if($check == 1) {
           if(!empty($charge)) {
            $invoice["Charges"][$charge]["Paid"] = 1;
-           if($invoice["Charges"][$charge]["Value"] == $unpaid) {
+           if($charge != 0 && $invoice["Charges"][$charge]["Value"] == $unpaid) {
             $invoice["Status"] = "Closed";
            }
           } elseif($payInFull == 1) {
