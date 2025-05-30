@@ -770,11 +770,11 @@
        "[Error.Message]" => "$displayName keeps ".$gender[2]." blogs to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Posts"] == $public || $visible == 1) {
-       $articles = "";
+       $blogs = "";
        array_push($_Commands, [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Articles$memberID",
+         ".Blogs$memberID",
          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-BLG")
         ]
        ]);
@@ -785,11 +785,11 @@
        "[Error.Message]" => "$displayName keeps ".$gender[2]." contacts to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Contacts"] == $public || $visible == 1) {
-       $articles = "";
+       $contacts = "";
        array_push($_Commands, [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Articles$memberID",
+         ".Contacts$memberID",
          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=ContactsProfileList")
         ]
        ]);
