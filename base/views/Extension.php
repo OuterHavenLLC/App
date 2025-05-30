@@ -90,7 +90,7 @@
      [
       "Name" => "RenderInputs",
       "Parameters" => [
-       ".General$id",
+       ".ExtensionInformation$id",
        [
         [
          "Attributes" => [

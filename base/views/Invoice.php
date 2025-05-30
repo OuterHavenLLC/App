@@ -643,10 +643,12 @@
   }
   function Hire(array $data): string {
    $_AccessCode = "Denied";
+   $_Card = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
-   $_ResponseType = "N/A";
+   $_ResponseType = "";
+   $_View = "";
    $_ViewTitle = $this->core->config["App"]["Name"];
    $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
@@ -705,49 +707,52 @@
        $invoices = array_unique($invoices);
        $name = $chargeTo ?? $data["Email"];
        $_Success = "CloseCard";
-       if(md5($you) == $id && $id = $this->core->ShopID && $y["Subscriptions"]["VIP"]["A"] == 1) {
-        $invoice["Charges"][0]["Paid"] = 1;
-        $preset["Charges"]["Value"] = 0;
-        $this->core->SendEmail([
-         "Message" => $this->core->Change([[
-          "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below. Thank you for being a V.I.P. Member, we covered your deposit!",
-          "[Mail.Invoice]" => "Total due: $0.00",
-          "[Mail.Name]" => $name,
-          "[Mail.Link]" => $this->core->base."/invoice/$id",
-          "[Mail.Shop.Name]" => $shop["Title"],
-          "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
-         "Title" => $shop["Title"].": Invoice $id",
-         "To" => $data["Email"]
-        ]);
-       } if(!empty($data["Email"])) {
-        $this->core->SendEmail([
-         "Message" => $this->core->Change([[
-          "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
-          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
-          "[Mail.Name]" => $name,
-          "[Mail.Link]" => $this->core->base."/invoice/$id",
-          "[Mail.Shop.Name]" => $shop["Title"],
-          "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
-         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
-         "Title" => $shop["Title"].": Invoice $id",
-         "To" => $data["Email"]
-        ]);
+       if(!empty($data["Email"])) {
+        if(md5($you) != $id && $this->core->ShopID == $you) {//TEMP
+        #if((md5($you) == $id && $this->core->ShopID == $you) || $y["Subscriptions"]["VIP"]["A"] == 1) {
+         $invoice["Charges"][0]["Paid"] = 1;
+         $preset["Charges"][0]["Value"] = 0;
+         $this->core->SendEmail([
+          "Message" => $this->core->Change([[
+           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below. Thank you for being a V.I.P. Member, we covered your deposit!",
+           "[Mail.Invoice]" => "Total due: $0.00",
+           "[Mail.Name]" => $name,
+           "[Mail.Link]" => $this->core->base."/invoice/$id",
+           "[Mail.Shop.Name]" => $shop["Title"],
+           "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+          "Title" => $shop["Title"].": Invoice $id",
+          "To" => $data["Email"]
+         ]);
+        } else {
+         $this->core->SendEmail([
+          "Message" => $this->core->Change([[
+           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
+           "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
+           "[Mail.Name]" => $name,
+           "[Mail.Link]" => $this->core->base."/invoice/$id",
+           "[Mail.Shop.Name]" => $shop["Title"],
+           "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+          "Title" => $shop["Title"].": Invoice $id",
+          "To" => $data["Email"]
+         ]);
+        }
        } if(!empty($chargeTo)) {
-        $this->core->SendBulletin([
+        /*--$this->core->SendBulletin([
          "Data" => [
           "Invoice" => $id,
           "Shop" => $shopID
          ],
          "To" => $chargeTo,
          "Type" => "NewJob"
-        ]);
+        ]);--*/
        } foreach($partners as $key => $value) {
-        $partner = $this->core->Member($key);
+        /*--$partner = $this->core->Member($key);
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
-          "[Mail.Message]" => "<em>".$shop["Title"]."</em> has been hired by a potential client! Please verify payment of the deposit before proceeding with the service.",
-          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"]["Value"], 2),
+          "[Mail.Message]" => "<em>".$shop["Title"]."</em> was hired by a potential client! Please verify payment of the deposit before proceeding with the service. An email containing the initial balance has been sent to the potential client.",
+          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
           "[Mail.Name]" => $partner["Personal"]["FirstName"],
           "[Mail.Link]" => $this->core->base."/invoice/$id",
           "[Mail.Shop.Name]" => $shop["Title"],
@@ -763,14 +768,15 @@
          ],
          "To" => $key,
          "Type" => "NewJob"
-        ]);
+        ]);--*/
        }
        $shop["Invoices"] = $invoices;
-       $this->core->Data("Save", ["invoice", $id, $invoice]);
-       $this->core->Data("Save", ["shop", $shopID, $shop]);
+       #$this->core->Data("Save", ["invoice", $id, $invoice]);
+       #$this->core->Data("Save", ["shop", $shopID, $shop]);
        $_Dialog = [
-        "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at ".$this->core->base."/invoice/$id",
-        "Header" => "Done"
+        "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at <em>".$this->core->base."/invoice/$id</em>.",
+        "Header" => "Done",
+        "Scrollable" => json_encode($invoice, true)
        ];
       }
      } elseif($createJob == 1) {
@@ -803,7 +809,6 @@
       ];
      } else {
       $_ViewTitle = "Hire ".$shop["Title"];
-      $action = "";
       $hireText = (count($partners) == 1) ? "Me" : "Us";
       $terms = $shop["HireTerms"] ?? "";
       if(!empty($terms)) {
@@ -1625,8 +1630,8 @@
         $value = str_replace("nyc.outerhaven.mbr.", "", $value);
         if($check == 0) {
          $them = $this->core->Data("Get", ["mbr", $value]);
-         $them -= $t["Login"]["Username"] ?? "";
-         if($member == $them) {
+         $them = $t["Login"]["Username"] ?? "";
+         if(!empty($them) && $member == $them) {
           $check++;
          }
         }
