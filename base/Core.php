@@ -1289,8 +1289,8 @@
    $length  = floor(strlen($name) / 2);
    return substr($name, 0, $length).str_repeat("*", $length)."@".end($email);   
   }
-  function PlainText(array $a) {
-   $ck = [
+  function PlainText(array $data) {
+   $check = [
     "BBCodes",
     "Decode",
     "Display",
@@ -1299,14 +1299,14 @@
     "HTMLEncode",
     "Processor"
    ];
-   $r = $a["Data"] ?? "";
-   for($i = 0; $i < count($ck); $i++) {
-    $a[$ck[$i]] = $a[$ck[$i]] ?? 0;
-   } if($a["Decode"] == 1) {
-    $r = urldecode(urldecode(base64_decode($r)));
-   } if($a["HTMLDecode"] == 1) {
+   $r = $data["Data"] ?? "";
+   for($i = 0; $i < count($check); $i++) {
+    $data[$check[$i]] = $data[$check[$i]] ?? 0;
+   } if($data["Decode"] == 1) {
+    $r = base64_decode($r);
+   } if($data["HTMLDecode"] == 1) {
     $r = html_entity_decode($r);
-   } if($a["Display"] == 1) {
+   } if($data["Display"] == 1) {
     $articleCard = base64_encode("Page:Card");
     $defaultUI = $this->config["App"]["UIVariant"] ?? 2;
     $r = preg_replace_callback("/\[Article:(.*?)\]/i", array(&$this, "GetArticle"), $r);
@@ -1316,8 +1316,8 @@
     $r = preg_replace_callback("/\[Translate:(.*?)\]/i", array(&$this, "Translate"), $r);
     $r = $this->Change([[
      "[App.Base]" => $this->base,
-     "[App.BillOfRights]" => base64_encode("v=$articleCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
-     "[App.Constitution]" => base64_encode("v=$articleCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
+     "[App.BillOfRights]" => $this->AESencrypt("v=$articleCard&ID=".base64_encode("1a35f673a438987ec93ef5fd3605b796")),
+     "[App.Constitution]" => $this->AESencrypt("v=$articleCard&ID=".base64_encode("b490a7c4490eddea6cc886b4d82dbb78")),
      "[App.CopyrightInfo]" => $this->GetCopyrightInformation(),
      "[App.CurrentYear]" => date("Y"),
      "[App.DefaultUI]" => $defaultUI,
@@ -1329,7 +1329,7 @@
      "[space]" => "&nbsp;",
      "[percent]" => "%"
     ], $r]);
-    if($a["BBCodes"] == 1) {
+    if($data["BBCodes"] == 1) {
      $r = $this->RecursiveChange([[
       "/\[b\](.*?)\[\/b\]/is" => "<strong>$1</strong>",
       "/\[d:.(.*?)\](.*?)\[\/d\]/is" => "<div class=\"$1\">$2</div>\r\n",
@@ -1347,11 +1347,11 @@
       ]])
      ], $r, 0]);
     }
-   } if($a["HTMLEncode"] == 1) {
+   } if($data["HTMLEncode"] == 1) {
     $r = htmlentities($r);
-   } if($a["Encode"] == 1) {
-    $r = base64_encode(urlencode(urlencode($r)));
-   } if($a["Processor"] == 1) {
+   } if($data["Encode"] == 1) {
+    $r = base64_encode($r);
+   } if($data["Processor"] == 1) {
     $r = $this->AESencrypt($r);
    }
    return $r;

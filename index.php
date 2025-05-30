@@ -35,16 +35,17 @@
    $_View = $oh->core->Extension("45787465-6e73-496f-ae42-794d696b65-67fa6b71bda8b");
   }
   $_View = $oh->core->Change([[
-   "[App.AddContent]" => $oh->core->AESencrypt("v=".base64_encode("Profile:AddContentCheck")),
-   "[App.Bulletin]" => $oh->core->AESencrypt($oh->core->Extension("ae30582e627bc060926cfacf206920ce")),
-   "[App.Bulletins]" => $oh->core->AESencrypt("v=".base64_encode("Profile:Bulletins")),
-   "[App.DITkey]" => $oh->core->DITkey,
-   "[App.Gateway]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:Gateway")),
-   "[App.Language]" => $oh->core->language,
-   "[App.MainUI]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:Landing")),
-   "[App.Menu]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:Menu")),
-   "[App.SwitchLanguages]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages")),
-   "[App.WYSIWYG]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:WYSIWYG"))
+   "[Client.AddContent]" => $oh->core->AESencrypt("v=".base64_encode("Profile:AddContentCheck")),
+   "[Client.Base]" => $oh->core->base,
+   "[Client.Bulletin]" => $oh->core->AESencrypt($oh->core->Extension("ae30582e627bc060926cfacf206920ce")),
+   "[Client.Bulletins]" => $oh->core->AESencrypt("v=".base64_encode("Profile:Bulletins")),
+   "[Client.DITkey]" => $oh->core->DITkey,
+   "[Client.Gateway]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:Gateway")),
+   "[Client.Landing]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:Landing")),
+   "[Client.Language]" => $oh->core->language,
+   "[Client.Menu]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:Menu")),
+   "[Client.SwitchLanguages]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:SwitchLanguages")),
+   "[Client.WYSIWYG]" => $oh->core->AESencrypt("v=".base64_encode("WebUI:WYSIWYG"))
   ], $oh->core->PlainText([
    "Data" => $_View,
    "Display" => 1,

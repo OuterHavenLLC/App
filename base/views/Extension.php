@@ -155,9 +155,7 @@
           "LargeBox" => 1
          ],
          "Type" => "TextBox",
-         "Value" => $this->core->AESencrypt($this->core->PlainText([
-          "Data" => $body
-         ]))
+         "Value" => $this->core->AESencrypt($body)
         ],
         [
          "Attributes" => [],
