@@ -752,16 +752,16 @@
          ]);
         }
        } if(!empty($chargeTo)) {
-        /*--$this->core->SendBulletin([
+        $this->core->SendBulletin([
          "Data" => [
           "Invoice" => $id,
           "Shop" => $shopID
          ],
          "To" => $chargeTo,
          "Type" => "NewJob"
-        ]);--*/
+        ]);
        } foreach($partners as $key => $value) {
-        /*--$partner = $this->core->Member($key);
+        $partner = $this->core->Member($key);
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
           "[Mail.Message]" => "<em>".$shop["Title"]."</em> was hired by a potential client! Please verify payment of the deposit before proceeding with the service. An email containing the initial balance has been sent to the potential client.",
@@ -786,15 +786,14 @@
          ],
          "To" => $key,
          "Type" => "NewJob"
-        ]);--*/
+        ]);
        }
        $shop["Invoices"] = $invoices;
-       #$this->core->Data("Save", ["invoice", $id, $invoice]);
-       #$this->core->Data("Save", ["shop", $shopID, $shop]);
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
+       $this->core->Data("Save", ["shop", $shopID, $shop]);
        $_Dialog = [
         "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at <em>".$this->core->base."/invoice/$id</em>.",
-        "Header" => "Done",
-        "Scrollable" => json_encode($invoice, true)
+        "Header" => "Done"
        ];
       }
      } elseif($createJob == 1) {
