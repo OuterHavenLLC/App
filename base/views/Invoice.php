@@ -798,8 +798,7 @@
          $preset["Charges"][0]["Value"] = 0;
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
-           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below. Thank you for being a V.I.P. Member, we covered your deposit!",
-           "[Mail.Invoice]" => "Total due: $0.00",
+           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below. Thank you for being a V.I.P. Member, we covered your deposit! Total due: $0.00.",
            "[Mail.Name]" => $name,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
            "[Mail.Shop]" => $shop["Title"],
@@ -816,8 +815,7 @@
         } else {
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
-           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
-           "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
+           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount. Total due: $".number_format($preset["Charges"][0]["Value"], 2).".",
            "[Mail.Name]" => $name,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
            "[Mail.Shop]" => $shop["Title"],
@@ -833,20 +831,19 @@
          ]);
         }
        } if(!empty($chargeTo)) {
-        /*--$this->core->SendBulletin([
+        $this->core->SendBulletin([
          "Data" => [
           "Invoice" => $id,
           "Shop" => $shopID
          ],
          "To" => $chargeTo,
          "Type" => "NewJob"
-        ]);--*/
+        ]);
        } foreach($partners as $key => $value) {
-        /*--$partner = $this->core->Member($key);
+        $partner = $this->core->Member($key);
         $this->core->SendEmail([
          "Message" => $this->core->Change([[
-          "[Mail.Message]" => "<em>".$shop["Title"]."</em> was hired by a potential client! Please verify payment of the deposit before proceeding with the service. An email containing the initial balance has been sent to the potential client.",
-          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
+          "[Mail.Message]" => "<em>".$shop["Title"]."</em> was hired by a potential client! Please verify payment of the deposit before proceeding with the service. An email containing the initial balance has been sent to the potential client. Total due: $".number_format($preset["Charges"][0]["Value"], 2).".",
           "[Mail.Name]" => $partner["Personal"]["FirstName"],
           "[Mail.Link]" => $this->core->base."/invoice/$id",
           "[Mail.Shop]" => $shop["Title"],
@@ -867,11 +864,11 @@
          ],
          "To" => $key,
          "Type" => "NewJob"
-        ]);--*/
+        ]);
        }
-       /*--$shop["Invoices"] = $invoices;
+       $shop["Invoices"] = $invoices;
        $this->core->Data("Save", ["invoice", $id, $invoice]);
-       $this->core->Data("Save", ["shop", $shopID, $shop]);--*/
+       $this->core->Data("Save", ["shop", $shopID, $shop]);
        $_Dialog = [
         "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at <em>".$this->core->base."/invoice/$id</em>.",
         "Header" => "Done"
@@ -1215,8 +1212,7 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Mail.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.",
-         "[Mail.Invoice]" => $chargeList.$total,
+         "[Mail.Message]" => $y["Personal"]["DisplayName"]." refunded the <em>".$newCharge["Title"]."</em> charge.".$chargeList.$total,
          "[Mail.Name]" => $name,
          "[Mail.Link]" => $this->core->base."/invoice/$id",
          "[Mail.Shop.Name]" => $shop["Title"],
@@ -1431,8 +1427,7 @@
        $total = $this->core->RenderView($total);
        $this->core->SendEmail([
         "Message" => $this->core->Change([[
-         "[Mail.Message]" => "Your Invoice is ready for payment.",
-         "[Mail.Invoice]" => $chargeList.$total,
+         "[Mail.Message]" => "Your Invoice is ready for payment.".$chargeList.$total,
          "[Mail.Name]" => $name,
          "[Mail.Link]" => $this->core->base."/invoice/$id",
          "[Mail.Shop.Name]" => $shop["Title"],
@@ -1447,18 +1442,18 @@
         "To" => $invoice["Email"]
        ]);
        if(!empty($member)) {
-        /*--$this->core->SendBulletin([
+        $this->core->SendBulletin([
          "Data" => [
           "Invoice" => $id,
           "Shop" => $invoice["Shop"]
          ],
          "To" => $member,
          "Type" => "InvoiceUpdate"
-        ]);--*/
+        ]);
         $bulletin = " <em>$member</em> will receive a Bulletin shortly.";
        }
        $invoice["Charges"] = $charges;
-       #$this->core->Data("Save", ["invoice", $id, $invoice]);
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
        $_ResponseType = "ReplaceContent";
        $_View = [
         "ChangeData" => [],
@@ -1509,8 +1504,7 @@
          $total = $this->core->RenderView($total);
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
-           "[Mail.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.",
-           "[Mail.Invoice]" => $chargeList.$total,
+           "[Mail.Message]" => $y["Personal"]["DisplayName"]." forwarded this Inovice to you.".$chargeList.$total,
            "[Mail.Name]" => $email,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
            "[Mail.Shop.Name]" => $shop["Title"],
@@ -1730,10 +1724,10 @@
        $members = $this->core->DatabaseSet("Member");
        $name = $chargeTo ?? $email;
        $phone = $data["Phone"] ?? "";
-       foreach($members as $key => $value) {
-        $value = str_replace("nyc.outerhaven.mbr.", "", $value);
+       foreach($members as $key => $member) {
+        $member = str_replace("nyc.outerhaven.mbr.", "", $member);
         if($check == 0) {
-         $member = $this->core->Data("Get", ["mbr", $value]);
+         $member = $this->core->Data("Get", ["mbr", $member]);
          $member = $member["Login"]["Username"] ?? "";
          if(!empty($member) && $chargeTo == $member) {
           $check++;
@@ -1742,7 +1736,7 @@
         }
        } if(filter_var($email, FILTER_VALIDATE_EMAIL) || (!empty($member) && $check == 1)) {
         $_AccessCode = "Accepted";
-        $chargeData = $data["ChargeTitle"] ?? 0;
+        $chargeData = $data["ChargeTitle"] ?? [];
         $charges = [];
         for($i = 0; $i < count($chargeData); $i++) {
          $description = $data["ChargeDescription"][$i] ?? "Unknown";
@@ -1765,7 +1759,7 @@
          ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
         }
         $invoice = [
-         "ChargeTo" => $name,
+         "ChargeTo" => $chargeTo,
          "Created" => $this->core->timestamp,
          "Charges" => $charges,
          "Email" => $email,
@@ -1783,8 +1777,7 @@
         if(!empty($email)) {
          $this->core->SendEmail([
           "Message" => $this->core->Change([[
-           "[Mail.Message]" => "Please review the Invoice linked below.",
-           "[Mail.Invoice]" => $chargeList,
+           "[Mail.Message]" => $chargeList,
            "[Mail.Name]" => $name,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
            "[Mail.Shop]" => $shop["Title"],
@@ -1799,24 +1792,23 @@
           "To" => $email
          ]);
         } if(!empty($member)) {
-         /*--$this->core->SendBulletin([
+         $this->core->SendBulletin([
           "Data" => [
            "Invoice" => $id,
            "Shop" => $shopID
           ],
           "To" => $member,
           "Type" => "Invoice"
-         ]);--*/
+         ]);
         }
-        /*--$this->core->Statistic("New Invoice");
+        $this->core->Statistic("New Invoice");
         $this->core->Data("Save", ["invoice", $id, $invoice]);
-        $this->core->Data("Save", ["shop", $shopID, $shop]);--*/
+        $this->core->Data("Save", ["shop", $shopID, $shop]);
         $_Dialog = [
          "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at <em>".$this->core->base."/invoice/$id</em>.",
-         "Header" => "Done",
-         "Scrollable" => json_encode($invoice, true)
+         "Header" => "Done"
         ];
-        #$_Success = "CloseCard";
+        $_Success = "CloseCard";
        }
       }
      }
