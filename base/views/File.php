@@ -203,7 +203,7 @@
    $data = $data["Data"] ?? [];
    $addTo = $data["AddTo"] ?? "";
    $card = $data["CARD"] ?? 0;
-   $parentView = $data["ParentView"] ?? "Files";
+   $parentView = $data["ParentView"] ?? "";
    $back = (!empty($parentView)) ? $this->core->Element([
     "button", "Back to Files", [
      "class" => "GoToParent LI",
