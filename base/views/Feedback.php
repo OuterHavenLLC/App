@@ -531,7 +531,13 @@
         "Display" => 1
        ]),
        "[Mail.Name]" => $feedback["Name"],
-       "[Mail.Link]" => $this->core->base."/feedback/$id"
+       "[Mail.Link]" => $this->core->base."/feedback/$id",
+       "[Mail.View]" => $this->core->Element([
+        "a", "View Feedback", [
+         "class" => "BB BBB v2 v2w",
+         "href" => $this->core->base."/feedback/$id"
+        ]
+       ])
       ], $this->core->Extension("dc901043662c5e71b5a707af782fdbc1")]),
       "Title" => "Re: ".$feedback["Subject"],
       "To" => $feedback["Email"]
