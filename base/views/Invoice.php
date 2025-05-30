@@ -711,8 +711,7 @@
        $name = $chargeTo ?? $data["Email"];
        $_Success = "CloseCard";
        if(!empty($data["Email"])) {
-        if(md5($you) != $id && $this->core->ShopID == $you) {//TEMP
-        #if((md5($you) == $id && $this->core->ShopID == $you) || $y["Subscriptions"]["VIP"]["A"] == 1) {
+        if($y["Subscriptions"]["VIP"]["A"] == 1) {
          $invoice["Charges"][0]["Paid"] = 1;
          $preset["Charges"][0]["Value"] = 0;
          $this->core->SendEmail([
