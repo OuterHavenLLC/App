@@ -1772,6 +1772,7 @@
        }
       } elseif($type == "Invoice") {
        $_ExtensionID = "f9ee8c43d9a4710ca1cfc435037e9abd";
+       $balance = 0;
        $changeData = [
         "[Checkout.Data]" => json_encode($data, true)
        ];
@@ -1780,17 +1781,15 @@
        $invoice = $this->core->Data("Get", ["invoice", $invoiceID]);
        $charges = $invoice["Charges"] ?? [];
        $payInFull = $data["PayInFull"] ?? 0;
-       $unpaid = 0;
        foreach($charges as $key => $info) {
         $value = $info["Value"] ?? 0.00;
-        $unpaid = $unpaid + $value;
+        $balance = $balance + $value;
         if($charge == $key || $payInFull == 1) {
          if($info["Paid"] == 0) {
           $subtotal = $subtotal + $value;
          }
         }
-       }
-       if($subtotal > 0) {
+       } if($subtotal > 0) {
         $tax = $shop["Tax"] ?? 10.00;
         $tax = number_format($subtotal * ($tax / 100), 2);
        }
@@ -1828,15 +1827,15 @@
          } if($check == 1) {
           if(!empty($charge)) {
            $invoice["Charges"][$charge]["Paid"] = 1;
-           if($charge != 0 && $invoice["Charges"][$charge]["Value"] == $unpaid) {
+           if($charge != 0 && $balance == $invoice["Charges"][$charge]["Value"]) {
             $invoice["Status"] = "Closed";
            }
           } elseif($payInFull == 1) {
            $invoice["PaidInFull"] = 1;
            $invoice["Status"] = "Closed";
            $charges = $invoice["Charges"] ?? [];
-           foreach($charges as $key => $charge) {
-            $invoice["Charges"][$key]["Paid"] = 1;
+           foreach($charges as $charge => $info) {
+            $invoice["Charges"][$charge]["Paid"] = 1;
            }
           }
           $points = $subtotal + ($subtotal * 100);
