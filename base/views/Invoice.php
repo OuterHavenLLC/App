@@ -669,8 +669,7 @@
     $enableHireSection = $shop["EnableHireSection"] ?? "No";
     $partners = $shop["Contributors"] ?? [];
     $services = $shop["InvoicePresets"] ?? 0;
-    #$hire = (md5($you) != $id) ? 1 : 0;
-    $hire = (md5($you) == $id) ? 1 : 0;//TEMP
+    $hire = (md5($you) != $id) ? 1 : 0;
     $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
     $hire = ($enableHireSection == "Yes" && $hire == 1) ? 1 : 0;
     $limit = $shop["HireLimit"] ?? 5;
@@ -723,7 +722,12 @@
            "[Mail.Name]" => $name,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
            "[Mail.Shop.Name]" => $shop["Title"],
-           "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+           "[Mail.View]" => $this->core->Element([
+            "a", "View Invoice", [
+             "class" => "BB BBB v2 v2w",
+             "href" => $this->core->base."/invoice/$id"
+            ]
+           ])
           ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
           "Title" => $shop["Title"].": Invoice $id",
           "To" => $data["Email"]
@@ -736,7 +740,12 @@
            "[Mail.Name]" => $name,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
            "[Mail.Shop.Name]" => $shop["Title"],
-           "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+           "[Mail.View]" => $this->core->Element([
+             "a", "View Invoice", [
+              "class" => "BB BBB v2 v2w",
+              "href" => $this->core->base."/invoice/$id"
+            ]
+           ])
           ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
           "Title" => $shop["Title"].": Invoice $id",
           "To" => $data["Email"]
@@ -760,7 +769,12 @@
           "[Mail.Name]" => $partner["Personal"]["FirstName"],
           "[Mail.Link]" => $this->core->base."/invoice/$id",
           "[Mail.Shop.Name]" => $shop["Title"],
-          "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+          "[Mail.View]" => $this->core->Element([
+           "a", "View Invoice", [
+            "class" => "BB BBB v2 v2w",
+            "href" => $this->core->base."/invoice/$id"
+           ]
+          ])
          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
          "Title" => $shop["Title"].": Invoice $id",
          "To" => $data["Email"]
@@ -948,14 +962,14 @@
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $_Dialog = [
-     "Body" => "We could not find any data for Invoice $id."
+     "Body" => "We could not find data for Invoice <em>$id</em>."
     ];
     $_ViewTitle = "Invoice $id";
     $invoice = $this->core->Data("Get", ["invoice", $id]);
-    $shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]);
-    if(!empty($invoice)) {
+    $shopID = $invoice["Shop"] ?? "";
+    if(!empty($shopID)) {
      $_Dialog = "";
-     $_Shop = $this->core->Data("Get", ["shop", $invoice["Shop"]]);
+     $_Shop = $this->core->Data("Get", ["shop", $shopID]);
      $_ViewTitle = "Invoice from ".$_Shop["Title"];
      $dependency = $data["Dependency"] ?? "";
      $invoice = $this->core->Data("Get", ["invoice", $id]);
@@ -1230,7 +1244,12 @@
          "[Mail.Name]" => $name,
          "[Mail.Link]" => $this->core->base."/invoice/$id",
          "[Mail.Shop.Name]" => $shop["Title"],
-         "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+         "[Mail.View]" => $this->core->Element([
+          "a", "View Invoice", [
+           "class" => "BB BBB v2 v2w",
+           "href" => $this->core->base."/invoice/$id"
+          ]
+         ])
         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
@@ -1437,7 +1456,12 @@
          "[Mail.Name]" => $name,
          "[Mail.Link]" => $this->core->base."/invoice/$id",
          "[Mail.Shop.Name]" => $shop["Title"],
-         "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+         "[Mail.View]" => $this->core->Element([
+          "a", "View Invoice", [
+           "class" => "BB BBB v2 v2w",
+           "href" => $this->core->base."/invoice/$id"
+          ]
+         ])
         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
         "Title" => $shop["Title"].": Invoice $id",
         "To" => $invoice["Email"]
@@ -1506,7 +1530,12 @@
            "[Mail.Name]" => $email,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
            "[Mail.Shop.Name]" => $shop["Title"],
-           "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+           "[Mail.View]" => $this->core->Element([
+            "a", "View Invoice", [
+             "class" => "BB BBB v2 v2w",
+             "href" => $this->core->base."/invoice/$id"
+            ]
+           ])
           ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
           "Title" => $shop["Title"].": Invoice $id",
           "To" => $email
@@ -1774,7 +1803,12 @@
             "[Mail.Name]" => $name,
             "[Mail.Link]" => $this->core->base."/invoice/$id",
             "[Mail.Shop.Name]" => $shop["Title"],
-            "[Mail.View]" => "<button class=\"BBB v2 v2w\" onclick=\"window.location='".$this->core->base."/invoice/$id'\">View Invoice</button>",
+            "[Mail.View]" => $this->core->Element([
+             "a", "View Invoice", [
+              "class" => "BB BBB v2 v2w",
+              "href" => $this->core->base."/invoice/$id"
+             ]
+            ])
            ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
            "Title" => $shop["Title"].": Invoice $id",
            "To" => $data["Email"]
