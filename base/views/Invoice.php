@@ -650,13 +650,13 @@
     "Body" => "The Shop Identifier is missing."
    ];
    $_ResponseType = "";
+   $_Success = "";
    $_View = "";
    $_ViewTitle = $this->core->config["App"]["Name"];
    $data = $data["Data"] ?? [];
    $card = $data["Card"] ?? 0;
    $id = $data["ID"] ?? md5($this->core->ShopID);
    $shopID = $id;
-   $_Success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
@@ -676,14 +676,7 @@
     $openInvoices = 0;
     $_Dialog = [
      "Body" => $shop["Title"]." is not currently accepting job offers.",
-     "Header" => "Sorry!",
-     "Scrollable" => json_encode([
-      "MyShop" => (md5($you) != $id),
-      "ServicesAvailable" => count($services),
-      "HireSectionEnabled" => $enableHireSection,
-      "LimitHit" => $limit,
-      "ShopOpen" => $shop["Open"]
-     ], true)
+     "Header" => "Sorry!"
     ];
     foreach($shop["Invoices"] as $key => $invoice) {
      $invoice = $this->core->Data("Get", ["invoice", $invoice]);
@@ -692,123 +685,13 @@
      }
     } if($hire == 1 && $openInvoices < $limit && $shop["Open"] == "Yes") {
      $_Dialog = "";
-     if(!empty($saveJob)) {
-      $data = $this->core->DecodeBridgeData($data);
-      $saveJob = $data["SaveJob"] ?? 0;
-      if($saveJob == 1) {
-       $preset = $this->core->Data("Get", ["invoice-preset", $data["Service"]]);
-       $chargeTo = $data["ChargeTo"] ?? "";
-       $charges = [];
-       array_push($charges, $preset["Charges"]);
-       $id = md5(uniqid("Invoice$you"));
-       $invoice = [
-        "ChargeTo" => $chargeTo,
-        "Charges" => $charges,
-        "Email" => $data["Email"],
-        "Notes" => [],
-        "PaidInFull" => $preset["PaidInFull"],
-        "Phone" => $data["Phone"],
-        "Shop" => $preset["Shop"],
-        "Status" => $preset["Status"],
-        "UN" => $preset["UN"]
-       ];
-       $invoices = $shop["Invoices"] ?? [];
-       array_push($invoices, $id);
-       $invoices = array_unique($invoices);
-       $name = $chargeTo ?? $data["Email"];
-       $_Success = "CloseCard";
-       if(!empty($data["Email"])) {
-        if($y["Subscriptions"]["VIP"]["A"] == 1) {
-         $invoice["Charges"][0]["Paid"] = 1;
-         $preset["Charges"][0]["Value"] = 0;
-         $this->core->SendEmail([
-          "Message" => $this->core->Change([[
-           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below. Thank you for being a V.I.P. Member, we covered your deposit!",
-           "[Mail.Invoice]" => "Total due: $0.00",
-           "[Mail.Name]" => $name,
-           "[Mail.Link]" => $this->core->base."/invoice/$id",
-           "[Mail.Shop.Name]" => $shop["Title"],
-           "[Mail.View]" => $this->core->Element([
-            "a", "View Invoice", [
-             "class" => "BB BBB v2 v2w",
-             "href" => $this->core->base."/invoice/$id"
-            ]
-           ])
-          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
-          "Title" => $shop["Title"].": Invoice $id",
-          "To" => $data["Email"]
-         ]);
-        } else {
-         $this->core->SendEmail([
-          "Message" => $this->core->Change([[
-           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
-           "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
-           "[Mail.Name]" => $name,
-           "[Mail.Link]" => $this->core->base."/invoice/$id",
-           "[Mail.Shop.Name]" => $shop["Title"],
-           "[Mail.View]" => $this->core->Element([
-             "a", "View Invoice", [
-              "class" => "BB BBB v2 v2w",
-              "href" => $this->core->base."/invoice/$id"
-            ]
-           ])
-          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
-          "Title" => $shop["Title"].": Invoice $id",
-          "To" => $data["Email"]
-         ]);
-        }
-       } if(!empty($chargeTo)) {
-        $this->core->SendBulletin([
-         "Data" => [
-          "Invoice" => $id,
-          "Shop" => $shopID
-         ],
-         "To" => $chargeTo,
-         "Type" => "NewJob"
-        ]);
-       } foreach($partners as $key => $value) {
-        $partner = $this->core->Member($key);
-        $this->core->SendEmail([
-         "Message" => $this->core->Change([[
-          "[Mail.Message]" => "<em>".$shop["Title"]."</em> was hired by a potential client! Please verify payment of the deposit before proceeding with the service. An email containing the initial balance has been sent to the potential client.",
-          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
-          "[Mail.Name]" => $partner["Personal"]["FirstName"],
-          "[Mail.Link]" => $this->core->base."/invoice/$id",
-          "[Mail.Shop.Name]" => $shop["Title"],
-          "[Mail.View]" => $this->core->Element([
-           "a", "View Invoice", [
-            "class" => "BB BBB v2 v2w",
-            "href" => $this->core->base."/invoice/$id"
-           ]
-          ])
-         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
-         "Title" => $shop["Title"].": Invoice $id",
-         "To" => $data["Email"]
-        ]);
-        $this->core->SendBulletin([
-         "Data" => [
-          "Invoice" => $id,
-          "Shop" => $shopID
-         ],
-         "To" => $key,
-         "Type" => "NewJob"
-        ]);
-       }
-       $shop["Invoices"] = $invoices;
-       $this->core->Data("Save", ["invoice", $id, $invoice]);
-       $this->core->Data("Save", ["shop", $shopID, $shop]);
-       $_Dialog = [
-        "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at <em>".$this->core->base."/invoice/$id</em>.",
-        "Header" => "Done"
-       ];
-      }
-     } elseif($createJob == 1) {
+     if($createJob == 1) {
       $action = (count($partners) == 1) ? "Me" : "Us";
       $action = $this->core->Element(["button", "Hire $action", [
        "class" => "CardButton SendData",
        "data-encryption" => "AES",
        "data-form" => ".Hire$id",
-       "data-processor" => $this->core->AESencrypt("v=".base64_encode("Invoice:Hire"))
+       "data-processor" => $this->core->AESencrypt("v=".base64_encode("Invoice:Hire")."&SaveJob=1")
       ]]);
       $card = 1;
       $chargeTo = ($this->core->ID != $you) ? $you : "";
@@ -906,6 +789,122 @@
        ],
        "ExtensionID" => "dab6e25feafcbb2741022bf6083c2975"
       ];
+     } elseif($saveJob == 1) {
+      $_AccessCode = "Denied";
+      $_Dialog = [
+       "Body" => "The Service Identifier is missing."
+      ];
+      $data = $this->core->DecodeBridgeData($data);
+      $service = $data["Service"] ?? "";
+      if(!empty($service)) {
+       $_AccessCode = "Accepted";
+       $_Success = "CloseCard";
+       $email = $data["Email"] ?? "";
+       $preset = $this->core->Data("Get", ["invoice-preset", $service]);
+       $chargeTo = $data["ChargeTo"] ?? "";
+       $charges = [];
+       array_push($charges, $preset["Charges"]);
+       $id = $this->core->UUID("InvoiceFor".md5($you));
+       $invoice = [
+        "ChargeTo" => $chargeTo,
+        "Charges" => $charges,
+        "Email" => $email,
+        "Notes" => [],
+        "PaidInFull" => $preset["PaidInFull"],
+        "Phone" => $data["Phone"],
+        "Shop" => $preset["Shop"],
+        "Status" => $preset["Status"],
+        "UN" => $preset["UN"]
+       ];
+       $invoices = $shop["Invoices"] ?? [];
+       array_push($invoices, $id);
+       $invoices = array_unique($invoices);
+       $name = $chargeTo ?? $email;
+       if(!empty($email)) {
+        if($y["Subscriptions"]["VIP"]["A"] == 1) {
+         $invoice["Charges"][0]["Paid"] = 1;
+         $preset["Charges"][0]["Value"] = 0;
+         $this->core->SendEmail([
+          "Message" => $this->core->Change([[
+           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below. Thank you for being a V.I.P. Member, we covered your deposit!",
+           "[Mail.Invoice]" => "Total due: $0.00",
+           "[Mail.Name]" => $name,
+           "[Mail.Link]" => $this->core->base."/invoice/$id",
+           "[Mail.Shop.Name]" => $shop["Title"],
+           "[Mail.View]" => $this->core->Element([
+            "a", "View Invoice", [
+             "class" => "BB BBB v2 v2w",
+             "href" => $this->core->base."/invoice/$id"
+            ]
+           ])
+          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+          "Title" => $shop["Title"].": Invoice $id",
+          "To" => $email
+         ]);
+        } else {
+         $this->core->SendEmail([
+          "Message" => $this->core->Change([[
+           "[Mail.Message]" => "Your Service request has been sent! Please review the Invoice linked below and pay the requested deposit amount.",
+           "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
+           "[Mail.Name]" => $name,
+           "[Mail.Link]" => $this->core->base."/invoice/$id",
+           "[Mail.Shop.Name]" => $shop["Title"],
+           "[Mail.View]" => $this->core->Element([
+             "a", "View Invoice", [
+              "class" => "BB BBB v2 v2w",
+              "href" => $this->core->base."/invoice/$id"
+            ]
+           ])
+          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+          "Title" => $shop["Title"].": Invoice $id",
+          "To" => $data["Email"]
+         ]);
+        }
+       } if(!empty($chargeTo)) {
+        /*--$this->core->SendBulletin([
+         "Data" => [
+          "Invoice" => $id,
+          "Shop" => $shopID
+         ],
+         "To" => $chargeTo,
+         "Type" => "NewJob"
+        ]);--*/
+       } foreach($partners as $key => $value) {
+        /*--$partner = $this->core->Member($key);
+        $this->core->SendEmail([
+         "Message" => $this->core->Change([[
+          "[Mail.Message]" => "<em>".$shop["Title"]."</em> was hired by a potential client! Please verify payment of the deposit before proceeding with the service. An email containing the initial balance has been sent to the potential client.",
+          "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
+          "[Mail.Name]" => $partner["Personal"]["FirstName"],
+          "[Mail.Link]" => $this->core->base."/invoice/$id",
+          "[Mail.Shop.Name]" => $shop["Title"],
+          "[Mail.View]" => $this->core->Element([
+           "a", "View Invoice", [
+            "class" => "BB BBB v2 v2w",
+            "href" => $this->core->base."/invoice/$id"
+           ]
+          ])
+         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+         "Title" => $shop["Title"].": Invoice $id",
+         "To" => $email
+        ]);
+        $this->core->SendBulletin([
+         "Data" => [
+          "Invoice" => $id,
+          "Shop" => $shopID
+         ],
+         "To" => $key,
+         "Type" => "NewJob"
+        ]);--*/
+       }
+       $shop["Invoices"] = $invoices;
+       /*--$this->core->Data("Save", ["invoice", $id, $invoice]);
+       $this->core->Data("Save", ["shop", $shopID, $shop]);--*/
+       $_Dialog = [
+        "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at <em>".$this->core->base."/invoice/$id</em>.",
+        "Header" => "Done"
+       ];
+      }
      } else {
       $_AddTopMargin = ($card == 0) ? 1 : "0";
       $_ViewTitle = "Hire ".$shop["Title"];

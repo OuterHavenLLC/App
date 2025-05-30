@@ -782,7 +782,7 @@
     "Dialog" => $_Dialog
    ]);
   }
-  function HireSection(array $data): string {
+  function Hire(array $data): string {
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -1307,7 +1307,7 @@
       "Name" => "UpdateContentRecursiveAES",
       "Parameters" => [
        ".MiNYHire",
-       $this->core->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=$id"),
+       $this->core->AESencrypt("v=".base64_encode("Shop:Hire")."&Shop=$id"),
        10000
       ]
      ],

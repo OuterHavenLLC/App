@@ -867,7 +867,7 @@
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Shops")),
        "Chat" => $this->AESencrypt("v=".base64_encode("Chat:Home")."&Card=1&Group=1&ID=".base64_encode(md5("Shop$contentID"))."&Integrated=1"),
        "Edit" => $this->AESencrypt("v=".base64_encode("Shop:Edit")."&Shop=".base64_encode($contentID)."&Username=".base64_encode($owner["Login"]["Username"])),
-       "Hire" => $this->AESencrypt("v=".base64_encode("Shop:HireSection")."&Shop=$contentID"),
+       "Hire" => $this->AESencrypt("v=".base64_encode("Shop:Hire")."&Shop=$contentID"),
        "Revenue" => $this->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($owner["Login"]["Username"])),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($owner["Login"]["Username"])),
        "ShareLink" => $this->base."/MadeInNewYork/".$owner["Login"]["Username"],

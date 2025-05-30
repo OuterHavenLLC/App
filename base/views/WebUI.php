@@ -364,7 +364,7 @@
      if(strtotime($info["B"]) > $info["E"]) {
       $info["A"] = 0;
      } if($subscription == "Artist") {
-      $shop["Open"] = $info["A"] ?? 0;
+      $shop["Open"] = ($info["A"] == 1) ? "Yes" : "No";
      } elseif($subscription == "VIP") {
       $highCommand = ($y["Rank"] == md5("High Command")) ? 1 : 0;
       $sonsOfLiberty = "cb3e432f76b38eaa66c7269d658bd7ea";
@@ -471,15 +471,17 @@
     $subscriptionsList = "";
     $verified = $y["Verified"] ?? 0;
     $verified = ($verified == 1) ? $this->core->VerificationBadge() : "";
-    foreach($y["Subscriptions"] as $key => $value) {
+    foreach($y["Subscriptions"] as $key => $info) {
      $subscription = $this->core->config["Subscriptions"][$key] ?? [];
      if(!empty($subscription)) {
       $i++;
-      $subscriptionsList .= $this->core->Element(["button", $subscription["Title"], [
-       "class" => "LI OpenCard",
-       "data-encryption" => "AES",
-       "data-view" => $this->core->AESencrypt("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
-      ]]);
+      $subscriptionsList .= $this->core->Element([
+       "button", $subscription["Title"], [
+        "class" => "LI OpenCard",
+        "data-encryption" => "AES",
+        "data-view" => $this->core->AESencrypt("v=".base64_encode("Subscription:Home")."&sub=".base64_encode($key))
+       ]
+      ]);
      }
     } if($i > 0) {
      $subscriptions = $this->core->Element([
