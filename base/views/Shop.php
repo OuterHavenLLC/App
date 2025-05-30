@@ -1037,15 +1037,6 @@
         $blocked = $this->core->CheckBlocked([$y, "Members", $username]);
         $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
         $check = ($active == 1 || $username == $you) ? 1 : 0;
-        $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
-         "[Dashboard.Hire]" => $hire,
-         "[Dashboard.ID]" => $id,
-         "[Dashboard.Invoices]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
-         "[Dashboard.NewProduct]" => $this->core->AESencrypt("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
-         "[Dashboard.Revenue.Month]" => date("M"),
-         "[Dashboard.Revenue.Year]" => date("Y"),
-         "[Dashboard.Services]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
-        ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
         $disclaimer = "Products and Services sold on the <em>Made in New York</em> Shop Network by third parties do not represent the views of <em>Outer Haven</em>, unless sold under the signature Shop.";
         $hire = ($username == $you) ? $this->core->Element([
          "button", "Hire", [
@@ -1091,6 +1082,15 @@
           "data-view" => $options["Share"]
          ]
         ]) : "";
+        $dashboard = ($active == 1 || $username == $you) ? $this->core->Change([[
+         "[Dashboard.Hire]" => $hire,
+         "[Dashboard.ID]" => $id,
+         "[Dashboard.Invoices]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-Invoices"),
+         "[Dashboard.NewProduct]" => $this->core->AESencrypt("v=".base64_encode("Product:Edit")."&Shop=$id&new=1"),
+         "[Dashboard.Revenue.Month]" => date("M"),
+         "[Dashboard.Revenue.Year]" => date("Y"),
+         "[Dashboard.Services]" => $this->core->AESencrypt("v=".base64_encode("Search:Containers")."&Shop=$id&st=SHOP-InvoicePresets")
+        ], $this->core->Extension("20820f4afd96c9e32440beabed381d36")]) : "";
         $revenue = $this->view(base64_encode("Revenue:All"), ["Data" => [
          "Shop" => $this->core->AESencrypt($id)
         ]]);
