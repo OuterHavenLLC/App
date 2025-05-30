@@ -409,19 +409,11 @@
    }
    return $r;
   }
-  function FixMissing(array $a, array $b) {
-   foreach($b as $b) {
-    $a[$b] = $a[$b] ?? "";
+  function FixMissing(array $data, array $key) {
+   foreach($key as $key) {
+    $data[$key] = $data[$key] ?? "";
    }
-   return $a;
-  }
-  function Gender(string $sex) {
-   if($sex == "Female") {
-    $gender = "she;her;hers";
-   } else {
-    $gender = "he;him;his";
-   }
-   return explode(";", $gender);
+   return $data;
   }
   function GetAttachmentPreview(array $a) {
    $disableButtons = $a["DisableButtons"] ?? 0;
@@ -993,6 +985,14 @@
     "p", "<em>We the People power this Bastion of Freedom.</em>",
     ["class" => "CenterText"]
    ]);
+  }
+  function GetGenderFromSex(string $sex) {
+   if($sex == "Female") {
+    $gender = "she;her;hers";
+   } else {
+    $gender = "he;him;his";
+   }
+   return explode(";", $gender);
   }
   function GetMonthConversion(int $month) {
    $r = ($month == "01") ? "January" : $month;

@@ -662,7 +662,7 @@
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
       $gender = $member["Personal"]["Gender"] ?? "Male";
-      $gender = $this->core->Gender($gender);
+      $gender = $this->core->GetGenderFromSex($gender);
       $memberID = md5($id);
       $coverPhotos = $member["Personal"]["CoverPhotos"] ?? [];
       $newCoverPhotos = [];
