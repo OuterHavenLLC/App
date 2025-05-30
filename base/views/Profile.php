@@ -746,7 +746,7 @@
        array_push($_Commands, [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Albums$id",
+         ".Albums$memberID",
          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&st=MBR-ALB")
         ]
        ]);
@@ -760,7 +760,7 @@
        array_push($_Commands, [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Articles$id",
+         ".Articles$memberID",
          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-CA")
         ]
        ]);
@@ -774,7 +774,7 @@
        array_push($_Commands, [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Articles$id",
+         ".Articles$memberID",
          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-BLG")
         ]
        ]);
@@ -789,7 +789,7 @@
        array_push($_Commands, [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Articles$id",
+         ".Articles$memberID",
          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=ContactsProfileList")
         ]
        ]);
@@ -937,7 +937,7 @@
        array_push($_Commands, [
         "Name" => "UpdateContentAES",
         "Parameters" => [
-         ".Journal$id",
+         ".Journal$memberID",
          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-JE")
         ]
        ]);
