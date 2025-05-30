@@ -395,8 +395,8 @@
      $variant = "3Column";
     } elseif($searchType == "SHOP-InvoicePresets") {
      $header = "Services";
-     $shop = $data["Shop"] ?? "";
-     $_List .= "&Shop=$shop&st=$searchType";
+     $shopID = $data["Shop"] ?? "";
+     $_List .= "&Shop=$shopID&st=$searchType";
      $searchBarText = "Services";
     } elseif($searchType == "SHOP-Invoices") {
      $header = "Invoices";
@@ -3500,7 +3500,8 @@
    } elseif($searchType == "SHOP-InvoicePresets") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e9f34ca1985c166bf7aa73116a745e92";
-    $shop = $this->core->Data("Get", ["shop", $data["Shop"]]);
+    $shopID = $data["Shop"] ?? "";
+    $shop = $this->core->Data("Get", ["shop", $shopID]);
     $invoicePresets = $shop["InvoicePresets"] ?? [];
     foreach($invoicePresets as $key => $value) {
      $preset = $this->core->Data("Get", ["invoice-preset", $value]);

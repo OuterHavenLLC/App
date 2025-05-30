@@ -318,220 +318,199 @@
     $_Dialog = [
      "Body" => "You must sign in to continue."
     ];
-   } elseif(!empty($shop)) {
+   } elseif(!empty($shopID)) {
+    $_Dialog = "";
     $charges = [];
-    if(!empty($id) && $isPreset == 1) {
-     $preset = $this->core->Data("Get", ["invoice-preset", $id]);
-     $_ChangeData = [
-      "[Invoice.Charges]" => json_encode($charges, true),
-      "[Invoice.Shop]" => $shop
-     ];
-     $_Extension = "UpdatePreset";
-    } elseif($isPreset == 0) {
-     $id = md5("Invoice$you".uniqid());
-     $invoice = $this->core->Data("Get", ["invoice", $id]);
-     $invoice = $this->core->FixMissing($invoice, [
-      "ChargeTo",
-      "Email",
-      "Phone"
-     ]);
-     $_ChangeData = [
-      "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
-      "[Invoice.ID]" => $id,
-      "[Invoice.Save]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Save"))
-     ];
-     $_Commands = [
-      [
-       "Name" => "RenderInputs",
-       "Parameters" => [
-        ".Charges$id",
+    $id = $this->core->UUID("NewInvoiceBy$you");
+    $invoice = $this->core->Data("Get", ["invoice", $id]);
+    $chargeTo = $invoice["ChargeTo"] ?? "";
+    $email = $invoice["Email"] ?? "";
+    $phone = $invoice["Phone"] ?? "";
+    $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Charges$id",
+       [
         [
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "ChargeTitle[]",
-           "placeholder" => "Deposit",
-           "type" => "text"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "Desktop50 MobileFull",
-           "Header" => 1,
-           "HeaderText" => "Title"
-          ],
-          "Type" => "Text",
-          "Value" => ""
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeTitle[]",
+          "placeholder" => "Deposit",
+          "type" => "text"
          ],
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "ChargeDescription[]",
-           "placeholder" => "Why are you placing this charge?",
-           "type" => "text"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "Desktop50 MobileFull",
-           "Header" => 1,
-           "HeaderText" => "Description"
-          ],
-          "Type" => "TextBox",
-          "Value" => ""
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Title"
          ],
-         [
-          "Attributes" => [
-           "name" => "ChargePaid[]",
-           "type" => "hidden"
-          ],
-          "Options" => [],
-          "Type" => "Text",
-          "Value" => 0
-         ],
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "ChargeValue[]",
-           "placeholder" => "50.00",
-           "type" => "number"
-          ],
-          "Options" => [
-           "Container" => 1,
-           "ContainerClass" => "Desktop50 MobileFull",
-           "Header" => 1,
-           "HeaderText" => "Amount"
-          ],
-          "Type" => "Text",
-          "Value" => $this->core->AESencrypt(50.00)
-         ]
-        ]
-       ]
-      ],
-      [
-       "Name" => "RenderInputs",
-       "Parameters" => [
-        ".InvoiceInformation$id",
+         "Type" => "Text",
+         "Value" => ""
+        ],
         [
-         [
-          "Attributes" => [
-           "name" => "ID",
-           "type" => "hidden"
-          ],
-          "Options" => [],
-          "Type" => "Text",
-          "Value" => $id
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeDescription[]",
+          "placeholder" => "Why are you placing this charge?",
+          "type" => "text"
          ],
-         [
-          "Attributes" => [
-           "name" => "Shop",
-           "type" => "hidden"
-          ],
-          "Options" => [],
-          "Type" => "Text",
-          "Value" => $shopID
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Description"
          ],
-         [
-          "Attributes" => [
-           "name" => "UN",
-           "type" => "hidden"
-          ],
-          "Options" => [],
-          "Type" => "Text",
-          "Value" => $you
-         ],
-         [
-          "Attributes" => [
-           "name" => "new",
-           "type" => "hidden"
-          ],
-          "Options" => [],
-          "Type" => "Text",
-          "Value" => 1
-         ],
-         [
-          "Attributes" => [
-           "name" => "Title",
-           "placeholder" => "A New Pre-set Invoice",
-           "type" => "text"
-          ],
-          "Options" => [
-           "Header" => 1,
-           "HeaderText" => "Service Name"
-          ],
-          "Type" => "Text",
-          "Value" => ""
-         ],
-         [
-          "Attributes" => [
-           "name" => "ChargeTo",
-           "placeholder" => "Which Member is paying?",
-           "type" => "text"
-          ],
-          "Options" => [
-           "Header" => 1,
-           "HeaderText" => "Charge To"
-          ],
-          "Type" => "Text",
-          "Value" => $this->core->AESencrypt($invoice["ChargeTo"])
-         ],
-         [
-          "Attributes" => [
-           "class" => "req",
-           "name" => "Email",
-           "placeholder" => "johnny.test@outerhaven.nyc",
-           "type" => "email"
-          ],
-          "Options" => [
-           "Header" => 1,
-           "HeaderText" => "E-Mail"
-          ],
-          "Type" => "Text",
-          "Value" => $this->core->AESencrypt($invoice["Email"])
-         ],
-         [
-          "Attributes" => [
-           "name" => "Phone",
-           "placeholder" => "777-777-7777",
-           "type" => "text"
-          ],
-          "Options" => [
-           "Header" => 1,
-           "HeaderText" => "Phone Number"
-          ],
-          "Type" => "Text",
-          "Value" => $this->core->AESencrypt($invoice["Phone"])
-         ]
-        ]
-       ]
-      ],
-      [
-       "Name" => "RenderInputs",
-       "Parameters" => [
-        ".Preset$id",
+         "Type" => "TextBox",
+         "Value" => ""
+        ],
         [
-         [
-          "Attributes" => [
-           "name" => "Preset",
-           "type" => "hidden"
-          ],
-          "Options" => [],
-          "Type" => "Text",
-          "Value" => 1
-         ]
+         "Attributes" => [
+          "name" => "ChargePaid[]",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => 0
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "ChargeValue[]",
+          "placeholder" => "50.00",
+          "type" => "number"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "Desktop50 MobileFull",
+          "Header" => 1,
+          "HeaderText" => "Amount"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt(50.00)
         ]
        ]
       ]
-     ];
-     $_Extension = "e372b28484951c22fe9920317c852436";
-    }
-    $_View = [
-     "ChangeData" => $_ChangeData,
-     "Extension" => $this->core->AESencrypt($_Extension)
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".InvoiceInformation$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "ID",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $id
+        ],
+        [
+         "Attributes" => [
+          "name" => "Shop",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $shopID
+        ],
+        [
+         "Attributes" => [
+          "name" => "UN",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => $you
+        ],
+        [
+         "Attributes" => [
+          "name" => "Title",
+          "placeholder" => "A New Pre-set Invoice",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Service Name"
+         ],
+         "Type" => "Text",
+         "Value" => ""
+        ],
+        [
+         "Attributes" => [
+          "name" => "ChargeTo",
+          "placeholder" => "Which Member is paying?",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Charge To"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($chargeTo)
+        ],
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Email",
+          "placeholder" => "johnny.test@outerhaven.nyc",
+          "type" => "email"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "E-Mail"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($email)
+        ],
+        [
+         "Attributes" => [
+          "name" => "Phone",
+          "placeholder" => "777-777-7777",
+          "type" => "text"
+         ],
+         "Options" => [
+          "Header" => 1,
+          "HeaderText" => "Phone Number"
+         ],
+         "Type" => "Text",
+         "Value" => $this->core->AESencrypt($phone)
+        ]
+       ]
+      ]
+     ],
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".Preset$id",
+       [
+        [
+         "Attributes" => [
+          "name" => "Preset",
+          "type" => "hidden"
+         ],
+         "Options" => [],
+         "Type" => "Text",
+         "Value" => 1
+        ]
+       ]
+      ]
+     ]
     ];
-    $_Card = ($card == 1) ? [
-     "Front" => $_View
-    ] : "";
-    $_View = ($card == 0) ? $_View :"";
    }
+   $_View = [
+    "ChangeData" => [
+     "[Invoice.ChargeClone]" => base64_encode($this->core->Extension("cfc6f5b795f1254de32ef292325292a6")),
+     "[Invoice.ID]" => $id,
+     "[Invoice.Save]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Save"))
+    ],
+    "ExtensionID" => "e372b28484951c22fe9920317c852436"
+   ];
+   $_Card = ($card == 1) ? [
+    "Front" => $_View
+   ] : "";
+   $_View = ($card == 0) ? $_View :"";
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
     "Card" => $_Card,
@@ -823,7 +802,7 @@
            "[Mail.Invoice]" => "Total due: $0.00",
            "[Mail.Name]" => $name,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
-           "[Mail.Shop.Name]" => $shop["Title"],
+           "[Mail.Shop]" => $shop["Title"],
            "[Mail.View]" => $this->core->Element([
             "a", "View Invoice", [
              "class" => "BB BBB v2 v2w",
@@ -841,7 +820,7 @@
            "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
            "[Mail.Name]" => $name,
            "[Mail.Link]" => $this->core->base."/invoice/$id",
-           "[Mail.Shop.Name]" => $shop["Title"],
+           "[Mail.Shop]" => $shop["Title"],
            "[Mail.View]" => $this->core->Element([
              "a", "View Invoice", [
               "class" => "BB BBB v2 v2w",
@@ -870,7 +849,7 @@
           "[Mail.Invoice]" => "Total due: $".number_format($preset["Charges"][0]["Value"], 2),
           "[Mail.Name]" => $partner["Personal"]["FirstName"],
           "[Mail.Link]" => $this->core->base."/invoice/$id",
-          "[Mail.Shop.Name]" => $shop["Title"],
+          "[Mail.Shop]" => $shop["Title"],
           "[Mail.View]" => $this->core->Element([
            "a", "View Invoice", [
             "class" => "BB BBB v2 v2w",
@@ -1732,17 +1711,21 @@
        array_push($services, $id);
        $services = array_unique($services);
        $shop["InvoicePresets"] = $services;
-       $this->core->Data("Save", ["invoice-preset", $id, $service]);
-       $this->core->Data("Save", ["shop", $shopID, $shop]);
+       #$this->core->Data("Save", ["invoice-preset", $id, $service]);
+       #$this->core->Data("Save", ["shop", $shopID, $shop]);
        $_View = "Update Pre-set".json_encode($service, true);
        $_ResponseType = "UpdateText";
       } elseif($isPreset == 0) {
        $_Dialog = [
         "Body" => "We could not find the Member <strong>$member</strong>."
        ];
+       $_Mail = $this->core->Extension("7a421d1b6fd3b4958838e853ae492588");
        $check = 0;
+       $email = $data["Email"] ?? "";
        $member = $data["ChargeTo"] ?? "";
        $members = $this->core->DatabaseSet("Member");
+       $name = $member ?? $email;
+       $phone = $data["Phone"] ?? "";
        foreach($members as $key => $value) {
         $value = str_replace("nyc.outerhaven.mbr.", "", $value);
         if($check == 0) {
@@ -1750,90 +1733,87 @@
          $them = $t["Login"]["Username"] ?? "";
          if(!empty($them) && $member == $them) {
           $check++;
+          break;
          }
         }
-       } if((!empty($member) && $check == 1) || $check == 0) {
-        $_Dialog = [
-         "Body" => "An e-mail address is required in order for us ensure your Invoice is sent to the proper recipient."
+       } if(!empty($email) || (!empty($member) && $check == 1)) {
+        $_AccessCode = "Accepted";
+        $chargeData = $data["ChargeTitle"] ?? 0;
+        $charges = [];
+        for($i = 0; $i < count($chargeData); $i++) {
+         $description = $data["ChargeDescription"][$i] ?? "Unknown";
+         $paid = $data["ChargePaid"][$i] ?? 0;
+         $title = $data["ChargeTitle"][$i] ?? "Unknown";
+         $value = $data["ChargeValue"][$i] ?? 0.00;
+         array_push($charges, [
+          "Description" => $description,
+          "Paid" => $paid,
+          "Title" => $title,
+          "Value" => $value
+         ]);
+         $chargeList .= $this->core->Change([[
+          "[Invoice.Charge.Description]" => $description,
+          "[Invoice.Charge.Title]" => $title,
+          "[Invoice.Charge.Value]" => $this->core->Element([
+           "p", "$".number_format($value, 2),
+           ["class" => "DesktopRightText"]
+          ])
+         ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
+        }
+        $invoice = [
+         "ChargeTo" => $name,
+         "Created" => $this->core->timestamp,
+         "Charges" => $charges,
+         "Email" => $email,
+         "Notes" => [],
+         "PaidInFull" => 0,
+         "Phone" => $phone,
+         "Shop" => $shopID,
+         "Status" => "Open",
+         "UN" => $you
         ];
-        if(!empty($data["Email"])) {
-         $_AccessCode = "Accepted";
-         $chargeData = $data["ChargeTitle"] ?? 0;
-         $charges = [];
-         for($i = 0; $i < count($chargeData); $i++) {
-          $description = $data["ChargeDescription"][$i] ?? "Unknown";
-          $paid = $data["ChargePaid"][$i] ?? 0;
-          $title = $data["ChargeTitle"][$i] ?? "Unknown";
-          $value = $data["ChargeValue"][$i] ?? 0.00;
-          array_push($charges, [
-           "Description" => $description,
-           "Paid" => $paid,
-           "Title" => $title,
-           "Value" => $value
-          ]);
-          $chargeList .= $this->core->Change([[
-           "[Invoice.Charge.Description]" => $description,
-           "[Invoice.Charge.Title]" => $title,
-           "[Invoice.Charge.Value]" => $this->core->Element([
-            "p", "$".number_format($value, 2),
-            ["class" => "DesktopRightText"]
+        $invoices = $shop["Invoices"] ?? [];
+        array_push($invoices, $id);
+        $invoices = array_unique($invoices);
+        $name = $data["ChargeTo"] ?? $data["Email"];
+        $shop["Invoices"] = $invoices;
+        if(!empty($email)) {
+         $this->core->SendEmail([
+          "Message" => $this->core->Change([[
+           "[Mail.Message]" => "Please review the Invoice linked below.",
+           "[Mail.Invoice]" => $chargeList,
+           "[Mail.Name]" => $name,
+           "[Mail.Link]" => $this->core->base."/invoice/$id",
+           "[Mail.Shop]" => $shop["Title"],
+           "[Mail.View]" => $this->core->Element([
+            "a", "View Invoice", [
+             "class" => "BB BBB v2 v2w",
+             "href" => $this->core->base."/invoice/$id"
+            ]
            ])
-          ], $this->core->Extension("7a421d1b6fd3b4958838e853ae492588")]);
-         }
-         $invoice = [
-          "ChargeTo" => $member,
-          "Created" => $this->core->timestamp,
-          "Charges" => $charges,
-          "Email" => $data["Email"],
-          "Notes" => [],
-          "PaidInFull" => 0,
-          "Phone" => $data["Phone"],
-          "Shop" => $shopID,
-          "Status" => "Open",
-          "UN" => $you
-         ];
-         $invoices = $shop["Invoices"] ?? [];
-         array_push($invoices, $id);
-         $invoices = array_unique($invoices);
-         $name = $data["ChargeTo"] ?? $data["Email"];
-         $shop["Invoices"] = $invoices;
-         if(!empty($data["Email"])) {
-          $this->core->SendEmail([
-           "Message" => $this->core->Change([[
-            "[Mail.Message]" => "Please review the Invoice linked below.",
-            "[Mail.Invoice]" => $chargeList,
-            "[Mail.Name]" => $name,
-            "[Mail.Link]" => $this->core->base."/invoice/$id",
-            "[Mail.Shop.Name]" => $shop["Title"],
-            "[Mail.View]" => $this->core->Element([
-             "a", "View Invoice", [
-              "class" => "BB BBB v2 v2w",
-              "href" => $this->core->base."/invoice/$id"
-             ]
-            ])
-           ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
-           "Title" => $shop["Title"].": Invoice $id",
-           "To" => $data["Email"]
-          ]);
-         } if(!empty($member)) {
-          $this->core->SendBulletin([
-           "Data" => [
-            "Invoice" => $id,
-            "Shop" => $shopID
-           ],
-           "To" => $member,
-           "Type" => "Invoice"
-          ]);
-         }
-         $this->core->Statistic("New Invoice");
-         $this->core->Data("Save", ["invoice", $id, $invoice]);
-         $this->core->Data("Save", ["shop", $shopID, $shop]);
-         $_Dialog = [
-          "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at ".$this->core->base."/invoice/$id.",
-          "Header" => "Done"
-         ];
-         $_Success = "CloseCard";
+          ], $_Mail]),
+          "Title" => $shop["Title"].": Invoice $id",
+          "To" => $email
+         ]);
+        } if(!empty($member)) {
+         /*--$this->core->SendBulletin([
+          "Data" => [
+           "Invoice" => $id,
+           "Shop" => $shopID
+          ],
+          "To" => $member,
+          "Type" => "Invoice"
+         ]);--*/
         }
+        /*--$this->core->Statistic("New Invoice");
+        $this->core->Data("Save", ["invoice", $id, $invoice]);
+        $this->core->Data("Save", ["shop", $shopID, $shop]);--*/
+        $_Dialog = [
+         "Body" => "The Invoice $id has been saved and forwarded to the recipient. You may view this Invoice at <em>".$this->core->base."/invoice/$id</em>.",
+         "Header" => "Done",
+         "Scrollable" => json_encode($invoice, true)
+        ];
+        $_Success = "CloseCard";
        }
       }
      }

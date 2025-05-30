@@ -22,17 +22,17 @@
    $shopID = $data["Shop"] ?? md5($you);
    $shopOwner = $this->core->Data("Get", ["mbr", $shopID]);
    $shopOwner = $shopOwner["Login"]["Username"] ?? "";
-   $template = "00f3b49a6e3b39944e3efbcc98b4948d";
-   $template = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $template;
+   $_ExtensionID = "00f3b49a6e3b39944e3efbcc98b4948d";
+   $_ExtensionID = ($y["Rank"] == md5("High Command")) ? "5f00a072066b37c0b784aed2276138a6" : $_ExtensionID;
    $_Card = [
     "Front" => $this->core->Change([[
-     "[Product.Architecture]" => base64_encode("v=$edit&Editor=Architecture&Shop=$shopID&new=1"),
-     "[Product.Donation]" => base64_encode("v=$edit&Editor=Donation&Shop=$shopID&new=1"),
-     "[Product.Download]" => base64_encode("v=$edit&Editor=Download&Shop=$shopID&new=1"),
-     "[Product.Product]" => base64_encode("v=$edit&Editor=Product&Shop=$shopID&new=1"),
-     "[Product.Service]" => base64_encode("v=".base64_encode("Invoice:Edit")."&Shop=$shopID"),
-     "[Product.Subscription]" => base64_encode("v=$edit&Editor=Subscription&new=1")
-    ], $this->core->Extension($template)])
+     "[Product.Architecture]" => $this->core->AESencrypt("v=$edit&Editor=Architecture&Shop=$shopID&new=1"),
+     "[Product.Donation]" => $this->core->AESencrypt("v=$edit&Editor=Donation&Shop=$shopID&new=1"),
+     "[Product.Download]" => $this->core->AESencrypt("v=$edit&Editor=Download&Shop=$shopID&new=1"),
+     "[Product.Product]" => $this->core->AESencrypt("v=$edit&Editor=Product&Shop=$shopID&new=1"),
+     "[Product.Service]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Edit")."&Shop=$shopID"),
+     "[Product.Subscription]" => $this->core->AESencrypt("v=$edit&Editor=Subscription&new=1")
+    ], $this->core->Extension($_ExtensionID)])
    ];
    if($this->core->ID == $you) {
     $_Dialog = [
