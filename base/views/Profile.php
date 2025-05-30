@@ -1823,8 +1823,8 @@
       $polls = $y["Polls"] ?? [];;
       $restrictedIDs = $this->core->RestrictedIDs;
       $shop = $this->core->Data("Get", ["shop", md5($you)]);
-      $shop["Live"] = 0;
-      $shop["Open"] = 0;
+      $shop["Live"] = "No";
+      $shop["Open"] = "No";
       $shop["Purge"] = 1;
       $shopProducts = $shop["Products"] ?? [];
       $statusUpdates = $y["StatusUpdates"] ?? [];

@@ -809,7 +809,7 @@
      if($invoice["Status"] == "Open") {
       $openInvoices++;
      }
-    } if($hire == 1 && $shop["Open"] == 1) {
+    } if($hire == 1 && $shop["Open"] == "Yes") {
      $_View = ($enableHireSection == 1 && $openInvoices < $limit) ? [
       "ChangeData" => [
        "[Hire.Text]" => $hireText,
@@ -1025,7 +1025,7 @@
        $options = $_Shop["ListItem"]["Options"];
        $partners = $shop["Contributors"] ?? [];
        $services = $shop["InvoicePresets"] ?? [];
-       if($check == 1 || $check2 == 1 && $shop["Open"] == 1) {
+       if($check == 1 || $check2 == 1 && $shop["Open"] == "Yes") {
         $active = 0;
         $addToData = (!empty($addTo)) ? explode(":", base64_decode($addTo)) : [];
         foreach($partners as $member => $role) {
@@ -1599,7 +1599,7 @@
           ];
           $y["Verified"] = 1;
           $yourShop = $this->core->Data("Get", ["shop", md5($you)]);
-          $yourShop["Open"] = 1;
+          $yourShop["Open"] = "Yes";
           $this->core->Data("Save", ["mbr", md5($you), $y]);
           $this->core->Data("Save", ["shop", md5($you), $yourShop]);
           $this->view(base64_encode("Revenue:SaveTransaction"), ["Data" => [

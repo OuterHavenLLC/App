@@ -668,7 +668,7 @@
     $shop = $this->core->Data("Get", ["shop", $id]);
     $enableHireSection = $shop["EnableHireSection"] ?? "No";
     $partners = $shop["Contributors"] ?? [];
-    $services = $shop["InvoicePresets"] ?? 0;
+    $services = $shop["InvoicePresets"] ?? [];
     $hire = (md5($you) != $id) ? 1 : 0;
     $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
     $hire = ($enableHireSection == "Yes" && $hire == 1) ? 1 : 0;
@@ -676,7 +676,14 @@
     $openInvoices = 0;
     $_Dialog = [
      "Body" => $shop["Title"]." is not currently accepting job offers.",
-     "Header" => "Sorry!"
+     "Header" => "Sorry!",
+     "Scrollable" => json_encode([
+      "MyShop" => (md5($you) != $id),
+      "ServicesAvailable" => count($services),
+      "HireSectionEnabled" => $enableHireSection,
+      "LimitHit" => $limit,
+      "ShopOpen" => $shop["Open"]
+     ], true)
     ];
     foreach($shop["Invoices"] as $key => $invoice) {
      $invoice = $this->core->Data("Get", ["invoice", $invoice]);
@@ -900,6 +907,7 @@
        "ExtensionID" => "dab6e25feafcbb2741022bf6083c2975"
       ];
      } else {
+      $_AddTopMargin = ($card == 0) ? 1 : "0";
       $_ViewTitle = "Hire ".$shop["Title"];
       $hireText = (count($partners) == 1) ? "Me" : "Us";
       $terms = $shop["HireTerms"] ?? "";
@@ -916,7 +924,6 @@
       } else {
        $terms = $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
       }
-      $_AddTopMargin = ($card == 0) ? 1 : "0";
       $_View = [
        "ChangeData" => [
         "[Shop.Name]" => $shop["Title"],
