@@ -742,12 +742,10 @@
       if($check == 1 || $privacy["Albums"] == $public || $visible == 1) {
        $albums = "";
        array_push($_Commands, [
-        [
-         "Name" => "UpdateContentAES",
-         "Parameters" => [
-          ".Albums$id",
-          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&st=MBR-ALB")
-         ]
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Albums$id",
+         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&st=MBR-ALB")
         ]
        ]);
       }
@@ -758,12 +756,10 @@
       if($check == 1 || $privacy["Archive"] == $public || $visible == 1) {
        $articles = "";
        array_push($_Commands, [
-        [
-         "Name" => "UpdateContentAES",
-         "Parameters" => [
-          ".Articles$id",
-          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-CA")
-         ]
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Articles$id",
+         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-CA")
         ]
        ]);
       }
@@ -774,30 +770,25 @@
       if($check == 1 || $privacy["Posts"] == $public || $visible == 1) {
        $articles = "";
        array_push($_Commands, [
-        [
-         "Name" => "UpdateContentAES",
-         "Parameters" => [
-          ".Articles$id",
-          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-BLG")
-         ]
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Articles$id",
+         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-BLG")
         ]
        ]);
       }
       $changeRank = "";
       $contacts = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their contacts to $self.",
-       "Header" => "Forbidden"
+       "[Error.Message]" => "$displayName keeps their contacts to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Contacts"] == $public || $visible == 1) {
        $articles = "";
        array_push($_Commands, [
-        [
-         "Name" => "UpdateContentAES",
-         "Parameters" => [
-          ".Articles$id",
-          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=ContactsProfileList")
-         ]
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Articles$id",
+         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=ContactsProfileList")
         ]
        ]);
       }
@@ -940,14 +931,12 @@
        "[Error.Message]" => "$displayName keeps their Journal to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Journal"] == $public || $visible == 1) {
-       $articles = "";
+       $journal = "";
        array_push($_Commands, [
-        [
-         "Name" => "UpdateContentAES",
-         "Parameters" => [
-          ".Articles$id",
-          $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-JE")
-         ]
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".Journal$id",
+         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-JE")
         ]
        ]);
       }
