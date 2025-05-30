@@ -643,6 +643,7 @@
   }
   function Hire(array $data): string {
    $_AccessCode = "Denied";
+   $_AddTopMargin = "0";
    $_Card = "";
    $_Commands = "";
    $_Dialog = [
@@ -665,12 +666,13 @@
     $createJob = $data["CreateJob"] ?? 0;
     $saveJob = $data["SaveJob"] ?? 0;
     $shop = $this->core->Data("Get", ["shop", $id]);
-    $enableHireSection = $shop["EnableHireSection"] ?? 0;
+    $enableHireSection = $shop["EnableHireSection"] ?? "No";
     $partners = $shop["Contributors"] ?? [];
     $services = $shop["InvoicePresets"] ?? 0;
-    $hire = (md5($you) != $id) ? 1 : 0;
+    #$hire = (md5($you) != $id) ? 1 : 0;
+    $hire = (md5($you) == $id) ? 1 : 0;//TEMP
     $hire = (count($services) > 0 && $hire == 1) ? 1 : 0;
-    $hire = ($enableHireSection == 1 && $hire == 1) ? 1 : 0;
+    $hire = ($enableHireSection == "Yes" && $hire == 1) ? 1 : 0;
     $limit = $shop["HireLimit"] ?? 5;
     $openInvoices = 0;
     $_Dialog = [
@@ -682,7 +684,8 @@
      if($invoice["Status"] == "Open") {
       $openInvoices++;
      }
-    } if($hire == 1 && $openInvoices < $limit && $shop["Open"] == 1) {
+    } if($hire == 1 && $openInvoices < $limit && $shop["Open"] == "Yes") {
+     $_Dialog = "";
      if(!empty($saveJob)) {
       $data = $this->core->DecodeBridgeData($data);
       $saveJob = $data["SaveJob"] ?? 0;
@@ -889,18 +892,23 @@
       $hireText = (count($partners) == 1) ? "Me" : "Us";
       $terms = $shop["HireTerms"] ?? "";
       if(!empty($terms)) {
-       $terms = $this->core->PlainText([
-        "Data" => $terms,
-        "Display" => 1,
-        "HTMLDecode" => 1
+       $terms = $this->core->Change([
+        [
+         "[Shop.Name]" => $shop["Title"]
+        ], $this->core->PlainText([
+         "Data" => $terms,
+         "Display" => 1,
+         "HTMLDecode" => 1
+        ])
        ]);
       } else {
        $terms = $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
       }
+      $_AddTopMargin = ($card == 0) ? 1 : "0";
       $_View = [
        "ChangeData" => [
         "[Shop.Name]" => $shop["Title"],
-        "[Shop.Hire]" => base64_encode("v=".base64_encode("Invoice:Hire")."&ID=$id&CreateJob=1"),
+        "[Shop.Hire]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Hire")."&ID=$id&CreateJob=1"),
         "[Shop.Hire.Terms]" => $terms,
         "[Shop.Hire.Text]" => $hireText,
        ],
@@ -916,7 +924,7 @@
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
-    "AddTopMargin" => "0",
+    "AddTopMargin" => $_AddTopMargin,
     "Card" => $_Card,
     "Commands" => $_Commands,
     "Dialog" => $_Dialog,

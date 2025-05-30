@@ -36,7 +36,7 @@
      $quantity = $product["Quantity"] ?? 0;
      $check = (!empty($id)) ? 1 : 0;
      $check2 = $t["Subscriptions"]["Artist"]["A"] ?? 0;
-     $check3 = $shop["Open"] ?? 0;
+     $check3 = $shop["Open"] ?? "No";
      $check4 = ($quantity != 0) ? 1 : 0;
      $check = ($check == 1 && $check2 == 1 && $check3 == 1 && $check4 == 1) ? 1 : 0;
      for($i = 0; $i <= $productQuantity; $i++) {

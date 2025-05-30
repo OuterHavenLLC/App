@@ -99,10 +99,10 @@
      $hireLimits[$i] = $i;
     }
     $hireTerms = $shop["HireTerms"] ?? $this->core->Extension("285adc3ef002c11dfe1af302f8812c3a");
-    $live = $shop["Live"] ?? 0;
+    $live = $shop["Live"] ?? "No";
     $members = $shop["Members"] ?? [];
     $nsfw = $shop["NSFW"] ?? $y["Privacy"]["NSFW"];
-    $open = $shop["Open"] ?? 0;
+    $open = $shop["Open"] ?? "No";
     $passPhrase = $shop["PassPhrase"] ?? "";
     $paymentProcessor = $shop["PaymentProcessor"] ?? "PayPal";
     $percentages = [];
@@ -467,8 +467,8 @@
         [
          "Attributes" => [],
          "OptionGroup" => [
-          "0" => "No",
-          "1" => "Yes"
+          "No" => "No",
+          "Yes" => "Yes"
          ],
          "Options" => [
           "Container" => 1,
@@ -479,7 +479,7 @@
          "Name" => "EnableHireSection",
          "Title" => "Enable Hire BSection",
          "Type" => "Select",
-         "Value" => $enableHireSection
+         "Value" => "$enableHireSection"
         ],
         [
          "Attributes" => [],
@@ -582,8 +582,8 @@
         [
          "Attributes" => [],
          "OptionGroup" => [
-          "0" => "No",
-          "1" => "Yes"
+          "No" => "No",
+          "Yes" => "Yes"
          ],
          "Options" => [
           "Container" => 1,
@@ -599,8 +599,8 @@
         [
          "Attributes" => [],
          "OptionGroup" => [
-          "0" => "No",
-          "1" => "Yes"
+          "No" => "No",
+          "Yes" => "Yes"
          ],
          "Options" => [
           "Container" => 1,
@@ -1360,7 +1360,7 @@
      $shop = $this->core->Data("Get", ["shop", $shopID]);
      $shopOwner = $this->core->Data("Get", ["mbr", $shopID]);
      $step = $data["Step"] ?? 0;
-     $live = $shop["Live"] ?? 0;
+     $live = $shop["Live"] ?? "No";
      $payments = $shop["Processing"] ?? [];
      $payments = $this->core->FixMissing($payments, [
       "BraintreeMerchantIDLive",
@@ -2181,7 +2181,7 @@
      $coverPhoto = $data["CoverPhoto"] ?? "";
      $contributors = $shop["Contributors"] ?? [];
      $description = $data["Description"] ?? $shop["Description"];
-     $enableHireSection = $data["EnableHireSection"] ?? 0;
+     $enableHireSection = $data["EnableHireSection"] ?? "No";
      $forums = [];
      $forumsData = $data["Forum"] ?? [];
      $forumPosts = [];
@@ -2190,7 +2190,7 @@
      $hireTerms = $data["HireTerms"] ?? "";
      $invoicePresets = $shop["InvoicePresets"] ?? [];
      $invoices = $shop["Invoices"] ?? [];
-     $live = $data["Live"] ?? 0;
+     $live = $data["Live"] ?? "No";
      $members = []; 
      $membersData = $data["Member"] ?? [];
      $now = $this->core->timestamp;
@@ -2199,7 +2199,7 @@
      $modifiedBy = $shop["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $nsfw = $data["NSFW"] ?? 0;
-     $open = $data["Open"] ?? 0;
+     $open = $data["Open"] ?? "No";
      $passPhrase = $data["PassPhrase"] ?? "";
      $paymentProcessor = $data["PaymentProcessor"] ?? "PayPal";
      $privacy = $data["Privacy"] ?? $y["Privacy"]["Shop"];

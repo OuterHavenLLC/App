@@ -3479,7 +3479,8 @@
         "Y" => $you
        ]);
        $shop = $_Shop["DataModel"];
-       $check2 = $shop["Open"] ?? 0;
+       $check2 = $shop["Live"] ?? "No";
+       $check2 = ($check2 == "Yes" && $shop["Open"] == "Yes") ? 1 : 0;
        if(($blocked == 0 && $check == 1 && $check2 == 1) || $sql["Shop_Username"] == $you) {
         array_push($_Commands, []);
         array_push($_List, [
