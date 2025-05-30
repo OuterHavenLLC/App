@@ -660,8 +660,8 @@
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if(!empty($id)) {
-    $_ViewTitle = "Hire";
     $_AccessCode = "Accepted";
+    $_ViewTitle = "Hire";
     $action = "";
     $createJob = $data["CreateJob"] ?? 0;
     $saveJob = $data["SaveJob"] ?? 0;
@@ -702,7 +702,7 @@
         "invoice-preset",
         $value
        ]);
-       $presets[$value] = $service["Title"];
+       $presets[$value] = $service["Title"] ?? "";
       }
       $_Commands = [
        [
@@ -719,15 +719,6 @@
            "Options" => [],
            "Type" => "Text",
            "Value" => $chargeTo
-          ],
-          [
-           "Attributes" => [
-            "name" => "SaveJob",
-            "type" => "hidden"
-           ],
-           "Options" => [],
-           "Type" => "Text",
-           "Value" => 1
           ],
           [
            "Attributes" => [
@@ -798,20 +789,22 @@
       $service = $data["Service"] ?? "";
       if(!empty($service)) {
        $_AccessCode = "Accepted";
+       $_Mail = $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4");
        $_Success = "CloseCard";
        $email = $data["Email"] ?? "";
+       $phone = $data["Phone"] ?? "";
        $preset = $this->core->Data("Get", ["invoice-preset", $service]);
        $chargeTo = $data["ChargeTo"] ?? "";
        $charges = [];
        array_push($charges, $preset["Charges"]);
-       $id = $this->core->UUID("InvoiceFor".md5($you));
+       $id = $this->core->UUID("NewInvoiceFor$you");
        $invoice = [
         "ChargeTo" => $chargeTo,
         "Charges" => $charges,
         "Email" => $email,
         "Notes" => [],
         "PaidInFull" => $preset["PaidInFull"],
-        "Phone" => $data["Phone"],
+        "Phone" => $phone,
         "Shop" => $preset["Shop"],
         "Status" => $preset["Status"],
         "UN" => $preset["UN"]
@@ -837,7 +830,7 @@
              "href" => $this->core->base."/invoice/$id"
             ]
            ])
-          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+          ], $_Mail]),
           "Title" => $shop["Title"].": Invoice $id",
           "To" => $email
          ]);
@@ -855,9 +848,9 @@
               "href" => $this->core->base."/invoice/$id"
             ]
            ])
-          ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+          ], $_Mail]),
           "Title" => $shop["Title"].": Invoice $id",
-          "To" => $data["Email"]
+          "To" => $email
          ]);
         }
        } if(!empty($chargeTo)) {
@@ -884,7 +877,7 @@
             "href" => $this->core->base."/invoice/$id"
            ]
           ])
-         ], $this->core->Extension("d13bb7e89f941b7805b68c1c276313d4")]),
+         ], $_Mail]),
          "Title" => $shop["Title"].": Invoice $id",
          "To" => $email
         ]);
@@ -897,8 +890,8 @@
          "Type" => "NewJob"
         ]);--*/
        }
-       $shop["Invoices"] = $invoices;
-       /*--$this->core->Data("Save", ["invoice", $id, $invoice]);
+       /*--$shop["Invoices"] = $invoices;
+       $this->core->Data("Save", ["invoice", $id, $invoice]);
        $this->core->Data("Save", ["shop", $shopID, $shop]);--*/
        $_Dialog = [
         "Body" => "Your request has been submitted! Please check your email for the Invoice and pay the deposit amount. Your Invoice is also available at <em>".$this->core->base."/invoice/$id</em>.",
@@ -933,12 +926,12 @@
        "ExtensionID" => "045f6c5cf3728bd31b0d9663498a940c"
       ];
      }
+     $_Card = ($card == 1) ? [
+      "Action" => $action,
+      "Front" => $_View
+     ] : "";
+     $_View = ($card == 0) ? $_View : "";
     }
-    $_Card = ($card == 1) ? [
-     "Action" => $action,
-     "Front" => $_View
-    ] : "";
-    $_View = ($card == 0) ? $_View : "";
    }
    return $this->core->JSONResponse([
     "AccessCode" => $_AccessCode,
@@ -1031,7 +1024,7 @@
      } elseif($dependency == "Options") {
       $check = 0;
       $isAdmin = ($invoice["Shop"] == md5($you)) ? 1 : 0;
-      foreach($shop["Contributors"] as $member => $role) {
+      foreach($_Shop["Contributors"] as $member => $role) {
        if($check == 0 && $member == $you) {
         $check++;
        }
@@ -1298,53 +1291,56 @@
    $shopID = $data["Shop"] ?? "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($key) != $secureKey) {
-    $_Dialog = [
-     "Body" => "The PINs do not match."
-    ];
-   } elseif($this->core->ID == $you) {
+   if($this->core->ID == $you) {
     $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id) && !empty($shopID)) {
-    $_Dialog = [
-     "Body" => "You are not authorized to delete Pre-sets.",
-     "Header" => "Forbidden"
-    ];
-    $check = 0;
-    $id = base64_decode($id);
-    $shopID = base64_decode($shopID);
-    $isAdmin = ($shopID == md5($you)) ? 1 : 0;
-    $shop = $this->core->Data("Get", ["shop", $shopID]);
-    $shopPartners = $shop["Contributors"] ?? [];
-    foreach($shopPartners as $member => $role) {
-     if($check == 0 && $member == $you) {
-      $check++;
-      break;
-     }
-    } if($check == 1 && $isAdmin == 1) {
-     $newPresets = [];
-     $presets = $shop["InvoicePresets"] ?? [];
-     foreach($presets as $key => $value) {
-      if($value != $id) {
-       $newPresets[$key] = $value;
-      }
-     }
-     $preset = $this->core->Data("Get", ["invoice-preset", $id]);
-     $shop["InvoicePresets"] = $newPresets;
-     $this->core->Data("Purge", ["invoice-preset", $id]);
-     $this->core->Data("Save", ["shop", $shopID, $shop]);
-     $_View = [
-      "ChangeData" => [
-      ],
-      "Extension" => $this->core->AESencrypt($this->core->Element([
-       "p", "The service <em>".$preset["Title"]."</em> was deleted.",
-       ["class" => "CenterText"]
-      ]).$this->core->Element([
-       "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-      ]))
+    $_Dialog = "";
+    if(md5($key) == $secureKey) {
+     $_Dialog = [
+      "Body" => "You are not authorized to delete Pre-sets.",
+      "Header" => "Forbidden"
      ];
+     $check = 0;
+     $id = base64_decode($id);
+     $shopID = base64_decode($shopID);
+     $isAdmin = ($shopID == md5($you)) ? 1 : 0;
+     $shop = $this->core->Data("Get", ["shop", $shopID]);
+     $shopPartners = $shop["Contributors"] ?? [];
+     foreach($shopPartners as $member => $role) {
+      if($check == 0 && $member == $you) {
+       $check++;
+       break;
+      }
+     } if($check == 1 && $isAdmin == 1) {
+      $newPresets = [];
+      $presets = $shop["InvoicePresets"] ?? [];
+      foreach($presets as $key => $value) {
+       if($value != $id) {
+        $newPresets[$key] = $value;
+       }
+      }
+      $preset = $this->core->Data("Get", ["invoice-preset", $id]);
+      $shop["InvoicePresets"] = $newPresets;
+      $this->core->Data("Purge", ["invoice-preset", $id]);
+      $this->core->Data("Save", ["shop", $shopID, $shop]);
+      $_View = [
+       "ChangeData" => [
+       ],
+       "Extension" => $this->core->AESencrypt($this->core->Element([
+        "p", "The service <em>".$preset["Title"]."</em> was deleted.",
+        [
+         "class" => "CenterText"
+        ]
+       ]).$this->core->Element([
+        "button", "Okay", [
+         "class" => "CloseDialog v2 v2w"
+        ]
+       ]))
+      ];
+     }
     }
    }
    return $this->core->JSONResponse([
@@ -1357,7 +1353,8 @@
    $_Dialog = [
     "Body" => "The Invoice or Pre-set Identifier are missing."
    ];
-   $_ResponseType = "N/A";
+   $_ResponseType = "";
+   $_Success = "";
    $_View = "";
    $data = $data["Data"] ?? [];
    $data = $this->core->DecodeBridgeData($data);
@@ -1367,7 +1364,6 @@
    ]);
    $id = $data["ID"] ?? "";
    $shopID = $data["Shop"] ?? "";
-   $_Success = "";
    $y = $this->you;
    $you = $y["Login"]["Username"];
    if($this->core->ID == $you) {
@@ -1718,10 +1714,12 @@
        $value = $data["ChargeValue"][0] ?? 0.00;
        $service = [
         "Charges" => [
-         "Description" => $description,
-         "Paid" => 0,
-         "Title" => $title,
-         "Value" => $value
+         [
+          "Description" => $description,
+          "Paid" => 0,
+          "Title" => $title,
+          "Value" => $value
+         ]
         ],
         "Notes" => [],
         "PaidInFull" => 0,

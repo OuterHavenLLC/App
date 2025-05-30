@@ -348,10 +348,10 @@
       }
      }
     } if($_Blog["Empty"] == 0) {
+     $_AccessCode = "Accepted";
      $_IsArtist = $owner["Subscriptions"]["Artist"]["A"] ?? 0;
      $_IsVIP = $owner["Subscriptions"]["VIP"]["A"] ?? 0;
      $_IsSubscribed = ($_IsArtist == 1 || $_IsVIP == 1) ? 1 : 0;
-     $accessCode = "Accepted";
      $passPhrase = $blog["PassPhrase"] ?? "";
      $verifyPassPhrase = $data["VerifyPassPhrase"] ?? 0;
      $viewProtectedContent = $data["ViewProtectedContent"] ?? 0;
@@ -582,76 +582,78 @@
    $secureKey = base64_decode($secureKey);
    $y = $this->you;
    $you = $y["Login"]["Username"];
-   if(md5($key) != $secureKey) {
-    $_Dialog = [
-     "Body" => "The PINs do not match. ($key, ".md5($key).", $secureKey)"
-    ];
-   } elseif($this->core->ID == $you) {
+   if($this->core->ID == $you) {
     $_Dialog = [
      "Body" => "You must be signed in to continue.",
      "Header" => "Forbidden"
     ];
    } elseif(!empty($id)) {
     $_Dialog = "";
-    $id = base64_decode($id);
-    $blogs = $y["Blogs"] ?? [];
-    $blog = $this->core->Data("Get", ["blg", $id]);
-    $blogPosts = $blog["Posts"] ?? [];
-    $newBlogs = [];
-    $passPhrase = base64_encode($key);
-    $securePassPhrase = base64_encode($secureKey);
-    foreach($blogPosts as $key => $value) {
-     $blogPost = $this->core->Data("Get", ["bp", $value]);
-     if(!empty($blogPost)) {
-      $this->view(base64_encode("BlogPost:Purge"), ["Data" => [
-       "Key" => $passPhrase,
-       "ID" => base64_encode($value),
-       "SecureKey" => $securePassPhrase
-      ]]);
+    if(md5($key) == $secureKey) {
+     $id = base64_decode($id);
+     $blogs = $y["Blogs"] ?? [];
+     $blog = $this->core->Data("Get", ["blg", $id]);
+     $blogPosts = $blog["Posts"] ?? [];
+     $newBlogs = [];
+     $passPhrase = base64_encode($key);
+     $securePassPhrase = base64_encode($secureKey);
+     foreach($blogPosts as $key => $value) {
+      $blogPost = $this->core->Data("Get", ["bp", $value]);
+      if(!empty($blogPost)) {
+       $this->view(base64_encode("BlogPost:Purge"), ["Data" => [
+        "Key" => $passPhrase,
+        "ID" => base64_encode($value),
+        "SecureKey" => $securePassPhrase
+       ]]);
+      }
+     } foreach($blogs as $key => $value) {
+      if($id != $value) {
+       array_push($newBlogs, $value);
+      }
      }
-    } foreach($blogs as $key => $value) {
-     if($id != $value) {
-      array_push($newBlogs, $value);
+     $y["Blogs"] = $newBlogs;
+     $blog = $this->core->Data("Get", ["blg", $id]);
+     $sql = New SQL($this->core->cypher->SQLCredentials());
+     $sql->query("DELETE FROM Blogs WHERE Blog_ID=:ID", [
+      ":ID" => $id
+     ]);
+     $sql->execute();
+     if(!empty($blog)) {
+      $blog["Purge"] = 1;
+      $this->core->Data("Save", ["blg", $id, $blog]);
      }
+     $chat = $this->core->Data("Get", ["chat", $id]);
+     if(!empty($chat)) {
+      $chat["Purge"] = 1;
+      $this->core->Data("Save", ["chat", $id, $chat]);
+     }
+     $conversation = $this->core->Data("Get", ["conversation", $id]);
+     if(!empty($conversation)) {
+      $conversation["Purge"] = 1;
+      $this->core->Data("Save", ["conversation", $id, $conversation]);
+     }
+     $translations = $this->core->Data("Get", ["translate", $id]);
+     if(!empty($translations)) {
+      $translations["Purge"] = 1;
+      $this->core->Data("Save", ["translate", $id, $translations]);
+     }
+     $votes = $this->core->Data("Get", ["votes", $id]);
+     if(!empty($votes)) {
+      $votes["Purge"] = 1;
+      $this->core->Data("Save", ["votes", $id, $votes]);
+     }
+     $this->core->Data("Save", ["mbr", md5($you), $y]);
+     $_View = $this->core->Element([
+      "p", "The Blog <em>".$blog["Title"]."</em> and dependencies were marked for purging.",
+      [
+       "class" => "CenterText"
+      ]
+     ]).$this->core->Element([
+      "button", "Okay", [
+       "class" => "CloseDialog v2 v2w"
+      ]
+     ]);
     }
-    $y["Blogs"] = $newBlogs;
-    $blog = $this->core->Data("Get", ["blg", $id]);
-    $sql = New SQL($this->core->cypher->SQLCredentials());
-    $sql->query("DELETE FROM Blogs WHERE Blog_ID=:ID", [
-     ":ID" => $id
-    ]);
-    $sql->execute();
-    if(!empty($blog)) {
-     $blog["Purge"] = 1;
-     $this->core->Data("Save", ["blg", $id, $blog]);
-    }
-    $chat = $this->core->Data("Get", ["chat", $id]);
-    if(!empty($chat)) {
-     $chat["Purge"] = 1;
-     $this->core->Data("Save", ["chat", $id, $chat]);
-    }
-    $conversation = $this->core->Data("Get", ["conversation", $id]);
-    if(!empty($conversation)) {
-     $conversation["Purge"] = 1;
-     $this->core->Data("Save", ["conversation", $id, $conversation]);
-    }
-    $translations = $this->core->Data("Get", ["translate", $id]);
-    if(!empty($translations)) {
-     $translations["Purge"] = 1;
-     $this->core->Data("Save", ["translate", $id, $translations]);
-    }
-    $votes = $this->core->Data("Get", ["votes", $id]);
-    if(!empty($votes)) {
-     $votes["Purge"] = 1;
-     $this->core->Data("Save", ["votes", $id, $votes]);
-    }
-    $this->core->Data("Save", ["mbr", md5($you), $y]);
-    $_View = $this->core->Element([
-     "p", "The Blog <em>".$blog["Title"]."</em> and dependencies were marked for purging.",
-     ["class" => "CenterText"]
-    ]).$this->core->Element([
-     "button", "Okay", ["class" => "CloseDialog v2 v2w"]
-    ]);
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
@@ -942,7 +944,7 @@
      "Body" => "You cannot banish yourself."
     ];
     if($username != $blog["UN"] && $username != $you) {
-     $accessCode = "Accepted";
+     $_AccessCode = "Accepted";
      $contributors = $blog["Contributors"] ?? [];
      $newContributors = [];
      foreach($contributors as $member => $role) {
