@@ -739,7 +739,7 @@
       $addContact = "";
       $albums = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their media albums to $self."
+       "[Error.Message]" => "$displayName keeps ".$gender[2]." media albums to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Albums"] == $public || $visible == 1) {
        $albums = "";
@@ -753,7 +753,7 @@
       }
       $articles = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their archive contributions to $self."
+       "[Error.Message]" => "$displayName keeps ".$gender[2]." archive contributions to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Archive"] == $public || $visible == 1) {
        $articles = "";
@@ -767,7 +767,7 @@
       }
       $blogs = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their blogs to $self."
+       "[Error.Message]" => "$displayName keeps ".$gender[2]." blogs to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Posts"] == $public || $visible == 1) {
        $articles = "";
@@ -782,7 +782,7 @@
       $changeRank = "";
       $contacts = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their contacts to $self."
+       "[Error.Message]" => "$displayName keeps ".$gender[2]." contacts to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Contacts"] == $public || $visible == 1) {
        $articles = "";
@@ -930,7 +930,7 @@
       $embeddedView = $data["EmbeddedView"] ?? 0;
       $journal = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their Journal to $self."
+       "[Error.Message]" => "$displayName keeps ".$gender[2]." Journal to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Journal"] == $public || $visible == 1) {
        $journal = "";
