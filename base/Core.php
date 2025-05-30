@@ -415,13 +415,13 @@
    }
    return $a;
   }
-  function Gender(string $a) {
-   if($a == "Female") {
-    $r = "she;her;her";
+  function Gender(string $sex) {
+   if($sex == "Female") {
+    $gender = "she;her;hers";
    } else {
-    $r = "he;him;his";
+    $gender = "he;him;his";
    }
-   return explode(";", $r);
+   return explode(";", $gender);
   }
   function GetAttachmentPreview(array $a) {
    $disableButtons = $a["DisableButtons"] ?? 0;

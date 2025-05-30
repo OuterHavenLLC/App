@@ -661,10 +661,13 @@
       }
      } elseif(empty($passPhrase) || $viewProtectedContent == 1) {
       $blockCommand = ($blocked == 0) ? "Block" : "Unblock";
+      $gender = $member["Personal"]["Gender"] ?? "Male";
+      $gender = $this->core->Gender($gender);
       $memberID = md5($id);
       $coverPhotos = $member["Personal"]["CoverPhotos"] ?? [];
       $newCoverPhotos = [];
       $purgeRenderCode = ($id == $you) ? "PURGE" : "DO NOT PURGE";
+      $self = $gender[1]."self";
       foreach($coverPhotos as $key => $image) {
        $newCoverPhotos[$key] = $this->core->CoverPhoto($image);
       }
@@ -734,7 +737,7 @@
       $addContact = "";
       $albums = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their media albums to themselves."
+       "[Error.Message]" => "$displayName keeps their media albums to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Albums"] == $public || $visible == 1) {
        $albums = "";
@@ -750,7 +753,7 @@
       }
       $articles = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their archive contributions to themselves."
+       "[Error.Message]" => "$displayName keeps their archive contributions to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Archive"] == $public || $visible == 1) {
        $articles = "";
@@ -766,7 +769,7 @@
       }
       $blogs = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their blogs to themselves."
+       "[Error.Message]" => "$displayName keeps their blogs to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Posts"] == $public || $visible == 1) {
        $articles = "";
@@ -783,7 +786,7 @@
       $changeRank = "";
       $contacts = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their contacts to themselves.",
+       "[Error.Message]" => "$displayName keeps their contacts to $self.",
        "Header" => "Forbidden"
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Contacts"] == $public || $visible == 1) {
@@ -932,11 +935,9 @@
        }
       }
       $embeddedView = $data["EmbeddedView"] ?? 0;
-      $gender = $member["Personal"]["Gender"] ?? "Male";
-      $gender = $this->core->Gender($gender);
       $journal = $this->core->Change([[
        "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps their Journal to themselves."
+       "[Error.Message]" => "$displayName keeps their Journal to $self."
       ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
       if($check == 1 || $privacy["Journal"] == $public || $visible == 1) {
        $articles = "";
