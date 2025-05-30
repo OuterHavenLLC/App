@@ -644,6 +644,7 @@
   function Hire(array $data): string {
    $_AccessCode = "Denied";
    $_Card = "";
+   $_Commands = "";
    $_Dialog = [
     "Body" => "The Shop Identifier is missing."
    ];
@@ -783,8 +784,9 @@
       $action = (count($partners) == 1) ? "Me" : "Us";
       $action = $this->core->Element(["button", "Hire $action", [
        "class" => "CardButton SendData",
+       "data-encryption" => "AES",
        "data-form" => ".Hire$id",
-       "data-processor" => base64_encode("v=".base64_encode("Invoice:Hire"))
+       "data-processor" => $this->core->AESencrypt("v=".base64_encode("Invoice:Hire"))
       ]]);
       $card = 1;
       $chargeTo = ($this->core->ID != $you) ? $you : "";
@@ -797,13 +799,88 @@
        ]);
        $presets[$value] = $service["Title"];
       }
+      $_Commands = [
+       [
+        "Name" => "RenderInputs",
+        "Parameters" => [
+         ".ServiceInformation$id",
+         [
+          [
+           "Attributes" => [
+            "name" => "ChargeTo",
+            "placeholder" => "Which Member is paying?",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $chargeTo
+          ],
+          [
+           "Attributes" => [
+            "name" => "SaveJob",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => 1
+          ],
+          [
+           "Attributes" => [
+            "name" => "Shop",
+            "type" => "hidden"
+           ],
+           "Options" => [],
+           "Type" => "Text",
+           "Value" => $id
+          ],
+          [
+           "Attributes" => [
+            "class" => "req",
+            "name" => "Email",
+            "placeholder" => "Johnny.Test@outerhaven.nyc",
+            "type" => "email"
+           ],
+           "Options" => [
+            "Header" => 1,
+            "HeaderText" => "E-Mail"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($y["Personal"]["Email"])
+          ],
+          [
+           "Attributes" => [
+            "name" => "Phone",
+            "placeholder" => "777-777-7777",
+            "type" => "text"
+           ],
+           "Options" => [
+            "Header" => 1,
+            "HeaderText" => "Phone Number"
+           ],
+           "Type" => "Text",
+           "Value" => ""
+          ],
+          [
+           "Attributes" => [],
+           "OptionGroup" => $presets,
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Which Service do you need?"
+           ],
+           "Name" => "Service",
+           "Type" => "Select",
+           "Value" => ""
+          ]
+         ]
+        ]
+       ]
+      ];
       $_View = [
        "ChangeData" => [
-        "[Hire.ChargeTo]" => $chargeTo,
-        "[Hire.Email]" => base64_encode($y["Personal"]["Email"]),
         "[Hire.Shop]" => $id,
-        "[Hire.Text]" => $hireText,
-        "[Hire.Services]" => json_encode($presets, true)
+        "[Hire.Text]" => $hireText
        ],
        "ExtensionID" => "dab6e25feafcbb2741022bf6083c2975"
       ];
@@ -841,6 +918,7 @@
     "AccessCode" => $_AccessCode,
     "AddTopMargin" => "0",
     "Card" => $_Card,
+    "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "ResponseType" => $_ResponseType,
     "Success" => $_Success,
