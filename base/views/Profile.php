@@ -643,7 +643,9 @@
         "v" => base64_encode("Profile:Home")
        ], true))
       ]]);
-      $_View = $this->core->RenderView($_View);
+      $_View = $this->core->RenderView($_View, 1);
+      $_Commands = $_View["Commands"];
+      $_View = $_View["View"];
      } elseif($verifyPassPhrase == 1) {
       $_AddTopMargin = "0";
       $key = $data["Key"] ?? base64_encode("");
