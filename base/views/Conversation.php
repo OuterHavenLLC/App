@@ -1,7 +1,7 @@
 <?php
  if(!class_exists("OH")) {
   $protocol = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on") ? "https://" : "http://";
-  $host = $protocol . $_SERVER["HTTP_HOST"]."/";
+  $host = $protocol.$_SERVER["HTTP_HOST"]."/";
   header("Location: $host");
   exit;
  }
