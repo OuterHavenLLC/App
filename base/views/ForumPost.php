@@ -169,7 +169,7 @@
          ],
          "Type" => "TextBox",
          "Value" => $this->core->AESencrypt($this->core->PlainText([
-          "Data" => $post["Body"]
+          "Data" => $body
          ]))
         ],
         [
