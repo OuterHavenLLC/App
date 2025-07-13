@@ -10,17 +10,17 @@
   <meta property="og:description" content="A Demo consisting of a slide show, driven by loally stored data."/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="Slide Show"/>
-  <meta property="og:url" content="https://outerhaven.nyc/"/>
-  <link href="https://outerhaven.nyc/?_API=Design" media="all" rel="stylesheet" type="text/css"/>
-  <link href="https://outerhaven.nyc/favicon.png" rel="shortcut icon" size="196x196" type="image/png"/>
-  <script src="https://outerhaven.nyc/?_API=JS&v=jQuery" type="text/javascript"></script>
-  <script src="https://outerhaven.nyc/?_API=JS&v=jQueryUI" type="text/javascript"></script>
-  <script src="https://outerhaven.nyc/?_API=JS&v=Cypher" type="text/javascript"></script>
-  <script src="https://outerhaven.nyc/?_API=JS&v=Client" type="text/javascript"></script>
-  <script src="https://outerhaven.nyc/?_API=JS&v=Chart" type="text/javascript"></script>
+  <meta property="og:url" content="https://outerhavenusa.com/"/>
+  <link href="https://outerhavenusa.com/?_API=Design" media="all" rel="stylesheet" type="text/css"/>
+  <link href="https://outerhavenusa.com/favicon.png" rel="shortcut icon" size="196x196" type="image/png"/>
+  <script src="https://outerhavenusa.com/?_API=JS&v=jQuery" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=jQueryUI" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Cypher" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Client" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Chart" type="text/javascript"></script>
  </head>
  <body>
-  <button class="TopHome" onclick="window.location='http://outerhaven.nyc';"></button>
+  <button class="TopHome" onclick="window.location='http://outerhavenusa.com/';"></button>
   <div class="Content FrostedGlass scr">
    <div class="TopBarMargin"></div>
    <div class="CoverPhoto">
@@ -47,7 +47,7 @@
        <input class="Key" placeholder="Our Logo" type="text"/>
       </div>
       <div class="Desktop33 Mobile50">
-       <input class="Value" placeholder="https://outerhaven.nyc/apple-touch-icon.png" type="text"/>
+       <input class="Value" placeholder="https://outerhavenusa.com/apple-touch-icon.png" type="text"/>
       </div>
       <div class="Desktop33 MobileFull">
        <button class="BBB NewLocalData v2">Add</button>
@@ -57,8 +57,8 @@
      <div class="NONAME" style="height:2em"></div>
      <div class="Desktop33 MobileFull">&nbsp;</div>
      <div class="Desktop33 MobileFull">
-      <button class="v2 v2w" onclick="window.location='https://portfolio.outerhaven.nyc/';" style="margin:0.5em auto">Portfolio</button>
-      <button class="Center v1" onclick="window.location='https://outerhaven.nyc/';" style="margin:0.5em auto">Go Home</button>
+      <button class="v2 v2w" onclick="window.location='https://portfolio.outerhavenusa.com/';" style="margin:0.5em auto">Portfolio</button>
+      <button class="Center v1" onclick="window.location='https://outerhavenusa.com/';" style="margin:0.5em auto">Go Home</button>
      </div>
      <div class="Desktop33 MobileFull">&nbsp;</div>
      <div class="NONAME" style="height:2em"></div>
@@ -113,13 +113,13 @@
     $(document).on("click", ".PurgeLocalData", function() {
      LocalData("Purge");
      Slides = {};
-     $(Slides).attr("Outer Haven LLC", "https://outerhaven.nyc/apple-touch-icon.png");
+     $(Slides).attr("Outer Haven LLC", "https://outerhavenusa.com/apple-touch-icon.png");
      LocalData("Save", "Slides", Slides);
     });
     $(document).ready(function() {
      if(Slides === "" || typeof(Slides) === "undefined") {
       Slides = {};
-      $(Slides).attr("Outer Haven LLC", "https://outerhaven.nyc/apple-touch-icon.png");
+      $(Slides).attr("Outer Haven LLC", "https://outerhavenusa.com/apple-touch-icon.png");
       LocalData("Save", "Slides", Slides);
      }
      RefreshCoverPhoto(Data("Get", "Slides"));

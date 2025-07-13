@@ -107,8 +107,8 @@
       } foreach($eventsList as $event => $info) {
        $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
        $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
-       $domains_base = $config["App"]["Domains_Base"] ?? "outerhaven.nyc";
-       $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
+       $domains_base = $config["App"]["Domains_Base"] ?? "outerhavenusa.com";
+       $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "efs.outerhavenusa.com";
        $events .= $this->core->Change([[
         "[Clone.ID]" => $event,
         "[Event.BannerText]" => $info["BannerText"],
@@ -263,7 +263,7 @@
           [
            "Attributes" => [
             "name" => "Domains_Base",
-            "placeholder" => "outerhaven.nyc"
+            "placeholder" => "outerhavenusa.com"
            ],
            "Options" => [
             "Container" => 1,
@@ -277,7 +277,7 @@
           [
            "Attributes" => [
             "name" => "Domains_FileSystem",
-            "placeholder" => "efs.outerhaven.nyc"
+            "placeholder" => "efs.outerhavenusa.com"
            ],
            "Options" => [
             "Container" => 1,
@@ -298,7 +298,7 @@
         "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
         "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
         "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
-        "[Admin.Mail]" => "https://mail.outerhaven.nyc/iredadmin/",
+        "[Admin.Mail]" => "https://box.outerhavenusa.com/iredadmin/",
         "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
         "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
         "[Admin.Server]" => "https://aws.amazon.com/",
@@ -416,8 +416,9 @@
     $app = $config["App"] ?? [];
     $search = $app["Search"] ?? [];
     $description = $data["Description"] ?? $app["Description"];
-    $domains_base = $data["Domains_Base"] ?? "outerhaven.nyc";
-    $domains_fileSystem = $data["Domains_FileSystem"] ?? "efs.outerhaven.nyc";
+    $domains_base = $data["Domains_Base"] ?? "outerhavenusa.com";
+    $domains_fileSystem = $data["Domains_FileSystem"] ?? "media.outerhavenusa.com";
+    $domains_mailService = $data["Domains_MailService"] ?? "box.outerhavenusa.com:1776";
     $keywords = $data["Keywords"] ?? $app["Keywords"];
     $name = $data["Name"] ?? $app["Name"];
     $newAudio = [];
@@ -439,6 +440,7 @@
      "Description" => $description,
      "Domains_Base" => $domains_base,
      "Domains_FileSystem" => $domains_fileSystem,
+     "Domains_MailService" => $domains_mailService,
      "Keywords" => $keywords,
      "Name" => $name,
      "Search" => $search,

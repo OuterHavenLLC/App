@@ -226,7 +226,7 @@
    return $r;
   }
   function Configuration() {
-   $configurationData = $this->Data("Get", ["app", md5("config")]) ?? [];
+   $configurationData = $this->Data("Get", ["app", md5("config")]);
    return $configurationData;
   }
   function ConfigureBaseURL($a = NULL) {
@@ -1492,7 +1492,7 @@
       "To" => base64_encode(filter_var($emailData["To"], FILTER_VALIDATE_EMAIL)),
       "Username" => $data["Username"]
      ];
-     $cURL = curl_init("https://mail.outerhaven.nyc/send.php");
+     $cURL = curl_init($this->config["App"]["Domains_MailService"]."/send.php");
      curl_setopt($cURL, CURLOPT_HTTPHEADER, ["Content-Type: multipart/form-data"]);
      curl_setopt($cURL, CURLOPT_POSTFIELDS, $data);
      curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);

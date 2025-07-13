@@ -188,11 +188,11 @@ Below is the cron tab configuration we have set up to efficiently maintain the s
 
 ## Root
 MAILTO=""
-@daily /bin/bash /home/mike/Upkeep.sh
-@reboot /bin/bash /home/mike/Upkeep.sh
+@daily /bin/bash /home/ubuntu/Upkeep.sh
 
-## www-data
+## Owner of /var/www (Usually www-data)
 MAILTO=""
+@daily /usr/bin/php /var/www/html/base/crontab/purge.php
 @daily /usr/bin/php /var/www/html/base/crontab/purge.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.blog.php
 @hourly /usr/bin/php /var/www/html/base/crontab/search.blogpost.php

@@ -20,9 +20,10 @@
   die("<p>The following data is missing: ".substr($missingInputs, 0, -2).".</p>");
  } else {
   try {
-   require_once("/var/www/html/_send/src/PHPMailer.php");
-   require_once("/var/www/html/_send/src/SMTP.php");
-   $mail = new PHPMailer();
+   require_once("vendor/autoload.php");
+   use PHPMailer\PHPMailer\PHPMailer;
+   use PHPMailer\PHPMailer\Exception;
+   $mail = new PHPMailer(true);
    $mail->isSMTP();
    $mail->SMTPDebug = SMTP::DEBUG_SERVER;
    $mail->Host = base64_decode($data["Host"]);

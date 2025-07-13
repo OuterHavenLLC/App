@@ -1,10 +1,10 @@
-.DS_*
 */.DS_*
 _ExportDatabases/
 _ExportDatabases/*
 Heath Kit/Data/*
+.DS_*
 base/Cypher.php
 data/
 data/*
-efs/*/
-efs/*/*
+media/*/
+media/*/*
