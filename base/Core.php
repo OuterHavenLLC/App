@@ -1492,7 +1492,7 @@
       "To" => base64_encode(filter_var($emailData["To"], FILTER_VALIDATE_EMAIL)),
       "Username" => $data["Username"]
      ];
-     $cURL = curl_init($this->config["App"]["Domains_MailService"]."/send.php");
+     $cURL = curl_init("https://".$this->config["App"]["Domains_MailService"]."/send.php");
      curl_setopt($cURL, CURLOPT_HTTPHEADER, ["Content-Type: multipart/form-data"]);
      curl_setopt($cURL, CURLOPT_POSTFIELDS, $data);
      curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);

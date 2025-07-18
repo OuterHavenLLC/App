@@ -277,7 +277,7 @@
           [
            "Attributes" => [
             "name" => "Domains_FileSystem",
-            "placeholder" => "efs.outerhavenusa.com"
+            "placeholder" => "media.outerhavenusa.com"
            ],
            "Options" => [
             "Container" => 1,
