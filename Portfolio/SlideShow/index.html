@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <title>Slide Show</title>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+  <meta name="author" content="Mike"/>
+  <meta name="description" content="A Demo consisting of a slide show, driven by loally stored data."/>
+  <meta name="keywords" content="Outer, Haven, Slide, Show"/>
+  <meta property="og:description" content="A Demo consisting of a slide show, driven by loally stored data."/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Slide Show"/>
+  <meta property="og:url" content="https://outerhavenusa.com/"/>
+  <link href="https://outerhavenusa.com/?_API=Design" media="all" rel="stylesheet" type="text/css"/>
+  <link href="https://outerhavenusa.com/favicon.png" rel="shortcut icon" size="196x196" type="image/png"/>
+  <script src="https://outerhavenusa.com/?_API=JS&v=jQuery" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=jQueryUI" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Cypher" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Client" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Chart" type="text/javascript"></script>
+ </head>
+ <body>
+  <button class="TopHome" onclick="window.location='http://outerhavenusa.com/';"></button>
+  <div class="Content FrostedGlass scr">
+   <div class="TopBarMargin"></div>
+   <div class="CoverPhoto">
+    <div class="Desktop75 MobileFull">
+     <h1 class="UpperCase">Slide Show</h1>
+    </div>
+   </div>
+   <div class="Desktop75 MobileFull">
+   	<div class="Frosted Rounded Shadowed">
+     <p>This slide show is driven by data stored in your browser, and makes use of the client-side LocalData() object. if the data model is empty, placeholder data will be re-populated and stored as a persistent local data model. You may also add background images using the inputs below. To permanently delete all data saved from this demonstration, please close this page and clear your browser's cache and website data, or click the <em>Purge Data</em> button below to restore the default data model.</p>
+     <h2>Slides</h2>
+     <div class="InnerMargin">
+      <div class="Desktop33 Mobile50">
+       <h4 class="UpperCase">Name</h4>
+      </div>
+      <div class="Desktop66 Mobile50">
+       <h4 class="UpperCase">Link</h4>
+      </div>
+      <div class="NONAME"></div>
+      <div class="Slides">
+       <h4 class="CenterText UpperCase">&bull; &bull; &bull;</h4>
+      </div>
+      <div class="Desktop33 Mobile50">
+       <input class="Key" placeholder="Our Logo" type="text"/>
+      </div>
+      <div class="Desktop33 Mobile50">
+       <input class="Value" placeholder="https://outerhavenusa.com/apple-touch-icon.png" type="text"/>
+      </div>
+      <div class="Desktop33 MobileFull">
+       <button class="BBB NewLocalData v2">Add</button>
+       <button class="A PurgeLocalData Right v2">Purge Data</button>
+      </div>
+     </div>
+     <div class="NONAME" style="height:2em"></div>
+     <div class="Desktop33 MobileFull">&nbsp;</div>
+     <div class="Desktop33 MobileFull">
+      <button class="v2 v2w" onclick="window.location='https://portfolio.outerhavenusa.com/';" style="margin:0.5em auto">Portfolio</button>
+      <button class="Center v1" onclick="window.location='https://outerhavenusa.com/';" style="margin:0.5em auto">Go Home</button>
+     </div>
+     <div class="Desktop33 MobileFull">&nbsp;</div>
+     <div class="NONAME" style="height:2em"></div>
+    </div>
+   </div>
+  </div>
+  <script>
+  	function RefreshCoverPhoto(data = {}) {
+  	 var Image,
+  	       NewSlides = {},
+  	       SlideCount = 0;
+  	 $.each(data, function(key, value) {
+  	  NewSlides[SlideCount] = value;
+  	  SlideCount = Math.round(SlideCount + 1);
+  	 });
+  	 Image = NewSlides[Math.floor(Math.random() * SlideCount)];
+  	 if(Image !== "" && typeof(Image) !== "undefined") {
+      $(".CoverPhoto").css({
+   	   "background": "url('" + Image + "') no-repeat center center",
+       "background-size": "cover"
+      }, 500);
+  	 }
+  	}
+  	function RefreshList(data = "") {
+  	 $(".Slides").empty();
+  	 if(data !== "" || typeof(data) !== "undefined") {
+  	  var ListItem;
+  	  $.each(data, function(key, value) {
+  	   ListItem = "<div class='Desktop33 Mobile50'>\r\n";
+  	   ListItem += "<p>" + key + "</p>\r\n";
+  	   ListItem += "</div>\r\n";
+  	   ListItem += "<div class='Desktop66 Mobile50'>\r\n";
+  	   ListItem += "<p>" + value + "</p>\r\n";
+  	   ListItem += "</div>\r\n";
+  	   ListItem += "<div class='NONAME'></div>\r\n";
+  	   $(".Slides").append(ListItem);
+  	  });
+  	 }
+  	}
+  	var Slides = "";
+  	$(document).on("click", ".NewLocalData", function() {
+  	 var Key = $(document).find(".Key").val() || "",
+  	       Value = $(document).find(".Value").val() || "";
+  	 if(Key && Value) {
+  	  Slides = LocalData("Get", "Slides") || {};
+  	  $(Slides).attr(Key, Value);
+  	  $(document).find(".Key").val("");
+  	  $(document).find(".Value").val("");
+  	  LocalData("Save", "Slides", Slides);
+  	 }
+  	});
+    $(document).on("click", ".PurgeLocalData", function() {
+     LocalData("Purge");
+     Slides = {};
+     $(Slides).attr("Outer Haven LLC", "https://outerhavenusa.com/apple-touch-icon.png");
+     LocalData("Save", "Slides", Slides);
+    });
+    $(document).ready(function() {
+     if(Slides === "" || typeof(Slides) === "undefined") {
+      Slides = {};
+      $(Slides).attr("Outer Haven LLC", "https://outerhavenusa.com/apple-touch-icon.png");
+      LocalData("Save", "Slides", Slides);
+     }
+     RefreshCoverPhoto(Data("Get", "Slides"));
+     RefreshList(Data("Get", "Slides"));
+     setInterval(function() {
+      RefreshCoverPhoto(Data("Get", "Slides"));
+      RefreshList(Data("Get", "Slides"));
+     }, 10000);
+    });
+  </script>
+ </body>
+</html>

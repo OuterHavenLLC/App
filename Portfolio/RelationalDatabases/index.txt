@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <title>[App.Title]</title>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+  <meta name="author" content="[App.Owner]"/>
+  <meta name="description" content="[App.Description]"/>
+  <meta name="keywords" content="[App.Keywords]"/>
+  <meta property="og:description" content="App.Description]"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="[App.Title]"/>
+  <meta property="og:url" content="[App.Base]/"/>
+  <link href="https://outerhavenusa.com/?_API=Design" media="all" rel="stylesheet" type="text/css"/>
+  <link href="https://outerhavenusa.com/favicon.png" rel="shortcut icon" size="196x196" type="image/png"/>
+  <script src="https://outerhavenusa.com/?_API=JS&v=jQuery" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=jQueryUI" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Cypher" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Client" type="text/javascript"></script>
+  <script src="https://outerhavenusa.com/?_API=JS&v=Chart" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="Boot NOSELECT"></div>
+  <button class="TopHome" onclick="window.location='http://outerhavenusa.com/';"></button>
+  <div class="Content FrostedGlass scr">
+   <div class="TopBarMargin"></div>
+   <div class="Desktop75 FixedHeight MobileFull">
+    <h1 class="CenterText RDHeader UpperCase h">[App.Title]</h1>
+    <div class="InnerMargin RDWelcome h">
+     <div class="NONAME" style="margin:8em 0em">
+      <h2 class="CenterText">Welcome</h2>
+      <p class="CenterText">This presentation was prepared in partnership with Dr. Matthew Gonzalez, a professor at American Military University (part of American Public University System), and illustrates various aspects of database management with an emphasiis on MySQL and web application programming. The presentation accompanies the submitted lab documentation. Please click <em>Begin</em> to see the conceptual diagram for our sample database.</p>
+      <button class="BigButton ToggleElement" data-delete="on" data-elements=".S1Header;.S1Text;.S1Media;.S1Next;.S1Margin" data-toggle="on">Begin</button>
+     <div class="NONAME" style="height:8em"></div>
+     </div>
+     <h3 class="CenterText S1Header h">Design the Database</h3>
+     <p class="CenterText S1Text h">The following is a screen shot which illustrates the conceptual design for the database via an Enhanced Entity Relationship Diagram created via the <em>SmartDraw</em> web app.</p>
+     <img class="Frosted Rounded S1Media Shadowed h" src="./Media/1-Diagram.png" style="width:calc(100% - 2em);"/>
+      <button class="BigButton S1Next ToggleElement h" data-delete="on" data-elements=".S2Header;.S2Text;.S2Media;.S2Next;.S2Margin" data-toggle="on">Next</button>
+     <div class="S1Margin h" style="height:8em"></div>
+     <h3 class="CenterText S2Header h">Create Tables</h3>
+     <p class="CenterText S2Text h">Below are listed the required queries to create the Company's database, relational tuples, and data constraints.</p>
+     <div class="S2Media h">
+      [Lab.CreateTables]
+     </div>
+     <button class="BigButton S2Next ToggleElement h" data-delete="on" data-elements=".S3Header;.S3Text;.S3Media;.S3Next;.S3Margin" data-toggle="on">Next</button>
+     <div class="S2Margin h" style="height:8em"></div>
+     <h3 class="CenterText S3Header h">Insert Data</h3>
+     <p class="CenterText S3Text h">The queries below reflected the prepared queries used to insert the respective data into the database. Please note that in the below queries, the data is already bound to their variables. For the source queries, please refer to the <em>/payload.json</em> file.</p>
+     <div class="S3Media h">
+      [Lab.Insert]
+     </div>
+     <button class="BigButton S3Next ToggleElement h" data-delete="on" data-elements=".S4Header;.S4Text;.S4Media;.S4Next;.S4Margin" data-toggle="on">Next</button>
+     <div class="S3Margin h" style="height:8em"></div>
+     <h3 class="CenterText S4Header h">Retrieve All Data</h3>
+     <p class="CenterText S4Text h">The following are the result of <em>Select *</em> queries for each database table.</p>
+     <div class="S4Media h">
+      [Lab.Retrieve]
+     </div>
+     <button class="BigButton S4Next ToggleElement h" data-delete="on" data-elements=".S5Header;.S5Text;.S5Media;.S5Next;.S5Margin" data-toggle="on">Next</button>
+     <div class="S4Margin h" style="height:8em"></div>
+     <h3 class="CenterText S5Header h">Join Data</h3>
+     <p class="CenterText S5Text h">The following two queries and returned tuples are the result of joining three or more tables, interpolating the tupples from each to form a pseudo table. The final demo in this section applies an outer join.</p>
+     <div class="S5Media h">
+      [Lab.Join]
+     </div>
+     <button class="BigButton S5Next ToggleElement h" data-delete="on" data-elements=".S6Header;.S6Text;.S6Media;.S6Next;;.S6Margin" data-toggle="on">Next</button>
+     <div class="S5Margin h" style="height:8em"></div>
+     <h3 class="CenterText S6Header h">Aggregate Functions</h3>
+     <p class="CenterText S6Text h">This demo retrieves data using joins and aggregate functions provided by SQL.</p>
+     <div class="S6Media h">
+      [Lab.AggregateFunction]
+     </div>
+     <button class="BigButton S6Next ToggleElement h" data-delete="on" data-elements=".S7Header;.S7Text;.S7Media;.S7Margin" data-toggle="on">Next</button>
+     <div class="S6Margin h" style="height:8em"></div>
+     <h3 class="CenterText S7Header h">Lab Media</h3>
+     <p class="CenterText S7Text h">These are procedural screen captures made while completing Chapter I of the Database Lab, per the source data, and establishing the required conceptual logic for this exercise.</p>
+     <div class="S7Media h">
+      <div class="SideScroll">
+       <div class="Frosted Medium Rounded">
+        <img class="FrostedBright Rounded" src="./Media/1-Diagram.png" style="width:calc(100% - 2em);"/>
+        <p>Design the <em>INFO640_Company</em> database and the underlying entity relations.</p>
+       </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/2-Create_Database.png" style="width:calc(100% - 2em);"/>
+       <p>Create the <em>INFO640_Company</em> database and grand the managing user total privileges.</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/3.png" style="width:calc(100% - 2em);"/>
+       <p>Chapter I Exercises</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/4.png" style="width:calc(100% - 2em);"/>
+       <p>Chapter I Exercises</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/5.png" style="width:calc(100% - 2em);"/>
+       <p>Chapter I Exercises</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/6.png" style="width:calc(100% - 2em);"/>
+       <p>Chapter I Exercises</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/7.png" style="width:calc(100% - 2em);"/>
+       <p>Exercise 7.16 from the textbook <em>Fundamentals of Database Systems (6th Edition)</em>.</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/8.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/9.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/10.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/11.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/12.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/13.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/14.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/15.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/16.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/17.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+      </div>
+      <div class="Frosted Medium Rounded">
+       <img class="FrostedBright Rounded" src="./Media/18.png" style="width:calc(100% - 2em);"/>
+       <p>Description</p>
+       </div>
+      </div>
+      <div class="S7Margin h" style="height:8em"></div>
+     </div>
+    </div>
+   </div>
+   <div class="RDCopyright h">
+    [App.CopyrightInfo]
+   </div>
+  </div>
+  <script>
+   setTimeout(function() {
+    $(".TopBar").fadeIn(250);
+    $(".RDHeader").fadeIn(500);
+    setTimeout(function() {
+     $(".RDWelcome").fadeIn(500);
+     setTimeout(function() {
+      $(".RDCopyright").fadeIn(500);
+     }, 1000);
+    }, 1000);
+   }, 1500);
+  </script>
+ </body>
+</html>
