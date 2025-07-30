@@ -1,5 +1,9 @@
 <?php
  # Mail Service: Sender
+ require_once("vendor/autoload.php");
+ use PHPMailer\PHPMailer\PHPMailer;
+ use PHPMailer\PHPMailer\Exception;
+ use PHPMailer\PHPMailer\SMTP;
  $data = array_merge($_GET, $_POST);
  $i = 0;
  $missingInputs = "";
@@ -20,9 +24,6 @@
   die("<p>The following data is missing: ".substr($missingInputs, 0, -2).".</p>");
  } else {
   try {
-   require_once("vendor/autoload.php");
-   use PHPMailer\PHPMailer\PHPMailer;
-   use PHPMailer\PHPMailer\Exception;
    $mail = new PHPMailer(true);
    $mail->isSMTP();
    $mail->SMTPDebug = SMTP::DEBUG_SERVER;

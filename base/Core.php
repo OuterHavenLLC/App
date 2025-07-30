@@ -1492,15 +1492,29 @@
       "To" => base64_encode(filter_var($emailData["To"], FILTER_VALIDATE_EMAIL)),
       "Username" => $data["Username"]
      ];
-     $cURL = curl_init("https://".$this->config["App"]["Domains_MailService"]."/send.php");
+     $mailService = "https://".$this->config["App"]["Domains_MailService"];
+     $cURL = curl_init("$mailService/send.php");
      curl_setopt($cURL, CURLOPT_HTTPHEADER, ["Content-Type: multipart/form-data"]);
      curl_setopt($cURL, CURLOPT_POSTFIELDS, $data);
      curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
-     curl_exec($cURL);
+     curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
+     $response = curl_exec($cURL);
+     $http = curl_getinfo($cURL, CURLINFO_HTTP_CODE);
      curl_close($cURL);
-     return $this->Element([
-      "p", "Mail sent!"
-     ]);
+     if($http != 200) {
+      $response = $this->Element([
+       "h1", "Mail Not Sent"
+      ]).$this->Element([
+       "p", "The message was not delivered because the Mail Service could not be reached when attempting to connect to <em>$mailService</em>. The request resulted in an HTTPS $http response."
+      ]);
+     } else {
+      $response = $this->Element([
+       "h1", "Mail Sent!"
+      ]).$this->Element([
+       "p", $response
+      ]);
+     }
+     return $response;
     } catch(Exception $error) {
      return $this->Element([
       "p", "Failed to send mail: ".$error->getMessage()
