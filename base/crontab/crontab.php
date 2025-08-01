@@ -46,5 +46,5 @@
    ]), ["class" => "FrostedBright RoundedLarge"]
   ]),
   "Title" => "Cron Tab Notification",
-  "To" => "mike@outerhaven.nyc"
+  "To" => "mike@outerhavenusa.com"
  ]);

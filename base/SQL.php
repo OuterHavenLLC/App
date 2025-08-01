@@ -15,12 +15,12 @@
    try {
     $this->data = new PDO($connection, $username, $password, $options);
    } catch (PDOException $error) {
-    throw new DatabaseException("<h4>Database Error</h4>\r\n<p>" . $error->getMessage() . "</p>\r\n");
+    throw new DatabaseException("<h4>Database Error</h4>\r\n<p>".$error->getMessage()."</p>");
    }
   }
   public function debugDumpParams(): string {
    if(!$this->statement) {
-    throw new DatabaseException("No statement prepared.");
+    throw new DatabaseException("<p>No statement prepared.</p>");
    }
    ob_start();
    $this->statement->debugDumpParams();
@@ -28,17 +28,17 @@
   }
   public function countRows(): int {
    if(!$this->statement) {
-    throw new DatabaseException("No statement prepared.");
+    throw new DatabaseException("<p>No statement prepared.</p>");
    }
    return $this->statement->rowCount();
   }
   public function execute(): bool {
    if(!$this->statement) {
-    throw new DatabaseException("No statement prepared.");
+    throw new DatabaseException("<p>No statement prepared.</p>");
    } try {
     return $this->statement->execute();
    } catch(PDOException $error) {
-    throw new DatabaseException("<h4>Query Execution Error</h4>\r\n<p>An error occurred while attempting to execute the query:</p>\r\n<p><strong>Message</strong>: " . $error->getMessage() . "</p>\r\n");
+    throw new DatabaseException("<h4>Query Execution Error</h4>\r\n<p>An error occurred while attempting to execute the query:</p>\r\n<p><strong>Message</strong>: ".$error->getMessage()."</p>");
    }
   }
   public function query(string $query, array $values): void {
@@ -55,11 +55,11 @@
      } try {
       $this->statement->bindValue($param, $value, $type);
      } catch(PDOException $error) {
-      throw new DatabaseException("<h4>Bind Error</h4>\r\n<p>An error occurred while attempting to bind values to the query:</p>\r\n<p><strong>Message</strong>: " . $error->getMessage() . "</p>\r\n<p><strong>Query</strong>: $query</p>\r\n<p><strong>Values</strong>: " . json_encode($values, JSON_PRETTY_PRINT) . "</p>\r\n");
+      throw new DatabaseException("<h4>Bind Error</h4>\r\n<p>An error occurred while attempting to bind values to the query:</p>\r\n<p><strong>Message</strong>: ".$error->getMessage()."</p>\r\n<p><strong>Query</strong>: $query</p>\r\n<p><strong>Values</strong>: ".json_encode($values, JSON_PRETTY_PRINT)."</p>");
      }
     }
    } catch(PDOException $error) {
-    throw new DatabaseException("<h4>Query Preparation Error</h4>\r\n<p>An error occurred while attempting to prepare the query:</p>\r\n<p><strong>Message</strong>: " . $error->getMessage() . "</p>\r\n<p><strong>Query</strong>: $query</p>\r\n<p><strong>Values</strong>: " . json_encode($values, JSON_PRETTY_PRINT) . "</p>\r\n");
+    throw new DatabaseException("<h4>Query Preparation Error</h4>\r\n<p>An error occurred while attempting to prepare the query:</p>\r\n<p><strong>Message</strong>: ".$error->getMessage()."</p>\r\n<p><strong>Query</strong>: $query</p>\r\n<p><strong>Values</strong>: ".json_encode($values, JSON_PRETTY_PRINT)."</p>");
    }
   }
   public function set(): array {
