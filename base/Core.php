@@ -239,9 +239,9 @@
    return $this->ConfigureSecureHTTP().$r;
   }
   function ConfigureSecureHTTP() {
-   $r = $_SERVER["HTTPS"] ?? "on";
-   $r = (!empty($r) && $r == "on") ? "https" : "http";
-   return "$r://";
+   $https = $_SERVER["HTTPS"] ?? "on";
+   $https = (!empty($https) && $https == "on") ? "https" : "http";
+   return "$https://";
   }
   function CoverPhoto(string $attachment) {
    $coverPhoto = $this->PlainText([

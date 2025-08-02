@@ -1,4 +1,4 @@
-c# Outer Haven Web App
+# Outer Haven Web App
 Here you will find the up-to-date change log for all releases of the platform.
 See [here](https://www.gnu.org/licenses/gpl-3.0.en.html) or [here](https://archive.is/VGJCa) for licensing information. Feel free to [view](https://outerhaven.nyc/?_API=JS&v=Client) the live client-side logic.
 
@@ -34,6 +34,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Standardized the Block buttons and revamped the processor view—now located in WebUI->Block().
 * Platform Statistics are now augmented with charts for Month and Year totals.
 * The client may now purge designated blocks of render code the the PlainText() object, which is now more broadly deployed across the client logic.
+* Integrated the Extensions Re:Search index into the main Control Panel.
 
 ### 2FA
 * A revamped Sign In experience now makes 2FA the default security nmeasure, with Passwords now becoming an optional second step.

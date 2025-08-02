@@ -172,7 +172,7 @@
           [
            "Attributes" => [
             "name" => "Name",
-            "placeholder" => "The Everything App",
+            "placeholder" => "The Wild West of the Internet",
             "type" => "text"
            ],
            "Options" => [
@@ -290,17 +290,23 @@
           ]
          ]
         ]
+       ],
+       [
+        "Name" => "UpdateContentAES",
+        "Parameters" => [
+         ".ControlPanelSection.Extensions",
+         $this->core->AESencrypt("v=$_Search&st=ADM-LLP")
+        ]
        ]
       ];
       $_View = [
        "ChangeData" => [
         "[Admin.Databases]" => "W('$base/phpmyadmin', '_blank');",
         "[Admin.Domain]" => "W('https://www.godaddy.com/', '_blank');",
-        "[Admin.Feedback]" => base64_encode("v=$_Search&st=Feedback"),
-        "[Admin.Files]" => base64_encode("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
-        "[Admin.Mail]" => "https://box.outerhavenusa.com/iredadmin/",
-        "[Admin.Pages]" => base64_encode("v=$_Search&CARD=1&st=ADM-LLP"),
-        "[Admin.RenewSubscriptions]" => base64_encode("v=".base64_encode("Subscription:RenewAll")),
+        "[Admin.Feedback]" => $this->core->AESencrypt("v=$_Search&st=Feedback"),
+        "[Admin.Files]" => $this->core->AESencrypt("v=".base64_encode("Album:List")."&AID=".md5("unsorted")."&UN=".base64_encode($this->core->ID)),
+        "[Admin.Mail]" => "https://box.outerhavenusa.com/admin",
+        "[Admin.RenewSubscriptions]" => $this->core->AESencrypt("v=".base64_encode("Subscription:RenewAll")),
         "[Admin.Server]" => "https://aws.amazon.com/",
         "[Configuration.App.UploadLimits]" => json_encode($config["XFS"], true),
         "[Configuration.App.UploadLimits.Audio]" => $config["XFS"]["limits"]["Audio"],
