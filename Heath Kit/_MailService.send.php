@@ -33,7 +33,7 @@
    $mail->SMTPSecure = "tls";
    $mail->Username = base64_decode($data["Username"]);
    $mail->Password = base64_decode($data["Password"]);
-   $mail->setFrom(base64_decode($data["Username"]), "Do Not Reply");
+   $mail->setFrom(base64_decode($data["Username"]), "Outer Haven");
    $mail->addAddress(base64_decode($data["To"]));
    $mail->Subject = base64_decode($data["Title"]);
    $mail->msgHTML(base64_decode($data["Message"]));
