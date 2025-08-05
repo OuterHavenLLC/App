@@ -1730,11 +1730,11 @@
     return $r;
    }
   }
-  public static function GetEmbeddedLink($a = NULL) {
+  public static function GetEmbeddedLink($id = NULL) {
+   $link = "";
    $oh = New Core;
-   $r = "";
-   if(!empty($a)) {
-    $contentID = $a[1] ?? "";
+   if(!empty($id)) {
+    $contentID = $id[1] ?? "";
     if(!empty($contentID) ) {
      $contentID = base64_decode($contentID);
      $content = $oh->GetContentData([
@@ -1742,46 +1742,46 @@
       "ID" => base64_encode($contentID)
      ]);
      $preview = $content["Preview"] ?? [];
-     $r = $preview["Empty"];
+     $link = $preview["Empty"];
      if($content["Empty"] == 0) {
       $options = $content["ListItem"]["Options"] ?? [];
-      $r = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
-      $r = (!empty($options["View"])) ? $oh->Element(["button", $oh->Element([
-       "p", $r, ["class" => "InnerMargin"]
+      $link = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
+      $link = (!empty($options["View"])) ? $oh->Element(["button", $oh->Element([
+       "p", $link, ["class" => "InnerMargin"]
       ]).$oh->Element([
        "p", "View in Full", ["class" => "CenterText"]
       ]), [
        "class" => "FrostedBright OpenCard Rounded",
        "data-encryption" => "AES",
        "data-view" => $options["View"]
-      ]]) : $r;
+      ]]) : $link;
      }
     }
     $oh->__destruct();
-    return $r;
+    return $link;
    }
   }
-  public static function GetExtension($a = NULL) {
+  public static function GetExtension($id = NULL) {
    $oh = New Core;
-   if(!empty($a)) {
-    $r = $oh->Extension($a[1]);
+   if(!empty($id)) {
+    $extension = $oh->Extension($id[1]);
     $oh->__destruct();
-    return $r;
+    return $extension;
    }
   }
-  public static function Media($a = NULL) {
+  public static function Media($code = NULL) {
    $oh = New Core;
-   $file = $oh->config["Media"][$a[1]]["File"] ?? "";
-   if(!empty($a) && !empty($file)) {
-    $r = $oh->efs.$oh->ID."/$file";
+   $file = $oh->config["Media"][$code[1]]["File"] ?? "";
+   if(!empty($code) && !empty($file)) {
+    $media = $oh->efs.$oh->ID."/$file";
     $oh->__destruct();
-    return $r;
+    return $media;
    }
   }
-  public static function Translate($a = NULL) {
+  public static function Translate($id = NULL) {
    $oh = New Core;
-   if(!empty($a[1])) {
-    $translationID = explode("-", $a[1]);
+   if(!empty($id[1])) {
+    $translationID = explode("-", $id[1]);
     $translations = $oh->Data("Get", ["translate", $translationID[0]]) ?? [];
     foreach($oh->Languages() as $region => $language) {
      $translation = $translations[$translationID[1]][$language]  ?? "";
@@ -1790,13 +1790,13 @@
       break;
      }
     }
-    $r = $translations[$translationID[1]][$oh->language] ?? $r;
-    $r = (!empty($r)) ? $oh->PlainText([
+    $translations = $translations[$translationID[1]][$oh->language] ?? $r;
+    $translations = (!empty($r)) ? $oh->PlainText([
      "BBCodes" => 1,
-     "Data" => $r
+     "Data" => $translations
     ]) : "No Translations were found for <em>".$translationID[0]."-".$translationID[1]."</em>.";
     $oh->__destruct();
-    return $r;
+    return $translations;
    }
   }
   function __destruct() {
