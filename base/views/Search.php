@@ -67,7 +67,7 @@
        "data-view" => base64_encode("v=".base64_encode("Extension:Edit")."&New=1")
       ]
      ]) : "";
-     $searchUI = "2Column";
+     $variant = "2Column";
     } elseif($searchType == "BGP") {
      $header = "Blog Posts";
      $_List .= (!empty($data["ID"])) ? "&ID=".$data["ID"] : "";

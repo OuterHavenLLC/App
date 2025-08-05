@@ -263,7 +263,7 @@
           [
            "Attributes" => [
             "name" => "Domains_Base",
-            "placeholder" => "outerhavenusa.com"
+            "placeholder" => "example.com"
            ],
            "Options" => [
             "Container" => 1,
@@ -277,7 +277,7 @@
           [
            "Attributes" => [
             "name" => "Domains_FileSystem",
-            "placeholder" => "media.outerhavenusa.com"
+            "placeholder" => "media.example.com"
            ],
            "Options" => [
             "Container" => 1,
@@ -287,6 +287,20 @@
            ],
            "Type" => "Text",
            "Value" => $this->core->AESencrypt($domains_fileSystem)
+          ],
+          [
+           "Attributes" => [
+            "name" => "Domains_MailService",
+            "placeholder" => "mail.example.com"
+           ],
+           "Options" => [
+            "Container" => 1,
+            "ContainerClass" => "Desktop50 MobileFull",
+            "Header" => 1,
+            "HeaderText" => "Mail Service"
+           ],
+           "Type" => "Text",
+           "Value" => $this->core->AESencrypt($domains_mailService)
           ]
          ]
         ]

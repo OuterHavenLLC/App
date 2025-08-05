@@ -870,7 +870,7 @@
        "Hire" => $this->AESencrypt("v=".base64_encode("Shop:Hire")."&Shop=$contentID"),
        "Revenue" => $this->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($owner["Login"]["Username"])),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($owner["Login"]["Username"])),
-       "ShareLink" => $this->base."/MadeInNewYork/".$owner["Login"]["Username"],
+       "ShareLink" => $this->base."/shop/".$owner["Login"]["Username"],
        "View" => $this->AESencrypt("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($owner["Login"]["Username"])),
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];

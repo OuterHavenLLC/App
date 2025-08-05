@@ -72,20 +72,20 @@
   if($command[0] == "Error") {
    # ERRORS
    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("WebUI:Error")."&Error=".$command[1]);
-  } elseif($command[0] == "MadeInNY") {
-   # MADE IN NEW YORK
+  } elseif($command[0] == "Member") {
+   # MEMBERS
+   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Profile:Home")."&back=0&UN=".base64_encode($command[1]));
+   if(!empty($command[3]) && $command[2] == "status") {
+    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("StstuaUpdate:Public")."&ID=".base64_encode($command[3])."&UN=".base64_encode($command[2]));
+   }
+  } elseif($command[0] == "Shop") {
+   # SHOPS
    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Shop:MadeInNewYork"));
    if(!empty($command[1])) {
     $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Shop:Home")."&Public=1&UN=".base64_encode($command[1]));
     if(!empty($command[2])) {
      $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Product:Home")."&CallSign=".urlencode($command[2])."&UN=".base64_encode($command[1]));
     }
-   }
-  } elseif($command[0] == "Member") {
-   # MEMBERS
-   $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("Profile:Home")."&back=0&UN=".base64_encode($command[1]));
-   if(!empty($command[3]) && $command[2] == "status") {
-    $content = "v=".base64_encode("WebUI:Public")."&Type=Public&View=".base64_encode("v=".base64_encode("StstuaUpdate:Public")."&ID=".base64_encode($command[3])."&UN=".base64_encode($command[2]));
    }
   } elseif($command[0] == "VVA") {
    # VISUAL VANGUARD ARCHITECTURE
