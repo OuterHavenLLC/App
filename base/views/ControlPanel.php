@@ -107,8 +107,8 @@
       } foreach($eventsList as $event => $info) {
        $addTo = base64_encode("Set as ".$info["Title"]."'s Cover Photo:.AddTo$event");
        $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
-       $domains_base = $config["App"]["Domains_Base"] ?? "outerhavenusa.com";
-       $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "efs.outerhavenusa.com";
+       $domains_base = $config["App"]["Domains_Base"] ?? "example.com";
+       $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "media.example.com";
        $events .= $this->core->Change([[
         "[Clone.ID]" => $event,
         "[Event.BannerText]" => $info["BannerText"],
@@ -436,9 +436,9 @@
     $app = $config["App"] ?? [];
     $search = $app["Search"] ?? [];
     $description = $data["Description"] ?? $app["Description"];
-    $domains_base = $data["Domains_Base"] ?? "outerhavenusa.com";
-    $domains_fileSystem = $data["Domains_FileSystem"] ?? "media.outerhavenusa.com";
-    $domains_mailService = $data["Domains_MailService"] ?? "box.outerhavenusa.com:1776";
+    $domains_base = $data["Domains_Base"] ?? "example.com";
+    $domains_fileSystem = $data["Domains_FileSystem"] ?? "media.example.com";
+    $domains_mailService = $data["Domains_MailService"] ?? "mail.example.com";
     $keywords = $data["Keywords"] ?? $app["Keywords"];
     $name = $data["Name"] ?? $app["Name"];
     $newAudio = [];
