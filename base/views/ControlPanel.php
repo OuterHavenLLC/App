@@ -109,6 +109,7 @@
        $coverPhoto = (!empty($info["CoverPhoto"])) ? base64_encode($info["CoverPhoto"]) : "";
        $domains_base = $config["App"]["Domains_Base"] ?? "example.com";
        $domains_fileSystem = $config["App"]["Domains_FileSystem"] ?? "media.example.com";
+       $domains_mailService = $config["App"]["Domains_MailService"] ?? "mail.example.com";
        $events .= $this->core->Change([[
         "[Clone.ID]" => $event,
         "[Event.BannerText]" => $info["BannerText"],
