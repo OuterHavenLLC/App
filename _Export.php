@@ -10,6 +10,8 @@
   "conversation",
   "dc",
   "fs",
+  "invoice",
+  "invoice-preset",
   "mbr",
   "pf",
   "pfmanifest",
