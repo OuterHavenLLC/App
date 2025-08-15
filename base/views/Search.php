@@ -234,10 +234,19 @@
      $_List .= "&Forum=$forumID";
      $searchBarText = "Topics from ".$forum["Title"];
      $variant = "Minimal";
-    } elseif($searchType == "Knowledge") {
-     $header = "Knowledge Base";
-     $searchBarText = "Q&As";
-     $variant = "2Column";
+    } elseif($searchType == "Journal") {
+     $header = "Journal";
+     $options = $this->core->Element([
+      "p", "Here, you may record private thoughts so that only you may see them. Whether it be a simple thought or a reflection on your day, enjoy this Journal wherever you are."
+     ]);
+     $options .= ($notAnon == 1) ? $this->core->Element([
+      "button", "+", [
+       "class" => "BBB OpenCard v2",
+       "data-encryption" => "AES",
+       "data-view" => $this->core->AESencrypt("v=".base64_encode("Profile:Journal"))
+      ]
+     ]) : "";
+     $searchBarText = "entries";
     } elseif($searchType == "Links") {
      $header = $searchType;
      $searchBarText = $searchType;
@@ -295,13 +304,6 @@
      $_List .= "&lPG=$parentView";
      $searchBarText = "Your Private and Public Forums";
      $variant = "3Column";
-    } elseif($searchType == "MBR-JE") {
-     $t = $this->core->Member(base64_decode($data["UN"]));
-     $check = ($t["Login"]["Username"] == $y["Login"]["Username"]) ? 1 : 0;
-     $header = ($check == 1) ? "Your Journal" : $t["Personal"]["DisplayName"]."'s Journal";
-     $_List .= "&b2=$b2&lPG=$parentView";
-     $searchBarText = "journal entries";
-     $variant = "2Column";
     } elseif($searchType == "MBR-LLP") {
      $header = "Your Articles";
      $_List .= "&b2=$b2&lPG=$parentView";
@@ -2335,6 +2337,23 @@
       }
      }
     }
+   } elseif($searchType == "Journal") {
+    $_AccessCode = "Accepted";
+    $_ExtensionID = "45787465-6e73-496f-ae42-794d696b65-689f8c9eb35f4";
+    $journal = $this->core->Data("Get", ["journal", md5($you)]);
+    $count = count($journal);
+    $totalPages = ceil($count / $limit);
+    $currentPage = ($offset < 1) ? 1 : $offset;
+    $currentPage = ($offset > $totalPages) ? $totalPages : $currentPage;
+    $offset = ($currentPage - 1) * $limit;
+    $journal = array_slice($journal, $offset, $limit);
+    for($i = 1; $i <= $totalPages; $i++) {
+     $thought = $journal[$i] ?? [];
+     array_push($_Commands, [
+     ]);
+     array_push($_List, [
+     ]);
+    }
    } elseif($searchType == "Links") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "aacfffd7976e2702d91a5c7084471ebc";
@@ -2656,7 +2675,7 @@
      }
      $end = ($rowCount <= ($limit + $offset)) ? "Yes" : "No";
     }
-   } elseif($searchType == "MBR-CA" || $searchType == "MBR-JE") {
+   } elseif($searchType == "MBR-CA") {
     $_AccessCode = "Accepted";
     $_ExtensionID = "e7829132e382ee4ab843f23685a123cf";
     $_Count = "SELECT COUNT(*) FROM Articles
@@ -2711,7 +2730,6 @@
       $theirPrivacy = $t["Privacy"];
       $privacy = $theirPrivacy["Profile"];
       $privacy = ($searchType == "CA") ? $theirPrivacy["Contributions"] : $privacy;
-      $privacy = ($searchType == "JE") ? $theirPrivacy["Journal"] : $privacy;
       $check = ($article["NSFW"] == 0 || ($y["Personal"]["Age"] >= $this->core->config["minAge"])) ? 1 : 0;
       $check2 = $this->core->CheckPrivacy([
        "Contacts" => $cms["Contacts"],

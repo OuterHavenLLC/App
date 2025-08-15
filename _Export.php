@@ -2,11 +2,31 @@
  require_once("base/Bootloader.php");
  $oh = New OH;
  $databases = $oh->core->DatabaseSet();
+ $exclude = [
+  "blg",
+  "bp",
+  "chat",
+  "cms",
+  "conversation",
+  "dc",
+  "fs",
+  "mbr",
+  "pf",
+  "pfmanifest",
+  "po",
+  "poll",
+  "post",
+  "shop",
+  "stream",
+  "su",
+  "translate",
+  "votes"
+ ];
  $destination = $oh->core->DocumentRoot."/_ExportDatabases/";
  echo "<p>Beginning export...</p>\r\n";
  foreach($databases as $key => $database) {
   $database = explode(".", $database);
-  if(!empty($database[3])) {
+  if(!in_array($database[2], $exclude) && !empty($database[3])) {
    $data = $oh->core->Data("Get", [$database[2], $database[3]]);
    $exportFile = $destination;
    if(!is_dir($exportFile)) {

@@ -168,11 +168,9 @@
     $updates = $article["Updates"] ?? [];
     $categories = ($y["Rank"] == md5("High Command")) ? [
      "CA" => "Article",
-     "JE" => "Journal Entry",
      "PR" => "Press Release"
     ] : [
-     "CA" => "Article",
-     "JE" => "Journal Entry"
+     "CA" => "Article"
     ];
     $category = $article["Category"] ?? "CA";
     $nsfw = $article["NSFW"] ?? $y["Privacy"]["NSFW"];
@@ -781,7 +779,6 @@
      $modifiedBy = $article["ModifiedBy"] ?? [];
      $modifiedBy[$now] = $you;
      $newCategory = "Article";
-     $newCategory = ($category == "JE") ? "Journal Entry" : $newCategory;
      $nsfw = $data["NSFW"] ?? $y["Privacy"]["Posts"];
      $notes = $article["Notes"] ?? [];
      $passPhrase = $data["PassPhrase"] ?? "";

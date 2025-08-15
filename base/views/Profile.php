@@ -934,20 +934,6 @@
        }
       }
       $embeddedView = $data["EmbeddedView"] ?? 0;
-      $journal = $this->core->Change([[
-       "[Error.Header]" => "Forbidden",
-       "[Error.Message]" => "$displayName keeps ".$gender[2]." Journal to $self."
-      ], $this->core->Extension("45787465-6e73-496f-ae42-794d696b65-680be0e87756d")]);
-      if($check == 1 || $privacy["Journal"] == $public || $visible == 1) {
-       $journal = "";
-       array_push($_Commands, [
-        "Name" => "UpdateContentAES",
-        "Parameters" => [
-         ".Journal$memberID",
-         $this->core->AESencrypt("v=$search&UN=".base64_encode($id)."&b2=$b2&lPG=$lpg&st=MBR-JE")
-        ]
-       ]);
-      }
       $share = ($id == $you || $privacy["Profile"] == $public) ? 1 : 0;
       $share = ($share == 1) ? $this->core->Element([
        "button", "Share", [
@@ -974,7 +960,6 @@
         "[Member.Description]" => $_Member["ListItem"]["Description"],
         "[Member.DisplayName]" => $displayName.$verified,
         "[Member.ID]" => $memberID,
-        "[Member.Journal]" => $journal,
         "[Member.ProfilePicture]" => $options["ProfilePicture"],
         "[Member.Share]" => $share,
         "[Member.Username]" => $id,
@@ -998,6 +983,213 @@
     "View" => $_View
    ]);
   }
+  function Journal(array $data): string {
+   $_AccessCode = "Denied";
+   $_Card = "";
+   $_Dialog = "";
+   $_Success = "";
+   $data = $data["Data"] ?? [];
+   $save = $data["Save"] ?? 0;
+   $y = $this->you;
+   $you = $y["Login"]["Username"];
+   if($this->core->ID == $you) {
+    $_Dialog = [
+     "Body" => "You must be signed in to continue.",
+     "Header" => "Forbidden"
+    ];
+   } elseif($save == 1) {
+    $_Dialog = [
+     "Body" => "What are you thinking?"
+    ];
+    $data = $this->core->DecodeBridgeData($data);
+    $thought = $data["Message"] ?? "";
+    if(!empty($thought)) {
+     $_AccessCode = "Accepted";
+     $albums = [];
+     $albumsData = $data["Album"] ?? [];
+     $articles = [];
+     $articlesData = $data["Article"] ?? [];
+     $attachments = [];
+     $attachmentsData = $data["Attachment"] ?? [];
+     $blogs = [];
+     $blogsData = $data["Blog"] ?? [];
+     $blogPosts = [];
+     $blogPostsData = $data["BlogPost"] ?? [];
+     $chats = [];
+     $chatsData = $data["Chat"] ?? [];
+     $forums = [];
+     $forumsData = $data["Forum"] ?? [];
+     $forumPosts = [];
+     $forumPostsData = $data["ForumPost"] ?? [];
+     $journal = $this->core->Data("Get", ["journal", md5($you)]);
+     $members = []; 
+     $membersData = $data["Member"] ?? [];
+     $polls = []; 
+     $pollsData = $data["Poll"] ?? [];
+     $products = [];
+     $productsData = $data["Product"] ?? [];
+     $shops = [];
+     $shopsData = $data["Shop"] ?? [];
+     $updates = [];
+     $updatesData = $data["Update"] ?? [];
+     if(!empty($albumsData)) {
+      $media = $albumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($albums, $media[$i]);
+       }
+      }
+     } if(!empty($articlesData)) {
+      $media = $articlesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($articles, $media[$i]);
+       }
+      }
+     } if(!empty($attachmentsData)) {
+      $media = $attachmentsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($attachments, $media[$i]);
+       }
+      }
+     } if(!empty($blogsData)) {
+      $media = $blogsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogs, $media[$i]);
+       }
+      }
+     } if(!empty($blogPostsData)) {
+      $media = $blogPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($blogPosts, $media[$i]);
+       }
+      }
+     } if(!empty($chatsData)) {
+      $media = $chatsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($chats, $media[$i]);
+       }
+      }
+     } if(!empty($forumsData)) {
+      $media = $forumsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forums, $media[$i]);
+       }
+      }
+     } if(!empty($forumPostsData)) {
+      $media = $forumPostsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($forumPosts, $media[$i]);
+       }
+      }
+     } if(!empty($membersData)) {
+      $media = $membersData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($members, $media[$i]);
+       }
+      }
+     } if(!empty($pollsData)) {
+      $media = $pollsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($polls, $media[$i]);
+       }
+      }
+     } if(!empty($productsData)) {
+      $media = $productsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($products, $media[$i]);
+       }
+      }
+     } if(!empty($shopsData)) {
+      $media = $shopsData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($shops, $media[$i]);
+       }
+      }
+     } if(!empty($updatesData)) {
+      $media = $updatesData;
+      for($i = 0; $i < count($media); $i++) {
+       if(!empty($media[$i])) {
+        array_push($updates, $media[$i]);
+       }
+      }
+     }
+     $journal[$this->core->timestamp] = [
+      "Albums" => $albums,
+      "Articles" => $articles,
+      "Attachments" => $attachments,
+      "Blogs" => $blogs,
+      "BlogPosts" => $blogPosts,
+      "Body" => base64_encode($thought),
+      "Chats" => $chats,
+      "Forums" => $forums,
+      "ForumPosts" => $forumPosts,
+      "Members" => $members,
+      "Notes" => $notes,
+      "Polls" => $polls,
+      "Products" => $products,
+      "Shops" => $shops,
+      "Updates" => $updates
+     ];
+     #$this->core->Data("Save", ["journal", md5($you), $journal]);
+     $_Dialog = [
+      "Body" => "Your thought has been recorded!",
+      "Header" => "Done",
+      "Scrollable" => json_encode($journal, true)
+     ];
+     $_Success = "CloseCard";
+    }
+   } else {
+    $id = $this->core->UUID("ANewThoughtBy$you");
+    $attachments = $this->view(base64_encode("WebUI:Attachments"), [
+     "Header" => "Attachments",
+     "ID" => $id,
+     "Media" => [
+      "Album" => [],
+      "Article" => [],
+      "Attachment" => [],
+      "Blog" => [],
+      "BlogPost" => [],
+      "Chat" => [],
+      "Forum" => [],
+      "ForumPost" => [],
+      "Member" => [],
+      "Poll" => [],
+      "Product" => [],
+      "Shop" => [],
+      "Update" => []
+     ]
+    ]);
+    $_Card = [
+     "Front" => [
+      "ChangeData" => [
+       "[Thought.Attachments]" => $this->core->RenderView($attachments),
+       "[Thought.ID]" => $id
+      ],
+      "ExtensionID" => "45787465-6e73-496f-ae42-794d696b65-689f8a915131d"
+     ]
+    ];
+    $_Commands = [
+    ];
+   }
+   return $this->core->JSONResponse([
+    "AccessCode" => $_AccessCode,
+    "Card" => $_Card,
+    "Commands" => $_Commands,
+    "Dialog" => $_Dialog,
+    "Success" => $_Success
+   ]);
+  }
   function MakeVIP(array $data): string {
    $_Dialog = [
     "Body" => "The Member Identifier is missing."
@@ -1006,6 +1198,7 @@
    $id = $data["ID"] ?? "";
    $manifest = [];
    $y = $this->you;
+   $you = $y["Login"]["Username"];
    if(!empty($id)) {
     $_Dialog = [
      "Body" => "$displayName is already a VIP Member."
@@ -1678,11 +1871,6 @@
            "Value" => $y["Privacy"]["Gender"]
           ],
           [
-           "Name" => "Privacy_Journal",
-           "Title" => "Journal",
-           "Value" => $y["Privacy"]["Journal"]
-          ],
-          [
            "Name" => "Privacy_LastActivity",
            "Title" => "Last Activity",
            "Value" => $y["Privacy"]["LastActivity"]
@@ -1867,7 +2055,13 @@
       if(!empty($discountCodes)) {
        $discountCodes["Purge"] = 1;
        $this->core->Data("Save", ["dc", md5($you), $discountCodes]);
-      } foreach($articles as $key => $id) {
+      }
+      $journal = $this->core->Data("Get", ["journal", md5($you)]);
+      if(!empty($journal)) {
+       $journal["Purge"] = 1;
+       $this->core->Data("Save", ["journal", md5($you), $journal]);
+      }
+      foreach($articles as $key => $id) {
        $article = $this->core->Data("Get", ["pg", $id]);
        if(!empty($article) && !in_array($id, $restrictedIDs)) {
         $this->view(base64_encode("Page:Purge"), ["Data" => [
@@ -1906,8 +2100,8 @@
       }
       $media = $this->core->Data("Get", ["fs", md5($you)]);
       if(!empty($media)) {
-       $efsAnnex = $this->core->DocumentRoot."/efs/$you/";
        $media["Purge"] = 1;
+       $mediaAnnex = $this->core->DocumentRoot."/media/$you/";
        $mediaAlbums = $media["Albums"] ?? [];
        $mediaFiles = $media["Files"] ?? [];
        foreach($mediaAlbums as $key => $info) {
@@ -1922,8 +2116,8 @@
          "ID" => base64_encode("$you-".$info["ID"]),
          "SecureKey" => $securePassPhrase
         ]]);
-       } if(file_exists($efsAnnex) || is_dir($efsAnnex)) {
-        $this->core->RecursiveDirectoryPurge($efsAnnex);
+       } if(file_exists($mediaAnnex) || is_dir($mediaAnnex)) {
+        $this->core->RecursiveDirectoryPurge($mediaAnnex);
        }
        $this->core->Data("Save", ["fs", md5($you), $media]);
       } foreach($polls as $key => $id) {

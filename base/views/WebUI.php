@@ -512,6 +512,7 @@
      "[Menu.Congress]" => $this->core->AESencrypt("v=".base64_encode("Congress:Home")),
      "[Menu.Mainstream]" => $this->core->AESencrypt("v=$search&st=Mainstream"),
      "[Menu.Member.Articles]" => $this->core->AESencrypt("v=$search&st=MBR-LLP"),
+     "[Menu.Member.Journal]" => $this->core->AESencrypt("v=$search&st=Journal"),
      "[Menu.Member.Blacklist]" => $this->core->AESencrypt("v=".base64_encode("Profile:Blacklists")),
      "[Menu.Member.Blogs]" => $this->core->AESencrypt("v=$search&st=MBR-BLG"),
      "[Menu.Member.BulletinCenter]" => $this->core->AESencrypt("v=".base64_encode("Profile:BulletinCenter")),

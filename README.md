@@ -55,6 +55,7 @@ This release brings bug fixes to mission-critical experiences, a hybrid schema f
 * Core objects now render the search and UI variants: RenderSearchUI() and RenderUI(), respectively.
 * A new consolidated ReSearch() object now renders the initial search listing, automated pagination to append groups of results while the container exists, and accounts for input-based keyup events to update the search listing in real-time.
 * Suggested Members are now rendered between the header and index menu.
+* The Journal Re:Search index has been purged, and a new Journal has been created for Members to record private thoughts, backed by end-to-end encryption.
 
 ### Response Data
 * The client now stores and retrieves Extension data via the local browser database and an associated class.
