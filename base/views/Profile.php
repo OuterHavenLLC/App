@@ -986,6 +986,7 @@
   function Journal(array $data): string {
    $_AccessCode = "Denied";
    $_Card = "";
+   $_Commands = "";
    $_Dialog = "";
    $_Success = "";
    $data = $data["Data"] ?? [];
@@ -1002,7 +1003,7 @@
      "Body" => "What are you thinking?"
     ];
     $data = $this->core->DecodeBridgeData($data);
-    $thought = $data["Message"] ?? "";
+    $thought = $data["Thought"] ?? "";
     if(!empty($thought)) {
      $_AccessCode = "Accepted";
      $albums = [];
@@ -1124,7 +1125,7 @@
        }
       }
      }
-     $journal[$this->core->timestamp] = [
+     array_push($journal, [
       "Albums" => $albums,
       "Articles" => $articles,
       "Attachments" => $attachments,
@@ -1132,20 +1133,19 @@
       "BlogPosts" => $blogPosts,
       "Body" => base64_encode($thought),
       "Chats" => $chats,
+      "Created" => $this->core->timestamp,
       "Forums" => $forums,
       "ForumPosts" => $forumPosts,
       "Members" => $members,
-      "Notes" => $notes,
       "Polls" => $polls,
       "Products" => $products,
       "Shops" => $shops,
       "Updates" => $updates
-     ];
-     #$this->core->Data("Save", ["journal", md5($you), $journal]);
+     ]);
+     $this->core->Data("Save", ["journal", md5($you), $journal]);
      $_Dialog = [
-      "Body" => "Your thought has been recorded!",
-      "Header" => "Done",
-      "Scrollable" => json_encode($journal, true)
+      "Body" => "Your thought was recorded!",
+      "Header" => "Done"
      ];
      $_Success = "CloseCard";
     }
@@ -1171,6 +1171,11 @@
      ]
     ]);
     $_Card = [
+     "Action" => $this->core->Element(["button", "Done", [
+      "class" => "CardButton SendData",
+      "data-form" => ".EditThought$id",
+      "data-processor" => base64_encode("v=".base64_encode("Profile:Journal")."&Save=1")
+     ]]),
      "Front" => [
       "ChangeData" => [
        "[Thought.Attachments]" => $this->core->RenderView($attachments),
@@ -1180,6 +1185,29 @@
      ]
     ];
     $_Commands = [
+     [
+      "Name" => "RenderInputs",
+      "Parameters" => [
+       ".ThoughtInformation$id",
+       [
+        [
+         "Attributes" => [
+          "class" => "req",
+          "name" => "Thought",
+          "placeholder" => "What's on your mind?"
+         ],
+         "Options" => [
+          "Container" => 1,
+          "ContainerClass" => "NONAME",
+          "Header" => 1,
+          "HeaderText" => "Thought"
+         ],
+         "Type" => "TextBox",
+         "Value" => ""
+        ]
+       ]
+      ]
+     ]
     ];
    }
    return $this->core->JSONResponse([

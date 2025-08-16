@@ -163,6 +163,7 @@
           ]
          ]), [
           "class" => "FrostedBright OpenCard Rounded",
+          "data-encryption" => "AES",
           "data-view" => $options["View"]
          ]
         ]) : $preview;

@@ -2347,11 +2347,32 @@
     $currentPage = ($offset > $totalPages) ? $totalPages : $currentPage;
     $offset = ($currentPage - 1) * $limit;
     $journal = array_slice($journal, $offset, $limit);
-    for($i = 1; $i <= $totalPages; $i++) {
-     $thought = $journal[$i] ?? [];
+    foreach($journal as $thought) {
+     $articles = $thought["Articles"] ?? [];
+     $attachments = $thought["Attachments"] ?? [];
+     $thoughtID = md5($thought["Created"]);
      array_push($_Commands, [
+      [
+       "Name" => "UpdateContentAES",
+       "Parameters" => [
+        ".Articles$thoughtID",
+        $this->core->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $articles))."&Type=".base64_encode("Article"))
+       ]
+      ],
+      [
+       "Name" => "UpdateContentAES",
+       "Parameters" => [
+        ".Attachments$thoughtID",
+        $this->core->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode(implode(";", $attachments))."&Type=".base64_encode("DLC"))
+       ]
+      ]
      ]);
      array_push($_List, [
+      "[Attached.ID]" => $thoughtID,
+      "[Thought.Body]" => $this->core->PlainText([
+       "Data" => base64_decode($thought["Body"]),
+       "Display" => 1
+      ])
      ]);
     }
    } elseif($searchType == "Links") {
@@ -2443,7 +2464,6 @@
       $illegal = $update["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($check == 1 || ($blocked == 0 && $illegal == 0)) {
-       $attachments = $update["Attachments"] ?? [];
        $op = ($from == $you) ? $y : $this->core->Member($from);
        $cms = $this->core->Data("Get", ["cms", md5($from)]);
        $privacy = $op["Privacy"]["Posts"] ?? md5("Public");
@@ -3697,16 +3717,6 @@
       $illegal = $update["Illegal"] ?? 0;
       $illegal = ($illegal >= $this->illegal) ? 1 : 0;
       if($check == 1 || ($blocked == 0 && $illegal == 0)) {
-       $attachments = "";
-       if(!empty($update["Attachments"])) {
-        $attachments =  $this->view(base64_encode("LiveView:InlineMossaic"), [
-         "Data" => [
-          "ID" => base64_encode(implode(";", $update["Attachments"])),
-          "Type" => base64_encode("DLC")
-         ]
-        ]);
-        $attachments = $this->core->RenderView($attachments);
-       }
        $op = ($from == $you) ? $y : $this->core->Member($from);
        $cms = $this->core->Data("Get", ["cms", md5($from)]);
        $privacy = $op["Privacy"]["Posts"] ?? md5("Public");
