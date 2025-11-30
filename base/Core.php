@@ -506,6 +506,7 @@
        "v" => base64_encode("Album:Purge")
       ], true);
       $title = $data["Title"] ?? "";
+      $view = "v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$additionalContentID&UN=".$contentID;
       $vote = ($contentID != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode("$contentID-$additionalContentID")."&List=".base64_encode("Albums")),
@@ -513,7 +514,8 @@
        "Edit" => $this->AESencrypt("v=".base64_encode("Album:Edit")."&AID=$additionalContentID&UN=".base64_encode($contentID)),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode("Album")."&Username=".base64_encode($contentID)),
        "Upload" => $this->AESencrypt("v=".base64_encode("File:Upload")."&AID=$additionalContentID&UN=$contentID"),
-       "View" => $this->AESencrypt(base64_encode("v=".base64_encode("Album:Home")."&AddTo=$addTo&AID=$additionalContentID&UN=".$contentID)),
+       "View" => $this->AESencrypt(base64_encode($view)),
+       "ViewInCard" => $this->AESencrypt("$view&Card=1"),
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }
@@ -532,6 +534,7 @@
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Blog:Purge")
       ], true);
+      $view = "v=".base64_encode("Blog:Home")."&AddTo=$addTo&CARD=1&ID=$contentID";
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Blogs")),
@@ -542,7 +545,8 @@
        "Post" => $this->AESencrypt("v=".base64_encode("BlogPost:Edit")."&Blog=$contentID&new=1"),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($data["ID"])."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => $this->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Blog"),
-       "View" => $this->AESencrypt("v=".base64_encode("Blog:Home")."&AddTo=$addTo&CARD=1&ID=$contentID"),
+       "View" => $this->AESencrypt($view),
+       "ViewInCard" => $this->AESencrypt($view),
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }
@@ -579,6 +583,7 @@
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => $this->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$additionalContentID&Type=BlogPost"),
        "View" => $this->AESencrypt("v=".base64_encode("BlogPost:Home")."&AddTo=$addTo&Blog=$contentID&Post=$additionalContentID&b2=$backTo&back=1"),
+       "ViewInCard" => $this->AESencrypt("v=".base64_encode("BlogPost:Home")."&AddTo=$addTo&Blog=$contentID&Post=$additionalContentID&Card=1"),
        "Vote" => $this->AESencrypt("v=$vote&ID=$additionalContentID&Type=2")
       ];
      }
@@ -1746,10 +1751,10 @@
      if($content["Empty"] == 0) {
       $options = $content["ListItem"]["Options"] ?? [];
       $link = ($content["Empty"] == 1) ? $preview["Empty"] : $preview["Content"];
-      $link = (!empty($options["View"])) ? $oh->Element(["button", $oh->Element([
+      $link = (!empty($options["ViewInCard"])) ? $oh->Element(["button", $oh->Element([
        "p", $link, ["class" => "InnerMargin"]
       ]).$oh->Element([
-       "p", "View in Full", ["class" => "CenterText"]
+       "p", "View", ["class" => "CenterText"]
       ]), [
        "class" => "FrostedBright OpenCard Rounded",
        "data-encryption" => "AES",

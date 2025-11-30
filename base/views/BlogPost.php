@@ -255,6 +255,7 @@
    ]);
   }
   function Home(array $data): string {
+   $_Card = "";
    $_Commands = "";
    $_Dialog = [
     "Body" => "The requested Blog Post could not be found.",
@@ -262,12 +263,14 @@
    ];
    $_View = "";
    $data = $data["Data"] ?? [];
-   $blog = $data["Blog"] ?? "";
+   $back = $data["back"] ?? 0;
    $backTo = $data["b2"] ?? "Blog";
-   $back = $this->core->Element(["button", "Back to <em>$backTo</em>", [
+   $blog = $data["Blog"] ?? "";
+   $card = $data["Card"] ?? 0;
+   $back = ($back == 1) ? $this->core->Element(["button", "Back to <em>$backTo</em>", [
     "class" => "GoToParent LI head",
     "data-type" => "Blog$blog"
-   ]]);
+   ]]) : "";
    $i = 0;
    $postID = $data["Post"] ?? "";
    $public = $data["pub"] ?? 0;
@@ -423,11 +426,16 @@
        ],
        "ExtensionID" => $extensionID
       ];
+      $_Card = ($card == 1) ? [
+       "Front" => $_View
+      ] : "";
+      $_View = ($card === 0) ? $_View : "";
      }
     }
    }
    return $this->core->JSONResponse([
     "AddTopMargin" => "0",
+    "Card" => $_Card,
     "Commands" => $_Commands,
     "Dialog" => $_Dialog,
     "View" => $_View

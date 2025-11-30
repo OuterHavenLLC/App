@@ -2,6 +2,7 @@
 _ExportDatabases/
 _ExportDatabases/*
 Heath Kit/Data/*
+Portfolio/Hafen/config.json
 .DS_*
 base/Cypher.php
 data/

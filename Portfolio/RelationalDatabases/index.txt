@@ -7,7 +7,7 @@
   <meta name="author" content="[App.Owner]"/>
   <meta name="description" content="[App.Description]"/>
   <meta name="keywords" content="[App.Keywords]"/>
-  <meta property="og:description" content="App.Description]"/>
+  <meta property="og:description" content="[App.Description]"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="[App.Title]"/>
   <meta property="og:url" content="[App.Base]/"/>
