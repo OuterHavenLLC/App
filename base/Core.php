@@ -417,14 +417,14 @@
   }
   function GetAttachmentPreview(array $a) {
    $disableButtons = $a["DisableButtons"] ?? 0;
-   $type = $a["DLL"]["Type"] ?? "";
-   $r = $this->Element(["div", $this->Element([
+   $preview = $this->Element(["div", $this->Element([
     "h4", "No Preview Available"
    ]).$this->Element([
     "p", "It may have been removed or its visibility reduced by the owner."
    ]), [
     "class" => "FrostedBright RoundedLarge"
    ]]);
+   $type = $a["DLL"]["Type"] ?? "";
    $source = $this->efs.$a["T"]."/".$a["DLL"]["Name"];
    $readEFS = curl_init($source);
    curl_setopt($readEFS, CURLOPT_NOBODY, true);
@@ -434,7 +434,7 @@
    if(!empty($a["T"]) && $efsResponse == 200) {
     if($type == "Audio") {
      $cover = $this->efs."A.jpg";
-     $r = $this->Element(["source", NULL, [
+     $preview = $this->Element(["source", NULL, [
       "src" => $s,
       "type" => $a["DLL"]["MIME"]
      ]]);
@@ -443,21 +443,23 @@
     } elseif($type == "Document") {
      $source = $this->efs."D.jpg";
      if($disableButtons == 0) {
-      $r = $this->Element(["h3", $a["DLL"]["Title"], [
+      $preview = $this->Element(["h3", $a["DLL"]["Title"], [
        "class" => "CenterText CoverPhotoCard PreviewDocument",
        "style" => "background:url('$source') no-repeat center center;background-size:cover"
       ]]);
      }
     } elseif($type == "Photo") {
-     $r = "<img src=\"$source\" style=\"width:100%\"/>\r\n";
+     $preview = "<img src=\"$source\" style=\"width:100%\"/>\r\n";
     } elseif($type == "Video") {
-     $r = $this->Element(["video", $this->Element(["source", NULL, [
-      "src" => $source,
-      "type" => $a["DLL"]["MIME"]
-     ]])]);
+     $preview = $this->Element([
+      "video", $this->Element(["source", NULL, [
+       "src" => $source,
+       "type" => $a["DLL"]["MIME"]
+      ]])
+     ]);
     }
    }
-   return $r;
+   return $preview;
   }
   function GetContentData(array $content) {
    $addTo = $content["AddTo"] ?? "";
@@ -620,7 +622,8 @@
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Chat:Edit")."&ID=".base64_encode($contentID)."&Username=".base64_encode($data["UN"])),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => $this->AESencrypt($view)
+       "View" => $this->AESencrypt($view),
+       "ViewInCard" => $this->AESencrypt($view)
       ];
      }
     } elseif($type == "Extension") {
@@ -670,6 +673,7 @@
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($additionalContentID)."&Type=".base64_encode($type)."&Username=".base64_encode($contentID)),
        "Source" => $this->GetSourceFromExtension([$contentID, $data]),
        "View" => "$parentView;".base64_encode("v=".base64_encode("File:Home")."&AddTo=$addTo&ID=$additionalContentID&UN=$contentID&ParentView=$parentView&ViewData=$viewData"),
+       "ViewInCard" => $this->AESencrypt("v=".base64_encode("File:Home")."&AddTo=$addTo&ID=$additionalContentID&UN=$contentID&ViewData=$viewData"),
        "Vote" => $this->AESencrypt("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
@@ -690,6 +694,7 @@
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Forum:Purge")
       ], true);
+      $view = $this->AESencrypt("v=".base64_encode("Forum:Home")."&AddTo=$addTo&CARD=1&ID=".base64_encode($contentID));
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Forums")),
@@ -698,7 +703,8 @@
        "Invite" => $this->AESencrypt("v=".base64_encode("Forum:Invite")."&ID=".base64_encode($contentID)),
        "Post" => $this->AESencrypt("v=".base64_encode("ForumPost:Edit")."&FID=$contentID&new=1"),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => $this->AESencrypt("v=".base64_encode("Forum:Home")."&AddTo=$addTo&CARD=1&ID=".base64_encode($contentID)),
+       "View" => $view,
+       "ViewInCard" => $view,
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
@@ -724,6 +730,7 @@
        "PostID" => base64_encode($additionalContentID),
        "v" => base64_encode("ForumPost:Purge")
       ], true);
+      $view = $this->AESencrypt("v=".base64_encode("ForumPost:Home")."&AddTo=$addTo&FID=$contentID&ID=$additionalContentID");
       $vote = ($data["From"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($additionalContentID)."&List=".base64_encode("Forum Posts")),
@@ -732,7 +739,8 @@
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("post")),
        "Report" => $this->AESencrypt("v=".base64_encode("Congress:Report")."&ID=".base64_encode("ForumPost;$contentID;$additionalContentID")),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode("$contentID-$additionalContentID")."&Type=".base64_encode($type)."&Username=".base64_encode($data["From"])),
-       "View" => $this->AESencrypt("v=".base64_encode("ForumPost:Home")."&AddTo=$addTo&FID=$contentID&ID=$additionalContentID"),
+       "View" => $view,
+       "ViewInCard" => $view,
        "Vote" => $this->AESencrypt("v=$vote&ID=$additionalContentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
@@ -753,6 +761,7 @@
       $description = ($them != $you) ? "$displayName has not added a Description." : $description;
       $description = (!empty($data["Personal"]["Description"])) ? $data["Personal"]["Description"] : $description;
       $title = ($them == $this->ID) ? "Anonymous" : $displayName;
+      $view = $this->AESencrypt("v=".base64_encode("Profile:Home")."&AddTo=$addTo&Card=1&UN=".base64_encode($them));
       $vote = ($them  != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Members")),
@@ -762,7 +771,8 @@
        "ProfilePicture" => $this->ProfilePicture($data, "margin:5%;width:90%"),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($them)."&Type=".base64_encode($type)."&Username=".base64_encode($them)),
        "ShareLink" => $this->base."/@$them",
-       "View" => $this->AESencrypt("v=".base64_encode("Profile:Home")."&AddTo=$addTo&Card=1&UN=".base64_encode($them)),
+       "View" => $view,
+       "ViewInCard" => $view,
        "Vote" => $this->AESencrypt("v=$vote&ID=".md5($them)."&Type=4")
       ];
      }
@@ -799,6 +809,7 @@
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
        "Subscribe" => $this->AESencrypt("v=".base64_encode("WebUI:SubscribeSection")."&ID=$contentID&Type=Article"),
        "View" => $this->AESencrypt("v=".base64_encode("Page:Home")."&AddTo=$addTo&BackTo=$backTo&ID=$contentID&ParentPage=$parentView"),
+       "ViewInCard" => $this->AESencrypt("v=".base64_encode("Page:Home")."CARD=1&ID=$contentID"),
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=2")
       ];
      }
@@ -811,6 +822,7 @@
       $body = $data["Body"] ?? "";
       $description = $data["Description"] ?? "";
       $title = $data["Title"] ?? "";
+      $view = $this->AESencrypt("v=".base64_encode("Poll:Home")."&AddTo=$addTo&ID=$contentID");
       $viewData = json_encode([
        "AddTo" => $addTo,
        "SecureKey" => base64_encode($y["Login"]["PIN"]),
@@ -821,7 +833,8 @@
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Polls")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($data["UN"])),
-       "View" => $this->AESencrypt("v=".base64_encode("Poll:Home")."&AddTo=$addTo&ID=$contentID")
+       "View" => $view,
+       "ViewInCard" => $view
       ];
      }
     } elseif($type == "Product") {
@@ -846,13 +859,15 @@
        "ID" => base64_encode($contentID),
        "v" => base64_encode("Product:Purge")
       ], true);
+      $view = $this->AESencrypt("v=".base64_encode("Product:Home")."&AddTo=$addTo&CARD=1&ID=$contentID&UN=".base64_encode($data["UN"]));
       $vote = ($data["UN"] != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Products")),
        "Delete" => $this->AESencrypt("v=".base64_encode("Authentication:ProtectedContent")."&Dialog=1&ViewData=".base64_encode($viewData)),
        "Edit" => $this->AESencrypt("v=".base64_encode("Product:Edit")."&ParentView=Product$contentID&Editor=".$data["Category"]."&ID=$contentID&Shop=".md5($data["UN"])),
        "Share" => base64_encode("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".$data["UN"]),
-       "View" => $this->AESencrypt("v=".base64_encode("Product:Home")."&AddTo=$addTo&CARD=1&ID=$contentID&UN=".base64_encode($data["UN"])),
+       "View" => $view,
+       "ViewInCard" => $view,
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }
@@ -867,6 +882,7 @@
       $attachments = $this->AESencrypt("v=".base64_encode("LiveView:InlineMossaic")."&ID=".base64_encode($attachments)."&Type=".base64_encode("CoverPhoto"));
       $coverPhoto = $data["CoverPhoto"] ?? $coverPhoto;
       $description = $data["Description"] ?? "";
+      $view = $this->AESencrypt("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($owner["Login"]["Username"]));
       $vote = (md5($you) != $contentID) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Shops")),
@@ -876,7 +892,8 @@
        "Revenue" => $this->AESencrypt("v=".base64_encode("Revenue:Home")."&Shop=".base64_encode($owner["Login"]["Username"])),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($owner["Login"]["Username"])),
        "ShareLink" => $this->base."/shop/".$owner["Login"]["Username"],
-       "View" => $this->AESencrypt("v=".base64_encode("Shop:Home")."&AddTo=$addTo&CARD=1&UN=".base64_encode($owner["Login"]["Username"])),
+       "View" => $view,
+       "ViewInCard" => $view,
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
       $title = $data["Title"] ?? "";
@@ -904,6 +921,7 @@
        "ID" => base64_encode($contentID),
        "v" => base64_encode("StatusUpdate:Purge")
       ], true);
+      $view = $this->AESencrypt("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID");
       $vote = ($from != $you) ? base64_encode("Vote:Containers") : base64_encode("Vote:ViewCount");
       $options = [
        "Block" => $this->AESencrypt("v=".base64_encode("WebUI:Block")."&ID=".base64_encode($contentID)."&List=".base64_encode("Status Updates")),
@@ -912,7 +930,8 @@
        "Notes" => $this->AESencrypt("v=".base64_encode("Congress:Notes")."&ID=".base64_encode($contentID)."&dbID=".base64_encode("su")),
        "Share" => $this->AESencrypt("v=".base64_encode("Share:Home")."&ID=".base64_encode($contentID)."&Type=".base64_encode($type)."&Username=".base64_encode($from)),
        "ShareLink" => $this->base."/@$from/status/$contentID",
-       "View" => $this->AESencrypt("v=".base64_encode("StatusUpdate:Home")."&AddTo=$addTo&SU=$contentID"),
+       "View" => $view,
+       "ViewInCard" => $view,
        "Vote" => $this->AESencrypt("v=$vote&ID=$contentID&Type=4")
       ];
      }

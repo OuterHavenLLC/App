@@ -158,13 +158,13 @@
            "class" => "NONAME"
           ]
          ]).$this->core->Element([
-          "p", "View in Full", [
+          "p", "View", [
            "class" => "CenterText"
           ]
          ]), [
           "class" => "FrostedBright OpenCard Rounded",
           "data-encryption" => "AES",
-          "data-view" => $options["View"]
+          "data-view" => $options["ViewInCard"]
          ]
         ]) : $preview;
        }

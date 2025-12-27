@@ -816,7 +816,7 @@
       $openInvoices++;
      }
     } if($hire == 1 && $shop["Open"] == "Yes") {
-     $_View = ($enableHireSection == 1 && $openInvoices < $limit) ? [
+     $_View = ($enableHireSection == "Yes" && $openInvoices < $limit) ? [
       "ChangeData" => [
        "[Hire.Text]" => $hireText,
        "[Hire.View]" => $this->core->AESencrypt("v=".base64_encode("Invoice:Hire")."&Card=1&CreateJob=1&ID=$id")
